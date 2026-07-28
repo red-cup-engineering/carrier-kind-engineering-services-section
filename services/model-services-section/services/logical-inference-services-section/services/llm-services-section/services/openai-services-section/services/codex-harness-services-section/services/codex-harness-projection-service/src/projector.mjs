@@ -33,7 +33,7 @@ function repositoryRoot(path) {
 }
 function skillSource(root, skill) {
   const sources = {
-    "codex-harness-services-section": join(root, "lib/emsenn/services/561-group/services/red-cup-engineering/services/model-services-section/services/llm-services-section/services/openai-services-section/services/codex-harness-services-section/skills", skill.name),
+    "codex-harness-services-section": join(root, "lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/model-services-section/services/llm-services-section/services/openai-services-section/services/codex-harness-services-section/skills", skill.name),
     "board-of-directors": join(root, "lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/searching-union-notebook-service/skills", skill.name),
   };
   const source = sources[skill.owner];

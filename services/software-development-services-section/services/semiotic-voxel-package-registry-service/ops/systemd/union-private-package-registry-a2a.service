@@ -5,7 +5,7 @@ Requires=union-private-package-registry-tailnet.service
 
 [Service]
 Type=simple
-WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-development-services-section/services/semiotic-voxel-package-registry-service
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/semiotic-voxel-package-registry-service
 Environment=HOST=100.125.205.105
 Environment=PORT=4875
 Environment=BASE_URL=http://bare-cedar-fog.tail61b391.ts.net:4875

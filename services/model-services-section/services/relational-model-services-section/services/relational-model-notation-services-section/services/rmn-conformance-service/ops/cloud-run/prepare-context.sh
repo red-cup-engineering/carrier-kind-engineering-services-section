@@ -51,7 +51,7 @@ copy_path "$rmn/types"
 copy_path "$rmn/content/agent-cards/rmn-semantic-conformance.json"
 copy_path "$rmn/content/agent-card-signing/jwks.json"
 
-a2a=$base/red-cup-engineering/services/web-services-section/services/a2a-services-section/services
+a2a=$base/red-cup-engineering/services/software-services-section/web-services-section/services/a2a-services-section/services
 copy_path "$a2a/a2a-agent-card-discovery-service/package.json"
 copy_path "$a2a/a2a-agent-card-discovery-service/src"
 copy_path "$a2a/a2a-agent-card-key-service/package.json"

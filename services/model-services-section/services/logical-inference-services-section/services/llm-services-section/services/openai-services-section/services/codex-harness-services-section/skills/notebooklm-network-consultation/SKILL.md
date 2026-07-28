@@ -8,7 +8,7 @@ description: Create a disposable, source-grounded NotebookLM data-science consul
 Use the bundled command, not the fixed-corpus advisory adapter. It creates an ephemeral notebook from the matching repository files, buys one bounded data product, preserves its exchange receipt, and relies on the provider's exact-notebook cleanup receipt.
 
 ```sh
-/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/model-services-section/services/llm-services-section/services/openai-services-section/services/codex-harness-services-section/skills/notebooklm-network-consultation/scripts/consult-network-notebooklm.sh \
+/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/model-services-section/services/llm-services-section/services/openai-services-section/services/codex-harness-services-section/skills/notebooklm-network-consultation/scripts/consult-network-notebooklm.sh \
   "matching string" "Extract one row per asserted actor, with columns for actor, public face, claimed effect, evidence path, and uncertainty." --limit 300
 ```
 

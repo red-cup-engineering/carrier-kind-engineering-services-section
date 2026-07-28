@@ -9,7 +9,7 @@ Before spending model context rediscovering a repeated issue, run the local
 retriever with a short, concrete query made from the current demand:
 
 ```bash
-node /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/model-services-section/services/logical-inference-services-section/services/notebooklm-inference-team/src/codex-session-context.mjs \
+node /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/model-services-section/services/logical-inference-services-section/services/notebooklm-inference-team/src/codex-session-context.mjs \
   --query "<current problem in 3-12 words>" \
   --max-bytes 18432
 ```
@@ -28,7 +28,7 @@ At the end of substantial work, write one bounded handoff instead of making
 the next session reconstruct the work from a long transcript:
 
 ```bash
-node /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/model-services-section/services/logical-inference-services-section/services/notebooklm-inference-team/src/codex-session-handoff.mjs \
+node /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/model-services-section/services/logical-inference-services-section/services/notebooklm-inference-team/src/codex-session-handoff.mjs \
   --demand "<demand>" --corrections "<binding corrections>" \
   --changed "<comma-separated paths>" --verification "<fresh result>" \
   --next "<one exact next action>"

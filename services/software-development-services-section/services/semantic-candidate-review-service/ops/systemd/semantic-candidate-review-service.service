@@ -5,7 +5,7 @@ Wants=network-online.target rwil-rdf-projection-service.service inference-work-l
 
 [Service]
 Type=simple
-WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-development-services-section/services/semantic-candidate-review-service
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/semantic-candidate-review-service
 Environment=HOST=127.0.0.1
 Environment=PORT=19840
 Environment=BASE_URL=http://127.0.0.1:19840
