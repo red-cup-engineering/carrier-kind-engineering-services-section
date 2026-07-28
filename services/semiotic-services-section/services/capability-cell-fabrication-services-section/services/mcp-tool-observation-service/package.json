@@ -1,0 +1,50 @@
+{
+  "name": "@red-cup-engineering/mcp-tool-observation-service",
+  "version": "0.1.0",
+  "description": "Observe and optionally invoke one named tool through an MCP Streamable HTTP boundary.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/observe-mcp-tool.mjs"
+  },
+  "files": [
+    "content/",
+    "src/",
+    "test/",
+    "types/"
+  ],
+  "scripts": {
+    "check": "node --check src/observe-mcp-tool.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "dependencies": {
+    "@red-cup-engineering/public-https-url-admission-service": "0.1.0",
+    "@red-cup-engineering/semantic-content-identify-service": "0.1.7"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/red-cup-engineering/mcp-tool-observation-service.git"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:mcp-tool-observation-service",
+    "operations": [
+      "mcp-tool-observation-service"
+    ],
+    "capabilities": [
+      {
+        "capability": "mcp-tool-observation-service",
+        "faces": [
+          "mcp-tool-observation-service"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/mcp-tool-observation-service"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "kind": "metroplat.contract",
+  "id": "tti-discord-publication",
+  "service": "publish one complete State of the Harmonious Union report",
+  "precondition": "exact TTI guild/channel/idempotency grant, concise source-grounded narrative, digest-bound MP3/PNG/SVG, and one unconsumed idempotency key",
+  "move": "one atomic multipart Discord message request",
+  "postcondition": "receipt naming guild, channel, message, time, attachment digests, idempotency key and cost; or typed refusal disclosing attempted and unknown effects",
+  "invariants": ["one-message", "three-required-attachments", "no-credential-record", "no-duplicate-after-success", "baseline-does-not-advance-on-refusal-or-partial"]
+}

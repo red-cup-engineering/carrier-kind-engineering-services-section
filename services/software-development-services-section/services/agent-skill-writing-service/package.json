@@ -1,0 +1,66 @@
+{
+  "name": "@red-cup-engineering/agent-skill-writing-service",
+  "version": "0.1.0",
+  "description": "Writes one Agent Skills SKILL.md through the Markdown file writing service.",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/write-agent-skill.mjs"
+    }
+  },
+  "bin": {
+    "write-agent-skill": "./bin/write-agent-skill.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm test && npm pack --dry-run"
+  },
+  "files": [
+    "bin/",
+    "content/",
+    "src/",
+    "types/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "agent-skill-writing-service",
+    "actor": "urn:ame:agent-skill-writing-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "operation-catalog": {
+      "write-agent-skill": {
+        "accepts": "a skill root, directory name, Agent Skills name and description, body, and explicit write mode",
+        "returns": "a Markdown write receipt for one conforming SKILL.md"
+      }
+    }
+  },
+  "dependencies": {
+    "@red-cup-engineering/markdown-file-writing-service": "0.1.0"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:agent-skill-writing-service",
+    "operations": [
+      "write-agent-skill"
+    ],
+    "capabilities": [
+      {
+        "capability": "agent-skill-writing-service",
+        "faces": [
+          "write-agent-skill"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/agent-skill-writing-service"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "name": "@red-cup-engineering/infomaterial-cut-graph-service",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic leaf-first cut-order derivation from independently assayed recursive circuit and material-layout evidence.",
+  "exports": {
+    ".": "./src/cut-graph.mjs",
+    "./client": "./src/client.mjs"
+  },
+  "bin": {
+    "serve-infomaterial-cut-graph-a2a": "./bin/server.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/cut-graph.mjs && node --check src/client.mjs && node --check src/law.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/infomaterial-layout-service": "5.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "infomaterial-cut-graph-service",
+    "actor": "urn:ame:infomaterial-cut-graph-service",
+    "organizational-kind": "micro-enterprise",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one M1 v2 circuit family, one exact sovereign assembly, one recursive cover, and mechanically refinement-gated carrier placement accepted by the hired layout provider",
+    "refusal": "self-attestation, identity drift, function labels, absent refinement receipts, containment cycles, missing carriers, inferred boundaries, retained carrier bytes, customer-material reads or writes, cut execution, legacy topology envelopes, or fallback paths",
+    "operation-catalog": {
+      "serve-infomaterial-cut-graph-a2a": {
+        "contract": "ni:///sha-256;BZN8qzQ-o--7d4pTBdvl4FmwO_e0FlZTUdQCQ5W85h0",
+        "protocol": "A2A 1.0",
+        "accepts": "application/rmn+cbor InfomaterialCutGraphRequest",
+        "returns": "application/rmn+cbor InfomaterialCutGraphReceipt|standard A2A refusal",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:infomaterial-cut-graph-service",
+    "operations": [
+      "serve-infomaterial-cut-graph-a2a"
+    ],
+    "capabilities": [
+      {
+        "capability": "infomaterial-cut-graph-service",
+        "faces": [
+          "serve-infomaterial-cut-graph-a2a"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/infomaterial-cut-graph-service"
+  }
+}

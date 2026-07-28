@@ -1,0 +1,35 @@
+{
+  "kind": "metroplat.contract",
+  "id": "platform-node-induction-service",
+  "commission": "PNI-001",
+  "purpose": "proposal-only platform-node readiness assay",
+  "operations": ["solicit-service", "invoke-service", "accept-result"],
+  "precondition": "An exact root-owned solicitation names the admitted platform-node territory, one configured offering, finite ceilings, and no foreign-write authority.",
+  "move": "Issue an immutable digest-bound offer; accept it only with an exact expiring single-use capability and attributable provider formation receipt; return fixture evidence or a typed causal refusal.",
+  "postcondition": "The provider returns a readiness proposal or typed refusal with provider-local evidence and no customer mutation.",
+  "futureFullHandoverObligation": "A later production contract must prove the induced settlement operates, refuses, transacts, attests, amends, improves, and rolls back with root and the Leader absent; this test fixture is not that independent outcome.",
+  "typedRefusals": [
+    "malformed-territory",
+    "unsupported-offering",
+    "production-activation-impossible",
+    "over-ceiling-demand",
+    "foreign-write-authority-refused",
+    "offer-terms-changed",
+    "capability-invalid-or-expired",
+    "capability-replay",
+    "provider-formation-receipt-missing-or-invalid",
+    "customer-decision-invalid"
+  ],
+  "evidenceLimits": {
+    "customerMutation": false,
+    "foreignMutation": false,
+    "installation": false,
+    "externalContact": false,
+    "externalSpend": 0,
+    "network": false,
+    "credentials": false,
+    "publication": false,
+    "independentCertification": false,
+    "customerUsefulnessDecision": "reserved-to-platform-node-inducer"
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "from": "public-package",
+    "to": "npm-registry-package-observation",
+    "unresolvedTo": "historical-public-package-law-unresolved",
+    "when": {
+      "observationUrlPrefix": "https://registry.npmjs.org/"
+    }
+  },
+  {
+    "from": "public-package",
+    "to": "runnable-package-assay",
+    "unresolvedTo": "historical-public-package-law-unresolved",
+    "when": {
+      "requiredObservationFields": [
+        "package",
+        "version",
+        "entrypoints",
+        "missing"
+      ]
+    }
+  }
+]

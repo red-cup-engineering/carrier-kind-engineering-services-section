@@ -1,0 +1,11 @@
+{
+  "type": "EnterpriseOwnership",
+  "node": "state-report-infographic-service",
+  "owner": "software-development-services-section",
+  "purpose": "operate an admitted deterministic state-report infographic implementation",
+  "boundary": [
+    "this child alone records its offers, invocations, refusals, and customer decisions",
+    "the parent implementation is imported only at the exact admitted digest",
+    "customers retain packet claims, usefulness decisions, installation, deployment, schedule, and publication authority"
+  ]
+}

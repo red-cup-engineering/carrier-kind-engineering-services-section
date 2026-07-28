@@ -1,0 +1,50 @@
+{
+  "name": "@red-cup-engineering/semiotic-voxel-package-normalization-service",
+  "version": "2.0.0",
+  "description": "Converts the active JavaScript package body into explicitly owned semiotic-voxel carriers without workspace or local-path authority.",
+  "type": "module",
+  "license": "MIT",
+  "exports": "./src/normalize-package-body.mjs",
+  "bin": {
+    "normalize-semiotic-voxel-packages": "./bin/normalize-semiotic-voxel-packages.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "node --check src/normalize-package-body.mjs && node --check bin/normalize-semiotic-voxel-packages.mjs && node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:semiotic-voxel-package-normalization-service",
+    "operations": [
+      "normalize-semiotic-voxel-packages"
+    ],
+    "capabilities": [
+      {
+        "capability": "semiotic-voxel-package-normalization-service",
+        "faces": [
+          "normalize-semiotic-voxel-packages"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/semiotic-voxel-package-normalization-service"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "semiotic-voxel-package-normalization-service",
+    "actor": "urn:ame:semiotic-voxel-package-normalization-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "operation-catalog": {
+      "normalize-semiotic-voxel-packages": {
+        "accepts": "one repository root containing independently owned package carriers",
+        "returns": "one collision-free ownership and identity rewrite receipt"
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "state-report-infographic-service",
+    "urn": "urn:ame:state-report-infographic-service",
+    "enterpriseId": "0x1bac1da7e6a7e1993b6687046b6fec15a0cc8b582e462ccc3bc791ffc1165d71"
+  },
+  "chain": {
+    "chainId": 31337,
+    "caip2": "eip155:31337"
+  },
+  "account": {
+    "address": "0x7827eec6118224218d2e97e3162d1544ceaedba0",
+    "caip10": "eip155:31337:0x7827eec6118224218d2e97e3162d1544ceaedba0"
+  },
+  "factory": {
+    "address": "0x7bf3cf1176c4a037d3ea2a5ff3d480359ac65ecd",
+    "userSalt": "0xeba4b9652a949dfdd0d438380400d1e0cddb1a9643d6587a2b41a91a78e17a24"
+  },
+  "policy": {
+    "signer": "0xcb7e6112571de7435c77ba6b21c0200fa7bdc2f3",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0x0488d47df979141b568ea0807ab07f99285faf4fda81a696ba9bc34e14f78c7c",
+    "block": 1402
+  }
+}

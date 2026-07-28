@@ -1,0 +1,82 @@
+{
+  "name": "@red-cup-engineering/topical-knowledge-cell-enterprise",
+  "version": "0.1.0",
+  "description": "Generic sovereign enterprise carrier for owner-admitted topical knowledge cells that hire independent storage, discovery, report, market, identity, and witness services.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "files": [
+    "bin",
+    "content",
+    "lib",
+    "ops",
+    "src"
+  ],
+  "exports": {
+    ".": "./lib/cell.mjs",
+    "./law": "./lib/law.mjs",
+    "./protocol": "./src/protocol.mjs"
+  },
+  "bin": {
+    "serve-topical-knowledge-cell-enterprise-a2a": "./bin/server.mjs"
+  },
+  "scripts": {
+    "check": "node --check lib/law.mjs && node --check lib/cell.mjs && node --check src/protocol.mjs && node --check src/runtime.mjs && node --check src/owned-runtime.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test",
+    "pack:check": "npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-sovereign-operation-boundary-service": "1.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "topical-knowledge-cell-enterprise",
+    "actor": "urn:ame:topical-knowledge-cell-enterprise-carrier",
+    "organizational-kind": "generic-sovereign-topical-cell-carrier",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one owner-authored cell definition, exact projection and custody receipts, exact hired-provider bindings, and a one-use request-body-bound capability",
+    "refusal": "foreign ownership, topic-specific carrier logic, imported supplier interior, authoritative aggregate view, disclosure mismatch, forged receipt, provider-role collision, widened authority, or replay collision",
+    "operation-catalog": {
+      "admit-topical-knowledge-cell-instance": {
+        "contract": "ni:///sha-256;7hgkT2yNcuqGH_ebju2aqCN9-QdP5lCLJJ4jC_MjJQs",
+        "lawSource": "content/contracts/admit-topical-knowledge-cell-instance.rml",
+        "protocol": "A2A 1.0 via separately hired provider",
+        "input": "application/rmn+cbor",
+        "output": "application/rmn+cbor"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:topical-knowledge-cell-enterprise-carrier",
+    "operations": [
+      "admit-topical-knowledge-cell-instance"
+    ],
+    "capabilities": [
+      {
+        "capability": "topical-knowledge-cell-enterprise",
+        "faces": [
+          "admit-topical-knowledge-cell-instance"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/topical-knowledge-cell-enterprise"
+  }
+}

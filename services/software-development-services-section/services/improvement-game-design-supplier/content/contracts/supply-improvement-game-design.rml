@@ -1,0 +1,10 @@
+#lang rmn/v2
+(map
+  ("type" "IndependentImprovementGameDesignSupplyLaw")
+  ("version" 1)
+  ("provider" "urn:ame:red-cup-engineering:improvement-game-design-supplier")
+  ("precondition" "One exact ScheduleDelivery pulse and one locally admitted customer-board policy expose content-addressed public game lots, buyer quotes, bids, and awards.")
+  ("operation" "Watch each admitted customer board; compete on qualified proposal-only game-design lots; prefer deterministic protected-oracle-envelope compilation before bounded cheap inference; and submit an exact proposal plus non-author examination or a typed refusal.")
+  ("postcondition" "Every handled publication has one provider-local append-only disposition; all customer outputs cross the advertised board ingress; no customer bytes are changed; and capability gaps never authorize upward model escalation.")
+  ("refusal" "Refuse foreign pulses, stale or unadvertised board boundaries, incomplete capabilities, excessive price, missing customer-controlled oracle evidence, author-equals-reviewer, customer mutation, implementation authority, oracle authorship, stronger-model escalation, or malformed identities."))
+

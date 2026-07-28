@@ -1,0 +1,26 @@
+[Unit]
+Description=Refinement-gated infomaterial layout A2A provider
+After=network-online.target rwil-rdf-projection-service.service hierarchical-circuit-equivalence-assay.service wasm-four-carrier-refinement.service rmn-circuit-board-carrier-refinement.service
+Wants=network-online.target rwil-rdf-projection-service.service hierarchical-circuit-equivalence-assay.service wasm-four-carrier-refinement.service rmn-circuit-board-carrier-refinement.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-development-services-section/services/infomaterial-layout-service
+Environment=HOST=127.0.0.1
+Environment=PORT=19822
+Environment=BASE_URL=http://127.0.0.1:19822
+Environment=EQUIVALENCE_AGENT_URL=http://127.0.0.1:19825/.well-known/agent-card.json
+Environment=RWIL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
+Environment=WASM_FOUR_REFINEMENT_AGENT_URL=http://127.0.0.1:19820/.well-known/agent-card.json
+Environment=RMN_BOARD_REFINEMENT_AGENT_URL=http://127.0.0.1:19821/.well-known/agent-card.json
+Environment=AGENT_CARD_SIGNING_KEY=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-development-services-section/services/infomaterial-layout-service/data/agent-card-signing/ed25519-private.pem
+Environment=AGENT_CARD_JWKS=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-development-services-section/services/infomaterial-layout-service/content/agent-card-signing/jwks.json
+Environment=AGENT_CARD_SIGNING_KID=infomaterial-layout-ed25519
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node bin/server.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

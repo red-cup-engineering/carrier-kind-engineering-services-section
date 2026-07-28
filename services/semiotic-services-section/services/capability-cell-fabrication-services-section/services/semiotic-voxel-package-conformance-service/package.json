@@ -1,0 +1,50 @@
+{
+  "name": "@red-cup-engineering/semiotic-voxel-package-conformance-service",
+  "version": "1.0.0",
+  "description": "Refuses package bodies that restore workspace authority, local dependency protocols, ownerless identities, or undeclared semiotic voxels.",
+  "type": "module",
+  "license": "MIT",
+  "exports": "./src/assay-semiotic-voxel-package-body.mjs",
+  "bin": {
+    "assay-semiotic-voxel-package-body": "./bin/assay-semiotic-voxel-package-body.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "node --check src/assay-semiotic-voxel-package-body.mjs && node --check bin/assay-semiotic-voxel-package-body.mjs && node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:semiotic-voxel-package-conformance-service",
+    "operations": [
+      "assay-semiotic-voxel-package-body"
+    ],
+    "capabilities": [
+      {
+        "capability": "semiotic-voxel-package-conformance-service",
+        "faces": [
+          "assay-semiotic-voxel-package-body"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/semiotic-voxel-package-conformance-service"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "semiotic-voxel-package-conformance-service",
+    "actor": "urn:ame:semiotic-voxel-package-conformance-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "operation-catalog": {
+      "assay-semiotic-voxel-package-body": {
+        "accepts": "one repository territory",
+        "returns": "one package-body conformance receipt or a typed refusal"
+      }
+    }
+  }
+}

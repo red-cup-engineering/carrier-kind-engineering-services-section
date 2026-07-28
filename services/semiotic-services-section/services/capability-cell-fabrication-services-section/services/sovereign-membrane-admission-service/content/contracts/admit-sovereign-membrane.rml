@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("type" "SovereignMembraneAdmissionLaw")
+  ("version" 1)
+  ("precondition" "Receive one exact settlement path already declaring x-agentic-metro-enterprise.node-id in its own package.json, one stable URN, and independently reachable RPC, bundler, paymaster, and credential-root addresses for the smart-account-provisioning provider.")
+  ("operation" "Bind the smart-account-provisioning capability at arm's length through its own independently addressed provider CapCell rather than reimplementing chain custody or deployment in-process; separately generate one Ed25519 agent-card-signing keypair as inert local material; compose the resulting chain account and signing key into one signed A2A Agent Card naming the settlement's sovereign circuit interface.")
+  ("postcondition" "Return the provisioned CAIP-10 account, the Agent Card, and the jwks material actually written, or a named typed refusal. Never claim a membrane exists without the provider's own EnterpriseAccountProvisioned receipt, and never persist a private key outside the settlement's own data/ append-only custody paths.")
+  ("refusal" "Refuse a settlement missing node-id, an already-bound account without an explicit replace mode, an unreachable provider face, or any attempt to mint chain custody in-process instead of through the independently bound provider."))

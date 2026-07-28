@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "software-trajectory-memory-service",
+    "urn": "urn:ame:software-trajectory-memory-service",
+    "enterpriseId": "0xdca7848c8384520dab02ee6b6b41a3804eb10fab54c2cfca046a77e9da3e6a83"
+  },
+  "chain": {
+    "chainId": 5615610,
+    "caip2": "eip155:5615610"
+  },
+  "account": {
+    "address": "0x4c684d1d810702fd3488caa60035b9e8e98bf199",
+    "caip10": "eip155:5615610:0x4c684d1d810702fd3488caa60035b9e8e98bf199"
+  },
+  "factory": {
+    "address": "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512",
+    "userSalt": "0xcfdfce164e3b4c6323cd8cea442e6a54773b01af106124665c3b27864108f159"
+  },
+  "policy": {
+    "signer": "0x7c6d07d48daed3ca5feb9b2755c533483516da27",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0xb12749db3e3c01f769365cfdaf9917c10354502c04f268296926c3bfa9148a6f",
+    "block": 154
+  }
+}

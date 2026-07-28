@@ -1,0 +1,7 @@
+(map
+  ("type" "MaterializeNodeRuntimeReleaseLaw")
+  ("version" 2)
+  ("precondition" "Receive one independently owned exact-version entry package, one explicit map of exact-version provider identities to admitted source carriers, and one output territory.")
+  ("operation" "Refuse workspace and local dependency protocols; verify every requested provider identity and exact version; copy only declared runtime carriers; and identify the closed release by the SHA-256 digest of its bytes.")
+  ("postcondition" "Return one immutable release receipt naming the entry carrier, every included provider identity and version, the artifact digest, byte count, file count, and release directory.")
+  ("refusal" "Refuse ambient package discovery, missing providers, identity mismatch, version mismatch, non-exact dependency versions, path escape, or mutation."))

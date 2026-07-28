@@ -1,0 +1,60 @@
+{
+  "name": "@red-cup-engineering/sovereign-membrane-admission-service",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Admits a sovereign membrane for a die already present on disk: binds smart-account-provisioning through its own independently addressed provider CapCell, generates the die's Ed25519 agent-card-signing material, and composes its Agent Card. Never mints chain custody in-process.",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/admit-sovereign-membrane.mjs"
+    }
+  },
+  "bin": {
+    "admit-sovereign-membrane": "./bin/admit-sovereign-membrane.mjs"
+  },
+  "files": [
+    "bin/",
+    "content/",
+    "src/",
+    "types/"
+  ],
+  "scripts": {
+    "check": "node --check src/admit-sovereign-membrane.mjs && node --check bin/admit-sovereign-membrane.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "dependencies": {
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/sovereign-membrane-admission-service.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:sovereign-membrane-admission-service",
+    "operations": [
+      "sovereign-membrane-admission-service"
+    ],
+    "capabilities": [
+      {
+        "capability": "sovereign-membrane-admission-service",
+        "faces": [
+          "sovereign-membrane-admission-service"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/sovereign-membrane-admission-service"
+  }
+}

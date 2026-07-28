@@ -1,0 +1,10 @@
+{
+  "enterprise": "rmn-semantic-conformance",
+  "offices": [
+    {
+      "id": "rmn-profile-steward",
+      "record": "content/offices/rmn-profile-steward.json"
+    }
+  ]
+}
+

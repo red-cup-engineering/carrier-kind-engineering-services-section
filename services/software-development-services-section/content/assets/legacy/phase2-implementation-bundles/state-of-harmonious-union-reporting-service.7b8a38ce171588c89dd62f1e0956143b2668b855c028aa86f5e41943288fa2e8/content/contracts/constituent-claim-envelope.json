@@ -1,0 +1,7 @@
+{
+  "kind": "metroplat.contract",
+  "id": "constituent-claim-envelope",
+  "service": "receive one admitted settlement's bounded state, economic claims, refusal, and provenance",
+  "boundary": "ActivityStreams Accept<ConstituentStateEnvelope> or Reject<ConstituentStateRefusal>",
+  "invariants": ["provider-and-settlement-match-subscription", "constituent-local-claims-only", "refusal-remains-visible", "absence-is-not-retraction", "original-economic-unit-period-basis-preserved"]
+}

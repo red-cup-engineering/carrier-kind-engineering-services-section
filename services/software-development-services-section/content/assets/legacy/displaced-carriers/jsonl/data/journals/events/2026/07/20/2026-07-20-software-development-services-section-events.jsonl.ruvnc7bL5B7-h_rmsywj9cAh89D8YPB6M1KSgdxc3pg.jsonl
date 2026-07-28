@@ -1,0 +1,4 @@
+{"at":"2026-07-20T14:20:00-05:00","outcome":"solicitation-ingress","sourceDigest":"sha256:344809f3071ba817af5a636a0f1d0437c4868f34ad247cdb1c009e739b4a8a0a"}
+{"at":"2026-07-20T14:20:00-05:00","outcome":"refused","result":"urn:sha256:3cf9cfececbf90b97012413633602a483aed0b8487fa108149a15ebee7939366","reason":"invalid-or-unsupported-purpose","sourceDigest":"sha256:344809f3071ba817af5a636a0f1d0437c4868f34ad247cdb1c009e739b4a8a0a"}
+{"at":"2026-07-20T14:20:00-05:00","outcome":"solicitation-ingress","sourceDigest":"sha256:ef4f75db115ec01efb7a7564bb5c57c10b27768a17309cc75de4c4db64687b0d"}
+{"at":"2026-07-20T14:20:00-05:00","outcome":"refused","result":"urn:sha256:cf5c614ee2800208474f1a6ce06b558cafd84489c0864e9e23d3bf7ffc53f5dd","reason":"invalid-or-unsupported-purpose","sourceDigest":"sha256:ef4f75db115ec01efb7a7564bb5c57c10b27768a17309cc75de4c4db64687b0d"}

@@ -1,0 +1,12 @@
+{
+  "name": "Immutable Induction Evidence Read Node",
+  "description": "Receiver-owned signed read of one granted immutable induction evidence object.",
+  "supportedInterfaces": [{"url":"${BASE_URL}/a2a/jsonrpc","protocolBinding":"JSONRPC","tenant":"","protocolVersion":"1.0"}],
+  "provider": {"url":"https://emsenn.net/","organization":"Software Development Services Section"},
+  "version":"1.0.0",
+  "capabilities":{"streaming":false,"pushNotifications":false,"extensions":[],"extendedAgentCard":false},
+  "securitySchemes":{},"securityRequirements":[],
+  "defaultInputModes":["application/rmn+cbor"],"defaultOutputModes":["application/rmn+cbor"],
+  "skills":[{"id":"read-immutable-induction-evidence-object","name":"Read immutable induction evidence object","description":"Return exactly one receiver-owned immutable object under a receiver-issued, single-use grant.","tags":["rmn","cbor","immutable-evidence"],"examples":[],"inputModes":["application/rmn+cbor"],"outputModes":["application/rmn+cbor"],"securityRequirements":[]}],
+  "signatures":[]
+}

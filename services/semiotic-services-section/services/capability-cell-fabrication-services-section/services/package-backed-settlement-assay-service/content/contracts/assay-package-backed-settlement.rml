@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("type" "AssayPackageBackedSettlementLaw")
+  ("version" 1)
+  ("domain" "One CapCell specification and one observed package manifest.")
+  ("operation" "Compare package identity and runtime dependency names against the specification's admitted inert materials.")
+  ("codomain" "One PackageBackedSettlementAssayReceipt containing settled and the complete sorted defect set, including package-manifest:unobserved when no manifest observation is supplied.")
+  ("refusal" "Refuse inputs that do not contain a package-backed specification or a material array."))

@@ -1,0 +1,23 @@
+{
+  "type": "StateReportInfographicContract",
+  "id": "state-report-infographic-v1",
+  "provider": "urn:ame:state-report-infographic-service",
+  "purpose": "render a typed constituent-claim delta packet",
+  "ingress": "ActivityStreams Offer<ServiceSolicitation> carrying StateReportInfographicRequest",
+  "authority": "an exact, expiring, single-use capability bound to the provider offer, request digest, and effects",
+  "effects": [
+    "provider-local-render",
+    "provider-local-append-only-evidence",
+    "proposal-only-artifact-bytes"
+  ],
+  "result": "Accept<ProposedStateReportInfographicProduct> pending an explicit customer decision, or a typed Reject",
+  "implementationImport": "content/admissions/deterministic-state-report-infographic-v2.json",
+  "nonclaims": [
+    "global Union truth",
+    "customer usefulness",
+    "installation or deployment",
+    "schedule or publication authority"
+  ],
+  "customerMutation": false,
+  "foreignMutation": false
+}

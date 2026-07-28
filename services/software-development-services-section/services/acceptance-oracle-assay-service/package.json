@@ -1,0 +1,74 @@
+{
+  "name": "@red-cup-engineering/acceptance-oracle-assay-service",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic assay of bounded acceptance-oracle evidence.",
+  "exports": {
+    ".": "./src/client.mjs",
+    "./client": "./src/client.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/assay.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check src/law.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "acceptance-oracle-assay-service",
+    "actor": "urn:ame:acceptance-oracle-assay-service",
+    "organizational-kind": "micro-enterprise",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "admission": "one canonical RMN request naming bounded source and oracle artifact measures, declared structured vectors, and a completed red execution witness",
+    "refusal": "implementation review, oracle authorship, model dispatch, retry, mutation, customer acceptance, or a noncanonical carrier",
+    "operation-catalog": {
+      "assay-acceptance-oracle": {
+        "contract": "content/contracts/assay-acceptance-oracle.rml",
+        "protocol": "A2A 1.0",
+        "legacyCompatibility": false
+      }
+    },
+    "x-foam-locus": {
+      "address": [
+        "software",
+        "development",
+        "acceptance",
+        "oracle",
+        "assay"
+      ],
+      "proposition": "There exists a deterministic Actor which assays bounded acceptance-oracle evidence without authoring or accepting it.",
+      "actor": "urn:ame:acceptance-oracle-assay-service",
+      "projection": "content/foam/locus.json"
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:acceptance-oracle-assay-service",
+    "operations": [
+      "assay-acceptance-oracle"
+    ],
+    "capabilities": [
+      {
+        "capability": "acceptance-oracle-assay-service",
+        "faces": [
+          "assay-acceptance-oracle"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/acceptance-oracle-assay-service"
+  }
+}

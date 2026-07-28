@@ -1,0 +1,79 @@
+{
+  "name": "@red-cup-engineering/recursive-infomaterial-fabrication-service",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Material-free recursive board conductor requiring independent M1/FOUR equivalence before provider execution.",
+  "exports": {
+    ".": "./src/fabricate.mjs",
+    "./client": "./src/client.mjs",
+    "./request": "./src/request.mjs"
+  },
+  "bin": {
+    "fabricate-directory-patch": "./bin/fabricate-directory-patch.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/client.mjs && node --check src/fabricate.mjs && node --check src/own-circuit-profile.mjs && node --check src/request.mjs && node --check src/law.mjs && node --check bin/fabricate-directory-patch.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@lenticule-science/hierarchical-circuit-equivalence-assay": "1.0.0",
+    "@lenticule-science/infomaterial-directory-plate-observation": "2.0.0",
+    "@lenticule-science/infomaterial-observation": "2.0.0",
+    "@lenticule-science/infomaterial-patch-cover": "3.0.0",
+    "@red-cup-engineering/recursive-observation-circuit-synthesis": "1.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "recursive-infomaterial-fabrication-service",
+    "actor": "urn:ame:recursive-infomaterial-fabrication-service",
+    "organizational-kind": "circuit-board-nation",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one exact synthesis, plate, cover, and M1 provider plus a total child-observer routing table",
+    "refusal": "self-owned synthesis, material access, route gaps or overlaps, provider substitution, direct-import fallback, partial fan-in, absent smart account, or absent RWIL seam",
+    "operation-catalog": {
+      "fabricate-directory-patch": {
+        "contract": "ni:///sha-256;cJoU8SHW5Kut5H2Zlv_LV8ye_cVmLuCdO9RCzikMXuw",
+        "protocol": "signed A2A Agent Card discovery, independent recursive synthesis, independent equivalence assay, then required-extension A2A 1.0 composition",
+        "accepts": "canonical RMN fabrication schedule naming signed synthesis, equivalence, and recursively composable patch-provider Agent Cards",
+        "returns": "canonical RMN patch-evidence receipt plus synthesis, equivalence, and execution seam receipt",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:recursive-infomaterial-fabrication-service",
+    "operations": [
+      "fabricate-directory-patch"
+    ],
+    "capabilities": [
+      {
+        "capability": "recursive-infomaterial-fabrication-service",
+        "faces": [
+          "fabricate-directory-patch"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/recursive-infomaterial-fabrication-service"
+  }
+}

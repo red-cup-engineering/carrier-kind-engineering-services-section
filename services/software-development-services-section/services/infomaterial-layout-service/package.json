@@ -1,0 +1,78 @@
+{
+  "name": "@red-cup-engineering/infomaterial-layout-service",
+  "version": "5.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Exact carrier-layout assay joining reusable M1 circuit definitions and one sovereign assembly to one recursive infomaterial cover.",
+  "exports": {
+    ".": "./src/layout-assay.mjs",
+    "./client": "./src/client.mjs"
+  },
+  "bin": {
+    "serve-infomaterial-layout-a2a": "./bin/server.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/layout-assay.mjs && node --check src/client.mjs && node --check src/law.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@lenticule-science/hierarchical-circuit-equivalence-assay": "1.0.0",
+    "@lenticule-science/infomaterial-observation": "2.0.0",
+    "@lenticule-science/infomaterial-patch-cover": "3.0.0",
+    "@lenticule-science/rmn-circuit-board-carrier-refinement": "2.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
+    "@lenticule-science/wasm-four-carrier-refinement": "1.0.0"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "infomaterial-layout-service",
+    "actor": "urn:ame:infomaterial-layout-service",
+    "organizational-kind": "micro-enterprise",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one placement-neutral M1 circuit family, one exact sovereign assembly, one recursive material cover, and one mechanically refinement-gated carrier for every mount",
+    "refusal": "layout gaps or overlaps, function labels, absent independent refinement, carrier/material/component drift, uncarried definitions, embedded occurrence identity, inferred cuts, child-circuit-interior reads, carrier retention, customer writes, self-attestation, or legacy topology/conductor envelopes",
+    "operation-catalog": {
+      "serve-infomaterial-layout-a2a": {
+        "contract": "ni:///sha-256;YXj4A42j74Ds8b9mKyExLpbI4Seutg4g5eHJgmpovsk",
+        "protocol": "A2A 1.0",
+        "accepts": "application/rmn+cbor HierarchicalInfomaterialLayoutAssayRequest carrying M1 v2 definitions, assembly, cover, observed carriers, and producer identities",
+        "returns": "application/rmn+cbor HierarchicalInfomaterialLayoutAssayReceipt|standard A2A refusal",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:infomaterial-layout-service",
+    "operations": [
+      "serve-infomaterial-layout-a2a"
+    ],
+    "capabilities": [
+      {
+        "capability": "infomaterial-layout-service",
+        "faces": [
+          "serve-infomaterial-layout-a2a"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/infomaterial-layout-service"
+  }
+}

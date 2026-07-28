@@ -1,0 +1,1711 @@
+{
+  "name": "Software Development Services Section",
+  "capabilities": {
+    "extensions": [
+      {
+        "uri": "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.rmn.sovereign-circuit-interface.v1",
+          "account": "eip155:31337:0xddd69314591da83fe33bb6663ac3045abc68eb5f",
+          "authority": "ni:///sha-256;l8SUbSopr0TC-I7saNtnc9JN168Y8BjOVjSy9pw9eSk",
+          "custody": "ni:///sha-256;fgCy4CnHXM9jrpwMtbTnSVp8N0NtMifHIMcyHsjURKA",
+          "territory": "ni:///sha-256;fU0DOIEGBoooyppp86MDXfGoyz9e0Dud6TCED3cY0ME",
+          "component": {
+            "behavior": {
+              "factors": [
+                {
+                  "inputs": [
+                    "acceptance-capsule-procurement-service/request"
+                  ],
+                  "outputs": [
+                    "acceptance-capsule-procurement-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "coding-context-projection-service/request"
+                  ],
+                  "outputs": [
+                    "coding-context-projection-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "deterministic-intent-compiler-supplier/request"
+                  ],
+                  "outputs": [
+                    "deterministic-intent-compiler-supplier/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "deterministic-report-graphic-service/packet"
+                  ],
+                  "outputs": [
+                    "deterministic-report-graphic-service/artifact"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "google-drive-use-team/request"
+                  ],
+                  "outputs": [
+                    "google-drive-use-team/result"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "improvement-game-design-supplier/request"
+                  ],
+                  "outputs": [
+                    "improvement-game-design-supplier/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "infomaterial-cut-graph-service/request"
+                  ],
+                  "outputs": [
+                    "infomaterial-cut-graph-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "infomaterial-layout-service/request"
+                  ],
+                  "outputs": [
+                    "infomaterial-layout-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "protected-acceptance-service/request"
+                  ],
+                  "outputs": [
+                    "protected-acceptance-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "recursive-infomaterial-fabrication-service/schedule"
+                  ],
+                  "outputs": [
+                    "recursive-infomaterial-fabrication-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "recursive-observation-circuit-synthesis/request"
+                  ],
+                  "outputs": [
+                    "recursive-observation-circuit-synthesis/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "recursive-settlement-fabric-assay/request"
+                  ],
+                  "outputs": [
+                    "recursive-settlement-fabric-assay/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "repository-state-observation-service/request"
+                  ],
+                  "outputs": [
+                    "repository-state-observation-service/observation"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "sandbox-command-execution-service/request"
+                  ],
+                  "outputs": [
+                    "sandbox-command-execution-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "semantic-candidate-review-service/request"
+                  ],
+                  "outputs": [
+                    "semantic-candidate-review-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "software-edit-language-service/request"
+                  ],
+                  "outputs": [
+                    "software-edit-language-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "software-mission-execution-service/request"
+                  ],
+                  "outputs": [
+                    "software-mission-execution-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "software-program-synthesis-service/request"
+                  ],
+                  "outputs": [
+                    "software-program-synthesis-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "software-solve-loop-service/request"
+                  ],
+                  "outputs": [
+                    "software-solve-loop-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "software-trajectory-memory-service/request"
+                  ],
+                  "outputs": [
+                    "software-trajectory-memory-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": [
+                    "tensor-circuit-board-synthesis-service/request"
+                  ],
+                  "outputs": [
+                    "tensor-circuit-board-synthesis-service/receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": false,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "negativeEvidence": true,
+                          "positiveEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "instances": [],
+            "law": "ni:///sha-256;TGoTZbX5ab8nZZJr0yGnGCqk-Zor3P3zHLEA6d5bZvU",
+            "nets": [],
+            "ports": [
+              {
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "acceptance-capsule-procurement-service/receipt",
+                "predicate": "ni:///sha-256;CjHlK_2P0pa-g51BqPrqbgz_eydkSsgu8y40wscYEmY"
+              },
+              {
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "acceptance-capsule-procurement-service/request",
+                "predicate": "ni:///sha-256;_WYHJ3hZ0Pr7gXa07FVvBI-jIMVXjWrs4N-bBr-Xd_s"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "coding-context-projection-service/receipt",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "coding-context-projection-service/request",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "deterministic-intent-compiler-supplier/receipt",
+                "predicate": "ni:///sha-256;RK_cZOwItfk4aG3qilcsjTKDVNJ8yb4_Gq-jTjMeBLc"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "deterministic-intent-compiler-supplier/request",
+                "predicate": "ni:///sha-256;RK_cZOwItfk4aG3qilcsjTKDVNJ8yb4_Gq-jTjMeBLc"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "deterministic-report-graphic-service/artifact",
+                "predicate": "ni:///sha-256;ZOaIHNnmdx3xdiKkPRUXTSuuCf74wSYBOI8RSNiW1OI"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "deterministic-report-graphic-service/packet",
+                "predicate": "ni:///sha-256;ZOaIHNnmdx3xdiKkPRUXTSuuCf74wSYBOI8RSNiW1OI"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "google-drive-use-team/request",
+                "predicate": "ni:///sha-256;Z7mtdq0vipOPVZvqsu9BUCIiPgxYgxWw1bf96jndoYo"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "google-drive-use-team/result",
+                "predicate": "ni:///sha-256;Z7mtdq0vipOPVZvqsu9BUCIiPgxYgxWw1bf96jndoYo"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "improvement-game-design-supplier/receipt",
+                "predicate": "ni:///sha-256;ce43FTLfEmgMvEpLuEs6XdhvgheEqftOGqFfvW5xzek"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "improvement-game-design-supplier/request",
+                "predicate": "ni:///sha-256;ce43FTLfEmgMvEpLuEs6XdhvgheEqftOGqFfvW5xzek"
+              },
+              {
+                "carrier": "ni:///sha-256;9ohJqUFbIvSC6kIxPq4dsQpkSjJITKkPQntDMRhNwPQ",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "infomaterial-cut-graph-service/receipt",
+                "predicate": "ni:///sha-256;txH0ponIdi04Tk6cCKhOb4ntop8jDzBjP-FRc3LXSV8"
+              },
+              {
+                "carrier": "ni:///sha-256;9ohJqUFbIvSC6kIxPq4dsQpkSjJITKkPQntDMRhNwPQ",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "infomaterial-cut-graph-service/request",
+                "predicate": "ni:///sha-256;Vn-kFEL6_wGMFSgRw2mLU6j9GhHgv3HM2FHUN2rST2s"
+              },
+              {
+                "carrier": "ni:///sha-256;9ohJqUFbIvSC6kIxPq4dsQpkSjJITKkPQntDMRhNwPQ",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "infomaterial-layout-service/receipt",
+                "predicate": "ni:///sha-256;7ssI6qIM_Eik-L040TeeSjlCfciZiINzAwBhvxEgPwE"
+              },
+              {
+                "carrier": "ni:///sha-256;9ohJqUFbIvSC6kIxPq4dsQpkSjJITKkPQntDMRhNwPQ",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "infomaterial-layout-service/request",
+                "predicate": "ni:///sha-256;S7qYFWvqNyDs1cg3tBLfC12TatkHFB8E_jfSUbOurnQ"
+              },
+              {
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "protected-acceptance-service/receipt",
+                "predicate": "ni:///sha-256;y-PJ3r_MTbJRusf1LV88wm2pIe-HC8N6YjCxGc53M3g"
+              },
+              {
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "protected-acceptance-service/request",
+                "predicate": "ni:///sha-256;RDIEDZ8UlubbBluhFQGnMtAKHpOTmgmZPzZRdlRqj9w"
+              },
+              {
+                "carrier": "ni:///sha-256;RA9uMNzGp8KWTZpH-IHdX711W503NfNfZtf1TOPHD9c",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "recursive-infomaterial-fabrication-service/receipt",
+                "predicate": "ni:///sha-256;8l2mlQyKQ0_03VBt2O4TpU3Hy7nbocBJYU3_Asv619k"
+              },
+              {
+                "carrier": "ni:///sha-256;if89VLKxvvhwQAvyGH3WLc0qQ1OuWGYqSrcvcn4oTRk",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "recursive-infomaterial-fabrication-service/schedule",
+                "predicate": "ni:///sha-256;S2P6CynHAQbvO4N05cS549M1QCkO5xsufTMpbJesu3Y"
+              },
+              {
+                "carrier": "ni:///sha-256;yEH0YnJrAZMIEZdE1xIxbIN4ER4cJmLGOKndXqkt5YA",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "recursive-observation-circuit-synthesis/receipt",
+                "predicate": "ni:///sha-256;I_i3L5JIxvLjZ_PKsK2-BCzZypksU5OtWnx9vDUYV5Y"
+              },
+              {
+                "carrier": "ni:///sha-256;yEH0YnJrAZMIEZdE1xIxbIN4ER4cJmLGOKndXqkt5YA",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "recursive-observation-circuit-synthesis/request",
+                "predicate": "ni:///sha-256;-W94HPUBCSZw4O8nyZGGpTuj3IRuED0CD3grSZmMrkU"
+              },
+              {
+                "carrier": "ni:///sha-256;GsWa09M_SCIWzIWNDK-48rYEOO-cpZobaxxLRCGXPtQ",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "recursive-settlement-fabric-assay/receipt",
+                "predicate": "ni:///sha-256;_Y3q57_v-c81_QhF75AkOS1CEVB45Nh2VX90YG_gb6s"
+              },
+              {
+                "carrier": "ni:///sha-256;GsWa09M_SCIWzIWNDK-48rYEOO-cpZobaxxLRCGXPtQ",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "recursive-settlement-fabric-assay/request",
+                "predicate": "ni:///sha-256;_Y3q57_v-c81_QhF75AkOS1CEVB45Nh2VX90YG_gb6s"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "repository-state-observation-service/observation",
+                "predicate": "ni:///sha-256;bsBA7Q-v_2vJNvNMMs2xn9-PYnZ7xqaxQ8yRX-rnrMM"
+              },
+              {
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "repository-state-observation-service/request",
+                "predicate": "ni:///sha-256;bsBA7Q-v_2vJNvNMMs2xn9-PYnZ7xqaxQ8yRX-rnrMM"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "sandbox-command-execution-service/receipt",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "sandbox-command-execution-service/request",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;lQePzQofZMVZcutWnpOj39HnJYO5DyZmI06ycYW95jg",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "semantic-candidate-review-service/receipt",
+                "predicate": "ni:///sha-256;PuOX-fG11K3NzHIgHGZp7blqCB9cBkQ9Jo6jomX2dYw"
+              },
+              {
+                "carrier": "ni:///sha-256;lQePzQofZMVZcutWnpOj39HnJYO5DyZmI06ycYW95jg",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "semantic-candidate-review-service/request",
+                "predicate": "ni:///sha-256;MI5_dGd0FacO1FZCNDCjsi5ZRxxNQWjIm6Cy19ETt5o"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "software-edit-language-service/receipt",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "software-edit-language-service/request",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;vD8VAAcayqCOznBRtlDiqhRz5MYz1VTc2WCZKH7HoAY",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "software-mission-execution-service/receipt",
+                "predicate": "ni:///sha-256;YLPYt9Dgrj1114TyBEdqpaN577jKHzW0aCECwxjLSWE"
+              },
+              {
+                "carrier": "ni:///sha-256;vD8VAAcayqCOznBRtlDiqhRz5MYz1VTc2WCZKH7HoAY",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "software-mission-execution-service/request",
+                "predicate": "ni:///sha-256;YLPYt9Dgrj1114TyBEdqpaN577jKHzW0aCECwxjLSWE"
+              },
+              {
+                "carrier": "ni:///sha-256;VaQsa35dBg06k1mDoijQh96RiW1MFS7BcAESZuwetm4",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "software-program-synthesis-service/receipt",
+                "predicate": "ni:///sha-256;8g_D9uhB4XjizWRalJpIC4Inbg3iXRCUBOvAFCs5URE"
+              },
+              {
+                "carrier": "ni:///sha-256;VaQsa35dBg06k1mDoijQh96RiW1MFS7BcAESZuwetm4",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "software-program-synthesis-service/request",
+                "predicate": "ni:///sha-256;8g_D9uhB4XjizWRalJpIC4Inbg3iXRCUBOvAFCs5URE"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "software-solve-loop-service/receipt",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;jOi94EsaoIwgn1zquZyqcG0iUQhuCKB-dZqcJ2PqoTg",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "software-solve-loop-service/request",
+                "predicate": "ni:///sha-256;imfYYXnGSUccFG5ssZFW9dA0suu-_rPO2CU2fgDqXDw"
+              },
+              {
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "software-trajectory-memory-service/receipt",
+                "predicate": "ni:///sha-256;gkuPHR5_S_Fhyr6sm-3ZXyoLz4BivpVd_k1hqHSJ1yg"
+              },
+              {
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "software-trajectory-memory-service/request",
+                "predicate": "ni:///sha-256;K7NYtssPjD_rPa792Nu59WAp1tzMfql1LjAMavpSkTM"
+              },
+              {
+                "carrier": "ni:///sha-256;lQePzQofZMVZcutWnpOj39HnJYO5DyZmI06ycYW95jg",
+                "direction": "output",
+                "mode": "tensor",
+                "name": "tensor-circuit-board-synthesis-service/receipt",
+                "predicate": "ni:///sha-256;5vKVPWLSxe_2Ig7FUl27eRT0R9QBrjg6MZULhuThC1g"
+              },
+              {
+                "carrier": "ni:///sha-256;lQePzQofZMVZcutWnpOj39HnJYO5DyZmI06ycYW95jg",
+                "direction": "input",
+                "mode": "tensor",
+                "name": "tensor-circuit-board-synthesis-service/request",
+                "predicate": "ni:///sha-256;N0FkBC6aLipzOyX8GZJHAaIxKN3rzKeL-1nKCcIRh5s"
+              }
+            ],
+            "profile": "org.emsenn.rmn.hierarchical-circuit.v3"
+          }
+        }
+      }
+    ]
+  },
+  "signatures": []
+}

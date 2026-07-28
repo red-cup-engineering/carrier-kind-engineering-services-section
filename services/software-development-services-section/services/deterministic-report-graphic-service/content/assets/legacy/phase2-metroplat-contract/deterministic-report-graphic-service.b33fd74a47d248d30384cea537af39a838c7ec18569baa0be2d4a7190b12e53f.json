@@ -1,0 +1,10 @@
+{
+  "kind": "metroplat.contract",
+  "id": "deterministic-report-graphic-service",
+  "service": "realize one typed mechanical Union delta as byte-stable SVG and PNG",
+  "precondition": "exact HarmoniousUnionDeltaPacket plus single-use bounded capability",
+  "move": "canonicalize, emit an RFC7996-safe SVG subset, parse those exact SVG bytes, rasterize every visual primitive, and bind both artifact digests",
+  "postcondition": "SVG and PNG artifact with exact digests and provider receipt, or typed refusal with no artifact",
+  "effects": ["provider-local-artifact-realization", "provider-local-append-only-receipt"],
+  "nonclaims": ["Union membership", "settlement truth", "NotebookLM infographic generation", "customer publication"]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Topical Knowledge Cell Enterprise Carrier",
+  "description": "Admits one owner-authored topical-cell instance from exact custody, projection, provider, identity, and witness receipts without reading topic content or supplier interiors.",
+  "supportedInterfaces": [
+    { "url": "${BASE_URL}/a2a/jsonrpc", "protocolBinding": "JSONRPC", "tenant": "", "protocolVersion": "1.0" },
+    { "url": "${BASE_URL}/a2a/rest", "protocolBinding": "HTTP+JSON", "tenant": "", "protocolVersion": "1.0" }
+  ],
+  "provider": { "url": "https://emsenn.net/", "organization": "Topical Knowledge Cell Enterprise Carrier" },
+  "version": "0.1.0",
+  "capabilities": { "streaming": false, "pushNotifications": false, "extensions": [], "extendedAgentCard": false },
+  "securitySchemes": {}, "securityRequirements": [],
+  "defaultInputModes": ["application/rmn+cbor"], "defaultOutputModes": ["application/rmn+cbor"],
+  "skills": [{
+    "id": "admit-topical-knowledge-cell-instance", "name": "Admit topical-cell instance",
+    "description": "Admits a sovereign topic-neutral cell configuration only when every required independently hired provider and receipt is exact.",
+    "tags": ["enterprise", "admission", "federation"], "examples": [],
+    "inputModes": ["application/rmn+cbor"], "outputModes": ["application/rmn+cbor"], "securityRequirements": []
+  }],
+  "signatures": []
+}

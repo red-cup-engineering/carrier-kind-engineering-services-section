@@ -1,0 +1,87 @@
+{
+  "name": "@red-cup-engineering/improvement-game-design-supplier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent Red Cup supplier for protected-oracle improvement game design.",
+  "exports": {
+    ".": "./src/client.mjs",
+    "./client": "./src/client.mjs",
+    "./executor": "./src/a2a-executor.mjs"
+  },
+  "bin": {
+    "execute-improvement-game-design-supplier-a2a-message": "bin/execute-a2a-message.mjs",
+    "serve-improvement-game-design-supplier-a2a": "bin/serve-a2a.mjs",
+    "pulse-improvement-game-design-supplier": "bin/pulse-improvement-game-design-supplier.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/supplier.mjs && node --check src/service.mjs && node --check src/client.mjs && node --check src/a2a-executor.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/pulse-improvement-game-design-supplier.mjs && node --check bin/serve-a2a.mjs",
+    "test": "node --test",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/activitypub-services-section": "1.0.0",
+    "@lenticule-science/improvement-game-proposal-assay": "1.0.0",
+    "@harmonious-union/inference-work-lot-service": "4.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "improvement-game-design-supplier",
+    "actor": "urn:ame:red-cup-engineering:improvement-game-design-supplier",
+    "organizational-kind": "micro-enterprise",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one canonical RMN/CBOR supplier pulse through the hired A2A provider, then exact ActivityPub customer lots and awards",
+    "refusal": "unprotected oracle, customer mutation, implementation authority, self-review, or upward model escalation",
+    "operation-catalog": {
+      "pulse-improvement-game-design-supplier": {
+        "contract": "ni:///sha-256;nOI784myh4YP4ZGgGTJ2kM36XpCYaLq9UzHce0k0Rfk",
+        "runtimeFiles": [
+          "bin/pulse-improvement-game-design-supplier.mjs",
+          "src/service.mjs",
+          "src/supplier.mjs",
+          "content/contracts/supply-improvement-game-design.rml",
+          "content/policies/red-cup-game-design.json"
+        ],
+        "accepts": "contracted ScheduleDelivery Create<IndependentImprovementGameSupplierPulse>",
+        "protocols": [
+          "RMN",
+          "A2A 1.0",
+          "ActivityPub",
+          "RWIL/RDF"
+        ],
+        "returns": "ImprovementGameDesignSupplierPulseResult|Reject",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:red-cup-engineering:improvement-game-design-supplier",
+    "operations": [
+      "pulse-improvement-game-design-supplier"
+    ],
+    "capabilities": [
+      {
+        "capability": "improvement-game-design-supplier",
+        "faces": [
+          "pulse-improvement-game-design-supplier"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/improvement-game-design-supplier"
+  }
+}

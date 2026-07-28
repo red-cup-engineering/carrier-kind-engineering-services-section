@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "cryptographic-services-section",
+    "urn": "urn:ame:cryptographic-services-section",
+    "enterpriseId": "0x87cae6347e8ee33eeb859195abbbac86226037f80034afacc78b7a1707ee8c68"
+  },
+  "chain": {
+    "chainId": 31337,
+    "caip2": "eip155:31337"
+  },
+  "account": {
+    "address": "0x89137b6b0f0ff4685aa3c57720f634f6242787cc",
+    "caip10": "eip155:31337:0x89137b6b0f0ff4685aa3c57720f634f6242787cc"
+  },
+  "factory": {
+    "address": "0x7bf3cf1176c4a037d3ea2a5ff3d480359ac65ecd",
+    "userSalt": "0xab9ce6f4df97fec3bb7f6ed3661e4979cac6dddbbb32d41b7b997aad17e3bdee"
+  },
+  "policy": {
+    "signer": "0x629329ec8f2527bf1fd5b3fbc960df9944e45b1b",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0x868b3098dd5f6c603001c5f492cdd656cc01dd850c84052e40d488178333b36d",
+    "block": 1387
+  }
+}

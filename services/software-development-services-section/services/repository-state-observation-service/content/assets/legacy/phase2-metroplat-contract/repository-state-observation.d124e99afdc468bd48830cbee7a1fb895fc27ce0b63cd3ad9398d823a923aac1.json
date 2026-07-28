@@ -1,0 +1,8 @@
+{
+  "kind": "metroplat.contract",
+  "id": "repository-state-observation",
+  "precondition": "The customer supplies an absolute repository root, bounded wait, execution mode, and an exact single-use capability.",
+  "move": "The provider contracts Git ANT for read-only status and parses its returned receipt; dry-run returns the exact intended supplier request without invocation.",
+  "postcondition": "The customer receives a digest-bound repository observation with nested supplier evidence or a typed refusal.",
+  "invariants": ["no direct Git invocation", "no mutation grant", "no customer usefulness claim", "unknown resource use is not zero"]
+}

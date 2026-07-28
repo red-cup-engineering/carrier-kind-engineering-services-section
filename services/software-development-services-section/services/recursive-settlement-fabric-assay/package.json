@@ -1,0 +1,62 @@
+{
+  "name": "@red-cup-engineering/recursive-settlement-fabric-assay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Bounded conformance assay for recursive sovereign die and board realization.",
+  "scripts": {
+    "check": "node --check src/assay-recursive-settlement-fabric.mjs && node --check src/protocol.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "recursive-settlement-fabric-assay",
+    "actor": "urn:ame:recursive-settlement-fabric-assay",
+    "organizational-kind": "micro-enterprise",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one explicit bounded territory root whose settlement descriptors and circuit material are readable under the customer's grant",
+    "refusal": "material-content interpretation, topology invention, mutation, compatibility inference, registry construction, or acceptance of a mixed-law pseudo-die",
+    "operation-catalog": {
+      "assay-recursive-settlement-fabric": {
+        "contract": "ni:///sha-256;z2QA5oXKdpIAucWoB6s5S2P2pIEPp7P-uU1wPlBdeF4",
+        "protocol": "A2A 1.0",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:recursive-settlement-fabric-assay",
+    "operations": [
+      "assay-recursive-settlement-fabric"
+    ],
+    "capabilities": [
+      {
+        "capability": "recursive-settlement-fabric-assay",
+        "faces": [
+          "assay-recursive-settlement-fabric"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/recursive-settlement-fabric-assay"
+  }
+}

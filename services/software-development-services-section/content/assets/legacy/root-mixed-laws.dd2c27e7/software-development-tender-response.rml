@@ -1,0 +1,7 @@
+#lang rmn/v2
+(map
+  ("type" "SoftwareDevelopmentTenderResponseLaw") ("version" 1) ("provider" "urn:ame:software-development-services-section")
+  ("precondition" "A purpose-bearing customer settlement supplies its own content-addressed SoftwareDevelopmentWorkLot naming exact owned and forbidden roots, target changes, a machine-readable product contract, source digests, structured replay commands, finite ceilings, decision actors, allowed effects, and value agreement; inspection grants no customer-territory authority.")
+  ("operation" "Validate the provider-neutral lot for complete, disjoint, and mutually consistent required, prohibited, binding, runtime-state, product-type, root, proposal-only, self-bootstrap, and receiver-admission terms, then author either one exact content-addressed provider bid or one clarification question separating missing from contradictory terms.")
+  ("postcondition" "Return an ActivityStreams Offer preserving the complete lot snapshot and exact provider terms, or a Question; neither response claims award, delivery, customer usefulness, customer mutation, installation, or customer admission.")
+  ("refusal" "Refuse a drifted, unaddressed, provider-authored, or unreplayable customer lot; authority to mutate customer territory; caller-selected execution; a descriptive promise substituted for an exact codomain; inconsistent product and value terms; or any claim that a question or bid is an award or delivery."))

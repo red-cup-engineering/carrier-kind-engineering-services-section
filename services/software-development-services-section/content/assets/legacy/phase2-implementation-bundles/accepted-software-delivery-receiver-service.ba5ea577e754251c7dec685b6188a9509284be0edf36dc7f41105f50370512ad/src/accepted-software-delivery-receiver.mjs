@@ -1,0 +1,669 @@
+#!/usr/bin/env node
+
+import { createHash } from "node:crypto";
+import {
+  appendFileSync,
+  copyFileSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  renameSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
+
+export const ACTOR = "urn:ame:accepted-software-delivery-receiver-service";
+export const SETTLEMENT = "urn:ame:software-development-services-section";
+export const HUMAN_LEADER = "urn:leader:emsenn";
+export const SERVICE_ROOT = "services/accepted-software-delivery-receiver-service";
+export const STAGE_OPERATION = "stage-accepted-software-delivery";
+export const ADMIT_OPERATION = "review-and-admit-staged-software-delivery";
+export const STAGING_RECEIPT = "AcceptedSoftwareDeliveryStagingReceipt";
+export const ADMISSION_RECEIPT = "SoftwareDeliveryAdmissionReceipt";
+export const STAGE_EFFECTS = Object.freeze(["sdss-receiver-local-private-candidate", "sdss-receiver-local-append-only-evidence", "sdss-receiver-local-staged-tree"]);
+export const ADMIT_EFFECTS = Object.freeze(["sdss-local-create-only-target", "sdss-receiver-local-append-only-evidence"]);
+
+const MODULE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const DEFAULT_AUTHORITY_ROOT = resolve(MODULE_ROOT, "../..");
+const DEFAULT_RECORD_ROOT = join(DEFAULT_AUTHORITY_ROOT, "data");
+const DEFAULT_DATA_ROOT = join(MODULE_ROOT, "data");
+const SHA = /^sha256:[0-9a-f]{64}$/u;
+const CONTENT_ID = /^urn:sha256:[0-9a-f]{64}$/u;
+const MESH_CARRIER_URL = [
+  new URL("../lib/management/skills/enforcing-mesh-scope/scripts/mesh-scope.js", import.meta.url),
+  new URL("../../../../lib/management/skills/enforcing-mesh-scope/scripts/mesh-scope.js", import.meta.url),
+].find((url) => existsSync(fileURLToPath(url)));
+if (!MESH_CARRIER_URL) throw new Error("the adopted enforcing-mesh-scope carrier is absent");
+const { inspectMeshScope, admitEnterpriseInstall, revalidateEnterpriseInstall } = await import(MESH_CARRIER_URL.href);
+
+export class ReceiverRefusal extends Error {
+  constructor(code, detail, evidence = {}) {
+    super(detail);
+    this.name = "ReceiverRefusal";
+    this.code = code;
+    this.evidence = evidence;
+  }
+}
+
+export class InjectedCrash extends Error {
+  constructor(phase) {
+    super(`injected crash after ${phase}`);
+    this.name = "InjectedCrash";
+    this.code = "injected-crash";
+    this.phase = phase;
+  }
+}
+
+export function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().filter((key) => value[key] !== undefined).map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+export function digest(value) {
+  return `sha256:${createHash("sha256").update(canonical(value)).digest("hex")}`;
+}
+
+export function rawDigest(bytes) {
+  return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
+}
+
+export function contentRecord(body) {
+  return { id: `urn:${digest(body)}`, ...body };
+}
+
+function withoutId(value) {
+  const { id: _id, ...body } = value ?? {};
+  return body;
+}
+
+export function assertContentRecord(value, label) {
+  if (!value || !CONTENT_ID.test(value.id ?? "") || value.id !== `urn:${digest(withoutId(value))}`) {
+    throw new ReceiverRefusal("content-identity-mismatch", `${label} is not an exact content record`);
+  }
+  return value;
+}
+
+export function assertReplyIdentity(value, label) {
+  const expected = `urn:${digest({ type: value?.type, source: value?.inReplyTo ?? null, object: value?.object })}`;
+  if (!value || !CONTENT_ID.test(value.id ?? "") || value.id !== expected) {
+    throw new ReceiverRefusal("content-identity-mismatch", `${label} does not recompute under the provider reply identity law`);
+  }
+  return value;
+}
+
+export function safeRelative(value) {
+  if (typeof value !== "string" || value.length === 0 || value.includes("\0") || value.includes("\\") || value.includes("//") || isAbsolute(value)) return false;
+  const parts = value.split("/");
+  return parts.every((part) => part.length > 0 && part !== "." && part !== ".." && part !== ".git") && value === parts.join("/");
+}
+
+function exactUnder(path, root) {
+  return path === root || path.startsWith(`${root}/`);
+}
+
+function existingDirectory(label, path) {
+  let canonicalPath;
+  try {
+    const lexical = resolve(path);
+    canonicalPath = realpathSync(lexical);
+    if (canonicalPath !== lexical || lstatSync(lexical).isSymbolicLink() || !statSync(canonicalPath).isDirectory()) throw new Error("not a canonical non-symlink directory");
+  } catch (error) {
+    throw new ReceiverRefusal("canonical-path-refused", `${label} is not an exact existing non-symlink directory`, { cause: error.message });
+  }
+  return canonicalPath;
+}
+
+export function pathSnapshot(rootArg, relativePath, { finalMustBeAbsent = false } = {}) {
+  const root = existingDirectory("authority root", rootArg);
+  if (!safeRelative(relativePath)) throw new ReceiverRefusal("unsafe-relative-path", relativePath ?? "absent");
+  const components = [];
+  let at = root;
+  const parts = relativePath.split("/");
+  for (let index = 0; index < parts.length; index += 1) {
+    at = join(at, parts[index]);
+    let entry;
+    try { entry = lstatSync(at); }
+    catch {
+      if (index !== parts.length - 1) throw new ReceiverRefusal("path-ancestor-absent", relativePath, { component: at });
+      components.push({ path: at, exists: false });
+      break;
+    }
+    if (entry.isSymbolicLink()) throw new ReceiverRefusal("symlink-path-refused", relativePath, { component: at });
+    if (index < parts.length - 1 && !entry.isDirectory()) throw new ReceiverRefusal("non-directory-ancestor-refused", relativePath, { component: at });
+    components.push({ path: at, exists: true, dev: entry.dev, ino: entry.ino, mode: entry.mode, type: entry.isDirectory() ? "directory" : "file" });
+  }
+  if (finalMustBeAbsent && components.at(-1)?.exists !== false) throw new ReceiverRefusal("create-only-destination-exists", relativePath);
+  return Object.freeze({ root, relativePath, components: Object.freeze(components) });
+}
+
+function walkFiles(root) {
+  const files = [];
+  function walk(path) {
+    for (const entry of readdirSync(path, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const child = join(path, entry.name);
+      if (entry.isSymbolicLink()) throw new ReceiverRefusal("symlink-tree-refused", relative(root, child));
+      if (entry.isDirectory()) walk(child);
+      else if (entry.isFile()) {
+        const bytes = readFileSync(child);
+        files.push({ path: relative(root, child).split(sep).join("/"), digest: rawDigest(bytes), byteLength: bytes.length });
+      } else throw new ReceiverRefusal("special-file-refused", relative(root, child));
+    }
+  }
+  walk(root);
+  return files;
+}
+
+export function treeEvidence(root) {
+  const files = walkFiles(existingDirectory("tree", root));
+  return { files, treeDigest: digest(files) };
+}
+
+function jsonlFiles(root) {
+  const paths = [];
+  function walk(path) {
+    if (!existsSync(path)) return;
+    for (const entry of readdirSync(path, { withFileTypes: true })) {
+      const child = join(path, entry.name);
+      if (entry.isDirectory()) walk(child);
+      else if (entry.isFile() && entry.name.endsWith(".jsonl")) paths.push(child);
+    }
+  }
+  walk(root);
+  return paths.sort();
+}
+
+function readRecords(root) {
+  const records = [];
+  for (const path of jsonlFiles(root)) {
+    for (const [index, line] of readFileSync(path, "utf8").split("\n").entries()) {
+      if (!line) continue;
+      try { records.push({ path, line: index + 1, value: JSON.parse(line) }); }
+      catch (error) { throw new ReceiverRefusal("malformed-local-record", path, { line: index + 1, cause: error.message }); }
+    }
+  }
+  return records;
+}
+
+function visibleObjects(record) {
+  return [record, record?.delivery, record?.decision, record?.receipt, record?.transition, record?.consumption].filter(Boolean);
+}
+
+export function resolveExactLocalRecord(root, id, label) {
+  if (!CONTENT_ID.test(id ?? "")) throw new ReceiverRefusal("invalid-content-id", `${label} ID is invalid`);
+  const matches = readRecords(root).flatMap(({ path, line, value }) => visibleObjects(value).filter((candidate) => candidate.id === id).map((candidate) => ({ path, line, candidate })));
+  if (matches.length !== 1) throw new ReceiverRefusal(matches.length === 0 ? "local-record-absent" : "duplicate-local-record", `${label} must resolve exactly once`, { id, matches: matches.map(({ path, line }) => ({ path, line })) });
+  return matches[0].candidate;
+}
+
+function evidencePath(dataRoot, category, recordedAt) {
+  const day = recordedAt.slice(0, 10);
+  const [year, month, date] = day.split("-");
+  return join(dataRoot, category, year, month, date, `${day}-accepted-software-delivery-receiver-service-${basename(category)}.jsonl`);
+}
+
+function appendEvidence(dataRoot, category, record) {
+  assertContentRecord(record, `${category} record`);
+  const existing = readRecords(join(dataRoot, category)).flatMap(({ value }) => visibleObjects(value)).find((candidate) => candidate.id === record.id);
+  if (existing) return existing;
+  const path = evidencePath(dataRoot, category, record.recordedAt);
+  mkdirSync(dirname(path), { recursive: true });
+  appendFileSync(path, `${JSON.stringify(record)}\n`);
+  return record;
+}
+
+function recordsOfType(dataRoot, type) {
+  return readRecords(dataRoot).flatMap(({ value }) => visibleObjects(value)).filter((record) => record?.type === type);
+}
+
+function crash(options, phase) {
+  if (options.crashAt === phase) throw new InjectedCrash(phase);
+}
+
+function resourceReceipt(started) {
+  return {
+    type: "ResourceReceipt",
+    wallTime: { state: "measured", value: Number(process.hrtime.bigint() - started) / 1e6, unit: "ms" },
+    inferenceTokens: { state: "unknown-not-zero" },
+    coordination: { state: "unknown-not-zero" },
+    monetaryCost: { state: "unknown-not-zero" },
+    externalNetwork: false,
+    externalSpend: 0,
+    credentials: false,
+    git: false,
+    customerMutation: false,
+    foreignMutation: false,
+    ttiMutation: false,
+  };
+}
+
+function assertSettlementLocal(authorityRoot, subject, label) {
+  let scope;
+  try { scope = inspectMeshScope({ authorityRoot, subject }); }
+  catch (error) { throw new ReceiverRefusal("mesh-scope-refusal", error.message, error.facts ?? {}); }
+  if (!scope.inside || scope.boundaries.length > 0) throw new ReceiverRefusal("mesh-scope-refusal", `${label} is outside the SDSS-operated mesh`, { subject, boundaries: scope.boundaries });
+  return scope;
+}
+
+function operationCore(operation, request) {
+  if (operation === STAGE_OPERATION) {
+    return {
+      type: request?.type,
+      proposedProductId: request?.proposedProductId,
+      proposedProductDigest: request?.proposedProductDigest,
+      artifactSetDigest: request?.artifactSetDigest,
+      customerDecisionId: request?.customerDecisionId,
+      customerDecisionReceiptId: request?.customerDecisionReceiptId,
+      receiverIdentity: request?.receiverIdentity,
+      targetServiceIdentity: request?.targetServiceIdentity,
+      targetContract: request?.targetContract,
+      targetRoot: request?.targetRoot,
+    };
+  }
+  return {
+    type: request?.type,
+    stagingReceiptId: request?.stagingReceiptId,
+    stagedTreeDigest: request?.stagedTreeDigest,
+    receiverIdentity: request?.receiverIdentity,
+    targetServiceIdentity: request?.targetServiceIdentity,
+    targetContract: request?.targetContract,
+    targetRoot: request?.targetRoot,
+  };
+}
+
+export function solicitOperation(operation, requestCore, customer, recordedAt = new Date().toISOString()) {
+  if (![STAGE_OPERATION, ADMIT_OPERATION].includes(operation) || typeof customer !== "string" || !customer.startsWith("urn:")) {
+    throw new ReceiverRefusal("invalid-solicitation", "operation and customer must be exact");
+  }
+  const expectedType = operation === STAGE_OPERATION ? "StageAcceptedSoftwareDeliveryRequest" : "ReviewAndAdmitStagedSoftwareDeliveryRequest";
+  if (requestCore?.type !== expectedType) throw new ReceiverRefusal("invalid-solicitation", `expected ${expectedType}`);
+  return contentRecord({
+    type: "AcceptedSoftwareDeliveryReceiverOperationOffer",
+    recordedAt,
+    actor: ACTOR,
+    target: customer,
+    operation,
+    requestDigest: digest(requestCore),
+    effects: operation === STAGE_OPERATION ? [...STAGE_EFFECTS] : [...ADMIT_EFFECTS],
+    separatelyInvoked: true,
+  });
+}
+
+function validateOfferAndAuthority(operation, request, now) {
+  const core = operationCore(operation, request);
+  const expectedType = operation === STAGE_OPERATION ? "StageAcceptedSoftwareDeliveryRequest" : "ReviewAndAdmitStagedSoftwareDeliveryRequest";
+  if (request?.type !== expectedType || request.receiverIdentity !== ACTOR) throw new ReceiverRefusal("invalid-operation-request", `expected ${expectedType}`);
+  const offer = assertContentRecord(request.operationOffer, "operation offer");
+  const authority = assertContentRecord(operation === STAGE_OPERATION ? request.stagingCapability : request.admissionGrant, operation === STAGE_OPERATION ? "staging capability" : "admission grant");
+  const effects = operation === STAGE_OPERATION ? STAGE_EFFECTS : ADMIT_EFFECTS;
+  const authorityType = operation === STAGE_OPERATION ? "AcceptedSoftwareDeliveryStagingCapability" : "SoftwareDeliveryAdmissionGrant";
+  const expectedScope = operation === STAGE_OPERATION
+    ? { targetSettlement: SETTLEMENT, targetServiceIdentity: request.targetServiceIdentity, targetContract: request.targetContract, targetRoot: request.targetRoot }
+    : { stagingReceiptId: request.stagingReceiptId, targetSettlement: SETTLEMENT, targetServiceIdentity: request.targetServiceIdentity, targetContract: request.targetContract, targetRoot: request.targetRoot };
+  if (offer.type !== "AcceptedSoftwareDeliveryReceiverOperationOffer" || offer.actor !== ACTOR || offer.operation !== operation || offer.requestDigest !== digest(core) || digest(offer.effects) !== digest(effects)) {
+    throw new ReceiverRefusal("operation-offer-mismatch", operation);
+  }
+  if (authority.type !== authorityType || authority.issuedBy !== HUMAN_LEADER || authority.receiver !== ACTOR || authority.operation !== operation || authority.requestDigest !== offer.requestDigest || authority.offerDigest !== digest(offer) || authority.singleUse !== true || typeof authority.nonce !== "string" || authority.nonce.length < 8 || digest(authority.scope) !== digest(expectedScope) || digest(authority.effects) !== digest(effects)) {
+    throw new ReceiverRefusal("authority-mismatch", operation);
+  }
+  const issued = Date.parse(authority.issuedAt);
+  const expiry = Date.parse(authority.expiresAt);
+  const at = Date.parse(now);
+  if (![issued, expiry, at].every(Number.isFinite) || issued > at || expiry < at) throw new ReceiverRefusal("authority-expired-or-invalid", operation);
+  return { core, requestDigest: digest(core), offer, authority, authorityDigest: digest(authority) };
+}
+
+function artifactDescriptors(artifacts) {
+  return artifacts.map(({ bytesBase64: _bytes, ...descriptor }) => descriptor);
+}
+
+function validateAcceptanceChain(request, recordRoot) {
+  const product = assertReplyIdentity(resolveExactLocalRecord(recordRoot, request.proposedProductId, "proposed product"), "proposed product");
+  const decision = assertReplyIdentity(resolveExactLocalRecord(recordRoot, request.customerDecisionId, "customer decision"), "customer decision");
+  const receipt = assertReplyIdentity(resolveExactLocalRecord(recordRoot, request.customerDecisionReceiptId, "customer decision receipt"), "customer decision receipt");
+  if (product.type !== "Accept" || product.actor !== SETTLEMENT || product.object?.type !== "ProposedSoftwareDevelopmentProduct" || product.object?.contract !== "software-development-service" || product.object?.targetSettlement !== SETTLEMENT || product.object?.pendingCustomerDecision !== true || product.object?.customerMutation !== false || product.object?.foreignMutation !== false) {
+    throw new ReceiverRefusal("invalid-proposed-product", product.id);
+  }
+  if (!SHA.test(request.proposedProductDigest ?? "") || request.proposedProductDigest !== digest(product)) throw new ReceiverRefusal("product-digest-mismatch", product.id);
+  const artifacts = product.object.artifacts;
+  if (!Array.isArray(artifacts) || artifacts.length === 0 || artifacts.length > 64 || request.artifactSetDigest !== digest(artifactDescriptors(artifacts))) throw new ReceiverRefusal("artifact-set-digest-mismatch", product.id);
+  if (!safeRelative(request.targetRoot) || !request.targetRoot.startsWith("services/") || request.targetRoot === SERVICE_ROOT || request.targetServiceIdentity !== `urn:ame:${basename(request.targetRoot)}` || request.targetContract !== basename(request.targetRoot)) throw new ReceiverRefusal("target-binding-mismatch", request.targetRoot ?? "absent");
+  const seen = new Set();
+  const verifiedArtifacts = artifacts.map((artifact) => {
+    if (!safeRelative(artifact.targetPath) || !exactUnder(artifact.targetPath, request.targetRoot) || artifact.targetPath === request.targetRoot || seen.has(artifact.targetPath)) throw new ReceiverRefusal("artifact-path-refused", artifact.targetPath ?? "absent");
+    seen.add(artifact.targetPath);
+    if (typeof artifact.bytesBase64 !== "string" || !SHA.test(artifact.digest ?? "") || !Number.isInteger(artifact.byteLength) || artifact.byteLength < 0) throw new ReceiverRefusal("malformed-artifact", artifact.targetPath);
+    const bytes = Buffer.from(artifact.bytesBase64, "base64");
+    if (bytes.toString("base64") !== artifact.bytesBase64 || bytes.length !== artifact.byteLength || digest(artifact.bytesBase64) !== artifact.digest) throw new ReceiverRefusal("artifact-byte-digest-mismatch", artifact.targetPath);
+    return { ...artifact, bytes };
+  });
+  if (decision.type !== "Accept" || decision.actor !== product.target || decision.target !== product.actor || decision.inReplyTo !== product.id || decision.object?.type !== "SoftwareDevelopmentCustomerDecision" || decision.object?.proposedProduct?.id !== product.id || decision.object?.proposedProductDigest !== request.proposedProductDigest || decision.object?.customerUsefulness !== true) throw new ReceiverRefusal("accepting-decision-chain-mismatch", decision.id);
+  if (receipt.type !== "Accept" || receipt.actor !== product.actor || receipt.target !== decision.actor || receipt.inReplyTo !== decision.id || receipt.object?.type !== "CustomerDecisionReceipt" || receipt.object?.contract !== product.object.contract || receipt.object?.proposedProduct !== product.id || receipt.object?.decision !== "Accept" || receipt.object?.customer !== decision.actor) throw new ReceiverRefusal("decision-receipt-chain-mismatch", receipt.id);
+  return { product, decision, receipt, artifacts: verifiedArtifacts };
+}
+
+function ensureAuthorityAvailable(dataRoot, authorityDigest, requestDigest, operation, authorityNonce) {
+  const committedType = operation === STAGE_OPERATION ? "StagingCapabilityConsumptionCommitted" : "AdmissionGrantConsumptionCommitted";
+  const preparedType = operation === STAGE_OPERATION ? "StagingCapabilityConsumptionPrepared" : "AdmissionGrantConsumptionPrepared";
+  const committed = recordsOfType(dataRoot, committedType).filter((record) => record.authorityDigest === authorityDigest || record.authorityNonce === authorityNonce);
+  if (committed.length) throw new ReceiverRefusal("authority-already-consumed", authorityDigest);
+  const prepared = recordsOfType(dataRoot, preparedType).filter((record) => record.authorityDigest === authorityDigest || record.authorityNonce === authorityNonce);
+  if (prepared.some((record) => record.requestDigest !== requestDigest)) throw new ReceiverRefusal("authority-prepared-for-different-request", authorityDigest);
+  return prepared[0] ?? null;
+}
+
+function makeConsumption(type, operation, authorityDigest, authorityNonce, requestDigest, preparedTransition, recordedAt) {
+  return contentRecord({ type, recordedAt, receiver: ACTOR, operation, authorityDigest, authorityNonce, requestDigest, preparedTransition });
+}
+
+function writeCandidate(candidate, targetRoot, artifacts) {
+  mkdirSync(candidate, { recursive: false, mode: 0o700 });
+  for (const artifact of artifacts) {
+    const suffix = artifact.targetPath.slice(targetRoot.length + 1);
+    if (!safeRelative(suffix)) throw new ReceiverRefusal("artifact-path-refused", artifact.targetPath);
+    const target = resolve(candidate, suffix);
+    if (!target.startsWith(`${resolve(candidate)}${sep}`)) throw new ReceiverRefusal("candidate-escape", artifact.targetPath);
+    mkdirSync(dirname(target), { recursive: true, mode: 0o700 });
+    writeFileSync(target, artifact.bytes, { flag: "wx", mode: 0o600 });
+  }
+}
+
+function copyTree(source, target) {
+  mkdirSync(target, { recursive: false, mode: 0o700 });
+  function copy(from, to) {
+    for (const entry of readdirSync(from, { withFileTypes: true })) {
+      const sourcePath = join(from, entry.name);
+      const targetPath = join(to, entry.name);
+      if (entry.isSymbolicLink()) throw new ReceiverRefusal("symlink-tree-refused", sourcePath);
+      if (entry.isDirectory()) { mkdirSync(targetPath, { mode: 0o700 }); copy(sourcePath, targetPath); }
+      else if (entry.isFile()) copyFileSync(sourcePath, targetPath, 0);
+      else throw new ReceiverRefusal("special-file-refused", sourcePath);
+    }
+  }
+  copy(source, target);
+}
+
+function exactTransition(dataRoot, type, requestDigest) {
+  const found = recordsOfType(dataRoot, type).filter((record) => record.requestDigest === requestDigest);
+  if (found.length > 1) throw new ReceiverRefusal("duplicate-transition", `${type}:${requestDigest}`);
+  return found[0] ?? null;
+}
+
+function stageReceiptFrom(prepared, committed, recordedAt, started) {
+  return contentRecord({
+    type: STAGING_RECEIPT,
+    recordedAt,
+    receiver: ACTOR,
+    operation: STAGE_OPERATION,
+    requestDigest: prepared.requestDigest,
+    preparedTransition: prepared.id,
+    committedTransition: committed.id,
+    proposedProduct: prepared.proposedProduct,
+    proposedProductDigest: prepared.proposedProductDigest,
+    artifactSetDigest: prepared.artifactSetDigest,
+    customerDecision: prepared.customerDecision,
+    customerDecisionReceipt: prepared.customerDecisionReceipt,
+    targetServiceIdentity: prepared.targetServiceIdentity,
+    targetContract: prepared.targetContract,
+    targetRoot: prepared.targetRoot,
+    stagedTreeDigest: prepared.stagedTreeDigest,
+    stagedTree: prepared.stagedTree,
+    stagingDestination: prepared.stagingDestination,
+    consumedCapabilityDigest: prepared.authorityDigest,
+    resourceReceipt: resourceReceipt(started),
+  });
+}
+
+export async function stageAcceptedSoftwareDelivery(request, options = {}) {
+  const started = process.hrtime.bigint();
+  const now = options.now ?? new Date().toISOString();
+  const authorityRoot = existingDirectory("SDSS authority root", options.authorityRoot ?? DEFAULT_AUTHORITY_ROOT);
+  const recordRoot = existingDirectory("SDSS record root", options.recordRoot ?? DEFAULT_RECORD_ROOT);
+  const dataRootArg = resolve(options.dataRoot ?? DEFAULT_DATA_ROOT);
+  mkdirSync(dataRootArg, { recursive: true });
+  const dataRoot = existingDirectory("receiver data root", dataRootArg);
+  assertSettlementLocal(authorityRoot, recordRoot, "SDSS record root");
+  assertSettlementLocal(authorityRoot, dataRoot, "receiver data root");
+  const authority = validateOfferAndAuthority(STAGE_OPERATION, request, now);
+  ensureAuthorityAvailable(dataRoot, authority.authorityDigest, authority.requestDigest, STAGE_OPERATION, authority.authority.nonce);
+  const chain = validateAcceptanceChain(request, recordRoot);
+  const targetSnapshot = pathSnapshot(authorityRoot, request.targetRoot, { finalMustBeAbsent: true });
+  const key = authority.requestDigest.slice(7);
+  const candidatesRoot = join(dataRoot, "private-candidates");
+  const stagedRoot = join(dataRoot, "staged");
+  mkdirSync(candidatesRoot, { recursive: true, mode: 0o700 });
+  mkdirSync(stagedRoot, { recursive: true, mode: 0o700 });
+  const candidate = join(candidatesRoot, key);
+  const destination = join(stagedRoot, key);
+  let prepared = exactTransition(dataRoot, "AcceptedSoftwareDeliveryStagePrepared", authority.requestDigest);
+  if (!prepared) {
+    if (existsSync(destination)) throw new ReceiverRefusal("staging-destination-collision", key);
+    if (!existsSync(candidate)) {
+      writeCandidate(candidate, request.targetRoot, chain.artifacts);
+      crash(options, "stage-candidate-created");
+    }
+    const tree = treeEvidence(candidate);
+    const expectedTree = chain.artifacts.map((artifact) => ({ path: artifact.targetPath.slice(request.targetRoot.length + 1), digest: rawDigest(artifact.bytes), byteLength: artifact.bytes.length })).sort((left, right) => left.path.localeCompare(right.path));
+    if (tree.treeDigest !== digest(expectedTree)) throw new ReceiverRefusal("private-candidate-tree-mismatch", key);
+    prepared = contentRecord({
+      type: "AcceptedSoftwareDeliveryStagePrepared",
+      recordedAt: now,
+      receiver: ACTOR,
+      operation: STAGE_OPERATION,
+      requestDigest: authority.requestDigest,
+      offer: authority.offer.id,
+      authorityDigest: authority.authorityDigest,
+      authorityNonce: authority.authority.nonce,
+      proposedProduct: chain.product.id,
+      proposedProductDigest: request.proposedProductDigest,
+      artifactSetDigest: request.artifactSetDigest,
+      customerDecision: chain.decision.id,
+      customerDecisionReceipt: chain.receipt.id,
+      targetServiceIdentity: request.targetServiceIdentity,
+      targetContract: request.targetContract,
+      targetRoot: request.targetRoot,
+      targetPathSnapshot: targetSnapshot,
+      candidate: relative(dataRoot, candidate).split(sep).join("/"),
+      stagingDestination: relative(dataRoot, destination).split(sep).join("/"),
+      stagedTreeDigest: tree.treeDigest,
+      stagedTree: tree.files,
+    });
+    const consumption = makeConsumption("StagingCapabilityConsumptionPrepared", STAGE_OPERATION, authority.authorityDigest, authority.authority.nonce, authority.requestDigest, prepared.id, now);
+    appendEvidence(dataRoot, "authority-consumptions", consumption);
+    crash(options, "stage-capability-prepared");
+    appendEvidence(dataRoot, "transitions", prepared);
+    crash(options, "stage-transition-prepared");
+  } else if (prepared.authorityDigest !== authority.authorityDigest || prepared.proposedProduct !== chain.product.id || prepared.targetRoot !== request.targetRoot) {
+    throw new ReceiverRefusal("prepared-stage-binding-mismatch", prepared.id);
+  }
+  if (!existsSync(destination)) {
+    if (!existsSync(candidate)) throw new ReceiverRefusal("prepared-stage-bytes-absent", prepared.id);
+    const current = treeEvidence(candidate);
+    if (current.treeDigest !== prepared.stagedTreeDigest || digest(current.files) !== digest(prepared.stagedTree)) throw new ReceiverRefusal("prepared-stage-tree-drift", prepared.id);
+    if (digest(pathSnapshot(authorityRoot, request.targetRoot, { finalMustBeAbsent: true })) !== digest(prepared.targetPathSnapshot)) throw new ReceiverRefusal("target-path-snapshot-drift", request.targetRoot);
+    ensureAuthorityAvailable(dataRoot, authority.authorityDigest, authority.requestDigest, STAGE_OPERATION, authority.authority.nonce);
+    if (existsSync(destination)) throw new ReceiverRefusal("staging-destination-collision", key);
+    renameSync(candidate, destination);
+    crash(options, "stage-tree-published");
+  }
+  const published = treeEvidence(destination);
+  if (published.treeDigest !== prepared.stagedTreeDigest || digest(published.files) !== digest(prepared.stagedTree)) throw new ReceiverRefusal("published-stage-tree-drift", prepared.id);
+  let committed = exactTransition(dataRoot, "AcceptedSoftwareDeliveryStageCommitted", authority.requestDigest);
+  if (!committed) {
+    committed = contentRecord({ type: "AcceptedSoftwareDeliveryStageCommitted", recordedAt: now, receiver: ACTOR, operation: STAGE_OPERATION, requestDigest: authority.requestDigest, preparedTransition: prepared.id, authorityDigest: authority.authorityDigest, stagedTreeDigest: prepared.stagedTreeDigest, stagingDestination: prepared.stagingDestination, receiptType: STAGING_RECEIPT });
+    appendEvidence(dataRoot, "transitions", committed);
+    crash(options, "stage-transition-committed");
+  }
+  let receipt = recordsOfType(dataRoot, STAGING_RECEIPT).find((record) => record.requestDigest === authority.requestDigest);
+  if (!receipt) {
+    receipt = stageReceiptFrom(prepared, committed, now, started);
+    appendEvidence(dataRoot, "receipts", receipt);
+    crash(options, "stage-receipt-appended");
+  }
+  const consumed = makeConsumption("StagingCapabilityConsumptionCommitted", STAGE_OPERATION, authority.authorityDigest, authority.authority.nonce, authority.requestDigest, prepared.id, now);
+  appendEvidence(dataRoot, "authority-consumptions", consumed);
+  crash(options, "stage-capability-committed");
+  return receipt;
+}
+
+function validateStagingReceipt(request, dataRoot) {
+  const receipt = assertContentRecord(resolveExactLocalRecord(dataRoot, request.stagingReceiptId, "staging receipt"), "staging receipt");
+  if (receipt.type !== STAGING_RECEIPT || receipt.receiver !== ACTOR || receipt.operation !== STAGE_OPERATION || receipt.stagedTreeDigest !== request.stagedTreeDigest || receipt.targetServiceIdentity !== request.targetServiceIdentity || receipt.targetContract !== request.targetContract || receipt.targetRoot !== request.targetRoot || receipt.consumedCapabilityDigest === digest(request.admissionGrant)) throw new ReceiverRefusal("staging-receipt-binding-mismatch", receipt.id);
+  const prepared = assertContentRecord(resolveExactLocalRecord(dataRoot, receipt.preparedTransition, "stage prepared transition"), "stage prepared transition");
+  const committed = assertContentRecord(resolveExactLocalRecord(dataRoot, receipt.committedTransition, "stage committed transition"), "stage committed transition");
+  if (prepared.type !== "AcceptedSoftwareDeliveryStagePrepared" || committed.type !== "AcceptedSoftwareDeliveryStageCommitted" || committed.preparedTransition !== prepared.id || committed.requestDigest !== receipt.requestDigest || committed.stagedTreeDigest !== receipt.stagedTreeDigest || prepared.stagedTreeDigest !== receipt.stagedTreeDigest || prepared.stagingDestination !== receipt.stagingDestination) throw new ReceiverRefusal("staging-transition-chain-mismatch", receipt.id);
+  const source = resolve(dataRoot, receipt.stagingDestination);
+  if (!source.startsWith(`${resolve(dataRoot)}${sep}`) || !existsSync(source)) throw new ReceiverRefusal("staged-tree-absent", receipt.id);
+  const tree = treeEvidence(source);
+  if (tree.treeDigest !== receipt.stagedTreeDigest || digest(tree.files) !== digest(receipt.stagedTree)) throw new ReceiverRefusal("staged-tree-drift", receipt.id);
+  return { receipt, prepared, committed, source, tree };
+}
+
+function admissionReceiptFrom(prepared, committed, recordedAt, started) {
+  return contentRecord({
+    type: ADMISSION_RECEIPT,
+    recordedAt,
+    receiver: ACTOR,
+    operation: ADMIT_OPERATION,
+    requestDigest: prepared.requestDigest,
+    preparedTransition: prepared.id,
+    committedTransition: committed.id,
+    stagingReceipt: prepared.stagingReceipt,
+    stagedTreeDigest: prepared.stagedTreeDigest,
+    targetServiceIdentity: prepared.targetServiceIdentity,
+    targetContract: prepared.targetContract,
+    targetRoot: prepared.targetRoot,
+    admittedTreeDigest: prepared.stagedTreeDigest,
+    consumedGrantDigest: prepared.authorityDigest,
+    meshAdmissionRequestSha256: prepared.meshAdmissionRequestSha256,
+    meshAdmissionSnapshotDigest: digest(prepared.meshAdmissionSnapshot),
+    overwrite: false,
+    resourceReceipt: resourceReceipt(started),
+  });
+}
+
+export async function reviewAndAdmitStagedSoftwareDelivery(request, options = {}) {
+  const started = process.hrtime.bigint();
+  const now = options.now ?? new Date().toISOString();
+  const authorityRoot = existingDirectory("SDSS authority root", options.authorityRoot ?? DEFAULT_AUTHORITY_ROOT);
+  const dataRoot = existingDirectory("receiver data root", options.dataRoot ?? DEFAULT_DATA_ROOT);
+  const servicesParent = existingDirectory("SDSS services parent", join(authorityRoot, "services"));
+  assertSettlementLocal(authorityRoot, dataRoot, "receiver data root");
+  assertSettlementLocal(authorityRoot, servicesParent, "SDSS services parent");
+  const authority = validateOfferAndAuthority(ADMIT_OPERATION, request, now);
+  ensureAuthorityAvailable(dataRoot, authority.authorityDigest, authority.requestDigest, ADMIT_OPERATION, authority.authority.nonce);
+  const stage = validateStagingReceipt(request, dataRoot);
+  const finalTarget = resolve(authorityRoot, request.targetRoot);
+  const key = authority.requestDigest.slice(7);
+  const candidate = join(servicesParent, `.accepted-delivery-receiver-candidate-${key}`);
+  let prepared = exactTransition(dataRoot, "SoftwareDeliveryAdmissionPrepared", authority.requestDigest);
+  const targetSnapshot = prepared?.targetPathSnapshot ?? pathSnapshot(authorityRoot, request.targetRoot, { finalMustBeAbsent: true });
+  if (!prepared) {
+    if (existsSync(finalTarget)) throw new ReceiverRefusal("admission-destination-collision", request.targetRoot);
+    if (!existsSync(candidate)) {
+      copyTree(stage.source, candidate);
+      crash(options, "admission-candidate-created");
+    }
+    const candidateTree = treeEvidence(candidate);
+    if (candidateTree.treeDigest !== stage.receipt.stagedTreeDigest) throw new ReceiverRefusal("admission-candidate-tree-drift", request.stagingReceiptId);
+    let meshAdmission;
+    try {
+      inspectMeshScope({ authorityRoot, subject: stage.source });
+      meshAdmission = admitEnterpriseInstall({ authorityRoot, sourceEnterprise: stage.source, targetNode: servicesParent, installer: "codex", operation: "install", mode: "apply" });
+    } catch (error) {
+      throw new ReceiverRefusal("mesh-scope-refusal", error.message, error.facts ?? {});
+    }
+    prepared = contentRecord({
+      type: "SoftwareDeliveryAdmissionPrepared",
+      recordedAt: now,
+      receiver: ACTOR,
+      operation: ADMIT_OPERATION,
+      requestDigest: authority.requestDigest,
+      offer: authority.offer.id,
+      authorityDigest: authority.authorityDigest,
+      authorityNonce: authority.authority.nonce,
+      stagingReceipt: stage.receipt.id,
+      stagedTreeDigest: stage.receipt.stagedTreeDigest,
+      targetServiceIdentity: request.targetServiceIdentity,
+      targetContract: request.targetContract,
+      targetRoot: request.targetRoot,
+      targetPathSnapshot: targetSnapshot,
+      candidate: basename(candidate),
+      meshAdmissionRequest: meshAdmission.request,
+      meshAdmissionRequestSha256: `sha256:${meshAdmission.requestSha256}`,
+      meshAdmissionSnapshot: meshAdmission.snapshot,
+    });
+    const consumption = makeConsumption("AdmissionGrantConsumptionPrepared", ADMIT_OPERATION, authority.authorityDigest, authority.authority.nonce, authority.requestDigest, prepared.id, now);
+    appendEvidence(dataRoot, "authority-consumptions", consumption);
+    crash(options, "admission-grant-prepared");
+    appendEvidence(dataRoot, "transitions", prepared);
+    crash(options, "admission-transition-prepared");
+  } else if (prepared.authorityDigest !== authority.authorityDigest || prepared.stagingReceipt !== stage.receipt.id || prepared.targetRoot !== request.targetRoot) {
+    throw new ReceiverRefusal("prepared-admission-binding-mismatch", prepared.id);
+  }
+  if (!existsSync(finalTarget)) {
+    if (!existsSync(candidate)) throw new ReceiverRefusal("prepared-admission-candidate-absent", prepared.id);
+    const candidateTree = treeEvidence(candidate);
+    if (candidateTree.treeDigest !== prepared.stagedTreeDigest) throw new ReceiverRefusal("prepared-admission-tree-drift", prepared.id);
+    if (digest(pathSnapshot(authorityRoot, request.targetRoot, { finalMustBeAbsent: true })) !== digest(prepared.targetPathSnapshot)) throw new ReceiverRefusal("target-path-snapshot-drift", request.targetRoot);
+    ensureAuthorityAvailable(dataRoot, authority.authorityDigest, authority.requestDigest, ADMIT_OPERATION, authority.authority.nonce);
+    let meshAdmission;
+    try {
+      meshAdmission = admitEnterpriseInstall(prepared.meshAdmissionRequest);
+      if (`sha256:${meshAdmission.requestSha256}` !== prepared.meshAdmissionRequestSha256 || digest(meshAdmission.snapshot) !== digest(prepared.meshAdmissionSnapshot)) throw new Error("mesh request or snapshot changed");
+      revalidateEnterpriseInstall(meshAdmission);
+    } catch (error) {
+      throw new ReceiverRefusal("mesh-scope-refusal", error.message, error.facts ?? {});
+    }
+    if (existsSync(finalTarget)) throw new ReceiverRefusal("create-only-destination-exists", request.targetRoot);
+    renameSync(candidate, finalTarget);
+    crash(options, "admission-target-published");
+  }
+  const finalTree = treeEvidence(finalTarget);
+  if (finalTree.treeDigest !== prepared.stagedTreeDigest) throw new ReceiverRefusal("admitted-tree-drift", prepared.id);
+  let committed = exactTransition(dataRoot, "SoftwareDeliveryAdmissionCommitted", authority.requestDigest);
+  if (!committed) {
+    committed = contentRecord({ type: "SoftwareDeliveryAdmissionCommitted", recordedAt: now, receiver: ACTOR, operation: ADMIT_OPERATION, requestDigest: authority.requestDigest, preparedTransition: prepared.id, authorityDigest: authority.authorityDigest, stagingReceipt: prepared.stagingReceipt, stagedTreeDigest: prepared.stagedTreeDigest, targetRoot: prepared.targetRoot, meshAdmissionRequestSha256: prepared.meshAdmissionRequestSha256, receiptType: ADMISSION_RECEIPT });
+    appendEvidence(dataRoot, "transitions", committed);
+    crash(options, "admission-transition-committed");
+  }
+  let receipt = recordsOfType(dataRoot, ADMISSION_RECEIPT).find((record) => record.requestDigest === authority.requestDigest);
+  if (!receipt) {
+    receipt = admissionReceiptFrom(prepared, committed, now, started);
+    appendEvidence(dataRoot, "receipts", receipt);
+    crash(options, "admission-receipt-appended");
+  }
+  const consumed = makeConsumption("AdmissionGrantConsumptionCommitted", ADMIT_OPERATION, authority.authorityDigest, authority.authority.nonce, authority.requestDigest, prepared.id, now);
+  appendEvidence(dataRoot, "authority-consumptions", consumed);
+  crash(options, "admission-grant-committed");
+  return receipt;
+}
+
+function operationName() {
+  const index = process.argv.indexOf("--operation");
+  return index >= 0 ? process.argv[index + 1] : basename(process.argv[1] ?? "");
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const input = JSON.parse(readFileSync(0, "utf8"));
+    const operation = operationName();
+    let result;
+    if (operation === `solicit-${STAGE_OPERATION}`) result = solicitOperation(STAGE_OPERATION, input.request, input.customer, input.recordedAt);
+    else if (operation === `solicit-${ADMIT_OPERATION}`) result = solicitOperation(ADMIT_OPERATION, input.request, input.customer, input.recordedAt);
+    else if (operation === STAGE_OPERATION) result = await stageAcceptedSoftwareDelivery(input);
+    else if (operation === ADMIT_OPERATION) result = await reviewAndAdmitStagedSoftwareDelivery(input);
+    else throw new ReceiverRefusal("unknown-operation", operation);
+    process.stdout.write(`${JSON.stringify(result)}\n`);
+  } catch (error) {
+    process.stdout.write(`${JSON.stringify({ type: "AcceptedSoftwareDeliveryReceiverRefusal", code: error.code ?? "receiver-error", detail: error.message, evidence: error.evidence ?? {}, externalNetwork: false, externalSpend: 0, credentials: false, git: false, customerMutation: false, foreignMutation: false, ttiMutation: false })}\n`);
+    process.exitCode = 2;
+  }
+}

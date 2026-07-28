@@ -1,0 +1,65 @@
+{
+  "name": "@red-cup-engineering/planned-transition-admission-service",
+  "version": "0.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Admit one planned transition to execution through placement, proof-pore permeability, and game-foam materiality.",
+  "license": "Apache-2.0",
+  "bin": {
+    "admit-planned-transition": "./bin/admit-planned-transition.mjs"
+  },
+  "exports": {
+    ".": "./src/admit-planned-transition.mjs"
+  },
+  "files": [
+    "bin",
+    "content",
+    "src"
+  ],
+  "scripts": {
+    "check": "node --check src/admit-planned-transition.mjs && node --check bin/admit-planned-transition.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "dependencies": {
+    "@red-cup-engineering/playing": "0.0.1",
+    "@red-cup-engineering/relating": "0.0.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "planned-transition-admission-service",
+    "actor": "urn:ame:planned-transition-admission-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "operation-catalog": {
+      "admit-planned-transition": {
+        "contractSource": "content/contracts/admit-planned-transition.rml",
+        "inputSchema": "content/schemas/input.schema.json",
+        "outputSchema": "content/schemas/output.schema.json",
+        "refusalSchema": "content/schemas/refusal.schema.json"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:planned-transition-admission-service",
+    "operations": [
+      "admit-planned-transition"
+    ],
+    "capabilities": [
+      {
+        "capability": "planned-transition-admission-service",
+        "faces": [
+          "admit-planned-transition"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/planned-transition-admission-service"
+  }
+}

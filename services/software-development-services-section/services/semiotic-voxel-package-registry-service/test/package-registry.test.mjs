@@ -1,0 +1,115 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+
+import { createPackageRegistryServer, fabricatePackageRegistry, resolvePackageRegistryRequest, rewriteMetadataTarballOrigins } from "../src/package-registry.mjs";
+
+test("packs and serves an explicit semiotic voxel carrier", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-"));
+  try {
+    const carrier = join(root, "carrier");
+    const registry = join(root, "registry");
+    await mkdir(carrier);
+    await writeFile(join(carrier, "package.json"), `${JSON.stringify({ name: "@customer/example", version: "1.0.0", type: "module", exports: "./index.mjs", "x-semiotic-voxel": { package: "@customer/example" } })}\n`);
+    await writeFile(join(carrier, "index.mjs"), "export const value = 1;\n");
+    await mkdir(join(carrier, "src", "child"), { recursive: true });
+    await writeFile(join(carrier, "src", "actor.mjs"), "export const actor = true;\n");
+    await writeFile(join(carrier, "src", "child", "package.json"), `${JSON.stringify({ name: "@customer/child", version: "1.0.0" })}\n`);
+    await mkdir(join(carrier, "content", "contracts"), { recursive: true });
+    await mkdir(join(carrier, "content", "exchanges"), { recursive: true });
+    await writeFile(join(carrier, "content", "contracts", "law.rml"), "(map)\n");
+    await writeFile(join(carrier, "content", "exchanges", "instance.json"), "{}\n");
+    const receipt = await fabricatePackageRegistry({ packageDirectories: [carrier], outputDirectory: registry, registryUrl: "http://127.0.0.1:4873/" });
+    assert.equal(receipt.packages.length, 1);
+    assert.match(await readFile(join(registry, "client.npmrc"), "utf8"), /@customer:registry=/u);
+    const metadataPath = await resolvePackageRegistryRequest({ registryDirectory: registry, requestPath: "/@customer%2Fexample" });
+    assert.ok(metadataPath);
+    assert.equal(JSON.parse(await readFile(metadataPath, "utf8"))["dist-tags"].latest, "1.0.0");
+    const archiveListing = execFileSync("tar", ["-tzf", join(registry, receipt.packages[0].artifact)], { encoding: "utf8" });
+    assert.match(archiveListing, /package\/index\.mjs/u);
+    assert.match(archiveListing, /package\/src\/actor\.mjs/u);
+    assert.match(archiveListing, /package\/content\/contracts\/law\.rml/u);
+    assert.doesNotMatch(archiveListing, /src\/child/u);
+    assert.doesNotMatch(archiveListing, /content\/exchanges/u);
+    assert.equal(await resolvePackageRegistryRequest({ registryDirectory: registry, requestPath: "/../../etc/passwd" }), null);
+    assert.equal(typeof createPackageRegistryServer({ registryDirectory: registry }).listen, "function");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("refuses generic package ownership", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-refusal-"));
+  try {
+    const carrier = join(root, "carrier");
+    await mkdir(carrier);
+    await writeFile(join(carrier, "package.json"), `${JSON.stringify({ name: "@emsenn/example", version: "1.0.0", "x-semiotic-voxel": { package: "@emsenn/example" } })}\n`);
+    await assert.rejects(() => fabricatePackageRegistry({ packageDirectories: [carrier], outputDirectory: join(root, "registry"), registryUrl: "http://127.0.0.1:4873/" }), /not sovereign/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("rewrites metadata tarballs to the requesting private registry face", () => {
+  const metadata = rewriteMetadataTarballOrigins({
+    versions: { "1.0.0": { dist: { tarball: "http://127.0.0.1:4873/tarballs/customer/example/-/example-1.0.0.tgz" } } },
+  }, "https://registry.union.test");
+  assert.equal(metadata.versions["1.0.0"].dist.tarball, "https://registry.union.test/tarballs/customer/example/-/example-1.0.0.tgz");
+});
+
+test("extends a base registry without discarding its published packages", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-base-"));
+  try {
+    const first = join(root, "first"), second = join(root, "second"), base = join(root, "base"), next = join(root, "next");
+    for (const [directory, name] of [[first, "@customer/first"], [second, "@customer/second"]]) {
+      await mkdir(directory);
+      await writeFile(join(directory, "package.json"), `${JSON.stringify({ name, version: "1.0.0", type: "module", exports: "./index.mjs", "x-semiotic-voxel": { package: name } })}\n`);
+      await writeFile(join(directory, "index.mjs"), "export const value = 1;\n");
+    }
+    await fabricatePackageRegistry({ packageDirectories: [first], outputDirectory: base, registryUrl: "http://127.0.0.1:4873/" });
+    const receipt = await fabricatePackageRegistry({ packageDirectories: [second], outputDirectory: next, baseRegistryDirectory: base, registryUrl: "http://127.0.0.1:4873/" });
+    assert.equal(receipt.packages.length, 2);
+    assert.ok(await resolvePackageRegistryRequest({ registryDirectory: next, requestPath: "/@customer%2Ffirst" }));
+    assert.ok(await resolvePackageRegistryRequest({ registryDirectory: next, requestPath: "/@customer%2Fsecond" }));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("buys bounded parallel CPU capacity from an injected compute market", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-market-"));
+  let demand;
+  let released = false;
+  try {
+    const carrier = join(root, "carrier");
+    await mkdir(carrier);
+    await writeFile(join(carrier, "package.json"), `${JSON.stringify({ name: "@customer/market-example", version: "1.0.0", "x-semiotic-voxel": { package: "@customer/market-example" } })}\n`);
+    const receipt = await fabricatePackageRegistry({
+      packageDirectories: [carrier],
+      outputDirectory: join(root, "registry"),
+      registryUrl: "http://127.0.0.1:4873/",
+      concurrency: 12,
+      computeMarket: {
+        async procure(offeredDemand) {
+          demand = offeredDemand;
+          return {
+            provider: "urn:provider:compute-market-winner",
+            parallelism: 6,
+            settlement: { type: "ComputeLeaseSettlement", id: "urn:settlement:1" },
+            async release() { released = true; },
+          };
+        },
+      },
+    });
+    assert.equal(demand.resource, "cpu-process-slot");
+    assert.equal(demand.maximumParallelism, 12);
+    assert.equal(receipt.compute.provider, "urn:provider:compute-market-winner");
+    assert.equal(receipt.compute.parallelism, 6);
+    assert.equal(released, true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

@@ -1,0 +1,37 @@
+{
+  "name": "@red-cup-engineering/node-package-authority-assay-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Observe package-manager authority and conflicting installation signals without invoking a package manager.",
+  "exports": {
+    ".": "./src/assay-package-authority.mjs"
+  },
+  "bin": {
+    "assay-node-package-authority": "./bin/assay-node-package-authority.mjs"
+  },
+  "scripts": {
+    "verify": "node --check src/assay-package-authority.mjs && node --check bin/assay-node-package-authority.mjs && node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:node-package-authority-assay-service",
+    "operations": [
+      "node-package-authority-assay-service"
+    ],
+    "capabilities": [
+      {
+        "capability": "node-package-authority-assay-service",
+        "faces": [
+          "node-package-authority-assay-service"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/node-package-authority-assay-service"
+  }
+}

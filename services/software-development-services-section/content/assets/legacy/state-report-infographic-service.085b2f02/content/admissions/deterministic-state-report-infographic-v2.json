@@ -1,0 +1,34 @@
+{
+  "id": "urn:sha256:945c7c53dd827d19b0dea72fc5e0dd3a32191a0a1542cedc8f6bc4a93e9292f2",
+  "type": "AcceptedSoftwareImplementationAdmission",
+  "recordedAt": "2026-07-18T18:36:00-05:00",
+  "admittingEnterprise": "urn:ame:state-report-infographic-service",
+  "sourceProvider": "urn:ame:software-development-services-section",
+  "sourceProduct": "urn:sha256:9e1eb7d8907ccd1512974afa89aaa7467ea757fc16b3e9bc9108e06b7fda754e",
+  "completeSourceProductDigest": "sha256:701d396aa6d07435e558d9a5bfd2e68761c09c7beaa8968188da360b96ec7d77",
+  "sourceCustomerDecision": "urn:lmt:customer-decision:2026-07-18:deterministic-state-report-infographic-proposal:v2",
+  "sourceProviderDecisionReceipt": "urn:sha256:c6f64d7e15819a54c8a0cd95107452a6c72908a768e58993a95d64e063ecd5b7",
+  "implementationBundle": "deterministic-state-report-infographic-v2",
+  "implementationBundleDigest": "sha256:5fdca1a1abfc03044cc12440ec7571c59c11e9565150ee380bdb9e9ddb3325e3",
+  "sourceArtifactPath": "lib/admitted/state-report-infographic-v2.mjs",
+  "sourceArtifactDigest": "sha256:1d5593acceb3d7afc44af7dc8beaa7540fd6257f139967939de669b7899d2017",
+  "sourceArtifactBytes": 6556,
+  "sourceTestDigest": "sha256:f7cd155d6d91514bf707f9e7a40c946e51fd88710228ae74a2845f37c0967b2f",
+  "admittedPurpose": "provider-local deterministic rendering of typed HarmoniousUnionDeltaPacket inputs",
+  "admittedEffects": [
+    "provider-local-render",
+    "proposal-only-artifact-bytes"
+  ],
+  "excludedEffects": [
+    "customer-write",
+    "foreign-write",
+    "installation",
+    "deployment",
+    "schedule",
+    "publication"
+  ],
+  "verification": "The child MUST recompute the canonical base64 artifact digest before every process load and refuse drift.",
+  "customerTerritoryMutation": false,
+  "foreignTerritoryMutation": false,
+  "carriage": "Exact customer-accepted source bytes are vendored into this child settlement; parent v3 or later bytes are not admitted by implication."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "standard-document-release-cycle",
+  "name": "standard-document-release-cycle",
+  "version": "0.1.0",
+  "structures": [
+    "lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/lib/schemas/work-order.schema.json"
+  ],
+  "readings": [
+    "identify one semantic token in the corpus judged unique and rich enough (a Leader-admitted framing, a term cluster, a PDK) that a standards-form document over it is now warranted",
+    "collect its real corpus sources: notes, glossary terms, work orders, running code, by exact path",
+    "compose the sources faithfully into an IEEE/RFC/arxiv-style structure: Scope, Normative References, Definitions, normative content, Conformance, each section citing the paths it came from"
+  ],
+  "writings": [
+    "seat one draft document under this node's own content/documents/specifications/ tree, marked DRAFT-FOR-LEADER-REVIEW",
+    "mint one LMT work order of class define tracking the draft, naming this node as the drafting owner"
+  ],
+  "codecs": [
+    "text/markdown",
+    "application/json"
+  ],
+  "conformance": "PROCESS.md",
+  "closure-rules": [
+    "no draft is released externally (no github publish, no public URL) before a Leader disposition is recorded against it",
+    "every normative-content section names the real corpus path(s) it was composed from; a section with no cited path is refused",
+    "the composer never seats its own draft as accepted; acceptance is the Leader's or the Leader's delegate's, recorded separately from this cycle"
+  ],
+  "rung": "identity",
+  "x-provenance": {
+    "recorded-by": "claude/executive-officer-to-the-leader",
+    "recorded-on": "2026-07-23"
+  }
+}

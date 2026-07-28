@@ -1,0 +1,17 @@
+{
+  "id": "urn:offer:topical-knowledge-cell-product-qualification:v1",
+  "type": "ServiceOffer",
+  "provider": "urn:ame:topical-knowledge-cell-brokerage-service",
+  "operation": "qualify-topical-knowledge-cell-products",
+  "price": {
+    "assetId": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "symbol": "USDC",
+    "decimals": 6,
+    "amountAtomicPerListing": "50000",
+    "minimumAmountAtomic": "50000",
+    "basis": "each listing in the customer-supplied denominator",
+    "payoutAccount": "runtime-authorized"
+  },
+  "output": ["qualified", "refused", "unknown", "componentwise-comparison"],
+  "withheld": ["publication", "ranking", "winner-selection", "purchase", "installation", "operation", "price-conversion"]
+}

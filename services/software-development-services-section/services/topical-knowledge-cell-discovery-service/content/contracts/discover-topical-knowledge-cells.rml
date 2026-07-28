@@ -1,0 +1,9 @@
+#lang rmn/v2
+(map
+  ("type" "TopicalKnowledgeCellFederatedDiscoveryLaw")
+  ("version" 1)
+  ("provider" "urn:ame:topical-knowledge-cell-discovery-service")
+  ("precondition" "The customer supplies one finite sorted denominator of exact manifest endpoints, a maximum age, an evaluation instant, and a nondelegable single-use capability bound to the complete request body.")
+  ("operation" "Hire signed Agent Card discovery and RMN identity providers for each admitted endpoint; classify exact manifests as fresh, stale, refused, or contradictory without selecting among contradictions.")
+  ("postcondition" "Return one content-identified snapshot whose completeness claim is exactly denominator-only and append only provider-local RWIL/RDF evidence. No global crawl, source-content custody, notebook effect, publication, or authority grant occurs.")
+  ("refusal" "Refuse malformed or duplicate endpoints, issuer mismatch, changed identity, authoritative projection, invalid time, unbounded freshness, replay collision, widened capability, unavailable hired provider, or any completeness claim beyond the supplied denominator."))

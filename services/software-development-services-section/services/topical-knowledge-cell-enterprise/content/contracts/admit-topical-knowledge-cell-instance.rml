@@ -1,0 +1,9 @@
+#lang rmn/v2
+(map
+  ("type" "TopicalKnowledgeCellInstanceAdmissionLaw")
+  ("version" 1)
+  ("provider" "urn:ame:topical-knowledge-cell-enterprise-carrier")
+  ("precondition" "One sovereign owner supplies an exact topic-neutral cell definition, its own projection and custody receipts, explicit hired-provider bindings, and a nondelegable single-use capability bound to the complete request body.")
+  ("operation" "Validate ownership, disclosure, source and custody bindings, unique provider roles, and receipt identities; form one content-addressed cell instance plus an exact activation residue and hiring plan; append only the carrier provider's RWIL/RDF receipt.")
+  ("postcondition" "Return an active or proposed cell instance. The carrier performs no source read, provider selection, notebook effect, generation, discovery, publication, payment, external delivery, or foreign-territory mutation.")
+  ("refusal" "Refuse foreign ownership, authoritative aggregate scope, topic-specific executable terms, changed receipt identity, disclosure mismatch, duplicate role, embedded provider code or filesystem path, widened capability, replay collision, or unavailable RMN/RWIL provider."))

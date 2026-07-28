@@ -1,0 +1,7 @@
+#lang rmn/v2
+(map
+  ("type" "PurposeBoundSoftwareOperationLaw") ("version" 1) ("provider" "urn:ame:software-development-services-section")
+  ("precondition" "A customer supplies a typed supported purpose-specific request and an unexpired single-use capability attenuated to the exact provider offer, request digest, effects, and customer actor.")
+  ("operation" "Contract the purpose-specific child and tool providers named by the offer, preserve their independent boundaries, and form a digest-bound proposed software-operation product with nested evidence and typed resource observations.")
+  ("postcondition" "Return the proposed product or a typed refusal pending a decision by the original customer; no provider or child claims customer usefulness, customer acceptance, credential custody, or authority to mutate customer territory.")
+  ("refusal" "Refuse an untyped purpose, missing, expired, replayed, overbroad, or mismatched capability, caller-selected executable, ambient tool use, undeclared effect, credential record, child-service capture, or unknown resource use represented as zero."))

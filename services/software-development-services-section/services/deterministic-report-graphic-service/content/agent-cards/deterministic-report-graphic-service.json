@@ -1,0 +1,163 @@
+{
+  "name": "Deterministic Report Graphic Service",
+  "description": "Renders explicit FOUR-valued RMN report packets into byte-stable SVG and PNG artifacts.",
+  "supportedInterfaces": [
+    {
+      "url": "${BASE_URL}/a2a/jsonrpc",
+      "protocolBinding": "JSONRPC",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "${BASE_URL}/a2a/rest",
+      "protocolBinding": "HTTP+JSON",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "url": "https://emsenn.net/",
+    "organization": "Software Development Services Section"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [
+      {
+        "uri": "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M",
+        "description": "Sovereign recursive circuit interface",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.rmn.sovereign-circuit-interface.v1",
+          "account": "eip155:31337:0x94ea441808a9b4ee16484e278ab85554b776f4f5",
+          "authority": "ni:///sha-256;VLrAGw8edPhmTXf-GAzHHdhoeKobgUNj5umSRHR4voM",
+          "custody": "ni:///sha-256;vjMiGCzoi4o9jB5SK4_o_3fvETs4w_iX_PA6hClLH64",
+          "territory": "ni:///sha-256;hk5Lw3-MC6PTo5r7i58zOFAevX9AzOzk1emPtVjA1C0",
+          "component": {
+            "profile": "org.emsenn.rmn.hierarchical-circuit.v3",
+            "law": "ni:///sha-256;ITq5Cj56QcUA3JDqhWhf7K_eRfFNfksTwSKwNksn9b8",
+            "ports": [
+              {
+                "name": "packet",
+                "direction": "input",
+                "predicate": "ni:///sha-256;ZOaIHNnmdx3xdiKkPRUXTSuuCf74wSYBOI8RSNiW1OI",
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "mode": "tensor"
+              },
+              {
+                "name": "artifact",
+                "direction": "output",
+                "predicate": "ni:///sha-256;ZOaIHNnmdx3xdiKkPRUXTSuuCf74wSYBOI8RSNiW1OI",
+                "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
+                "mode": "tensor"
+              }
+            ],
+            "instances": [],
+            "nets": [],
+            "behavior": {
+              "factors": [
+                {
+                  "inputs": [
+                    "packet"
+                  ],
+                  "outputs": [
+                    "artifact"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": [
+    "application/rmn+cbor"
+  ],
+  "defaultOutputModes": [
+    "application/rmn+cbor"
+  ],
+  "skills": [
+    {
+      "id": "render-deterministic-report-graphic",
+      "name": "Render deterministic report graphic",
+      "description": "Render one explicit FOUR-valued packet into exact SVG and PNG bytes.",
+      "tags": [
+        "rendering",
+        "four",
+        "rmn"
+      ],
+      "examples": [],
+      "inputModes": [
+        "application/rmn+cbor"
+      ],
+      "outputModes": [
+        "application/rmn+cbor"
+      ],
+      "securityRequirements": []
+    }
+  ],
+  "signatures": []
+}

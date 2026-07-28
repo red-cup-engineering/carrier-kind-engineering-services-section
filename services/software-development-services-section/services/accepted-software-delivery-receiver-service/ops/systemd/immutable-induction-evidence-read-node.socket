@@ -1,0 +1,11 @@
+[Unit]
+Description=Immutable induction evidence read node socket
+
+[Socket]
+ListenStream=127.0.0.1:19853
+NoDelay=true
+FileDescriptorName=a2a
+Service=immutable-induction-evidence-read-node.service
+
+[Install]
+WantedBy=sockets.target

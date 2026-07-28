@@ -1,0 +1,9 @@
+#lang rmn/v2
+(map
+  ("type" "TopicalKnowledgeCellCorpusReconciliationLaw")
+  ("version" 1)
+  ("provider" "urn:ame:topical-knowledge-cell-corpus-service")
+  ("precondition" "The customer supplies one content-identified cell definition, exact observed notebook state, desired source-set identity, and one expiring nondelegable single-use capability bound to the actor, cell, operation, and request.")
+  ("operation" "Validate ownership, projection status, disclosure, stable source identities, notebook receipts, and authorization; compare desired and observed sources; then form sorted add, preserve, and remove terms for a separately hired notebook provider.")
+  ("postcondition" "Return one content-identified reconciliation intent and append only the provider's own RWIL/RDF receipt. The intent performs no notebook, source, sharing, publication, report, payment, or customer-territory effect.")
+  ("refusal" "Refuse altered or reused authority, request collision, authoritative Union-view claim, duplicate or silently replaced source identity, disclosure violation, foreign notebook receipt, requested direct effect, unavailable RMN identity provider, or unavailable RWIL/RDF provider."))

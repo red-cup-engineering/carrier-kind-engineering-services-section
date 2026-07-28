@@ -1,0 +1,107 @@
+{
+  "type": "TopicalKnowledgeCellReportProductCandidate",
+  "version": 1,
+  "candidateId": "urn:product-candidate:rendanheyi-business-philosophy-brief:v1",
+  "seller": "urn:ame:topical-knowledge-cell-report-service",
+  "customerProduct": {
+    "title": "Rendanheyi Business Philosophy — Source-Grounded Brief",
+    "subject": "Rendanheyi as a business and management philosophy",
+    "deliverable": "one privately delivered English brief answering one buyer-supplied question with source-receipt citations",
+    "formats": [
+      "brief"
+    ],
+    "lengths": [
+      "short"
+    ],
+    "languages": [
+      "en"
+    ],
+    "retailPrice": {
+      "asset": {
+        "assetId": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "network": "eip155:8453",
+        "tokenContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+        "symbol": "USDC",
+        "decimals": 6
+      },
+      "amountAtomic": "2000000",
+      "display": "2.00 USDC"
+    }
+  },
+  "sourceDemand": [
+    {
+      "supplier": "urn:ame:union-officer-academy",
+      "material": "Rendanheyi glossary corpus",
+      "observedTreeDigest": "sha256:6a5e3caaccd0330c172fe1c7401063dc6c422fc245f6d5559454c2c153ea9ebd",
+      "observedFileCount": 21,
+      "requiredProduct": "public-report-use projection receipt binding exact source bytes and disclosure terms",
+      "admittedReceipt": null
+    },
+    {
+      "supplier": "urn:ame:executive-office",
+      "material": "research note relating Rendanheyi and Hoare programs",
+      "observedContentDigest": "sha256:4a7f753f7edfc7182fc2897baf5e29977a52161676008f15ddd9b4d12490dbc8",
+      "requiredProduct": "public-report-use projection receipt that preserves the note's research-only proof status",
+      "admittedReceipt": null
+    }
+  ],
+  "hiredServices": [
+    {
+      "role": "cell-corpus-reconciliation",
+      "providerClass": "topical-knowledge-cell-corpus-service",
+      "acceptedOffer": null,
+      "cost": "unknown-not-zero"
+    },
+    {
+      "role": "notebook-creation",
+      "providerClass": "notebook-creation-authorization-service plus notebooklm-inference-team",
+      "acceptedOffer": null,
+      "cost": "unknown-not-zero"
+    },
+    {
+      "role": "notebooklm-inference",
+      "providerClass": "notebooklm-inference-team",
+      "acceptedOffer": null,
+      "cost": "unknown-not-zero"
+    },
+    {
+      "role": "x402-settlement",
+      "providerClass": "x402 exact-EVM facilitator service",
+      "acceptedOffer": null,
+      "cost": "unknown-not-zero"
+    },
+    {
+      "role": "private-delivery",
+      "providerClass": "ActivityPub direct-delivery service",
+      "acceptedOffer": null,
+      "cost": "unknown-not-zero"
+    }
+  ],
+  "payoutAccount": null,
+  "cellManifest": null,
+  "notebookCustodyAssignment": null,
+  "unitEconomics": {
+    "retailRevenueAtomic": "2000000",
+    "knownSameAssetCostAtomic": "0",
+    "unknownCostCount": 5,
+    "grossMarginAtomic": null,
+    "rule": "no margin is claimed until every hired provider returns an exact charge or no-charge receipt"
+  },
+  "activationStatus": "candidate-not-for-sale",
+  "activationResidue": [
+    "authorized Base-mainnet payout account",
+    "source projection and disclosure receipts",
+    "Leader-authorized notebook custody assignment",
+    "live cell manifest",
+    "accepted upstream provider offers",
+    "signed callable report-service face",
+    "live x402 and private ActivityPub delivery bindings"
+  ],
+  "nonClaims": [
+    "Rendanheyi is not a software architecture or governing jurisdiction",
+    "Hoare-program language in a research note is not a formal proof",
+    "an advertised price is not revenue",
+    "a simulated settlement is not USDC",
+    "the product is not live while payoutAccount or cellManifest is null"
+  ]
+}

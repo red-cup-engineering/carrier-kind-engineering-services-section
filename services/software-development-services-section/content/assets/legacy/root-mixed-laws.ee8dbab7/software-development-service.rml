@@ -1,0 +1,7 @@
+#lang rmn/v2
+(map
+  ("type" "SoftwareDevelopmentServiceLaw") ("version" 1) ("provider" "urn:ame:software-development-services-section")
+  ("precondition" "A customer names itself and its target settlement, stable outcome, source digests, constraints, structured replayable Node acceptance commands, proposal-only delivery, finite file, byte, and time ceilings, and value agreement, then accepts the exact provider offer with an attenuated capability and attributable implementation bundle.")
+  ("operation" "Confine and stage the attributable implementation in provider territory, execute the declared shell-free acceptance plan, and form one content-addressed proposed delivery with artifact bytes and digests, exact execution results, provenance, typed resource observations, and residue.")
+  ("postcondition" "Return the proposal or a typed refusal with customerMutation false; independent assurance, customer configuration admission, installation, usefulness, and customer acceptance remain outside this provider act.")
+  ("refusal" "Refuse an unstable or unaddressed demand, drifted offer, target, source, capability, bundle, or acceptance plan, path escape, caller-selected or shell execution, ceiling breach, undeclared effect, foreign-territory mutation, missing evidence, independent-certification claim, or unknown resource use represented as zero."))

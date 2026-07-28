@@ -1,0 +1,7 @@
+{
+  "id": "rmn-profile-steward",
+  "kind": "office",
+  "enterprise": "rmn-semantic-conformance",
+  "duties": ["publish versioned profile bytes", "assay exact profile-bound terms", "issue typed deterministic refusals", "preserve the boundary between proof-core terms and unadmitted domain extensions"]
+}
+

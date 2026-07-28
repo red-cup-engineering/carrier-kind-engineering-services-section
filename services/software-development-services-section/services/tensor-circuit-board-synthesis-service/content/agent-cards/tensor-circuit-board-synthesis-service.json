@@ -1,0 +1,107 @@
+{
+  "name": "Tensor Circuit Board Synthesis",
+  "description": "Fabricates one sovereign tensor board from independently owned black-box circuit faces without discovering providers, reading interiors, executing work, or attesting itself.",
+  "supportedInterfaces": [
+    {
+      "url": "${BASE_URL}/a2a/jsonrpc",
+      "protocolBinding": "JSONRPC",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "${BASE_URL}/a2a/rest",
+      "protocolBinding": "HTTP+JSON",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "url": "https://emsenn.net/",
+    "organization": "Tensor Circuit Board Synthesis"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [
+      {
+        "uri": "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M",
+        "description": "Sovereign M1 black-box circuit interface inhabited by this endpoint.",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.rmn.sovereign-circuit-interface.v1",
+          "account": "eip155:31337:0x5580c2b186327d787704860a6b4449f5beede78b",
+          "authority": "ni:///sha-256;JwP3roAEBAksIDkSG6lEgbCyRgEIauQYub8uy4t7xZg",
+          "custody": "ni:///sha-256;BX2rI8WR2BZ4CO-N3FIfdDJBnTIpzl4Dai9pWuiwzyY",
+          "territory": "ni:///sha-256;dPwYTdvYCqU6eXao83_ZrzdKKNifZSzWUYy6YKCFx1I",
+          "component": {
+            "profile": "org.emsenn.rmn.hierarchical-circuit.v3",
+            "law": "ni:///sha-256;ZK_h7TCLbNdx4SFaVku6Rmk6PNezLws-h9ffjWBF9Hc",
+            "ports": [
+              {
+                "name": "request",
+                "direction": "input",
+                "predicate": "ni:///sha-256;N0FkBC6aLipzOyX8GZJHAaIxKN3rzKeL-1nKCcIRh5s",
+                "carrier": "ni:///sha-256;lQePzQofZMVZcutWnpOj39HnJYO5DyZmI06ycYW95jg",
+                "mode": "tensor"
+              },
+              {
+                "name": "receipt",
+                "direction": "output",
+                "predicate": "ni:///sha-256;5vKVPWLSxe_2Ig7FUl27eRT0R9QBrjg6MZULhuThC1g",
+                "carrier": "ni:///sha-256;lQePzQofZMVZcutWnpOj39HnJYO5DyZmI06ycYW95jg",
+                "mode": "tensor"
+              }
+            ],
+            "instances": [],
+            "nets": [],
+            "behavior": {
+              "factors": [
+                {
+                  "inputs": ["request"],
+                  "outputs": ["receipt"],
+                  "rows": [
+                    {
+                      "input": [{ "positiveEvidence": false, "negativeEvidence": false }],
+                      "output": [{ "positiveEvidence": false, "negativeEvidence": false }]
+                    },
+                    {
+                      "input": [{ "positiveEvidence": true, "negativeEvidence": false }],
+                      "output": [{ "positiveEvidence": true, "negativeEvidence": false }]
+                    },
+                    {
+                      "input": [{ "positiveEvidence": false, "negativeEvidence": true }],
+                      "output": [{ "positiveEvidence": false, "negativeEvidence": true }]
+                    },
+                    {
+                      "input": [{ "positiveEvidence": true, "negativeEvidence": true }],
+                      "output": [{ "positiveEvidence": true, "negativeEvidence": true }]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": ["application/rmn+cbor"],
+  "defaultOutputModes": ["application/rmn+cbor"],
+  "skills": [
+    {
+      "id": "synthesize-tensor-circuit-board",
+      "name": "Synthesize tensor circuit board",
+      "description": "Fabricate one exact tensor board and sovereign occurrence assembly from provider-owned black-box faces.",
+      "tags": ["eda", "rmn", "four", "tensor", "synthesis", "circuit"],
+      "examples": [],
+      "inputModes": ["application/rmn+cbor"],
+      "outputModes": ["application/rmn+cbor"],
+      "securityRequirements": []
+    }
+  ],
+  "signatures": []
+}

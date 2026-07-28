@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "tensor-circuit-board-synthesis-service",
+    "urn": "urn:ame:tensor-circuit-board-synthesis-service",
+    "enterpriseId": "0x58dc6aab0eb4e610675216c3195782240b9b938bfc28fc43e627fa4e0d20c63b"
+  },
+  "chain": {
+    "chainId": 31337,
+    "caip2": "eip155:31337"
+  },
+  "account": {
+    "address": "0x5580c2b186327d787704860a6b4449f5beede78b",
+    "caip10": "eip155:31337:0x5580c2b186327d787704860a6b4449f5beede78b"
+  },
+  "factory": {
+    "address": "0x7bf3cf1176c4a037d3ea2a5ff3d480359ac65ecd",
+    "userSalt": "0xfbe4263219decc2793dddf10f0c51d3cee06ca11edb25b47b2e3ecce3f33dbfc"
+  },
+  "policy": {
+    "signer": "0x83ac4dfbca515ee0e43ae0c9a1fdbcaf95ed6579",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0xab0acee0abf265da0b9b7eed12773fc3003efa0e2a5dc6c3de2e98f35b24cf77",
+    "block": 1545
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "type": "SourceGroundedReportWholesaleOffer",
+  "version": 1,
+  "offerId": "urn:offer:topical-knowledge-cell-report-service:source-grounded-report:v1",
+  "seller": "urn:ame:topical-knowledge-cell-report-service",
+  "productClass": "one customer-specified source-grounded report over one admitted topical knowledge cell",
+  "topicSpecific": false,
+  "price": {
+    "assetId": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "network": "eip155:8453",
+    "tokenContract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "symbol": "USDC",
+    "decimals": 6,
+    "amountAtomic": "250000",
+    "basis": "one completed short or medium text report"
+  },
+  "payoutAccount": {
+    "source": "runtime-authorized X402_PAY_TO",
+    "value": null
+  },
+  "upstreamCosts": {
+    "rule": "every provider charge is retained exactly; zero requires a provider-authored no-charge receipt",
+    "crossAssetConversion": false
+  },
+  "delivery": {
+    "internal": "A2A 1.0",
+    "external": "private ActivityPub after exact x402 settlement"
+  },
+  "status": "software-offer-not-live-until-payout-and-provider-bindings-are-admitted"
+}

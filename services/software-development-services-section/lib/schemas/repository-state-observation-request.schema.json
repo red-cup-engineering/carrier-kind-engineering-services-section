@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:schema:sdss:repository-state-observation-request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "repositoryRoot", "waitMilliseconds", "executionMode"],
+  "properties": {
+    "type": { "const": "RepositoryStateObservationRequest" },
+    "repositoryRoot": { "type": "string", "pattern": "^/" },
+    "waitMilliseconds": { "type": "integer", "minimum": 1, "maximum": 300000 },
+    "executionMode": { "enum": ["dry-run", "live"] }
+  }
+}

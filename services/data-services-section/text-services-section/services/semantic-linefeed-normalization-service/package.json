@@ -1,0 +1,73 @@
+{
+  "name": "@red-cup-engineering/semantic-linefeed-normalization-service",
+  "version": "0.1.0",
+  "description": "Normalizes Markdown prose to semantic linefeeds without changing Markdown structure.",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/normalize-semantic-linefeeds.mjs"
+    }
+  },
+  "bin": {
+    "semantic-linefeed-normalize": "./bin/semantic-linefeed-normalize.mjs",
+    "semantic-linefeed-normalization-service": "./bin/server.mjs"
+  },
+  "files": [
+    "bin/",
+    "content/",
+    "src/",
+    "types/",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm test && npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "semantic-linefeed-normalization-service",
+    "actor": "urn:ame:semantic-linefeed-normalization-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "operation-catalog": {
+      "normalize-semantic-linefeeds": {
+        "accepts": "one JavaScript string containing Markdown prose",
+        "returns": "one JavaScript string in semantic-linefeed normal form",
+        "protocols": [
+          "JavaScript",
+          "stdio",
+          "HTTP",
+          "A2A",
+          "ActivityPub"
+        ]
+      }
+    },
+    "union-law": "An actor that writes or rewrites Markdown prose MUST hire normalize-semantic-linefeeds before releasing the prose; consumers MUST NOT embed a competing sentence-splitting implementation."
+  },
+  "dependencies": {},
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:semantic-linefeed-normalization-service",
+    "operations": [
+      "normalize-semantic-linefeeds"
+    ],
+    "capabilities": [
+      {
+        "capability": "semantic-linefeed-normalization-service",
+        "faces": [
+          "normalize-semantic-linefeeds"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/semantic-linefeed-normalization-service"
+  }
+}

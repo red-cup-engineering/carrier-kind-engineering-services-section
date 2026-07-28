@@ -1,0 +1,51 @@
+{
+  "name": "@red-cup-engineering/capability-cell-fabrication-services-section",
+  "version": "0.1.0",
+  "description": "A process design kit for fabricating content-addressed capability cells.",
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "bin/",
+    "content/",
+    "services/",
+    "types/"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./services/capcell-manifest-fabrication-service/src/fabricate-local-capcell.mjs"
+    },
+    "./manifest-fabrication": {
+      "types": "./types/index.d.mts",
+      "import": "./services/capcell-manifest-fabrication-service/src/fabricate-local-capcell.mjs"
+    }
+  },
+  "bin": {
+    "capcell": "./bin/capcell.mjs"
+  },
+  "scripts": {
+    "check": "node --check bin/capcell.mjs && node --check services/capcell-manifest-fabrication-service/src/fabricate-local-capcell.mjs && node --check services/capcell-manifest-fabrication-service/src/worker.mjs && node --check services/package-backed-settlement-assay-service/src/assay-package-backed-settlement.mjs && node --check services/package-backed-settlement-assay-service/src/worker.mjs && node --check services/package-backed-capcell-fabrication-service/src/fabricate-package-backed-capcell.mjs && node --check services/package-backed-capcell-fabrication-service/src/worker.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/semantic-content-identify-service": "0.1.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/red-cup-engineering/capability-cell-fabrication-services-section.git"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:capability-cell-fabrication-services-section",
+    "operations": [],
+    "capabilities": [],
+    "package": "@red-cup-engineering/capability-cell-fabrication-services-section"
+  }
+}

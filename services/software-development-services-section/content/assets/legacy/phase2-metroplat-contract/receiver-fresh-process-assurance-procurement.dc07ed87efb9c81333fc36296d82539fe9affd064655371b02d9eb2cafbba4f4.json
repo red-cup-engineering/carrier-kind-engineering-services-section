@@ -1,0 +1,26 @@
+{
+  "kind": "metroplat.contract",
+  "id": "receiver-fresh-process-assurance-procurement",
+  "customer": "software-development-services-section",
+  "provider": "fresh-node-process-evidence-service",
+  "purpose": "independently realize the exact accepted-software-delivery receiver proposal checks in fresh provider-owned Node processes",
+  "providerOperation": "invoke-service",
+  "providerContract": "fresh-node-process-evidence",
+  "requiredPlan": "accepted-software-delivery-receiver-service-v1",
+  "requiredPlanLaw": "The provider-owned catalog must bind the exact six delivered artifact descriptors, one fresh Node test-module use, and one fresh Node verifier-script use with the provider-owned fixed argument --self-test. The customer request supplies no command, executable, argument vector, environment, or ambient path.",
+  "requiredEffects": [
+    "service-local-temporary-staging",
+    "service-local-child-process",
+    "service-local-append-only-outcome"
+  ],
+  "customerEffects": ["SDSS-local-append-only-supplier-receipt"],
+  "refusalLaw": "A missing or drifted provider plan is a typed market deficiency; SDSS must not substitute ambient child-process execution.",
+  "nonclaims": [
+    "operating-system isolation",
+    "network isolation",
+    "customer usefulness",
+    "receiver staging",
+    "receiver admission",
+    "installation"
+  ]
+}

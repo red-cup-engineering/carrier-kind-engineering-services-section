@@ -1,0 +1,78 @@
+{
+  "name": "@red-cup-engineering/block-device-io-coordinator",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A device I/O provider that assays syscall-scale RMN effects and witnesses their FOUR cover transitions without buying shared-ledger consensus.",
+  "bin": {
+    "serve-bound-git-profile": "./src/serve-bound-git-profile.js"
+  },
+  "scripts": {
+    "check": "node --check src/bound-git-profile-wire.js && node --check src/bound-git-profile-auth.js && node --check src/bound-git-profile-store.js && node --check src/bound-git-profile.js && node --check src/bound-git-profile-a2a-executor.js && node --check src/serve-bound-git-profile.js",
+    "test": "node --test test/bound-git-profile-wire.test.js test/bound-git-profile.test.js test/bound-git-profile-ingress.test.js",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/wit-transition-assay": "1.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
+    "jose": "6.2.3"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "block-device-io-coordinator",
+    "owners": [
+      "561-group",
+      "red-cup-engineering",
+      "software-development-services-section",
+      "version-control-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "ActivityStreams request carrying a parent typed-RMN task identity and CAIP-10 caller",
+    "refusal": "unscoped device, absent RMN parent, missing CAIP-10 party, RMN refusal, non-Git operation, customer-territory write authority, unenforceable device-wide claim, or unavailable host authority",
+    "operation-catalog": {
+      "serve-bound-git-profile": {
+        "contract": "bound-git-semantic-profile-v1",
+        "protocol": "A2A 1.0",
+        "accepts": "one Git-signed BoundGitProfileOperation RMN part",
+        "returns": "one coordinator-signed BoundGitProfileReceipt or BoundGitProfileRefusal RMN part",
+        "deadline": "none"
+      },
+      "host-readiness": {
+        "contract": "bound-git-semantic-profile-v1",
+        "accepts": "local executable host assay",
+        "returns": "HostReadinessReport"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:block-device-io-coordinator",
+    "operations": [
+      "host-readiness",
+      "serve-bound-git-profile"
+    ],
+    "capabilities": [
+      {
+        "capability": "block-device-io-coordinator",
+        "faces": [
+          "host-readiness",
+          "serve-bound-git-profile"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/block-device-io-coordinator"
+  }
+}

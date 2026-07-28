@@ -1,0 +1,33 @@
+{
+  "type": "TopicalKnowledgeCellReportServiceResourceValueAccount",
+  "version": 1,
+  "enterprise": "urn:ame:topical-knowledge-cell-report-service",
+  "localDevelopmentAccount": {
+    "account": "eip155:31337:0x5a8d49a5a8a8b8b9b15e52ef0cfc6efd842da1b8",
+    "binding": "../evm/accounts/eip155-31337.json",
+    "receivesRealUSDC": false
+  },
+  "settlementAccount": null,
+  "revenueAsset": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+  "offerRevenueAtomic": "250000",
+  "costs": [
+    {
+      "providerRole": "notebooklm-inference",
+      "amount": "unknown-not-zero-until-provider-offer-is-accepted"
+    },
+    {
+      "providerRole": "x402-settlement",
+      "amount": "unknown-not-zero-until-provider-offer-is-accepted"
+    },
+    {
+      "providerRole": "activitypub-private-delivery",
+      "amount": "unknown-not-zero-until-provider-offer-is-accepted"
+    },
+    {
+      "providerRole": "rmn-identity-and-rwil-rdf-witness",
+      "amount": "unknown-not-zero-until-provider-offers-are-accepted"
+    }
+  ],
+  "revenueRecognized": "only from a facilitator-confirmed receipt whose payout account equals the admitted runtime account",
+  "marginRule": "subtract exact same-asset atomic provider charges; otherwise margin is unknown and no exchange rate is invented"
+}

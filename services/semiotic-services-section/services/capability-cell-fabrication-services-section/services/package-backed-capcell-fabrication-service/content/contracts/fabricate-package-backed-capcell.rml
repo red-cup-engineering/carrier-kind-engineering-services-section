@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("type" "FabricatePackageBackedCapCellLaw")
+  ("version" 1)
+  ("domain" "One package-backed CapCell fabrication request and exact provider action bindings.")
+  ("operation" "Hire fabricate-capcell-manifest and assay-package-backed-settlement, preserving both provider receipts in one composition receipt.")
+  ("codomain" "One PackageBackedCapCellFabricationReceipt containing both unmodified provider results.")
+  ("refusal" "Refuse missing provider bindings or any provider refusal."))

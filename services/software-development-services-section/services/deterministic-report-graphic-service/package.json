@@ -1,0 +1,80 @@
+{
+  "name": "@red-cup-engineering/deterministic-report-graphic-service",
+  "type": "module",
+  "private": true,
+  "description": "Deterministic FOUR-valued report-graphic die with canonical RMN/A2A and RWIL/RDF evidence.",
+  "exports": {
+    ".": "./src/client.mjs",
+    "./client": "./src/client.mjs",
+    "./executor": "./src/a2a-executor.mjs",
+    "./renderer": "./src/deterministic-report-graphic.mjs",
+    "./src/client.mjs": "./src/client.mjs",
+    "./src/deterministic-report-graphic.mjs": "./src/deterministic-report-graphic.mjs"
+  },
+  "bin": {
+    "execute-deterministic-report-graphic-a2a-message": "./bin/execute-a2a-message.mjs",
+    "serve-deterministic-report-graphic-a2a": "./bin/serve-a2a.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/law.mjs && node --check src/deterministic-report-graphic.mjs && node --check src/client.mjs && node --check src/a2a-executor.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/serve-a2a.mjs && node --check src/verify-deterministic-report-graphic.mjs",
+    "test": "node --test test/deterministic-report-graphic.test.mjs",
+    "verify": "npm run check && npm test && node src/verify-deterministic-report-graphic.mjs --self-test"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "deterministic-report-graphic-service",
+    "actor": "urn:ame:deterministic-report-graphic-service",
+    "organizational-kind": "micro-enterprise",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one provider-addressed canonical RMN HarmoniousUnionDeltaPacket through the hired A2A 1.0 provider",
+    "refusal": "foreign provider, noncanonical operation, ordinal or absent FOUR bits, customer-territory access, publication, nondeterministic rendering, or undeclared operation",
+    "operation-catalog": {
+      "render-deterministic-report-graphic": {
+        "contract": "ni:///sha-256;ITq5Cj56QcUA3JDqhWhf7K_eRfFNfksTwSKwNksn9b8",
+        "protocols": [
+          "RMN",
+          "A2A 1.0",
+          "RWIL/RDF",
+          "SVG Tiny 1.2",
+          "PNG"
+        ],
+        "accepts": "DeterministicReportGraphicOperation",
+        "returns": "DeterministicReportGraphicOperationResult|Reject",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "version": "0.1.0",
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:deterministic-report-graphic-service",
+    "operations": [
+      "render-deterministic-report-graphic"
+    ],
+    "capabilities": [
+      {
+        "capability": "deterministic-report-graphic-service",
+        "faces": [
+          "render-deterministic-report-graphic"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/deterministic-report-graphic-service"
+  }
+}

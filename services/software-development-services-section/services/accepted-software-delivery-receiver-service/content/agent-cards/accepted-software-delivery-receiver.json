@@ -1,0 +1,56 @@
+{
+  "name": "Accepted Software Delivery Receiver Service",
+  "description": "Stages and admits one exact SDSS-local accepted delivery under separately offered, human-authorized receiver operations.",
+  "supportedInterfaces": [
+    {
+      "url": "${BASE_URL}/a2a/jsonrpc",
+      "protocolBinding": "JSONRPC",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "${BASE_URL}/a2a/rest",
+      "protocolBinding": "HTTP+JSON",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "url": "https://emsenn.net/",
+    "organization": "Software Development Services Section"
+  },
+  "version": "0.5.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [],
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": ["application/rmn+cbor"],
+  "defaultOutputModes": ["application/rmn+cbor"],
+  "skills": [
+    {
+      "id": "solicit-accepted-software-delivery-receiver",
+      "name": "Solicit accepted software delivery receiver",
+      "description": "Return a provider-authored offer for one exact staging or admission operation.",
+      "tags": ["software", "receiver", "offer", "rmn"],
+      "examples": [],
+      "inputModes": ["application/rmn+cbor"],
+      "outputModes": ["application/rmn+cbor"],
+      "securityRequirements": []
+    },
+    {
+      "id": "invoke-accepted-software-delivery-receiver",
+      "name": "Invoke accepted software delivery receiver",
+      "description": "Execute one exact offered receiver operation under its separately supplied human authority.",
+      "tags": ["software", "receiver", "admission", "rmn"],
+      "examples": [],
+      "inputModes": ["application/rmn+cbor"],
+      "outputModes": ["application/rmn+cbor"],
+      "securityRequirements": []
+    }
+  ],
+  "signatures": []
+}

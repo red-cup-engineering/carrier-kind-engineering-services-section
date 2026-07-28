@@ -1,0 +1,2 @@
+#lang rmn/v2
+(map ("type" "SoftwareSolveLoopLaw") ("version" 1) ("precondition" "One bounded task supplies explicit context, synthesis, materialization, verification, and optional refinement effects.") ("operation" "Try admitted deterministic resolvers, then bounded synthesis rounds, then only the explicitly supplied refinement effect.") ("postcondition" "Return a typed staged outcome and residues while customer verification remains authoritative.") ("refusal" "Refuse ambient providers, implicit escalation, hidden mutation, provider self-acceptance, or fallback."))

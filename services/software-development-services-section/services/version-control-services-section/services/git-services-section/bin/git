@@ -1,0 +1,119 @@
+#!/bin/sh
+# Git Services Section device-scoped ingress for /home/emsenn/info.
+#
+# A finite read-only face remains available to development tools in a
+# descriptor-owned Git environment. Local and push mutations run serialized
+# through this one ingress under an exclusive lock instead.
+set -eu
+root=/home/emsenn/info
+service_root=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-development-services-section/services/version-control-services-section/services/git-services-section
+physical_pwd=$(pwd -P)
+case "$physical_pwd/" in "$root/"|"$root"/*/) ;; *) echo "git contracted ingress refused: outside mapped repository" >&2; exit 126;; esac
+case "${1-}" in -C|--git-dir|--work-tree|--exec-path|--config-env|-c|--bare|--namespace|--super-prefix) echo "git contracted ingress refused: repository override" >&2; exit 126;; esac
+
+command_name=${1-}
+
+# Serialized mutation face (Leader order 2026-07-26: committing must be
+# possible; extended 2026-07-26 to push). The hazard the raw-git ban answered
+# was concurrent agents mutating the repository at once; this face admits
+# local and push mutations one at a time under an exclusive lock, in the same
+# hardened environment as reads. A separate credential-bounded induction
+# service (bound-git-induction-service.js) previously gated every mutation
+# behind a customer grant and Agent Card it could not itself obtain: its own
+# client (request-git-operation) was never built (only documented), its
+# provider implementation failed independent PQA, and its own induction
+# faculty's raw-argv calls were refused by this same gate
+# (wo-services-git-services-section-cb8655582825, status: diagnosed, never
+# repaired). A gate with no working way to satisfy it is not security, it is
+# a dead end wearing security's shape; removed rather than left standing.
+# Repository overrides and non-push remote/config mutations stay refused.
+case "$command_name" in
+  add|commit|restore|rm|mv|checkout|switch|reset|merge|cherry-pick|revert|tag|stash)
+    lock_dir="$service_root/data"
+    mkdir -p "$lock_dir"
+    exec /usr/bin/env -i \
+      HOME=/nonexistent \
+      PATH=/usr/bin:/bin \
+      GIT_CONFIG_NOSYSTEM=1 \
+      GIT_CONFIG_GLOBAL=/dev/null \
+      GIT_CONFIG_SYSTEM=/dev/null \
+      GIT_TERMINAL_PROMPT=0 \
+      GIT_PAGER=cat \
+      flock -w 300 "$lock_dir/serialized-mutation.lock" \
+      /usr/bin/git --no-optional-locks \
+        -c core.fsmonitor=false \
+        -c core.hooksPath=/dev/null \
+        -c user.name=emsenn \
+        -c user.email=morgan.sennhauser@gmail.com \
+        -C "$physical_pwd" "$@"
+    ;;
+  push)
+    lock_dir="$service_root/data"
+    mkdir -p "$lock_dir"
+    token=$(gh auth token 2>/dev/null || true)
+    [ -n "$token" ] || token=${GITHUB_TOKEN-}
+    if [ -z "$token" ]; then echo "git contracted ingress refused: no GitHub credential available for push" >&2; exit 126; fi
+    auth_header="AUTHORIZATION: basic $(printf '%s' "x-access-token:$token" | base64 -w0)"
+    exec /usr/bin/env -i \
+      HOME=/nonexistent \
+      PATH=/usr/bin:/bin \
+      GIT_CONFIG_NOSYSTEM=1 \
+      GIT_CONFIG_GLOBAL=/dev/null \
+      GIT_CONFIG_SYSTEM=/dev/null \
+      GIT_TERMINAL_PROMPT=0 \
+      GIT_PAGER=cat \
+      flock -w 300 "$lock_dir/serialized-mutation.lock" \
+      /usr/bin/git --no-optional-locks \
+        -c core.fsmonitor=false \
+        -c core.hooksPath=/dev/null \
+        -c http.extraheader="$auth_header" \
+        -C "$physical_pwd" "$@"
+    ;;
+esac
+
+case "$command_name" in
+  status|diff|log|show|rev-parse|ls-files|ls-tree|cat-file|merge-base|diff-tree|diff-index|name-rev|describe) ;;
+  branch)
+    case "${2-}" in ""|--list|--show-current) ;; *) echo "git contracted ingress refused: branch mutation not admitted by this ingress" >&2; exit 126;; esac
+    ;;
+  remote)
+    case "${2-}" in -v|get-url) ;; *) echo "git contracted ingress refused: remote mutation not admitted by this ingress" >&2; exit 126;; esac
+    ;;
+  config)
+    case "${2-}" in --get|--get-all|--get-regexp|--get-urlmatch) ;; *) echo "git contracted ingress refused: configuration mutation not admitted by this ingress" >&2; exit 126;; esac
+    ;;
+  *) echo "git contracted ingress refused: mutation not admitted by this ingress" >&2; exit 126;;
+esac
+
+for argument in "$@"; do
+  case "$argument" in
+    --output|--output=*|--ext-diff|--textconv|--no-index|--config-env=*|--git-dir=*|--work-tree=*|--exec-path=*|-c)
+      echo "git contracted ingress refused: unsafe read option" >&2
+      exit 126
+      ;;
+  esac
+done
+
+run_git() {
+  exec /usr/bin/env -i \
+    HOME=/nonexistent \
+    PATH=/usr/bin:/bin \
+    GIT_CONFIG_NOSYSTEM=1 \
+    GIT_CONFIG_GLOBAL=/dev/null \
+    GIT_CONFIG_SYSTEM=/dev/null \
+    GIT_TERMINAL_PROMPT=0 \
+    GIT_PAGER=cat \
+    /usr/bin/git --no-optional-locks \
+      -c core.fsmonitor=false \
+      -c core.hooksPath=/dev/null \
+      -c pager.status=false \
+      -c pager.diff=false \
+      -c pager.log=false \
+      -C "$physical_pwd" "$@"
+}
+
+if [ "$command_name" = diff ]; then
+  shift
+  run_git diff --no-ext-diff --no-textconv "$@"
+fi
+run_git "$@"

@@ -1,0 +1,67 @@
+{
+  "name": "@red-cup-engineering/standards-conformance-services-section",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Signed smart-account Phase 2 constitutional conformance assay over one bounded territory.",
+  "bin": {
+    "scan-phase2-territory": "./src/scan-territory.mjs",
+    "serve-phase2-territory-conformance-a2a": "./bin/server.mjs"
+  },
+  "exports": {
+    ".": "./src/scan-territory.mjs",
+    "./client": "./src/client.mjs",
+    "./protocol": "./src/protocol.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/scan-territory.mjs && node --check src/law.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs && node --check test/scan-territory.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "standards-conformance-services-section",
+    "actor": "urn:ame:standards-conformance-services-section",
+    "organizational-kind": "independent-conformance-provider",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "admission": "one explicit filesystem territory and the closed Phase 2 constitutional rule set",
+    "refusal": "ignored live code, waived violations, compatibility exceptions, or a request to certify this provider's own implementation",
+    "operation-catalog": {
+      "scan-phase2-territory": {
+        "contract": "ni:///sha-256;8H7nysO2Cy1q0NMNcFe62oIGrliJUOUXk9lxvk-ehWg",
+        "protocol": "A2A 1.0 application/rmn+cbor",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:standards-conformance-services-section",
+    "operations": [
+      "scan-phase2-territory"
+    ],
+    "capabilities": [
+      {
+        "capability": "standards-conformance-services-section",
+        "faces": [
+          "scan-phase2-territory"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/standards-conformance-services-section"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "git-ant-colony",
+    "urn": "urn:ame:git-ant-colony",
+    "enterpriseId": "0x85ac0d838eeb0de70f321c742d48dd0a4163553b57f70f2f23ba889462ab954e"
+  },
+  "chain": {
+    "chainId": 31337,
+    "caip2": "eip155:31337"
+  },
+  "account": {
+    "address": "0x73a11a9332cf171e302a3f1bc3d41ac0c8eeec30",
+    "caip10": "eip155:31337:0x73a11a9332cf171e302a3f1bc3d41ac0c8eeec30"
+  },
+  "factory": {
+    "address": "0xb334795bf50e4943d076dfb38d8c1a50f9f5a101",
+    "userSalt": "0x00b4df21dee816490071135910fb01fe0e46ba9797d17559fa00f777a1d52eca"
+  },
+  "policy": {
+    "signer": "0xad9a936a374c651fc7cbe11c2acdef53db8fddfc",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0x340eb2bd2bb521fa5487d6c632f59dfcb4287ce05bd292b4cca3b17acfd474f6",
+    "block": 1328
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "drive-sdd-io-coordinator-ant-colony",
+    "urn": "urn:ame:drive-sdd-io-coordinator-ant-colony",
+    "enterpriseId": "0x0fbb475344c201e1fc0a4bfad3371049b85b0f527cf1695ce0c425be46f52f95"
+  },
+  "chain": {
+    "chainId": 31337,
+    "caip2": "eip155:31337"
+  },
+  "account": {
+    "address": "0x09183cd862c4769891c348c83b0ecaebef2e27dd",
+    "caip10": "eip155:31337:0x09183cd862c4769891c348c83b0ecaebef2e27dd"
+  },
+  "factory": {
+    "address": "0x7bf3cf1176c4a037d3ea2a5ff3d480359ac65ecd",
+    "userSalt": "0xf585f848d67a245eb3320cd97670ade740451d607882429af590d3c27a32dda7"
+  },
+  "policy": {
+    "signer": "0x8b72c62651bd5f0afd2e8f1ba07cfbc527086ea7",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0xd2366da2891de8f7295cae02d026e06ce87d533df3b2c9ca027fc7c376880659",
+    "block": 1443
+  }
+}

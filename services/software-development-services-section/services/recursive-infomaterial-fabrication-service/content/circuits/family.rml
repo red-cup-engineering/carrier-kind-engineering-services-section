@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("profile" "org.emsenn.rmn.contracted-circuit-family.v1")
+  ("law" "ni:///sha-256;cJoU8SHW5Kut5H2Zlv_LV8ye_cVmLuCdO9RCzikMXuw")
+  ("providerRoles" ("recursive-circuit-synthesis" "hierarchical-circuit-equivalence" "directory-plate-observation" "patch-evidence-provider" "patch-cover"))
+  ("synthesisRequired" #t)
+  ("independentEquivalenceRequired" #t)
+  ("localMaterialAccess" #f))

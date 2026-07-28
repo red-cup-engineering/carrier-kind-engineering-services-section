@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("type" "BareCedarFogShortSourceInferenceLaw")
+  ("version" 4)
+  ("precondition" "One classification, extraction, summarization, inquiry, or software-engineering request supplies a nonempty source of no more than 1500 words and 12000 characters, a complete instruction-plus-input envelope of no more than 30000 characters, no more than 700 requested output tokens, the qwen3:1.7b model, and dry-run or live mode in one canonical RMN instruction/input/model/mode operation.")
+  ("operation" "Acquire the provider-local one-lot execution lease without queueing, revalidate every advertised bound at execution, in live mode ask the settlement-local Ollama substrate for no more than the contracted output tokens, in dry-run touch no model, release the lease, and record the resulting completion or refusal through the hired semantic and RWIL witnesses.")
+  ("postcondition" "Return one witnessed RMN completion or refusal without claiming customer usefulness or acceptance.")
+  ("refusal" "Refuse chat, code review, a source or output request above the stated limits, an occupied provider-local execution lease, an unsupported model or mode, malformed RMN, or unavailable local inference."))

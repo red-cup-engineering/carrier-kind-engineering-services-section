@@ -1,0 +1,10 @@
+#lang rmn/v2
+(map
+  ("type" "CapabilityLaw")
+  ("version" 1)
+  ("provider" "urn:ame:planned-transition-admission-service")
+  ("operation" "admit-planned-transition")
+  ("precondition" "Receive one plan, one named dependency transition, provider-authored proof-pore observations carrying provider, patch, and evidence identities, its proposed effects, required proof loci, and explicit capability and territory authority.")
+  ("effect" "Derive finite local sections from provider observations; compute dependency-nerve H1 as coordination cost, finite Cech overlap agreement and global gluing, local and kinetic proof-pore permeability, placement of every proposed effect, Girard incarnation of the proposed effects against the declared obligations, and exact rational deficiency and redundancy response coordinates.")
+  ("postcondition" "Admit execution exactly when the transition is declared, supplied local sections agree and glue globally, every required proof pore is witnessed, every effect is within authority, and the proposed design is material. A feedback cycle and nonzero H1 coordination cost do not alone prove obstruction. Timestamps are reported as kinetic evidence and never authorize, expire, retry, or refuse a transition.")
+  ("refusal" "Return a typed local, topological, kinetic, placement, or materiality obstruction with exact response coordinates. Refuse caller-authored coefficients or duplicate provider observations of one locus. Never execute, repair, select a provider, create a deadline, or impose a time, token, byte, candidate, round, or attempt ceiling."))

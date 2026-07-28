@@ -1,0 +1,76 @@
+{
+  "name": "@red-cup-engineering/repository-state-observation-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sovereign repository-observation die conducted through canonical RMN/A2A and the device-scoped Git ingress.",
+  "exports": {
+    ".": "./src/client.mjs",
+    "./client": "./src/client.mjs",
+    "./executor": "./src/a2a-executor.mjs"
+  },
+  "bin": {
+    "execute-repository-state-observation-a2a-message": "./bin/execute-a2a-message.mjs",
+    "serve-repository-state-observation-a2a": "./bin/serve-a2a.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/law.mjs && node --check src/git-ingress.mjs && node --check src/observer.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/serve-a2a.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "repository-state-observation-service",
+    "actor": "urn:ame:repository-state-observation-service",
+    "owner": "software-development-services-section",
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one provider-addressed canonical RMN repository observation through the hired A2A 1.0 provider",
+    "refusal": "foreign provider, noncanonical operation, relative repository, caller-selected Git material, unbounded wait, or Git ANT/device I/O refusal",
+    "operation-catalog": {
+      "observe-repository-state": {
+        "contract": "ni:///sha-256;_HjxvERLo9o7oAuneHhkRDhK3zqVuGIMW8npODG2zb0",
+        "protocols": [
+          "RMN",
+          "A2A 1.0",
+          "Git",
+          "RWIL/RDF"
+        ],
+        "accepts": "RepositoryStateObservationOperation",
+        "returns": "RepositoryStateObservationOperationResult|Reject",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:repository-state-observation-service",
+    "operations": [
+      "observe-repository-state"
+    ],
+    "capabilities": [
+      {
+        "capability": "repository-state-observation-service",
+        "faces": [
+          "observe-repository-state"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/repository-state-observation-service"
+  }
+}

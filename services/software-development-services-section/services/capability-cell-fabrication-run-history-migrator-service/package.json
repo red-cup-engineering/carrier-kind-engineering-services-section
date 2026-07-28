@@ -1,0 +1,60 @@
+{
+  "name": "@red-cup-engineering/capability-cell-fabrication-run-history-migrator-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Receipt-bearing migration of fabrication JSONL histories into canonical semantic carriers and evidence-resolved stage laws.",
+  "exports": {
+    ".": "./src/migrate-run-history.mjs"
+  },
+  "bin": {
+    "migrate-capability-cell-fabrication-run-history": "./bin/migrate-run-history.mjs",
+    "migrate-acceptance-pulse-proof-pore": "./bin/migrate-acceptance-pulse-proof-pore.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/migrate-run-history.mjs && node --check src/migrate-acceptance-pulse-proof-pore.mjs && node --check bin/migrate-run-history.mjs && node --check bin/migrate-acceptance-pulse-proof-pore.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@red-cup-engineering/acceptance-capsule-procurement-service": "1.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "capability-cell-fabrication-run-history-migrator-service",
+    "actor": "urn:ame:capability-cell-fabrication-run-history-migrator-service",
+    "organizational-kind": "data-migrator",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "operation-catalog": {
+      "migrate-capability-cell-fabrication-run-history": {
+        "input": "one immutable directory of JSONL run histories, one absent target directory, optional exact expected-before corrections, and optional evidence predicates for overloaded historical stage laws",
+        "output": "RMN-identified replacement histories, exact CBOR carriers, evidence-resolved stage laws, and one source-to-target migration receipt",
+        "refusal": "source corruption, target collision, broken source causality, in-place rewrite, correction mismatch, ambiguous evidence, or invalid stage-law migration"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:capability-cell-fabrication-run-history-migrator-service",
+    "operations": [
+      "migrate-capability-cell-fabrication-run-history"
+    ],
+    "capabilities": [
+      {
+        "capability": "capability-cell-fabrication-run-history-migrator-service",
+        "faces": [
+          "migrate-capability-cell-fabrication-run-history"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/capability-cell-fabrication-run-history-migrator-service"
+  }
+}

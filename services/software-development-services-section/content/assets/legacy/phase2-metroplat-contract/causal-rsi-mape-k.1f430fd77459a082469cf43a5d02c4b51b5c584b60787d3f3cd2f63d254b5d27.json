@@ -1,0 +1,37 @@
+{
+  "kind": "metroplat.contract",
+  "id": "causal-rsi-mape-k",
+  "precondition": {
+    "id": "new-sdss-operational-evidence-or-first-cycle",
+    "description": "For an already selected and authorized provider-local change, SDSS has no prior guard record or its provider-owned delivery, refusal, and receipt evidence digest differs from the predecessor record."
+  },
+  "move": {
+    "id": "derive-and-optionally-admit-one-protected-provider-local-change",
+    "domain": "sdss-operational-evidence-and-accepted-improvement-action",
+    "codomain": "predecessor-linked-rsi-mape-cycle-or-no-new-evidence-refusal",
+    "partial": false,
+    "deterministic": true,
+    "effects": [
+      "provider-local-cycle-record",
+      "provider-local-knowledge-record"
+    ]
+  },
+  "postcondition": {
+    "id": "one-subordinate-change-recorded-without-unilateral-law-change",
+    "description": "Provider-local evidence, analysis gaps, one selected plan, actual execution disposition, protected invariants, predecessor, and next observation basis are append-only. Unchanged evidence is refused. This record neither supplies the campaign's Union-wide Monitor nor proves RSI or customer value."
+  },
+  "refinements": [
+    {
+      "id": "sdss-runtime-realizes-the-provider-local-admission-guard",
+      "implementation": "src/rsi-mape-k.mjs",
+      "preserves": [
+        "causal-predecessor",
+        "new-evidence-gate",
+        "accepted-action-gate",
+        "protected-invariants",
+        "unknown-not-zero",
+        "no-claim-of-campaign-completion"
+      ]
+    }
+  ]
+}

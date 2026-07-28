@@ -1,0 +1,21 @@
+{
+  "kind": "metroplat.contract",
+  "id": "purpose-bound-software-operation",
+  "precondition": {
+    "id": "typed-customer-purpose-and-capability-received",
+    "description": "A customer supplies a supported purpose-specific request. Invocation carries an unexpired, single-use capability attenuated to the provider offer, request digest, effects, and customer actor."
+  },
+  "move": {
+    "id": "contract-purpose-specific-child-and-tool-providers",
+    "domain": "typed-software-operation-demand-and-capability",
+    "codomain": "proposed-software-operation-product-or-refusal",
+    "partial": false,
+    "deterministic": false,
+    "effects": ["provider-local-evidence", "provider-contracting", "declared-read-only-customer-effect"]
+  },
+  "postcondition": {
+    "id": "digest-bound-product-pending-customer",
+    "description": "The caller receives a digest-bound proposed product with nested provider evidence and resource observations, or a typed refusal. Only the original customer may accept or refuse it with evidence-bearing checks."
+  },
+  "invariants": ["no-caller-selected-executable", "no-ambient-tool-use", "no-customer-usefulness-claim", "no-credential-record", "child-services-remain-directly-contractable", "unknown-resource-use-is-not-zero"]
+}

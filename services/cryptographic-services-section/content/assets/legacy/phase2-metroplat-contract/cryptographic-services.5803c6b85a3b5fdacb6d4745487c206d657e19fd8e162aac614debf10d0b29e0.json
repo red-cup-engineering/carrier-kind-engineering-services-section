@@ -1,0 +1,93 @@
+{
+  "kind": "metroplat.contract",
+  "id": "cryptographic-services",
+  "material": {
+    "id": "cryptographic-services-material",
+    "loci": [
+      "consuming-micro-enterprise",
+      "cryptographic-services-section"
+    ],
+    "incidence": [
+      "consumer--solicits-one-named-cryptographic-operation-from--cryptographic-services-section",
+      "cryptographic-services-section--offers-its-operation-set-and-settlement-families-to--consumer",
+      "consumer--accepts-offer-supplying-key-material-only-as-invocation-input-for--cryptographic-services-section",
+      "cryptographic-services-section--returns-derived-identity-signature-or-digest-to--consumer"
+    ],
+    "fibers": ["operation-request", "private-key-input", "derived-address", "signature", "digest", "recovered-address"],
+    "valueAlgebra": "derivation-signature-or-refusal",
+    "constraints": [
+      "one-canonical-secp256k1-serves-both-hive-graphene-and-every-evm-chain",
+      "keccak256-uses-the-ethereum-pad-and-is-never-substituted-by-node-crypto-sha3",
+      "every-primitive-is-proven-against-published-ethereum-vectors-before-use",
+      "a-private-key-enters-only-as-invocation-input-and-appears-in-no-offer-and-no-record",
+      "the-section-derives-identity-and-signs-but-never-broadcasts-and-never-moves-value",
+      "settlement-broadcast-belongs-to-the-holding-enterprise-not-to-this-section"
+    ],
+    "closure": ["the-operation-closes-as-one-derived-result-or-one-typed-refusal"],
+    "boundary": ["the-activitystreams-solicitation-and-offered-operation-set-are-the-inter-enterprise-boundary"]
+  },
+  "precondition": {
+    "id": "named-operation-and-inputs-received",
+    "description": "A consuming enterprise names one operation from the section's offer (generate-account, derive-address, sign-digest, sign-message, recover-address, keccak256) and supplies exactly that operation's inputs. Any private key is supplied under the caller's own custody and is not retained."
+  },
+  "move": {
+    "id": "derive-or-sign-over-the-canonical-core",
+    "description": "The section executes the named operation over its one audited secp256k1 curve and keccak256, returning a derived address, a v-encoded signature, a recovered address, or a digest.",
+    "domain": "operation-request-and-optional-key-input",
+    "codomain": "cryptographic-result-or-refusal",
+    "partial": false,
+    "deterministic": true,
+    "effects": ["material", "boundary"]
+  },
+  "postcondition": {
+    "id": "result-returned-no-secret-retained",
+    "description": "The caller receives the derived result; no private key, signature nonce, or intermediate secret is written to any section record.",
+    "entails": ["named-operation-and-inputs-received"]
+  },
+  "phase": {
+    "id": "cryptographic-services-phase",
+    "closureDepth": "finite",
+    "finality": "normal-form",
+    "recurrence": "none",
+    "mobility": "fixed",
+    "coherence": "total",
+    "contradiction": "reject",
+    "coordinationCost": "evidenced",
+    "observability": "boundary-only",
+    "energy": "costed"
+  },
+  "lens": {
+    "id": "cryptographic-services-lens",
+    "domain": "operation-request",
+    "boundary": "activitystreams-contract-between-consuming-enterprise-and-cryptographic-services-section",
+    "preserves": ["operation-identity", "inputs", "derived-result"],
+    "hides": ["private-key-material", "rfc6979-nonce", "intermediate-scalars"],
+    "output": "derived-address-signature-digest-or-typed-refusal",
+    "evidenceRequired": false
+  },
+  "evidencePolicy": {
+    "id": "cryptographic-services-evidence-policy",
+    "required": false,
+    "records": [],
+    "time": "instant",
+    "caller": "required",
+    "boundaryObject": "operation-and-non-secret-result-only"
+  },
+  "energetics": [{
+    "kind": "metroplat.energetic-obligation",
+    "id": "pure-compute-derivation",
+    "law": "no-network-no-broadcast-no-value-movement",
+    "behavior": "Every operation is local pure computation; the section can derive an address and sign a payload but cannot move funds or reach a chain.",
+    "source": "named-operation-and-inputs-received",
+    "target": "result-returned-no-secret-retained",
+    "invariant": "no-private-key-or-secret-is-persisted-and-no-settlement-is-broadcast",
+    "measure": "operation name and wall-clock",
+    "evidenceRequired": false
+  }],
+  "refinements": [{
+    "id": "vendored-audited-core-realizes-the-move",
+    "implementation": "src/cryptographic-services.mjs over src/secp256k1.mjs, src/keccak256.mjs, src/evm.mjs",
+    "refines": "tool",
+    "preserves": ["one-canonical-curve", "ethereum-pad-keccak", "no-secret-recording", "proven-against-published-vectors"]
+  }]
+}

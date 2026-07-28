@@ -1,0 +1,164 @@
+{
+  "name": "Protected Acceptance Service",
+  "description": "Assays one bounded oracle candidate and seals its exact material and red-execution witnesses.",
+  "supportedInterfaces": [
+    {
+      "url": "${BASE_URL}/a2a/jsonrpc",
+      "protocolBinding": "JSONRPC",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "${BASE_URL}/a2a/rest",
+      "protocolBinding": "HTTP+JSON",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "url": "https://emsenn.net/",
+    "organization": "Protected Acceptance Service"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [
+      {
+        "uri": "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M",
+        "description": "Sovereign recursive circuit interface",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.rmn.sovereign-circuit-interface.v1",
+          "account": "eip155:31337:0xba80a836ba2d7fa3938e71da7a1bfa8aeb29c435",
+          "authority": "ni:///sha-256;vgTCWjbMdmHOgh3Ijps9wlDWt2AiZl7-pbm17PHKcNo",
+          "custody": "ni:///sha-256;3UrXOFswb9cl8KfX-R2uDWSqcaYbEYtCzXXz0G3I3m0",
+          "territory": "ni:///sha-256;Mun3teIE7aviebP4bGGNfOcHYYW1r-fzzy71wnjaPDY",
+          "component": {
+            "profile": "org.emsenn.rmn.hierarchical-circuit.v3",
+            "law": "ni:///sha-256;9d7s9CRJyjyWy8JjaXKQWoHt9hhFvGKJdarcOrZDM8A",
+            "ports": [
+              {
+                "name": "request",
+                "direction": "input",
+                "predicate": "ni:///sha-256;RDIEDZ8UlubbBluhFQGnMtAKHpOTmgmZPzZRdlRqj9w",
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "mode": "tensor"
+              },
+              {
+                "name": "receipt",
+                "direction": "output",
+                "predicate": "ni:///sha-256;y-PJ3r_MTbJRusf1LV88wm2pIe-HC8N6YjCxGc53M3g",
+                "carrier": "ni:///sha-256;Uu4QMGQIiGICWaBQLaugZbD8Mr7qaGHnVEtmK__6rlc",
+                "mode": "tensor"
+              }
+            ],
+            "instances": [],
+            "nets": [],
+            "behavior": {
+              "factors": [
+                {
+                  "inputs": [
+                    "request"
+                  ],
+                  "outputs": [
+                    "receipt"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": [
+    "application/rmn+cbor"
+  ],
+  "defaultOutputModes": [
+    "application/rmn+cbor"
+  ],
+  "skills": [
+    {
+      "id": "prepare-protected-acceptance",
+      "name": "Prepare protected acceptance",
+      "description": "Return one content-addressed protected acceptance capsule or typed refusal.",
+      "tags": [
+        "software",
+        "rmn",
+        "a2a",
+        "sovereign-circuit"
+      ],
+      "examples": [],
+      "inputModes": [
+        "application/rmn+cbor"
+      ],
+      "outputModes": [
+        "application/rmn+cbor"
+      ],
+      "securityRequirements": []
+    }
+  ],
+  "signatures": []
+}

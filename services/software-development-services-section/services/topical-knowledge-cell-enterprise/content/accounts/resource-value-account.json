@@ -1,0 +1,20 @@
+{
+  "id": "urn:account:topical-knowledge-cell-enterprise-carrier:resource-value",
+  "type": "ResourceValueAccount",
+  "owner": "urn:ame:topical-knowledge-cell-enterprise-carrier",
+  "inputs": { "rmnIdentity": "unknown-not-zero", "rwilRdfDurability": "unknown-not-zero", "receiptValidation": "unknown-not-zero", "storage": "unknown-not-zero" },
+  "downstreamProviderCosts": "owned-by-each-cell-instance-and-its-suppliers",
+  "offeredRevenue": {
+    "assetId": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "amountAtomic": "100000",
+    "basis": "one instance admission"
+  },
+  "localDevelopmentAccount": {
+    "account": "eip155:31337:0x81bd9590bb875abca3ec853d7cf8a83b8f38e311",
+    "binding": "../evm/accounts/eip155-31337.json",
+    "receivesRealUSDC": false
+  },
+  "settlementAccount": null,
+  "revenueRecognized": "only from exact settlement evidence or an accepted internal consideration receipt",
+  "zeroInferredFromUnknown": false
+}

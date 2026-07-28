@@ -1,0 +1,4 @@
+#lang rmn/v2
+(predicate "bound-git-induction-tree-v1"
+  (base "BoundGitInductionOperation")
+  (base "BoundGitInductionReceipt"))

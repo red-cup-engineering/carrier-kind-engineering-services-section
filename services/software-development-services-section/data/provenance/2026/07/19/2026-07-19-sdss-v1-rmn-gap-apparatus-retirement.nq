@@ -1,0 +1,4 @@
+<ni:///sha-256;DuviSFoVEKLtkNKKTMmLOg-re0n9ZehSs4Th9NxNxEo> <http://www.w3.org/ns/prov#atLocation> "src/independent-uoa-typed-residue-provider-gap-examiner.mjs" <ni:///sha-256;9Bar1dc6R-iSr7GrZyCZteNkvNttINS1RiJItC9PjGw> .
+<ni:///sha-256;IT1ImBARlcEIsWExFFmtbyW2UbPvbNWCnmcUY3uznGU> <http://www.w3.org/ns/prov#atLocation> "src/advance-uoa-typed-residue-provider-gap-cycle.mjs" <ni:///sha-256;9Bar1dc6R-iSr7GrZyCZteNkvNttINS1RiJItC9PjGw> .
+<ni:///sha-256;GPuAfplEVzecO4PR746Wg5wLZUX6gL7boiuz3d4lrSQ> <http://www.w3.org/ns/prov#atLocation> "test/uoa-typed-residue-provider-gap.test.mjs" <ni:///sha-256;9Bar1dc6R-iSr7GrZyCZteNkvNttINS1RiJItC9PjGw> .
+<ni:///sha-256;9Bar1dc6R-iSr7GrZyCZteNkvNttINS1RiJItC9PjGw> <http://www.w3.org/ns/prov#value> "Retired rather than ported: this apparatus existed only to prove a historical v1 JSONL procurement gap and was not a live RMN v2 consumer." <ni:///sha-256;9Bar1dc6R-iSr7GrZyCZteNkvNttINS1RiJItC9PjGw> .

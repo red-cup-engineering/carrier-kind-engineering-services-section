@@ -1,0 +1,34 @@
+{
+  "kind": "metroplat.contract",
+  "id": "accepted-software-delivery-receiver-prepared-committed-protocol",
+  "service": "stage one exact locally recorded accepted delivery, then under a distinct human grant review and admit that exact staged tree",
+  "operations": [
+    {
+      "name": "stage-accepted-software-delivery",
+      "solicitation": "StageAcceptedSoftwareDeliveryRequest core",
+      "invocation": "exact provider offer plus AcceptedSoftwareDeliveryStagingCapability",
+      "result": "AcceptedSoftwareDeliveryStagingReceipt or typed refusal"
+    },
+    {
+      "name": "review-and-admit-staged-software-delivery",
+      "solicitation": "ReviewAndAdmitStagedSoftwareDeliveryRequest core",
+      "invocation": "exact provider offer plus distinct SoftwareDeliveryAdmissionGrant",
+      "result": "SoftwareDeliveryAdmissionReceipt or typed refusal"
+    }
+  ],
+  "precondition": "exact content-valid local product, accepting decision, provider receipt, confined artifacts, absent destinations, and one exact unconsumed human authority for only the invoked operation",
+  "move": "use private create-only candidates, append prepared evidence, revalidate every binding and the adopted mesh carrier immediately before one atomic publish, then append committed evidence and a distinct content-valid receipt",
+  "postcondition": "accepted is not staged; staged is not admitted; each committed effect has one separately authorized receipt, or refusal leaves no committed effect",
+  "effects": [
+    "SDSS receiver-local private staging",
+    "SDSS receiver-local append-only evidence",
+    "create-only SDSS-local target admission after a separate grant"
+  ],
+  "nonclaims": [
+    "customer acceptance",
+    "authority to stage or admit this receiver service itself",
+    "overwrite",
+    "network, credentials, Git, spend, TTI, deployment, publication, or foreign mutation"
+  ]
+}
+

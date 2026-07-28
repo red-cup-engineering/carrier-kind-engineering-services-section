@@ -1,0 +1,51 @@
+{
+  "name": "@red-cup-engineering/pnpm-workspace-fabrication-service",
+  "version": "1.0.0",
+  "description": "Fabricates an explicitly ordered pnpm workspace as a customer artifact without granting workspace authority over the provider organism.",
+  "type": "module",
+  "license": "MIT",
+  "exports": "./src/fabricate-pnpm-workspace.mjs",
+  "bin": {
+    "fabricate-pnpm-workspace": "./bin/fabricate-pnpm-workspace.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "node --check src/fabricate-pnpm-workspace.mjs && node --check bin/fabricate-pnpm-workspace.mjs && node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "pnpm-workspace-fabrication-service",
+    "actor": "urn:ame:pnpm-workspace-fabrication-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "operation-catalog": {
+      "fabricate-pnpm-workspace": {
+        "contract": "content/contracts/fabricate-pnpm-workspace.rml",
+        "accepts": "one explicit customer workspace specification and one output territory",
+        "returns": "one bounded pnpm workspace artifact and content receipt"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:pnpm-workspace-fabrication-service",
+    "operations": [
+      "fabricate-pnpm-workspace"
+    ],
+    "capabilities": [
+      {
+        "capability": "pnpm-workspace-fabrication-service",
+        "faces": [
+          "fabricate-pnpm-workspace"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/pnpm-workspace-fabrication-service"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "metroplat.contract",
+  "id": "software-development-service",
+  "material": {
+    "id": "proposal-only-software-realization-material",
+    "loci": [
+      "customer-settlement",
+      "software-development-services-section",
+      "contracted-production-suppliers",
+      "independent-assurance-provider",
+      "customer-configuration-authority"
+    ],
+    "incidence": [
+      "customer--offers-bounded-software-outcome-to--sdss",
+      "sdss--offers-exact-scope-plan-effects-and-price-basis-to--customer",
+      "customer--accepts-provider-offer-with-attenuated-capability-for--sdss",
+      "sdss--stages-and-tests-attributable-implementation-in-provider-territory",
+      "sdss--returns-proposed-artifact-evidence-receipt-or-typed-refusal-to--customer",
+      "independent-assurance-and-customer-configuration-admission--remain-after--sdss-delivery"
+    ],
+    "valueAlgebra": "artifact-and-answerable-claims-or-refusal",
+    "boundary": "ActivityStreams solicitation offer acceptance delivery and refusal",
+    "closure": "one proposed delivery whose accepted checks passed or one typed refusal preserving residue"
+  },
+  "precondition": {
+    "id": "bounded-software-demand-and-execution-authority-received",
+    "description": "The customer names itself and its target settlement, a stable outcome, source digests, constraints, replayable Node acceptance commands, proposal-only delivery, file/byte/time ceilings, and a value agreement. Invocation accepts the exact provider offer and carries an attenuated capability plus an attributable implementation bundle."
+  },
+  "move": {
+    "id": "stage-test-and-propose-software-delivery",
+    "domain": "software-development-demand-contract-and-implementation-bundle",
+    "codomain": "software-delivery-or-software-delivery-refusal",
+    "partial": false,
+    "deterministic": false,
+    "effects": [
+      "provider-local-temporary-staging",
+      "provider-local-append-only-evidence"
+    ]
+  },
+  "postcondition": {
+    "id": "software-work-settled-at-provider-boundary",
+    "description": "The customer receives the proposed artifact bytes and digests, exact acceptance execution results, resource receipt, provenance, residue, and an explicit customerMutation false statement, or a typed refusal. No independent certification or customer acceptance is claimed."
+  },
+  "evidencePolicy": {
+    "required": true,
+    "records": [
+      "provider offer",
+      "delivery attempt",
+      "artifact digest",
+      "acceptance execution",
+      "resource receipt",
+      "CloudEvent",
+      "EAVT outcome"
+    ],
+    "unknownIsZero": false
+  },
+  "refinements": [
+    {
+      "id": "sdss-contract-runtime-realizes-the-move",
+      "implementation": "src/contract-software-development.mjs",
+      "preserves": [
+        "exact-offer-digest",
+        "path-confinement",
+        "shell-free-acceptance",
+        "customer-sovereignty",
+        "provider-local-evidence",
+        "typed-refusal"
+      ]
+    }
+  ]
+}

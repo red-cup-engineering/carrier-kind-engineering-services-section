@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:schema:platform-node-induction:pni-001",
+  "title": "Platform Node Induction Service Boundary",
+  "oneOf": [
+    {"$ref": "#/$defs/solicitation"},
+    {"$ref": "#/$defs/offer"},
+    {"$ref": "#/$defs/capability"},
+    {"$ref": "#/$defs/result"},
+    {"$ref": "#/$defs/decision"},
+    {"$ref": "#/$defs/refusal"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^(urn:)?sha256:[a-f0-9]{64}$"},
+    "solicitation": {
+      "type": "object",
+      "required": ["type", "territory", "offering", "ceilings", "foreignWriteAuthorized"],
+      "properties": {
+        "type": {"const": "PlatformNodeInductionSolicitation"},
+        "territory": {"const": "urn:ame:platform-node-inducer"},
+        "offering": {"enum": ["testOnly", "production"]},
+        "ceilings": {
+          "type": "object",
+          "required": ["maximumFiles", "maximumBytes", "maximumRuntimeMs"],
+          "properties": {
+            "maximumFiles": {"type": "integer", "minimum": 1, "maximum": 16},
+            "maximumBytes": {"type": "integer", "minimum": 1, "maximum": 524288},
+            "maximumRuntimeMs": {"type": "integer", "minimum": 1, "maximum": 120000}
+          },
+          "additionalProperties": false
+        },
+        "foreignWriteAuthorized": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "offer": {
+      "type": "object",
+      "required": ["type", "requestDigest", "terms", "termsDigest"],
+      "properties": {
+        "type": {"const": "PlatformNodeInductionOffer"},
+        "requestDigest": {"$ref": "#/$defs/digest"},
+        "terms": {"type": "object"},
+        "termsDigest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "capability": {
+      "type": "object",
+      "required": ["type", "issuer", "holder", "requestDigest", "offerDigest", "effects", "singleUse", "expiresAt"],
+      "properties": {
+        "type": {"const": "PlatformNodeInductionCapability"},
+        "singleUse": {"const": true},
+        "expiresAt": {"type": "string", "format": "date-time"}
+      }
+    },
+    "result": {
+      "type": "object",
+      "required": ["type", "fixtureEvidence", "testOnlyTransactionReceipt", "resourceReceipt", "customerMutation", "pendingCustomerDecision", "nonclaims"],
+      "properties": {
+        "type": {"const": "PlatformNodeInductionReadinessResult"},
+        "customerMutation": {"const": false},
+        "pendingCustomerDecision": {"const": true}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": ["type", "resultDigest", "decision"],
+      "properties": {
+        "type": {"const": "PlatformNodeInductionCustomerDecision"},
+        "decision": {"enum": ["accept-usefulness", "reject-usefulness"]}
+      }
+    },
+    "refusal": {
+      "type": "object",
+      "required": ["type", "reason", "prohibitedEffectsPerformed"],
+      "properties": {
+        "type": {"const": "PlatformNodeInductionRefusal"},
+        "reason": {"type": "string"},
+        "prohibitedEffectsPerformed": {"const": false}
+      }
+    }
+  }
+}

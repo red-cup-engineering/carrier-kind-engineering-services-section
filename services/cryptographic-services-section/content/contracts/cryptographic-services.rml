@@ -1,0 +1,7 @@
+#lang rmn/v2
+(map
+  ("type" "CryptographicServicesLaw") ("version" 1) ("provider" "urn:ame:cryptographic-services-section")
+  ("precondition" "A consuming settlement names exactly one advertised operation—generate account, derive address, sign digest, sign message, recover address, or keccak256—and supplies operation inputs only inside an accepted capability-bound invocation; any private key remains under caller custody.")
+  ("operation" "Execute the named pure local operation over the section's single audited secp256k1 and Ethereum-pad Keccak-256 core, using published Ethereum vectors as conformance evidence.")
+  ("postcondition" "Return one derived address, signature, recovered address, digest, generated account for immediate caller custody, or typed refusal, with no network access, broadcast, value movement, secret retention, or secret-bearing record.")
+  ("refusal" "Refuse an unknown operation, solicitation containing operation inputs or key material, drifted offer or request, excessive capability, malformed key, digest, signature, or message, any request to broadcast or move value, or any operation that would retain secret material."))

@@ -1,0 +1,7 @@
+#lang rmn/v2
+(map
+  ("type" "RepositoryStateObservationLaw") ("version" 2) ("provider" "urn:ame:repository-state-observation-service")
+  ("precondition" "The hired A2A provider delivers one provider-addressed canonical RMN RepositoryStateObservationRequest carrying an absolute repository root, bounded wait, and dry-run or live mode.")
+  ("operation" "The die chooses the fixed read-only Git status operation and conducts it through the installed device-scoped Git ingress under this settlement's CAIP-10 account; the caller cannot choose Git arguments, executable, environment, effects, or mutation authority.")
+  ("postcondition" "Return one canonical RMN RepositoryStateObservationResult with explicit FOUR outcome, raw-status ni identity, status lines, and no customer mutation, or refuse before observation.")
+  ("refusal" "Refuse a foreign provider, noncanonical operation, non-observation purpose, relative root, caller-selected Git argument, executable, environment, command, effect, mutation, unbounded wait, unavailable Git ANT or device I/O circuit, or malformed result."))

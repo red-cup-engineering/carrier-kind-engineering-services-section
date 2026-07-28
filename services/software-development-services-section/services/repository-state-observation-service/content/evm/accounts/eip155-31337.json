@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "repository-state-observation-service",
+    "urn": "urn:ame:repository-state-observation-service",
+    "enterpriseId": "0xf2d1e35a6792df2e09c47bfd7e9dcc6fc6074fa2b25a42d759a971cfe5b21586"
+  },
+  "chain": {
+    "chainId": 31337,
+    "caip2": "eip155:31337"
+  },
+  "account": {
+    "address": "0x8265b66756ebd5ad80bafd976490afadd921e4da",
+    "caip10": "eip155:31337:0x8265b66756ebd5ad80bafd976490afadd921e4da"
+  },
+  "factory": {
+    "address": "0x7bf3cf1176c4a037d3ea2a5ff3d480359ac65ecd",
+    "userSalt": "0x7e204636b73a3efaf1b345eee205f0ca327c8a922e20477c7e8b542c2d23a04f"
+  },
+  "policy": {
+    "signer": "0xc0bffce85570efa1176c27ddb9f59604d4b4988e",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0x3a02920a29a4cb2a1f6d60772e3dc9e7006a05b3e68be0b3ef906cafe24595b9",
+    "block": 1401
+  }
+}

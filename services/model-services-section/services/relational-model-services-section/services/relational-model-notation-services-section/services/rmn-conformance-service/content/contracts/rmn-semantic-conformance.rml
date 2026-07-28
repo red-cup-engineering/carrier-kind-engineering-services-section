@@ -1,0 +1,6 @@
+#lang rmn/v2
+; The contract is an unsaturated directed relation. Each invocation grounds it
+; with one request and one receipt/refusal and carries the resulting effect cell.
+(predicate "assays-rmn-conformance"
+  (base "RmnConformanceRequest")
+  (base "RmnConformanceReceiptOrRefusal"))

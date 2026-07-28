@@ -1,0 +1,56 @@
+{
+  "name": "@red-cup-engineering/software-solve-loop-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/solve-loop.mjs",
+    "./resolvers": "./src/resolvers.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/sandbox-command-execution-service": "1.0.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "software-solve-loop-service",
+    "actor": "urn:ame:software-solve-loop-service",
+    "organizational-kind": "sovereign-software-development-die",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one bounded task with explicitly injected context, synthesis, materialization, verification, and optional refinement effects",
+    "refusal": "ambient providers, implicit escalation, mutation outside the supplied workspace, provider self-acceptance, or fallback",
+    "operation-catalog": {
+      "conduct-solve-loop": {
+        "contract": "content/contracts/conduct-software-solve-loop.rml",
+        "accepts": "typed effect-cell bundle",
+        "returns": "typed staged outcome and residue"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:software-solve-loop-service",
+    "operations": [
+      "conduct-solve-loop"
+    ],
+    "capabilities": [
+      {
+        "capability": "software-solve-loop-service",
+        "faces": [
+          "conduct-solve-loop"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/software-solve-loop-service"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@emsenn/deterministic-report-graphic-service",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "solicit-deterministic-report-graphic": "./src/contract-deterministic-report-graphic.mjs",
+    "invoke-deterministic-report-graphic": "./src/contract-deterministic-report-graphic.mjs",
+    "verify-deterministic-report-graphic": "./src/verify-deterministic-report-graphic.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/deterministic-report-graphic.mjs && node --check src/contract-deterministic-report-graphic.mjs && node --check src/verify-deterministic-report-graphic.mjs",
+    "test": "node --test test/deterministic-report-graphic.test.mjs",
+    "verify": "npm run check && npm test && node src/verify-deterministic-report-graphic.mjs --self-test"
+  }
+}

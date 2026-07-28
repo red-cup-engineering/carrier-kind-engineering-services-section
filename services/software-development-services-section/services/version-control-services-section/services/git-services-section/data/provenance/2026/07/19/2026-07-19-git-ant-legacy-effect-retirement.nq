@@ -1,0 +1,5 @@
+<urn:sha256:bb8feb9e4bc34e9cf04e873564920b45905c6f8dc25ad847b2bf9dcfcf180614> <http://www.w3.org/ns/prov#atLocation> "src/evm-authority.js" <urn:ame:git-ant-colony:cutover:2026-07-19> .
+<urn:sha256:978d964dc23f42916b18684b6dbe948726be61857f5fa8dc3a8c6c0672a369bb> <http://www.w3.org/ns/prov#atLocation> "src/git-ant-service.js" <urn:ame:git-ant-colony:cutover:2026-07-19> .
+<urn:sha256:80578444dc2afdb048ac9b740b33471a1adbdfba21c431a8462e6289b056c35c> <http://www.w3.org/ns/prov#atLocation> "src/request-git-operation.js" <urn:ame:git-ant-colony:cutover:2026-07-19> .
+<urn:sha256:3fc2e85c0d38099c27fe5e8a9d6108a56947629e975955c991faaf76831e1c9b> <http://www.w3.org/ns/prov#atLocation> "content/contracts/git-operation-via-device-io-admission.json" <urn:ame:git-ant-colony:cutover:2026-07-19> .
+<urn:ame:git-ant-colony:cutover:2026-07-19> <http://www.w3.org/ns/prov#used> <ni:///sha-256;wBPIHrX9YFY_LBdrLKDua6k4XzZjGtVvN7cxwzSSI0M> <urn:ame:git-ant-colony:cutover:2026-07-19> .

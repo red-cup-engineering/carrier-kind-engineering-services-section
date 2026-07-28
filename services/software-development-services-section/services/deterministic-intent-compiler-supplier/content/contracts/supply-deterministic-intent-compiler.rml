@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("type" "DeterministicIntentCompilerSupplyLaw")
+  ("version" 1)
+  ("precondition" "A sovereign customer publishes an exact awarded software-development lot for the BoundedInferenceIntentCompiler product class, with a protected customer oracle, bounded target root, and current buyer quote.")
+  ("operation" "Bid as one independent supplier; on exact award, bind provider-owned deterministic template bytes to current customer source state and contract an independent protected-oracle replay assay.")
+  ("postcondition" "Return proposal-only SoftwareChangeProposal bytes and an independent ImprovementCandidateReview with zero inference and no customer mutation; customer replay and acceptance remain required.")
+  ("refusal" "Refuse every other product class, unsafe path, missing or writable oracle, source drift, expanded authority, self-review, failed independent assay, inference, model selection, or customer mutation."))

@@ -1,0 +1,24 @@
+{
+  "id": "ni:///sha-256;ziVniegVYuXAOpEjVUnzzJhnob5f7cAQ7XMKW5U1LK4",
+  "type": "AcceptanceAssayCarrierObstructionMigration",
+  "migratedAt": "2026-07-26T00:55:32.024Z",
+  "subject": "urn:union:fabrication:linux-socket-territory-observation-service:2026-07-25:directory-carrier-migrated:acceptance",
+  "migrated": [
+    {
+      "candidate": "ni:///sha-256;A88iNa5PuA6YDykyer6hj6sMFSWuEhV6i0jI9etGkQo",
+      "source": "ni:///sha-256;twnL83vi1B6Rm59HnVJyC9cCLc1YJJClQx2nwZ7Iihk",
+      "successor": "ni:///sha-256;cozl8USslmx8abuyti-1hh3RnKSC8TUpqdNCKeyH1fM"
+    },
+    {
+      "candidate": "ni:///sha-256;ucb9ag02uIk9sQjsuK5d2bYL0udw2tk2AWgHpH2KUSo",
+      "source": "ni:///sha-256;nw8pyJB2yy5Pc3ztyQRhRM23uZ4M1pLDZm1X2BOQBZQ",
+      "successor": "ni:///sha-256;PJYFnge0TIoP4SfN-9pYtR2lBNFkzwGANVViPSvBSN8"
+    },
+    {
+      "candidate": "ni:///sha-256;TGH_9zNmnWSVbdQ7Rzi0FFdcfR0rSZ6Kr1am9W3_GxQ",
+      "source": "ni:///sha-256;4GwPKCqVNGqy2LEZOBXilmu4iluL5B9TJOLxsONp5Bs",
+      "successor": "ni:///sha-256;Doy4AsbwsTc6W6vQbnZ_eYwHybxKKTcBwgske_MsHHM"
+    }
+  ],
+  "target": "/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-development-services-section/services/acceptance-capsule-procurement-service/data/proof-pores"
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Morgan’s XO"
+  short_description: "Carry context and relieve executive burden"
+  default_prompt: "Use $supporting-morgan-as-xo to recover context and carry this demand through to a verified outcome."

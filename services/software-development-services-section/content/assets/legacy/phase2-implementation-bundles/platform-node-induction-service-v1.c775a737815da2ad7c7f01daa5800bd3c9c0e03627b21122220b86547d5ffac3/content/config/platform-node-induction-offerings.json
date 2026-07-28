@@ -1,0 +1,53 @@
+{
+  "id": "platform-node-induction-offerings-pni-001",
+  "commission": "PNI-001",
+  "territory": "urn:ame:platform-node-inducer",
+  "testOnly": {
+    "id": "pni-readiness-assay-test-only-usd-1",
+    "enabled": true,
+    "mechanicallyTestOnly": true,
+    "price": {"amount": 1, "currency": "USD"},
+    "termsVersion": "pni-001-test-only-v1",
+    "maximumFiles": 16,
+    "maximumBytes": 524288,
+    "maximumRuntimeMs": 120000,
+    "externalSettlement": false,
+    "externalSpend": 0
+  },
+  "production": {
+    "id": "pni-production-induction",
+    "enabled": false,
+    "requiredLeaderDecisionDigests": [],
+    "price": null,
+    "customerContract": null,
+    "paymentAdmission": null,
+    "publicationAdmission": null,
+    "refusal": "production-activation-impossible"
+  },
+  "providerFormationReceiptBindings": {
+    "approval": "urn:sha256:cc15814d9e734f022f5e689ed596cc2a5b01e2c113cf54b703887076ee9298e2",
+    "providerGrant": "urn:sha256:05176398c409317099200325490b66bf2adcef8c1db50b73b638905e56852b03",
+    "lot": "urn:sha256:958cba77f95995ff9fbe2666b33bbd0da771e9d01bd56b22c9637c9f2e54fc07",
+    "bid": "urn:sha256:1a8c83493107fcd174b6ec1df2d84e3736604c257e22faa0bae78572832d4529",
+    "award": "urn:sha256:f55f44e7ca439213c43badfd4e2482a7e0bca52c22f4528d84e3813462029070"
+  },
+  "packageJsonProposal": {
+    "target": "package.json",
+    "mutationPerformed": false,
+    "admissionReservedToRoot": true,
+    "bin": {
+      "platform-node-induction-service": "src/platform-node-induction-service.mjs"
+    },
+    "scripts": {
+      "verify:platform-node-induction": "node src/verify-platform-node-induction-service.mjs",
+      "test:platform-node-induction": "node --test test/platform-node-induction-service.test.mjs"
+    }
+  },
+  "nonclaims": [
+    "package.json mutation or admission",
+    "production price or terms",
+    "live payment activation",
+    "customer usefulness",
+    "independent certification"
+  ]
+}

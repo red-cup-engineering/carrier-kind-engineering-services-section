@@ -1,0 +1,17 @@
+{
+  "name": "Union Private Package Registry",
+  "description": "Supplies the current immutable, Tailnet-private Union npm registry snapshot and scoped npm configuration.",
+  "supportedInterfaces": [
+    { "url": "${BASE_URL}/a2a/jsonrpc", "protocolBinding": "JSONRPC", "tenant": "", "protocolVersion": "1.0" },
+    { "url": "${BASE_URL}/a2a/rest", "protocolBinding": "HTTP+JSON", "tenant": "", "protocolVersion": "1.0" }
+  ],
+  "provider": { "url": "http://bare-cedar-fog.tail61b391.ts.net:4875", "organization": "Harmonious Union" },
+  "version": "1.0.0",
+  "capabilities": { "streaming": false, "pushNotifications": false, "extensions": [], "extendedAgentCard": false },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": ["application/rmn+cbor"],
+  "defaultOutputModes": ["application/rmn+cbor"],
+  "skills": [{ "id": "obtain-union-package-registry-snapshot", "name": "Obtain current private package registry snapshot", "description": "Returns the current immutable registry receipt, scoped npm configuration, and content-addressed package inventory. It does not publish or mutate packages.", "tags": ["npm", "packages", "private", "tailnet"], "examples": [], "inputModes": ["application/rmn+cbor"], "outputModes": ["application/rmn+cbor"], "securityRequirements": [] }],
+  "signatures": []
+}

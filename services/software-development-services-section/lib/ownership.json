@@ -1,0 +1,10 @@
+{
+  "node": "software-development-services-section",
+  "owner": "red-cup-engineering",
+  "territory": ["AGENTS.md", "README.md", "package.json", "lib/", "content/", "services/", "src/", "test/", "data/"],
+  "boundary": "The section receives typed ActivityStreams values and writes only its own evidence, receipts, and knowledge. Customer mutation requires an exact accepted capability.",
+  "directContracting": true,
+  "ownerGatewayRequired": false,
+  "nonClaims": ["ambient shell", "Union runtime", "customer usefulness", "customer change admission", "credential custody", "Git ownership", "device I/O ownership", "inference ownership", "permanent bootstrap Lead incumbency"]
+}
+

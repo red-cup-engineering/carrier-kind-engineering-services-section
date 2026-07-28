@@ -1,0 +1,101 @@
+{
+  "name": "@red-cup-engineering/accepted-software-delivery-receiver-service",
+  "version": "0.5.0",
+  "private": true,
+  "type": "module",
+  "description": "Sovereign SDSS receiver node for separately authorized accepted-delivery staging and admission.",
+  "exports": {
+    ".": "./src/client.mjs",
+    "./client": "./src/client.mjs",
+    "./executor": "./src/a2a-executor.mjs",
+    "./immutable-induction-evidence/executor": "./src/immutable-induction-evidence-a2a-executor.mjs",
+    "./immutable-induction-evidence": "./src/immutable-induction-evidence.mjs",
+    "./receiver": "./src/accepted-software-delivery-receiver.mjs"
+  },
+  "bin": {
+    "execute-accepted-software-delivery-receiver-a2a-message": "./bin/execute-a2a-message.mjs",
+    "serve-accepted-software-delivery-receiver-a2a": "./bin/serve-a2a.mjs",
+    "execute-immutable-induction-evidence-a2a-message": "./bin/execute-immutable-induction-evidence-a2a-message.mjs",
+    "serve-immutable-induction-evidence-a2a": "./bin/serve-immutable-induction-evidence-a2a.mjs",
+    "solicit-stage-accepted-software-delivery": "./src/accepted-software-delivery-receiver.mjs",
+    "stage-accepted-software-delivery": "./src/accepted-software-delivery-receiver.mjs",
+    "solicit-review-and-admit-staged-software-delivery": "./src/accepted-software-delivery-receiver.mjs",
+    "review-and-admit-staged-software-delivery": "./src/accepted-software-delivery-receiver.mjs",
+    "solicit-stage-accepted-software-delivery-correction": "./src/accepted-software-delivery-receiver.mjs",
+    "stage-accepted-software-delivery-correction": "./src/accepted-software-delivery-receiver.mjs",
+    "solicit-review-and-admit-staged-software-delivery-correction": "./src/accepted-software-delivery-receiver.mjs",
+    "review-and-admit-staged-software-delivery-correction": "./src/accepted-software-delivery-receiver.mjs",
+    "verify-accepted-software-delivery-receiver": "./src/verify-accepted-software-delivery-receiver.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/accepted-software-delivery-receiver.mjs && node --check src/immutable-induction-evidence.mjs && node --check src/immutable-induction-evidence-a2a-executor.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/serve-a2a.mjs && node --check bin/execute-immutable-induction-evidence-a2a-message.mjs && node --check bin/serve-immutable-induction-evidence-a2a.mjs && node --check src/verify-accepted-software-delivery-receiver.mjs && node --check test/immutable-induction-evidence-node-sit.test.mjs && node --check test/fixtures/run-immutable-evidence-core.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && node src/verify-accepted-software-delivery-receiver.mjs --self-test"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
+    "jose": "6.2.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "accepted-software-delivery-receiver-service",
+    "actor": "urn:ame:accepted-software-delivery-receiver-service",
+    "organizational-kind": "software-delivery-receiver",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "admission": "canonical RMN/CBOR solicitation or exact offered invocation received through signed A2A 1.0",
+    "refusal": "foreign target, absent local acceptance chain, incomplete plate, mismatched offer, expired or reused human authority, or noncanonical carrier",
+    "operation-catalog": {
+      "accepted-software-delivery-receiver": {
+        "contract": "content/contracts/accepted-software-delivery-receiver.json",
+        "protocols": [
+          "RMN",
+          "A2A 1.0"
+        ],
+        "returns": "receiver operation offer, receipt, or typed refusal",
+        "legacyCompatibility": false
+      },
+      "read-immutable-induction-evidence-object": {
+        "contract": "content/contracts/read-immutable-induction-evidence-object-v1.rml",
+        "protocols": [
+          "RMN",
+          "RFC 8949 deterministic CBOR",
+          "RFC 6920 ni",
+          "A2A 1.0",
+          "JWS"
+        ],
+        "returns": "signed immutable evidence object result or signed addressable refusal",
+        "legacyCompatibility": false
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:accepted-software-delivery-receiver-service",
+    "operations": [
+      "accepted-software-delivery-receiver",
+      "read-immutable-induction-evidence-object"
+    ],
+    "capabilities": [
+      {
+        "capability": "accepted-software-delivery-receiver-service",
+        "faces": [
+          "accepted-software-delivery-receiver",
+          "read-immutable-induction-evidence-object"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/accepted-software-delivery-receiver-service"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["type", "admitted", "transition", "proof", "responsePair"],
+  "properties": {"type": {"const": "PlannedTransitionAdmission"}, "admitted": {"const": true}}
+}

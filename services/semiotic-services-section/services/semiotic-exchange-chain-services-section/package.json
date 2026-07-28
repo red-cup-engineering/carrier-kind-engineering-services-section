@@ -1,0 +1,63 @@
+{
+  "name": "@red-cup-engineering/semiotic-exchange-chain-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "RCE's Semiotic Exchange Chain Services Section: specifies the fusion of public standard protocols -- EAVT/Datom, EVM settlement, ActivityPub/WMAP, A2A, x402, UCAN -- into one exchange chain in which the chain is the only durable home, actuators are ephemeral, and the Semiotic Voxel exists only actively. This section specifies; it does not itself operate a chain.",
+  "files": [
+    "content",
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "check": "node --check lib/law.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "keywords": [
+    "semiotic-exchange-chain",
+    "activitypub",
+    "evm",
+    "eavt",
+    "ucan",
+    "x402"
+  ],
+  "x-agentic-metro-enterprise": {
+    "node-id": "semiotic-exchange-chain-services-section",
+    "organizational-kind": "specification-arena",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "membrane": {
+      "law": "lib/",
+      "lasting-instances": "content/",
+      "append-only-instances": "data/"
+    },
+    "admission": "one boundary of the exchange chain, allocated exactly one public standard, traced to a requirement and owned by exactly one module",
+    "refusal": "a second semantic center beside the EAVT source symbol, a persisted Semiotic Voxel, a permanent actuator host, local data presented as a home rather than a cache, an identifier law competing with the chain's own, an unallocated boundary, or this section operating what it specifies",
+    "operation-catalog": {
+      "specify-exchange-chain-architecture": {
+        "contract": "content/designs/semiotic-exchange-chain/software-architecture-specification.rml"
+      }
+    }
+  },
+  "license": "UNLICENSED",
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:semiotic-exchange-chain-services-section",
+    "operations": [
+      "specify-exchange-chain-architecture"
+    ],
+    "capabilities": [
+      {
+        "capability": "semiotic-exchange-chain-services-section",
+        "faces": [
+          "specify-exchange-chain-architecture"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/semiotic-exchange-chain-services-section"
+  }
+}

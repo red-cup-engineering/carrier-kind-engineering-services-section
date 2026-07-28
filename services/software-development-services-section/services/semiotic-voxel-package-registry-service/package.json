@@ -1,0 +1,70 @@
+{
+  "name": "@red-cup-engineering/semiotic-voxel-package-registry-service",
+  "version": "1.0.0",
+  "description": "Materializes and serves an npm-compatible registry from explicit semiotic-voxel package carriers.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": "./src/package-registry.mjs",
+  "bin": {
+    "fabricate-semiotic-voxel-package-registry": "./bin/fabricate-registry.mjs",
+    "serve-semiotic-voxel-package-registry": "./bin/serve-registry.mjs",
+    "serve-union-package-registry-snapshot": "./bin/a2a-server.mjs",
+    "execute-union-package-registry-snapshot-a2a": "./bin/execute-a2a-task.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "node --check src/package-registry.mjs && node --check src/snapshot.mjs && node --check src/protocol.mjs && node --check bin/fabricate-registry.mjs && node --check bin/serve-registry.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/a2a-server.mjs && node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-sovereign-operation-boundary-service": "1.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "semiotic-voxel-package-registry-service",
+    "actor": "urn:ame:semiotic-voxel-package-registry-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "operation-catalog": {
+      "provide-semiotic-voxel-package-registry": {
+        "contract": "content/contracts/provide-semiotic-voxel-package-registry.rml",
+        "accepts": "one explicit package-carrier set, artifact territory, public registry address, and compute-market or local-capacity ceiling",
+        "returns": "one immutable package catalog plus an npm-compatible read-only registry face and settled compute-use receipt"
+      },
+      "obtain-union-package-registry-snapshot": {
+        "contract": "content/contracts/provide-semiotic-voxel-package-registry.rml",
+        "protocol": "A2A 1.0",
+        "effects": [],
+        "returns": "one current immutable private-registry snapshot receipt and scoped npm configuration"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:semiotic-voxel-package-registry-service",
+    "operations": [
+      "obtain-union-package-registry-snapshot",
+      "provide-semiotic-voxel-package-registry"
+    ],
+    "capabilities": [
+      {
+        "capability": "semiotic-voxel-package-registry-service",
+        "faces": [
+          "obtain-union-package-registry-snapshot",
+          "provide-semiotic-voxel-package-registry"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/semiotic-voxel-package-registry-service"
+  }
+}

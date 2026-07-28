@@ -1,0 +1,15 @@
+{
+  "name": "@emsenn/state-of-harmonious-union-reporting-service",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "solicit-state-of-harmonious-union-report": "./src/contract-state-reporting.mjs",
+    "invoke-state-of-harmonious-union-report": "./src/contract-state-reporting.mjs",
+    "verify-state-of-harmonious-union-reporting-service": "./src/verify-state-of-harmonious-union-reporting-service.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/state-reporting.mjs && node --check src/discord-publication.mjs && node --check src/contract-state-reporting.mjs && node --check src/verify-state-of-harmonious-union-reporting-service.mjs",
+    "test": "node --test test/state-of-harmonious-union-reporting-service.test.mjs",
+    "verify": "npm run check && npm test && node src/verify-state-of-harmonious-union-reporting-service.mjs --dry-run"
+  }
+}

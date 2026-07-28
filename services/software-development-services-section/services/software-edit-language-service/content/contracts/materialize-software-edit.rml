@@ -1,0 +1,2 @@
+#lang rmn/v2
+(map ("type" "SoftwareEditMaterializationLaw") ("version" 1) ("precondition" "One bounded source and one SEARCH/REPLACE candidate are supplied.") ("operation" "Apply exact byte-matching replacements in order without executing the source.") ("postcondition" "Return changed source and replacement count or a typed refusal.") ("refusal" "Refuse missing matches, malformed markers, execution, inference, filesystem mutation, or customer acceptance."))

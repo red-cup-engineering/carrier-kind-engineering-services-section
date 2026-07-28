@@ -1,0 +1,28 @@
+{
+  "name": "@red-cup-engineering/markdown-file-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Section containing the independently callable Markdown file reading and writing services.",
+  "x-agentic-metro-enterprise": {
+    "node-id": "markdown-file-services-section",
+    "actor": "urn:ame:markdown-file-services-section",
+    "organizational-kind": "circuit-board",
+    "owners": [
+      "software-development-services-section"
+    ],
+    "owned-services": [
+      "services/markdown-file-reading-service",
+      "services/markdown-file-writing-service"
+    ]
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:markdown-file-services-section",
+    "operations": [],
+    "capabilities": [],
+    "package": "@red-cup-engineering/markdown-file-services-section"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "@red-cup-engineering/node-runtime-release-materialization-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Materialize one independently owned Node carrier and explicitly admitted exact-version provider sources as a content-addressed isolated release.",
+  "exports": {
+    ".": "./src/materialize-release.mjs"
+  },
+  "bin": {
+    "materialize-node-runtime-release": "./bin/materialize-node-runtime-release.mjs",
+    "verify-node-runtime-release": "./bin/verify-node-runtime-release.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/materialize-release.mjs && node --check bin/materialize-node-runtime-release.mjs && node --check bin/verify-node-runtime-release.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "node --check src/materialize-release.mjs && node --check bin/materialize-node-runtime-release.mjs && node --check bin/verify-node-runtime-release.mjs && node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "node-runtime-release-materialization-service",
+    "actor": "urn:ame:node-runtime-release-materialization-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "red-cup-engineering"
+    ],
+    "operation-catalog": {
+      "materialize-node-runtime-release": {
+        "contract": "content/contracts/materialize-node-runtime-release.rml",
+        "accepts": "one independently owned entry carrier and an explicit exact-version provider-source map",
+        "returns": "one content-addressed isolated runtime release receipt"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:node-runtime-release-materialization-service",
+    "operations": [
+      "materialize-node-runtime-release"
+    ],
+    "capabilities": [
+      {
+        "capability": "node-runtime-release-materialization-service",
+        "faces": [
+          "materialize-node-runtime-release"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/node-runtime-release-materialization-service"
+  }
+}

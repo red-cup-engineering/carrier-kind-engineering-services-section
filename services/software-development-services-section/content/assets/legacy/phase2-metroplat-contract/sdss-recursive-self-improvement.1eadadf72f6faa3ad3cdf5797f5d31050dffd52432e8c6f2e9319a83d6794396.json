@@ -1,0 +1,8 @@
+{
+  "kind": "metroplat.contract",
+  "id": "sdss-recursive-self-improvement",
+  "precondition": { "id": "fresh-union-knowledge-and-purpose-owned-frustration-present", "description": "The Lead has recovered relevant current session and corpus knowledge, named a purpose-bearing customer settlement and its evidenced software frustration, and distinguished live customer/provider authority from absence or unknown." },
+  "move": { "id": "advance-one-standing-campaign-phase", "domain": "union-software-demand-provider-market-and-predecessor-knowledge", "codomain": "receiver-witnessed-outcome-typed-refusal-question-or-open-successor-obstruction", "partial": false, "deterministic": false, "effects": ["section-local-append-only-evidence", "contracted-provider-effects", "customer-authorized-effects"] },
+  "postcondition": { "id": "bounded-learning-conditions-the-successor-phase", "description": "The phase preserves its fresh knowledge frame, purpose-owning customer, contracts, costs, refusals, residue, and receiver or examiner decision. It changes or truthfully characterizes the Union's ability to serve the next demand without claiming the standing campaign complete." },
+  "invariants": ["fresh-cross-session-and-corpus-frame", "purpose-owning-external-customer", "lead-does-not-self-approve", "provider-success-is-not-customer-value", "local-mape-artifact-is-not-rsi-completion", "FOUR-unknown-and-contradiction-preserved", "no-history-rewrite"]
+}

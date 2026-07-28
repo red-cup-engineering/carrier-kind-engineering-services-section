@@ -1,0 +1,26 @@
+{
+  "@context": "https://www.w3.org/ns/activitystreams",
+  "id": "urn:ame:rmn-semantic-conformance:service:effect-transition-v2",
+  "type": "Service",
+  "name": "RMN effect transition conformance",
+  "summary": "Assays two successive immutable typed-RMN effect revisions joined by one exact FOUR cover without executing the customer effect.",
+  "attachment": [
+    {
+      "id": "ni:///sha-256;bEv2HYmPGWOwxS5FdmQgNmEAfNPJ7yaCqS-CxbNONu0",
+      "type": "Document",
+      "mediaType": "application/rmn",
+      "name": "RMN effect transition contract relation"
+    },
+    {
+      "id": "ni:///sha-256;OzkY-m2NLb09_NhwlxLJfGj1BnycTDFyxTXdZotowQ4",
+      "type": "Document",
+      "mediaType": "application/cddl",
+      "name": "org.emsenn.rmn.core.v3"
+    }
+  ],
+  "url": {
+    "type": "Link",
+    "href": "urn:ame:rmn-semantic-conformance:endpoint:activitystreams",
+    "mediaType": "application/activity+json"
+  }
+}

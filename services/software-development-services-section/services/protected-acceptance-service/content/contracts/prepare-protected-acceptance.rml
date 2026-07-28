@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("type" "ProtectedAcceptancePreparationLaw")
+  ("version" 3)
+  ("precondition" "One canonical RMN request names bounded source evidence, explicit behavioral vectors, a bounded Node test command, and complete proposed oracle artifacts.")
+  ("operation" "Isolate the admitted territory, materialize only the proposed oracle artifacts, require assertion-relevant red against the incumbent, hire the separately owned acceptance-oracle assay settlement to bind exact material measures, vector identifiers, and the failed red witness, and bind that assay into one deterministic protected acceptance capsule.")
+  ("postcondition" "Return one canonical RMN receipt containing the content-addressed capsule and exact request identity; append the receipt through the hired RWIL/RDF provider.")
+  ("refusal" "Refuse stale or escaping paths, nondeterministic or authority-bearing oracle source, infrastructure-only failure, missing vector execution, failed deterministic oracle assay, noncanonical bytes, customer mutation, or usefulness acceptance."))

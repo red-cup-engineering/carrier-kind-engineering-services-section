@@ -1,0 +1,4 @@
+<urn:ame:drive-sdd-io-coordinator-ant-colony> <urn:emsenn:evm:retired-controller-artifact> <ni:///sha-256;jj6_edE1DVjex-ArqhbpBFqMKGSOxUMPt_aisyqZqYY> <urn:ame:drive-sdd-io-coordinator-ant-colony:controller-custody-cutover:eip155-31337> .
+<ni:///sha-256;jj6_edE1DVjex-ArqhbpBFqMKGSOxUMPt_aisyqZqYY> <urn:emsenn:evm:retired-path> "data/evm/controller-eip155-31337.env" <urn:ame:drive-sdd-io-coordinator-ant-colony:controller-custody-cutover:eip155-31337> .
+<urn:ame:drive-sdd-io-coordinator-ant-colony> <urn:emsenn:evm:controller-keystore-format> "Ethereum Secret Storage v3" <urn:ame:drive-sdd-io-coordinator-ant-colony:controller-custody-cutover:eip155-31337> .
+<urn:ame:drive-sdd-io-coordinator-ant-colony> <urn:emsenn:evm:controller-chain> <eip155:31337> <urn:ame:drive-sdd-io-coordinator-ant-colony:controller-custody-cutover:eip155-31337> .

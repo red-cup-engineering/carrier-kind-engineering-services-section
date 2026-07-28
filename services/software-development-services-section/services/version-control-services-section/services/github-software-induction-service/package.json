@@ -1,0 +1,65 @@
+{
+  "name": "@red-cup-engineering/github-software-induction-service",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Customer-side independent verification and atomic GitHub induction of supplier software proposals.",
+  "bin": {
+    "execute-github-software-induction-a2a-message": "./bin/execute-a2a-message.mjs",
+    "serve-github-software-induction-a2a": "./bin/serve-a2a.mjs"
+  },
+  "exports": {
+    ".": "./src/client.mjs",
+    "./provider": "./src/post-attempt.mjs",
+    "./executor": "./src/a2a-executor.mjs"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/github-services-section": "1.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
+    "@red-cup-engineering/software-mission-execution-service": "1.0.0"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "github-software-induction-service",
+    "actor": "urn:ame:github-software-induction-service",
+    "organizational-kind": "sovereign-customer-induction-cell",
+    "owners": [
+      "red-cup-engineering",
+      "software-development-services-section",
+      "version-control-services-section"
+    ],
+    "admission": "one immutable GitHub source, supplier proposal, explicit writable lane, customer verification and acceptance commands, and target ref",
+    "refusal": "source drift, path escape, before-state mismatch, failed independent verification, failed acceptance, or ref compare-and-swap failure",
+    "operation-catalog": {
+      "induce-github-software-proposal": {
+        "contract": "content/contracts/law.rml"
+      }
+    }
+  },
+  "scripts": {
+    "check": "node --check src/post-attempt.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/serve-a2a.mjs",
+    "test": "node --test"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:github-software-induction-service",
+    "operations": [
+      "induce-github-software-proposal"
+    ],
+    "capabilities": [
+      {
+        "capability": "github-software-induction-service",
+        "faces": [
+          "induce-github-software-proposal"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/github-software-induction-service"
+  }
+}

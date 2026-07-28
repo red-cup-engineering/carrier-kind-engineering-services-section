@@ -1,0 +1,7 @@
+(map
+  ("type" "FabricatePnpmWorkspaceLaw")
+  ("version" 1)
+  ("precondition" "Receive one explicit customer-owned root identity, package path and manifest set, pnpm version, build policy, and empty output territory.")
+  ("operation" "Validate collision-free relative package paths and identities, render one pnpm workspace declaration, render exact customer manifests with workspace protocol only for explicitly named internal providers, and materialize only inside the admitted output territory.")
+  ("postcondition" "Return one content receipt naming every emitted file and package identity; confer no authority over the provider organism or any ambient repository.")
+  ("refusal" "Refuse path escape, implicit discovery, duplicate paths or identities, undeclared internal providers, non-empty output, ambient installation, or mutation outside the customer territory."))

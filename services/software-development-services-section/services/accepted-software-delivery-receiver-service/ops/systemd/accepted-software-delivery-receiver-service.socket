@@ -1,0 +1,11 @@
+[Unit]
+Description=Colony-supplied berth for the accepted software delivery receiver
+
+[Socket]
+ListenStream=127.0.0.1:19852
+FileDescriptorName=a2a
+NoDelay=true
+Service=accepted-software-delivery-receiver-service.service
+
+[Install]
+WantedBy=sockets.target

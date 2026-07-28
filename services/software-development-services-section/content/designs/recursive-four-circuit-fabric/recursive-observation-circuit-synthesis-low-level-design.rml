@@ -1,0 +1,15 @@
+#lang rmn/v2
+(map
+  ("type" "RecursiveObservationCircuitSynthesisLowLevelDesign")
+  ("version" 1)
+  ("precondition" "The recursive synthesis requirement and provider law are admitted, and the caller holds exact provider-owned sovereign black-box interfaces.")
+  ("operation" "Apply the bounded balanced recursive synthesis algorithm and emit one canonical family-and-assembly receipt through the signed provider seam.")
+  ("postcondition" "The returned family and assembly have exact canonical identities, complete contextual population, binary fan-in, and no board-local synthesis dependency.")
+  ("requirements" ("FAB-R003" "FAB-R006" "FAB-R019" "FAB-R021"))
+  ("provider" (map ("node" "recursive-observation-circuit-synthesis") ("account" "eip155:31337:0x92397c097ffce54cf7d424b99c31f91f761e1f6b") ("law" "ni:///sha-256;zG-JFCQ_pduJ21eFblsuushcMcPeCtM5mgfg2BzppLU") ("a2a" "http://127.0.0.1:19824/.well-known/agent-card.json")))
+  ("input" "One canonical typed RMN request containing exact root and tally circuit profiles plus provider-owned plate, cover, and route-ordered observer sovereign black-box interfaces.")
+  ("algorithm" "Normalize all interfaces; reject disclosed interiors; construct reusable observer leaves; recursively pair adjacent frontier nodes through a reusable binary FOUR conjunction tally; retain an odd final node unchanged; synthesize the root plate-observation-cover board; populate every recursive address with its exact membrane; verify assembly totality and M1 composition locally as a synthesis invariant, not an independent attestation.")
+  ("output" "One canonical typed RMN synthesis receipt carrying provider account, root circuit, component library, sovereign assembly, circuit and assembly ni identities, observer addresses, and composed behavior.")
+  ("seams" "The caller discovers and verifies the signed A2A Agent Card, binds the receipt provider to that card account, records the exact synthesis input/output ni seam, and independently hires the hierarchical-circuit-equivalence assay over the returned family before any material operation.")
+  ("resource-bounds" (map ("observer-count" "0..100000") ("fan-in" "exactly binary") ("material-read" false) ("provider-discovery" false) ("execution" false) ("self-attestation" false)))
+  ("refusal" "Unknown fields, malformed profiles, provider interiors, missing contextual placements, non-equivalent composition, unsigned provider use by a consumer, provider-account drift, local board synthesis, or any legacy direct import."))
