@@ -1,0 +1,36 @@
+{
+  "name": "@red-cup-engineering/jsnode-software-development-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Circuit board for bounded JavaScript/Node.js software-development actuators; it owns no aggregate runtime.",
+  "exports": {
+    ".": "./src/discover-services.mjs",
+    "./discovery": "./src/discover-services.mjs"
+  },
+  "bin": {
+    "discover-jsnode-software-services": "./bin/discover-services.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/discover-services.mjs && node --check bin/discover-services.mjs",
+    "test": "node --test test/discover-services.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "jsnode-software-development-services-section",
+    "actor": "urn:ame:jsnode-software-development-services-section",
+    "organizational-kind": "circuit-board",
+    "owner": "software-development-services-section",
+    "admission": "one exact child actuator operation with explicit source, target, and writable artifact scope",
+    "refusal": "ambient workspace authority, implicit package selection, local dependency installation, or aggregate runtime"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "software-development-services-section",
+    "kind": "actor",
+    "actor": "urn:ame:jsnode-software-development-services-section",
+    "operations": [],
+    "capabilities": [],
+    "package": "@red-cup-engineering/jsnode-software-development-services-section"
+  }
+}

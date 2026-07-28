@@ -1,0 +1,47 @@
+{
+  "name": "@red-cup-engineering/function-movement-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic function-level movement actuator: emits bounded edit artifacts for an accepted-delivery receiver.",
+  "exports": {
+    ".": "./src/function-movement.mjs",
+    "./actuator": "./src/function-movement.mjs",
+    "./cloud-client": "./src/cloud-client.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/function-movement.mjs && node --check src/cloud-client.mjs",
+    "test": "node --test test/function-movement.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "function-movement-service",
+    "actor": "urn:ame:function-movement-service",
+    "organizational-kind": "software-movement-actuator",
+    "owners": ["jsnode-software-development-services-section"],
+    "admission": "one exact named function, source and target package/semioverse identities, and an explicit target insertion marker",
+    "refusal": "ambiguous function text, source/target identity collision, duplicate target insertion, or unbounded artifact scope",
+    "operation-catalog": {
+      "prepare-function-movement": {
+        "contract": "function-movement-v1",
+        "protocols": ["RMN", "A2A 1.0"],
+        "returns": "bounded source-removal and target-insertion artifact set for accepted-software-delivery-receiver"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "jsnode-software-development-services-section",
+    "kind": "capability-cell",
+    "actor": "urn:ame:function-movement-service",
+    "operations": ["prepare-function-movement"],
+    "capabilities": [{
+      "capability": "function-movement-service",
+      "faces": ["prepare-function-movement"]
+    }],
+    "package": "@red-cup-engineering/function-movement-service"
+  }
+}

@@ -1,0 +1,27 @@
+[Unit]
+Description=Union private package registry A2A supplier
+After=network-online.target union-private-package-registry-tailnet.service
+Requires=union-private-package-registry-tailnet.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/semiotic-services-section/services/semiotic-voxel-services/section/semiotic-voxel-package-registry-service
+Environment=HOST=100.125.205.105
+Environment=PORT=4875
+Environment=BASE_URL=http://bare-cedar-fog.tail61b391.ts.net:4875
+Environment=UNION_PACKAGE_REGISTRY_ROOT=/home/emsenn/info/data/package-registry-v2
+Environment=UNION_PACKAGE_REGISTRY_URL=http://bare-cedar-fog.tail61b391.ts.net:4874/
+Environment=AGENT_CARD_SIGNING_KEY=data/agent-card-signing/ed25519-private.pem
+Environment=AGENT_CARD_JWKS=content/agent-card-signing/jwks.json
+Environment=AGENT_CARD_SIGNING_KID=union-private-package-registry-ed25519
+EnvironmentFile=/home/emsenn/.config/red-cup-engineering/r2-custody.env
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node bin/a2a-server.mjs
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadOnlyPaths=/home/emsenn/info/data/package-registry-v2
+
+[Install]
+WantedBy=default.target

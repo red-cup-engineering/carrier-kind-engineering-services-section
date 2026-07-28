@@ -6,7 +6,7 @@
 # through this one ingress under an exclusive lock instead.
 set -eu
 root=/home/emsenn/info
-service_root=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/version-control-services-section/services/git-services-section
+service_root=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/version-control-services-section/services/git-services-section
 physical_pwd=$(pwd -P)
 case "$physical_pwd/" in "$root/"|"$root"/*/) ;; *) echo "git contracted ingress refused: outside mapped repository" >&2; exit 126;; esac
 case "${1-}" in -C|--git-dir|--work-tree|--exec-path|--config-env|-c|--bare|--namespace|--super-prefix) echo "git contracted ingress refused: repository override" >&2; exit 126;; esac
