@@ -95,6 +95,11 @@ for argument in "$@"; do
 done
 
 run_git() {
+  # A read can recursively walk the worktree and object store just as heavily
+  # as a mutation.  The device-scoped ingress therefore admits one Git process
+  # at a time, rather than allowing parallel status/diff scans to saturate it.
+  lock_dir="$service_root/data"
+  mkdir -p "$lock_dir"
   exec /usr/bin/env -i \
     HOME=/nonexistent \
     PATH=/usr/bin:/bin \
@@ -103,6 +108,7 @@ run_git() {
     GIT_CONFIG_SYSTEM=/dev/null \
     GIT_TERMINAL_PROMPT=0 \
     GIT_PAGER=cat \
+    flock -w 300 "$lock_dir/serialized-mutation.lock" \
     /usr/bin/git --no-optional-locks \
       -c core.fsmonitor=false \
       -c core.hooksPath=/dev/null \
