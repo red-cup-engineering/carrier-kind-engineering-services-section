@@ -41,6 +41,7 @@ case "$command_name" in
       GIT_PAGER=cat \
       flock -w 300 "$lock_dir/serialized-mutation.lock" \
       /usr/bin/git --no-optional-locks \
+        -c gc.auto=0 \
         -c core.fsmonitor=false \
         -c core.hooksPath=/dev/null \
         -c user.name=emsenn \
@@ -64,6 +65,7 @@ case "$command_name" in
       GIT_PAGER=cat \
       flock -w 300 "$lock_dir/serialized-mutation.lock" \
       /usr/bin/git --no-optional-locks \
+        -c gc.auto=0 \
         -c core.fsmonitor=false \
         -c core.hooksPath=/dev/null \
         -c http.extraheader="$auth_header" \
@@ -110,6 +112,7 @@ run_git() {
     GIT_PAGER=cat \
     flock -w 300 "$lock_dir/serialized-mutation.lock" \
     /usr/bin/git --no-optional-locks \
+      -c gc.auto=0 \
       -c core.fsmonitor=false \
       -c core.hooksPath=/dev/null \
       -c pager.status=false \
