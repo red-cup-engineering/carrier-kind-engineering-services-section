@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Canonical Turtle IRIREF and literal writing actuator recovered from Relating.",
   "exports": { ".": { "types": "./src/index.mts", "import": "./src/index.mts" } },
+  "scripts": { "test": "node --test test/*.test.mjs" },
   "x-agentic-metro-enterprise": {
     "node-id": "turtle-term-writing-service",
     "actor": "urn:ame:turtle-term-writing-service",
