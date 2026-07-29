@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/modeled-union-dimension",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "private": true,
   "type": "module",
   "description": "Live SemioticExchange and observer-relative codebase-territory projections with earned loci, explicit-support FOUR charge, and finite closure evidence.",
@@ -17,10 +17,10 @@
     "verify": "npm run check && npm test"
   },
   "dependencies": {
-    "@lenticule-science/articulating": "workspace:*",
-    "@red-cup-engineering/activitypub-services-section": "workspace:*",
-    "@red-cup-engineering/gaming": "workspace:*",
-    "@red-cup-engineering/rmn-semantic-conformance": "workspace:*"
+    "@lenticule-science/articulating": "0.1.0",
+    "@red-cup-engineering/activitypub-services-section": "1.0.0",
+    "@red-cup-engineering/gaming": "0.0.2",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
   },
   "x-semiotic-voxel": {
     "profile": "org.harmonious-union.semiotic-voxel.v1",
@@ -31,6 +31,7 @@
     "capabilities": [{
       "capability": "modeled-union-dimension",
       "faces": ["concurrent-game", "semiotic-exchange-chain", "four-charge"]
-    }]
+    }],
+    "package": "@red-cup-engineering/modeled-union-dimension"
   }
 }

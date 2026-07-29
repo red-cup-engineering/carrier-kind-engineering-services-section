@@ -14,7 +14,8 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/package-registry.mjs && node --check src/snapshot.mjs && node --check src/protocol.mjs && node --check bin/fabricate-registry.mjs && node --check bin/serve-registry.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/a2a-server.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/package-registry.mjs && node --check src/cloudflare-worker.mjs && node --check src/snapshot.mjs && node --check src/protocol.mjs && node --check bin/fabricate-registry.mjs && node --check bin/serve-registry.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/a2a-server.mjs && node --test test/*.test.mjs",
+    "deploy:cloudflare": "wrangler deploy --config ops/cloudflare-worker/wrangler.jsonc"
   },
   "engines": {
     "node": ">=22"

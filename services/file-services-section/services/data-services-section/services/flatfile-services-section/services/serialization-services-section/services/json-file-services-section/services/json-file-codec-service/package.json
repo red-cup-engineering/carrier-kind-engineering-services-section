@@ -11,11 +11,12 @@
     "./jsonl/eavt/triple": { "types": "./dist/json/jsonl/eavt/triple/index.d.mts", "import": "./dist/json/jsonl/eavt/triple/index.mjs" }
   },
   "dependencies": {
-    "@lenticule-science/articulating": "workspace:*",
-    "@red-cup-engineering/file-cryptographic-integrity-service": "workspace:*",
-    "@red-cup-engineering/file-projection-kernel-service": "workspace:*"
+    "@lenticule-science/articulating": "0.1.0",
+    "@red-cup-engineering/file-cryptographic-integrity-service": "0.1.0",
+    "@red-cup-engineering/file-projection-kernel-service": "0.1.0"
   },
   "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
   "scripts": { "build": "tsc -p tsconfig.build.json", "test": "node --test test/*.test.mjs" },
-  "x-agentic-metro-enterprise": {"node-id":"json-file-codec-service","actor":"urn:ame:json-file-codec-service","organizational-kind":"capability-cell","owners":["json-file-services-section"]}
+  "x-agentic-metro-enterprise": {"node-id":"json-file-codec-service","actor":"urn:ame:json-file-codec-service","organizational-kind":"capability-cell","owners":["json-file-services-section"]},
+  "x-semiotic-voxel": {"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"red-cup-engineering","kind":"capability-cell","actor":"urn:ame:json-file-codec-service","operations":["read-json-file","write-json-file"],"capabilities":[{"capability":"json-file-codec","faces":["Node"]}],"package":"@red-cup-engineering/json-file-codec-service"}
 }

@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/typed-resource-catalog",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Typed resource identity, proof-path classification, and checked language-cone readings over the Red Cup relating substrate.",
@@ -30,8 +30,8 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/relating": "workspace:*",
-    "@red-cup-engineering/rmn-semantic-conformance": "workspace:*"
+    "@red-cup-engineering/relating": "0.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
   },
   "x-agentic-metro-enterprise": {
     "node-id": "typed-resource-catalog-service",
