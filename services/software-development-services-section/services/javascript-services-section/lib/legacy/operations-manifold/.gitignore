@@ -1,0 +1,15 @@
+node_modules/
+.data/
+dist/
+coverage/
+.tmp/
+*.tsbuildinfo
+
+# AGRODAO folds append-only data/journals/*.jsonl witnesses into these snapshots.
+data/state/*.json
+data/state/*.tmp
+data/state/jsnode-api-surface/
+
+# runtime bloat that cannot live in git (GitHub 100MB limit / orphaned atomic-write temps)
+data/state/*.tmp
+data/journals/operations.jsonl
