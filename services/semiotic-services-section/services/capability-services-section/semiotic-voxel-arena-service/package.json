@@ -1,0 +1,36 @@
+{
+  "name": "@red-cup-engineering/semiotic-voxel-arena-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Active-only admission law for one causal semiotic-atom transition.",
+  "exports": {
+    ".": "./src/admit-semiotic-atom.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/admit-semiotic-atom.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:semiotic-voxel-arena-service",
+    "operations": [
+      "admit-semiotic-atom"
+    ],
+    "capabilities": [
+      {
+        "capability": "semiotic-voxel-arena-service",
+        "faces": [
+          "admit-semiotic-atom"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/semiotic-voxel-arena-service"
+  }
+}

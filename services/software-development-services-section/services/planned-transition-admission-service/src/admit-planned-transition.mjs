@@ -8,7 +8,7 @@ import {
   coordinationCohomology,
   settlingAssociatedSheaf,
   settlingCohomologyH1,
-} from "@red-cup-engineering/relating/analysis";
+} from "@lenticule-science/articulating/predicating/positing/settling/analysis";
 
 export const inputSchema = Object.freeze(JSON.parse(readFileSync(new URL("../content/schemas/input.schema.json", import.meta.url), "utf8")));
 export const outputSchema = Object.freeze(JSON.parse(readFileSync(new URL("../content/schemas/output.schema.json", import.meta.url), "utf8")));

@@ -3,7 +3,7 @@ import { execFile } from "node:child_process";
 import { createReadStream } from "node:fs";
 import { access, copyFile, cp, link, lstat, mkdir, mkdtemp, readFile, readdir, readlink, rename, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
-import { availableParallelism } from "node:os";
+import { availableParallelism, tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { promisify } from "node:util";
 
@@ -74,17 +74,23 @@ async function projectCarrier(source, target, manifest) {
 
 async function pack(directory, destination, manifest) {
   const working = await mkdtemp(join(destination, ".pack-"));
+  const cache = await mkdtemp(join(tmpdir(), "semiotic-voxel-npm-cache-"));
   try {
     const projection = join(working, "carrier");
     await projectCarrier(directory, projection, manifest);
-    const { stdout } = await execute("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", working], { cwd: projection, maxBuffer: 16 * 1024 * 1024 });
-    const result = JSON.parse(stdout);
-    if (!Array.isArray(result) || result.length !== 1 || !result[0].filename) throw new Error(`npm pack returned no artifact for ${directory}`);
+    const { stdout, stderr } = await execute("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", working], {
+      cwd: projection,
+      env: { ...process.env, npm_config_cache: cache, npm_config_update_notifier: "false", npm_config_loglevel: "error" },
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    const artifacts = (await readdir(working)).filter((entry) => entry.endsWith(".tgz"));
+    if (artifacts.length !== 1) throw new Error(`npm pack artifact observation for ${directory} expected one .tgz, observed ${JSON.stringify({ artifacts, stdout, stderr })}`);
     const artifact = join(destination, `${randomUUID()}.tgz`);
-    await rename(join(working, result[0].filename), artifact);
+    await rename(join(working, artifacts[0]), artifact);
     return artifact;
   } finally {
     await rm(working, { recursive: true, force: true });
+    await rm(cache, { recursive: true, force: true });
   }
 }
 

@@ -29,7 +29,7 @@
     "operation-catalog": {
       "materialize-node-runtime-release": {
         "contract": "content/contracts/materialize-node-runtime-release.rml",
-        "accepts": "one independently owned entry carrier and an explicit exact-version provider-source map",
+        "accepts": "one independently owned entry carrier and one proof-carried package-source catalog or explicit exact-version provider-source map",
         "returns": "one content-addressed isolated runtime release receipt"
       }
     }

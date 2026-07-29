@@ -46,6 +46,7 @@ export function ownerForPackagePath(path) {
   const rules = [
     ["/services/561-group/services/red-cup-engineering/", "red-cup-engineering"],
     ["/services/561-group/services/lenticule-science/", "lenticule-science"],
+    ["/services/561-group/services/board-of-directors/", "harmonious-union"],
     ["/services/561-group/services/rsc-quiescent/services/aagaard/", "aagaard"],
     ["/services/561-group/services/rsc-quiescent/services/agrodao/", "agrodao"],
     ["/services/561-group/services/rsc-quiescent/services/emsweb/", "emsweb"],

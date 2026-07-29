@@ -1,0 +1,41 @@
+{
+  "name": "@red-cup-engineering/codex-actuator-client-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Parameterized Codex-side evidence selection and external actuator invocation without domain doctrine or generated skills.",
+  "exports": { ".": "./src/client.mjs" },
+  "scripts": {
+    "check": "node --check src/client.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": { "node": ">=22" },
+  "x-agentic-metro-enterprise": {
+    "node-id": "codex-actuator-client-service",
+    "actor": "urn:ame:codex-actuator-client-service",
+    "organizational-kind": "product-capability-cell",
+    "owners": ["codex-harness-services-section"],
+    "admission": "explicit roots, selectors, actuator coordinates, and injected transports",
+    "refusal": "ambient repository discovery, implicit providers, credential-shaped evidence, unreceipted effects, or domain-specific policy",
+    "operation-catalog": {
+      "select-bounded-evidence": {
+        "accepts": "an explicit root, literal query, byte and result bounds, and caller-selected exclusion globs",
+        "returns": "a digest-bound ordered evidence source cover"
+      },
+      "invoke-external-actuator": {
+        "accepts": "an actor, operation, arguments, caller authority evidence, and injected transport",
+        "returns": "a digest-bound invocation receipt preserving provider result and optional independent verification"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:codex-actuator-client-service",
+    "operations": ["invoke-external-actuator", "select-bounded-evidence"],
+    "capabilities": [{"capability": "codex-actuator-client", "faces": ["invoke-external-actuator", "select-bounded-evidence"]}],
+    "package": "@red-cup-engineering/codex-actuator-client-service"
+  }
+}

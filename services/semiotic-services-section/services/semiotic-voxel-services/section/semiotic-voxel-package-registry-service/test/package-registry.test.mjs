@@ -1,11 +1,27 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { gunzipSync } from "node:zlib";
 import test from "node:test";
 
 import { createPackageRegistryServer, fabricatePackageRegistry, resolvePackageRegistryRequest, rewriteMetadataTarballOrigins } from "../src/package-registry.mjs";
+
+function tarEntries(gzip) {
+  const archive = gunzipSync(gzip), entries = [];
+  for (let offset = 0; offset + 512 <= archive.length;) {
+    const header = archive.subarray(offset, offset + 512);
+    if (header.every((byte) => byte === 0)) break;
+    const field = (start, length) => header.subarray(start, start + length).toString("utf8").replace(/\0.*$/su, "");
+    const name = `${field(345, 155)}${field(0, 100)}`;
+    const size = Number.parseInt(field(124, 12).trim() || "0", 8);
+    if (!Number.isSafeInteger(size) || size < 0) throw new Error("tar-entry-size-invalid");
+    entries.push(name);
+    offset += 512 + Math.ceil(size / 512) * 512;
+  }
+  return entries;
+}
 
 test("packs and serves an explicit semiotic voxel carrier", async () => {
   const root = await mkdtemp(join(tmpdir(), "voxel-registry-"));
@@ -28,7 +44,7 @@ test("packs and serves an explicit semiotic voxel carrier", async () => {
     const metadataPath = await resolvePackageRegistryRequest({ registryDirectory: registry, requestPath: "/@customer%2Fexample" });
     assert.ok(metadataPath);
     assert.equal(JSON.parse(await readFile(metadataPath, "utf8"))["dist-tags"].latest, "1.0.0");
-    const archiveListing = execFileSync("tar", ["-tzf", join(registry, receipt.packages[0].artifact)], { encoding: "utf8" });
+    const archiveListing = tarEntries(await readFile(join(registry, receipt.packages[0].artifact))).join("\n");
     assert.match(archiveListing, /package\/index\.mjs/u);
     assert.match(archiveListing, /package\/src\/actor\.mjs/u);
     assert.match(archiveListing, /package\/content\/contracts\/law\.rml/u);
@@ -36,6 +52,17 @@ test("packs and serves an explicit semiotic voxel carrier", async () => {
     assert.doesNotMatch(archiveListing, /content\/exchanges/u);
     assert.equal(await resolvePackageRegistryRequest({ registryDirectory: registry, requestPath: "/../../etc/passwd" }), null);
     assert.equal(typeof createPackageRegistryServer({ registryDirectory: registry }).listen, "function");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("registers a real carrier when npm pack's piped JSON output is empty", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-real-carrier-"));
+  const actuator = fileURLToPath(new URL("../../../../../../resource-brokerage-service-section/services/authority-custody-actuator", import.meta.url));
+  try {
+    const receipt = await fabricatePackageRegistry({ packageDirectories: [actuator], outputDirectory: join(root, "registry"), registryUrl: "http://127.0.0.1:4873/" });
+    assert.deepEqual(receipt.packages.map(({ name, version }) => ({ name, version })), [{ name: "@red-cup-engineering/authority-custody-actuator", version: "1.0.0" }]);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

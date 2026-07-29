@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { createR2SigV4Client, r2Configuration } from "@red-cup-engineering/resource-brokerage-service-section/src/r2-sigv4.js";
+import { createR2SigV4Client, r2Configuration } from "@red-cup-engineering/resource-brokerage-service-section/r2-sigv4";
 
 const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{43})$/u;
 const PROFILE = "org.red-cup-engineering.rwil-category-reference.v1";

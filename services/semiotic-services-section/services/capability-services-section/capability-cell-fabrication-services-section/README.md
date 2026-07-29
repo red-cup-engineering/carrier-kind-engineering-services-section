@@ -42,3 +42,13 @@ claim still stops at the independent-conformance gate.
 
 The local operation never claims that a locally generated bundle is a complete
 deployed cell.
+
+## Atom admission boundary
+
+This PDK fabricates candidate material; it does not decide that a candidate is
+a semiotic atom.  That decision belongs to the potential-only SXC-M4 arena at
+[`../semiotic-voxel-arena-service`](../semiotic-voxel-arena-service/): the
+candidate must enter as one causally scoped event with a supplied `(2,3)`
+pebble-game judgment.  Package fabrication, normalization, membrane
+admission, and settlement assay remain facets of that one later transition,
+not rival atom-fabrication authorities.

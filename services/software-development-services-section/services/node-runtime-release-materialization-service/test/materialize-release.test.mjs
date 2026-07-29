@@ -80,3 +80,74 @@ test("refuses stale build output that imports a package absent from the admitted
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("materializes a proof-carried catalog and normalizes only the fabricated dependency edge", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-catalog-"));
+  try {
+    const app = join(root, "workspace", "app");
+    const library = join(root, "workspace", "library");
+    await mkdir(join(app, "src"), { recursive: true });
+    await mkdir(join(library, "dist"), { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({ name: "@test/app", version: "1.0.0", dependencies: { "@test/library": "workspace:*" } }));
+    await writeFile(join(app, "src", "server.mts"), 'import "@test/library";\n');
+    await writeFile(join(library, "package.json"), JSON.stringify({ name: "@test/library", version: "2.0.0-beta.1", exports: "./dist/index.mjs" }));
+    await writeFile(join(library, "dist", "index.mjs"), "export {};\n");
+    const sourceCatalog = {
+      type: "NodePackageSourceCatalogReceipt", version: 1, id: "ni:///sha-256;catalog", entryPackage: "@test/app",
+      packages: [
+        { name: "@test/app", version: "1.0.0", sourceDirectory: app },
+        { name: "@test/library", version: "2.0.0-beta.1", sourceDirectory: library },
+      ],
+    };
+    const release = await materializeNodeRuntimeRelease({ entryPackageDirectory: app, sourceCatalog, outputRoot: join(root, "releases") });
+    const carried = JSON.parse(await readFile(join(release.releaseDirectory, "app", "package.json"), "utf8"));
+    assert.equal(carried.dependencies["@test/library"], "2.0.0-beta.1");
+    assert.equal(JSON.parse(await readFile(join(app, "package.json"), "utf8")).dependencies["@test/library"], "workspace:*");
+    assert.equal(release.sourceCatalog, sourceCatalog.id);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("types an absent platform-conditional dependency while preserving required closure", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-platform-optional-"));
+  try {
+    const app = join(root, "workspace", "app");
+    await mkdir(join(app, "src"), { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({
+      name: "@test/app",
+      version: "1.0.0",
+      optionalDependencies: { fsevents: "2.3.3" },
+    }));
+    await writeFile(join(app, "src", "server.mts"), 'import("fsevents").catch(() => undefined);\n');
+    const release = await materializeNodeRuntimeRelease({ entryPackageDirectory: app, outputRoot: join(root, "releases") });
+    assert.deepEqual(release.optionalRuntimePackagesAbsent, ["fsevents"]);
+    assert.equal((await verifyNodeRuntimeRelease(release.releaseDirectory)).ok, true);
+
+    await writeFile(join(app, "package.json"), JSON.stringify({
+      name: "@test/app",
+      version: "1.0.0",
+      dependencies: { fsevents: "2.3.3" },
+    }));
+    await assert.rejects(
+      materializeNodeRuntimeRelease({ entryPackageDirectory: app, outputRoot: join(root, "releases") }),
+      /runtime dependency fsevents has no explicitly admitted provider source/u,
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("does not project a multiline code fragment as an import specifier", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-import-recognizer-"));
+  try {
+    const app = join(root, "workspace", "app");
+    await mkdir(join(app, "src"), { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({ name: "@test/app", version: "1.0.0" }));
+    await writeFile(join(app, "src", "server.mts"), 'const source = /import \\\"unterminated\ncode package.json\"/u;\nexport { source };\n');
+    const release = await materializeNodeRuntimeRelease({ entryPackageDirectory: app, outputRoot: join(root, "releases") });
+    assert.equal((await verifyNodeRuntimeRelease(release.releaseDirectory)).ok, true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

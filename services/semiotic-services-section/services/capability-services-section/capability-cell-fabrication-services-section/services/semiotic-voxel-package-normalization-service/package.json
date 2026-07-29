@@ -1,16 +1,19 @@
 {
   "name": "@red-cup-engineering/semiotic-voxel-package-normalization-service",
   "version": "2.0.0",
-  "description": "Converts the active JavaScript package body into explicitly owned semiotic-voxel carriers without workspace or local-path authority.",
+  "description": "Converts the potential JavaScript package body into explicitly owned semiotic-voxel carriers without workspace or local-path authority.",
   "type": "module",
   "license": "MIT",
-  "exports": "./src/normalize-package-body.mjs",
+  "exports": {
+    ".": "./src/normalize-package-body.mjs",
+    "./brokered-normalization": "./src/normalization-market-loop.mjs"
+  },
   "bin": {
     "normalize-semiotic-voxel-packages": "./bin/normalize-semiotic-voxel-packages.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/normalize-package-body.mjs && node --check bin/normalize-semiotic-voxel-packages.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/normalize-package-body.mjs && node --check src/normalization-market-loop.mjs && node --check bin/normalize-semiotic-voxel-packages.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -21,12 +24,14 @@
     "kind": "capability-cell",
     "actor": "urn:ame:semiotic-voxel-package-normalization-service",
     "operations": [
+      "coordinate-brokered-normalization",
       "normalize-semiotic-voxel-packages"
     ],
     "capabilities": [
       {
         "capability": "semiotic-voxel-package-normalization-service",
         "faces": [
+          "coordinate-brokered-normalization",
           "normalize-semiotic-voxel-packages"
         ]
       }
@@ -44,6 +49,11 @@
       "normalize-semiotic-voxel-packages": {
         "accepts": "one repository root containing independently owned package carriers",
         "returns": "one collision-free ownership and identity rewrite receipt"
+      },
+      "coordinate-brokered-normalization": {
+        "accepts": "one TRC language-cone receipt and RMN Mark, one resource-brokerage selection, and an injected one-shot actuator",
+        "returns": "one resource-brokerage RMN settlement after post-move observation",
+        "transport": "ActivityStreams publication evidence or an explicit pending transport intent; no resident queue or daemon is created"
       }
     }
   }

@@ -3,9 +3,9 @@ import { mkdir, mkdtemp, readFile, readdir, realpath, rename, rm, stat, writeFil
 import { builtinModules } from "node:module";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
-const OMIT_DIRECTORY = new Set([".git", "node_modules", "data", "test", "tests", "ops", ".tmp"]);
-const FALLBACK_RUNTIME_CARRIERS = ["src", "dist", "bin", "lib", "content"];
+const OMIT_DIRECTORY = new Set([".git", "node_modules", "data", "test", "tests", "dist-tests", "benchmark", "benchmarks", "docs", "examples", "ops", ".tmp"]);
 const BUILTIN_MODULES = new Set(builtinModules.flatMap((name) => [name, `node:${name}`]));
+const EXACT_VERSION = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/u;
 
 function inside(root, candidate) {
   const rel = relative(root, candidate);
@@ -27,6 +27,8 @@ async function copyTree(source, target) {
     return;
   }
   if (!info.isFile()) return;
+  if (/\.(?:test|spec)\.[cm]?[jt]s$/u.test(source.split("/").at(-1))) return;
+  if (/(?:^|[.-])(?:eslint|rollup|webpack|vite|vitest)\.config\.[cm]?[jt]s$/u.test(source.split("/").at(-1))) return;
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, await readFile(source));
 }
@@ -35,25 +37,39 @@ async function admittedSource(directory) {
   const canonical = await realpath(directory);
   const manifest = JSON.parse(await readFile(join(canonical, "package.json"), "utf8"));
   if (typeof manifest.name !== "string" || !manifest.name) throw new Error(`provider source ${canonical} has no package identity`);
-  if (!/^\d+\.\d+\.\d+$/u.test(manifest.version ?? "")) throw new Error(`provider source ${manifest.name} has no exact version`);
+  if (!EXACT_VERSION.test(manifest.version ?? "")) throw new Error(`provider source ${manifest.name} has no exact version`);
   return { directory: canonical, manifest };
 }
 
 function runtimeDependencies(manifest) {
-  return Object.keys({ ...(manifest.dependencies ?? {}), ...(manifest.optionalDependencies ?? {}) }).sort();
+  const dependencies = new Map(Object.entries(manifest.dependencies ?? {})
+    .map(([name, requested]) => [name, { name, requested, optional: false }]));
+  for (const [name, requested] of Object.entries(manifest.optionalDependencies ?? {})) {
+    dependencies.set(name, { name, requested, optional: true });
+  }
+  for (const [name, requested] of Object.entries(manifest.peerDependencies ?? {})) {
+    if (!dependencies.has(name)) {
+      dependencies.set(name, { name, requested, optional: manifest.peerDependenciesMeta?.[name]?.optional === true });
+    }
+  }
+  return [...dependencies.values()].sort((left, right) => left.name.localeCompare(right.name));
 }
 
 async function copyPackage(source, target, manifest, entry = false) {
   await mkdir(target, { recursive: true });
-  await copyTree(join(source, "package.json"), join(target, "package.json"));
-  const carriers = Array.isArray(manifest.files) && manifest.files.length > 0
-    ? manifest.files
-    : FALLBACK_RUNTIME_CARRIERS;
-  for (const carrier of carriers) {
-    const sourcePath = resolve(source, carrier);
-    if (!inside(source, sourcePath) || !(await exists(sourcePath))) continue;
-    await copyTree(sourcePath, join(target, relative(source, sourcePath)));
+  if (Array.isArray(manifest.files) && manifest.files.length > 0) {
+    const carriers = [...new Set(manifest.files.filter((carrier) => typeof carrier === "string" && !carrier.startsWith("!"))
+      .map((carrier) => carrier.split(/[?*[{]/u, 1)[0].replace(/\/$/u, ""))
+      .filter(Boolean))];
+    for (const carrier of carriers) {
+      const sourcePath = resolve(source, carrier);
+      if (!inside(source, sourcePath) || !(await exists(sourcePath))) continue;
+      await copyTree(sourcePath, join(target, relative(source, sourcePath)));
+    }
+  } else {
+    await copyTree(source, target);
   }
+  await writeFile(join(target, "package.json"), `${JSON.stringify(manifest, null, 2)}\n`);
   if (entry && !(await exists(join(target, "src"))) && !(await exists(join(target, "dist")))) {
     throw new Error(`entry package ${manifest.name} exposes no src or dist runtime carrier`);
   }
@@ -84,25 +100,34 @@ async function artifactDigest(root) {
 
 function packageName(specifier) {
   if (specifier.startsWith(".") || specifier.startsWith("/") || specifier.startsWith("#") || BUILTIN_MODULES.has(specifier)) return null;
+  if (!/^(?:@[A-Za-z0-9][A-Za-z0-9._~-]*\/)?[A-Za-z0-9][A-Za-z0-9._~-]*(?:\/[A-Za-z0-9._~!$&()+,;=:@%-]+)*$/u.test(specifier)) return null;
   const parts = specifier.split("/");
   return specifier.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0];
 }
 
-async function unresolvedRuntimeImports(root) {
+async function unresolvedRuntimeImports(root, admittedAbsent = new Set()) {
   const observed = new Map();
   async function visit(directory) {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name);
       if (entry.isDirectory()) await visit(path);
       else if (entry.isFile() && /\.(?:mjs|mts|js)$/u.test(entry.name) && !entry.name.endsWith(".d.mts")) {
-        const source = await readFile(path, "utf8");
+        const literals = [];
+        const source = (await readFile(path, "utf8"))
+          .replace(/`(?:\\[\s\S]|[^\\`])*`/gu, "__SXC_TEMPLATE_LITERAL__")
+          .replace(/(["'])(?:\\[\s\S]|(?!\1)[^\\\r\n])*\1/gu, (literal) => {
+            const index = literals.push(literal.slice(1, -1).replace(/\\([\\"'])/gu, "$1")) - 1;
+            return `${literal[0]}__SXC_STRING_${index}__${literal.at(-1)}`;
+          })
+          .replace(/\/\*[\s\S]*?\*\//gu, "")
+          .replace(/(^|\n)\s*\/\/[^\n]*/gu, "$1");
         const patterns = [
-          /(?:import|export)\s+(?:[^"']*?\s+from\s+)?["']([^"']+)["']/gu,
-          /import\(\s*["']([^"']+)["']\s*\)/gu,
+          /(?:^|\n)\s*(?:import|export)\s+(?:[^"'\r\n]*?\s+from\s+)?["']([^"'\\\r\n]+)["']/gu,
         ];
         for (const pattern of patterns) {
           for (const match of source.matchAll(pattern)) {
-            const dependency = packageName(match[1]);
+            const literal = /^__SXC_STRING_(\d+)__$/u.exec(match[1]);
+            const dependency = packageName(literal ? literals[Number(literal[1])] : match[1]);
             if (dependency) {
               const carriers = observed.get(dependency) ?? new Set();
               carriers.add(relative(root, path));
@@ -116,6 +141,7 @@ async function unresolvedRuntimeImports(root) {
   await visit(join(root, "app"));
   const unresolved = [];
   for (const dependency of [...observed.keys()].sort()) {
+    if (admittedAbsent.has(dependency)) continue;
     if (!(await exists(join(root, "app", "node_modules", ...dependency.split("/"), "package.json")))) {
       unresolved.push({ packageName: dependency, carriers: [...observed.get(dependency)].sort() });
     }
@@ -126,7 +152,7 @@ async function unresolvedRuntimeImports(root) {
 export async function verifyNodeRuntimeRelease(releaseDirectory) {
   const receipt = JSON.parse(await readFile(join(releaseDirectory, "release-receipt.json"), "utf8"));
   const observed = await artifactDigest(releaseDirectory);
-  const unresolvedRuntimeImportsObserved = await unresolvedRuntimeImports(releaseDirectory);
+  const unresolvedRuntimeImportsObserved = await unresolvedRuntimeImports(releaseDirectory, new Set(receipt.optionalRuntimePackagesAbsent ?? []));
   const unresolvedRuntimePackages = unresolvedRuntimeImportsObserved.map(({ packageName }) => packageName);
   return {
     type: "NodeRuntimeReleaseVerificationObservation",
@@ -140,11 +166,21 @@ export async function verifyNodeRuntimeRelease(releaseDirectory) {
   };
 }
 
-export async function materializeNodeRuntimeRelease({ entryPackageDirectory, providerSources = {}, outputRoot }) {
+export async function materializeNodeRuntimeRelease({ entryPackageDirectory, providerSources = {}, sourceCatalog = null, outputRoot }) {
   const entry = await admittedSource(entryPackageDirectory);
   const entryDirectory = entry.directory;
   const entryManifest = entry.manifest;
   const index = new Map([[entryManifest.name, entry]]);
+  if (sourceCatalog !== null) {
+    if (sourceCatalog?.type !== "NodePackageSourceCatalogReceipt" || sourceCatalog.version !== 1 || !Array.isArray(sourceCatalog.packages)) {
+      throw new TypeError("sourceCatalog must be a NodePackageSourceCatalogReceipt v1");
+    }
+    if (sourceCatalog.entryPackage !== entryManifest.name) throw new Error(`source catalog entry ${sourceCatalog.entryPackage} does not match ${entryManifest.name}`);
+    for (const item of sourceCatalog.packages) {
+      if (item.name === entryManifest.name) continue;
+      providerSources[item.name] = item.sourceDirectory;
+    }
+  }
   for (const [claimedName, source] of Object.entries(providerSources)) {
     const admitted = await admittedSource(source);
     if (admitted.manifest.name !== claimedName) throw new Error(`provider source claim ${claimedName} resolves to ${admitted.manifest.name}`);
@@ -157,17 +193,34 @@ export async function materializeNodeRuntimeRelease({ entryPackageDirectory, pro
   const temporary = await mkdtemp(join(output, ".materializing-"));
   const packages = [];
   const visited = new Set();
+  const optionalRuntimePackagesAbsent = new Set();
   try {
     async function include(name, destination, entry = false) {
       if (visited.has(name)) return;
       const record = index.get(name);
       if (!record) throw new Error(`runtime dependency ${name} has no explicitly admitted provider source`);
       visited.add(name);
-      await copyPackage(record.directory, destination, record.manifest, entry);
+      const normalizedManifest = structuredClone(record.manifest);
+      const optionalDependencyNames = new Set(Object.keys(normalizedManifest.optionalDependencies ?? {}));
+      for (const field of ["dependencies", "optionalDependencies", "peerDependencies"]) {
+        if (!normalizedManifest[field]) continue;
+        normalizedManifest[field] = Object.fromEntries(Object.keys(normalizedManifest[field]).sort().map((dependency) => {
+          const provider = index.get(dependency);
+          const optional = field === "optionalDependencies" || optionalDependencyNames.has(dependency)
+            || (field === "peerDependencies" && normalizedManifest.peerDependenciesMeta?.[dependency]?.optional === true);
+          if (!provider && optional) {
+            optionalRuntimePackagesAbsent.add(dependency);
+            return [dependency, normalizedManifest[field][dependency]];
+          }
+          if (!provider) throw new Error(`runtime dependency ${dependency} has no explicitly admitted provider source`);
+          return [dependency, provider.manifest.version];
+        }));
+      }
+      await copyPackage(record.directory, destination, normalizedManifest, entry);
       packages.push({ name, version: record.manifest.version });
-      for (const dependency of runtimeDependencies(record.manifest)) {
-        const requested = record.manifest.dependencies?.[dependency] ?? record.manifest.optionalDependencies?.[dependency];
-        if (!/^\d+\.\d+\.\d+$/u.test(requested ?? "")) throw new Error(`runtime dependency ${dependency} must use one exact provider version, received ${requested}`);
+      for (const { name: dependency, requested, optional } of runtimeDependencies(normalizedManifest)) {
+        if (optional && !index.has(dependency)) continue;
+        if (!EXACT_VERSION.test(requested ?? "")) throw new Error(`runtime dependency ${dependency} must use one exact provider version, received ${requested}`);
         const provider = index.get(dependency);
         if (provider && provider.manifest.version !== requested) throw new Error(`runtime dependency ${dependency} requested ${requested} but admitted provider is ${provider.manifest.version}`);
         await include(dependency, join(temporary, "app", "node_modules", ...dependency.split("/")));
@@ -175,7 +228,7 @@ export async function materializeNodeRuntimeRelease({ entryPackageDirectory, pro
     }
     await include(entryManifest.name, join(temporary, "app"), true);
     packages.sort((left, right) => left.name.localeCompare(right.name));
-    const unresolved = await unresolvedRuntimeImports(temporary);
+    const unresolved = await unresolvedRuntimeImports(temporary, optionalRuntimePackagesAbsent);
     if (unresolved.length > 0) {
       throw new Error(`runtime import closure is missing ${unresolved.map(({ packageName, carriers }) => `${packageName} imported by ${carriers.join("+")}`).join(", ")}`);
     }
@@ -191,6 +244,8 @@ export async function materializeNodeRuntimeRelease({ entryPackageDirectory, pro
       fileCount: artifact.fileCount,
       byteCount: artifact.byteCount,
       nodeVersion: process.version,
+      sourceCatalog: sourceCatalog?.id ?? null,
+      optionalRuntimePackagesAbsent: [...optionalRuntimePackagesAbsent].sort(),
       packages,
       releaseDirectory,
     };

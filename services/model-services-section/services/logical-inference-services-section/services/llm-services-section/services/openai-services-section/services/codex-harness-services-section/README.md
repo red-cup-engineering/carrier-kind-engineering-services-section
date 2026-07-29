@@ -16,4 +16,4 @@ nor a machine actor is a competing harness implementation.
 | Actor | Operation | Boundary |
 | --- | --- | --- |
 | `urn:ame:native-work-product-transition-projection-service` | `project-native-work-product-transition` | Native inference text to a deterministic proposed transition or refusal |
-| `codex-harness-projection-service` | `project-codex-harness` | One machine actor configuration to one project-local `.codex` projection |
+| `codex-harness-projection-service` | `project-codex-harness <configuration> <output>` | One machine actor configuration to an explicit disposable runtime output; never an implicit project or user `.codex` tree |

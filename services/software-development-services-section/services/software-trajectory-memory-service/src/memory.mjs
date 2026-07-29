@@ -38,8 +38,8 @@ function compareFractions(left, right) {
   return lhs < rhs ? -1 : lhs > rhs ? 1 : 0;
 }
 
-async function allRows() {
-  return await querySettlementRecords(TRAJECTORY_CATEGORY);
+async function allRows({ custody, categoryIndex } = {}) {
+  return await querySettlementRecords(TRAJECTORY_CATEGORY, { custody, categoryIndex });
 }
 function projectedRecord(record) {
   if (record?.type === "SoftwareMissionCheckpoint") return record;
@@ -73,8 +73,8 @@ function projectedRecord(record) {
     },
   };
 }
-async function projectedRows() {
-  return (await allRows()).map(projectedRecord).filter((record) => record !== null);
+async function projectedRows(options = {}) {
+  return (await allRows(options)).map(projectedRecord).filter((record) => record !== null);
 }
 
 export function trajectoryFingerprint(actions = []) {
@@ -125,12 +125,12 @@ export function deriveInducedTrajectoryResolver(rows, taskClass) {
   };
 }
 
-export async function inducedTrajectoryResolver(taskClass, { rows: suppliedRows } = {}) {
-  return deriveInducedTrajectoryResolver(suppliedRows ?? await projectedRows(), taskClass);
+export async function inducedTrajectoryResolver(taskClass, { rows: suppliedRows, ...options } = {}) {
+  return deriveInducedTrajectoryResolver(suppliedRows ?? await projectedRows(options), taskClass);
 }
 
-export async function recallTrajectories(objective, { taskClass = null, rows: suppliedRows } = {}) {
-  const rows = (suppliedRows ?? await projectedRows())
+export async function recallTrajectories(objective, { taskClass = null, rows: suppliedRows, ...options } = {}) {
+  const rows = (suppliedRows ?? await projectedRows(options))
     .filter((row) => row?.type === "SoftwareMissionTrajectory")
     .filter((row) => !taskClass || row.taskClass === taskClass)
     .map((row) => ({ row, similarity: score(objective, row.objective) }))
@@ -219,16 +219,16 @@ export async function recallTrajectories(objective, { taskClass = null, rows: su
   return [...verified, ...residueKnowledge];
 }
 
-export async function promotionReadout(taskClass, { rows: suppliedRows } = {}) {
-  return deriveInducedTrajectoryResolver(suppliedRows ?? await projectedRows(), taskClass);
+export async function promotionReadout(taskClass, { rows: suppliedRows, ...options } = {}) {
+  return deriveInducedTrajectoryResolver(suppliedRows ?? await projectedRows(options), taskClass);
 }
 
 /** Project every memory face needed to start one mission from one immutable
  * category snapshot.  This is a query projection, not a new aggregate owner:
  * checkpoint, recall, resolver, and promotion retain their existing laws while
  * the carrier is hydrated exactly once. */
-export async function missionMemoryContext(objective, taskClass, missionId, sourceIdentity, { rows: suppliedRows } = {}) {
-  const rows = suppliedRows ?? await projectedRows();
+export async function missionMemoryContext(objective, taskClass, missionId, sourceIdentity, { rows: suppliedRows, ...options } = {}) {
+  const rows = suppliedRows ?? await projectedRows(options);
   return Object.freeze({
     checkpoint: await latestMissionCheckpoint(missionId, sourceIdentity, { rows }),
     memories: await recallTrajectories(objective, { taskClass, rows }),
@@ -250,11 +250,11 @@ export async function appendMissionCheckpoint(checkpoint, options = {}) {
   return appendTrajectoryRecord(checkpoint, checkpoint.recordedAt, options);
 }
 
-export async function latestMissionCheckpoint(missionId, sourceIdentity, { rows: suppliedRows } = {}) {
+export async function latestMissionCheckpoint(missionId, sourceIdentity, { rows: suppliedRows, ...options } = {}) {
   if (typeof missionId !== "string" || !missionId || typeof sourceIdentity !== "string" || !sourceIdentity) {
     throw new Error("checkpoint lookup requires one mission and immutable source identity");
   }
-  return (suppliedRows ?? await projectedRows())
+  return (suppliedRows ?? await projectedRows(options))
     .filter((row) => row?.type === "SoftwareMissionCheckpoint"
       && row.missionId === missionId && row.sourceIdentity === sourceIdentity)
     .sort((left, right) => {
@@ -268,16 +268,20 @@ export async function appendTrajectory(record, {
   rwilAgentUrl = process.env.RWIL_RDF_AGENT,
   settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
   signal,
+  custody,
+  categoryIndex,
 } = {}) {
-  return appendTrajectoryRecord(record, record.finishedAt, { rwilAgentUrl, settlementCaip2, signal });
+  return appendTrajectoryRecord(record, record.finishedAt, { rwilAgentUrl, settlementCaip2, signal, custody, categoryIndex });
 }
 
 export async function appendTrajectoryRecord(record, recordedAt, {
   rwilAgentUrl = process.env.RWIL_RDF_AGENT,
   settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
   signal,
+  custody,
+  categoryIndex,
 } = {}) {
-  const store = createSettlementStore({ settlementRoot: TRAJECTORY_MEMORY_ROOT, agentUrl: rwilAgentUrl, caip2: settlementCaip2 });
+  const store = createSettlementStore({ settlementRoot: TRAJECTORY_MEMORY_ROOT, agentUrl: rwilAgentUrl, caip2: settlementCaip2, custody, categoryIndex });
   const receipt = await store.record({ category: TRAJECTORY_CATEGORY, recordedAt, record, signal });
   return receipt;
 }
@@ -289,9 +293,11 @@ export async function admitCustomerTrajectoryFoldback(activity, {
   settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
   signal,
   rows: suppliedRows,
-  append = (value, at) => appendTrajectoryRecord(value, at, { rwilAgentUrl, settlementCaip2, signal }),
+  custody,
+  categoryIndex,
+  append = (value, at) => appendTrajectoryRecord(value, at, { rwilAgentUrl, settlementCaip2, signal, custody, categoryIndex }),
 } = {}) {
-  const rows = suppliedRows ?? await projectedRows();
+  const rows = suppliedRows ?? await projectedRows({ custody, categoryIndex });
   const decision = activity?.object, foldback = decision?.foldbackSnapshot;
   const exact = (value) => value?.id === rmnId(Object.fromEntries(Object.entries(value ?? {}).filter(([key]) => key !== "id")));
   if (typeof expectedSupplier !== "string" || !expectedSupplier || activity?.["@context"] !== "https://www.w3.org/ns/activitystreams" || activity.type !== "Accept" || activity.actor !== expectedCustomer || activity.target !== expectedSupplier || !exact(decision) || decision.type !== "ImprovementCustomerDecision" || decision.accepted !== true || decision.customer !== expectedCustomer || decision.supplier !== expectedSupplier) throw new Error("exact customer-authored accepted improvement decision is required");

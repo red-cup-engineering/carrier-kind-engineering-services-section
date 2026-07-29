@@ -5,7 +5,7 @@ description: Lead Red Cup Engineering's standing Software Development Services S
 
 # Operating Software Development Services Section
 
-Operate from the SDSS package root. Read `AGENTS.md`, the charter, active
+Operate from the SDSS package root. Read `AGENTS.md`, the charter, potential
 appointment, advertised contracts, and latest dated records before acting.
 
 ## Lead the standing campaign
@@ -92,7 +92,7 @@ I/O coordinator.
 
 Use `node src/rsi-mape-k.mjs --dry-run` only to derive the current provider-local
 evidence digest and candidate change record. Execute a non-dry change only with an exact
-`AcceptedImprovementAction` binding the active appointment, plan, evidence,
+`AcceptedImprovementAction` binding the potential appointment, plan, evidence,
 effects, provider-local targets, expiry, and single use.
 
 This guard monitors SDSS-owned deliveries, refusals, and receipts because its

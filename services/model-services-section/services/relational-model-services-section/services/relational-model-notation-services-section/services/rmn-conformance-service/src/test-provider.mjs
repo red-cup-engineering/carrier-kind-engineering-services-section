@@ -31,7 +31,7 @@ export async function startRmnProviderProcess(options = {}) {
   const kid = "rmn-semantic-conformance-test-ed25519";
   writeFileSync(keyPath, privateKey.export({ format: "pem", type: "pkcs8" }));
   writeFileSync(jwksPath, JSON.stringify({ keys: [{ ...publicKey.export({ format: "jwk" }), kid, alg: "EdDSA", use: "sig" }] }));
-  const child = spawn(process.execPath, [resolve(ROOT, "bin/server.mjs")], {
+  const child = spawn(process.execPath, [resolve(ROOT, "src/test-provider-server.mjs")], {
     cwd: ROOT,
     env: {
       ...process.env,
