@@ -10,10 +10,13 @@ test("fresh discovery resolves every admitted JSNode actuator", () => {
   const result = discoverJsnodeServices(sectionRoot);
   assert.deepEqual(result.refusals, []);
   assert.deepEqual(result.services.map(({ nodeId }) => nodeId), [
+    "discord-steward-service",
     "function-movement-provider-client-service",
+    "jsnode-observation-service",
     "sandbox-command-execution-service",
     "software-edit-language-service",
     "software-mission-execution-service",
     "software-program-synthesis-service",
+    "software-program-synthesis-solicitation-service",
   ]);
 });

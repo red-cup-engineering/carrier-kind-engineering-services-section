@@ -11,6 +11,33 @@
   "engines": {
     "node": ">=22.18"
   },
+  "x-agentic-metro-enterprise": {
+    "node-id": "discord-steward-service",
+    "actor": "urn:ame:discord-steward-service",
+    "organizational-kind": "external-platform-actuator",
+    "owners": [
+      "javascript-services-section"
+    ],
+    "admission": "one explicit discord-steward CLI operation for a named Discord server using caller-supplied configuration and credentials",
+    "refusal": "an unknown command, malformed configuration, a missing bot token for run, or a missing client ID for invite",
+    "operation-catalog": {
+      "run-discord-steward": {
+        "command": "discord-steward run",
+        "configuration": "optional --config and CLI overrides; DISCORD_BOT_TOKEN may supply the bot token",
+        "returns": "a running Discord steward or a typed process refusal before gateway connection"
+      },
+      "invite-discord-steward": {
+        "command": "discord-steward invite",
+        "configuration": "--client-id or DISCORD_CLIENT_ID with optional capability selection",
+        "returns": "a Discord OAuth2 invite URL or a refusal for a missing client ID"
+      },
+      "check-discord-steward-configuration": {
+        "command": "discord-steward check",
+        "configuration": "optional --config",
+        "returns": "a configuration, bot-token, and inference-endpoint presence report"
+      }
+    }
+  },
   "scripts": {
     "clean": "rm -rf dist .tmp/test-dist",
     "build:deps": "pnpm --filter @emsenn/organizing-with-discord --filter @emsenn/organizing-with-openai-agents run build",
