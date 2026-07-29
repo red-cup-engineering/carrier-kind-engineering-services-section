@@ -7,7 +7,6 @@
   "exports": {
     ".": "./src/client.mjs",
     "./client": "./src/client.mjs",
-    "./customer-induction": "./src/customer-induction.mjs",
     "./executor": "./src/a2a-executor.mjs"
   },
   "bin": {

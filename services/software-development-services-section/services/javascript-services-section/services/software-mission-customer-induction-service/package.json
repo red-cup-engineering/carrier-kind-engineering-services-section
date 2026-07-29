@@ -1,0 +1,42 @@
+{
+  "name": "@red-cup-engineering/software-mission-customer-induction-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic actuator that validates proposal delta evidence and forms a JS-Mark induction manifest.",
+  "exports": "./src/customer-induction.mjs",
+  "scripts": {
+    "check": "node --check src/customer-induction.mjs",
+    "test": "node --test test/customer-induction.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "software-mission-customer-induction-service",
+    "actor": "urn:ame:software-mission-customer-induction-service",
+    "organizational-kind": "capability-cell",
+    "owners": ["javascript-services-section"],
+    "admission": "one verified proposal-only software mission result and its explicit customer writable lane",
+    "refusal": "unverified output, customer mutation authority, malformed delta evidence, or a path outside the writable lane",
+    "operation-catalog": {
+      "form-js-mark-induction-manifest": {
+        "accepts": "one verified software mission proposal and customer mission authority declaration",
+        "returns": "one deterministic proposal-only JS-Mark induction manifest or refusal"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "javascript-services-section",
+    "kind": "capability-cell",
+    "actor": "urn:ame:software-mission-customer-induction-service",
+    "operations": ["form-js-mark-induction-manifest"],
+    "capabilities": [{
+      "capability": "software-mission-customer-induction-service",
+      "faces": ["form-js-mark-induction-manifest"]
+    }],
+    "package": "@red-cup-engineering/software-mission-customer-induction-service"
+  }
+}

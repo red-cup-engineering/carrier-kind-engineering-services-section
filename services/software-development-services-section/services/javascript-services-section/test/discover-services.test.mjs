@@ -15,6 +15,7 @@ test("fresh discovery resolves every admitted JSNode actuator", () => {
     "jsnode-observation-service",
     "sandbox-command-execution-service",
     "software-edit-language-service",
+    "software-mission-customer-induction-service",
     "software-mission-execution-service",
     "software-program-synthesis-service",
     "software-program-synthesis-solicitation-service",
