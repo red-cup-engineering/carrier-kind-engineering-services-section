@@ -4,6 +4,51 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 const PROFILE = "org.harmonious-union.semiotic-voxel.v1";
 const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"];
 const SKIP_DIRECTORY = new Set([".git", ".archive", ".cache", ".venv", "build", "dist", "venv"]);
+const DESCRIPTOR_FIELDS = Object.freeze(["actor", "capabilities", "kind", "operations", "owner", "package", "profile"]);
+const CAPABILITY_FIELDS = Object.freeze(["capability", "faces"]);
+const PACKAGE_KINDS = new Set(["actor", "aggregate-capability-defect", "capability-cell", "inert-material"]);
+
+function record(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasExactFields(value, fields) {
+  return Object.keys(value).sort().join(",") === fields.join(",");
+}
+
+function uniqueNonemptyStrings(value) {
+  return Array.isArray(value)
+    && value.every((item) => typeof item === "string" && item.length > 0)
+    && new Set(value).size === value.length;
+}
+
+/**
+ * `x-semiotic-voxel` is package/deployment manifest metadata. Its exact shape
+ * keeps it mechanically distinct from a network SemioticAtom, Mark, Utterance,
+ * ArticulationCell, or the active-only voxel reconstructed by an invocation.
+ */
+export function semioticVoxelPackageDescriptorViolations(manifest) {
+  const descriptor = manifest?.["x-semiotic-voxel"];
+  if (!record(descriptor)) return Object.freeze(["descriptor-object"]);
+  const violations = [];
+  if (!hasExactFields(descriptor, DESCRIPTOR_FIELDS)) violations.push("descriptor-fields");
+  if (descriptor.profile !== PROFILE) violations.push("profile");
+  if (typeof descriptor.owner !== "string" || descriptor.owner.length === 0) violations.push("owner");
+  if (!PACKAGE_KINDS.has(descriptor.kind)) violations.push("kind");
+  if (typeof descriptor.actor !== "string" || descriptor.actor.length === 0) violations.push("actor");
+  if (!uniqueNonemptyStrings(descriptor.operations)) violations.push("operations");
+  if (!Array.isArray(descriptor.capabilities)
+      || descriptor.capabilities.some((capability) => !record(capability)
+        || !hasExactFields(capability, CAPABILITY_FIELDS)
+        || typeof capability.capability !== "string"
+        || capability.capability.length === 0
+        || !uniqueNonemptyStrings(capability.faces))
+      || new Set(descriptor.capabilities.map((capability) => capability.capability)).size !== descriptor.capabilities.length) {
+    violations.push("capabilities");
+  }
+  if (descriptor.package !== manifest?.name) violations.push("package");
+  return Object.freeze(violations);
+}
 
 async function exists(path) {
   try {
@@ -77,9 +122,14 @@ export async function assaySemioticVoxelPackageBody({ root = process.cwd() } = {
     const manifest = JSON.parse(await readFile(resolve(absoluteRoot, path), "utf8"));
     if (typeof manifest.name !== "string" || manifest.name.length === 0) continue;
     carriers += 1;
-    const voxel = manifest["x-semiotic-voxel"];
     if (!/^@[a-z0-9-]+\/[a-z0-9._-]+$/u.test(manifest.name) || manifest.name.startsWith("@emsenn/")) defects.push({ law: "sovereign-owner-identity", path, package: manifest.name });
-    if (voxel?.profile !== PROFILE || voxel?.package !== manifest.name || !voxel?.owner) defects.push({ law: "declared-semiotic-voxel", path, package: manifest.name });
+    const descriptorViolations = semioticVoxelPackageDescriptorViolations(manifest);
+    if (descriptorViolations.length) defects.push({
+      law: "package-deployment-carrier-descriptor",
+      path,
+      package: manifest.name,
+      violations: descriptorViolations,
+    });
     for (const field of DEPENDENCY_FIELDS) {
       for (const [dependency, value] of Object.entries(manifest[field] ?? {})) {
         if (dependency.startsWith("@emsenn/")) defects.push({ law: "sovereign-provider-identity", path, field, dependency });

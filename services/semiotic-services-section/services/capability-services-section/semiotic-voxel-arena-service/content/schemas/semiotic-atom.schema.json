@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Semiotic atom",
-  "description": "The network boundary record already admitted by the Semiotic Voxel arena. An atom is not an Obsmetrologia Mark, Utterance, or Cell. Its id names the SHA-256 digest of canonical typed RMN commitment bytes; this schema validates the exact RFC 6920 ni URI shape but does not define an unratified Utterance-plus-locus carrier body or a resolver. The voxel exists only as active reconstruction and is not part of this persisted or exchanged record.",
+  "description": "The network boundary record already admitted by the Semiotic Voxel arena. An atom is not an Obsmetrologia Mark, Utterance, or ArticulationCell. Its id names the SHA-256 digest of canonical typed RMN commitment bytes; this schema validates the exact RFC 6920 ni URI shape but does not define an unratified Utterance-plus-locus carrier body or a resolver. The voxel exists only as active reconstruction and is not part of this persisted or exchanged record.",
   "type": "object",
   "required": [
     "id",

@@ -26,12 +26,6 @@
     "owner": "red-cup-engineering",
     "kind": "capability-cell",
     "actor": "urn:ame:semiotic-voxel-arena-service",
-    "projection": "Package/deployment projection metadata only; never a network atom or boundary carrier.",
-    "boundary-semantics": {
-      "atom": "The canonical-RMN-identified network causal-event record; not an Obsmetrologia Mark, Utterance, or Cell.",
-      "voxel": "Active reconstruction only; never persisted and never crossed over the boundary.",
-      "identity": "The atom id names canonical typed RMN commitment bytes; this package defines neither an Utterance-plus-locus carrier body nor a resolver."
-    },
     "operations": [
       "admit-semiotic-atom"
     ],

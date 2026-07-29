@@ -152,6 +152,8 @@ function rewriteManifest(manifest, path, identities, identitiesByDirectory) {
         : [name, value];
     }));
   }
+  // This is package/deployment manifest metadata, not a semantic atom, an
+  // articulation carrier, or the active-only voxel reconstructed at runtime.
   result["x-semiotic-voxel"] = {
     profile: VOXEL_PROFILE,
     owner: identity.owner,

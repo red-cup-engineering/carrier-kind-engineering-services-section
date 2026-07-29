@@ -1,7 +1,7 @@
 {
   "name": "@red-cup-engineering/semiotic-voxel-package-conformance-service",
-  "version": "1.0.0",
-  "description": "Refuses package bodies that restore workspace authority, local dependency protocols, ownerless identities, or undeclared semiotic voxels.",
+  "version": "1.1.0",
+  "description": "Validates x-semiotic-voxel as an exact package/deployment carrier descriptor and refuses package bodies that restore workspace authority, local dependency protocols, or ownerless identities.",
   "type": "module",
   "license": "MIT",
   "exports": "./src/assay-semiotic-voxel-package-body.mjs",
@@ -42,8 +42,8 @@
     ],
     "operation-catalog": {
       "assay-semiotic-voxel-package-body": {
-        "accepts": "one repository territory",
-        "returns": "one package-body conformance receipt or a typed refusal"
+        "accepts": "one repository territory whose named packages declare exact package/deployment carrier metadata under x-semiotic-voxel",
+        "returns": "one package-body conformance receipt or a typed refusal; x-semiotic-voxel is never a network SemioticAtom, Mark, Utterance, ArticulationCell, or active voxel"
       }
     }
   }

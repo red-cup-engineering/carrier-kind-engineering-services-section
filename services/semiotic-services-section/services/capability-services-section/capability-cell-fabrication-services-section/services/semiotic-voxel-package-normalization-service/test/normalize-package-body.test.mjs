@@ -31,7 +31,15 @@ test("rewrites package ownership, workspace dependencies, and active imports tog
   assert.equal(consumerManifest.name, "@harmonious-union/consumer");
   assert.equal(consumerManifest.dependencies["@red-cup-engineering/provider"], "1.2.3");
   assert.match(await readFile(join(root, consumer, "src/index.mjs"), "utf8"), /@red-cup-engineering\/provider/u);
-  assert.equal(providerManifest["x-semiotic-voxel"].kind, "capability-cell");
+  assert.deepEqual(providerManifest["x-semiotic-voxel"], {
+    profile: "org.harmonious-union.semiotic-voxel.v1",
+    owner: "red-cup-engineering",
+    kind: "capability-cell",
+    actor: "urn:ame:provider",
+    operations: ["provide"],
+    capabilities: [{ capability: "provider", faces: ["provide"] }],
+    package: "@red-cup-engineering/provider",
+  });
 });
 
 test("replaces stale release URLs and ranges with the exact admitted provider version", async () => {

@@ -1,7 +1,7 @@
 {
   "name": "@red-cup-engineering/semiotic-voxel-package-normalization-service",
   "version": "2.0.0",
-  "description": "Converts the potential JavaScript package body into explicitly owned semiotic-voxel carriers without workspace or local-path authority.",
+  "description": "Converts the potential JavaScript package body into explicitly owned package/deployment carrier descriptors under x-semiotic-voxel without workspace or local-path authority.",
   "type": "module",
   "license": "MIT",
   "exports": {
@@ -48,7 +48,7 @@
     "operation-catalog": {
       "normalize-semiotic-voxel-packages": {
         "accepts": "one repository root containing independently owned package carriers",
-        "returns": "one collision-free ownership and identity rewrite receipt"
+        "returns": "one collision-free ownership and identity rewrite receipt whose x-semiotic-voxel values are exact package/deployment descriptors, never semantic or active-voxel carriers"
       },
       "coordinate-brokered-normalization": {
         "accepts": "one TRC language-cone receipt and RMN Mark, one resource-brokerage selection, and an injected one-shot actuator",

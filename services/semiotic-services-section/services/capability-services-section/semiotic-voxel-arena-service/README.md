@@ -13,7 +13,8 @@ canonical typed RMN commitment bytes supplied by the caller; this service
 checks the identity's exact syntax but does not invent or resolve the
 unratified Utterance-plus-locus carrier body.
 
-A network semiotic atom is not an Obsmetrologia `Mark`, `Utterance`, or `Cell`.
+A network semiotic atom is not an Obsmetrologia `Mark`, `Utterance`, or
+`ArticulationCell`.
 “Voxel” names only the active reconstruction made while applying this law.  A
 voxel is never persisted and never crosses the boundary.  Likewise,
 `x-semiotic-voxel` is package/deployment projection metadata only, not the atom,
