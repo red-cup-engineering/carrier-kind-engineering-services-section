@@ -44,5 +44,5 @@
       }
     }
   },
-  "x-semiotic-voxel": {"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"javascript-services-section","kind":"capability-cell","actor":"urn:ame:farstone-harbor-mud-service","operations":["serve-farstone-harbor"],"capabilities":[{"capability":"farstone-harbor-mud-service","faces":["serve-farstone-harbor"]}],"package":"@emsenn/app-farstone-harbor"}
+  "x-semiotic-voxel": {"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"javascript-services-section","kind":"capability-cell","actor":"urn:ame:farstone-harbor-mud-service","operations":["serve-farstone-harbor"],"capabilities":[{"capability":"farstone-harbor-mud-service","faces":["serve-farstone-harbor"]}],"package":"@emsenn/farstone.561.group"}
 }
