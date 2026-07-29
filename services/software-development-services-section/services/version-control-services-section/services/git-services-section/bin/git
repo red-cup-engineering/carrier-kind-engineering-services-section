@@ -34,10 +34,12 @@ fi
 # concurrent index mutation.
 if [ "$command_name" = commit ]; then
   found_path_boundary=false
+  found_pathspec_file=false
   for argument in "$@"; do
     [ "$argument" = "--" ] && found_path_boundary=true
+    case "$argument" in --pathspec-from-file|--pathspec-from-file=*) found_pathspec_file=true ;; esac
   done
-  if [ "$found_path_boundary" = false ]; then
+  if [ "$found_path_boundary" = false ] && [ "$found_pathspec_file" = false ]; then
     echo "git contracted ingress refused: unscoped commit is forbidden; commit explicit receipt-witnessed paths" >&2
     exit 126
   fi
