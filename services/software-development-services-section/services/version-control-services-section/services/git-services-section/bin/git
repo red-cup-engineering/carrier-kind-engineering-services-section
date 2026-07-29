@@ -60,7 +60,7 @@ fi
 # a dead end wearing security's shape; removed rather than left standing.
 # Repository overrides and non-push remote/config mutations stay refused.
 case "$command_name" in
-  add|commit|restore|rm|mv|checkout|switch|reset|merge|cherry-pick|revert|tag|stash)
+  add|commit|restore|rm|mv|checkout|switch|reset|merge|cherry-pick|revert|tag|stash|filter-repo|clean)
     lock_dir="$service_root/data"
     mkdir -p "$lock_dir"
     exec /usr/bin/env -i \
@@ -111,7 +111,7 @@ case "$command_name" in
     case "${2-}" in ""|--list|--show-current) ;; *) echo "git contracted ingress refused: branch mutation not admitted by this ingress" >&2; exit 126;; esac
     ;;
   remote)
-    case "${2-}" in -v|get-url) ;; *) echo "git contracted ingress refused: remote mutation not admitted by this ingress" >&2; exit 126;; esac
+    case "${2-}" in -v|get-url|set-url|add) ;; *) echo "git contracted ingress refused: remote mutation not admitted by this ingress" >&2; exit 126;; esac
     ;;
   config)
     case "${2-}" in --get|--get-all|--get-regexp|--get-urlmatch) ;; *) echo "git contracted ingress refused: configuration mutation not admitted by this ingress" >&2; exit 126;; esac
