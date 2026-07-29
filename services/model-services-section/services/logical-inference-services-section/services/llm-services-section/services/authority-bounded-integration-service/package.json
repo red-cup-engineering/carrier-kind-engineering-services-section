@@ -1,0 +1,45 @@
+{
+  "name": "@red-cup-engineering/authority-bounded-integration-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Parameterized single-use-authority EXECUTE-stage gate (atomic write, content-addressed intent binding, before/after byte verification, path-escape and symlink refusal) any model actor can hire, instead of hand-copying it under its own name.",
+  "exports": { ".": "./src/client.mjs" },
+  "scripts": {
+    "check": "node --check src/client.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": { "node": ">=20" },
+  "x-agentic-metro-enterprise": {
+    "node-id": "authority-bounded-integration-service",
+    "actor": "urn:ame:authority-bounded-integration-service",
+    "organizational-kind": "product-capability-cell",
+    "owners": ["red-cup-engineering"],
+    "admission": "an explicit actor, customer, injected identity/byteDigest functions, and a default state root",
+    "refusal": "ambient provider discovery, hardcoded actor identity, a record type name that names the provider instead of the actor field, or any mutation authority this service invents rather than receives already formed",
+    "operation-catalog": {
+      "mutation-intent": {
+        "accepts": "a demand, plan id, workspace-relative path, and the exact after-content bytes",
+        "returns": "a content-addressed MutationIntentK carrying no authority of its own"
+      },
+      "leader-authority": {
+        "accepts": "exactly one bounded write-file scope naming exact before/after digests",
+        "returns": "a single-use, content-addressed LeaderAuthorityK"
+      },
+      "execute-authority-bound-integration": {
+        "accepts": "an inert plan plus a single-use authority token naming the exact bytes being written",
+        "returns": "a digest-bound CandidatePatchK, after an atomic exclusive-create authority claim and an atomic write"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:authority-bounded-integration-service",
+    "operations": ["execute-authority-bound-integration", "leader-authority", "mutation-intent"],
+    "capabilities": [{ "capability": "authority-bounded-integration", "faces": ["execute-authority-bound-integration", "leader-authority", "mutation-intent"] }],
+    "package": "@red-cup-engineering/authority-bounded-integration-service"
+  }
+}
