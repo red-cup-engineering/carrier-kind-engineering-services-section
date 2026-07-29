@@ -28,6 +28,21 @@ if [ "$command_name" = add ]; then
   done
 fi
 
+# A clean `add -- <witnessed path>` is insufficient if another process can
+# stage work before a bare `commit`. Require Git's path-limited commit form;
+# the receipt settlement consumer supplies it and therefore cannot absorb a
+# concurrent index mutation.
+if [ "$command_name" = commit ]; then
+  found_path_boundary=false
+  for argument in "$@"; do
+    [ "$argument" = "--" ] && found_path_boundary=true
+  done
+  if [ "$found_path_boundary" = false ]; then
+    echo "git contracted ingress refused: unscoped commit is forbidden; commit explicit receipt-witnessed paths" >&2
+    exit 126
+  fi
+fi
+
 # Serialized mutation face (Leader order 2026-07-26: committing must be
 # possible; extended 2026-07-26 to push). The hazard the raw-git ban answered
 # was concurrent agents mutating the repository at once; this face admits

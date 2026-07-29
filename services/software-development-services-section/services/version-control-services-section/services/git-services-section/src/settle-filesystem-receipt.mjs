@@ -46,6 +46,6 @@ export async function settleFilesystemReceipt({ repository, receiptPath, message
   if (sha256(content) !== receipt.after) throw receiptError("witnessed content no longer matches the receipt");
   await run(gitBin, ["diff", "--cached", "--quiet"], repo);
   await run(gitBin, ["add", "--", relative], repo);
-  await run(gitBin, ["commit", "-m", message ?? `chore: settle filesystem receipt ${receipt.id}`, "--", relative], repo);
+  await run(gitBin, ["commit", "--only", "-m", message ?? `chore: settle filesystem receipt ${receipt.id}`, "--", relative], repo);
   return Object.freeze({ kind: "git-settlement-receipt/v1", filesystemReceipt: receipt.id, repository: repoRoot, path: relative, settledAt: new Date().toISOString() });
 }
