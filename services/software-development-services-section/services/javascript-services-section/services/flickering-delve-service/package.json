@@ -49,5 +49,6 @@
         "returns": "a browser-accessible Flickering Delve game service with its sole-writer tick loop and configured persistence"
       }
     }
-  }
+  },
+  "x-semiotic-voxel": {"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"javascript-services-section","kind":"capability-cell","actor":"urn:ame:flickering-delve-service","operations":["serve-flickering-delve"],"capabilities":[{"capability":"flickering-delve-service","faces":["serve-flickering-delve"]}],"package":"@emsenn/app-flickering-delve"}
 }

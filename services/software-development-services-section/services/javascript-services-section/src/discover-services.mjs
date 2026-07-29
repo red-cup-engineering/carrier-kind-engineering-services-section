@@ -8,6 +8,10 @@ const readManifest = (root) => {
     const manifest = JSON.parse(readFileSync(path, "utf8"));
     const nodeId = manifest?.["x-agentic-metro-enterprise"]?.["node-id"];
     if (typeof nodeId !== "string" || !nodeId) return { kind: "invalid", path, reason: "missing x-agentic-metro-enterprise.node-id" };
+    const operations = manifest?.["x-semiotic-voxel"]?.operations;
+    if (!Array.isArray(operations) || operations.length !== 1 || typeof operations[0] !== "string" || operations[0] === "") {
+      return { kind: "invalid", path, reason: "direct JSNode actuator must declare exactly one named x-semiotic-voxel operation" };
+    }
     return { kind: "settlement", path, manifest, nodeId };
   } catch (error) {
     return { kind: "invalid", path, reason: error instanceof Error ? error.message : String(error) };
@@ -34,4 +38,3 @@ export function discoverJsnodeServices(sectionRoot) {
   }
   return { sectionRoot: root, services, refusals };
 }
-

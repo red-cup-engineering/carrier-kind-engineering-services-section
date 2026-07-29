@@ -119,8 +119,8 @@ async function cmdCheck(o: Record<string, string>): Promise<number> {
   return 0;
 }
 
-async function main(): Promise<number> {
-  const { command, options, bools } = parse(process.argv.slice(2));
+export async function invokeDiscordStewardCommand(command: "run" | "invite" | "check", argv: readonly string[]): Promise<number> {
+  const { options, bools } = parse([command, ...argv]);
   if (bools.has("--help") || bools.has("-h") || command === "" || command === "help") usage(command === "" ? 1 : 0);
   switch (command) {
     case "run": return await cmdRun(options);
@@ -130,7 +130,11 @@ async function main(): Promise<number> {
   }
 }
 
-main().then((code) => { if (code >= 0) process.exit(code); }).catch((error) => {
-  process.stderr.write(`discord-steward: ${(error as Error).message}\n`);
-  process.exit(1);
-});
+if (import.meta.main) {
+  const [command, ...argv] = process.argv.slice(2);
+  if (command !== "run" && command !== "invite" && command !== "check") usage(2);
+  invokeDiscordStewardCommand(command, argv).then((code) => { if (code >= 0) process.exit(code); }).catch((error) => {
+    process.stderr.write(`discord-steward: ${(error as Error).message}\n`);
+    process.exit(1);
+  });
+}
