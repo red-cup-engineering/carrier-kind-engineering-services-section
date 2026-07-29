@@ -1,0 +1,19 @@
+#lang rmn/v2
+(map
+  ("type" "ProofPathAddressingRequirementsBaseline")
+  ("version" 1)
+  ("source" "emsenn/requirement/structure-semiotic-atoms-as-proof-path-asts")
+  ("precondition" "A caller supplies one JSON-addressable semiotic atom, a foundational root, and explicit evidence from which generator morphisms can be recovered. A semiotic atom alone carries no earned descent.")
+  ("operation" "Structure the atom's witnessed descent as a canonical relative POSIX filepath abstract syntax tree.")
+  ("postcondition" "Success preserves the atom and returns a deterministic, traversal-safe, re-checkable AST; failure returns a typed refusal and never invents a segment.")
+  ("refusal" "Refuse unaddressable terms, ambiguous evidence carriers, malformed or noncanonical paths, unearned descent, registry authority, filesystem effects, source-package analysis, and unproved cross-reading agreement.")
+  ("requirements"
+    ((map ("id" "PPA-R001") ("kind" "stakeholder") ("text" "The service MUST treat one semiotic atom, one root, and exactly one explicit evidence carrier as its request and preserve strict identity of that atom in its result."))
+     (map ("id" "PPA-R002") ("kind" "derived") ("text" "Every addressed term MUST be a finite JSON value with canonical key-sorted structural identity, refusing unsupported, cyclic, sparse, or non-finite values."))
+     (map ("id" "PPA-R003") ("kind" "derived") ("text" "Every successful result MUST contain a relative POSIX filepath AST whose root and proof-step nodes carry canonical keys and reversible traversal-safe segments."))
+     (map ("id" "PPA-R004") ("kind" "derived") ("text" "Every AST descent step MUST be an explicitly witnessed specialization, converse, subject-projection, or object-projection generator."))
+     (map ("id" "PPA-R005") ("kind" "derived") ("text" "Equivalent evidence presented in any order MUST select the same shortest route and therefore the same AST and rendered path."))
+     (map ("id" "PPA-R006") ("kind" "derived") ("text" "The filepath codec MUST admit exactly the canonical relative proof paths that round-trip, excluding absolute, traversal-bearing, malformed, invalidly escaped, and noncanonical text."))
+     (map ("id" "PPA-R007") ("kind" "stakeholder") ("text" "An unreachable target MUST yield an unearned-path refusal with bounded diagnostics and no synthesized placement."))
+     (map ("id" "PPA-R008") ("kind" "stakeholder") ("text" "The capability MUST contain no filesystem effect, npm-package inspection, registry lookup, causal atom admission, or RMN typing authority."))
+     (map ("id" "PPA-R009") ("kind" "derived") ("text" "AddressTerm, canonical_address, AddressReadingLeg, ConeOfReadings, and leg_agreement MUST remain explicitly open formal-frontier obligations rather than claims proved by this TypeScript realization.")))))

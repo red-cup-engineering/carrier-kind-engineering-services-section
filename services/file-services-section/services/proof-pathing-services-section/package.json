@@ -4,12 +4,25 @@
   "private": true,
   "type": "module",
   "description": "Owns canonical file-leg admission, normalization, and readout for Proof-Path Addressing.",
+  "files": [
+    "content",
+    "lib",
+    "services"
+  ],
+  "scripts": {
+    "check": "node --check lib/law.mjs && npm run check --prefix services/proof-path-structuration-service",
+    "test": "node --test test/*.test.mjs && npm test --prefix services/proof-path-structuration-service",
+    "verify": "npm run check && npm test"
+  },
   "x-agentic-metro-enterprise": {
     "node-id": "proof-pathing-services-section",
     "actor": "urn:ame:proof-pathing-services-section",
     "organizational-kind": "circuit-board",
     "owners": [
       "file-services-section"
+    ],
+    "owned-services": [
+      "services/proof-path-structuration-service"
     ],
     "admission": "a declared file-boundary codec and a candidate path whose earned segments can be checked against one typed address term",
     "refusal": "an untyped host string, an unearned segment, a non-canonical rendering, a displaced derivation, or a request for registry or cross-protocol authority",
@@ -26,6 +39,14 @@
       "PPA-FR-030 AddressReadingLeg",
       "PPA-FR-040 ConeOfReadings",
       "PPA-FR-050 leg_agreement"
-    ]
+    ],
+    "operation-catalog": {
+      "specify-proof-path-structuration": {
+        "contract": "content/designs/proof-path-addressing/software-architecture-specification.rml"
+      },
+      "structure-semiotic-atom-as-posix-filepath-ast": {
+        "provider": "services/proof-path-structuration-service"
+      }
+    }
   }
 }

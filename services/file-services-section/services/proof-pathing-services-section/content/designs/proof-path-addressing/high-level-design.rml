@@ -1,0 +1,13 @@
+#lang rmn/v2
+(map
+  ("type" "ProofPathAddressingHighLevelDesign")
+  ("version" 1)
+  ("architecture" "content/designs/proof-path-addressing/software-architecture-specification.rml")
+  ("unit" "services/proof-path-structuration-service")
+  ("components"
+    ((map ("id" "term-codec") ("responsibility" "Admit finite JSON terms; derive stable keys and reversible POSIX segments."))
+     (map ("id" "witness-fold") ("responsibility" "Admit either direct generator witnesses or relational cells and recover the four canonical generators."))
+     (map ("id" "route-kernel") ("responsibility" "Choose the canonical shortest witnessed route without a registry or effects."))
+     (map ("id" "filepath-ast-codec") ("responsibility" "Construct, render, parse, and check the relative POSIX filepath AST."))
+     (map ("id" "structuration-facade") ("responsibility" "Preserve the input atom and return success or typed refusal diagnostics."))))
+  ("public-operations" ("structureSemioticAtom" "witnessesOfCells" "routeOf" "astOfRoute" "renderProofPathAst" "parseProofPath" "checkProofPathAst")))

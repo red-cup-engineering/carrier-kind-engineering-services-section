@@ -1,0 +1,15 @@
+#lang rmn/v2
+(map
+  ("type" "ProofPathAddressingLowLevelDesign")
+  ("version" 1)
+  ("high-level-design" "content/designs/proof-path-addressing/high-level-design.rml")
+  ("unit" "services/proof-path-structuration-service/src/index.mts")
+  ("algorithm"
+    ("Canonicalize every term recursively, refusing unsupported values and cycles."
+     "Normalize direct witnesses or fold relational cells into specialization, converse, subject-projection, and object-projection edges."
+     "Sort and deduplicate edges by canonical domain, generator order, and canonical codomain."
+     "Run breadth-first search from root; sorted adjacency makes the first shortest witness canonical."
+     "Map the route to a relative filepath AST with one root term node and ordered proof-step nodes."
+     "Re-check each AST step against the normalized witness set before success."
+     "Return unearned-path rather than constructing a path when no route exists."))
+  ("refusal-order" ("invalid-request" "unaddressable-term" "ambiguous-evidence" "invalid-witness" "unearned-path" "malformed-path" "noncanonical-path")))

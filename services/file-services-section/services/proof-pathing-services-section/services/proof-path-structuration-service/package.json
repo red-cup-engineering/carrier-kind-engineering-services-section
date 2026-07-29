@@ -1,0 +1,47 @@
+{
+  "name": "@red-cup-engineering/proof-path-structuration-service",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Pure witnessed fold from a semiotic atom to a canonical relative POSIX filepath AST.",
+  "exports": {
+    ".": {
+      "types": "./src/index.mts",
+      "import": "./src/index.mts"
+    }
+  },
+  "scripts": {
+    "check": "node --check src/index.mts",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "sideEffects": false,
+  "x-agentic-metro-enterprise": {
+    "node-id": "proof-path-structuration-service",
+    "actor": "urn:ame:proof-path-structuration-service",
+    "organizational-kind": "capability-cell",
+    "owners": [
+      "proof-pathing-services-section"
+    ],
+    "admission": "one JSON-addressable semiotic atom, one foundational root, and exactly one explicit evidence carrier",
+    "refusal": "an unaddressable term, ambiguous evidence, invalid generator witness, unearned descent, malformed or noncanonical path, filesystem effect, registry lookup, source-package analysis, or cross-reading proof claim"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:proof-path-structuration-service",
+    "operations": [
+      "structure-semiotic-atom-as-posix-filepath-ast"
+    ],
+    "capabilities": [
+      {
+        "capability": "proof-path-structuration",
+        "faces": [
+          "Node"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/proof-path-structuration-service"
+  }
+}

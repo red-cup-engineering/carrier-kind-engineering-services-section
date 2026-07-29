@@ -1,0 +1,14 @@
+#lang rmn/v2
+(map
+  ("type" "ProofPathAddressingTraceabilityMatrix")
+  ("version" 1)
+  ("entries"
+    ((map ("requirement" "PPA-R001") ("case" "PPA-C001") ("evidence" "test/structuration.test.mjs atom preservation and evidence admission"))
+     (map ("requirement" "PPA-R002") ("case" "PPA-C002") ("evidence" "test/structuration.test.mjs canonical addressability refusals"))
+     (map ("requirement" "PPA-R003") ("case" "PPA-C003") ("evidence" "test/structuration.test.mjs exact AST construction"))
+     (map ("requirement" "PPA-R004") ("case" "PPA-C004") ("evidence" "test/structuration.test.mjs generator checking"))
+     (map ("requirement" "PPA-R005") ("case" "PPA-C005") ("evidence" "test/structuration.test.mjs permutation stability"))
+     (map ("requirement" "PPA-R006") ("case" "PPA-C006") ("evidence" "test/structuration.test.mjs parser and renderer adversarial cases"))
+     (map ("requirement" "PPA-R007") ("case" "PPA-C007") ("evidence" "test/structuration.test.mjs unearned-path refusal"))
+     (map ("requirement" "PPA-R008") ("case" "PPA-C008") ("evidence" "package manifest and source import inspection"))
+     (map ("requirement" "PPA-R009") ("case" "PPA-C009") ("evidence" "lib/law.mjs frontier and known-inconsistency checks")))))

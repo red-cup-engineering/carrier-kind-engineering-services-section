@@ -14,10 +14,18 @@ replace the import or derivation graph, route arbitrary protocols, or claim that
 HTTP, MCP, ActivityPub, and other reading legs already commute. Those
 cross-reading results remain explicit PPA formal-frontier obligations.
 
-No actuator is assigned here yet. The current node is the circuit-board
-boundary under which file-facing path-term codecs, canonicalization, admission,
-and readout services can be placed once their individual operations are
-implemented and verified.
+The `proof-path-structuration-service` is the section's first actuator. It is a
+pure fold from a JSON-addressable semiotic atom, a foundational root, and
+explicit generator witnesses to a relative POSIX filepath AST. It preserves
+the atom, deterministically chooses a shortest witnessed route, and returns a
+typed `unearned-path` refusal when no route exists. An atom alone is not a
+proof and therefore cannot earn a path.
+
+The local specification arena records the requirements baseline, architecture,
+high- and low-level designs, V&V cases, and evidence trace. Its executable law
+checks exact allocation and coverage before this section's implementation tests
+run. Source-package analysis is deliberately absent: it is one possible future
+diagnostic client, not this section's assignment.
 
 ## Grounding and maturity
 
