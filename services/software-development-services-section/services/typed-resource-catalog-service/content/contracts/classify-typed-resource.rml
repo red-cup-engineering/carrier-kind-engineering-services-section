@@ -1,0 +1,7 @@
+operation classify-typed-resource
+domain typed-resource-catalog * boundary-resource
+codomain typed-resource-classification
+law recognize-child = recognize-parent-and-local
+law choose-only-unique-deepest-witness
+refuse unresolved-schema-reference
+refuse incomparable-maximal-types

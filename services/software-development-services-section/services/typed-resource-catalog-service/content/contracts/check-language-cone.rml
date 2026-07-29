@@ -1,0 +1,7 @@
+operation check-language-cone
+domain typed-resource-catalog * language-cone
+codomain language-cone-check
+law proof-is-carried-by-term-and-derivation-dag
+law posix-path-is-one-reading-leg
+law agreement-is-witnessed-or-contradicted-or-unknown
+refuse fabricated-cone-commutation

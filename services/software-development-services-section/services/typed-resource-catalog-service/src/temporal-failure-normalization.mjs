@@ -1,0 +1,78 @@
+import { immutable, semanticId } from "./canonical.mjs";
+
+// This is a carrier-level diagnostic, not an ambient disk crawl.  A node must
+// first admit the exact resources it asks the network to heal; the same action
+// can consequently run over a package, a site, an archive promoted to active
+// evidence, or a federated code territory without granting filesystem reach.
+const word = (...parts) => parts.join("");
+const pattern = (source, flags = "giu") => new RegExp(source, flags);
+const FORBIDDEN = Object.freeze([
+  ["abort-signal-temporal-stop", pattern(`${word("AbortSignal", ".", "time", "out")}\\s*\\(`, "gu")],
+  ["timer", pattern(`\\b(?:${word("set", "Time", "out")}|${word("set", "Interval")})\\s*\\(`, "gu")],
+  ["temporal-limit-field", pattern(`\\b(?:${word("time", "out", "Ms")}|${word("time", "out", "_ms")}|${word("request", "Time", "out", "Ms")}|${word("callback", "Time", "out", "Ms")}|${word("profileIdentity", "Time", "out", "Ms")}|${word("profileActivation", "Time", "out", "Ms")}|${word("secretTool", "Time", "out", "Ms")})\\b`, "gu")],
+  ["temporal-boundary", pattern(`\\b${word("dead", "line")}\\b`)],
+  ["time-to-live", pattern(`(?:\\b${word("t", "tl")}(?:Ms|Seconds|_|\\s*:)|${word("time", "-to-", "live")})`)],
+  ["temporal-credential-state", pattern(`\\b(?:${word("ex", "pires")}|${word("ex", "pired")}|${word("ex", "pires", "At")}|${word("ex", "pires", "_at")}|${word("ex", "piration")}|${word("ex", "piry")})\\b`)],
+  ["duration-failure", pattern(`\\b(?:${word("time", "[- ]", "limit")}|${word("elap", "sed", "[- ]", "time")})\\b`)],
+]);
+
+function text(value, label) {
+  if (typeof value !== "string" || value.length === 0) throw new TypeError(`${label} must be a non-empty string`);
+  return value;
+}
+
+function path(value) {
+  const normalized = text(value, "resource.path").replaceAll("\\\\", "/").replace(/^\.\//u, "");
+  if (normalized.startsWith("/") || normalized === ".." || normalized.startsWith("../") || normalized.includes("/../") || normalized.includes("\0")) throw new TypeError(`resource.path escapes the admitted territory: ${value}`);
+  return normalized;
+}
+
+function location(content, index) {
+  const before = content.slice(0, index);
+  return Object.freeze({ offset: index, line: before.split("\n").length, column: index - before.lastIndexOf("\n") });
+}
+
+function findings(resource) {
+  const found = [];
+  for (const [kind, expression] of FORBIDDEN) {
+    expression.lastIndex = 0;
+    for (let match = expression.exec(resource.content); match; match = expression.exec(resource.content)) {
+      found.push(Object.freeze({ type: "TemporalFailureMark", kind, mark: match[0], at: location(resource.content, match.index) }));
+      if (match[0] === "") expression.lastIndex += 1;
+    }
+  }
+  return found.sort((left, right) => left.at.offset - right.at.offset || left.kind.localeCompare(right.kind));
+}
+
+/**
+ * Scan an already admitted code territory.  Every detected mark is an open
+ * normalization obligation: execution must remain pending/running/observable
+ * until explicit completion, cancellation, or a real transport/process error.
+ */
+export function scanTemporalFailureMarks({ resources }) {
+  if (!Array.isArray(resources) || resources.length === 0) throw new TypeError("resources must be a non-empty admitted resource set");
+  const observed = resources.map((raw, index) => {
+    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) throw new TypeError(`resources[${index}] must be an object`);
+    const resource = Object.freeze({ path: path(raw.path), content: text(raw.content, `resources[${index}].content`) });
+    return Object.freeze({ path: resource.path, findings: findings(resource) });
+  }).sort((left, right) => left.path.localeCompare(right.path));
+  if (new Set(observed.map(({ path: value }) => value)).size !== observed.length) throw new TypeError("admitted resource paths must be unique");
+  const obligations = observed.flatMap(({ path: resourcePath, findings: marks }) => marks.map((mark) => Object.freeze({
+    type: "TemporalFailureNormalizationDemand", resourcePath, mark, wantedLaw: "pending-running-observable-cancellable-without-temporal-failure",
+  })));
+  const body = {
+    type: "TemporalFailureTerritoryScanReceipt", version: 1,
+    law: "pending-running-observable-cancellable-without-temporal-failure",
+    denominator: { type: "admitted-resource-set", count: observed.length },
+    resources: observed,
+    obligations,
+    conforms: obligations.length === 0,
+  };
+  return immutable({ ...body, id: semanticId(body) });
+}
+
+export function refuseTemporalFailureMarks(input) {
+  const receipt = scanTemporalFailureMarks(input);
+  if (!receipt.conforms) throw new Error(`temporal-failure normalization remains demanded by ${receipt.obligations.length} admitted marks`);
+  return receipt;
+}

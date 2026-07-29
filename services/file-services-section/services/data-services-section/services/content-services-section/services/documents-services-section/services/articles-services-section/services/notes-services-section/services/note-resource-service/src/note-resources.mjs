@@ -33,6 +33,9 @@ function canonical(value) {
   return JSON.stringify(value);
 }
 function receipt(body) { return Object.freeze({ id: `urn:sha256:${createHash("sha256").update(canonical(body)).digest("hex")}`, ...body }); }
+function resourceIdentity(nodeRoot, path, contentIdentity) {
+  return `urn:sha256:${createHash("sha256").update(canonical({ nodeRoot, path, contentIdentity })).digest("hex")}`;
+}
 function text(value, field, maximum = 4096) {
   if (typeof value !== "string" || value.trim().length === 0 || value.trim().length > maximum) throw new TypeError(`${field} must be 1-${maximum} characters`);
   return value.trim();
@@ -84,7 +87,8 @@ export async function catalogNodeNotes({ nodeRoot, maximumFiles = 10_000, maximu
       const bytes = await readFile(path);
       const byteLength = resources.reduce((sum, item) => sum + item.byteLength, 0) + bytes.length;
       if (byteLength > maximumBytes) throw new RangeError("note catalog exceeds maximumBytes");
-      resources.push(Object.freeze({ identity: digest(bytes), byteLength: bytes.length, mediaType: "text/markdown", pathReading: `${NOTE_ROOT}/${locator}`, proofPath: NOTE_PROOF_PATH }));
+      const pathReading = `${NOTE_ROOT}/${locator}`, contentIdentity = digest(bytes);
+      resources.push(Object.freeze({ identity: resourceIdentity(root, pathReading, contentIdentity), contentIdentity, byteLength: bytes.length, mediaType: "text/markdown", path: pathReading, proofPath: NOTE_PROOF_PATH }));
     }
   }
   await walk(notesRoot);
@@ -104,9 +108,10 @@ export async function depositNoteCarrier(input) {
   try { current = await readFile(target); } catch (error) { if (error?.code !== "ENOENT") throw error; }
   if (mode === "create" && current) throw new Error("create refused because the note already exists");
   if (mode === "replace" && !current) throw new Error("replace refused because the note does not exist");
-  if (current?.equals(bytes)) return receipt({ type: "NoteCarrierDepositReceipt", version: 1, disposition: "already-present", resource: digest(bytes), sourceResource: prepared.sourceSha256, nodeRoot: root, pathReading: relativePath, proofPath: NOTE_PROOF_PATH, source, authority });
+  const contentIdentity = digest(bytes), resource = resourceIdentity(root, relativePath, contentIdentity);
+  if (current?.equals(bytes)) return receipt({ type: "NoteCarrierDepositReceipt", version: 1, disposition: "already-present", resource, contentIdentity, sourceResource: prepared.sourceSha256, nodeRoot: root, path: relativePath, proofPath: NOTE_PROOF_PATH, source, authority });
   await mkdir(dirname(target), { recursive: true });
   const temporary = inside(dirname(target), `.${basename(target)}.${process.pid}.${randomUUID()}.tmp`);
   try { await writeFile(temporary, bytes, { flag: "wx", mode: 0o644 }); await rename(temporary, target); } catch (error) { await unlink(temporary).catch(() => {}); throw error; }
-  return receipt({ type: "NoteCarrierDepositReceipt", version: 1, disposition: current ? "replaced" : "created", resource: digest(bytes), sourceResource: prepared.sourceSha256, byteLength: bytes.length, nodeRoot: root, pathReading: relativePath, proofPath: NOTE_PROOF_PATH, source, authority });
+  return receipt({ type: "NoteCarrierDepositReceipt", version: 1, disposition: current ? "replaced" : "created", resource, contentIdentity, sourceResource: prepared.sourceSha256, byteLength: bytes.length, nodeRoot: root, path: relativePath, proofPath: NOTE_PROOF_PATH, source, authority });
 }

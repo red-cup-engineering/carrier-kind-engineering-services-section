@@ -1,0 +1,9 @@
+operation scan-temporal-failure-marks
+domain admitted-resource-set
+codomain temporal-failure-territory-scan-receipt
+law no-ambient-filesystem-crawl
+law every-finding-is-an-addressed-normalization-demand
+law slow-work-is-pending-running-observable-or-explicitly-cancelled-never-temporally-refused
+law output-identity-is-independent-of-observation-order
+refuse duplicate-admitted-resource-path
+refuse path-outside-admitted-territory

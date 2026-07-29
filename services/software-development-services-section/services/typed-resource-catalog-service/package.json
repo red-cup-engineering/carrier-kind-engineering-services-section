@@ -1,0 +1,72 @@
+{
+  "name": "@red-cup-engineering/typed-resource-catalog",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Typed resource identity, proof-path classification, and checked language-cone readings over the Red Cup relating substrate.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./actions": "./src/actions.mjs",
+    "./rmn": "./src/rmn.mjs"
+  },
+  "bin": {
+    "typed-resource-catalog": "./bin/typed-resource-catalog.mjs"
+  },
+  "files": [
+    "bin/",
+    "content/",
+    "examples/",
+    "src/",
+    "types/"
+  ],
+  "scripts": {
+    "check": "node --check src/canonical.mjs && node --check src/recognition.mjs && node --check src/catalog.mjs && node --check src/language-cone.mjs && node --check src/rmn.mjs && node --check src/actions.mjs && node --check src/node-package-source-catalog.mjs && node --check src/node-workspace-source-catalog.mjs && node --check src/temporal-failure-normalization.mjs && node --check src/index.mjs && node --check bin/typed-resource-catalog.mjs",
+    "test": "node --test test/*.test.mjs",
+    "example:articulating": "node examples/obsmetrologia-articulating-cone.mjs",
+    "verify": "npm run check && npm test && npm run example:articulating"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/relating": "workspace:*",
+    "@red-cup-engineering/rmn-semantic-conformance": "workspace:*"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "typed-resource-catalog-service",
+    "actor": "urn:ame:typed-resource-catalog-service",
+    "organizational-kind": "capability-cell",
+    "owners": ["software-development-services-section"],
+    "operation-catalog": {
+      "classify-typed-resource": {
+        "contractSource": "content/contracts/classify-typed-resource.rml",
+        "protocols": ["RMN", "MCP", "CLI"]
+      },
+      "check-language-cone": {
+        "contractSource": "content/contracts/check-language-cone.rml",
+        "protocols": ["RMN", "MCP", "CLI"]
+      },
+      "catalog-node-workspace-sources": {
+        "contractSource": "content/contracts/catalog-node-workspace-sources.rml",
+        "protocols": ["RMN", "MCP", "CLI"]
+      },
+      "scan-temporal-failure-marks": {
+        "contractSource": "content/contracts/scan-temporal-failure-marks.rml",
+        "protocols": ["RMN", "MCP", "CLI"]
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:typed-resource-catalog-service",
+    "operations": ["classify-typed-resource", "check-language-cone", "catalog-node-workspace-sources", "scan-temporal-failure-marks"],
+    "capabilities": [{
+      "capability": "typed-resource-catalog",
+      "faces": ["classify-typed-resource", "check-language-cone", "catalog-node-workspace-sources", "scan-temporal-failure-marks"]
+    }],
+    "package": "@red-cup-engineering/typed-resource-catalog"
+  }
+}

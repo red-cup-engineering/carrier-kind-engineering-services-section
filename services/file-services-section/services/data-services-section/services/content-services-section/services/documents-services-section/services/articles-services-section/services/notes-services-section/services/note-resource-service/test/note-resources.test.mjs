@@ -22,12 +22,13 @@ test("deposits and catalogs one typed dated note", async () => {
     assert.equal(deposited.disposition, "created");
     assert.equal(deposited.sourceResource, sha(body));
     assert.deepEqual(deposited.proofPath, NOTE_PROOF_PATH);
-    const text = await readFile(join(root, deposited.pathReading), "utf8");
+    const text = await readFile(join(root, deposited.path), "utf8");
     assert.match(text, /status: research/u);
     assert.match(text, /source-artifactId: "report-1"/u);
     const catalog = await catalogNodeNotes({ nodeRoot: root });
     assert.equal(catalog.resourceCount, 1);
-    assert.equal(catalog.resources[0].pathReading, deposited.pathReading);
+    assert.equal(catalog.resources[0].path, deposited.path);
+    assert.equal(catalog.resources[0].identity, deposited.resource);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
@@ -38,6 +39,17 @@ test("is idempotent for exact bytes and refuses digest mismatch", async () => {
     assert.equal((await depositNoteCarrier(input)).disposition, "created");
     assert.equal((await depositNoteCarrier(input)).disposition, "already-present");
     await assert.rejects(() => depositNoteCarrier({ ...input, title: "Bad", carrier: { content: "same", sha256: sha("different") } }), /do not match/u);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("equal source bytes at different proof paths are distinct resources", async () => {
+  const root = await mkdtemp(join(tmpdir(), "note-resource-"));
+  try {
+    const left = await depositNoteCarrier({ nodeRoot: root, date: "2026-07-29", title: "Left", carrier: { content: "same" } });
+    const right = await depositNoteCarrier({ nodeRoot: root, date: "2026-07-29", title: "Right", carrier: { content: "same" } });
+    assert.notEqual(left.path, right.path);
+    assert.notEqual(left.resource, right.resource);
+    assert.equal(left.sourceResource, right.sourceResource);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
