@@ -3,32 +3,38 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Deterministic function-level movement actuator: emits bounded edit artifacts for an accepted-delivery receiver.",
+  "description": "One-effect client cell that invokes the independently deployed function-movement provider.",
   "exports": {
-    ".": "./src/function-movement.mjs",
-    "./actuator": "./src/function-movement.mjs",
-    "./cloud-client": "./src/cloud-client.mjs"
+    ".": "./src/cloud-client.mjs",
+    "./client": "./src/cloud-client.mjs"
   },
   "scripts": {
-    "check": "node --check src/function-movement.mjs && node --check src/cloud-client.mjs",
-    "test": "node --test test/function-movement.test.mjs",
+    "check": "node --check src/cloud-client.mjs",
+    "test": "node --test test/cloud-client.test.mjs",
     "verify": "npm run check && npm test"
   },
   "engines": {
     "node": ">=22"
   },
   "x-agentic-metro-enterprise": {
-    "node-id": "function-movement-service",
+    "node-id": "function-movement-provider-client-service",
     "actor": "urn:ame:function-movement-service",
-    "organizational-kind": "software-movement-actuator",
+    "organizational-kind": "capability-cell",
     "owners": ["javascript-services-section"],
-    "admission": "one exact named function, source and target package/semioverse identities, and an explicit target insertion marker",
-    "refusal": "ambiguous function text, source/target identity collision, duplicate target insertion, or unbounded artifact scope",
+    "admission": "one exact signed request for the named deployed function-movement provider",
+    "refusal": "a non-HTTPS provider endpoint, missing private signing key, or the provider's typed refusal",
     "operation-catalog": {
-      "prepare-function-movement": {
-        "contract": "function-movement-v1",
-        "protocols": ["RMN", "A2A 1.0"],
-        "returns": "bounded source-removal and target-insertion artifact set for accepted-software-delivery-receiver"
+      "invoke-function-movement-provider": {
+        "capability": "function-movement-provider-client-service",
+        "contract": "jsnode-function-movement-cloud/v1",
+        "protocols": ["HTTPS signed JSON"],
+        "provider": {
+          "package": "@free-compute/jsnode-function-movement-cloud-provider",
+          "actor": "urn:ame:jsnode-function-movement-cloud-provider",
+          "operation": "prepare-function-movement",
+          "deployment": "../../../../web-services-section/services/cloud-compute-services-section/services/jsnode-function-movement-cloud-provider/content/deployment.json"
+        },
+        "returns": "the independently provided ephemeral movement artifact response or refusal"
       }
     }
   },
@@ -37,10 +43,10 @@
     "owner": "javascript-services-section",
     "kind": "capability-cell",
     "actor": "urn:ame:function-movement-service",
-    "operations": ["prepare-function-movement"],
+    "operations": ["invoke-function-movement-provider"],
     "capabilities": [{
-      "capability": "function-movement-service",
-      "faces": ["prepare-function-movement"]
+      "capability": "function-movement-provider-client-service",
+      "faces": ["invoke-function-movement-provider"]
     }],
     "package": "@red-cup-engineering/function-movement-service"
   }

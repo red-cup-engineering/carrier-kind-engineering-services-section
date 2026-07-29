@@ -1,0 +1,25 @@
+{
+  "name": "@red-cup-engineering/function-movement-material",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Content-addressed deterministic function-movement artifact material; it has no transport, custody, observation, or write authority.",
+  "exports": "./src/function-movement.mjs",
+  "scripts": {
+    "check": "node --check src/function-movement.mjs",
+    "test": "node --test test/function-movement.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "javascript-services-section",
+    "kind": "inert-material",
+    "actor": "urn:ame:function-movement-material",
+    "operations": [],
+    "capabilities": [],
+    "package": "@red-cup-engineering/function-movement-material"
+  }
+}

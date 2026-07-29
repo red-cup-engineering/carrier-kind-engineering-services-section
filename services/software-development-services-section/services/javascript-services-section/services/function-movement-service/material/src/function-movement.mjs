@@ -10,7 +10,7 @@ const identity = (value, label) => {
 const digest = (value) => `sha256:${createHash("sha256").update(value).digest("hex")}`;
 
 /**
- * Prepare, but do not apply, a function move.
+ * Deterministically prepare, but do not apply, a function move.
  *
  * The returned edits are the existing software-edit-language shape. The
  * artifact set is deliberately receiver-ready: an external provider may
