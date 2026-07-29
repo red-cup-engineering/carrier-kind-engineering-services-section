@@ -1,0 +1,9 @@
+{
+  "name": "@red-cup-engineering/notes-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Restricts articles to dated research notes deposited beneath admitted actuator nodes.",
+  "x-agentic-metro-enterprise": { "node-id": "notes-services-section", "actor": "urn:ame:notes-services-section", "organizational-kind": "circuit-board", "owners": ["articles-services-section"], "owned-services": ["services/note-resource-service"] },
+  "x-capability-recovery": [{ "capability": "typed-note-catalog-and-deposit", "source": "@red-cup-engineering/note-resource-service" }]
+}

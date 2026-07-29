@@ -1,0 +1,9 @@
+{
+  "name": "@red-cup-engineering/content-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Restricts data carriers to content with locator-independent identity and custody.",
+  "x-agentic-metro-enterprise": { "node-id": "content-services-section", "actor": "urn:ame:content-services-section", "organizational-kind": "circuit-board", "owners": ["file-data-services-section"], "owned-services": ["services/documents-services-section"] },
+  "x-capability-recovery": [{ "capability": "semantic-content-identity", "source": "@red-cup-engineering/semantic-content-identify-service" }, { "capability": "immutable-network-byte-custody", "source": "@red-cup-engineering/immutable-content-custody-service" }]
+}

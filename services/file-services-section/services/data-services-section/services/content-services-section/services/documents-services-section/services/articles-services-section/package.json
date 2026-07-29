@@ -1,0 +1,9 @@
+{
+  "name": "@red-cup-engineering/articles-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Restricts document carriers to sustained prose claims with explicit disposition.",
+  "x-agentic-metro-enterprise": { "node-id": "articles-services-section", "actor": "urn:ame:articles-services-section", "organizational-kind": "circuit-board", "owners": ["documents-services-section"], "owned-services": ["services/notes-services-section"] },
+  "x-capability-recovery": [{ "capability": "article-preparation-and-topic-proof-paths", "source": "@red-cup-engineering/organizing-a-knowledge-vault" }]
+}
