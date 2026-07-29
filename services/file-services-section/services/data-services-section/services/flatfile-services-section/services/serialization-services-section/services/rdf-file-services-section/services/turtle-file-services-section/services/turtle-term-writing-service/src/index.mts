@@ -6,7 +6,9 @@
  * escaping (finite numbers and booleans pass through bare). Pure string
  * functions — the RDF primitives any linked-data vocabulary downstream reuses.
  */
-import { type JsonValue } from "../codecs/text/json/core.mjs";
+export type TurtleLiteralValue = null | boolean | number | string | readonly TurtleLiteralValue[] | {
+  readonly [key: string]: TurtleLiteralValue;
+};
 
 /** Write an IRI as a Turtle IRIREF `<...>`. */
 export function iriRef(iri: string): string {
@@ -14,7 +16,7 @@ export function iriRef(iri: string): string {
 }
 
 /** Write a value as a Turtle literal. */
-export function turtleLiteral(value: JsonValue): string {
+export function turtleLiteral(value: TurtleLiteralValue): string {
   if (typeof value === "number" && Number.isFinite(value)) return String(value);
   if (typeof value === "boolean") return value ? "true" : "false";
   const escaped = String(value ?? "")

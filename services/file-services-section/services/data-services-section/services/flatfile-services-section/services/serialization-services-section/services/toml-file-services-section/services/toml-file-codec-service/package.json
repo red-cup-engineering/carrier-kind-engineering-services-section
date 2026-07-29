@@ -1,0 +1,23 @@
+{
+  "name": "@red-cup-engineering/toml-file-codec-service",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Canonical TOML flatfile decode and encode actuator recovered from Relating.",
+  "exports": {
+    ".": {
+      "types": "./src/index.mts",
+      "import": "./src/index.mts"
+    }
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "toml-file-codec-service",
+    "actor": "urn:ame:toml-file-codec-service",
+    "organizational-kind": "capability-cell",
+    "owners": ["toml-file-services-section"],
+    "operation-catalog": {
+      "decode-toml-file-text": { "accepts": "TOML text", "returns": "a TOML value tree" },
+      "encode-toml-file-text": { "accepts": "a TOML value tree", "returns": "canonical TOML text" }
+    }
+  }
+}

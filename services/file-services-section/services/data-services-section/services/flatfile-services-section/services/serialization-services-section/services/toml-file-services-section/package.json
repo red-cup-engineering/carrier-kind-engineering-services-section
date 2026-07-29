@@ -1,0 +1,14 @@
+{
+  "name": "@red-cup-engineering/toml-file-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Proof-path section for TOML flatfile serialization.",
+  "x-agentic-metro-enterprise": {
+    "node-id": "toml-file-services-section",
+    "actor": "urn:ame:toml-file-services-section",
+    "organizational-kind": "circuit-board",
+    "owners": ["serialization-services-section"],
+    "owned-services": ["services/toml-file-codec-service"]
+  }
+}

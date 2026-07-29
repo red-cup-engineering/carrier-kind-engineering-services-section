@@ -34,7 +34,7 @@
     "actor": "urn:ame:semantic-linefeed-normalization-service",
     "organizational-kind": "capability-cell",
     "owners": [
-      "red-cup-engineering"
+      "markdown-file-services-section"
     ],
     "operation-catalog": {
       "normalize-semantic-linefeeds": {

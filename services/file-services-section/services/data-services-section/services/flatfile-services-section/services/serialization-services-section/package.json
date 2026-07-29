@@ -1,0 +1,14 @@
+{
+  "name": "@red-cup-engineering/serialization-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Proof-path section for decoded and encoded flatfile serializations.",
+  "x-agentic-metro-enterprise": {
+    "node-id": "serialization-services-section",
+    "actor": "urn:ame:serialization-services-section",
+    "organizational-kind": "circuit-board",
+    "owners": ["flatfile-services-section"],
+    "owned-services": ["services/toml-file-services-section", "services/rdf-file-services-section"]
+  }
+}
