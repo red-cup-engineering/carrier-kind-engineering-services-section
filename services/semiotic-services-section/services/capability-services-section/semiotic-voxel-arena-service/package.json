@@ -3,14 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Active-only admission law for one causal semiotic-atom transition.",
+  "description": "Active-only admission law for one canonical-RMN-identified network semiotic atom; no voxel persistence.",
   "exports": {
-    ".": "./src/admit-semiotic-atom.mjs"
+    ".": "./src/admit-semiotic-atom.mjs",
+    "./semiotic-atom.schema.json": "./content/schemas/semiotic-atom.schema.json"
   },
+  "files": [
+    "README.md",
+    "content/schemas/semiotic-atom.schema.json",
+    "src/admit-semiotic-atom.mjs"
+  ],
   "scripts": {
     "check": "node --check src/admit-semiotic-atom.mjs",
     "test": "node --test test/*.test.mjs",
-    "verify": "npm run check && npm test"
+    "verify": "npm run check && npm test && npm pack --dry-run"
   },
   "engines": {
     "node": ">=22"
@@ -20,6 +26,12 @@
     "owner": "red-cup-engineering",
     "kind": "capability-cell",
     "actor": "urn:ame:semiotic-voxel-arena-service",
+    "projection": "Package/deployment projection metadata only; never a network atom or boundary carrier.",
+    "boundary-semantics": {
+      "atom": "The canonical-RMN-identified network causal-event record; not an Obsmetrologia Mark, Utterance, or Cell.",
+      "voxel": "Active reconstruction only; never persisted and never crossed over the boundary.",
+      "identity": "The atom id names canonical typed RMN commitment bytes; this package defines neither an Utterance-plus-locus carrier body nor a resolver."
+    },
     "operations": [
       "admit-semiotic-atom"
     ],

@@ -1,9 +1,23 @@
 # Semiotic Voxel arena
 
 This is SXC-M4's first executable boundary.  A semiotic atom is admitted only
-as the next event of an potential arena: its immediate causes must already be in
+as the next event of a potential arena: its immediate causes must already be in
 the current causally closed position, and a `(2,3)` pebble-game judgment must
 accept every proposed contact in that atom's causal cone.
+
+The normative network atom record is
+[`content/schemas/semiotic-atom.schema.json`](content/schemas/semiotic-atom.schema.json):
+exactly `{ id, polarity, parentIds }`.  `id` and every entry of `parentIds` are
+exact RFC 6920 `ni:///sha-256;<43 base64url>` identities.  An atom ID names the
+canonical typed RMN commitment bytes supplied by the caller; this service
+checks the identity's exact syntax but does not invent or resolve the
+unratified Utterance-plus-locus carrier body.
+
+A network semiotic atom is not an Obsmetrologia `Mark`, `Utterance`, or `Cell`.
+“Voxel” names only the active reconstruction made while applying this law.  A
+voxel is never persisted and never crosses the boundary.  Likewise,
+`x-semiotic-voxel` is package/deployment projection metadata only, not the atom,
+an ontology, or a boundary carrier.
 
 The result is a pure transition and an EAVT-shaped boundary transaction
 payload.  It is deliberately neither a stored voxel, a deployment operation,

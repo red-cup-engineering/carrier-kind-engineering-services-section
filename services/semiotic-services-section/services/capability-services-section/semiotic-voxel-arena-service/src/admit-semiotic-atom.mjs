@@ -9,17 +9,38 @@
  * identity and receipt verification belong at the unbuilt A2A/chain seam.
  */
 
-const POLARITIES = new Set(["proponent", "opponent"]);
+import atomSchema from "../content/schemas/semiotic-atom.schema.json" with { type: "json" };
+
+const ATOM_KEYS = [...atomSchema.required].sort();
+const POLARITIES = new Set(atomSchema.properties.polarity.enum);
+const SHA256_NI = new RegExp(atomSchema.properties.id.pattern, "u");
 const PEBBLE_MODEL = "generic-2d-rigidity-(2,3)-pebble-game/v1";
 
 function refusal(reason, detail) {
   return Object.freeze({ kind: "semiotic-voxel-arena-refusal/v1", admitted: false, reason, detail });
 }
 
+function isSha256Ni(value) {
+  return typeof value === "string" && SHA256_NI.test(value);
+}
+
 function uniqueStrings(value) {
   return Array.isArray(value)
     && value.every((item) => typeof item === "string" && item.length > 0)
     && new Set(value).size === value.length;
+}
+
+function isSemioticAtom(value) {
+  return value !== null
+    && typeof value === "object"
+    && !Array.isArray(value)
+    && Object.keys(value).sort().every((key, index) => key === ATOM_KEYS[index])
+    && Object.keys(value).length === ATOM_KEYS.length
+    && isSha256Ni(value.id)
+    && POLARITIES.has(value.polarity)
+    && Array.isArray(value.parentIds)
+    && value.parentIds.every(isSha256Ni)
+    && new Set(value.parentIds).size === value.parentIds.length;
 }
 
 function causalPast(byId, parentIds) {
@@ -54,22 +75,21 @@ function judgmentScopeIsValid(judgment, atomId, cone) {
 /**
  * Admit one atom into an ephemeral causally closed arena position.
  *
- * @param {{ position: { atoms: readonly { id: string, parentIds: readonly string[] }[] }, atom: { id: string, polarity: "proponent"|"opponent", parentIds: readonly string[] }, pebbleJudgment: object }} request
+ * @param {{ position: { atoms: readonly { id: string, polarity: "proponent"|"opponent", parentIds: readonly string[] }[] }, atom: { id: string, polarity: "proponent"|"opponent", parentIds: readonly string[] }, pebbleJudgment: object }} request
  */
 export function admitSemioticAtom(request) {
   if (request === null || typeof request !== "object") return refusal("invalid-request", "request must be an object");
   const { position, atom, pebbleJudgment } = request;
   if (position === null || typeof position !== "object" || !Array.isArray(position.atoms)) return refusal("invalid-position", "position.atoms must be an array");
-  if (atom === null || typeof atom !== "object" || typeof atom.id !== "string" || atom.id.length === 0
-    || !POLARITIES.has(atom.polarity) || !uniqueStrings(atom.parentIds)) {
-    return refusal("invalid-atom", "atom needs a non-empty id, a polarity, and unique parentIds");
+  if (!isSemioticAtom(atom)) {
+    return refusal("invalid-atom", "atom must conform exactly to the exported semiotic-atom schema, including SHA-256 ni identities");
   }
 
   const byId = new Map();
   for (const prior of position.atoms) {
-    if (prior === null || typeof prior !== "object" || typeof prior.id !== "string" || !uniqueStrings(prior.parentIds)
+    if (!isSemioticAtom(prior)
       || byId.has(prior.id) || prior.parentIds.includes(prior.id) || prior.parentIds.some((id) => !byId.has(id))) {
-      return refusal("invalid-position", "position must be a topologically ordered, causally closed event set");
+      return refusal("invalid-position", "position must contain schema-conforming atoms in topological, causally closed order");
     }
     byId.set(prior.id, prior);
   }
