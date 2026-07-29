@@ -3,6 +3,11 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { Message, Role } from "@a2a-js/sdk";
+import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
+import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
+import { executeA2aMessage } from "../bin/execute-a2a-task.mjs";
+import { registrySnapshotProtocol } from "../src/protocol.mjs";
 import { obtainRegistrySnapshot } from "../src/snapshot.mjs";
 
 test("supplies a current snapshot only at its exact private registry face", async () => {
@@ -50,6 +55,29 @@ test("supplies a current snapshot only at its exact private registry face", asyn
     assert.equal(snapshot.packages[0].declarationEvidence.source, "npm-version-metadata");
     assert.match(snapshot.packages[0].declarationEvidence.sha256, /^sha256:[0-9a-f]{64}$/u);
     assert.match(snapshot.npmrc, /@union:registry=http:\/\/registry\.union\.test\//u);
+
+    const request = registrySnapshotProtocol.encodeRequest("obtain-union-package-registry-snapshot", {
+      type: "UnionPackageRegistrySnapshotDemand",
+      requestId: "urn:demand:a2a",
+      registry: "http://registry.union.test/",
+    });
+    const responseMessage = await executeA2aMessage(Message.toJSON({
+      messageId: "urn:message:a2a",
+      contextId: "",
+      taskId: "",
+      role: Role.ROLE_USER,
+      parts: [rmnPart(semanticBytes(request.term))],
+      metadata: {},
+      extensions: [],
+      referenceTaskIds: [],
+    }), {
+      UNION_PACKAGE_REGISTRY_ROOT: root,
+      UNION_PACKAGE_REGISTRY_URL: "http://registry.union.test/",
+    });
+    const response = registrySnapshotProtocol.decodeResponse(decodeSemantic(extractRmnPart(Message.fromJSON(responseMessage).parts).bytes));
+    assert.equal(response.disposition, "accepted");
+    assert.deepEqual(response.result.packages[0]["x-semiotic-voxel"], snapshot.packages[0]["x-semiotic-voxel"]);
+    assert.deepEqual(response.result.packages[0]["x-agentic-metro-enterprise"], snapshot.packages[0]["x-agentic-metro-enterprise"]);
 
     const receiptBound = {
       type: "SemioticVoxelPackageRegistryReceipt",
