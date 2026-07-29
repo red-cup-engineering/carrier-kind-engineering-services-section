@@ -1,0 +1,13 @@
+#lang rmn/v2
+(map
+  ("type" "JsonSchemaServiceHighLevelDesign")
+  ("version" 1)
+  ("architecture" "content/designs/json-schema-service/software-architecture-specification.rml")
+  ("unit" "services/json-schema-service")
+  ("components"
+    ((map ("id" "draft-profile") ("responsibility" "Fix Draft 2020-12 and enumerate the supported keyword vocabulary."))
+     (map ("id" "canonical-creation") ("responsibility" "Construct canonical JSON Schema values without effects."))
+     (map ("id" "bounded-resolver") ("responsibility" "Resolve only explicit corpus $id targets and JSON Pointer fragments."))
+     (map ("id" "validation-judgment") ("responsibility" "Return valid or invalid plus bounded diagnostics without masquerading as a projector read."))
+     (map ("id" "identity-and-census-guard") ("responsibility" "Keep named identity coordinates distinct and register every legacy-artifact disposition."))))
+  ("public-operations" ("createJsonSchema" "resolveJsonSchemaReference" "validateJsonInstance" "censusLegacyArtifacts")))

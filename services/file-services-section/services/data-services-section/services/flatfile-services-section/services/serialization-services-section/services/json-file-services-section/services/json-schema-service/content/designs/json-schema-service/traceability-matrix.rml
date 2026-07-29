@@ -1,0 +1,13 @@
+#lang rmn/v2
+(map
+  ("type" "JsonSchemaServiceTraceabilityMatrix")
+  ("version" 1)
+  ("entries"
+    ((map ("requirement" "JSS-R001") ("case" "JSS-C001") ("evidence" "json-file-services-section package registration and README boundary"))
+     (map ("requirement" "JSS-R002") ("case" "JSS-C002") ("evidence" "future json-schema-service dialect and vocabulary tests"))
+     (map ("requirement" "JSS-R003") ("case" "JSS-C003") ("evidence" "future json-schema-service canonical creation tests"))
+     (map ("requirement" "JSS-R004") ("case" "JSS-C004") ("evidence" "future json-schema-service bounded resolution tests"))
+     (map ("requirement" "JSS-R005") ("case" "JSS-C005") ("evidence" "future json-schema-service validation judgment tests"))
+     (map ("requirement" "JSS-R006") ("case" "JSS-C006") ("evidence" "future json-schema-service identity separation tests"))
+     (map ("requirement" "JSS-R007") ("case" "JSS-C007") ("evidence" "future json-schema-service legacy census tests"))
+     (map ("requirement" "JSS-R008") ("case" "JSS-C008") ("evidence" "future json-schema-service authority-boundary inspection")))))
