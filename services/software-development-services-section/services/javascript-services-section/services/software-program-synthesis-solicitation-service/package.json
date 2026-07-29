@@ -1,0 +1,42 @@
+{
+  "name": "@red-cup-engineering/software-program-synthesis-solicitation-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic software-program-synthesis offer and contract-validation actuator.",
+  "exports": "./src/solicitation.mjs",
+  "scripts": {
+    "check": "node --check src/solicitation.mjs",
+    "test": "node --test test/solicitation.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "software-program-synthesis-solicitation-service",
+    "actor": "urn:ame:software-program-synthesis-solicitation-service",
+    "organizational-kind": "capability-cell",
+    "owners": ["javascript-services-section"],
+    "admission": "one exact provider-addressed synthesis solicitation or contracted offer validation request",
+    "refusal": "noncanonical identities, mismatched provider/law/effects, or an insufficient resource grant",
+    "operation-catalog": {
+      "solicit-software-program-synthesis": {
+        "accepts": "exact software-program-synthesis solicitation with injected provider law and effects",
+        "returns": "one deterministic law-bound synthesis offer or refusal"
+      }
+    }
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "javascript-services-section",
+    "kind": "capability-cell",
+    "actor": "urn:ame:software-program-synthesis-solicitation-service",
+    "operations": ["solicit-software-program-synthesis"],
+    "capabilities": [{
+      "capability": "software-program-synthesis-solicitation-service",
+      "faces": ["solicit-software-program-synthesis"]
+    }],
+    "package": "@red-cup-engineering/software-program-synthesis-solicitation-service"
+  }
+}

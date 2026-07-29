@@ -13,9 +13,9 @@ import {
   type ApiIndexQueryResult,
   type ApiIndexState,
   type ApiIndexSymbol,
-} from "../../material/jsnode-observation/src/api-index-query.mjs";
+} from "../../services/jsnode-observation-service/src/api-index-query.mjs";
 
-export type { ApiIndexPackage, ApiIndexQueryParams, ApiIndexQueryResult, ApiIndexState, ApiIndexSymbol } from "../../material/jsnode-observation/src/api-index-query.mjs";
+export type { ApiIndexPackage, ApiIndexQueryParams, ApiIndexQueryResult, ApiIndexState, ApiIndexSymbol } from "../../services/jsnode-observation-service/src/api-index-query.mjs";
 
 const API_INDEX_PATH = operationsManifoldStatePath("jsnode-api-surface");
 const API_PACKAGE_INDEX_PATH = operationsManifoldStatePath("jsnode-api-surface.packages");
