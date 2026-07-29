@@ -9,6 +9,6 @@
     "actor": "urn:ame:serialization-services-section",
     "organizational-kind": "circuit-board",
     "owners": ["flatfile-services-section"],
-    "owned-services": ["services/json-file-services-section", "services/toml-file-services-section", "services/rdf-file-services-section"]
+    "owned-services": ["services/json-file-services-section", "services/xml-file-services-section", "services/toml-file-services-section", "services/rdf-file-services-section"]
   }
 }
