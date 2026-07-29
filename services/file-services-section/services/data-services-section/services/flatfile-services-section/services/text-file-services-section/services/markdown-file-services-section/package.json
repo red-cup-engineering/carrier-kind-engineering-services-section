@@ -14,6 +14,7 @@
     "owned-services": [
       "services/markdown-file-reading-service",
       "services/markdown-file-writing-service",
+      "services/markdown-file-codec-service",
       "services/semantic-linefeed-normalization-service"
     ]
   },

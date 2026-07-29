@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@red-cup-engineering/markdown-file-reading-service": "0.1.0",
-    "@red-cup-engineering/semantic-linefeed-normalization-service": "0.1.0"
+    "@red-cup-engineering/markdown-file-codec-service": "0.1.0"
   },
   "x-semiotic-voxel": {
     "profile": "org.harmonious-union.semiotic-voxel.v1",

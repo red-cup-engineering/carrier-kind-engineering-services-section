@@ -1,0 +1,32 @@
+{
+  "name": "@red-cup-engineering/markdown-file-codec-service",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Canonical Markdown document codec, structure, feature, validation, edit, diff, HTML, and workbench actuators recovered from MetroPlat.",
+  "exports": { ".": { "types": "./dist/markdown/index.d.mts", "import": "./dist/markdown/index.mjs" } },
+  "scripts": { "build": "tsc -p tsconfig.build.json", "test": "node --test test/*.test.mjs" },
+  "dependencies": {
+    "@red-cup-engineering/json-file-codec-service": "workspace:*",
+    "@red-cup-engineering/toml-file-codec-service": "workspace:*",
+    "@red-cup-engineering/yaml-file-codec-service": "workspace:*",
+    "@red-cup-engineering/xml-file-codec-service": "workspace:*",
+    "@red-cup-engineering/semantic-linefeed-normalization-service": "0.1.0"
+  },
+  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
+  "x-agentic-metro-enterprise": {
+    "node-id": "markdown-file-codec-service",
+    "actor": "urn:ame:markdown-file-codec-service",
+    "organizational-kind": "capability-cell",
+    "owners": ["markdown-file-services-section"],
+    "operation-catalog": {
+      "parse-markdown": { "accepts": "Markdown text", "returns": "frontmatter format, decoded frontmatter, and body" },
+      "create-markdown": { "accepts": "a JSON-shaped document view", "returns": "canonical Markdown text" },
+      "read-markdown-document": { "accepts": "Markdown text and coordinates", "returns": "structure, features, and assertions" },
+      "edit-markdown": { "accepts": "Markdown text and typed edit operations", "returns": "edited text and receipt" },
+      "diff-markdown": { "accepts": "two Markdown texts", "returns": "a Markdown-aware comparison" },
+      "validate-markdown": { "accepts": "Markdown text", "returns": "a validation report" },
+      "render-markdown-html": { "accepts": "a Markdown body", "returns": "safe HTML" }
+    }
+  }
+}

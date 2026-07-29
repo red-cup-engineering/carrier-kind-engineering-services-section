@@ -2,13 +2,13 @@ import { chmod, mkdir, rename, stat, unlink, writeFile } from "node:fs/promises"
 import { basename, dirname, relative } from "node:path";
 import { randomUUID } from "node:crypto";
 import { readMarkdownFile, resolveMarkdownFilePath } from "@red-cup-engineering/markdown-file-reading-service";
-import { normalizeSemanticLinefeeds } from "@red-cup-engineering/semantic-linefeed-normalization-service";
+import { semanticLineBreaks } from "@red-cup-engineering/markdown-file-codec-service";
 
 const MODES = new Set(["create", "replace", "upsert"]);
 
 export function prepareMarkdownFileText(text) {
   if (typeof text !== "string") throw new TypeError("text must be a string");
-  return normalizeSemanticLinefeeds(text);
+  return semanticLineBreaks(text);
 }
 
 async function currentFile(address) {

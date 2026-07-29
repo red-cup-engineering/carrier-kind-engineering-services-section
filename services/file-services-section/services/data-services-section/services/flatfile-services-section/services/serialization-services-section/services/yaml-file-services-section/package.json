@@ -1,0 +1,14 @@
+{
+  "name": "@red-cup-engineering/yaml-file-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Proof-path section for YAML flatfile serialization.",
+  "x-agentic-metro-enterprise": {
+    "node-id": "yaml-file-services-section",
+    "actor": "urn:ame:yaml-file-services-section",
+    "organizational-kind": "circuit-board",
+    "owners": ["serialization-services-section"],
+    "owned-services": ["services/yaml-file-codec-service"]
+  }
+}
