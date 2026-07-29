@@ -3,73 +3,23 @@ import path from "node:path";
 
 import { operationsManifoldStateDir, operationsManifoldStatePath, workspacePackageAliases } from "./package-surface.mts";
 import { boundedInteger } from "./records.mts";
+import {
+  projectApiIndexQuery,
+  requestedApiIndexPackage,
+  resolveApiIndexPackage,
+  stringParam,
+  type ApiIndexPackage,
+  type ApiIndexQueryParams,
+  type ApiIndexQueryResult,
+  type ApiIndexState,
+  type ApiIndexSymbol,
+} from "../../material/jsnode-observation/src/api-index-query.mjs";
+
+export type { ApiIndexPackage, ApiIndexQueryParams, ApiIndexQueryResult, ApiIndexState, ApiIndexSymbol } from "../../material/jsnode-observation/src/api-index-query.mjs";
 
 const API_INDEX_PATH = operationsManifoldStatePath("jsnode-api-surface");
 const API_PACKAGE_INDEX_PATH = operationsManifoldStatePath("jsnode-api-surface.packages");
 const API_PACKAGE_DIR = operationsManifoldStateDir("jsnode-api-surface");
-
-export type ApiIndexSymbol = Readonly<{
-  package: string;
-  packagePath: string;
-  module: string;
-  import: string;
-  file: string;
-  name: string;
-  kind: string;
-  signature: string;
-  documented: boolean;
-}>;
-
-export type ApiIndexPackage = Readonly<{
-  name: string;
-  path: string;
-  aliases: readonly string[];
-  symbols: number;
-}>;
-
-export type ApiIndexState = Readonly<{
-  kind: "operations-manifold.jsnode.api-index";
-  generatedAt: string;
-  source: "package-source-doc-symbols";
-  packages: readonly ApiIndexPackage[];
-  symbols: readonly ApiIndexSymbol[];
-}>;
-
-export type ApiIndexQueryParams = Readonly<{
-  package?: string | undefined;
-  pkg?: string | undefined;
-  focus?: string | undefined;
-  match?: string | undefined;
-  q?: string | undefined;
-  name?: string | undefined;
-  kind?: string | undefined;
-  limit?: string | number | undefined;
-  refresh?: string | boolean | undefined;
-}>;
-
-export type ApiIndexQueryResult = Readonly<{
-  kind: "operations-manifold.jsnode.api-surface";
-  index: Readonly<{
-    path: string;
-    generatedAt: string | null;
-    stale: boolean;
-    packages: number;
-    symbols: number;
-  }>;
-  filters: Readonly<{
-    package?: string;
-    requestedPackage?: string;
-    match?: string;
-    kind?: string;
-    limit: number;
-  }>;
-  totals: Readonly<{
-    matchedSymbols: number;
-  }>;
-  functions: readonly ApiIndexSymbol[];
-  types: readonly ApiIndexSymbol[];
-  symbols: readonly ApiIndexSymbol[];
-}>;
 
 export async function refreshApiIndex(repoRoot: string): Promise<ApiIndexState> {
   const [
@@ -133,7 +83,7 @@ export async function refreshFocusedApiIndex(repoRoot: string, requested: string
     readApiPackages(repoRoot),
     readApiIndex(repoRoot),
   ]);
-  const packageName = resolvePackage({ ...emptyApiIndex(), packages }, requested);
+  const packageName = resolveApiIndexPackage({ ...emptyApiIndex(), packages }, requested);
   const workspace = [...eachWorkspacePackageDir(repoRoot)].find((pkg) => pkg.name === packageName || workspacePackageAliases(pkg.name, path.relative(repoRoot, pkg.dir).split(path.sep).join("/")).includes(requested));
   if (workspace === undefined) return refreshApiIndex(repoRoot);
 
@@ -158,43 +108,15 @@ export async function refreshFocusedApiIndex(repoRoot: string, requested: string
 export async function queryApiIndex(repoRoot: string, params: ApiIndexQueryParams = {}): Promise<ApiIndexQueryResult> {
   const shouldRefresh = params.refresh === true || params.refresh === "true" || params.refresh === "1";
   const limit = boundedInteger(params.limit, { min: 1, max: 500, fallback: 80 });
-  const requestedPackage = stringParam(params.package ?? params.pkg ?? params.focus);
+  const requestedPackage = requestedApiIndexPackage(params);
   const state = shouldRefresh
     ? await refreshApiIndex(repoRoot)
     : requestedPackage === undefined
       ? await readApiIndex(repoRoot)
       : await readFocusedApiIndex(repoRoot, requestedPackage);
-  const packageName = requestedPackage === undefined ? undefined : resolvePackage(state, requestedPackage);
   const match = stringParam(params.match ?? params.q ?? params.name);
   const kind = stringParam(params.kind);
-  const matched = state.symbols
-    .filter((symbol) => packageName === undefined || symbol.package === packageName)
-    .filter((symbol) => kind === undefined || symbol.kind === kind)
-    .filter((symbol) => match === undefined || symbolMatches(symbol, match));
-  const functions = Object.freeze(matched.filter((symbol) => symbol.kind === "function").slice(0, limit));
-  const types = Object.freeze(matched.filter((symbol) => symbol.kind !== "function" && symbol.kind !== "variable").slice(0, limit));
-  const symbols = Object.freeze(matched.slice(0, limit));
-  return Object.freeze({
-    kind: "operations-manifold.jsnode.api-surface" as const,
-    index: Object.freeze({
-      path: API_INDEX_PATH,
-      generatedAt: state.generatedAt === "" ? null : state.generatedAt,
-      stale: state.generatedAt === "",
-      packages: state.packages.length,
-      symbols: state.symbols.length,
-    }),
-    filters: Object.freeze({
-      ...(packageName === undefined ? {} : { package: packageName }),
-      ...(requestedPackage === undefined ? {} : { requestedPackage }),
-      ...(match === undefined ? {} : { match }),
-      ...(kind === undefined ? {} : { kind }),
-      limit,
-    }),
-    totals: Object.freeze({ matchedSymbols: matched.length }),
-    functions,
-    types,
-    symbols,
-  });
+  return projectApiIndexQuery(state, { indexPath: API_INDEX_PATH, requestedPackage, match, kind, limit });
 }
 
 export async function readApiIndex(repoRoot: string): Promise<ApiIndexState> {
@@ -208,7 +130,7 @@ export async function readApiIndex(repoRoot: string): Promise<ApiIndexState> {
 
 export async function readFocusedApiIndex(repoRoot: string, requested: string): Promise<ApiIndexState> {
   const packages = await readApiPackages(repoRoot);
-  const packageName = resolvePackage({ ...emptyApiIndex(), packages }, requested);
+  const packageName = resolveApiIndexPackage({ ...emptyApiIndex(), packages }, requested);
   if (packageName === undefined) {
     return Object.freeze({ ...emptyApiIndex(), packages });
   }
@@ -346,63 +268,6 @@ function emptyApiIndex(): ApiIndexState {
   });
 }
 
-function stringParam(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim() !== "" ? value.trim() : undefined;
-}
-
-function resolvePackage(state: ApiIndexState, requested: string): string | undefined {
-  for (const pkg of state.packages) {
-    if (pkg.aliases.includes(requested)) return pkg.name;
-  }
-  return undefined;
-}
-
-function symbolMatches(symbol: ApiIndexSymbol, match: string): boolean {
-  const needles = queryTerms(match);
-  if (needles.length === 0) return false;
-  const terms = surfaceTerms([
-    symbol.name,
-    symbol.kind,
-    symbol.signature,
-    symbol.import,
-    symbol.file,
-    symbol.package,
-    symbol.packagePath,
-    symbol.module,
-  ]);
-  return needles.some((needle) => terms.some((term) => termMatches(term, needle)));
-}
-
 function compactText(value: string, max = 260): string {
   return value.length <= max ? value : `${value.slice(0, Math.max(0, max - 1))}...`;
-}
-
-function queryTerms(value: string): readonly string[] {
-  return Object.freeze([...new Set(identifierTerms(value)
-    .map(normalizeTerm)
-    .filter((term) => term.length >= 3)
-    .filter((term) => /[a-z]/u.test(term)))]);
-}
-
-function surfaceTerms(values: readonly string[]): readonly string[] {
-  return Object.freeze([...new Set(values.flatMap(identifierTerms).map(normalizeTerm).filter((term) => term !== ""))]);
-}
-
-function identifierTerms(value: string): readonly string[] {
-  return Object.freeze(value
-    .replace(/([a-z0-9])([A-Z])/gu, "$1 $2")
-    .replace(/([A-Z]+)([A-Z][a-z])/gu, "$1 $2")
-    .toLowerCase()
-    .split(/[^a-z0-9]+/u)
-    .filter((term) => term !== ""));
-}
-
-function normalizeTerm(term: string): string {
-  if (term.endsWith("ies") && term.length > 5) return `${term.slice(0, -3)}y`;
-  if (term.endsWith("s") && term.length > 4 && !term.endsWith("ss")) return term.slice(0, -1);
-  return term;
-}
-
-function termMatches(term: string, needle: string): boolean {
-  return term === needle || (needle.length >= 4 && term.startsWith(needle));
 }
