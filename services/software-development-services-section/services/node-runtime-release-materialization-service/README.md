@@ -5,6 +5,7 @@ The directory name is the SHA-256 digest of the runtime files, and `release-rece
 
 It deliberately does not run a package manager or discover neighboring packages.
 A release therefore cannot silently repair an undeclared import by consulting ambient workspace links.
+Materialization and verification also resolve every observed bare runtime import through the packaged manifest and refuse an absent or unexported runtime carrier.
 
 The provider file is a JSON object from package identity to explicitly admitted source directory:
 

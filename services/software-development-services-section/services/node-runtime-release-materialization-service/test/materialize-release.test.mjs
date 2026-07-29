@@ -81,6 +81,57 @@ test("refuses stale build output that imports a package absent from the admitted
   }
 });
 
+test("refuses an admitted package whose runtime export carrier is absent", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-runtime-export-refusal-"));
+  try {
+    const app = join(root, "workspace", "app");
+    const library = join(root, "workspace", "library");
+    await mkdir(join(app, "src"), { recursive: true });
+    await mkdir(join(library, "dist", "types"), { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({ name: "@test/app", version: "1.0.0", dependencies: { "@test/library": "1.0.0" } }));
+    await writeFile(join(app, "src", "server.mts"), 'import "@test/library";\n');
+    await writeFile(join(library, "package.json"), JSON.stringify({
+      name: "@test/library",
+      version: "1.0.0",
+      files: ["dist"],
+      exports: { ".": { types: "./dist/types/index.d.ts", default: "./dist/runtime/index.mjs" } },
+    }));
+    await writeFile(join(library, "dist", "types", "index.d.ts"), "export {};\n");
+    await assert.rejects(
+      materializeNodeRuntimeRelease({ entryPackageDirectory: app, providerSources: { "@test/library": library }, outputRoot: join(root, "releases") }),
+      /runtime import closure is missing @test\/library export \. -> \.\/dist\/runtime\/index\.mjs/u,
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("verification identifies a runtime export carrier removed from a release", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-runtime-export-verification-"));
+  try {
+    const app = join(root, "workspace", "app");
+    const library = join(root, "workspace", "library");
+    await mkdir(join(app, "src"), { recursive: true });
+    await mkdir(join(library, "dist"), { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({ name: "@test/app", version: "1.0.0", dependencies: { "@test/library": "1.0.0" } }));
+    await writeFile(join(app, "src", "server.mts"), 'import "@test/library";\n');
+    await writeFile(join(library, "package.json"), JSON.stringify({ name: "@test/library", version: "1.0.0", files: ["dist"], exports: "./dist/index.mjs" }));
+    await writeFile(join(library, "dist", "index.mjs"), "export {};\n");
+    const release = await materializeNodeRuntimeRelease({ entryPackageDirectory: app, providerSources: { "@test/library": library }, outputRoot: join(root, "releases") });
+    await rm(join(release.releaseDirectory, "app", "node_modules", "@test", "library", "dist", "index.mjs"));
+    const observation = await verifyNodeRuntimeRelease(release.releaseDirectory);
+    assert.equal(observation.ok, false);
+    assert.deepEqual(observation.unresolvedRuntimePackages, ["@test/library"]);
+    assert.deepEqual(observation.unresolvedRuntimeTargets["@test/library"], [{
+      specifier: "@test/library",
+      subpath: ".",
+      target: "./dist/index.mjs",
+    }]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("materializes a proof-carried catalog and normalizes only the fabricated dependency edge", async () => {
   const root = await mkdtemp(join(tmpdir(), "node-release-catalog-"));
   try {

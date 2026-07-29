@@ -16,6 +16,10 @@ async function exists(path) {
   try { await stat(path); return true; } catch (error) { if (error?.code === "ENOENT") return false; throw error; }
 }
 
+async function isFile(path) {
+  try { return (await stat(path)).isFile(); } catch (error) { if (error?.code === "ENOENT") return false; throw error; }
+}
+
 async function copyTree(source, target) {
   const info = await stat(source);
   if (info.isDirectory()) {
@@ -105,6 +109,62 @@ function packageName(specifier) {
   return specifier.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0];
 }
 
+const ACTIVE_EXPORT_CONDITIONS = new Set(["default", "import", "node", "node-addons"]);
+
+function exportedSubpath(dependency, specifier) {
+  return specifier === dependency ? "." : `./${specifier.slice(dependency.length + 1)}`;
+}
+
+function conditionalExportTarget(target, patternMatch = null) {
+  if (typeof target === "string") return patternMatch === null ? target : target.replaceAll("*", patternMatch);
+  if (Array.isArray(target)) {
+    for (const candidate of target) {
+      const resolved = conditionalExportTarget(candidate, patternMatch);
+      if (resolved !== null) return resolved;
+    }
+    return null;
+  }
+  if (target === null || typeof target !== "object") return null;
+  for (const [condition, candidate] of Object.entries(target)) {
+    if (!ACTIVE_EXPORT_CONDITIONS.has(condition)) continue;
+    const resolved = conditionalExportTarget(candidate, patternMatch);
+    if (resolved !== null) return resolved;
+  }
+  return null;
+}
+
+function packageExportTarget(manifest, subpath) {
+  const exports = manifest.exports;
+  if (exports === undefined) return subpath === "." ? (manifest.main ?? "./index.js") : subpath;
+  if (typeof exports === "string" || Array.isArray(exports)) return subpath === "." ? conditionalExportTarget(exports) : null;
+  if (exports === null || typeof exports !== "object") return null;
+  const keys = Object.keys(exports);
+  if (!keys.some((key) => key.startsWith("."))) return subpath === "." ? conditionalExportTarget(exports) : null;
+  if (Object.hasOwn(exports, subpath)) return conditionalExportTarget(exports[subpath]);
+  const patterns = keys.filter((key) => key.includes("*") && key.startsWith("./"))
+    .map((key) => {
+      const [prefix, suffix] = key.split("*", 2);
+      if (!subpath.startsWith(prefix) || !subpath.endsWith(suffix) || subpath.length < prefix.length + suffix.length) return null;
+      return { key, prefix, suffix, match: subpath.slice(prefix.length, subpath.length - suffix.length) };
+    })
+    .filter(Boolean)
+    .sort((left, right) => right.prefix.length - left.prefix.length || right.suffix.length - left.suffix.length);
+  return patterns.length === 0 ? null : conditionalExportTarget(exports[patterns[0].key], patterns[0].match);
+}
+
+async function runtimeExportExists(packageDirectory, manifest, subpath) {
+  const target = packageExportTarget(manifest, subpath);
+  if (typeof target !== "string" || !target.startsWith("./")) return { target, exists: false };
+  const targetPath = resolve(packageDirectory, target);
+  if (!inside(packageDirectory, targetPath)) return { target, exists: false };
+  if (await isFile(targetPath)) return { target, exists: true };
+  if (manifest.exports !== undefined) return { target, exists: false };
+  for (const fallback of [`${targetPath}.js`, `${targetPath}.json`, `${targetPath}.node`, join(targetPath, "index.js"), join(targetPath, "index.json"), join(targetPath, "index.node")]) {
+    if (await isFile(fallback)) return { target: `./${relative(packageDirectory, fallback)}`, exists: true };
+  }
+  return { target, exists: false };
+}
+
 async function unresolvedRuntimeImports(root, admittedAbsent = new Set()) {
   const observed = new Map();
   async function visit(directory) {
@@ -127,11 +187,13 @@ async function unresolvedRuntimeImports(root, admittedAbsent = new Set()) {
         for (const pattern of patterns) {
           for (const match of source.matchAll(pattern)) {
             const literal = /^__SXC_STRING_(\d+)__$/u.exec(match[1]);
-            const dependency = packageName(literal ? literals[Number(literal[1])] : match[1]);
+            const specifier = literal ? literals[Number(literal[1])] : match[1];
+            const dependency = packageName(specifier);
             if (dependency) {
-              const carriers = observed.get(dependency) ?? new Set();
-              carriers.add(relative(root, path));
-              observed.set(dependency, carriers);
+              const observation = observed.get(dependency) ?? { carriers: new Set(), specifiers: new Set() };
+              observation.carriers.add(relative(root, path));
+              observation.specifiers.add(specifier);
+              observed.set(dependency, observation);
             }
           }
         }
@@ -142,11 +204,32 @@ async function unresolvedRuntimeImports(root, admittedAbsent = new Set()) {
   const unresolved = [];
   for (const dependency of [...observed.keys()].sort()) {
     if (admittedAbsent.has(dependency)) continue;
-    if (!(await exists(join(root, "app", "node_modules", ...dependency.split("/"), "package.json")))) {
-      unresolved.push({ packageName: dependency, carriers: [...observed.get(dependency)].sort() });
+    const observation = observed.get(dependency);
+    const packageDirectory = join(root, "app", "node_modules", ...dependency.split("/"));
+    const manifestPath = join(packageDirectory, "package.json");
+    if (!(await exists(manifestPath))) {
+      unresolved.push({ packageName: dependency, carriers: [...observation.carriers].sort(), specifiers: [...observation.specifiers].sort(), missingTargets: [] });
+      continue;
+    }
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    const missingTargets = [];
+    for (const specifier of [...observation.specifiers].sort()) {
+      const subpath = exportedSubpath(dependency, specifier);
+      const resolution = await runtimeExportExists(packageDirectory, manifest, subpath);
+      if (!resolution.exists) missingTargets.push({ specifier, subpath, target: resolution.target });
+    }
+    if (missingTargets.length > 0) {
+      unresolved.push({ packageName: dependency, carriers: [...observation.carriers].sort(), specifiers: [...observation.specifiers].sort(), missingTargets });
     }
   }
   return unresolved;
+}
+
+function unresolvedRuntimeImportDescription({ packageName: dependency, carriers, missingTargets }) {
+  const targetDescription = missingTargets.length === 0
+    ? "package manifest"
+    : missingTargets.map(({ subpath, target }) => `export ${subpath} -> ${target ?? "<unexported>"}`).join("+");
+  return `${dependency} ${targetDescription} imported by ${carriers.join("+")}`;
 }
 
 export async function verifyNodeRuntimeRelease(releaseDirectory) {
@@ -163,6 +246,7 @@ export async function verifyNodeRuntimeRelease(releaseDirectory) {
     byteCount: observed.byteCount,
     unresolvedRuntimePackages,
     unresolvedRuntimeCarriers: Object.fromEntries(unresolvedRuntimeImportsObserved.map(({ packageName, carriers }) => [packageName, carriers])),
+    unresolvedRuntimeTargets: Object.fromEntries(unresolvedRuntimeImportsObserved.map(({ packageName, missingTargets }) => [packageName, missingTargets])),
   };
 }
 
@@ -230,7 +314,7 @@ export async function materializeNodeRuntimeRelease({ entryPackageDirectory, pro
     packages.sort((left, right) => left.name.localeCompare(right.name));
     const unresolved = await unresolvedRuntimeImports(temporary, optionalRuntimePackagesAbsent);
     if (unresolved.length > 0) {
-      throw new Error(`runtime import closure is missing ${unresolved.map(({ packageName, carriers }) => `${packageName} imported by ${carriers.join("+")}`).join(", ")}`);
+      throw new Error(`runtime import closure is missing ${unresolved.map(unresolvedRuntimeImportDescription).join(", ")}`);
     }
     const artifact = await artifactDigest(temporary);
     const artifactDigestValue = artifact.digest;
