@@ -6,14 +6,16 @@
   "description": "Circuit board for bounded JavaScript/Node.js software-development actuators; it owns no aggregate runtime.",
   "exports": {
     ".": "./src/discover-services.mjs",
-    "./discovery": "./src/discover-services.mjs"
+    "./discovery": "./src/discover-services.mjs",
+    "./measurement": "./src/measure-codebase.mjs"
   },
   "bin": {
-    "discover-jsnode-software-services": "./bin/discover-services.mjs"
+    "discover-jsnode-software-services": "./bin/discover-services.mjs",
+    "measure-jsnode-codebase": "./bin/measure-codebase.mjs"
   },
   "scripts": {
-    "check": "node --check src/discover-services.mjs && node --check bin/discover-services.mjs",
-    "test": "node --test test/discover-services.test.mjs",
+    "check": "node --check src/discover-services.mjs && node --check src/measure-codebase.mjs && node --check bin/discover-services.mjs && node --check bin/measure-codebase.mjs",
+    "test": "node --test test/discover-services.test.mjs test/measure-codebase.test.mjs",
     "verify": "npm run check && npm test"
   },
   "x-agentic-metro-enterprise": {
@@ -21,16 +23,33 @@
     "actor": "urn:ame:jsnode-software-development-services-section",
     "organizational-kind": "circuit-board",
     "owner": "software-development-services-section",
-    "admission": "one exact child actuator operation with explicit source, target, and writable artifact scope",
-    "refusal": "ambient workspace authority, implicit package selection, local dependency installation, or aggregate runtime"
+    "admission": "one exact child actuator operation or explicit bounded codebase root",
+    "refusal": "ambient workspace authority, implicit package selection, local dependency installation, aggregate runtime, or automatic source mutation",
+    "operation-catalog": {
+      "measure-jsnode-codebase": {
+        "accepts": "one explicit existing codebase root",
+        "returns": "deterministic source-cost and exact-normalized-duplicate projection",
+        "next-actuator": "function-movement-service|none",
+        "write-authority": "receiver-only"
+      }
+    }
   },
   "x-semiotic-voxel": {
     "profile": "org.harmonious-union.semiotic-voxel.v1",
     "owner": "software-development-services-section",
     "kind": "actor",
     "actor": "urn:ame:jsnode-software-development-services-section",
-    "operations": [],
-    "capabilities": [],
+    "operations": [
+      "measure-jsnode-codebase"
+    ],
+    "capabilities": [
+      {
+        "capability": "jsnode-codebase-measurement",
+        "faces": [
+          "measure-jsnode-codebase"
+        ]
+      }
+    ],
     "package": "@red-cup-engineering/jsnode-software-development-services-section"
   }
 }

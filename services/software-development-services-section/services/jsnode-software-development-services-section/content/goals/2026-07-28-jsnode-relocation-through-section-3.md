@@ -54,5 +54,9 @@ three steps; it requires a separately identified external semioverse boundary.
 
 The deterministic edit actuator has been moved into this section while keeping
 the package name `@red-cup-engineering/software-edit-language-service`.
-`function-movement-service` is the first new composition seam and has three
-passing tests.
+`function-movement-service` is the first new composition seam. The mission,
+program-synthesis, and bounded-command actuators now reside as direct section
+children with their package identities preserved. The section also projects
+explicit codebase cost and exact-normalized duplicate observations; those
+observations never mutate source and can only feed the bounded function-move
+and accepted-delivery path after a human chooses a consolidation.

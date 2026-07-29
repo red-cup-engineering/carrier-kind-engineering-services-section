@@ -6,8 +6,14 @@ import { discoverJsnodeServices } from "../src/discover-services.mjs";
 
 const sectionRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-test("fresh discovery resolves the moved edit actuator and function movement actuator", () => {
+test("fresh discovery resolves every admitted JSNode actuator", () => {
   const result = discoverJsnodeServices(sectionRoot);
   assert.deepEqual(result.refusals, []);
-  assert.deepEqual(result.services.map(({ nodeId }) => nodeId), ["function-movement-service", "software-edit-language-service"]);
+  assert.deepEqual(result.services.map(({ nodeId }) => nodeId), [
+    "function-movement-service",
+    "sandbox-command-execution-service",
+    "software-edit-language-service",
+    "software-mission-execution-service",
+    "software-program-synthesis-service",
+  ]);
 });

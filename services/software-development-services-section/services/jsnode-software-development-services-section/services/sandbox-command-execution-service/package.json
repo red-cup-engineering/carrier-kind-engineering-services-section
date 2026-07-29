@@ -12,7 +12,7 @@
     "actor": "urn:ame:sandbox-command-execution-service",
     "organizational-kind": "sovereign-software-development-die",
     "owners": [
-      "software-development-services-section"
+      "jsnode-software-development-services-section"
     ],
     "membrane": {
       "law": "lib/",
@@ -31,7 +31,7 @@
   },
   "x-semiotic-voxel": {
     "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
+    "owner": "jsnode-software-development-services-section",
     "kind": "capability-cell",
     "actor": "urn:ame:sandbox-command-execution-service",
     "operations": [

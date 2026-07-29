@@ -44,7 +44,7 @@
     "actor": "urn:ame:software-program-synthesis-service",
     "organizational-kind": "software-program-circuit-provider",
     "owners": [
-      "software-development-services-section"
+      "jsnode-software-development-services-section"
     ],
     "admission": "one canonical RMN/CBOR SoftwareProgramSynthesisRequest received through the hired A2A 1.0 provider",
     "refusal": "unbounded territory, unknown acceptance gates, cyclic or spatially unsound layout, noncanonical identity, customer-package import, or direct JSON/local-process customer invocation",
@@ -72,7 +72,7 @@
   },
   "x-semiotic-voxel": {
     "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
+    "owner": "jsnode-software-development-services-section",
     "kind": "capability-cell",
     "actor": "urn:ame:software-program-synthesis-service",
     "operations": [
