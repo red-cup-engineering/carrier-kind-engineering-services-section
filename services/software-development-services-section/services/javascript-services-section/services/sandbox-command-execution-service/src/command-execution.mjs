@@ -1,13 +1,6 @@
-// Real workspace operations: apply a unified diff, run a command, capture results.
+// One effectful operation: execute one already-admitted command and capture its result.
 import { spawnSync } from "node:child_process";
-import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-
-function directArguments(command) {
-  const parts = String(command || "").trim().split(/\s+/u).filter(Boolean);
-  return parts.length > 0 && parts.every((part) => /^[A-Za-z0-9_./:@=+,%-]+$/u.test(part)) ? parts : null;
-}
+import { directArguments, normalizeCommandResult, normalizeVerificationResult } from "../../../lib/material/sandbox-command-execution-normalization/src/command-normalization.mjs";
 
 export function runCommand(command, { cwd, shell = "auto", signal } = {}) {
   if (signal?.aborted) throw signal.reason ?? new Error("command execution cancelled by customer");
@@ -24,30 +17,10 @@ export function runCommand(command, { cwd, shell = "auto", signal } = {}) {
   const res = argv
     ? spawnSync(argv[0], argv.slice(1), { cwd, shell: false, encoding: "utf8", maxBuffer: Number.POSITIVE_INFINITY, env: childEnvironment })
     : spawnSync(command, { cwd, shell: shell === false ? false : true, encoding: "utf8", maxBuffer: Number.POSITIVE_INFINITY, env: childEnvironment });
-  return {
-    code: res.status,
-    stdout: res.stdout || "",
-    stderr: res.stderr || "",
-    error: res.error?.message || "",
-    cancelled: res.signal !== null && res.status === null,
-  };
-}
-
-// Apply a unified diff in `workdir` via `git apply`. Returns { ok, error }.
-export function applyUnifiedDiff(workdir, patch) {
-  if (!patch || !patch.trim()) return { ok: false, error: "empty patch" };
-  const dir = mkdtempSync(join(tmpdir(), "fcdev-"));
-  const patchFile = join(dir, "change.patch");
-  writeFileSync(patchFile, patch.endsWith("\n") ? patch : patch + "\n");
-  // --3way lets git fall back to a merge when context is slightly off.
-  const res = spawnSync("git", ["-C", workdir, "apply", "--3way", "--whitespace=nowarn", patchFile], { encoding: "utf8" });
-  rmSync(dir, { recursive: true, force: true });
-  if (res.status === 0) return { ok: true };
-  return { ok: false, error: (res.stderr || res.stdout || `git apply exited ${res.status}`).trim() };
+  return normalizeCommandResult(res);
 }
 
 // Run a test/verify command; passed = exit code 0.
 export function runTestsCommand(workdir, command, opts = {}) {
-  const r = runCommand(command, { cwd: workdir, ...opts });
-  return { passed: r.code === 0, output: `exit=${r.code}\n${r.stdout}\n${r.stderr}\n${r.error}` };
+  return normalizeVerificationResult(runCommand(command, { cwd: workdir, ...opts }));
 }

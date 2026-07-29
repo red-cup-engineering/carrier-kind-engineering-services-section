@@ -5,7 +5,9 @@
   "type": "module",
   "exports": "./src/command-execution.mjs",
   "scripts": {
-    "test": "node --test"
+    "check": "node --check src/command-execution.mjs",
+    "test": "node --test test/command-execution.test.mjs",
+    "verify": "npm run check && npm test"
   },
   "x-agentic-metro-enterprise": {
     "node-id": "sandbox-command-execution-service",

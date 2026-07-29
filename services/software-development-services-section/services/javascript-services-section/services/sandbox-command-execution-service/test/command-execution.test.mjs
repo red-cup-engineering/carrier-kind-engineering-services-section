@@ -1,18 +1,9 @@
 import assert from "node:assert/strict";
-import { chmodSync, mkdirSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
-import { applyUnifiedDiff, runTestsCommand } from "../src/command-execution.mjs";
-
-test("applyUnifiedDiff retires its temporary patch directory after a refused patch", () => {
-  const ownedTemporary = (name) => /^fcdev-[A-Za-z0-9]{6}$/u.test(name);
-  const before = new Set(readdirSync(tmpdir()).filter(ownedTemporary));
-  const result = applyUnifiedDiff(tmpdir(), "this is not a unified diff\n");
-  const created = readdirSync(tmpdir()).filter((name) => ownedTemporary(name) && !before.has(name));
-  assert.equal(result.ok, false);
-  assert.deepEqual(created, []);
-});
+import { runTestsCommand } from "../src/command-execution.mjs";
 
 test("nested node test verification executes instead of inheriting recursive-run suppression", () => {
   const root = mkdtempSync(join(tmpdir(), "union-executor-nested-test-"));
