@@ -13,6 +13,21 @@ case "${1-}" in -C|--git-dir|--work-tree|--exec-path|--config-env|-c|--bare|--na
 
 command_name=${1-}
 
+# Ambient staging is the failure mode this ingress exists to eliminate. Git
+# settlement receives an explicit filesystem-custody receipt and stages only
+# the named witnessed path through settle-filesystem-receipt.mjs. Keep this
+# guard as a hard migration boundary, not a convention.
+if [ "$command_name" = add ]; then
+  for argument in "$@"; do
+    case "$argument" in
+      -A|--all|.|\*)
+        echo "git contracted ingress refused: ambient staging is forbidden; settle a filesystem custody receipt" >&2
+        exit 126
+        ;;
+    esac
+  done
+fi
+
 # Serialized mutation face (Leader order 2026-07-26: committing must be
 # possible; extended 2026-07-26 to push). The hazard the raw-git ban answered
 # was concurrent agents mutating the repository at once; this face admits
