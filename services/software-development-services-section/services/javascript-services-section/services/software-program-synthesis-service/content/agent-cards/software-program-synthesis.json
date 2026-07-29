@@ -141,25 +141,6 @@
   ],
   "skills": [
     {
-      "id": "solicit-software-program-synthesis",
-      "name": "Solicit software program synthesis",
-      "description": "Return one provider-authored offer bound to an exact synthesis request and the current synthesis law.",
-      "tags": [
-        "software",
-        "program",
-        "circuit",
-        "rmn"
-      ],
-      "examples": [],
-      "inputModes": [
-        "application/rmn+cbor"
-      ],
-      "outputModes": [
-        "application/rmn+cbor"
-      ],
-      "securityRequirements": []
-    },
-    {
       "id": "invoke-software-program-synthesis",
       "name": "Invoke contracted software program synthesis",
       "description": "Validate one accepted offer and resource grant, then compile, assay, and execute the bounded mission circuit.",

@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "Sovereign die that synthesizes a bounded software mission circuit, assays its causal-spatial layout, and hires mission-execution dies through A2A.",
+  "description": "One-effect A2A cell that executes a contracted bounded software mission circuit; the inherited runProgram aggregate remains a separate recovery defect.",
   "exports": {
     ".": "./src/client.mjs",
     "./client": "./src/client.mjs",
@@ -49,15 +49,6 @@
     "admission": "one canonical RMN/CBOR SoftwareProgramSynthesisRequest received through the hired A2A 1.0 provider",
     "refusal": "unbounded territory, unknown acceptance gates, cyclic or spatially unsound layout, noncanonical identity, customer-package import, or direct JSON/local-process customer invocation",
     "operation-catalog": {
-      "solicit-software-program-synthesis": {
-        "contract": "content/contracts/software-program-synthesis.rml",
-        "protocols": [
-          "RMN",
-          "A2A 1.0"
-        ],
-        "returns": "SoftwareProgramSynthesisOffer|refusal",
-        "legacyCompatibility": false
-      },
       "invoke-software-program-synthesis": {
         "contract": "content/contracts/software-program-synthesis.rml",
         "protocols": [
@@ -75,17 +66,11 @@
     "owner": "javascript-services-section",
     "kind": "capability-cell",
     "actor": "urn:ame:software-program-synthesis-service",
-    "operations": [
-      "invoke-software-program-synthesis",
-      "solicit-software-program-synthesis"
-    ],
+    "operations": ["invoke-software-program-synthesis"],
     "capabilities": [
       {
         "capability": "software-program-synthesis-service",
-        "faces": [
-          "invoke-software-program-synthesis",
-          "solicit-software-program-synthesis"
-        ]
+        "faces": ["invoke-software-program-synthesis"]
       }
     ],
     "package": "@red-cup-engineering/software-program-synthesis-service"
