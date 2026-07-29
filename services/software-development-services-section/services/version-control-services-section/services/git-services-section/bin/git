@@ -80,7 +80,7 @@ case "$command_name" in
         -c user.email=morgan.sennhauser@gmail.com \
         -C "$physical_pwd" "$@"
     ;;
-  push)
+  push|ls-remote)
     lock_dir="$service_root/data"
     mkdir -p "$lock_dir"
     token=$(gh auth token 2>/dev/null || true)
@@ -106,7 +106,7 @@ case "$command_name" in
 esac
 
 case "$command_name" in
-  status|diff|log|show|rev-parse|ls-files|ls-tree|cat-file|merge-base|diff-tree|diff-index|name-rev|describe) ;;
+  status|diff|log|show|rev-parse|ls-files|ls-tree|ls-remote|cat-file|merge-base|diff-tree|diff-index|name-rev|describe) ;;
   branch)
     case "${2-}" in ""|--list|--show-current) ;; *) echo "git contracted ingress refused: branch mutation not admitted by this ingress" >&2; exit 126;; esac
     ;;
