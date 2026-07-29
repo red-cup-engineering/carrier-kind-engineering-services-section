@@ -1,0 +1,42 @@
+{
+  "name": "@emsenn/organizing-with-openai-codex-in-vs-code",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Organizing with OpenAI Codex inside VS Code: cockpit panels, command routes, MCP/LSP attachments, and readiness checks downstream of the Codex organizing package.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "pnpm run rebuild",
+    "rebuild": "pnpm run clean && pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@emsenn/organizing-with-openai-codex": "workspace:*",
+    "@emsenn/organizing-with-vscode-agents": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "sideEffects": false,
+  "keywords": [
+    "decommissioned"
+  ]
+}

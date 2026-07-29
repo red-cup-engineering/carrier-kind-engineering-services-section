@@ -1,0 +1,32 @@
+export {
+  OPERATIONS_MANIFOLD_HUB,
+  cliHarnessTerm,
+  mcpServerTerm,
+  hookTerm,
+  settingTerm,
+  profileTerm,
+  hubTerm,
+  isHarnessPredicate,
+  isCodexPredicate,
+  hasMcpServerPredicate,
+  pointsAtPredicate,
+  firesHookPredicate,
+  hasSettingPredicate,
+  hasProfilePredicate,
+  canonicalizeCodexCliHarnessAction,
+  canonicalizeCodexCliHarnessTopologyAction,
+  codexCliHarness,
+  induceCodexCliHarnessTopology,
+  extendCodexCliHarnessTopology,
+  induceHarnessInstanceTopology,
+  actions,
+} from "./codex-cli-harness-topology.mjs";
+
+export type {
+  McpServerInput,
+  CodexCliHarnessInput,
+  ResolvedMcpServer,
+  CodexCliHarnessCarrier,
+  CodexCliHarnessTopologyCarrier,
+  UtteranceCarrier,
+} from "./codex-cli-harness-topology.mjs";
