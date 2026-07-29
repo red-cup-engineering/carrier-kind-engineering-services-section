@@ -78,24 +78,32 @@ export function projectClaudeHarness({ policyPath, repoRoot, target = repoRoot, 
   return Object.freeze({ actor: policy.actor, target, colleagues: colleagueIds(policy), receipts, dryRun });
 }
 
-// The exact-roster check the same way harness parity is checked elsewhere in
-// this corpus: the manifest at target must name exactly the policy's
-// colleagues, and every named agent file must actually exist.
+// The roster-coverage check: the manifest and .claude/agents/ at target must
+// each name every one of the policy's colleagues. This is deliberately a
+// subset check, not exact-set equality — .claude/agents/ is one shared
+// directory a node's whole roster of independent offices and enterprises
+// populates, not a location this one policy owns exclusively. An entry this
+// policy did not name is another office's installed colleague, never this
+// policy's drift to flag.
 export function checkExactRoster({ policyPath, repoRoot, target = repoRoot }) {
   repoRoot = resolve(repoRoot);
   target = resolve(target);
   const policy = loadPolicy(resolve(policyPath));
   const expected = [...colleagueIds(policy)].sort();
-  const observed = [...readManifest(target)].sort();
-  if (JSON.stringify(observed) !== JSON.stringify(expected)) {
-    throw new Error(`projected colleague roster at ${target} differs: expected ${expected.join(", ")}; observed ${observed.join(", ")}`);
+  const observed = new Set(readManifest(target));
+  const missingFromManifest = expected.filter((id) => !observed.has(id));
+  if (missingFromManifest.length > 0) {
+    throw new Error(`projected colleague roster at ${target} is missing from the manifest: ${missingFromManifest.join(", ")}`);
   }
   const agentDir = join(target, ".claude/agents");
-  const files = existsSync(agentDir)
-    ? readdirSync(agentDir).filter((n) => n.endsWith(".md")).map((n) => n.replace(/\.md$/u, "")).sort()
-    : [];
-  if (JSON.stringify(files) !== JSON.stringify(expected)) {
-    throw new Error(`projected agent files at ${agentDir} differ from the exact roster: ${files.join(", ")}`);
+  const files = new Set(
+    existsSync(agentDir)
+      ? readdirSync(agentDir).filter((n) => n.endsWith(".md")).map((n) => n.replace(/\.md$/u, ""))
+      : [],
+  );
+  const missingFiles = expected.filter((id) => !files.has(id));
+  if (missingFiles.length > 0) {
+    throw new Error(`projected agent files at ${agentDir} are missing for: ${missingFiles.join(", ")}`);
   }
   return Object.freeze({ actor: policy.actor, target, colleagues: expected });
 }
