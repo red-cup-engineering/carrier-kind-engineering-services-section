@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/proof-pathing-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Owns canonical file-leg admission, normalization, and readout for Proof-Path Addressing.",
+  "x-agentic-metro-enterprise": {
+    "node-id": "proof-pathing-services-section",
+    "actor": "urn:ame:proof-pathing-services-section",
+    "organizational-kind": "circuit-board",
+    "owners": [
+      "file-services-section"
+    ],
+    "admission": "a declared file-boundary codec and a candidate path whose earned segments can be checked against one typed address term",
+    "refusal": "an untyped host string, an unearned segment, a non-canonical rendering, a displaced derivation, or a request for registry or cross-protocol authority",
+    "operation-frontier": [
+      "decode-filepath-address-term",
+      "check-earned-path-descent",
+      "normalize-filepath-address",
+      "render-canonical-proof-path",
+      "read-proof-path-diagnostics"
+    ],
+    "formal-frontier": [
+      "PPA-FR-010 AddressTerm",
+      "PPA-FR-020 canonical_address",
+      "PPA-FR-030 AddressReadingLeg",
+      "PPA-FR-040 ConeOfReadings",
+      "PPA-FR-050 leg_agreement"
+    ]
+  }
+}
