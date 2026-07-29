@@ -27,7 +27,7 @@ function environment() {
   };
 }
 
-test("health is public and reports the deployed immutable snapshot", async () => {
+test("health is public and reports the deployed snapshot", async () => {
   const response = await worker.fetch(new Request("https://registry.example/healthz"), environment());
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), { status: "ok", type: "SemioticVoxelPackageRegistry", packages: 2 });

@@ -26,6 +26,17 @@ function artifactNames(name, version) {
   return { leaf, relative: `tarballs/${scope}/${leaf}/-/${leaf}-${version}.tgz` };
 }
 
+function declaredOperationGraph(manifest) {
+  const declarations = {};
+  for (const field of ["x-semiotic-voxel", "x-agentic-metro-enterprise"]) {
+    const declaration = manifest[field];
+    if (declaration !== null && typeof declaration === "object" && !Array.isArray(declaration)) {
+      declarations[field] = structuredClone(declaration);
+    }
+  }
+  return declarations;
+}
+
 async function digest(path) {
   const bytes = await readFile(path);
   return {
@@ -186,7 +197,14 @@ export async function fabricatePackageRegistry({ packageDirectories, outputDirec
       await writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
       const priorEntry = entries.findIndex((entry) => entry.name === manifest.name && entry.version === manifest.version);
       if (priorEntry >= 0) entries.splice(priorEntry, 1);
-      entries.push({ name: manifest.name, version: manifest.version, tarball, artifact: names.relative, ...measured });
+      entries.push({
+        name: manifest.name,
+        version: manifest.version,
+        tarball,
+        artifact: names.relative,
+        ...measured,
+        ...declaredOperationGraph(manifest),
+      });
       }
     }
     await Promise.all(Array.from({ length: Math.min(computeLease.parallelism, packages.length) }, () => fabricateNext()));
@@ -196,7 +214,7 @@ export async function fabricatePackageRegistry({ packageDirectories, outputDirec
     await writeFile(join(staging, "client.npmrc"), npmrc);
     const receipt = {
       type: "SemioticVoxelPackageRegistryReceipt",
-      version: 1,
+      version: 2,
       registry: base.href,
       packages: entries,
       scopes,

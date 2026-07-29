@@ -23,7 +23,7 @@ function assetRequest(request, pathname) {
 function packageMetadataPath(pathname) {
   const decoded = decodeURIComponent(pathname.replace(/^\/+/, ""));
   if (!/^@[a-z0-9-]+\/[a-z0-9._-]+$/u.test(decoded)) return null;
-  // The immutable snapshot deliberately uses encodeURIComponent(packageName)
+  // The deployed snapshot deliberately uses encodeURIComponent(packageName)
   // as its filename. Workers Assets percent-encodes those literal percent
   // signs in the URL manifest, so the internal asset request is encoded twice.
   return `/metadata/${encodeURIComponent(encodeURIComponent(decoded))}.json`;

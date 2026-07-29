@@ -29,7 +29,32 @@ test("packs and serves an explicit semiotic voxel carrier", async () => {
     const carrier = join(root, "carrier");
     const registry = join(root, "registry");
     await mkdir(carrier);
-    await writeFile(join(carrier, "package.json"), `${JSON.stringify({ name: "@customer/example", version: "1.0.0", type: "module", exports: "./index.mjs", "x-semiotic-voxel": { package: "@customer/example" } })}\n`);
+    await writeFile(join(carrier, "package.json"), `${JSON.stringify({
+      name: "@customer/example",
+      version: "1.0.0",
+      type: "module",
+      exports: "./index.mjs",
+      "x-semiotic-voxel": {
+        profile: "org.harmonious-union.semiotic-voxel.v1",
+        owner: "customer",
+        kind: "capability-cell",
+        actor: "urn:ame:customer-example",
+        operations: ["transform-example"],
+        capabilities: [{ capability: "customer-example", faces: ["transform-example"] }],
+        package: "@customer/example",
+      },
+      "x-agentic-metro-enterprise": {
+        "node-id": "customer-example",
+        actor: "urn:ame:customer-example",
+        "organizational-kind": "capability-cell",
+        "operation-catalog": {
+          "transform-example": {
+            accepts: "one example input",
+            returns: "one example output",
+          },
+        },
+      },
+    })}\n`);
     await writeFile(join(carrier, "index.mjs"), "export const value = 1;\n");
     await mkdir(join(carrier, "src", "child"), { recursive: true });
     await writeFile(join(carrier, "src", "actor.mjs"), "export const actor = true;\n");
@@ -39,7 +64,10 @@ test("packs and serves an explicit semiotic voxel carrier", async () => {
     await writeFile(join(carrier, "content", "contracts", "law.rml"), "(map)\n");
     await writeFile(join(carrier, "content", "exchanges", "instance.json"), "{}\n");
     const receipt = await fabricatePackageRegistry({ packageDirectories: [carrier], outputDirectory: registry, registryUrl: "http://127.0.0.1:4873/" });
+    assert.equal(receipt.version, 2);
     assert.equal(receipt.packages.length, 1);
+    assert.deepEqual(receipt.packages[0]["x-semiotic-voxel"].operations, ["transform-example"]);
+    assert.deepEqual(Object.keys(receipt.packages[0]["x-agentic-metro-enterprise"]["operation-catalog"]), ["transform-example"]);
     assert.match(await readFile(join(registry, "client.npmrc"), "utf8"), /@customer:registry=/u);
     const metadataPath = await resolvePackageRegistryRequest({ registryDirectory: registry, requestPath: "/@customer%2Fexample" });
     assert.ok(metadataPath);
@@ -63,6 +91,8 @@ test("registers a real carrier when npm pack's piped JSON output is empty", asyn
   try {
     const receipt = await fabricatePackageRegistry({ packageDirectories: [actuator], outputDirectory: join(root, "registry"), registryUrl: "http://127.0.0.1:4873/" });
     assert.deepEqual(receipt.packages.map(({ name, version }) => ({ name, version })), [{ name: "@red-cup-engineering/authority-custody-actuator", version: "1.0.0" }]);
+    assert.deepEqual(receipt.packages[0]["x-semiotic-voxel"].operations, ["store-authority", "retrieve-authority", "revoke-authority"]);
+    assert.equal(receipt.packages[0]["x-agentic-metro-enterprise"]["node-id"], "authority-custody-actuator");
   } finally {
     await rm(root, { recursive: true, force: true });
   }
