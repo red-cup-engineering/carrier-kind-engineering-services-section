@@ -1,0 +1,1 @@
+{"name":"@red-cup-engineering/file-projection-services-section","version":"0.1.0","private":true,"type":"module","x-agentic-metro-enterprise":{"node-id":"file-projection-services-section","actor":"urn:ame:file-projection-services-section","organizational-kind":"circuit-board","owners":["file-data-services-section"],"owned-services":["services/file-projection-kernel-service"]}}

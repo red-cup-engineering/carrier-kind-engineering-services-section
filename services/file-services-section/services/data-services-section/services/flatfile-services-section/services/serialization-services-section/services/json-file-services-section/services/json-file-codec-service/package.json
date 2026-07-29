@@ -1,0 +1,21 @@
+{
+  "name": "@red-cup-engineering/json-file-codec-service",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": { "types": "./dist/json/index.d.mts", "import": "./dist/json/index.mjs" },
+    "./jsonl": { "types": "./dist/json/jsonl/index.d.mts", "import": "./dist/json/jsonl/index.mjs" },
+    "./jsonl/eavt": { "types": "./dist/json/jsonl/eavt/index.d.mts", "import": "./dist/json/jsonl/eavt/index.mjs" },
+    "./jsonl/eavt/datom": { "types": "./dist/json/jsonl/eavt/datom/index.d.mts", "import": "./dist/json/jsonl/eavt/datom/index.mjs" },
+    "./jsonl/eavt/triple": { "types": "./dist/json/jsonl/eavt/triple/index.d.mts", "import": "./dist/json/jsonl/eavt/triple/index.mjs" }
+  },
+  "dependencies": {
+    "@lenticule-science/articulating": "workspace:*",
+    "@red-cup-engineering/file-cryptographic-integrity-service": "workspace:*",
+    "@red-cup-engineering/file-projection-kernel-service": "workspace:*"
+  },
+  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
+  "scripts": { "build": "tsc -p tsconfig.build.json", "test": "node --test test/*.test.mjs" },
+  "x-agentic-metro-enterprise": {"node-id":"json-file-codec-service","actor":"urn:ame:json-file-codec-service","organizational-kind":"capability-cell","owners":["json-file-services-section"]}
+}

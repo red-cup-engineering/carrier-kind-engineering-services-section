@@ -6,7 +6,7 @@
  * idempotence is detectable across a pipe), and projects JSON-line documents.
  * Free data enters or leaves only through here; core code works over carriers.
  */
-import { define, restrict, type Projector, type Resource } from "../../../projections/kernel.mjs";
+import { define, restrict, type Projector, type Resource } from "@red-cup-engineering/file-projection-kernel-service";
 
 /** A JSON value: the closed universe of JSON. */
 export type JsonValue = null | boolean | number | string | readonly JsonValue[] | { readonly [key: string]: JsonValue };
@@ -52,7 +52,7 @@ export function jsonResource(value: unknown, context = "json resource"): JsonVal
  *
  * @example
  * ```js
- * import { canonical } from "@red-cup-engineering/relating/codecs/text/json";
+ * import { canonical } from "@red-cup-engineering/json-file-codec-service";
  *
  * canonical({ b: 2, a: 1 }); // "{\"a\":1,\"b\":2}"
  * ```

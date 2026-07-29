@@ -1,0 +1,1 @@
+{"name":"@red-cup-engineering/json-file-services-section","version":"0.1.0","private":true,"type":"module","x-agentic-metro-enterprise":{"node-id":"json-file-services-section","actor":"urn:ame:json-file-services-section","organizational-kind":"circuit-board","owners":["serialization-services-section"],"owned-services":["services/json-file-codec-service"]}}

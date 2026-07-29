@@ -12,11 +12,11 @@
  * its arguments, V = the return value, T = the timestamp.
  */
 import { canonical, isJsonValue, requireJsonValue, type JsonValue } from "../../core.mjs";
-import { restrict, type Projector } from "../../../../../projections/kernel.mjs";
+import { restrict, type Projector } from "@red-cup-engineering/file-projection-kernel-service";
 import { jsonlProjector, parseLines, serializeLines } from "../../core.mjs";
 import { mark } from "@lenticule-science/articulating/utterance";
 import { witnessedPotential, type ChargeCarrier } from "@lenticule-science/articulating/predicating/positing/bilattice-charge";
-import { sha256Hex } from "../../../../host/javascript/crypto/index.mjs";
+import { sha256Hex } from "@red-cup-engineering/file-cryptographic-integrity-service";
 
 /** A subject-predicate-object cell — the triple an EAVT witnesses. */
 export type Cell = { readonly subject: JsonValue; readonly predicate: JsonValue; readonly object: JsonValue };
@@ -204,5 +204,4 @@ export const eavtProjector: Projector<JsonValue> = restrict(jsonlProjector, {
 });
 
 export * as datom from "./datom/index.mjs";
-export * as lean from "./lean/index.mjs";
 export * as triple from "./triple/index.mjs";

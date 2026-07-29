@@ -7,7 +7,7 @@
  * evidence per cell → potential/active/stable). Self-contained over JSON.
  */
 import { canonical, parseLines, requireJsonValue, serializeLines, type JsonRecord, type JsonValue } from "../../../core.mjs";
-import { sha256Hex } from "../../../../../host/javascript/crypto/index.mjs";
+import { sha256Hex } from "@red-cup-engineering/file-cryptographic-integrity-service";
 
 /** A datom tuple: EAVT plus the computed reading (five parts). */
 export type Datom = readonly [entity: JsonValue, attribute: JsonValue, value: JsonValue, time: JsonValue, reading: JsonValue];

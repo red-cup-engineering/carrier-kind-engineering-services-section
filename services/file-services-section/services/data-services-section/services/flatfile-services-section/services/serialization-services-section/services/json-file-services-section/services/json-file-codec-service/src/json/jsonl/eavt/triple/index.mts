@@ -5,7 +5,7 @@
  * projected from an EAVT witness or an object datom by dropping time/op.
  */
 import { canonical, requireJsonValue, type JsonRecord, type JsonValue } from "../../../core.mjs";
-import { sha256Hex } from "../../../../../host/javascript/crypto/index.mjs";
+import { sha256Hex } from "@red-cup-engineering/file-cryptographic-integrity-service";
 import { assertObjectDatom } from "../datom/index.mjs";
 import { eavtRecord, type EAVT, type EAVTRecord } from "../index.mjs";
 
