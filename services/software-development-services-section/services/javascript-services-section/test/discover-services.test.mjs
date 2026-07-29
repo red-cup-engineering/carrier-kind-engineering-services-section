@@ -11,6 +11,7 @@ test("fresh discovery resolves every admitted JSNode actuator", () => {
   assert.deepEqual(result.refusals, []);
   assert.deepEqual(result.services.map(({ nodeId }) => nodeId), [
     "discord-steward-service",
+    "farstone-harbor-mud-service",
     "function-movement-provider-client-service",
     "jsnode-observation-service",
     "sandbox-command-execution-service",
