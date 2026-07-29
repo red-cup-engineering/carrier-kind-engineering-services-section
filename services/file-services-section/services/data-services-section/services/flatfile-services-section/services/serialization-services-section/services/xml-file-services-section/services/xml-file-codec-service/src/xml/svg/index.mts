@@ -18,11 +18,6 @@ import {
   type ChargeCarrier,
   type ChargeValueName,
 } from "@lenticule-science/articulating/predicating/positing/bilattice-charge";
-import {
-  diagramPalette,
-  diagramToSvgDataform,
-  isPresentedCategoryDiagram,
-} from "../../../../writing/diagram.mjs";
 import { document, element, serialize, xmlProjector, type XmlElement, type XmlNode } from "@red-cup-engineering/xml-file-codec-service";
 
 /* ── morphism ───────────────────────────────────────────────────────────── */
@@ -78,7 +73,7 @@ export function shapeMorphismRegistry(spec: ShapeMorphismSpec = {}): ShapeMorphi
 
 /** A reasonable default registry: rounded slate boxes, plain arrows. */
 export function defaultShapeMorphisms(): ShapeMorphismRegistry {
-  return shapeMorphismRegistry({ shapes: diagramPalette });
+  return shapeMorphismRegistry();
 }
 
 /* ── document ───────────────────────────────────────────────────────────── */
@@ -463,8 +458,5 @@ export const svgProjector: Projector<any> = restrict<any>(xmlProjector as Projec
   corner: "assertion",
   rung: "identity",
   recognize: (resource) => /<svg[\s>]/.test(resource.content),
-  write: (items) => items.map((item) => {
-    if (isPresentedCategoryDiagram(item)) return projectSvg(diagramToSvgDataform(item));
-    return serialize(item as XmlNode);
-  }).join(""),
+  write: (items) => items.map((item) => serialize(item as XmlNode)).join(""),
 });
