@@ -19,12 +19,6 @@ image_repository="${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-ce
 runtime_service_account=${CLOUD_RUN_SERVICE_ACCOUNT:-github-software-induction@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com}
 prepare_context=${PREPARE_CONTEXT_COMMAND:-$script_dir/prepare-context.sh}
 
-for command in gcloud node; do command -v "$command" >/dev/null || { echo "missing required command: $command" >&2; exit 69; }; done
-if [[ -n "${ACTUATOR_CLI:-}" ]]; then command -v "$ACTUATOR_CLI" >/dev/null || { echo "ACTUATOR_CLI bootstrap override is unavailable" >&2; exit 69; }
-else
-  actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/bin/gcloud-cloud-run-actuator.mjs"
-  [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }
-fi
 [[ -x "$prepare_context" ]] || { echo "committed-context assembler is unavailable" >&2; exit 69; }
 
 activitypub_origin=$(node --input-type=module - "$ACTIVITYPUB_ORIGIN" <<'NODE'
@@ -38,6 +32,12 @@ NODE
 
 repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
 actuator_module="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/src/gcloud-cloud-run-actuator.mjs"
+for command in gcloud node; do command -v "$command" >/dev/null || { echo "missing required command: $command" >&2; exit 69; }; done
+if [[ -n "${ACTUATOR_CLI:-}" ]]; then command -v "$ACTUATOR_CLI" >/dev/null || { echo "ACTUATOR_CLI bootstrap override is unavailable" >&2; exit 69; }
+else
+  actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/bin/gcloud-cloud-run-actuator.mjs"
+  [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }
+fi
 tag=${BUILD_TAG:-$(git -C "$script_dir" rev-parse --verify HEAD)}
 revision_tag=$(node --input-type=module - "$actuator_module" "$service" "$tag" <<'NODE'
 import { createHash } from "node:crypto"; import { pathToFileURL } from "node:url";
