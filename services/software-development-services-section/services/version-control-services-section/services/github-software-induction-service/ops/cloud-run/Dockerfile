@@ -11,8 +11,8 @@ RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
     && npm run check && node --test test/sovereign-induction.test.mjs test/post-attempt.test.mjs
 
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080 \
-    AGENT_CARD_SIGNING_KEY=/secrets/a2a/signing-key.pem \
-    AGENT_CARD_JWKS=/secrets/a2a/jwks.json \
+    AGENT_CARD_SIGNING_KEY=/secrets/a2a-key/signing-key.pem \
+    AGENT_CARD_JWKS=/secrets/a2a-jwks/jwks.json \
     AGENT_CARD_SIGNING_KID=github-software-induction-service-ed25519 \
     AGENT_CARD_SIGNING_ALG=EdDSA
 USER node

@@ -19,8 +19,8 @@ fi
 gcloud run deploy "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" \
   --image "$image" --allow-unauthenticated --execution-environment gen2 \
   --min-instances 0 --max-instances 2 --concurrency 4 --cpu 2 --memory 2Gi --timeout 900 --port 8080 \
-  --set-env-vars "HOST=0.0.0.0,AGENT_CARD_SIGNING_KEY=/secrets/a2a/signing-key.pem,AGENT_CARD_JWKS=/secrets/a2a/jwks.json,AGENT_CARD_SIGNING_KID=github-software-induction-service-ed25519,AGENT_CARD_SIGNING_ALG=EdDSA" \
-  --update-secrets "/secrets/a2a/signing-key.pem=github-software-induction-signing-key:latest,/secrets/a2a/jwks.json=github-software-induction-jwks:latest,GITHUB_SERVICES_TOKEN=github-software-induction-token:latest"
+  --set-env-vars "HOST=0.0.0.0,AGENT_CARD_SIGNING_KEY=/secrets/a2a-key/signing-key.pem,AGENT_CARD_JWKS=/secrets/a2a-jwks/jwks.json,AGENT_CARD_SIGNING_KID=github-software-induction-service-ed25519,AGENT_CARD_SIGNING_ALG=EdDSA" \
+  --update-secrets "/secrets/a2a-key/signing-key.pem=github-software-induction-signing-key:latest,/secrets/a2a-jwks/jwks.json=github-software-induction-jwks:latest,GITHUB_SERVICES_TOKEN=github-software-induction-token:latest"
 service_url=$(gcloud run services describe "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" --format='value(status.url)')
 gcloud run services update "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" --update-env-vars "BASE_URL=$service_url"
 printf 'service_url=%s\nimage=%s\n' "$service_url" "$image"
