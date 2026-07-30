@@ -8,10 +8,14 @@ export const CASE_IDS = Object.freeze(
 );
 export const DIALECT = "https://json-schema.org/draft/2020-12/schema";
 export const SUPPORTED_VOCABULARY = Object.freeze([
-  "$schema", "$id", "$ref", "$defs", "type", "properties", "required",
-  "additionalProperties", "items", "enum", "const", "allOf", "anyOf", "oneOf",
-  "not", "minimum", "maximum", "minLength", "maxLength", "pattern", "minItems",
-  "maxItems", "uniqueItems",
+  "$schema", "$id", "$ref", "$defs", "$comment", "$comment-absences",
+  "title", "description", "default", "examples", "deprecated", "readOnly", "writeOnly",
+  "type", "enum", "const",
+  "required", "properties", "additionalProperties", "propertyNames", "minProperties", "maxProperties",
+  "items", "minItems", "maxItems", "uniqueItems", "contains",
+  "minLength", "maxLength", "pattern", "format",
+  "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
+  "allOf", "anyOf", "oneOf", "not", "if", "then", "else",
 ]);
 
 const TYPES = Object.freeze({

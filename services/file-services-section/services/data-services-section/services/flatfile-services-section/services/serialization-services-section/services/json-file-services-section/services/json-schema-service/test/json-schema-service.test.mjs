@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   DRAFT_2020_12, SUPPORTED_VOCABULARY, createSchema, schemaCorpus, validateInstance,
-  resolvePointer, unfoldSchema, foldSchemaAssertions,
+  resolvePointer, unfoldSchema, foldSchema, foldSchemaAssertions, inspectSchema,
+  mergeSchemaAssertions, parseSchemaAssertions, projectSchemaAssertions, serializeSchemaAssertions,
+  schemaAssertionEavtId, schemaAssertionId,
 } from "../src/index.mts";
-import { census } from "../src/census.mts";
+import { census, censusClassified, classifyCensusEntry } from "../src/census.mts";
 
 const make = (body, id = "example/schema") => createSchema({ $id: id, ...body }).schema;
 test("fixed dialect, canonical identity, receipt and immutability", () => {
@@ -27,11 +29,43 @@ test("bounded reference resolution rejects duplicates, external refs, fragments 
   const cyclic = make({ $ref: "#" }, "example/cycle"); assert.equal(validateInstance("x", cyclic).ok, false);
 });
 test("schema EAVT traces are permutation-stable and contradictions do not conflate identity", () => {
-  const schema = make({ type: "object", properties: { x: { type: "string" } } }, "example/eavt"); const rows = unfoldSchema(schema, "t1", "example/eavt"); const forward = foldSchemaAssertions(rows), backward = foldSchemaAssertions([...rows].reverse());
+  const schema = make({ type: "object", properties: { x: { type: "array", items: { type: "string" } } } }, "example/eavt"); const rows = unfoldSchema(schema, "t1", "example/eavt"); const forward = foldSchemaAssertions(rows), backward = foldSchemaAssertions([...rows].reverse());
   assert.deepEqual(forward, backward); assert.equal(forward.contradictions.length, 0); const conflict = foldSchemaAssertions([{ e: "x", a: "/type", v: "string", t: "1" }, { e: "x", a: "/type", v: "number", t: "2" }]); assert.equal(conflict.schema, null); assert.equal(conflict.contradictions.length, 1);
+  assert.deepEqual(foldSchema(rows), schema);
+  assert.deepEqual(parseSchemaAssertions(serializeSchemaAssertions(rows)), rows);
+  assert.deepEqual(mergeSchemaAssertions(rows, rows), mergeSchemaAssertions(rows));
+  assert.equal(schemaAssertionEavtId(rows[0]), schemaAssertionId(rows[0]));
+  assert.equal(projectSchemaAssertions(unfoldSchema({ type: "string" }, { base: "x", t: "1" }), { id: "example/projected" }).schema.$id, "example/projected");
+});
+test("recovered pool vocabulary evaluates instead of silently drifting", () => {
+  const schema = make({
+    type: "object", minProperties: 2, maxProperties: 2, propertyNames: { pattern: "^[a-z]+$" },
+    properties: {
+      tags: { type: "array", minItems: 1, uniqueItems: true, contains: { const: "held" } },
+      when: { type: "string", format: "date-time" },
+    }, required: ["tags", "when"], additionalProperties: false,
+  }, "example/recovered");
+  assert.equal(validateInstance({ tags: ["held"], when: "2026-07-29T12:00:00Z" }, schema).ok, true);
+  const invalid = validateInstance({ tags: ["lost", "lost"], when: "not-a-date", Bad: true }, schema);
+  assert.equal(invalid.ok, false);
+  for (const keyword of ["pattern", "uniqueItems", "contains", "format", "additionalProperties"]) {
+    assert.equal(invalid.errors.some((error) => error.keyword === keyword), true, keyword);
+  }
+});
+test("pool inspection recovers authoring invariants without taking filesystem authority", () => {
+  const invalid = { $schema: DRAFT_2020_12, $id: "example/broken", type: "object", required: ["missing"], properties: {}, additionalProperties: false, $defs: { unused: { type: "string" } } };
+  const report = inspectSchema(invalid, new Set(["example/broken"]));
+  assert.equal(report.ok, false);
+  assert.equal(report.errors.some((error) => error.keyword === "required"), true);
+  assert.equal(report.errors.some((error) => error.keyword === "$defs"), true);
+  const fragment = inspectSchema({ $schema: DRAFT_2020_12, $id: "example/source", type: "string", $ref: "example/target#/$defs/name" }, new Set(["example/source", "example/target"]));
+  assert.equal(fragment.errors.some((error) => error.keyword === "$ref"), false);
+  assert.throws(() => createSchema({ $id: "example/malformed", type: "object", properties: { x: 1 } }), /object or boolean schema/);
 });
 test("census classifies generations without promotion", () => {
-  const result = census([{ path: "live/a.schema.json", content: '{"$schema":"x"}' }, { path: "legacy/a.schema.json", content: "{}" }, { path: "live/read-a-schema.js", content: "" }, { path: "legacy/write-a-schema.js", content: "" }]);
-  assert.deepEqual(result.counts, { "schema-document": 1, "schema-implementation": 1, "legacy-schema-document": 1, "legacy-implementation": 1, other: 0 });
-  assert.deepEqual(result.entries.filter((entry) => entry.legacyDisposition !== null).map((entry) => entry.legacyDisposition), ["retain-as-evidence", "retain-as-evidence"]);
+  const result = census([{ path: "live/a.schema.json", content: '{"$schema":"x"}' }, { path: "legacy/a.schema.json", content: "{}" }, { path: "live/read-a-schema.js", content: "function validate(value, schema) {}" }, { path: "legacy/write-a-schema.js", content: "function schemaErrors(schema) {}" }, { path: "docs/schema.md", content: "JSON Schema notes" }]);
+  assert.deepEqual(result.counts, { "schema-document": 1, "schema-implementation": 1, "legacy-schema-document": 1, "legacy-implementation": 1, other: 1 });
+  assert.equal(result.roleCounts.documentation, 1);
+  assert.deepEqual(censusClassified([{ path: "live/read-a-schema.js", content: "function validate(value, schema) {}" }].map(classifyCensusEntry)), census([{ path: "live/read-a-schema.js", content: "function validate(value, schema) {}" }]));
+  assert.deepEqual(result.entries.filter((entry) => entry.legacyDisposition !== null).map((entry) => entry.legacyDisposition), ["retain-as-evidence", "supersede-with-explicit-migration"]);
 });
