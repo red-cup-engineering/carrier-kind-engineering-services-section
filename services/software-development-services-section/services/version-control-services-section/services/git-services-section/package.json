@@ -10,7 +10,7 @@
   },
   "scripts": {
     "check": "sh -n bin/git && node --check src/bound-git-induction-wire.js && node --check src/bound-git-induction-card-evidence.js && node --check src/bound-git-induction-auth.js && node --check src/bound-git-induction-store.js && node --check src/bound-git-induction-client.js && node --check src/bound-git-induction-production.js && node --check src/bound-git-induction-service.js && node --check src/bound-git-induction-a2a-executor.js && node --check src/serve-bound-git-induction.js && node --check src/collect-colony-activity.mjs && node --check src/settle-filesystem-receipt.mjs && node --check test/fixtures/bound-git-network-receiver.mjs",
-    "test": "node --test test/bound-git-induction-wire.test.js test/bound-git-induction-auth.test.js test/bound-git-induction-store.test.js test/bound-git-induction-service.test.js test/bound-git-induction-ingress.test.js test/bound-git-card-evidence-negative.test.js test/bound-git-network-sit.test.js test/bound-git-live-eip1271.test.js test/bound-git-induction-release.test.js test/settle-filesystem-receipt.test.mjs",
+    "test": "node --test test/bound-git-induction-wire.test.js test/bound-git-induction-auth.test.js test/bound-git-induction-store.test.js test/bound-git-induction-service.test.js test/bound-git-induction-ingress.test.js test/bound-git-card-evidence-negative.test.js test/bound-git-network-sit.test.js test/bound-git-live-eip1271.test.js test/bound-git-induction-release.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
     "verify": "npm run check && npm test"
   },
   "engines": {

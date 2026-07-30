@@ -2,8 +2,8 @@
 # Git Services Section device-scoped ingress for /home/emsenn/info.
 #
 # A finite read-only face remains available to development tools in a
-# descriptor-owned Git environment. Local and push mutations run serialized
-# through this one ingress under an exclusive lock instead.
+# descriptor-owned Git environment. Mutations run serialized through this one
+# ingress under an exclusive lock instead.
 set -eu
 root=/home/emsenn/info
 service_root=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/version-control-services-section/services/git-services-section
@@ -59,30 +59,66 @@ fi
 # repaired). A gate with no working way to satisfy it is not security, it is
 # a dead end wearing security's shape; removed rather than left standing.
 # Repository overrides and non-push remote/config mutations stay refused.
+acquire_mutation_lane() {
+  lock_dir="$service_root/data"
+  mkdir -p "$lock_dir"
+  # Keep this descriptor open across exec so the admitted Git mutation owns the
+  # same exclusive lane for its full lifetime.
+  exec 9>"$lock_dir/serialized-mutation.lock"
+  flock -w 300 9
+}
+
+reclaim_witnessed_orphan_index_lock() {
+  index_lock=$(/usr/bin/git -C "$physical_pwd" rev-parse --git-path index.lock)
+  [ -e "$index_lock" ] || return 0
+  if fuser -s "$index_lock"; then
+    echo "git contracted ingress deferred: live index lock witnessed at $index_lock" >&2
+    return 75
+  fi
+  modified_at=$(stat -c %Y "$index_lock")
+  now=$(date +%s)
+  age=$((now - modified_at))
+  if [ "$age" -lt 300 ]; then
+    echo "git contracted ingress deferred: unwitnessed index lock is only ${age}s old at $index_lock" >&2
+    return 75
+  fi
+  # Check again immediately before removal.  This occurs while the contracted
+  # mutation lane is exclusively held; the absent descriptor plus bounded age
+  # is the witness that the residue is orphaned, not a live lock.
+  if fuser -s "$index_lock"; then
+    echo "git contracted ingress deferred: live index lock witnessed at $index_lock" >&2
+    return 75
+  fi
+  rm -f -- "$index_lock"
+  echo "git contracted ingress reclaimed witnessed orphan index lock age=${age}s path=$index_lock" >&2
+}
+
+run_mutation() {
+  acquire_mutation_lane
+  reclaim_witnessed_orphan_index_lock
+  exec /usr/bin/env -i \
+    HOME=/nonexistent \
+    PATH=/usr/bin:/bin \
+    GIT_CONFIG_NOSYSTEM=1 \
+    GIT_CONFIG_GLOBAL=/dev/null \
+    GIT_CONFIG_SYSTEM=/dev/null \
+    GIT_TERMINAL_PROMPT=0 \
+    GIT_PAGER=cat \
+    /usr/bin/git --no-optional-locks \
+      -c gc.auto=0 \
+      -c core.fsmonitor=false \
+      -c core.hooksPath=/dev/null \
+      -c user.name=emsenn \
+      -c user.email=morgan.sennhauser@gmail.com \
+      -C "$physical_pwd" "$@"
+}
+
 case "$command_name" in
   add|commit|restore|rm|mv|checkout|switch|reset|merge|cherry-pick|revert|tag|stash|filter-repo|clean)
-    lock_dir="$service_root/data"
-    mkdir -p "$lock_dir"
-    exec /usr/bin/env -i \
-      HOME=/nonexistent \
-      PATH=/usr/bin:/bin \
-      GIT_CONFIG_NOSYSTEM=1 \
-      GIT_CONFIG_GLOBAL=/dev/null \
-      GIT_CONFIG_SYSTEM=/dev/null \
-      GIT_TERMINAL_PROMPT=0 \
-      GIT_PAGER=cat \
-      flock -w 300 "$lock_dir/serialized-mutation.lock" \
-      /usr/bin/git --no-optional-locks \
-        -c gc.auto=0 \
-        -c core.fsmonitor=false \
-        -c core.hooksPath=/dev/null \
-        -c user.name=emsenn \
-        -c user.email=morgan.sennhauser@gmail.com \
-        -C "$physical_pwd" "$@"
+    run_mutation "$@"
     ;;
-  push|ls-remote)
-    lock_dir="$service_root/data"
-    mkdir -p "$lock_dir"
+  push)
+    acquire_mutation_lane
     token=$(gh auth token 2>/dev/null || true)
     [ -n "$token" ] || token=${GITHUB_TOKEN-}
     if [ -z "$token" ]; then echo "git contracted ingress refused: no GitHub credential available for push" >&2; exit 126; fi
@@ -95,7 +131,6 @@ case "$command_name" in
       GIT_CONFIG_SYSTEM=/dev/null \
       GIT_TERMINAL_PROMPT=0 \
       GIT_PAGER=cat \
-      flock -w 300 "$lock_dir/serialized-mutation.lock" \
       /usr/bin/git --no-optional-locks \
         -c gc.auto=0 \
         -c core.fsmonitor=false \
@@ -129,11 +164,9 @@ for argument in "$@"; do
 done
 
 run_git() {
-  # A read can recursively walk the worktree and object store just as heavily
-  # as a mutation.  The device-scoped ingress therefore admits one Git process
-  # at a time, rather than allowing parallel status/diff scans to saturate it.
-  lock_dir="$service_root/data"
-  mkdir -p "$lock_dir"
+  # Read-only Git with --no-optional-locks never needs the index lock.  It must
+  # not occupy the mutation lane: long history scans previously starved an
+  # admitted commit and made its eventual index-lock observation look stale.
   exec /usr/bin/env -i \
     HOME=/nonexistent \
     PATH=/usr/bin:/bin \
@@ -142,7 +175,6 @@ run_git() {
     GIT_CONFIG_SYSTEM=/dev/null \
     GIT_TERMINAL_PROMPT=0 \
     GIT_PAGER=cat \
-    flock -w 300 "$lock_dir/serialized-mutation.lock" \
     /usr/bin/git --no-optional-locks \
       -c gc.auto=0 \
       -c core.fsmonitor=false \
