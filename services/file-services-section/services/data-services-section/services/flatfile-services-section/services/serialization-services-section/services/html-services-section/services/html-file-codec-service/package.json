@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/html-file-codec-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "exports": {
@@ -26,5 +26,14 @@
     "actor": "urn:ame:html-file-codec-service",
     "organizational-kind": "capability-cell",
     "owners": ["html-services-section"]
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:html-file-codec-service",
+    "operations": ["read-html-file", "write-html-file"],
+    "capabilities": [{ "capability": "html-file-codec", "faces": ["Node"] }],
+    "package": "@red-cup-engineering/html-file-codec-service"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/json-file-codec-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "exports": {
@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@lenticule-science/articulating": "0.1.0",
-    "@red-cup-engineering/file-cryptographic-integrity-service": "0.1.0",
-    "@red-cup-engineering/file-projection-kernel-service": "0.1.0"
+    "@red-cup-engineering/file-cryptographic-integrity-service": "0.1.1",
+    "@red-cup-engineering/file-projection-kernel-service": "0.1.1"
   },
   "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
   "scripts": { "build": "tsc -p tsconfig.build.json", "test": "node --test test/*.test.mjs" },
