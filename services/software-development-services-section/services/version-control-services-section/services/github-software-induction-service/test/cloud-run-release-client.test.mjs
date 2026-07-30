@@ -75,13 +75,14 @@ globalThis.fetch = async (input, init = {}) => {
 
 test("release client refuses an unstable placeholder origin before it builds", async () => {
   const root = await mkdtemp(join(tmpdir(), "github-induction-refusal-"));
-  const actuator = join(root, "actuator"), prepare = join(root, "prepare-context");
+  const actuator = join(root, "actuator"), prepare = join(root, "prepare-context"), gcloud = join(root, "gcloud");
   await Promise.all([
     writeFile(actuator, "#!/usr/bin/env bash\nexit 99\n", { mode: 0o755 }),
     writeFile(prepare, "#!/usr/bin/env bash\nexit 99\n", { mode: 0o755 }),
+    writeFile(gcloud, "#!/usr/bin/env bash\nexit 99\n", { mode: 0o755 }),
   ]);
   await assert.rejects(() => execute(script.pathname, [], { cwd: new URL("..", script).pathname, env: {
-    ...process.env, ACTUATOR_CLI: actuator, PREPARE_CONTEXT_COMMAND: prepare, BUILD_TAG: "committed-source",
+    ...process.env, PATH: `${root}:${process.env.PATH}`, ACTUATOR_CLI: actuator, PREPARE_CONTEXT_COMMAND: prepare, BUILD_TAG: "committed-source",
     GOOGLE_CLOUD_PROJECT: "five-six-one-group-dev", ACTIVITYPUB_ORIGIN: "https://github-software-induction-service.invalid",
     CLOUDFLARE_R2_ACCOUNT_ID: "account", CLOUDFLARE_R2_BUCKET: "bucket", CLOUD_TASKS_LOCATION: "us-central1", CLOUD_TASKS_QUEUE: "queue",
     CLOUD_TASKS_SERVICE_ACCOUNT: "worker@five-six-one-group-dev.iam.gserviceaccount.com", GCS_OPERATION_BUCKET: "operations",
