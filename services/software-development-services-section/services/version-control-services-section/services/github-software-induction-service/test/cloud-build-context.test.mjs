@@ -62,6 +62,6 @@ test("Git-object build context excludes dirty source and contains recursive file
 test("production Docker closure preserves its committed lock and uses npm ci", async () => {
   const dockerfile = await readFile(new URL("../ops/cloud-run/Dockerfile", import.meta.url), "utf8");
   assert.match(dockerfile, /test -f package-lock\.json/);
-  assert.match(dockerfile, /npm ci --omit=dev --no-audit --no-fund/);
+  assert.match(dockerfile, /npm ci --install-links --omit=dev --no-audit --no-fund/);
   assert.doesNotMatch(dockerfile, /rm -f package-lock\.json|npm install --omit=dev/);
 });

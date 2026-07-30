@@ -11,7 +11,7 @@ const script = new URL("../ops/cloud-run/deploy.sh", import.meta.url);
 
 test("release client builds committed context, stages a digest through the actuator, then cuts over that revision", async () => {
   const root = await mkdtemp(join(tmpdir(), "github-induction-release-"));
-  const calls = join(root, "calls.jsonl"), gcloud = join(root, "gcloud"), actuator = join(root, "actuator"), preload = join(root, "acceptance-fetch.mjs");
+  const calls = join(root, "calls.jsonl"), gcloud = join(root, "gcloud"), actuator = join(root, "actuator"), prepare = join(root, "prepare-context"), preload = join(root, "acceptance-fetch.mjs");
   await writeFile(gcloud, `#!/usr/bin/env bash
 set -euo pipefail
 printf '%s\\n' "$*" >> "$CALLS"
@@ -23,6 +23,11 @@ input=$(cat)
 printf '%s\\n' "$input" >> "$CALLS"
   if [[ "$input" == *'"deploy-cloud-run-service"'* ]]; then printf '%s\\n' '{"receipt":{"object":{"content":{"revision":"github-software-induction-service-00042","tagUrl":"https://stage.example"}}}}'; else printf '%s\\n' '{"receipt":{"object":{"content":{}}}}'; fi
 `, "utf8");
+  await writeFile(prepare, `#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\\n' "prepare-context $1" >> "$CALLS"
+touch "$1/cloudbuild.yaml"
+`, "utf8");
   await writeFile(preload, `import { appendFileSync } from "node:fs";
 globalThis.fetch = async (input, init = {}) => {
   const url = String(input); appendFileSync(process.env.CALLS, \`FETCH \${init.method ?? "GET"} \${url}\\n\`);
@@ -32,9 +37,10 @@ globalThis.fetch = async (input, init = {}) => {
   throw new Error(\`unexpected staged acceptance URL: \${url}\`);
 };
 `, "utf8");
-  await Promise.all([chmod(gcloud, 0o755), chmod(actuator, 0o755)]);
+  await Promise.all([chmod(gcloud, 0o755), chmod(actuator, 0o755), chmod(prepare, 0o755)]);
   await execute(script.pathname, [], { cwd: new URL("..", script).pathname, env: {
-    ...process.env, PATH: `${root}:${process.env.PATH}`, CALLS: calls, ACTUATOR_CLI: actuator, NODE_OPTIONS: `--import=${preload}`,
+    ...process.env, PATH: `${root}:${process.env.PATH}`, CALLS: calls, ACTUATOR_CLI: actuator, PREPARE_CONTEXT_COMMAND: prepare,
+    BUILD_TAG: "committed-source", NODE_OPTIONS: `--import=${preload}`,
     GOOGLE_CLOUD_PROJECT: "five-six-one-group-dev", ACTIVITYPUB_ORIGIN: "https://github-induction.example",
     CLOUDFLARE_R2_ACCOUNT_ID: "account", CLOUDFLARE_R2_BUCKET: "bucket", CLOUD_TASKS_LOCATION: "us-central1",
     CLOUD_TASKS_QUEUE: "github-induction", CLOUD_TASKS_SERVICE_ACCOUNT: "github-induction-worker@five-six-one-group-dev.iam.gserviceaccount.com",

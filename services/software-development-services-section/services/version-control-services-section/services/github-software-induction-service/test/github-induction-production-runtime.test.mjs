@@ -9,7 +9,7 @@ const environment = Object.freeze({
   CLOUD_TASKS_QUEUE: "github-induction",
   CLOUD_TASKS_SERVICE_ACCOUNT: "github-induction-worker@five-six-one-group-dev.iam.gserviceaccount.com",
   GCS_OPERATION_BUCKET: "five-six-one-github-induction-operations",
-  GCS_OPERATION_PREFIX: "github-induction/v1/",
+  GCS_OPERATION_PREFIX: "operations/github-induction/v1/",
 });
 
 test("production runtime refuses incomplete or noncanonical cloud environment", () => {

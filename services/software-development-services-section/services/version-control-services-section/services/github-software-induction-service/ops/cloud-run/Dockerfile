@@ -8,7 +8,7 @@ RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
     apt-get update && apt-get install -y --no-install-recommends ca-certificates git && rm -rf /var/lib/apt/lists/* \
     && npm install -g npm@11 \
     && test -f package-lock.json \
-    && npm ci --omit=dev --no-audit --no-fund && npm cache clean --force \
+    && npm ci --install-links --omit=dev --no-audit --no-fund && npm cache clean --force \
     && npm run check && npm test
 
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080 \

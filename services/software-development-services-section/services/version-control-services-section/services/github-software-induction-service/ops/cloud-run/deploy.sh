@@ -12,7 +12,6 @@ set -euo pipefail
 export GCS_OPERATION_PREFIX=${GCS_OPERATION_PREFIX:-operations/github-induction/v1/}
 [[ "$GCS_OPERATION_PREFIX" =~ ^[a-z0-9][a-z0-9._/-]*/$ && "$GCS_OPERATION_PREFIX" != *"//"* && "$GCS_OPERATION_PREFIX" != /* ]] || { echo "GCS_OPERATION_PREFIX must be one relative object prefix ending in /" >&2; exit 64; }
 script_dir=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
 region=${CLOUD_RUN_REGION:-us-central1}
 service=${CLOUD_RUN_SERVICE:-github-software-induction-service}
 identifier=${ACTIVITYPUB_IDENTIFIER:-github-software-induction-service}
@@ -21,11 +20,16 @@ revision_tag="stage-$(printf '%s' "$tag" | sha256sum | cut -c1-16)"
 image_repository="${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-cells/${service}"
 build_image="${image_repository}:${tag}"
 runtime_service_account=${CLOUD_RUN_SERVICE_ACCOUNT:-github-software-induction@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com}
-actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/bin/gcloud-cloud-run-actuator.mjs"
+prepare_context=${PREPARE_CONTEXT_COMMAND:-$script_dir/prepare-context.sh}
 
 for command in gcloud node; do command -v "$command" >/dev/null || { echo "missing required command: $command" >&2; exit 69; }; done
 if [[ -n "${ACTUATOR_CLI:-}" ]]; then command -v "$ACTUATOR_CLI" >/dev/null || { echo "ACTUATOR_CLI bootstrap override is unavailable" >&2; exit 69; }
-else [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }; fi
+else
+  repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
+  actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/bin/gcloud-cloud-run-actuator.mjs"
+  [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }
+fi
+[[ -x "$prepare_context" ]] || { echo "committed-context assembler is unavailable" >&2; exit 69; }
 
 activitypub_origin=$(node --input-type=module - "$ACTIVITYPUB_ORIGIN" <<'NODE'
 const input = process.argv[2];
@@ -38,7 +42,7 @@ NODE
 
 context_dir=$(mktemp -d /tmp/github-software-induction-cloud-build.XXXXXXXX)
 trap 'rm -rf -- "$context_dir"' EXIT
-"$script_dir/prepare-context.sh" "$context_dir"
+"$prepare_context" "$context_dir"
 gcloud builds submit "$context_dir" --project "$GOOGLE_CLOUD_PROJECT" \
   --config "$context_dir/cloudbuild.yaml" --substitutions "_IMAGE_URI=$build_image"
 image_digest=$(gcloud artifacts docker images describe "$build_image" --project "$GOOGLE_CLOUD_PROJECT" --format='value(image_summary.digest)')
