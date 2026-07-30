@@ -299,6 +299,7 @@
     }
   },
   "dependencies": {
+    "@red-cup-engineering/html-file-codec-service": "0.1.0",
     "@emsenn/animating": "workspace:*",
     "@emsenn/computing": "workspace:*",
     "@emsenn/gaming": "workspace:*",

@@ -1,15 +1,7 @@
 import type { Context } from "@emsenn/http-server";
+import { escapeHtml as htmlEscape } from "@red-cup-engineering/html-file-codec-service/string-rendering";
 
-export function htmlEscape(value: string | number | null | undefined): string {
-  if (value === null || value === undefined) return "";
-  return String(value).replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-  })[char]!);
-}
+export { htmlEscape };
 
 export function row(cells: readonly string[]): string {
   return `<tr>${cells.map((cell) => `<td>${cell}</td>`).join("")}</tr>`;

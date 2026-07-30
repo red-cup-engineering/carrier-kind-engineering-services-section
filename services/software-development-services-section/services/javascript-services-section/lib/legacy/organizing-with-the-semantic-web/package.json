@@ -68,6 +68,7 @@
     "@emsenn/knowing": "workspace:*",
     "@emsenn/producing-content": "workspace:*",
     "@emsenn/relating": "workspace:*",
+    "@red-cup-engineering/html-file-codec-service": "0.1.0",
     "@emsenn/organizing-with-the-web": "workspace:*",
     "@emsenn/http-server": "workspace:*"
   },
