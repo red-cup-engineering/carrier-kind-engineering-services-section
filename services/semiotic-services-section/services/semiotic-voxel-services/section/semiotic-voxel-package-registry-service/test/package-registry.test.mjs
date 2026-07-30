@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -131,6 +131,43 @@ test("extends a base registry without discarding its published packages", async 
     assert.equal(receipt.packages.length, 2);
     assert.ok(await resolvePackageRegistryRequest({ registryDirectory: next, requestPath: "/@customer%2Ffirst" }));
     assert.ok(await resolvePackageRegistryRequest({ registryDirectory: next, requestPath: "/@customer%2Fsecond" }));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("projects workspace dependencies to exact admitted release versions", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-workspace-address-"));
+  try {
+    const provider = join(root, "provider"), consumer = join(root, "consumer"), base = join(root, "base"), next = join(root, "next");
+    await mkdir(provider);
+    await writeFile(join(provider, "package.json"), `${JSON.stringify({ name: "@customer/provider", version: "2.3.4", type: "module", exports: "./index.mjs", "x-semiotic-voxel": { package: "@customer/provider" } })}\n`);
+    await writeFile(join(provider, "index.mjs"), "export const value = 1;\n");
+    await fabricatePackageRegistry({ packageDirectories: [provider], outputDirectory: base, registryUrl: "http://127.0.0.1:4873/" });
+
+    const sourceManifest = { name: "@customer/consumer", version: "1.0.0", type: "module", exports: "./index.mjs", dependencies: { "@customer/provider": "workspace:*" }, "x-semiotic-voxel": { package: "@customer/consumer" } };
+    await mkdir(consumer);
+    await writeFile(join(consumer, "package.json"), `${JSON.stringify(sourceManifest)}\n`);
+    await writeFile(join(consumer, "index.mjs"), "export { value } from '@customer/provider';\n");
+    await fabricatePackageRegistry({ packageDirectories: [consumer], outputDirectory: next, baseRegistryDirectory: base, registryUrl: "http://127.0.0.1:4873/" });
+
+    const metadata = JSON.parse(await readFile(join(next, "metadata", "%40customer%2Fconsumer.json"), "utf8"));
+    assert.equal(metadata.versions["1.0.0"].dependencies["@customer/provider"], "2.3.4");
+    assert.equal(JSON.parse(await readFile(join(consumer, "package.json"), "utf8")).dependencies["@customer/provider"], "workspace:*");
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("refuses a workspace dependency absent from the admitted release catalog", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-workspace-refusal-"));
+  try {
+    const consumer = join(root, "consumer");
+    await mkdir(consumer);
+    await writeFile(join(consumer, "package.json"), `${JSON.stringify({ name: "@customer/consumer", version: "1.0.0", dependencies: { "@customer/absent": "workspace:*" }, "x-semiotic-voxel": { package: "@customer/consumer" } })}\n`);
+    const registry = join(root, "registry");
+    await assert.rejects(() => fabricatePackageRegistry({ packageDirectories: [consumer], outputDirectory: registry, registryUrl: "http://127.0.0.1:4873/" }), /workspace provider is absent/u);
+    assert.deepEqual(await readdir(registry), []);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

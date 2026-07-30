@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/semiotic-voxel-package-registry-service",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Materializes and serves an npm-compatible registry from explicit semiotic-voxel package carriers.",
   "type": "module",
   "private": true,

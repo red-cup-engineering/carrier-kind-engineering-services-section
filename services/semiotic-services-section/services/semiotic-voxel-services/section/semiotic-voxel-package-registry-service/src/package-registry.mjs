@@ -10,6 +10,7 @@ import { promisify } from "node:util";
 const execute = promisify(execFile);
 const PACKAGE_NAME = /^@[a-z0-9-]+\/[a-z0-9._-]+$/u;
 const VERSION = /^\d+\.\d+\.\d+$/u;
+const DEPENDENCY_FIELDS = ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies"];
 
 function inside(root, candidate) {
   const displacement = relative(root, candidate);
@@ -46,7 +47,7 @@ async function digest(path) {
   };
 }
 
-async function projectCarrier(source, target, manifest) {
+async function projectCarrier(source, target, manifest, rewriteManifest) {
   const instanceTerritories = [
     "/content/assets/legacy/",
     "/content/dispatches/",
@@ -67,6 +68,7 @@ async function projectCarrier(source, target, manifest) {
       if (instanceTerritories.some((territory) => framed.includes(territory))) continue;
       const sourcePath = join(from, entry.name);
       const targetPath = join(to, entry.name);
+      if (root && rewriteManifest && entry.name === "package.json") continue;
       if (entry.isDirectory()) {
         if (!root && await exists(join(sourcePath, "package.json"))) continue;
         await projectDirectory(sourcePath, targetPath, false, entryRelative);
@@ -81,14 +83,15 @@ async function projectCarrier(source, target, manifest) {
     }
   }
   await projectDirectory(source, target, true);
+  if (rewriteManifest) await writeFile(join(target, "package.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
-async function pack(directory, destination, manifest) {
+async function pack(directory, destination, manifest, rewriteManifest) {
   const working = await mkdtemp(join(destination, ".pack-"));
   const cache = await mkdtemp(join(tmpdir(), "semiotic-voxel-npm-cache-"));
   try {
     const projection = join(working, "carrier");
-    await projectCarrier(directory, projection, manifest);
+    await projectCarrier(directory, projection, manifest, rewriteManifest);
     const { stdout, stderr } = await execute("npm", ["pack", "--ignore-scripts", "--json", "--pack-destination", working], {
       cwd: projection,
       env: { ...process.env, npm_config_cache: cache, npm_config_update_notifier: "false", npm_config_loglevel: "error" },
@@ -103,6 +106,31 @@ async function pack(directory, destination, manifest) {
     await rm(working, { recursive: true, force: true });
     await rm(cache, { recursive: true, force: true });
   }
+}
+
+async function releasedManifest(manifest, packageVersions, baseRegistry) {
+  let release = manifest;
+  for (const field of DEPENDENCY_FIELDS) {
+    for (const [provider, requested] of Object.entries(manifest[field] ?? {})) {
+      if (typeof requested !== "string" || !requested.startsWith("workspace:")) continue;
+      let selected = packageVersions.get(provider);
+      if (selected === undefined && baseRegistry !== null) {
+        const metadataPath = join(baseRegistry, "metadata", `${encodeURIComponent(provider)}.json`);
+        if (await exists(metadataPath)) {
+          const metadata = JSON.parse(await readFile(metadataPath, "utf8"));
+          selected = metadata["dist-tags"]?.latest;
+          if (!VERSION.test(selected ?? "") || metadata.versions?.[selected]?.name !== provider) {
+            throw new Error(`workspace provider has no exact latest release: ${provider}`);
+          }
+          packageVersions.set(provider, selected);
+        }
+      }
+      if (selected === undefined) throw new Error(`workspace provider is absent from the admitted release catalog: ${provider}`);
+      if (release === manifest) release = structuredClone(manifest);
+      release[field][provider] = selected;
+    }
+  }
+  return { manifest: release, rewrite: release !== manifest };
 }
 
 async function procureComputeLease({ computeMarket, packageCount, concurrency }) {
@@ -154,6 +182,8 @@ export async function fabricatePackageRegistry({ packageDirectories, outputDirec
   const collisions = Object.entries(Object.groupBy(packages, ({ manifest }) => `${manifest.name}@${manifest.version}`)).filter(([, rows]) => rows.length > 1);
   if (collisions.length) throw new Error(`duplicate package versions: ${collisions.map(([identity]) => identity).join(", ")}`);
   packages.sort((left, right) => left.manifest.name.localeCompare(right.manifest.name));
+  const packageVersions = new Map(packages.map(({ manifest }) => [manifest.name, manifest.version]));
+  for (const candidate of packages) candidate.release = await releasedManifest(candidate.manifest, packageVersions, baseRegistry);
   const computeLease = await procureComputeLease({ computeMarket, packageCount: packages.length, concurrency });
   let leaseReleased = false;
   async function releaseComputeLease() {
@@ -171,8 +201,8 @@ export async function fabricatePackageRegistry({ packageDirectories, outputDirec
     let nextPackage = 0;
     async function fabricateNext() {
       while (nextPackage < packages.length) {
-        const { directory, manifest } = packages[nextPackage++];
-      const temporaryArtifact = await pack(directory, staging, manifest);
+        const { directory, manifest, release } = packages[nextPackage++];
+      const temporaryArtifact = await pack(directory, staging, release.manifest, release.rewrite);
       const names = artifactNames(manifest.name, manifest.version);
       const target = join(staging, names.relative);
       await mkdir(dirname(target), { recursive: true });
@@ -180,7 +210,7 @@ export async function fabricatePackageRegistry({ packageDirectories, outputDirec
       const measured = await digest(target);
       const tarball = new URL(names.relative, base).href;
       const versionMetadata = {
-        ...manifest,
+        ...release.manifest,
         dist: { tarball, shasum: measured.shasum, integrity: measured.integrity },
       };
       const metadataPath = join(staging, "metadata", `${encodeURIComponent(manifest.name)}.json`);
