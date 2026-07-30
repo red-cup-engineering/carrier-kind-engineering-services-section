@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { chmod, mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, chmod, mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
@@ -64,4 +64,28 @@ test("production Docker closure preserves its committed lock and uses npm ci", a
   assert.match(dockerfile, /test -f package-lock\.json/);
   assert.match(dockerfile, /npm ci --install-links --omit=dev --no-audit --no-fund/);
   assert.doesNotMatch(dockerfile, /rm -f package-lock\.json|npm install --omit=dev/);
+});
+
+test("ordinary pre-publication assay imports the committed archive without .git or command-path fallbacks", async () => {
+  const context = await mkdtemp(join(tmpdir(), "github-induction-archive-assay-"));
+  const service = new URL("..", import.meta.url).pathname;
+  const repository = (await execute("git", ["rev-parse", "--show-toplevel"], { cwd: service })).stdout.trim();
+  const prepare = join(service, "ops/cloud-run/prepare-context.sh");
+  try {
+    await execute(prepare, [context], { cwd: repository });
+    await assert.rejects(access(join(context, ".git")), /ENOENT/u);
+    const archived = join(context, "lib/emsenn/services/561-group/services/red-cup-engineering", packagePath);
+    await execute("npm", ["ci", "--install-links", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd: archived });
+    const custody = await readFile(join(archived, "node_modules/@red-cup-engineering/immutable-content-custody-service/src/immutable-content-custody.mjs"), "utf8");
+    assert.match(custody, /createR2SigV4Client, r2Configuration\) from "\.\/r2-sigv4\.mjs"/u, "immutable custody remains the sole direct SigV4 owner");
+    const runtime = await readFile(join(archived, "src/github-induction-production-runtime.mjs"), "utf8");
+    assert.match(runtime, /from "@red-cup-engineering\/immutable-content-custody-service"/u);
+    assert.doesNotMatch(runtime, /r2-sigv4|createR2SigV4Client|child_process|gcloud/u, "runtime uses custody authority rather than a broker or command fallback");
+    await execute(process.execPath, ["--input-type=module", "--eval", "await import('./src/github-induction-production-runtime.mjs')"], {
+      cwd: archived,
+      env: { ...process.env, PATH: join(context, "no-external-commands") },
+    });
+  } finally {
+    await rm(context, { recursive: true, force: true });
+  }
 });
