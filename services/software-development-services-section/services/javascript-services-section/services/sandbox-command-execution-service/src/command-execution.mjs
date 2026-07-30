@@ -1,6 +1,6 @@
 // One effectful operation: execute one already-admitted command and capture its result.
 import { spawnSync } from "node:child_process";
-import { directArguments, normalizeCommandResult, normalizeVerificationResult } from "../../../lib/material/sandbox-command-execution-normalization/src/command-normalization.mjs";
+import { directArguments, normalizeCommandResult, normalizeVerificationResult } from "./command-normalization.mjs";
 
 export function runCommand(command, { cwd, shell = "auto", signal } = {}) {
   if (signal?.aborted) throw signal.reason ?? new Error("command execution cancelled by customer");

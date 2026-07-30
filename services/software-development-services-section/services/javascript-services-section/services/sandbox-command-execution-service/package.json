@@ -5,8 +5,8 @@
   "type": "module",
   "exports": "./src/command-execution.mjs",
   "scripts": {
-    "check": "node --check src/command-execution.mjs",
-    "test": "node --test test/command-execution.test.mjs",
+    "check": "node --check src/command-execution.mjs && node --check src/command-normalization.mjs",
+    "test": "node --test test/command-execution.test.mjs test/command-normalization.test.mjs",
     "verify": "npm run check && npm test"
   },
   "x-agentic-metro-enterprise": {

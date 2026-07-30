@@ -23,7 +23,6 @@ while (queue.length) {
     if (typeof value === "string" && value.startsWith("file:")) queue.push(path.posix.normalize(path.posix.join(relative, value.slice(5))));
   }
 }
-seen.add("services/software-services-section/services/software-development-services-section/services/javascript-services-section/lib/material/sandbox-command-execution-normalization");
 for (const relative of [...seen].sort()) process.stdout.write(`${relative}\n`);
 NODE
 )
