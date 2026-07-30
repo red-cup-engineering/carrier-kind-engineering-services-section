@@ -53,6 +53,23 @@ function findings(resource) {
         found.push(Object.freeze({ type: "TemporalFailureMark", kind: "expected-public-service-status", mark: `requirement ${expectation.requirement} accepts HTTP ${expectation.acceptedStatuses.join(",")}, received ${entry.status}`, at: Object.freeze({ offset: 0, line: 1, column: 1 }) }));
       }
     }
+    // A heartbeat is a caller-admitted, finite observation of one circulation.
+    // It names every axis rather than granting an ambient inventory crawl. Each
+    // non-closed axis is consequently a repair obligation for the existing
+    // capability-demand path.
+    if (carrier?.type === "SemioticWebHeartbeatClosureObservation" && carrier.version === 1
+      && carrier.axes && typeof carrier.axes === "object" && !Array.isArray(carrier.axes)) {
+      const admittedAxes = ["authority", "carrier", "demandWorkIdentity", "resourceGrant", "executionResult", "chainSettlement", "nextObservation"];
+      for (const [axisIndex, axis] of admittedAxes.entries()) {
+        const observation = carrier.axes[axis];
+        if (!observation || typeof observation !== "object" || Array.isArray(observation)
+          || !["closed", "open", "unknown"].includes(observation.state)
+          || typeof observation.evidence !== "string" || observation.evidence.length === 0) {
+          throw new TypeError(`heartbeat axis ${axis} must name a state and evidence`);
+        }
+        if (observation.state !== "closed") found.push(Object.freeze({ type: "TemporalFailureMark", kind: "heartbeat-closure-axis", mark: `heartbeat axis ${axis} is ${observation.state}: ${observation.evidence}`, at: Object.freeze({ offset: axisIndex, line: axisIndex + 1, column: 1 }) }));
+      }
+    }
   } catch { /* Non-JSON resources remain ordinary code-territory material. */ }
   return found.sort((left, right) => left.at.offset - right.at.offset || left.kind.localeCompare(right.kind));
 }

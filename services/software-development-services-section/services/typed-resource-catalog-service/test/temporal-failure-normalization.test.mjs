@@ -34,3 +34,11 @@ test("marks a non-200 public service only under its exact expected-status contra
   assert.equal(failed.obligations[0].mark.kind, "expected-public-service-status");
   assert.equal(scanTemporalFailureMarks({ resources: [{ path: "gui-observation.json", content: uncontracted }] }).conforms, true);
 });
+
+test("an admitted heartbeat turns each non-closed circulation axis into a repair obligation", () => {
+  const axes = Object.fromEntries(["authority", "carrier", "demandWorkIdentity", "resourceGrant", "executionResult", "chainSettlement", "nextObservation"].map((axis) => [axis, { state: axis === "demandWorkIdentity" ? "closed" : "open", evidence: `urn:test:${axis}` }]));
+  const receipt = scanTemporalFailureMarks({ resources: [{ path: "heartbeat.json", content: JSON.stringify({ type: "SemioticWebHeartbeatClosureObservation", version: 1, axes }) }] });
+  assert.equal(receipt.conforms, false);
+  assert.equal(receipt.obligations.filter(({ mark }) => mark.kind === "heartbeat-closure-axis").length, 6);
+  assert.match(receipt.obligations[0].mark.mark, /heartbeat axis authority is open/u);
+});
