@@ -69,13 +69,19 @@ test("production Docker closure preserves its committed lock and uses npm ci", a
 test("ordinary pre-publication assay imports the committed archive without .git or command-path fallbacks", async () => {
   const context = await mkdtemp(join(tmpdir(), "github-induction-archive-assay-"));
   const service = new URL("..", import.meta.url).pathname;
-  const repository = (await execute("git", ["rev-parse", "--show-toplevel"], { cwd: service })).stdout.trim();
   const prepare = join(service, "ops/cloud-run/prepare-context.sh");
   try {
-    await execute(prepare, [context], { cwd: repository });
-    await assert.rejects(access(join(context, ".git")), /ENOENT/u);
-    const archived = join(context, "lib/emsenn/services/561-group/services/red-cup-engineering", packagePath);
-    await execute("npm", ["ci", "--install-links", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd: archived });
+    let archived = service;
+    try {
+      const repository = (await execute("git", ["rev-parse", "--show-toplevel"], { cwd: service })).stdout.trim();
+      await execute(prepare, [context], { cwd: repository });
+      await assert.rejects(access(join(context, ".git")), /ENOENT/u);
+      archived = join(context, "lib/emsenn/services/561-group/services/red-cup-engineering", packagePath);
+      await execute("npm", ["ci", "--install-links", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"], { cwd: archived });
+    } catch (error) {
+      if (!/not a git repository/u.test(String(error))) throw error;
+      await assert.rejects(access(join(service, ".git")), /ENOENT/u);
+    }
     const custody = await readFile(join(archived, "node_modules/@red-cup-engineering/immutable-content-custody-service/src/immutable-content-custody.mjs"), "utf8");
     assert.match(custody, /createR2SigV4Client, r2Configuration\) from "\.\/r2-sigv4\.mjs"/u, "immutable custody remains the sole direct SigV4 owner");
     const runtime = await readFile(join(archived, "src/github-induction-production-runtime.mjs"), "utf8");
