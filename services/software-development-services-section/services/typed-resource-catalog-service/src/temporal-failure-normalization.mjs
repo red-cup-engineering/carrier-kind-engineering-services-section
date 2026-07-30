@@ -41,6 +41,19 @@ function findings(resource) {
       if (match[0] === "") expression.lastIndex += 1;
     }
   }
+  // A transport status is a temporal failure only when this exact admitted
+  // carrier declares the service's expected public status.  Ordinary 503s
+  // remain observations, not global failure marks.
+  try {
+    const carrier = JSON.parse(resource.content);
+    const expectation = carrier?.expectation;
+    const observed = carrier?.observation?.projection?.observations;
+    if (typeof expectation?.requirement === "string" && expectation.requirement.length > 0 && Array.isArray(expectation?.acceptedStatuses) && expectation.acceptedStatuses.length > 0 && expectation.acceptedStatuses.every(Number.isInteger) && typeof expectation?.url === "string" && Array.isArray(observed)) {
+      for (const entry of observed) if (entry?.url === expectation.url && Number.isInteger(entry.status) && !expectation.acceptedStatuses.includes(entry.status)) {
+        found.push(Object.freeze({ type: "TemporalFailureMark", kind: "expected-public-service-status", mark: `requirement ${expectation.requirement} accepts HTTP ${expectation.acceptedStatuses.join(",")}, received ${entry.status}`, at: Object.freeze({ offset: 0, line: 1, column: 1 }) }));
+      }
+    }
+  } catch { /* Non-JSON resources remain ordinary code-territory material. */ }
   return found.sort((left, right) => left.at.offset - right.at.offset || left.kind.localeCompare(right.kind));
 }
 

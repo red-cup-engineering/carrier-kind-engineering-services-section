@@ -24,3 +24,13 @@ test("the same admitted territory has a stable clean receipt independent of reso
   assert.equal(left.id, right.id);
   assert.equal(refuseTemporalFailureMarks({ resources: [{ path: "healthy.mjs", content: "export const status = 'running';" }] }).conforms, true);
 });
+
+test("marks a non-200 public service only under its exact expected-status contract", () => {
+  const observation = { type: "RepositoryMaterialObservation", projection: { observations: [{ url: "https://gui.561.group", status: 503 }] } };
+  const contracted = JSON.stringify({ expectation: { requirement: "urn:sha256:f626f8a2bf391ff58304d5c277882f5ad1b3b889f6fa82352c38ba2078bd27ed", url: "https://gui.561.group", acceptedStatuses: [200] }, observation });
+  const uncontracted = JSON.stringify({ observation });
+  const failed = scanTemporalFailureMarks({ resources: [{ path: "gui-observation.json", content: contracted }] });
+  assert.equal(failed.conforms, false);
+  assert.equal(failed.obligations[0].mark.kind, "expected-public-service-status");
+  assert.equal(scanTemporalFailureMarks({ resources: [{ path: "gui-observation.json", content: uncontracted }] }).conforms, true);
+});
