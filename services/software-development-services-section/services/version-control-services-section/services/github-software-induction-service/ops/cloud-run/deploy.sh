@@ -9,6 +9,7 @@ region=${CLOUD_RUN_REGION:-us-central1}
 service=${CLOUD_RUN_SERVICE:-github-software-induction-service}
 tag=${IMAGE_TAG:-$(date -u +%Y%m%dT%H%M%SZ)}
 image=${IMAGE_URI:-${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-cells/${service}:${tag}}
+runtime_service_account=${CLOUD_RUN_SERVICE_ACCOUNT:-github-software-induction@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com}
 
 if [[ -z "${IMAGE_URI:-}" ]]; then
   context_dir=$(mktemp -d /tmp/github-software-induction-cloud-build.XXXXXXXX)
@@ -20,6 +21,7 @@ fi
 
 gcloud run deploy "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" \
   --image "$image" --allow-unauthenticated --execution-environment gen2 \
+  --service-account "$runtime_service_account" \
   --min-instances 0 --max-instances 2 --concurrency 4 --cpu 2 --memory 2Gi --timeout 900 --port 8080 \
   --set-env-vars "HOST=0.0.0.0,ACTIVITYPUB_ORIGIN=https://github-software-induction-service.invalid,ACTIVITYPUB_IDENTIFIER=github-software-induction-service,ACTIVITYPUB_KEYS_PATH=/secrets/activitypub/keys.json,CLOUDFLARE_R2_ACCOUNT_ID=${CLOUDFLARE_R2_ACCOUNT_ID},CLOUDFLARE_R2_BUCKET=${CLOUDFLARE_R2_BUCKET},AGENT_CARD_SIGNING_KEY=/secrets/a2a-key/signing-key.pem,AGENT_CARD_JWKS=/secrets/a2a-jwks/jwks.json,AGENT_CARD_SIGNING_KID=github-software-induction-service-ed25519,AGENT_CARD_SIGNING_ALG=EdDSA" \
   --update-secrets "/secrets/activitypub/keys.json=github-software-induction-activitypub-keys:latest,/secrets/a2a-key/signing-key.pem=github-software-induction-signing-key:latest,/secrets/a2a-jwks/jwks.json=github-software-induction-jwks:latest,GITHUB_SERVICES_TOKEN=github-software-induction-token:latest,API_KEY_CLOUDFLARE_R2_EDIT=cloudflare-r2-api-token:latest"
