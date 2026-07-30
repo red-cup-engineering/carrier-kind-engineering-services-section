@@ -6,6 +6,7 @@
   "description": "Customer-side independent verification and atomic GitHub induction of supplier software proposals.",
   "bin": {
     "execute-github-software-induction-a2a-message": "./bin/execute-a2a-message.mjs",
+    "submit-github-software-induction-activitypub": "./bin/submit-activitypub.mjs",
     "serve-github-software-induction-a2a": "./bin/serve-a2a.mjs"
   },
   "exports": {
@@ -42,7 +43,7 @@
     }
   },
   "scripts": {
-    "check": "node --check src/post-attempt.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check src/serve-activitypub.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/serve-a2a.mjs",
+    "check": "node --check src/post-attempt.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check src/serve-activitypub.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/submit-activitypub.mjs && node --check bin/serve-a2a.mjs",
     "test": "node --test"
   },
   "x-semiotic-voxel": {
