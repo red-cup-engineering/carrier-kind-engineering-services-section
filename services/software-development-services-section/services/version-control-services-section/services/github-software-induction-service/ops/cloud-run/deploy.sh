@@ -12,26 +12,10 @@ set -euo pipefail
 export GCS_OPERATION_PREFIX=${GCS_OPERATION_PREFIX:-operations/github-induction/v1/}
 [[ "$GCS_OPERATION_PREFIX" =~ ^[a-z0-9][a-z0-9._/-]*/$ && "$GCS_OPERATION_PREFIX" != *"//"* && "$GCS_OPERATION_PREFIX" != /* ]] || { echo "GCS_OPERATION_PREFIX must be one relative object prefix ending in /" >&2; exit 64; }
 script_dir=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
-actuator_module="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/src/gcloud-cloud-run-actuator.mjs"
 region=${CLOUD_RUN_REGION:-us-central1}
 service=${CLOUD_RUN_SERVICE:-github-software-induction-service}
 identifier=${ACTIVITYPUB_IDENTIFIER:-github-software-induction-service}
-tag=${BUILD_TAG:-$(git -C "$script_dir" rev-parse --verify HEAD)}
-revision_tag=$(node --input-type=module - "$actuator_module" "$service" "$tag" <<'NODE'
-import { createHash } from "node:crypto";
-import { pathToFileURL } from "node:url";
-const [modulePath, service, source] = process.argv.slice(2);
-const { CLOUD_RUN_TAGGED_ROUTE_LIMITS: limits } = await import(pathToFileURL(modulePath).href);
-const prefix = "s-";
-const digestCharacters = 6;
-const tag = `${prefix}${createHash("sha256").update(source).digest("hex").slice(0, digestCharacters)}`;
-if (service.length + tag.length > limits.maxServiceAndTagCharacters) process.exit(64);
-process.stdout.write(tag);
-NODE
-) || { echo "Cloud Run service leaves no valid deterministic staging-tag budget" >&2; exit 64; }
 image_repository="${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-cells/${service}"
-build_image="${image_repository}:${tag}"
 runtime_service_account=${CLOUD_RUN_SERVICE_ACCOUNT:-github-software-induction@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com}
 prepare_context=${PREPARE_CONTEXT_COMMAND:-$script_dir/prepare-context.sh}
 
@@ -51,6 +35,18 @@ if (url.protocol !== "https:" || url.pathname !== "/" || url.search || url.hash 
 process.stdout.write(url.origin);
 NODE
 ) || { echo "ACTIVITYPUB_ORIGIN must be a stable canonical HTTPS origin, never .invalid" >&2; exit 64; }
+
+repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
+actuator_module="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/src/gcloud-cloud-run-actuator.mjs"
+tag=${BUILD_TAG:-$(git -C "$script_dir" rev-parse --verify HEAD)}
+revision_tag=$(node --input-type=module - "$actuator_module" "$service" "$tag" <<'NODE'
+import { createHash } from "node:crypto"; import { pathToFileURL } from "node:url";
+const [modulePath, service, source] = process.argv.slice(2); const { CLOUD_RUN_TAGGED_ROUTE_LIMITS: limits } = await import(pathToFileURL(modulePath).href);
+const tag = `s-${createHash("sha256").update(source).digest("hex").slice(0, 6)}`;
+if (service.length + tag.length > limits.maxServiceAndTagCharacters) process.exit(64); process.stdout.write(tag);
+NODE
+) || { echo "Cloud Run service leaves no valid deterministic staging-tag budget" >&2; exit 64; }
+build_image="${image_repository}:${tag}"
 
 context_dir=$(mktemp -d /tmp/github-software-induction-cloud-build.XXXXXXXX)
 trap 'rm -rf -- "$context_dir"' EXIT

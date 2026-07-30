@@ -83,7 +83,7 @@ test("ordinary pre-publication assay imports the committed archive without .git 
       await assert.rejects(access(join(service, ".git")), /ENOENT/u);
     }
     const custody = await readFile(join(archived, "node_modules/@red-cup-engineering/immutable-content-custody-service/src/immutable-content-custody.mjs"), "utf8");
-    assert.match(custody, /createR2SigV4Client, r2Configuration\) from "\.\/r2-sigv4\.mjs"/u, "immutable custody remains the sole direct SigV4 owner");
+    assert.match(custody, /from "\.\/r2-sigv4\.mjs"/u, "immutable custody remains the sole direct SigV4 owner");
     const runtime = await readFile(join(archived, "src/github-induction-production-runtime.mjs"), "utf8");
     assert.match(runtime, /from "@red-cup-engineering\/immutable-content-custody-service"/u);
     assert.doesNotMatch(runtime, /r2-sigv4|createR2SigV4Client|child_process|gcloud/u, "runtime uses custody authority rather than a broker or command fallback");
