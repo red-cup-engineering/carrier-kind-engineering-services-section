@@ -2,8 +2,7 @@
   "name": "GitHub Software Induction Service",
   "description": "Independently verifies a supplier proposal and atomically induces it into a customer GitHub ref.",
   "supportedInterfaces": [
-    {"url": "${BASE_URL}/a2a/jsonrpc", "protocolBinding": "JSONRPC", "tenant": "", "protocolVersion": "1.0"},
-    {"url": "${BASE_URL}/a2a/rest", "protocolBinding": "HTTP+JSON", "tenant": "", "protocolVersion": "1.0"}
+    {"url": "${BASE_URL}/actors/github-software-induction-service/inbox", "protocolBinding": "HTTP+JSON", "tenant": "", "protocolVersion": "1.0"}
   ],
   "provider": {"url": "https://red-cup-engineering.561.group/", "organization": "Red Cup Engineering"},
   "version": "2.0.0",

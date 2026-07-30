@@ -8,7 +8,7 @@ RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
     apt-get update && apt-get install -y --no-install-recommends ca-certificates git && rm -rf /var/lib/apt/lists/* \
     && npm install -g npm@11 && rm -f package-lock.json \
     && npm install --omit=dev --install-links && npm cache clean --force \
-    && npm run check && node --test test/sovereign-induction.test.mjs test/post-attempt.test.mjs
+    && npm run check && npm test
 
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080 \
     AGENT_CARD_SIGNING_KEY=/secrets/a2a-key/signing-key.pem \
@@ -17,4 +17,4 @@ ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080 \
     AGENT_CARD_SIGNING_ALG=EdDSA
 USER node
 EXPOSE 8080
-CMD ["node", "bin/serve-a2a.mjs"]
+CMD ["node", "src/serve-activitypub.mjs"]
