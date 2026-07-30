@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${GOOGLE_CLOUD_PROJECT:?set GOOGLE_CLOUD_PROJECT}"
+script_dir=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+region=${CLOUD_RUN_REGION:-us-central1}
+service=${CLOUD_RUN_SERVICE:-github-software-induction-service}
+tag=${IMAGE_TAG:-$(date -u +%Y%m%dT%H%M%SZ)}
+image=${IMAGE_URI:-${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-cells/${service}:${tag}}
+
+if [[ -z "${IMAGE_URI:-}" ]]; then
+  context_dir=$(mktemp -d /tmp/github-software-induction-cloud-build.XXXXXXXX)
+  trap 'rm -rf -- "$context_dir"' EXIT
+  "$script_dir/prepare-context.sh" "$context_dir"
+  gcloud builds submit "$context_dir" --project "$GOOGLE_CLOUD_PROJECT" \
+    --config "$context_dir/cloudbuild.yaml" --substitutions "_IMAGE_URI=$image"
+fi
+
+gcloud run deploy "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" \
+  --image "$image" --allow-unauthenticated --execution-environment gen2 \
+  --min-instances 0 --max-instances 2 --concurrency 4 --cpu 2 --memory 2Gi --timeout 900 --port 8080 \
+  --set-env-vars "HOST=0.0.0.0,AGENT_CARD_SIGNING_KEY=/secrets/a2a/signing-key.pem,AGENT_CARD_JWKS=/secrets/a2a/jwks.json,AGENT_CARD_SIGNING_KID=github-software-induction-service-ed25519,AGENT_CARD_SIGNING_ALG=EdDSA" \
+  --update-secrets "/secrets/a2a/signing-key.pem=github-software-induction-signing-key:latest,/secrets/a2a/jwks.json=github-software-induction-jwks:latest,GITHUB_SERVICES_TOKEN=github-software-induction-token:latest"
+service_url=$(gcloud run services describe "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" --format='value(status.url)')
+gcloud run services update "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" --update-env-vars "BASE_URL=$service_url"
+printf 'service_url=%s\nimage=%s\n' "$service_url" "$image"

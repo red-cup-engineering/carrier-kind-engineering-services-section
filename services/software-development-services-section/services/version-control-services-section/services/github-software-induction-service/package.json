@@ -15,13 +15,13 @@
   },
   "dependencies": {
     "@a2a-js/sdk": "1.0.0-beta.0",
-    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-contracted-agent-service": "file:../../../../../web-services-section/services/a2a-services-section/services/a2a-contracted-agent-service",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/github-services-section": "1.0.0",
+    "@red-cup-engineering/github-services-section": "file:../../../../../web-services-section/services/cloud-compute-services-section/github-services-section",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
-    "@red-cup-engineering/software-mission-execution-service": "1.0.0"
+    "@red-cup-engineering/sandbox-command-execution-service": "file:../../../javascript-services-section/services/sandbox-command-execution-service"
   },
   "x-agentic-metro-enterprise": {
     "node-id": "github-software-induction-service",
