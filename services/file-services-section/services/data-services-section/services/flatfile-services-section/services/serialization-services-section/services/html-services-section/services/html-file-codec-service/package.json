@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/html-file-codec-service",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": { "types": "./dist/html/index.d.mts", "import": "./dist/html/index.mjs" },
+    "./document-nodes": { "types": "./dist/html/document-nodes.d.mts", "import": "./dist/html/document-nodes.mjs" }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@lenticule-science/articulating": "workspace:*",
+    "@red-cup-engineering/file-projection-kernel-service": "workspace:*",
+    "@red-cup-engineering/json-file-codec-service": "workspace:*",
+    "@red-cup-engineering/xml-file-codec-service": "workspace:*"
+  },
+  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
+  "x-agentic-metro-enterprise": {
+    "node-id": "html-file-codec-service",
+    "actor": "urn:ame:html-file-codec-service",
+    "organizational-kind": "capability-cell",
+    "owners": ["html-services-section"]
+  }
+}

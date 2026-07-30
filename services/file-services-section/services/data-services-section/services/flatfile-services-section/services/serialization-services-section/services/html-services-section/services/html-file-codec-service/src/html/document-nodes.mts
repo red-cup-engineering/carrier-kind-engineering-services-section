@@ -5,7 +5,7 @@
  * codecs in this directory: it gives static renderers a shared, escaped node
  * tree instead of each renderer owning a private document string template.
  */
-import { escapeXmlAttr, escapeXmlText } from "../core.mjs";
+import { escapeXmlAttr, escapeXmlText } from "@red-cup-engineering/xml-file-codec-service";
 
 export type HtmlAttributeValue = string | number | boolean | null | undefined;
 export type HtmlAttributes = Readonly<Record<string, HtmlAttributeValue>>;

@@ -1,5 +1,5 @@
 /**
- * codecs/text/xml/html - the Semantic Hypertext Packet (SHP) codec: a carrier⇄HTML
+ * codecs/html - the Semantic Hypertext Packet (SHP) codec: a carrier⇄HTML
  * holography projector.
  *
  * SHP is a finite, deterministic, MONOTONE projection of a settled carrier
@@ -11,7 +11,7 @@
  * markup boundary settles through the same charge algebra as everything else.
  *
  * The whole subtree (escape, morphism, markup, lint, profiles, normalize,
- * project, packet, projector) is consolidated here, flat on the new base.
+ * project, packet, projector) is owned by the HTML codec service.
  */
 import { define, type Projector } from "@red-cup-engineering/file-projection-kernel-service";
 import {

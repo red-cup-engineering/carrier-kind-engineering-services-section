@@ -13,7 +13,7 @@ import {
   type HtmlAttributes,
   type HtmlChild,
   type HtmlNode,
-} from "@red-cup-engineering/xml-file-codec-service/html/document-nodes";
+} from "@red-cup-engineering/html-file-codec-service/document-nodes";
 import { markdownFeatures, type MarkdownFeature } from "./features.mjs";
 
 export interface MarkdownHtmlOptions {
