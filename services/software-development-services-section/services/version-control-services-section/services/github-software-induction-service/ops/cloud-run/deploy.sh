@@ -4,27 +4,86 @@ set -euo pipefail
 : "${GOOGLE_CLOUD_PROJECT:?set GOOGLE_CLOUD_PROJECT}"
 : "${CLOUDFLARE_R2_ACCOUNT_ID:?set CLOUDFLARE_R2_ACCOUNT_ID}"
 : "${CLOUDFLARE_R2_BUCKET:?set CLOUDFLARE_R2_BUCKET}"
+: "${ACTIVITYPUB_ORIGIN:?set ACTIVITYPUB_ORIGIN to the final canonical HTTPS origin}"
+: "${CLOUD_TASKS_LOCATION:?set CLOUD_TASKS_LOCATION}"
+: "${CLOUD_TASKS_QUEUE:?set CLOUD_TASKS_QUEUE}"
+: "${CLOUD_TASKS_SERVICE_ACCOUNT:?set CLOUD_TASKS_SERVICE_ACCOUNT}"
+: "${GCS_OPERATION_BUCKET:?set GCS_OPERATION_BUCKET}"
+export GCS_OPERATION_PREFIX=${GCS_OPERATION_PREFIX:-operations/github-induction/v1/}
+[[ "$GCS_OPERATION_PREFIX" =~ ^[a-z0-9][a-z0-9._/-]*/$ && "$GCS_OPERATION_PREFIX" != *"//"* && "$GCS_OPERATION_PREFIX" != /* ]] || { echo "GCS_OPERATION_PREFIX must be one relative object prefix ending in /" >&2; exit 64; }
 script_dir=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
 region=${CLOUD_RUN_REGION:-us-central1}
 service=${CLOUD_RUN_SERVICE:-github-software-induction-service}
-tag=${IMAGE_TAG:-$(date -u +%Y%m%dT%H%M%SZ)}
-image=${IMAGE_URI:-${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-cells/${service}:${tag}}
+identifier=${ACTIVITYPUB_IDENTIFIER:-github-software-induction-service}
+tag=${BUILD_TAG:-$(git -C "$script_dir" rev-parse --verify HEAD)}
+revision_tag="stage-$(printf '%s' "$tag" | sha256sum | cut -c1-16)"
+image_repository="${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-cells/${service}"
+build_image="${image_repository}:${tag}"
 runtime_service_account=${CLOUD_RUN_SERVICE_ACCOUNT:-github-software-induction@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com}
+actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/bin/gcloud-cloud-run-actuator.mjs"
 
-if [[ -z "${IMAGE_URI:-}" ]]; then
-  context_dir=$(mktemp -d /tmp/github-software-induction-cloud-build.XXXXXXXX)
-  trap 'rm -rf -- "$context_dir"' EXIT
-  "$script_dir/prepare-context.sh" "$context_dir"
-  gcloud builds submit "$context_dir" --project "$GOOGLE_CLOUD_PROJECT" \
-    --config "$context_dir/cloudbuild.yaml" --substitutions "_IMAGE_URI=$image"
-fi
+for command in gcloud node; do command -v "$command" >/dev/null || { echo "missing required command: $command" >&2; exit 69; }; done
+if [[ -n "${ACTUATOR_CLI:-}" ]]; then command -v "$ACTUATOR_CLI" >/dev/null || { echo "ACTUATOR_CLI bootstrap override is unavailable" >&2; exit 69; }
+else [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }; fi
 
-gcloud run deploy "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" \
-  --image "$image" --allow-unauthenticated --execution-environment gen2 \
-  --service-account "$runtime_service_account" \
-  --min-instances 0 --max-instances 2 --concurrency 4 --cpu 2 --memory 2Gi --timeout 900 --port 8080 \
-  --set-env-vars "HOST=0.0.0.0,ACTIVITYPUB_ORIGIN=https://github-software-induction-service.invalid,ACTIVITYPUB_IDENTIFIER=github-software-induction-service,ACTIVITYPUB_KEYS_PATH=/secrets/activitypub/keys.json,CLOUDFLARE_R2_ACCOUNT_ID=${CLOUDFLARE_R2_ACCOUNT_ID},CLOUDFLARE_R2_BUCKET=${CLOUDFLARE_R2_BUCKET},AGENT_CARD_SIGNING_KEY=/secrets/a2a-key/signing-key.pem,AGENT_CARD_JWKS=/secrets/a2a-jwks/jwks.json,AGENT_CARD_SIGNING_KID=github-software-induction-service-ed25519,AGENT_CARD_SIGNING_ALG=EdDSA" \
-  --update-secrets "/secrets/activitypub/keys.json=github-software-induction-activitypub-keys:latest,/secrets/a2a-key/signing-key.pem=github-software-induction-signing-key:latest,/secrets/a2a-jwks/jwks.json=github-software-induction-jwks:latest,GITHUB_SERVICES_TOKEN=github-software-induction-token:latest,API_KEY_CLOUDFLARE_R2_EDIT=cloudflare-r2-api-token:latest"
-service_url=$(gcloud run services describe "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" --format='value(status.url)')
-gcloud run services update "$service" --project "$GOOGLE_CLOUD_PROJECT" --region "$region" --update-env-vars "BASE_URL=$service_url,ACTIVITYPUB_ORIGIN=$service_url"
-printf 'service_url=%s\nimage=%s\n' "$service_url" "$image"
+activitypub_origin=$(node --input-type=module - "$ACTIVITYPUB_ORIGIN" <<'NODE'
+const input = process.argv[2];
+let url;
+try { url = new URL(input); } catch { process.exit(64); }
+if (url.protocol !== "https:" || url.pathname !== "/" || url.search || url.hash || url.username || url.password || url.hostname.endsWith(".invalid")) process.exit(64);
+process.stdout.write(url.origin);
+NODE
+) || { echo "ACTIVITYPUB_ORIGIN must be a stable canonical HTTPS origin, never .invalid" >&2; exit 64; }
+
+context_dir=$(mktemp -d /tmp/github-software-induction-cloud-build.XXXXXXXX)
+trap 'rm -rf -- "$context_dir"' EXIT
+"$script_dir/prepare-context.sh" "$context_dir"
+gcloud builds submit "$context_dir" --project "$GOOGLE_CLOUD_PROJECT" \
+  --config "$context_dir/cloudbuild.yaml" --substitutions "_IMAGE_URI=$build_image"
+image_digest=$(gcloud artifacts docker images describe "$build_image" --project "$GOOGLE_CLOUD_PROJECT" --format='value(image_summary.digest)')
+[[ "$image_digest" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "Cloud Build image digest is not one sha256 digest" >&2; exit 65; }
+image="${image_repository}@${image_digest}"
+export REVISION_TAG="$revision_tag"
+
+stage_request=$(node --input-type=module - "$GOOGLE_CLOUD_PROJECT" "$region" "$service" "$image" "$runtime_service_account" "$activitypub_origin" <<'NODE'
+const [project, region, service, image, serviceAccount, origin] = process.argv.slice(2);
+const environment = {
+  HOST: "0.0.0.0", BASE_URL: origin, ACTIVITYPUB_ORIGIN: origin, ACTIVITYPUB_IDENTIFIER: "github-software-induction-service",
+  ACTIVITYPUB_KEYS_PATH: "/secrets/activitypub/keys.json", CLOUDFLARE_R2_ACCOUNT_ID: process.env.CLOUDFLARE_R2_ACCOUNT_ID,
+  CLOUDFLARE_R2_BUCKET: process.env.CLOUDFLARE_R2_BUCKET, CLOUD_TASKS_LOCATION: process.env.CLOUD_TASKS_LOCATION,
+  CLOUD_TASKS_QUEUE: process.env.CLOUD_TASKS_QUEUE, CLOUD_TASKS_SERVICE_ACCOUNT: process.env.CLOUD_TASKS_SERVICE_ACCOUNT,
+  GCS_OPERATION_BUCKET: process.env.GCS_OPERATION_BUCKET, GCS_OPERATION_PREFIX: process.env.GCS_OPERATION_PREFIX, AGENT_CARD_SIGNING_KEY: "/secrets/a2a-key/signing-key.pem",
+  AGENT_CARD_JWKS: "/secrets/a2a-jwks/jwks.json", AGENT_CARD_SIGNING_KID: "github-software-induction-service-ed25519", AGENT_CARD_SIGNING_ALG: "EdDSA",
+};
+const secretBindings = {
+  "/secrets/activitypub/keys.json": "github-software-induction-activitypub-keys:latest",
+  "/secrets/a2a-key/signing-key.pem": "github-software-induction-signing-key:latest",
+  "/secrets/a2a-jwks/jwks.json": "github-software-induction-jwks:latest",
+  GITHUB_SERVICES_TOKEN: "github-software-induction-token:latest", API_KEY_CLOUDFLARE_R2_EDIT: "cloudflare-r2-api-token:latest",
+};
+process.stdout.write(JSON.stringify({ operation: "deploy-cloud-run-service", project, region, service, image, revisionTag: process.env.REVISION_TAG, allowUnauthenticated: true, serviceAccount, environment, secretBindings, concurrency: 4, cpu: "2", memory: "2Gi", timeoutSeconds: 900, maxInstances: 2 }));
+NODE
+)
+actuate() { if [[ -n "${ACTUATOR_CLI:-}" ]]; then printf '%s' "$1" | "$ACTUATOR_CLI"; else printf '%s' "$1" | node "$actuator_bin"; fi; }
+stage_receipt=$(actuate "$stage_request")
+revision=$(printf '%s' "$stage_receipt" | node --input-type=module -e 'let source="";process.stdin.on("data",(c)=>source+=c).on("end",()=>{const record=JSON.parse(source);const revision=record?.receipt?.object?.content?.revision;if(typeof revision!=="string"||revision==="")process.exit(65);process.stdout.write(revision)})')
+tag_url=$(printf '%s' "$stage_receipt" | node --input-type=module -e 'let source="";process.stdin.on("data",(c)=>source+=c).on("end",()=>{const record=JSON.parse(source);const url=record?.receipt?.object?.content?.tagUrl;if(typeof url!=="string"||!url.startsWith("https://"))process.exit(65);process.stdout.write(url.replace(/\/$/,""))})')
+node --input-type=module - "$tag_url" "$activitypub_origin" "$identifier" <<'NODE'
+const [tagUrl, origin, identifier] = process.argv.slice(2);
+const actor = await fetch(`${tagUrl}/actors/${identifier}`, { headers: { accept: "application/activity+json" } });
+if (!actor.ok) throw new Error(`staged actor probe failed with HTTP ${actor.status}`);
+const document = await actor.json();
+if (document?.type !== "Service" || document?.id !== `${origin}/actors/${identifier}`) throw new Error("staged actor does not project the canonical ActivityPub Service identity");
+const card = await fetch(`${tagUrl}/.well-known/agent-card.json`, { headers: { accept: "application/json" } });
+if (!card.ok || !Array.isArray((await card.json())?.signatures)) throw new Error("staged signed agent card is absent");
+const worker = await fetch(`${tagUrl}/_private/github-induction-worker`, { method: "POST" });
+if (worker.status !== 401) throw new Error(`staged private worker did not fail closed (HTTP ${worker.status})`);
+NODE
+cutover_request=$(node --input-type=module - "$GOOGLE_CLOUD_PROJECT" "$region" "$service" "$revision" "$activitypub_origin" <<'NODE'
+const [project, region, service, revision, canonicalOrigin] = process.argv.slice(2);
+process.stdout.write(JSON.stringify({ operation: "cutover-cloud-run-service", project, region, service, revision, canonicalOrigin }));
+NODE
+)
+actuate "$cutover_request" >/dev/null
+printf 'origin=%s\nimage=%s\nrevision=%s\n' "$activitypub_origin" "$image" "$revision"

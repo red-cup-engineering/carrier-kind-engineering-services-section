@@ -4,6 +4,7 @@ import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
 import { relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
 import { induceGithubSoftwareProposalLocally } from "./post-attempt.mjs";
+import { executeInductionSaga } from "./induction-saga.mjs";
 
 export const ACTOR = "urn:ame:github-software-induction-service";
 const id = (value) => semanticId(relationalRwilDocument(value));
@@ -25,7 +26,7 @@ export async function executeOperation(request, options = {}) {
   if (!exact(request) || request.provider !== ACTOR || request.type !== "GithubSoftwareInductionRequest") {
     throw new Error("exact provider-addressed GitHub software induction request is required");
   }
-  const result = await (options.induce ?? induceGithubSoftwareProposalLocally)(request.input, options.provider);
+  const result = await executeInductionSaga(request, { induce: options.induce ?? induceGithubSoftwareProposalLocally, provider: options.provider, operationStore: options.operationStore });
   return record({ type: "GithubSoftwareInductionResult", provider: ACTOR, request: request.id, result });
 }
 

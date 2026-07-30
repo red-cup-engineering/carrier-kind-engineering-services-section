@@ -125,7 +125,7 @@ export async function induceGithubSoftwareProposalLocally({
   target = { repository: source?.repository, ref: "heads/main", create: false },
   commitMessage = "Induce verified software proposal",
   chain,
-}, { api = githubApi(), induce } = {}) {
+}, { api = githubApi(), induce, operationKey, onState = () => {} } = {}) {
   assertProposal(proposal);
   if (source?.kind !== "github-repository" || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(source.repository ?? "")
       || !/^[0-9a-f]{40}$/u.test(source.commit ?? "")) {
@@ -148,6 +148,7 @@ export async function induceGithubSoftwareProposalLocally({
   try {
     await api.downloadRepositoryTarball(source.repository, source.commit, archive);
     execFileSync("tar", ["-xzf", archive, "-C", territory, "--strip-components=1"], { stdio: "pipe" });
+    await onState("materialized");
     const existing = new Map((await api.getTreeEntries(source.repository, source.commit))
       .map((entry) => [entry.path, entry]));
     const receipt = induce ? await induce({ territory, writablePaths, verifyCommand, acceptanceCommand }, {
@@ -156,6 +157,7 @@ export async function induceGithubSoftwareProposalLocally({
     if (!receipt?.verification?.passed || !receipt?.acceptance?.passed) {
       throw new Error("customer induction did not independently verify and accept the proposal");
     }
+    await onState("verified");
     const readJson = (relativePath) => {
       const path = join(territory, relativePath);
       return existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : null;
@@ -203,8 +205,9 @@ export async function induceGithubSoftwareProposalLocally({
     }
     const parentCommit = creatingRepository ? null : await api.getCommit(source.repository, source.commit);
     const tree = await api.createTree(target.repository, { baseTree: parentCommit?.tree.sha, entries });
+    await onState("publication-attempted");
     const commit = await api.createCommit(target.repository, {
-      message: commitMessage,
+      message: operationKey ? `${commitMessage}\n\nRMN-Request: ${operationKey}` : commitMessage,
       tree: tree.sha,
       parents: creatingRepository ? [] : [source.commit],
     });
@@ -224,6 +227,7 @@ export async function induceGithubSoftwareProposalLocally({
       inducedPaths: receipt.appliedPaths,
       verification: receipt.verification,
       acceptance: receipt.acceptance,
+      operation: operationKey ?? null,
       projections,
     });
   } finally {

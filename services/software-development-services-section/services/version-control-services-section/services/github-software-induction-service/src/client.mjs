@@ -33,5 +33,5 @@ export async function induceGithubSoftwareProposal(input, {
     keyPath: required(keyPath, "ACTIVITYPUB_KEYS_PATH"), recipient: recipientActor,
     inbox: required(inbox, "GITHUB_SOFTWARE_INDUCTION_ACTIVITYPUB_INBOX"),
   });
-  return Object.freeze({ disposition: "submitted", request: request.id, activity: activity.id, delivery });
+  return Object.freeze({ disposition: "submitted", operation: request.id, request: request.id, activity: activity.id, delivery });
 }
