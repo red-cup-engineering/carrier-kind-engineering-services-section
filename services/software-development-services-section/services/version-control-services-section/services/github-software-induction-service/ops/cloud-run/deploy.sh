@@ -61,7 +61,7 @@ export REVISION_TAG="$revision_tag"
 stage_request=$(node --input-type=module - "$GOOGLE_CLOUD_PROJECT" "$region" "$service" "$image" "$runtime_service_account" "$activitypub_origin" <<'NODE'
 const [project, region, service, image, serviceAccount, origin] = process.argv.slice(2);
 const environment = {
-  HOST: "0.0.0.0", BASE_URL: origin, ACTIVITYPUB_ORIGIN: origin, ACTIVITYPUB_IDENTIFIER: "github-software-induction-service",
+  HOST: "0.0.0.0", GOOGLE_CLOUD_PROJECT: project, BASE_URL: origin, ACTIVITYPUB_ORIGIN: origin, ACTIVITYPUB_IDENTIFIER: "github-software-induction-service",
   ACTIVITYPUB_KEYS_PATH: "/secrets/activitypub/keys.json", CLOUDFLARE_R2_ACCOUNT_ID: process.env.CLOUDFLARE_R2_ACCOUNT_ID,
   CLOUDFLARE_R2_BUCKET: process.env.CLOUDFLARE_R2_BUCKET, CLOUD_TASKS_LOCATION: process.env.CLOUD_TASKS_LOCATION,
   CLOUD_TASKS_QUEUE: process.env.CLOUD_TASKS_QUEUE, CLOUD_TASKS_SERVICE_ACCOUNT: process.env.CLOUD_TASKS_SERVICE_ACCOUNT,
