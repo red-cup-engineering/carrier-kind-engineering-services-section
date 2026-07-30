@@ -7,6 +7,7 @@
     "./canonical-cbor": "./src/canonical-cbor.mjs",
     "./client": "./src/client.mjs",
     "./conformance": "./src/conformance.mjs",
+    "./circuit-residue": "./src/circuit-residue.mjs",
     "./relational-value": "./src/relational-value.mjs",
     "./test-provider": "./src/test-provider.mjs"
   },
