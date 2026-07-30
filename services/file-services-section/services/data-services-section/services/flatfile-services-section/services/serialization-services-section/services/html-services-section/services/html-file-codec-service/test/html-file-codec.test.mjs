@@ -73,3 +73,46 @@ test("scans discovery tags without interpreting inert element bodies", () => {
   assert.equal(tags[2].attrs.href, "u/1");
   assert.equal(htmlDocumentBase(html, "https://example.test/fallback"), "https://example.test/root/");
 });
+
+test("carries trusted codec fragments and document chrome through a render fiber", async () => {
+  const source = await import("@lenticule-science/articulating/predicating/positing/settling/document");
+  const document = Object.freeze({
+    kind: "settledDocument.fixedPoint",
+    source: {},
+    fixedPoint: {},
+    reading: {},
+    addresses: Object.freeze([{ kind: "settledDocument.address", key: "root", cell: {} }]),
+    order: Object.freeze([]),
+    references: Object.freeze([]),
+    valuationSites: Object.freeze([{ kind: "settledDocument.valuationSite", address: "root", value: "potential", meme: {} }]),
+  });
+  assert.equal(typeof source.html_is_carrier_not_document, "function");
+  const { htmlCarrierOf, profile_forms_render_fiber, renderHtmlFiber } = await import("../dist/html/index.mjs");
+  const carrier = htmlCarrierOf(document, [{
+    kind: "rendering.htmlCarrier.node",
+    nodeId: "root",
+    element: "main",
+    semanticAddress: "root",
+    html: "<strong>trusted</strong>",
+  }]);
+  assert.equal(carrier.kind, "rendering.htmlCarrier");
+  const profile = {
+    kind: "rendering.profile",
+    name: "fixture",
+    allowedElements: ["main"],
+    allowedStyleBehavior: ["static"],
+    allowedCompletionRegimes: ["ordinal.closure.regime.finite"],
+    obligations: [],
+    preservationLaws: ["preserve-addresses", "preserve-order", "preserve-references", "preserve-valuation-sites", "carrier-not-document", "css-settles"],
+  };
+  const system = { kind: "rendering.css.system", carrier, completionRegime: "ordinal.closure.regime.finite", declarations: [] };
+  const fiber = profile_forms_render_fiber(profile, carrier, system, "static");
+  assert.equal(fiber.kind, "rendering.profile_forms_render_fiber:witness");
+  const rendered = renderHtmlFiber(fiber, {
+    head: ['<meta name="fixture" content="yes">'],
+    bodyAttributes: { class: "fixture", hidden: "" },
+  }).html;
+  assert.match(rendered, /<meta name="fixture" content="yes">/);
+  assert.match(rendered, /<body class="fixture" hidden>/);
+  assert.match(rendered, /<main data-render-node="root"><strong>trusted<\/strong><\/main>/);
+});

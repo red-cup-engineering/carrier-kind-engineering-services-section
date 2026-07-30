@@ -663,6 +663,8 @@ export interface HtmlCarrierNode {
   readonly valuationSite?: string;
   readonly attributes?: Readonly<Record<string, HtmlValue>>;
   readonly text?: HtmlValue;
+  /** Trusted HTML from a named codec boundary, appended after escaped text. */
+  readonly html?: string;
   readonly children?: readonly string[];
 }
 
@@ -1047,6 +1049,9 @@ export interface HtmlFiberDocumentOptions {
   readonly lang?: string;
   readonly roots?: readonly string[];
   readonly metadata?: Readonly<Record<string, HtmlValue>>;
+  readonly bodyAttributes?: Readonly<Record<string, HtmlValue>>;
+  /** Trusted head fragments from named codecs, such as schema.org JSON-LD. */
+  readonly head?: readonly string[];
 }
 
 export interface HtmlFiberDocument<H extends HtmlCarrierOf = HtmlCarrierOf> {
@@ -1098,7 +1103,7 @@ function renderCarrierNode(
       ? {}
       : { class: ownClass === undefined || ownClass === "" ? className : `${ownClass} ${className}` }),
   };
-  const body = `${node.text === undefined ? "" : escapeText(node.text)}${(node.children ?? []).map((childId) => {
+  const body = `${node.text === undefined ? "" : escapeText(node.text)}${node.html ?? ""}${(node.children ?? []).map((childId) => {
     const child = byId.get(childId);
     if (child === undefined) throw new TypeError(`renderHtmlFiber: missing child carrier node ${childId}`);
     return renderCarrierNode(child, byId, classNames, nextSeen);
@@ -1129,18 +1134,20 @@ export function renderHtmlFiber<H extends HtmlCarrierOf>(
   const metadata = Object.entries(options.metadata ?? {})
     .map(([key, value]) => `    <meta name="${escapeAttr(key)}" content="${escapeAttr(value)}">`)
     .join("\n");
+  const head = (options.head ?? []).map((fragment) => `    ${fragment}`).join("\n");
   const css = cssTextFromVisualValuation(fiber.fiber.valuation, classes);
   const title = options.title ?? fiber.fiber.profile.name;
+  const bodyAttributes = Object.entries(options.bodyAttributes ?? {}).map(renderHtmlAttr).join("");
   const html = `<!DOCTYPE html>
 <html lang="${escapeAttr(options.lang ?? "en")}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="render-profile" content="${escapeAttr(fiber.fiber.profile.name)}">${metadata ? "\n" + metadata : ""}
-    <title>${escapeText(title)}</title>
+    <title>${escapeText(title)}</title>${head ? "\n" + head : ""}
     <style>${css}</style>
 </head>
-<body>
+<body${bodyAttributes}>
 ${body}
 </body>
 </html>
