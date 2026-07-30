@@ -1,30 +1,37 @@
-import { randomUUID } from "node:crypto";
-import { Message, Role } from "@a2a-js/sdk";
-import { a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
-import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { ACTOR, operationBytes, operationFromBytes, record } from "./a2a-executor.mjs";
+import { userRmnMessage } from "@red-cup-engineering/a2a-rmn-part-service";
+import { deliverFromEnvironment } from "@red-cup-engineering/activitypub-services-section/deliver";
+import { projectRmnActivity } from "@red-cup-engineering/activitypub-services-section/rmn-activity";
+import { ACTOR, operationBytes, record } from "./a2a-executor.mjs";
+
+function required(value, label) {
+  if (typeof value !== "string" || value.trim() === "") throw new Error(`${label} is required`);
+  return value.trim();
+}
 
 export async function induceGithubSoftwareProposal(input, {
-  agentCardUrl = process.env.GITHUB_SOFTWARE_INDUCTION_AGENT_CARD_URL,
-  send = sendRmnTask,
-  signal,
+  origin = process.env.ACTIVITYPUB_ORIGIN,
+  identifier = process.env.ACTIVITYPUB_IDENTIFIER,
+  keyPath = process.env.ACTIVITYPUB_KEYS_PATH,
+  agentCard = process.env.ACTIVITYPUB_A2A_AGENT_CARD,
+  recipient = process.env.GITHUB_SOFTWARE_INDUCTION_ACTIVITYPUB_ACTOR,
+  inbox = process.env.GITHUB_SOFTWARE_INDUCTION_ACTIVITYPUB_INBOX,
+  deliver = deliverFromEnvironment,
+  eventTime = new Date().toISOString(),
 } = {}) {
-  if (typeof agentCardUrl !== "string" || agentCardUrl === "") {
-    throw new Error("GITHUB_SOFTWARE_INDUCTION_AGENT_CARD_URL is required");
-  }
+  const senderOrigin = required(origin, "ACTIVITYPUB_ORIGIN").replace(/\/$/u, "");
+  const senderIdentifier = required(identifier, "ACTIVITYPUB_IDENTIFIER");
+  const recipientActor = required(recipient, "GITHUB_SOFTWARE_INDUCTION_ACTIVITYPUB_ACTOR");
   const request = record({ type: "GithubSoftwareInductionRequest", provider: ACTOR, input });
-  const message = Message.toJSON({
-    messageId: randomUUID(), contextId: input.run ?? "", taskId: "", role: Role.ROLE_USER,
-    parts: [rmnPart(operationBytes(request))], metadata: {}, extensions: [], referenceTaskIds: [],
+  const bytes = operationBytes(request), message = userRmnMessage(bytes);
+  const activity = projectRmnActivity({
+    type: "Create", origin: senderOrigin, identifier: senderIdentifier,
+    recipient: recipientActor, objectBytes: bytes, a2aMessage: message,
+    a2aRole: "ROLE_USER", agentCard: required(agentCard, "ACTIVITYPUB_A2A_AGENT_CARD"), eventTime,
   });
-  const exchange = await send({ agentUrl: agentCardUrl, message, requireSignature: true, signal });
-  const response = operationFromBytes(extractRmnPart(a2aResultParts(exchange.result)).bytes);
-  if (response?.type !== "GithubSoftwareInductionResult" || response.provider !== ACTOR || response.request !== request.id) {
-    throw new Error("GitHub induction provider returned a foreign result");
-  }
-  return Object.freeze({
-    ...response.result,
-    provider: ACTOR,
-    providerReceipt: { inputNi: exchange.inputNi, outputNi: exchange.outputNi, agentCard: exchange.agentCard },
+  const delivery = await deliver(activity, {
+    origin: senderOrigin, identifier: senderIdentifier,
+    keyPath: required(keyPath, "ACTIVITYPUB_KEYS_PATH"), recipient: recipientActor,
+    inbox: required(inbox, "GITHUB_SOFTWARE_INDUCTION_ACTIVITYPUB_INBOX"),
   });
+  return Object.freeze({ disposition: "submitted", request: request.id, activity: activity.id, delivery });
 }
