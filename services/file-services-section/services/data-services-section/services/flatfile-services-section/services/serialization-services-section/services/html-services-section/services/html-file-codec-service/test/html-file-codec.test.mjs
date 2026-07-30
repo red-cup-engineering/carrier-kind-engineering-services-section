@@ -10,7 +10,11 @@ import {
   lint,
   markup,
   project,
+  ref,
+  isRef,
+  slug,
 } from "../dist/html/index.mjs";
+import { htmlDocumentBase, relTokens, scanHtmlStartTags } from "../dist/html/scan.mjs";
 import {
   htmlElement,
   renderHtmlDocument,
@@ -48,4 +52,24 @@ test("preserves the microformat string-rendering wire contract", () => {
   assert.equal(classes("h-entry alpha", "alpha beta"), "h-entry alpha beta");
   assert.equal(el("img", { alt: "A&B" }), '<img alt="A&amp;B" />');
   assert.equal(el("span", { class: "p-name" }, ["A", "B"]), '<span class="p-name">AB</span>');
+});
+
+test("round-trips SHP entity references without degrading them to literals", () => {
+  const html = project(fromSection({
+    affirmed: [{ predicate: "depends-on", object: ref("arc42:5.8") }],
+  }, { subject: "arc42:5.13a" }));
+  const object = markup(html)[0]?.cell.object;
+  assert.equal(isRef(object), true);
+  assert.deepEqual(object, { ref: "arc42:5.8" });
+  assert.match(html, /data-v="shp-ref:arc42:5\.8"/);
+  assert.equal(slug("Crème brûlée"), "creme-brulee");
+});
+
+test("scans discovery tags without interpreting inert element bodies", () => {
+  const html = '<base href="/root/"><script><a rel="bad"></a></script><a REL="Me alternate" href="u&#x2f;1">ok</a>';
+  const tags = scanHtmlStartTags(html);
+  assert.deepEqual(tags.map(({ name }) => name), ["base", "script", "a"]);
+  assert.deepEqual(relTokens(tags[2].attrs), ["me", "alternate"]);
+  assert.equal(tags[2].attrs.href, "u/1");
+  assert.equal(htmlDocumentBase(html, "https://example.test/fallback"), "https://example.test/root/");
 });

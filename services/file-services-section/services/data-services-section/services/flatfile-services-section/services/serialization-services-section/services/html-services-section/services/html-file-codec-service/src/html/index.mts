@@ -33,6 +33,7 @@ import {
 import type { Matrix } from "@lenticule-science/articulating/predicating/positing/settling/analysis/exact-number";
 import type { FormatRegime } from "@lenticule-science/articulating/predicating/positing/settling/analysis/formats-four";
 export * from "./string-rendering.mjs";
+export * from "./scan.mjs";
 import {
   html_is_carrier_not_document,
   type Document,
@@ -46,9 +47,21 @@ import {
 /* ── escape ─────────────────────────────────────────────────────────────── */
 
 /** Values the SHP codec is allowed to inspect and stringify at its boundary. */
-export type HtmlValue = JsonValue | { readonly const: JsonValue };
+export type HtmlValue = JsonValue | { readonly const: JsonValue } | { readonly ref: string };
+
+/** The wire prefix distinguishing an entity reference from a literal string. */
+export const REF_PREFIX = "shp-ref:";
+
+export function ref(entityId: string): { readonly ref: string } {
+  return Object.freeze({ ref: entityId });
+}
+
+export function isRef(value: HtmlValue | undefined): value is { readonly ref: string } {
+  return value !== null && typeof value === "object" && !Array.isArray(value) && "ref" in value;
+}
 
 function htmlText(value: HtmlValue): string {
+  if (isRef(value)) return `${REF_PREFIX}${value.ref}`;
   const unmarked = unmark(value);
   return unmarked !== null && typeof unmarked === "object" ? canonical(unmarked) : String(unmarked);
 }
@@ -73,13 +86,16 @@ export function escapeAttr(value: HtmlValue): string {
 export function slug(value: HtmlValue): string {
   return String(value)
     .trim()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") || "cell";
 }
 
 /** Unwrap a marked value: the inner `const` when present, else the value. */
-export function unmark(value: HtmlValue | undefined): JsonValue | undefined {
+export function unmark(value: HtmlValue | undefined): JsonValue | { readonly ref: string } | undefined {
+  if (isRef(value)) return value;
   return value !== null && typeof value === "object" && "const" in value
     ? value.const
     : value;
@@ -411,7 +427,13 @@ function markValue(witness: Mark): HtmlValue {
 }
 
 function isHtmlValue(value: Mark["value"]): value is HtmlValue {
-  return isJsonValue(value) || isConstValue(value);
+  return isJsonValue(value) || isConstValue(value) || isRefValue(value);
+}
+
+function isRefValue(value: Mark["value"]): value is { readonly ref: string } {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+  if (Object.getPrototypeOf(value) !== Object.prototype) return false;
+  return "ref" in value && typeof (value as { ref: unknown }).ref === "string";
 }
 
 function isConstValue(value: Mark["value"]): value is { readonly const: JsonValue } {
@@ -456,7 +478,8 @@ export function markup(html: string): ChargedCell[] {
     const v = attr(tag, "data-v");
     const positive = attr(tag, "data-positive") === "true";
     const negative = attr(tag, "data-negative") === "true";
-    const cell = v === null ? { subject: e, predicate: a } : { subject: e, predicate: a, object: v };
+    const object = v === null ? undefined : v.startsWith(REF_PREFIX) ? ref(v.slice(REF_PREFIX.length)) : v;
+    const cell = object === undefined ? { subject: e, predicate: a } : { subject: e, predicate: a, object };
     const [pos, neg] = witnessesOf(m[0] ?? "");
     cells.push({ cell, charge: charge(chargeValue(valueName(positive, negative)), [pos, neg]) });
   }

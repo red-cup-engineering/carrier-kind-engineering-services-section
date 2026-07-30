@@ -6,7 +6,8 @@
   "exports": {
     ".": { "types": "./dist/html/index.d.mts", "import": "./dist/html/index.mjs" },
     "./document-nodes": { "types": "./dist/html/document-nodes.d.mts", "import": "./dist/html/document-nodes.mjs" },
-    "./string-rendering": { "types": "./dist/html/string-rendering.d.mts", "import": "./dist/html/string-rendering.mjs" }
+    "./string-rendering": { "types": "./dist/html/string-rendering.d.mts", "import": "./dist/html/string-rendering.mjs" },
+    "./scan": { "types": "./dist/html/scan.d.mts", "import": "./dist/html/scan.mjs" }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
