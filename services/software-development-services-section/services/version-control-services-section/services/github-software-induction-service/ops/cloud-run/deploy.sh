@@ -12,11 +12,24 @@ set -euo pipefail
 export GCS_OPERATION_PREFIX=${GCS_OPERATION_PREFIX:-operations/github-induction/v1/}
 [[ "$GCS_OPERATION_PREFIX" =~ ^[a-z0-9][a-z0-9._/-]*/$ && "$GCS_OPERATION_PREFIX" != *"//"* && "$GCS_OPERATION_PREFIX" != /* ]] || { echo "GCS_OPERATION_PREFIX must be one relative object prefix ending in /" >&2; exit 64; }
 script_dir=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
+actuator_module="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/src/gcloud-cloud-run-actuator.mjs"
 region=${CLOUD_RUN_REGION:-us-central1}
 service=${CLOUD_RUN_SERVICE:-github-software-induction-service}
 identifier=${ACTIVITYPUB_IDENTIFIER:-github-software-induction-service}
 tag=${BUILD_TAG:-$(git -C "$script_dir" rev-parse --verify HEAD)}
-revision_tag="stage-$(printf '%s' "$tag" | sha256sum | cut -c1-16)"
+revision_tag=$(node --input-type=module - "$actuator_module" "$service" "$tag" <<'NODE'
+import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
+const [modulePath, service, source] = process.argv.slice(2);
+const { CLOUD_RUN_TAGGED_ROUTE_LIMITS: limits } = await import(pathToFileURL(modulePath).href);
+const prefix = "s-";
+const digestCharacters = 6;
+const tag = `${prefix}${createHash("sha256").update(source).digest("hex").slice(0, digestCharacters)}`;
+if (service.length + tag.length > limits.maxServiceAndTagCharacters) process.exit(64);
+process.stdout.write(tag);
+NODE
+) || { echo "Cloud Run service leaves no valid deterministic staging-tag budget" >&2; exit 64; }
 image_repository="${region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/capability-cells/${service}"
 build_image="${image_repository}:${tag}"
 runtime_service_account=${CLOUD_RUN_SERVICE_ACCOUNT:-github-software-induction@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com}
@@ -25,7 +38,6 @@ prepare_context=${PREPARE_CONTEXT_COMMAND:-$script_dir/prepare-context.sh}
 for command in gcloud node; do command -v "$command" >/dev/null || { echo "missing required command: $command" >&2; exit 69; }; done
 if [[ -n "${ACTUATOR_CLI:-}" ]]; then command -v "$ACTUATOR_CLI" >/dev/null || { echo "ACTUATOR_CLI bootstrap override is unavailable" >&2; exit 69; }
 else
-  repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
   actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/bin/gcloud-cloud-run-actuator.mjs"
   [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }
 fi

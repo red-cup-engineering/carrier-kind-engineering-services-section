@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
+import { CLOUD_RUN_TAGGED_ROUTE_LIMITS } from "../../../../../../web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/src/gcloud-cloud-run-actuator.mjs";
 
 const execute = promisify(execFile);
 const script = new URL("../ops/cloud-run/deploy.sh", import.meta.url);
@@ -60,7 +61,8 @@ globalThis.fetch = async (input, init = {}) => {
   assert.equal(staged.environment.CLOUD_TASKS_QUEUE, "github-induction");
   assert.equal(staged.environment.GCS_OPERATION_BUCKET, "github-induction-operations");
   assert.equal(staged.environment.GCS_OPERATION_PREFIX, "operations/github-induction/v1/");
-  assert.match(staged.revisionTag, /^stage-[a-f0-9]{16}$/u);
+  assert.match(staged.revisionTag, /^s-[a-f0-9]{6}$/u);
+  assert.ok("github-software-induction-service".length + staged.revisionTag.length <= CLOUD_RUN_TAGGED_ROUTE_LIMITS.maxServiceAndTagCharacters);
   assert.equal(staged.secretBindings.GITHUB_SERVICES_TOKEN, "github-software-induction-token:latest");
   assert.equal(staged.secretBindings["/secrets/activitypub/keys.json"], "github-software-induction-activitypub-keys:latest");
   assert.equal(cutover.revision, "github-software-induction-service-00042");
