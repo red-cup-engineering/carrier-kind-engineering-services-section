@@ -7,7 +7,8 @@
     ".": { "types": "./dist/html/index.d.mts", "import": "./dist/html/index.mjs" },
     "./document-nodes": { "types": "./dist/html/document-nodes.d.mts", "import": "./dist/html/document-nodes.mjs" },
     "./string-rendering": { "types": "./dist/html/string-rendering.d.mts", "import": "./dist/html/string-rendering.mjs" },
-    "./scan": { "types": "./dist/html/scan.d.mts", "import": "./dist/html/scan.mjs" }
+    "./scan": { "types": "./dist/html/scan.d.mts", "import": "./dist/html/scan.mjs" },
+    "./shp-profile": { "types": "./dist/html/shp-profile.d.mts", "import": "./dist/html/shp-profile.mjs" }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

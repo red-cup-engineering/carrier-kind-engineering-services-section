@@ -289,6 +289,7 @@ export interface MorphismRegistry {
 
 const keyOf = (predicate: HtmlValue): string =>
   typeof predicate === "string" ? predicate : JSON.stringify(predicate ?? null);
+const HTML_STRUCTURAL_CLASS = /^[A-Za-z][A-Za-z0-9_-]*$/u;
 
 /** The default registry: class = slug(predicate); inverse returns the class. */
 export function defaultMorphisms(): MorphismRegistry {
@@ -303,6 +304,12 @@ export function morphismRegistry(morphisms: readonly Morphism[]): MorphismRegist
   const byPredicate = new Map<string, string>();
   const byClass = new Map<string, HtmlValue>();
   for (const m of morphisms) {
+    if (!HTML_STRUCTURAL_CLASS.test(m.className)) {
+      throw new TypeError(`morphismRegistry: invalid structural class ${JSON.stringify(m.className)}`);
+    }
+    if (byClass.has(m.className)) {
+      throw new TypeError(`morphismRegistry: duplicate structural class ${JSON.stringify(m.className)}`);
+    }
     byPredicate.set(keyOf(m.predicate), m.className);
     byClass.set(m.className, m.predicate);
   }
@@ -316,8 +323,8 @@ export function morphismRegistry(morphisms: readonly Morphism[]): MorphismRegist
 
 const present = (c: ChargeCarrier, side: 0 | 1): boolean => c.value[side].name === "present";
 
-/** Project a settled `ShpDataform` into a finite HTML semantic-hypertext packet. */
-export function project(dataform: ShpDataform, morphisms: MorphismRegistry = defaultMorphisms()): string {
+/** Project a settled `ShpDataform` into its reusable SHP article carrier. */
+export function projectArticle(dataform: ShpDataform, morphisms: MorphismRegistry = defaultMorphisms()): string {
   if (!dataform || typeof dataform !== "object") {
     throw new TypeError("project: dataform must be an object");
   }
@@ -326,7 +333,6 @@ export function project(dataform: ShpDataform, morphisms: MorphismRegistry = def
     throw new TypeError("project: dataform.subject is required");
   }
   const cells = Array.isArray(dataform.cells) ? dataform.cells : [];
-  const title = dataform.title ?? subject;
   const mode = dataform.mode === "audit" ? "audit" : "calm";
   const projection = dataform.projection === "negated" ? "negated" : "supported";
 
@@ -347,10 +353,6 @@ export function project(dataform: ShpDataform, morphisms: MorphismRegistry = def
       `\n    </section>`)
     .join("\n");
 
-  const metaTags = Object.entries(dataform.metadata ?? {})
-    .map(([key, value]) => `    <meta name="${escapeAttr(key)}" content="${escapeAttr(value)}">`)
-    .join("\n");
-
   const articleAttrs = [
     `class="semantic-hypertext-packet"`,
     `data-subject="${escapeAttr(subject)}"`,
@@ -359,6 +361,22 @@ export function project(dataform: ShpDataform, morphisms: MorphismRegistry = def
     `data-mode="${escapeAttr(mode)}"`,
   ].filter(Boolean).join(" ");
 
+  return `  <article ${articleAttrs}>
+${sections}
+  </article>`;
+}
+
+/** Project a settled `ShpDataform` into a finite HTML semantic-hypertext packet document. */
+export function project(dataform: ShpDataform, morphisms: MorphismRegistry = defaultMorphisms()): string {
+  const subject = unmark(dataform.subject);
+  if (subject === undefined || subject === null) {
+    throw new TypeError("project: dataform.subject is required");
+  }
+  const title = dataform.title ?? subject;
+  const metaTags = Object.entries(dataform.metadata ?? {})
+    .map(([key, value]) => `    <meta name="${escapeAttr(key)}" content="${escapeAttr(value)}">`)
+    .join("\n");
+  const article = projectArticle(dataform, morphisms);
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -366,9 +384,7 @@ export function project(dataform: ShpDataform, morphisms: MorphismRegistry = def
     <title>${escapeText(title)}</title>${metaTags ? "\n" + metaTags : ""}
 </head>
 <body>
-  <article ${articleAttrs}>
-${sections}
-  </article>
+${article}
 </body>
 </html>
 `;
@@ -615,6 +631,9 @@ export function lint(html: string): LintReport {
   if (/\son[a-z]+\s*=\s*["']/i.test(src)) {
     fail("rfc7992.self-contained", "error", "document must not contain inline event handlers");
   }
+  if (/\r/.test(src)) {
+    fail("rfc7992.line-endings", "error", "document must use LF line endings");
+  }
 
   if (!/class="semantic-hypertext-packet"/.test(src)) {
     fail("shp.root", "error", "document must carry the article.semantic-hypertext-packet root");
@@ -625,6 +644,13 @@ export function lint(html: string): LintReport {
     }
     if (!/\sdata-e="/.test(tag) || !/\sdata-a="/.test(tag)) {
       fail("shp.span-carrier", "warning", `span carries no e/a carrier elements: ${tag}`);
+    }
+  }
+  for (const match of src.matchAll(/\sclass=(?:"([^"]*)"|'([^']*)')/gi)) {
+    for (const token of (match[1] ?? match[2] ?? "").split(/\s+/).filter(Boolean)) {
+      if (!HTML_STRUCTURAL_CLASS.test(token)) {
+        fail("shp.class-name", "error", `class token is not a structural morphism identity: ${token}`);
+      }
     }
   }
 
