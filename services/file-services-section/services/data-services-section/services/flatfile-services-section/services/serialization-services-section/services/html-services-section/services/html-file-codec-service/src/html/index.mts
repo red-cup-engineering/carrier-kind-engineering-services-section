@@ -32,6 +32,7 @@ import {
 } from "@lenticule-science/articulating/predicating/positing/settling/analysis/coloring";
 import type { Matrix } from "@lenticule-science/articulating/predicating/positing/settling/analysis/exact-number";
 import type { FormatRegime } from "@lenticule-science/articulating/predicating/positing/settling/analysis/formats-four";
+export * from "./string-rendering.mjs";
 import {
   html_is_carrier_not_document,
   type Document,
@@ -66,6 +67,7 @@ export function escapeAttr(value: HtmlValue): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
 
 /** A URL/id-safe slug derived from a value, falling back to "cell" when empty. */
 export function slug(value: HtmlValue): string {
