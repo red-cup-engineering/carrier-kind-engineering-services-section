@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "private": true,
   "type": "module",
-  "description": "Git service using ActivityStreams, typed RMN task effects, and a separately hireable device I/O provider.",
+  "description": "Runs git on a shared machine through one serialized write lane, with machine-specific policy, identity, and credentials in per-machine config files. Use when people and agents share one tree and concurrent git writes would corrupt work or overload the disk.",
   "bin": {
     "git": "./bin/git",
     "serve-bound-git-induction": "./src/serve-bound-git-induction.js"

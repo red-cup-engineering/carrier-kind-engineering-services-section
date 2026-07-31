@@ -1,210 +1,158 @@
 #!/bin/sh
-# Git Services Section device-scoped ingress for /home/emsenn/info.
+# Managed git for shared machines.
 #
-# A finite read-only face remains available to development tools in a
-# descriptor-owned Git environment. Mutations run serialized through this one
-# ingress under an exclusive lock instead.
+# Why this exists: many agents running git at once against one tree killed
+# this machine's disk. So: every write serializes through one lock, reads
+# pass straight through, and the two shapes that let one agent destroy
+# another's in-flight work (ambient staging, unscoped commits) are refused.
+#
+# Everything machine-specific lives in etc/machine.conf and
+# etc/managed.gitconfig next to this script. Edit those, not this file.
 set -eu
-root=/home/emsenn/info
-service_root=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/version-control-services-section/services/git-services-section
+
+self=$(readlink -f "$0")
+bin_dir=${self%/*}
+etc_dir=${bin_dir%/bin}/etc
+conf=${MANAGED_GIT_CONF:-$etc_dir/machine.conf}
+if [ ! -f "$conf" ]; then
+  echo "managed git: missing machine config $conf" >&2
+  exit 78
+fi
+. "$conf"
+managed_gitconfig=$etc_dir/${managed_gitconfig_name:-managed.gitconfig}
+
 physical_pwd=$(pwd -P)
-case "$physical_pwd/" in "$root/"|"$root"/*/) ;; *) echo "git contracted ingress refused: outside mapped repository" >&2; exit 126;; esac
-case "${1-}" in -C|--git-dir|--work-tree|--exec-path|--config-env|-c|--bare|--namespace|--super-prefix) echo "git contracted ingress refused: repository override" >&2; exit 126;; esac
+case "$physical_pwd/" in
+  "$repo_root/" | "$repo_root"/*/) ;;
+  *)
+    echo "managed git: denied: $physical_pwd is outside $repo_root (policy: $conf)" >&2
+    exit 126
+    ;;
+esac
+case "${1-}" in
+  -C|--git-dir|--work-tree|--exec-path|--config-env|-c|--bare|--namespace|--super-prefix)
+    echo "managed git: denied: repository overrides are not allowed; cd into the repository instead (policy: $conf)" >&2
+    exit 126
+    ;;
+esac
 
 command_name=${1-}
 
-# Ambient staging is the failure mode this ingress exists to eliminate. Git
-# settlement receives an explicit filesystem-custody receipt and stages only
-# the named witnessed path through settle-filesystem-receipt.mjs. Keep this
-# guard as a hard migration boundary, not a convention.
-if [ "$command_name" = add ]; then
+word_in_list() {
+  needle=$1
+  shift
+  for word in $*; do
+    [ "$word" = "$needle" ] && return 0
+  done
+  return 1
+}
+
+# Ambient staging sweeps other agents' worktree changes into your index.
+if [ "$command_name" = add ] && [ "${forbid_ambient_add:-true}" = true ]; then
   for argument in "$@"; do
     case "$argument" in
       -A|--all|.|\*)
-        echo "git contracted ingress refused: ambient staging is forbidden; settle a filesystem custody receipt" >&2
+        echo "managed git: denied: 'git add $argument' stages everything, including other agents' in-flight work; add named paths (policy: $conf)" >&2
         exit 126
         ;;
     esac
   done
 fi
 
-# A clean `add -- <witnessed path>` is insufficient if another process can
-# stage work before a bare `commit`. Require Git's path-limited commit form;
-# the receipt settlement consumer supplies it and therefore cannot absorb a
-# concurrent index mutation.
-if [ "$command_name" = commit ]; then
-  found_path_boundary=false
-  found_pathspec_file=false
-  for argument in "$@"; do
-    [ "$argument" = "--" ] && found_path_boundary=true
-    case "$argument" in --pathspec-from-file|--pathspec-from-file=*) found_pathspec_file=true ;; esac
-  done
-  if [ "$found_path_boundary" = false ] && [ "$found_pathspec_file" = false ]; then
-    echo "git contracted ingress refused: unscoped commit is forbidden; commit explicit receipt-witnessed paths" >&2
-    exit 126
+# An unscoped commit absorbs whatever another process staged since you did.
+# Completing a merge, cherry-pick, or revert is exempt: git itself refuses
+# path-limited commits in those states.
+if [ "$command_name" = commit ] && [ "${require_scoped_commit:-true}" = true ]; then
+  state_dir=$(/usr/bin/git -C "$physical_pwd" rev-parse --absolute-git-dir 2>/dev/null || printf '%s' "$physical_pwd/.git")
+  if [ ! -e "$state_dir/MERGE_HEAD" ] && [ ! -e "$state_dir/CHERRY_PICK_HEAD" ] && [ ! -e "$state_dir/REVERT_HEAD" ]; then
+    scoped=false
+    for argument in "$@"; do
+      [ "$argument" = "--" ] && scoped=true
+      case "$argument" in --pathspec-from-file|--pathspec-from-file=*) scoped=true ;; esac
+    done
+    if [ "$scoped" = false ]; then
+      echo "managed git: denied: commit named paths ('git commit -m msg -- path...' or --pathspec-from-file) so a concurrent agent's staging is not swept in (policy: $conf)" >&2
+      exit 126
+    fi
   fi
 fi
 
-# Fetch ingestion (Leader orders 2026-07-31: preserved machine bundles'
-# commits go to GitHub; repository divergence gets fixed; no free-floating
-# submodules). Fetch is admitted only when its source is an existing local
-# .bundle file or an explicit https GitHub URL: object and ref ingestion
-# without worktree mutation, serialized through the same exclusive lane as
-# every other mutation. Fetch by remote name or from any other host stays
-# refused; push remains the only credentialed network egress.
-if [ "$command_name" = fetch ]; then
-  admitted_source=false
-  for argument in "$@"; do
-    case "$argument" in
-      *.bundle) [ -f "$argument" ] && admitted_source=true ;;
-      https://github.com/*) admitted_source=true ;;
-    esac
-  done
-  if [ "$admitted_source" = false ]; then
-    echo "git contracted ingress refused: fetch admitted only from a local bundle file or an https GitHub URL" >&2
-    exit 126
-  fi
-fi
-
-# Serialized mutation face (Leader order 2026-07-26: committing must be
-# possible; extended 2026-07-26 to push). The hazard the raw-git ban answered
-# was concurrent agents mutating the repository at once; this face admits
-# local and push mutations one at a time under an exclusive lock, in the same
-# hardened environment as reads. A separate credential-bounded induction
-# service (bound-git-induction-service.js) previously gated every mutation
-# behind a customer grant and Agent Card it could not itself obtain: its own
-# client (request-git-operation) was never built (only documented), its
-# provider implementation failed independent PQA, and its own induction
-# faculty's raw-argv calls were refused by this same gate
-# (wo-services-git-services-section-cb8655582825, status: diagnosed, never
-# repaired). A gate with no working way to satisfy it is not security, it is
-# a dead end wearing security's shape; removed rather than left standing.
-# Repository overrides and non-push remote/config mutations stay refused.
-acquire_mutation_lane() {
-  lock_dir="$service_root/data"
-  mkdir -p "$lock_dir"
-  # Keep this descriptor open across exec so the admitted Git mutation owns the
-  # same exclusive lane for its full lifetime.
-  exec 9>"$lock_dir/serialized-mutation.lock"
-  flock -w 300 9
+acquire_write_lane() {
+  lock_parent=${lock_file%/*}
+  mkdir -p "$lock_parent"
+  # Keep this descriptor open across exec so the admitted write owns the
+  # lane for its full lifetime.
+  exec 9>"$lock_file"
+  flock -w "${lock_wait_seconds:-300}" 9
 }
 
 reclaim_witnessed_orphan_index_lock() {
   index_lock=$(/usr/bin/git -C "$physical_pwd" rev-parse --git-path index.lock)
   [ -e "$index_lock" ] || return 0
   if fuser -s "$index_lock"; then
-    echo "git contracted ingress deferred: live index lock witnessed at $index_lock" >&2
+    echo "managed git: deferred: live index lock witnessed at $index_lock" >&2
     return 75
   fi
   modified_at=$(stat -c %Y "$index_lock")
   now=$(date +%s)
   age=$((now - modified_at))
-  if [ "$age" -lt 300 ]; then
-    echo "git contracted ingress deferred: unwitnessed index lock is only ${age}s old at $index_lock" >&2
+  if [ "$age" -lt "${stale_index_lock_seconds:-300}" ]; then
+    echo "managed git: deferred: unwitnessed index lock is only ${age}s old at $index_lock" >&2
     return 75
   fi
-  # Check again immediately before removal.  This occurs while the contracted
-  # mutation lane is exclusively held; the absent descriptor plus bounded age
-  # is the witness that the residue is orphaned, not a live lock.
+  # Re-check immediately before removal, while the write lane is exclusively
+  # held: no live descriptor plus bounded age is the evidence of orphanhood.
   if fuser -s "$index_lock"; then
-    echo "git contracted ingress deferred: live index lock witnessed at $index_lock" >&2
+    echo "managed git: deferred: live index lock witnessed at $index_lock" >&2
     return 75
   fi
   rm -f -- "$index_lock"
-  echo "git contracted ingress reclaimed witnessed orphan index lock age=${age}s path=$index_lock" >&2
+  echo "managed git: reclaimed witnessed orphan index lock age=${age}s path=$index_lock" >&2
 }
 
-run_mutation() {
-  acquire_mutation_lane
+if word_in_list "$command_name" $write_commands; then
+  acquire_write_lane
   reclaim_witnessed_orphan_index_lock
-  exec /usr/bin/env -i \
-    HOME=/nonexistent \
-    GIT_EDITOR=true \
+  exec_git() { exec /usr/bin/env -i \
+    HOME="$home_dir" \
     PATH=/usr/bin:/bin \
+    GH_CONFIG_DIR="$home_dir/.config/gh" \
     GIT_CONFIG_NOSYSTEM=1 \
-    GIT_CONFIG_GLOBAL=/dev/null \
+    GIT_CONFIG_GLOBAL="$managed_gitconfig" \
     GIT_CONFIG_SYSTEM=/dev/null \
     GIT_TERMINAL_PROMPT=0 \
     GIT_PAGER=cat \
-    /usr/bin/git --no-optional-locks \
-      -c gc.auto=0 \
-      -c core.fsmonitor=false \
-      -c core.hooksPath=/dev/null \
-      -c user.name=emsenn \
-      -c user.email=morgan.sennhauser@gmail.com \
-      -C "$physical_pwd" "$@"
-}
+    /usr/bin/git --no-optional-locks -C "$physical_pwd" "$@"; }
+  exec_git "$@"
+fi
 
-case "$command_name" in
-  add|commit|restore|rm|mv|checkout|switch|reset|merge|cherry-pick|revert|tag|stash|filter-repo|clean)
-    run_mutation "$@"
-    ;;
-  push|fetch)
-    acquire_mutation_lane
-    token=$(gh auth token 2>/dev/null || true)
-    [ -n "$token" ] || token=${GITHUB_TOKEN-}
-    if [ -z "$token" ]; then echo "git contracted ingress refused: no GitHub credential available for push" >&2; exit 126; fi
-    auth_header="AUTHORIZATION: basic $(printf '%s' "x-access-token:$token" | base64 -w0)"
-    exec /usr/bin/env -i \
-      HOME=/nonexistent \
-      PATH=/usr/bin:/bin \
-      GIT_CONFIG_NOSYSTEM=1 \
-      GIT_CONFIG_GLOBAL=/dev/null \
-      GIT_CONFIG_SYSTEM=/dev/null \
-      GIT_TERMINAL_PROMPT=0 \
-      GIT_PAGER=cat \
-      /usr/bin/git --no-optional-locks \
-        -c gc.auto=0 \
-        -c core.fsmonitor=false \
-        -c core.hooksPath=/dev/null \
-        -c http.extraheader="$auth_header" \
-        -C "$physical_pwd" "$@"
-    ;;
-esac
-
-case "$command_name" in
-  status|diff|log|show|rev-parse|ls-files|ls-tree|ls-remote|cat-file|merge-base|diff-tree|diff-index|name-rev|describe) ;;
-  branch)
-    case "${2-}" in ""|--list|--show-current) ;; *) echo "git contracted ingress refused: branch mutation not admitted by this ingress" >&2; exit 126;; esac
-    ;;
-  remote)
-    case "${2-}" in -v|get-url|set-url|add) ;; *) echo "git contracted ingress refused: remote mutation not admitted by this ingress" >&2; exit 126;; esac
-    ;;
-  config)
-    case "${2-}" in --get|--get-all|--get-regexp|--get-urlmatch) ;; *) echo "git contracted ingress refused: configuration mutation not admitted by this ingress" >&2; exit 126;; esac
-    ;;
-  *) echo "git contracted ingress refused: mutation not admitted by this ingress" >&2; exit 126;;
-esac
+if ! word_in_list "$command_name" $read_commands; then
+  echo "managed git: denied: '$command_name' is in neither read_commands nor write_commands (policy: $conf)" >&2
+  exit 126
+fi
 
 for argument in "$@"; do
   case "$argument" in
     --output|--output=*|--ext-diff|--textconv|--no-index|--config-env=*|--git-dir=*|--work-tree=*|--exec-path=*|-c)
-      echo "git contracted ingress refused: unsafe read option" >&2
+      echo "managed git: denied: unsafe read option $argument (policy: $conf)" >&2
       exit 126
       ;;
   esac
 done
 
 run_git() {
-  # Read-only Git with --no-optional-locks never needs the index lock.  It must
-  # not occupy the mutation lane: long history scans previously starved an
-  # admitted commit and made its eventual index-lock observation look stale.
+  # Reads never take the write lane: with --no-optional-locks they need no
+  # index lock, and a long history scan must not starve an admitted write.
   exec /usr/bin/env -i \
-    HOME=/nonexistent \
+    HOME="$home_dir" \
     PATH=/usr/bin:/bin \
+    GH_CONFIG_DIR="$home_dir/.config/gh" \
     GIT_CONFIG_NOSYSTEM=1 \
-    GIT_CONFIG_GLOBAL=/dev/null \
+    GIT_CONFIG_GLOBAL="$managed_gitconfig" \
     GIT_CONFIG_SYSTEM=/dev/null \
     GIT_TERMINAL_PROMPT=0 \
     GIT_PAGER=cat \
-    /usr/bin/git --no-optional-locks \
-      -c gc.auto=0 \
-      -c core.fsmonitor=false \
-      -c core.hooksPath=/dev/null \
-      -c pager.status=false \
-      -c pager.diff=false \
-      -c pager.log=false \
-      -C "$physical_pwd" "$@"
+    /usr/bin/git --no-optional-locks -C "$physical_pwd" "$@"
 }
 
 if [ "$command_name" = diff ]; then
