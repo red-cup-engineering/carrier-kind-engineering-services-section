@@ -24,4 +24,4 @@ const receipt = await buildPackageRegistry({
   baseRegistryDirectory: option("--base-registry", { required: false }),
   excludedBaseReleases,
 });
-process.stdout.write(`${JSON.stringify({ type: receipt.type, registry: receipt.registry, packages: receipt.packages.length, scopes: receipt.scopes.length, compute: receipt.compute }, null, 2)}\n`);
+process.stdout.write(`${JSON.stringify({ type: receipt.type, registry: receipt.registry, packages: receipt.packageCount, releases: receipt.packages.length, scopes: receipt.scopes.length, compute: receipt.compute }, null, 2)}\n`);

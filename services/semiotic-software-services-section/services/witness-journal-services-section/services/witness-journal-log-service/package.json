@@ -1,0 +1,26 @@
+{
+  "name": "@red-cup-engineering/witness-journal-log-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Appends and reads back one witness journal: an append-only, date-partitioned JSONL log of witness-journal entries under data/logs/YYYY/MM/DD. Dedups by entry identity so a repeated witness costs nothing, and exposes each entry's trace as its ordinal position at read time.",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.mts",
+      "import": "./src/index.mjs"
+    }
+  },
+  "types": "./src/index.d.mts",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node --check src/index.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@red-cup-engineering/json-file-codec-service": "0.1.1",
+    "@red-cup-engineering/witness-journal-entry-service": "0.1.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@red-cup-engineering/relation-model-notation",
+  "version": "1.0.0",
+  "description": "The Relation Model Notation term and type grammar itself: frozen-array JSON s-expressions, admission schemas, and the structural de-Bruijn operations. No evaluation, no carrier bridge, no pre-built programs.",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./schema": "./src/schema.mjs",
+    "./validator": "./src/validator.mjs",
+    "./types": "./src/types.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

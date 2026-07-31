@@ -172,6 +172,42 @@ function versionOrder(left, right) {
   return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
 }
 
+// The workspace: protocol is a pnpm-only specifier — no plain npm client
+// resolves it. Every release this builder ever fabricates gets it rewritten
+// (releasedManifest, above); this is the second, independent gate: a full
+// scan of every metadata file about to ship, including ones only *carried*
+// in from a base registry rather than freshly packed this run, so a release
+// contaminated by an older build (or a future regression) can never leave
+// this function's care unnoticed. This is what the provide-npm-registry.rml
+// contract already promises ("clean installs require no workspace or
+// local-path dependency protocol") — this makes that promise checked, not
+// merely asserted.
+async function refuseSurvivingWorkspaceProtocol(stagingMetadataDirectory) {
+  const violations = [];
+  let files;
+  try { files = await readdir(stagingMetadataDirectory); } catch (error) {
+    if (error?.code === "ENOENT") return;
+    throw error;
+  }
+  for (const file of files) {
+    if (!file.endsWith(".json")) continue;
+    const metadata = JSON.parse(await readFile(join(stagingMetadataDirectory, file), "utf8"));
+    for (const [version, manifest] of Object.entries(metadata.versions ?? {})) {
+      for (const field of DEPENDENCY_FIELDS) {
+        for (const [dependency, constraint] of Object.entries(manifest?.[field] ?? {})) {
+          if (typeof constraint === "string" && constraint.startsWith("workspace:")) {
+            violations.push({ name: metadata.name, version, field, dependency, constraint });
+          }
+        }
+      }
+    }
+  }
+  if (violations.length > 0) {
+    const description = violations.map((v) => `${v.name}@${v.version} (${v.field}) ${v.dependency}@${v.constraint}`).join(", ");
+    throw new Error(`registry build refused: workspace: protocol survives into published metadata: ${description}`);
+  }
+}
+
 async function excludeBaseRelease(staging, entries, selector) {
   const removed = entries.filter(({ name, version }) => name === selector.name && version === selector.version);
   for (const entry of removed) await rm(join(staging, entry.artifact), { force: true });
@@ -265,15 +301,24 @@ export async function buildPackageRegistry({ packageDirectories, outputDirectory
       }
     }
     await Promise.all(Array.from({ length: Math.min(computeLease.parallelism, packages.length) }, () => fabricateNext()));
+    await refuseSurvivingWorkspaceProtocol(join(staging, "metadata"));
     entries.sort((left, right) => left.name.localeCompare(right.name));
     const scopes = [...new Set(entries.map(({ name }) => name.slice(1, name.indexOf("/"))))].sort();
     const npmrc = [`registry=https://registry.npmjs.org/`, ...scopes.map((scope) => `@${scope}:registry=${base.href}`), ""].join("\n");
     await writeFile(join(staging, "client.npmrc"), npmrc);
+    // `packages` is version-release entries (one package can carry several
+    // releases across incremental base-registry builds); `packageCount` is
+    // the count of distinct package names, which is what has one metadata
+    // file each on disk. Reporting `packages.length` as if it were a package
+    // count is the exact confusion that produced defect 4 — a receipt whose
+    // headline number didn't match `ls metadata | wc -l`.
+    const packageCount = new Set(entries.map((entry) => entry.name)).size;
     const receipt = {
       type: "SemioticVoxelPackageRegistryReceipt",
       version: 2,
       registry: base.href,
       packages: entries,
+      packageCount,
       scopes,
       compute: {
         provider: computeLease.provider,

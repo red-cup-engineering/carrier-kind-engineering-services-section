@@ -1,0 +1,19 @@
+{
+  "name": "@red-cup-engineering/witness-journal-state-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reads out the current state of a witness journal: a pure latest-wins-per-cell projection over entries, the journal's sufficient statistic. Also computes situational readings — projections scoped to a window of entries — where a cell can show as contested, without ever storing a charge.",
+  "exports": "./src/index.mjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node --check src/index.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@red-cup-engineering/json-file-codec-service": "0.1.1"
+  }
+}

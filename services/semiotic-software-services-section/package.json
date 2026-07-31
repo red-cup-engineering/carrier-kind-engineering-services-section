@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/semiotic-software-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Groups the firm's semiotic software: relation model notation, the witness journal, and their family. Use when adding or finding software that carries relations as terms, witnesses them through time, or exchanges them between agents."
+}

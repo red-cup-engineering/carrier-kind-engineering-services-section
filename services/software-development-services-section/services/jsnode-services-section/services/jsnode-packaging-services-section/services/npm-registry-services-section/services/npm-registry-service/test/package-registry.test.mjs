@@ -200,6 +200,66 @@ test("refuses a workspace dependency absent from the admitted release catalog", 
   }
 });
 
+test("reports a package count that matches the number of metadata files on disk, distinct from the release count", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-package-count-"));
+  try {
+    const first = join(root, "first"), second = join(root, "second"), base = join(root, "base"), next = join(root, "next");
+    for (const [directory, name] of [[first, "@customer/first"], [second, "@customer/second"]]) {
+      await mkdir(directory);
+      await writeFile(join(directory, "package.json"), `${JSON.stringify({ name, version: "1.0.0", "x-semiotic-voxel": { package: name } })}\n`);
+    }
+    await buildPackageRegistry({ packageDirectories: [first], outputDirectory: base, registryUrl: "http://127.0.0.1:4873/" });
+    const firstUpgrade = join(root, "first-upgrade");
+    await mkdir(firstUpgrade);
+    await writeFile(join(firstUpgrade, "package.json"), `${JSON.stringify({ name: "@customer/first", version: "1.0.1", "x-semiotic-voxel": { package: "@customer/first" } })}\n`);
+    const receipt = await buildPackageRegistry({
+      packageDirectories: [firstUpgrade, second],
+      outputDirectory: next,
+      baseRegistryDirectory: base,
+      registryUrl: "http://127.0.0.1:4873/",
+    });
+    // Two releases of @customer/first (1.0.0 carried, 1.0.1 fabricated) plus
+    // one release of @customer/second: three release entries, but only two
+    // distinct package names, and thus two metadata files on disk.
+    assert.equal(receipt.packages.length, 3);
+    assert.equal(receipt.packageCount, 2);
+    assert.deepEqual((await readdir(join(next, "metadata"))).sort(), ["%40customer%2Ffirst.json", "%40customer%2Fsecond.json"]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("refuses to finalize a build whose base registry carries workspace: contamination forward, even for a release this run never touched", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-carried-contamination-"));
+  try {
+    const carrier = join(root, "carrier"), untouched = join(root, "untouched"), base = join(root, "base"), next = join(root, "next");
+    await mkdir(carrier);
+    await writeFile(join(carrier, "package.json"), `${JSON.stringify({ name: "@customer/carrier", version: "1.0.0", "x-semiotic-voxel": { package: "@customer/carrier" } })}\n`);
+    await mkdir(untouched);
+    await writeFile(join(untouched, "package.json"), `${JSON.stringify({ name: "@customer/untouched", version: "1.0.0", "x-semiotic-voxel": { package: "@customer/untouched" } })}\n`);
+    await buildPackageRegistry({ packageDirectories: [carrier, untouched], outputDirectory: base, registryUrl: "http://127.0.0.1:4873/" });
+    // Simulate a release that predates the workspace: rewrite fix having
+    // already made it into a base registry's metadata (this house's real
+    // defect-3 evidence: @red-cup-engineering/animating@0.0.1 carrying an
+    // unrewritten workspace:* into published metadata).
+    const untouchedMetadataPath = join(base, "metadata", "%40customer%2Funtouched.json");
+    const untouchedMetadata = JSON.parse(await readFile(untouchedMetadataPath, "utf8"));
+    untouchedMetadata.versions["1.0.0"].dependencies = { "@customer/carrier": "workspace:*" };
+    await writeFile(untouchedMetadataPath, JSON.stringify(untouchedMetadata));
+
+    const another = join(root, "another");
+    await mkdir(another);
+    await writeFile(join(another, "package.json"), `${JSON.stringify({ name: "@customer/another", version: "1.0.0", "x-semiotic-voxel": { package: "@customer/another" } })}\n`);
+    await assert.rejects(
+      () => buildPackageRegistry({ packageDirectories: [another], outputDirectory: next, baseRegistryDirectory: base, registryUrl: "http://127.0.0.1:4873/" }),
+      /workspace: protocol survives into published metadata.*@customer\/untouched@1\.0\.0/su,
+    );
+    assert.deepEqual(await readdir(next), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("buys bounded parallel CPU capacity from an injected compute market", async () => {
   const root = await mkdtemp(join(tmpdir(), "voxel-registry-market-"));
   let demand;
