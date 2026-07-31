@@ -1,6 +1,6 @@
 import { keccak256 } from "ethers";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument, recordSettlementRecord } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { relationalRwilDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 

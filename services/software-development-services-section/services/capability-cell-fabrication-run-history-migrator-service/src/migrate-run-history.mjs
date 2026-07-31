@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const RUN_FILE = /^[0-9a-f-]{36}\.jsonl$/u;
 const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;

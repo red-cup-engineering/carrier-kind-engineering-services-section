@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { Interface } from "ethers";
 
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument, recordSettlementRecord } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { relationalRwilDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { FIXED_FORK_BEEFY_VAULT_EXIT_OBSERVATION_CONTRACT }
   from "./fixed-fork-beefy-vault-exit-law.mjs";
 

@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
-import { loadSettlementAccount, recordRwil, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { loadSettlementAccount, recordRwil, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");

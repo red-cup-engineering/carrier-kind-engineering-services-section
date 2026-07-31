@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { queryRwilDocumentsByCategory } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { queryRwilDocumentsByCategory } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const GIT_ACTIVITY_PROVIDER = "urn:ame:git-services-section:activity-pulse-provider";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");

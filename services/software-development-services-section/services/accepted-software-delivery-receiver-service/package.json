@@ -13,10 +13,10 @@
     "./receiver": "./src/accepted-software-delivery-receiver.mjs"
   },
   "bin": {
-    "execute-accepted-software-delivery-receiver-a2a-message": "./bin/execute-a2a-message.mjs",
-    "serve-accepted-software-delivery-receiver-a2a": "./bin/serve-a2a.mjs",
-    "execute-immutable-induction-evidence-a2a-message": "./bin/execute-immutable-induction-evidence-a2a-message.mjs",
-    "serve-immutable-induction-evidence-a2a": "./bin/serve-immutable-induction-evidence-a2a.mjs",
+    "execute-accepted-software-delivery-receiver-a2a-message": "./scripts/execute-a2a-message.mjs",
+    "serve-accepted-software-delivery-receiver-a2a": "./scripts/serve-a2a.mjs",
+    "execute-immutable-induction-evidence-a2a-message": "./scripts/execute-immutable-induction-evidence-a2a-message.mjs",
+    "serve-immutable-induction-evidence-a2a": "./scripts/serve-immutable-induction-evidence-a2a.mjs",
     "solicit-stage-accepted-software-delivery": "./src/accepted-software-delivery-receiver.mjs",
     "stage-accepted-software-delivery": "./src/accepted-software-delivery-receiver.mjs",
     "solicit-review-and-admit-staged-software-delivery": "./src/accepted-software-delivery-receiver.mjs",
@@ -28,7 +28,7 @@
     "verify-accepted-software-delivery-receiver": "./src/verify-accepted-software-delivery-receiver.mjs"
   },
   "scripts": {
-    "check": "node --check src/accepted-software-delivery-receiver.mjs && node --check src/immutable-induction-evidence.mjs && node --check src/immutable-induction-evidence-a2a-executor.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/serve-a2a.mjs && node --check bin/execute-immutable-induction-evidence-a2a-message.mjs && node --check bin/serve-immutable-induction-evidence-a2a.mjs && node --check src/verify-accepted-software-delivery-receiver.mjs && node --check test/immutable-induction-evidence-node-sit.test.mjs && node --check test/fixtures/run-immutable-evidence-core.mjs",
+    "check": "node --check src/accepted-software-delivery-receiver.mjs && node --check src/immutable-induction-evidence.mjs && node --check src/immutable-induction-evidence-a2a-executor.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check scripts/execute-a2a-message.mjs && node --check scripts/serve-a2a.mjs && node --check scripts/execute-immutable-induction-evidence-a2a-message.mjs && node --check scripts/serve-immutable-induction-evidence-a2a.mjs && node --check src/verify-accepted-software-delivery-receiver.mjs && node --check test/immutable-induction-evidence-node-sit.test.mjs && node --check test/fixtures/run-immutable-evidence-core.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test && node src/verify-accepted-software-delivery-receiver.mjs --self-test"
   },
@@ -39,7 +39,7 @@
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2",
     "jose": "6.2.3"
   },
   "engines": {

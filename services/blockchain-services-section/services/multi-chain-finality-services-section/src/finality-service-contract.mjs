@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
-import { recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { assayReceiptFinalityPolicy, chainReceiptKey } from "./finality-merge.mjs";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";

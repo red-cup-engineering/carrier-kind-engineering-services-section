@@ -5,10 +5,10 @@
   "type": "module",
   "description": "Runs git on a shared machine through one serialized write lane, with machine-specific policy, identity, and credentials in per-machine config files. Use when people and agents share one tree and concurrent git writes would corrupt work or overload the disk.",
   "bin": {
-    "git": "./bin/git"
+    "git-services": "./scripts/git-services"
   },
   "scripts": {
-    "check": "sh -n bin/git && node --check src/collect-colony-activity.mjs && node --check src/settle-filesystem-receipt.mjs",
+    "check": "sh -n scripts/git-services && node --check src/collect-colony-activity.mjs && node --check src/settle-filesystem-receipt.mjs",
     "test": "node --test test/managed-git-policy.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
     "verify": "npm run check && npm test"
   },
@@ -16,7 +16,7 @@
     "node": ">=22.18"
   },
   "dependencies": {
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
   },
   "exports": {
     "./src/collect-colony-activity.mjs": "./src/collect-colony-activity.mjs"

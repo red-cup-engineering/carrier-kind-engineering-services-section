@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
-import { createSettlementStore } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { ACCEPTANCE_ORACLE_ASSAY_LAW } from "../src/law.mjs";
 import { decodeRequest, performAssay } from "../src/protocol.mjs";
 const ROOT = resolve(import.meta.dirname, "..");

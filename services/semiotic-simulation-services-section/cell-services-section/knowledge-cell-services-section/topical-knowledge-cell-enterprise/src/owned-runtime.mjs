@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { agentCardSignatureEvidence, discoverSignedAgentCard } from "@red-cup-engineering/a2a-agent-card-discovery-service";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
-import { querySettlementRecords, recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { querySettlementRecords, recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const ACTOR = "urn:ame:topical-knowledge-cell-enterprise-carrier";
 const NODE_ID = "topical-knowledge-cell-enterprise";

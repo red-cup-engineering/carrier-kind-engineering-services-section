@@ -11,7 +11,7 @@ import { requestHierarchicalCircuitEquivalence } from "@lenticule-science/hierar
 import { assayWasmFourCarrier } from "@lenticule-science/wasm-four-carrier-refinement/client";
 import { WASM_FOUR_CARRIER_PROFILE } from "@lenticule-science/wasm-four-carrier-refinement";
 import { assayRmnCircuitBoardCarrier } from "@lenticule-science/rmn-circuit-board-carrier-refinement/client";
-import { createSettlementStore } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { assayHierarchicalMaterialLayout, decodeLayoutAssayRequest } from "../src/layout-assay.mjs";
 import { INFOMATERIAL_LAYOUT_LAW } from "../src/law.mjs";
 

@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { createSettlementStore } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { runMission as defaultRunMission } from "./mission-runtime.mjs";
 
 export const MISSION_EXECUTION_ROOT = fileURLToPath(new URL("..", import.meta.url));

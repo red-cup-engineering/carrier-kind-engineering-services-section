@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { createSettlementStore, querySettlementRecords, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { createSettlementStore, querySettlementRecords, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const TRAJECTORY_MEMORY_ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const DEFAULT_TRAJECTORY_MEMORY_DATA_ROOT = fileURLToPath(new URL("../data", import.meta.url));

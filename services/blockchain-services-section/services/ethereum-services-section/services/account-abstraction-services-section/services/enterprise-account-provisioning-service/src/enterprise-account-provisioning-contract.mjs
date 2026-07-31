@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
 export const ACTOR = "urn:ame:enterprise-account-provisioning-service";

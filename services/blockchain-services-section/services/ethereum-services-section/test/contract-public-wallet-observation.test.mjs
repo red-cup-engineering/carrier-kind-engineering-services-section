@@ -5,8 +5,8 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { Interface } from "ethers";
-import { querySettlementRecords, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
-import { startRwilProviderProcess } from "@lenticule-science/rwil-rdf-projection-service/test-provider";
+import { querySettlementRecords, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { startRwilProviderProcess } from "@lenticule-science/witness-journal-rdf-projection-service/test-provider";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 
 import { observePublicWallet, run } from "../src/contract-public-wallet-observation.mjs";

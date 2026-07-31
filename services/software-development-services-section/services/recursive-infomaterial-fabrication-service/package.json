@@ -10,10 +10,10 @@
     "./request": "./src/request.mjs"
   },
   "bin": {
-    "fabricate-directory-patch": "./bin/fabricate-directory-patch.mjs"
+    "fabricate-directory-patch": "./scripts/fabricate-directory-patch.mjs"
   },
   "scripts": {
-    "check": "node --check src/client.mjs && node --check src/fabricate.mjs && node --check src/own-circuit-profile.mjs && node --check src/request.mjs && node --check src/law.mjs && node --check bin/fabricate-directory-patch.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs",
+    "check": "node --check src/client.mjs && node --check src/fabricate.mjs && node --check src/own-circuit-profile.mjs && node --check src/request.mjs && node --check src/law.mjs && node --check scripts/fabricate-directory-patch.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
@@ -32,6 +32,6 @@
     "@lenticule-science/infomaterial-patch-cover": "3.0.0",
     "@red-cup-engineering/recursive-observation-circuit-synthesis": "1.0.0",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
   }
 }

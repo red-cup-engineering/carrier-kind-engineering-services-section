@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve, sep } from "node:path";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { supplierDesignId } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-foam";
 import { createProofPoreJournal } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-pore-journal";
 

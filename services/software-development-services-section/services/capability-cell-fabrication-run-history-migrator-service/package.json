@@ -8,18 +8,18 @@
     ".": "./src/migrate-run-history.mjs"
   },
   "bin": {
-    "migrate-capability-cell-fabrication-run-history": "./bin/migrate-run-history.mjs",
-    "migrate-acceptance-pulse-proof-pore": "./bin/migrate-acceptance-pulse-proof-pore.mjs"
+    "migrate-capability-cell-fabrication-run-history": "./scripts/migrate-run-history.mjs",
+    "migrate-acceptance-pulse-proof-pore": "./scripts/migrate-acceptance-pulse-proof-pore.mjs"
   },
   "scripts": {
-    "check": "node --check src/migrate-run-history.mjs && node --check src/migrate-acceptance-pulse-proof-pore.mjs && node --check bin/migrate-run-history.mjs && node --check bin/migrate-acceptance-pulse-proof-pore.mjs",
+    "check": "node --check src/migrate-run-history.mjs && node --check src/migrate-acceptance-pulse-proof-pore.mjs && node --check scripts/migrate-run-history.mjs && node --check scripts/migrate-acceptance-pulse-proof-pore.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
   "dependencies": {
     "@red-cup-engineering/acceptance-capsule-procurement-service": "1.0.0",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
   },
   "engines": {
     "node": ">=22"

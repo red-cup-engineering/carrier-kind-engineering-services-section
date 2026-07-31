@@ -10,7 +10,7 @@ import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
 import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
 import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
-import { recordRwil, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { recordRwil, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import {
   CDP_FACILITATOR_URL,
   createCdpFacilitatorContract,

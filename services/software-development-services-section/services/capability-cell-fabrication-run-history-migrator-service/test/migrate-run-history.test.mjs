@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { createProofPoreJournal } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-pore-journal";
 import { migrateFabricationRunHistory } from "../src/migrate-run-history.mjs";
 import {

@@ -7,7 +7,7 @@ import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { createSettlementStore } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { PHASE2_TERRITORY_CONFORMANCE_LAW } from "../src/law.mjs";
 import { authorizeTerritory, decodeTerritoryScanRequest } from "../src/protocol.mjs";
 import { scanTerritory } from "../src/scan-territory.mjs";

@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const ACTOR = "urn:ame:software-program-synthesis-service";
 export const SYNTHESIS_EFFECTS = Object.freeze([

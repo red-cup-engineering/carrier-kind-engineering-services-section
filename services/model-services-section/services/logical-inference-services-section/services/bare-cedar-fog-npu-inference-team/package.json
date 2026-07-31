@@ -6,10 +6,10 @@
   "description": "Sovereign short-source typed RMN inference provider over bare-cedar-fog-operated local silicon.",
   "bin": {
     "execute-rmn-inference": "./src/execute-rmn-inference.mjs",
-    "serve-inference-a2a": "./bin/serve-a2a.mjs"
+    "serve-inference-a2a": "./scripts/serve-a2a.mjs"
   },
   "scripts": {
-    "check": "node --check bin/serve-a2a.mjs && node --check src/execute-rmn-inference.mjs && node --check test/execute-rmn-inference.test.mjs && node --check test/provider-boundary.test.mjs",
+    "check": "node --check scripts/serve-a2a.mjs && node --check src/execute-rmn-inference.mjs && node --check test/execute-rmn-inference.test.mjs && node --check test/provider-boundary.test.mjs",
     "test": "node --test test/execute-rmn-inference.test.mjs test/provider-boundary.test.mjs",
     "verify": "npm run check && npm test"
   },
@@ -19,7 +19,7 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rmn-semantic-conformance-die": "6.0.1",
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2",
     "@lenticule-science/wit-transition-assay": "1.0.0"
   },
   "engines": {

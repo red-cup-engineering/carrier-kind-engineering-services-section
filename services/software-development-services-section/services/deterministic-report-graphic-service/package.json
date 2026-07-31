@@ -12,11 +12,11 @@
     "./src/deterministic-report-graphic.mjs": "./src/deterministic-report-graphic.mjs"
   },
   "bin": {
-    "execute-deterministic-report-graphic-a2a-message": "./bin/execute-a2a-message.mjs",
-    "serve-deterministic-report-graphic-a2a": "./bin/serve-a2a.mjs"
+    "execute-deterministic-report-graphic-a2a-message": "./scripts/execute-a2a-message.mjs",
+    "serve-deterministic-report-graphic-a2a": "./scripts/serve-a2a.mjs"
   },
   "scripts": {
-    "check": "node --check src/law.mjs && node --check src/deterministic-report-graphic.mjs && node --check src/client.mjs && node --check src/a2a-executor.mjs && node --check bin/execute-a2a-message.mjs && node --check bin/serve-a2a.mjs && node --check src/verify-deterministic-report-graphic.mjs",
+    "check": "node --check src/law.mjs && node --check src/deterministic-report-graphic.mjs && node --check src/client.mjs && node --check src/a2a-executor.mjs && node --check scripts/execute-a2a-message.mjs && node --check scripts/serve-a2a.mjs && node --check src/verify-deterministic-report-graphic.mjs",
     "test": "node --test test/deterministic-report-graphic.test.mjs",
     "verify": "npm run check && npm test && node src/verify-deterministic-report-graphic.mjs --self-test"
   },
@@ -26,7 +26,7 @@
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
   },
   "version": "0.1.0"
 }

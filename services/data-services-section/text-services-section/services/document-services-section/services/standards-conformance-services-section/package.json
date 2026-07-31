@@ -6,7 +6,7 @@
   "description": "Signed smart-account Phase 2 constitutional conformance assay over one bounded territory.",
   "bin": {
     "scan-phase2-territory": "./src/scan-territory.mjs",
-    "serve-phase2-territory-conformance-a2a": "./bin/server.mjs"
+    "serve-phase2-territory-conformance-a2a": "./scripts/server.mjs"
   },
   "exports": {
     ".": "./src/scan-territory.mjs",
@@ -14,7 +14,7 @@
     "./protocol": "./src/protocol.mjs"
   },
   "scripts": {
-    "check": "node --check src/scan-territory.mjs && node --check src/law.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs && node --check test/scan-territory.test.mjs",
+    "check": "node --check src/scan-territory.mjs && node --check src/law.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs && node --check test/scan-territory.test.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
@@ -27,6 +27,6 @@
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
   }
 }

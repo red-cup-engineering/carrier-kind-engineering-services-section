@@ -6,7 +6,7 @@ import { listAddressedRmnOutbox } from "@red-cup-engineering/activitypub-service
 import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
-import { createSettlementStore, querySettlementRecords } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { createSettlementStore, querySettlementRecords } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { requestSoftwareChangeProposalAssay } from "@lenticule-science/software-change-proposal-assay/client";
 import { ACTOR, CONTEXT, bidForOffer, fulfillAward } from "./supplier.mjs";
 

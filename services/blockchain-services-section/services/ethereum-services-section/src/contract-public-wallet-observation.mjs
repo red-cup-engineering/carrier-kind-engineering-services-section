@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { getAddress } from "ethers";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { queryRwilDocumentsByCategory, recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { queryRwilDocumentsByCategory, recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 import { PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT } from "./public-wallet-observation-law.mjs";
 import { PUBLIC_EVM_LEDGER_PROFILE, observePublicEvmLedger } from "./public-evm-ledger.mjs";

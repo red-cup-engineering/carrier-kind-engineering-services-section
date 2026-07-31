@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { loadSettlementAccount, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { loadSettlementAccount, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { admitCustomerTrajectoryFoldback, deriveInducedTrajectoryResolver, latestMissionCheckpoint, missionMemoryContext, recallTrajectories, TRAJECTORY_MEMORY_ROOT, TRAJECTORY_MEMORY_SETTLEMENT_CAIP2, trajectoryRecipeFingerprint } from "../src/memory.mjs";
 
 const edit = { action: "edit", args: { path: "source.mjs", blocks: { search: "old", replace: "new" } }, reason: "provider wording is not executable law" };

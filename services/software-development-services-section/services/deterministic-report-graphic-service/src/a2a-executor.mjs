@@ -2,7 +2,7 @@ import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { createSettlementStore, relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { createSettlementStore, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { renderDeterministicReportGraphic } from "./deterministic-report-graphic.mjs";
 
 export const ACTOR = "urn:ame:deterministic-report-graphic-service";

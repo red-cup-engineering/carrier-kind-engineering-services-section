@@ -6,7 +6,7 @@ import {
   querySettlementRecords,
   recordSettlementRecord,
   relationalRwilDocument,
-} from "@lenticule-science/rwil-rdf-projection-service/client";
+} from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const ACTOR = "urn:ame:topical-knowledge-cell-corpus-service";
 const NODE_ID = "topical-knowledge-cell-corpus-service";

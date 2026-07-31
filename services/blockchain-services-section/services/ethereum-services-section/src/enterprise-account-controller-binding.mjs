@@ -1,6 +1,6 @@
 import { Interface, TypedDataEncoder, keccak256, toUtf8Bytes } from "ethers";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const PROFILE = "org.emsenn.evm.enterprise-account-controller-binding.v1";
 const MAGIC = "0x1626ba7e";

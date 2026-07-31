@@ -5,7 +5,7 @@ import { pathToFileURL } from "node:url";
 import { parseRml } from "@red-cup-engineering/rmn-semantic-conformance";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { circuitInterfaceFromAgentCard, hierarchicalCircuitId, verifyCircuitRealization } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
-import { loadSettlementAccount } from "@lenticule-science/rwil-rdf-projection-service/client";
+import { loadSettlementAccount } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const RECURSIVE_SETTLEMENT_FABRIC_PROFILE = "org.emsenn.sdss.recursive-settlement-fabric.v1";
 const SKIP = new Set([".git", "node_modules", "content", "data", "src", "test", "tests", "assets", "_archive"]);
