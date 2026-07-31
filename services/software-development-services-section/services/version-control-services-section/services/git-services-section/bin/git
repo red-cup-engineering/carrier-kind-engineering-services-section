@@ -119,6 +119,7 @@ run_mutation() {
   reclaim_witnessed_orphan_index_lock
   exec /usr/bin/env -i \
     HOME=/nonexistent \
+    GIT_EDITOR=true \
     PATH=/usr/bin:/bin \
     GIT_CONFIG_NOSYSTEM=1 \
     GIT_CONFIG_GLOBAL=/dev/null \
