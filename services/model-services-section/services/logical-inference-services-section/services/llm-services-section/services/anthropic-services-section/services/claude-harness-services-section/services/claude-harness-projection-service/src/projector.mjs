@@ -32,6 +32,34 @@ export function loadPolicy(policyPath) {
   if (!Array.isArray(policy.colleagueOffices) || policy.colleagueOffices.length === 0) {
     throw new Error(`${policyPath} requires a nonempty colleagueOffices roster`);
   }
+  // office + character + recognition + induction = officer: colleagueOffices
+  // names only the seat. A policy that named seats with no seating reference
+  // could project a bare office again, the exact flattening
+  // harness-seats-bare-offices-without-incumbency was raised against — so the
+  // seating reference is validated here, structurally, before any office is
+  // ever projected. This is structural only (are the paths named at all);
+  // whether they resolve to a real incumbency and a real session character is
+  // projectClaudeHarness's job, which alone holds the repoRoot to resolve them.
+  if (typeof policy.colleagueSeatings !== "object" || policy.colleagueSeatings === null) {
+    throw new Error(`${policyPath} requires a colleagueSeatings map (office id -> {character, incumbency})`);
+  }
+  for (const office of policy.colleagueOffices) {
+    const id = office.split("/").at(-1).replace(/\.json$/u, "");
+    const seating = policy.colleagueSeatings[id];
+    if (!seating || typeof seating.character !== "string" || typeof seating.incumbency !== "string") {
+      throw new Error(
+        `${policyPath} names no seating (character + incumbency) for colleague office '${id}' in colleagueSeatings`,
+      );
+    }
+  }
+  if (
+    typeof policy.rootSeating !== "object" ||
+    policy.rootSeating === null ||
+    typeof policy.rootSeating.character !== "string" ||
+    typeof policy.rootSeating.incumbency !== "string"
+  ) {
+    throw new Error(`${policyPath} requires a rootSeating (character + incumbency) for its rootOffice`);
+  }
   return Object.freeze(policy);
 }
 
@@ -66,10 +94,13 @@ export function projectClaudeHarness({ policyPath, repoRoot, target = repoRoot, 
   for (const office of policy.colleagueOffices) {
     const officePath = join(repoRoot, office);
     if (!existsSync(officePath)) throw new Error(`policy names an office that seats nowhere: ${officePath}`);
-    const result = spawnSync(process.execPath, [projector, officePath, target, "--root", repoRoot, ...flags], {
-      cwd: repoRoot,
-      encoding: "utf8",
-    });
+    const id = office.split("/").at(-1).replace(/\.json$/u, "");
+    const { characterPath, incumbencyPath } = verifyIncumbency(policy, repoRoot, id);
+    const result = spawnSync(
+      process.execPath,
+      [projector, officePath, target, "--root", repoRoot, "--character", characterPath, "--incumbency", incumbencyPath, ...flags],
+      { cwd: repoRoot, encoding: "utf8" },
+    );
     if (result.status !== 0) {
       throw new Error(`office projection failed for ${office}: ${result.stderr || result.stdout}`);
     }
@@ -78,13 +109,71 @@ export function projectClaudeHarness({ policyPath, repoRoot, target = repoRoot, 
   return Object.freeze({ actor: policy.actor, target, colleagues: colleagueIds(policy), receipts, dryRun });
 }
 
+// office + character + recognition + induction = officer, checked for real:
+// a colleague office is refused rather than projected unless there is an
+// incumbency record that seats exactly this office id, whose holder resolves
+// to an existing character record of kind "session". A vacant seat (no
+// incumbency, or one that does not resolve) is dispatchable data, never a
+// dispatchable officer — this is the check that keeps this projector from
+// ever again seating a bare office, which is what
+// harness-seats-bare-offices-without-incumbency was raised against.
+function verifyIncumbency(policy, repoRoot, id) {
+  const seating = policy.colleagueSeatings[id];
+  const incumbencyPath = join(repoRoot, seating.incumbency);
+  if (!existsSync(incumbencyPath)) {
+    throw new Error(
+      `colleague office '${id}' has no incumbency record seated at ${incumbencyPath} — refusing to project a bare office with no officer behind it`,
+    );
+  }
+  let incumbency;
+  try {
+    incumbency = JSON.parse(readFileSync(incumbencyPath, "utf8"));
+  } catch (e) {
+    throw new Error(`incumbency record ${incumbencyPath} for office '${id}' is unreadable: ${e.message}`);
+  }
+  if (incumbency.office !== id) {
+    throw new Error(
+      `incumbency record ${incumbencyPath} seats office '${incumbency.office}', not '${id}' — refusing to project a bare office with no officer behind it`,
+    );
+  }
+  const characterPath = join(repoRoot, seating.character);
+  if (!existsSync(characterPath)) {
+    throw new Error(
+      `colleague office '${id}' names holder '${incumbency.holder}' but no character record is seated at ${characterPath} — refusing to project a bare office with no officer behind it`,
+    );
+  }
+  let character;
+  try {
+    character = JSON.parse(readFileSync(characterPath, "utf8"));
+  } catch (e) {
+    throw new Error(`character record ${characterPath} for office '${id}' is unreadable: ${e.message}`);
+  }
+  if (character.id !== incumbency.holder) {
+    throw new Error(
+      `character record ${characterPath} carries id '${character.id}', not incumbency holder '${incumbency.holder}' — refusing to project a bare office with no officer behind it`,
+    );
+  }
+  if (character.kind !== "session") {
+    throw new Error(
+      `character '${character.id}' for office '${id}' is kind '${character.kind}', not 'session' — refusing to project a bare office with no officer behind it`,
+    );
+  }
+  return { characterPath, incumbencyPath };
+}
+
 // The roster-coverage check: the manifest and .claude/agents/ at target must
-// each name every one of the policy's colleagues. This is deliberately a
+// each name every one of the policy's colleagues. By default this is a
 // subset check, not exact-set equality — .claude/agents/ is one shared
 // directory a node's whole roster of independent offices and enterprises
 // populates, not a location this one policy owns exclusively. An entry this
 // policy did not name is another office's installed colleague, never this
 // policy's drift to flag.
+//
+// A policy that declares `"ownsAgentDirectory": true` claims the whole
+// directory: it is the single policy projecting at its target, so a seated
+// colleague it never named IS drift and fails the check. Only the policy that
+// genuinely owns its target may declare this — two owning policies at one
+// target would each flag the other's roster.
 export function checkExactRoster({ policyPath, repoRoot, target = repoRoot }) {
   repoRoot = resolve(repoRoot);
   target = resolve(target);
@@ -105,5 +194,16 @@ export function checkExactRoster({ policyPath, repoRoot, target = repoRoot }) {
   if (missingFiles.length > 0) {
     throw new Error(`projected agent files at ${agentDir} are missing for: ${missingFiles.join(", ")}`);
   }
-  return Object.freeze({ actor: policy.actor, target, colleagues: expected });
+  if (policy.ownsAgentDirectory === true) {
+    const expectedSet = new Set(expected);
+    const extraSeated = [...observed].filter((id) => !expectedSet.has(id)).sort();
+    if (extraSeated.length > 0) {
+      throw new Error(`manifest at ${target} seats colleagues the owning policy never named: ${extraSeated.join(", ")}`);
+    }
+    const extraFiles = [...files].filter((id) => !expectedSet.has(id)).sort();
+    if (extraFiles.length > 0) {
+      throw new Error(`agent files at ${agentDir} exist for colleagues the owning policy never named: ${extraFiles.join(", ")}`);
+    }
+  }
+  return Object.freeze({ actor: policy.actor, target, colleagues: expected, ownsAgentDirectory: policy.ownsAgentDirectory === true });
 }
