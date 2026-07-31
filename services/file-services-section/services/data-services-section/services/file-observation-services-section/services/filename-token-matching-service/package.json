@@ -1,0 +1,16 @@
+{
+  "name": "@red-cup-engineering/filename-token-matching-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tests a token against each file's full relative path (never its basename alone) over an already-observed PosixPathWalk.files-shaped array. Use as the cheapest stage of a staged search, never to walk or read the filesystem itself.",
+  "exports": "./src/match-filename-token.mjs",
+  "scripts": {
+    "check": "node --check src/match-filename-token.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
