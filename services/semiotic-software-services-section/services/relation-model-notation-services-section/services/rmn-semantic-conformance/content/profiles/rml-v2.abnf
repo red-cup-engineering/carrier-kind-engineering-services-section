@@ -1,0 +1,20 @@
+; Pure placement-independent RMN die profile.
+; RML v2 lexical and surface grammar, using RFC 5234 ABNF.
+; A conforming source begins exactly with "#lang rmn/v2" and one line ending.
+
+rml          = language *(WSP / CR / LF / comment) expression *(WSP / CR / LF / comment)
+language     = %s"#lang" 1*(SP / HTAB) %s"rmn/v2" (CRLF / LF)
+expression   = list / string / boolean / nil / integer / symbol
+list         = "(" spacing *expression ")"
+string       = DQUOTE *(unescaped / escape) DQUOTE
+unescaped    = %x20-21 / %x23-5B / %x5D-10FFFF
+escape       = "\\" (DQUOTE / "\\" / "/" / "b" / "f" / "n" / "r" / "t" / ("u" 4HEXDIG))
+boolean      = %s"#t" / %s"#f"
+nil          = %s"nil"
+integer      = ["-"] ("0" / (%x31-39 *DIGIT))
+symbol       = 1*(%x21 / %x23-27 / %x2A-2F / %x3A-5B / %x5D-7E / UTF8-2 / UTF8-3 / UTF8-4)
+comment      = ";" *(%x09 / %x20-10FFFF) (CRLF / LF)
+spacing      = *(WSP / CR / LF / comment)
+
+; Lists map directly to normalized RMN sequences. The special surface form
+; (map (key value) ...) maps to an RMN text-keyed map and rejects duplicate keys.
