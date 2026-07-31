@@ -4,7 +4,7 @@ This service owns Agent Skills `SKILL.md` projection.
 It hires the Markdown file writing service instead of serializing or writing Markdown itself.
 
 ```js
-import { writeAgentSkill } from "@red-cup-engineering/agent-skill-writing-service";
+import { writeAgentSkill } from "@red-cup-engineering/skills-services-section";
 
 await writeAgentSkill({
   root: "lib/emsenn/content/skills/monitoring",

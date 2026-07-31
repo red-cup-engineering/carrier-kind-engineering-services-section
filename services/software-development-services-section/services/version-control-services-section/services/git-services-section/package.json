@@ -5,27 +5,18 @@
   "type": "module",
   "description": "Runs git on a shared machine through one serialized write lane, with machine-specific policy, identity, and credentials in per-machine config files. Use when people and agents share one tree and concurrent git writes would corrupt work or overload the disk.",
   "bin": {
-    "git": "./bin/git",
-    "serve-bound-git-induction": "./src/serve-bound-git-induction.js"
+    "git": "./bin/git"
   },
   "scripts": {
-    "check": "sh -n bin/git && node --check src/bound-git-induction-wire.js && node --check src/bound-git-induction-card-evidence.js && node --check src/bound-git-induction-auth.js && node --check src/bound-git-induction-store.js && node --check src/bound-git-induction-client.js && node --check src/bound-git-induction-production.js && node --check src/bound-git-induction-service.js && node --check src/bound-git-induction-a2a-executor.js && node --check src/serve-bound-git-induction.js && node --check src/collect-colony-activity.mjs && node --check src/settle-filesystem-receipt.mjs && node --check test/fixtures/bound-git-network-receiver.mjs",
-    "test": "node --test test/bound-git-induction-wire.test.js test/bound-git-induction-auth.test.js test/bound-git-induction-store.test.js test/bound-git-induction-service.test.js test/bound-git-induction-ingress.test.js test/bound-git-card-evidence-negative.test.js test/bound-git-network-sit.test.js test/bound-git-live-eip1271.test.js test/bound-git-induction-release.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
+    "check": "sh -n bin/git && node --check src/collect-colony-activity.mjs && node --check src/settle-filesystem-receipt.mjs",
+    "test": "node --test test/managed-git-policy.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
     "verify": "npm run check && npm test"
   },
   "engines": {
     "node": ">=22.18"
   },
   "dependencies": {
-    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
-    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
-    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
-    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/wit-transition-assay": "1.0.0",
-    "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
-    "jose": "6.2.3",
-    "viem": "2.55.4"
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
   },
   "exports": {
     "./src/collect-colony-activity.mjs": "./src/collect-colony-activity.mjs"

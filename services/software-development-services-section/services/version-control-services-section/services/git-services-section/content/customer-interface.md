@@ -1,15 +1,38 @@
 # Customer interface
 
-For Git operations over `/home/emsenn/info`, use `request-git-operation`; do not invoke `git` directly.
+For Git operations on this machine, invoke this section's managed wrapper
+instead of raw `git`:
 
-`request-git-operation --repo /home/emsenn/info --wait-ms 300000 -- status --porcelain`
+```
+lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/version-control-services-section/services/git-services-section/bin/git <args>
+```
 
-Every command, including a read, requires the customer's sovereign enterprise
-smart account and controller custody through `GIT_ANT_CUSTOMER_ACCOUNT`,
-`GIT_ANT_CUSTOMER_CONTROLLER_PRIVATE_KEY`, and `UNION_EVM_CHAIN`. The provider
-constructs a typed, exact-request holonomy seam against its own smart account;
-both enterprise accounts sign it and the seam is consumed on
-`UNION_EVM_HOLONOMY_LEDGER` before device admission. Git Services then opens a
-parent-linked child effect cell with the device I/O provider before the
-syscall. No unsigned read, JSON grant, policy-file authorization, or fallback
-path exists.
+`cd` into the repository first — the wrapper refuses `-C`, `--git-dir`,
+`--work-tree`, and the other repository-override flags outright, and it
+refuses to run at all outside the one `repo_root` its machine config names
+(see `etc/machine.conf`).
+
+Reads (`status`, `diff`, `log`, `show`, `rev-parse`, and the rest of
+`etc/machine.conf`'s `read_commands` list) pass straight through with no
+locking. Writes (`add`, `commit`, `push`, `submodule`, and the rest of
+`write_commands`) serialize through one `flock` lane shared by every writer
+on the machine, so two concurrent agents can't corrupt one index or run the
+disk out of headroom.
+
+Two write shapes are refused even inside the write lane, because on a
+machine with several agents sharing one tree they silently absorb another
+agent's in-flight work:
+
+- `git add -A` / `git add .` / `git add *` — stage named paths instead
+  (`git add path/to/file`).
+- an unscoped `git commit` — scope it with `-- <paths>` or
+  `--pathspec-from-file` (a commit that completes a merge/cherry-pick/revert
+  is exempt, since git itself refuses path-limited commits in that state).
+
+There is no signed request, no smart-account custody, no on-chain
+settlement, and no separate device-I/O coordinator in the request path for
+an ordinary Git operation today. (`block-device-io-coordinator`, this
+section's sibling die, exists and is well-tested, but nothing calls it yet
+— see the section README.) A refused command exits non-zero with a
+`managed git: denied: ...` or `managed git: deferred: ...` line on stderr
+naming the policy file and the exact reason.

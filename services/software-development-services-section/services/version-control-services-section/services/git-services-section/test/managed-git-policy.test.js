@@ -1,3 +1,8 @@
+// Exercises the live bin/git managed wrapper's policy: command admission,
+// the repository-override refusal, its hermetic read face, and its
+// serialized-write lane. Renamed from bound-git-induction-release.test.js —
+// despite that name, its assertions were always about this wrapper, not
+// about the (now-retired) bound-git-induction gate.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -12,7 +17,7 @@ const launcher = resolve(root, "bin/git");
 test("launcher refuses missing commands and repository overrides", () => {
   const absent = spawnSync(launcher, [], { cwd: root, encoding: "utf8", env: { PATH: process.env.PATH } });
   assert.equal(absent.status, 126);
-  assert.match(absent.stderr, /mutation not admitted/u);
+  assert.match(absent.stderr, /is in neither read_commands nor write_commands/u);
   const override = spawnSync(launcher, ["-C", "/tmp", "status"], { cwd: root, encoding: "utf8", env: process.env });
   assert.equal(override.status, 126);
   assert.match(override.stderr, /repository override/u);

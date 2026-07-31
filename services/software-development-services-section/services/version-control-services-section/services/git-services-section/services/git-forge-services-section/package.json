@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/git-forge-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Groups tooling for git hosting forges. Use when adding or finding integrations with services that host git repositories."
+}

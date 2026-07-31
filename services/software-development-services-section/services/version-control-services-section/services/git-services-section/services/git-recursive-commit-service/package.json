@@ -1,0 +1,25 @@
+{
+  "name": "@red-cup-engineering/git-recursive-commit-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Commits a dirty working tree, pushes the current branch, or walks a repository's immediate submodules committing and pushing each dirty one before the parent (innermost out). The git binary is configurable via MANAGED_GIT or --git-bin, defaulting to \"git\" on PATH; use when a caller needs to save and publish work across a repository and its submodules in one call, with a --dry-run plan available before anything is staged.",
+  "bin": {
+    "commit-the-working-tree": "./src/commit-the-working-tree.mjs",
+    "push-the-current-branch": "./src/push-the-current-branch.mjs",
+    "commit-a-repository-recursively": "./src/commit-a-repository-recursively.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/commit-the-working-tree.mjs && node --check src/push-the-current-branch.mjs && node --check src/commit-a-repository-recursively.mjs && node --check test/commit-a-repository-recursively.test.mjs",
+    "test": "node --test test/commit-a-repository-recursively.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "exports": {
+    "./src/commit-the-working-tree.mjs": "./src/commit-the-working-tree.mjs",
+    "./src/push-the-current-branch.mjs": "./src/push-the-current-branch.mjs",
+    "./src/commit-a-repository-recursively.mjs": "./src/commit-a-repository-recursively.mjs"
+  }
+}

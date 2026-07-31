@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/software-forge-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Groups forge tooling that is not specific to git. Use when adding support for a software forge concept independent of the version control system."
+}
