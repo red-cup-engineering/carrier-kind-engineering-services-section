@@ -4,36 +4,41 @@
   "private": false,
   "type": "module",
   "exports": {
-    ".": { "types": "./dist/html/index.d.mts", "import": "./dist/html/index.mjs" },
-    "./document-nodes": { "types": "./dist/html/document-nodes.d.mts", "import": "./dist/html/document-nodes.mjs" },
-    "./string-rendering": { "types": "./dist/html/string-rendering.d.mts", "import": "./dist/html/string-rendering.mjs" },
-    "./scan": { "types": "./dist/html/scan.d.mts", "import": "./dist/html/scan.mjs" },
-    "./shp-profile": { "types": "./dist/html/shp-profile.d.mts", "import": "./dist/html/shp-profile.mjs" }
+    ".": {
+      "types": "./dist/html/index.d.mts",
+      "import": "./dist/html/index.mjs"
+    },
+    "./document-nodes": {
+      "types": "./dist/html/document-nodes.d.mts",
+      "import": "./dist/html/document-nodes.mjs"
+    },
+    "./string-rendering": {
+      "types": "./dist/html/string-rendering.d.mts",
+      "import": "./dist/html/string-rendering.mjs"
+    },
+    "./scan": {
+      "types": "./dist/html/scan.d.mts",
+      "import": "./dist/html/scan.mjs"
+    },
+    "./shp-profile": {
+      "types": "./dist/html/shp-profile.d.mts",
+      "import": "./dist/html/shp-profile.mjs"
+    }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@lenticule-science/articulating": "workspace:*",
-    "@red-cup-engineering/file-projection-kernel-service": "workspace:*",
-    "@red-cup-engineering/json-file-codec-service": "workspace:*",
-    "@red-cup-engineering/xml-file-codec-service": "workspace:*"
+    "@lenticule-science/articulating": "0.1.1",
+    "@red-cup-engineering/css-cascade-service": "0.0.1",
+    "@red-cup-engineering/file-projection-kernel-service": "0.1.1",
+    "@red-cup-engineering/html-render-fiber-service": "0.0.1",
+    "@red-cup-engineering/json-file-codec-service": "0.1.1",
+    "@red-cup-engineering/xml-file-codec-service": "0.1.1"
   },
-  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
-  "x-agentic-metro-enterprise": {
-    "node-id": "html-file-codec-service",
-    "actor": "urn:ame:html-file-codec-service",
-    "organizational-kind": "capability-cell",
-    "owners": ["html-services-section"]
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:html-file-codec-service",
-    "operations": ["read-html-file", "write-html-file"],
-    "capabilities": [{ "capability": "html-file-codec", "faces": ["Node"] }],
-    "package": "@red-cup-engineering/html-file-codec-service"
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
   }
 }

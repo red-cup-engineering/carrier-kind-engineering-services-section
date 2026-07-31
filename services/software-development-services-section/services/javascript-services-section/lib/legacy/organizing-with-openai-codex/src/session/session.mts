@@ -8,8 +8,8 @@
  *   impact   — git change-impact: changed packages, dependents, commands
  *   recall   — recall what the session knows about a subject
  *
- * Composed from local Codex session findings/recall, @emsenn/computing/git +
- * git/codecs (status), @emsenn/organizing-with-jsnode (workspace + dependents,
+ * Composed from local Codex session findings/recall, @red-cup-engineering/computing/git +
+ * git/codecs (status), @red-cup-engineering/organizing-with-jsnode (workspace + dependents,
  * via the workspace adapter), and @emsenn/relating (charges) — with no
  * dependency on the old swarm monolith.
  */
@@ -17,7 +17,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { gitStatus } from "@emsenn/computing/git";
+import { gitStatus } from "@red-cup-engineering/computing/git";
 
 import { action, carrierFrom, mark, negate, tm, valueOf, witnessedPotential } from "@emsenn/relating";
 import { canonical as canonicalJson, requireJsonValue } from "@emsenn/relating/writing";
@@ -31,7 +31,7 @@ import {
   loadWorkspace,
   recallSessionSubject,
   renderSessionRecall,
-} from "@emsenn/organizing-with-openai-agents/session";
+} from "@red-cup-engineering/organizing-with-openai-agents/session";
 
 export interface CliResult { readonly code: number; readonly output: string }
 

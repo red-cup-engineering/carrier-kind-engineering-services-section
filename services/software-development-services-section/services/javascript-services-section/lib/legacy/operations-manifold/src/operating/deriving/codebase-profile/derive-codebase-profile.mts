@@ -1,8 +1,8 @@
 import path from "node:path";
 import { readdirSync, readFileSync } from "node:fs";
 
-import { typeFlowNeighbourhood, workspaceTypeFlow, type TypeFlowNeighbourhood, type TypeFlowNode } from "@emsenn/organizing-with-jsnode/functions";
-import { workspaceTypeIndex } from "@emsenn/organizing-with-jsnode/workspaces";
+import { typeFlowNeighbourhood, workspaceTypeFlow, type TypeFlowNeighbourhood, type TypeFlowNode } from "@red-cup-engineering/organizing-with-jsnode/functions";
+import { workspaceTypeIndex } from "@red-cup-engineering/organizing-with-jsnode/workspaces";
 
 import { codebaseReading, type CodebaseReading, type CodebaseReadingParams } from "../../../codebase-reading.mts";
 import { operationsManifoldScriptCatalog } from "../../../package-surface.mts";
@@ -70,7 +70,7 @@ export type CodebaseProfileAuditFinding = Readonly<{
 }>;
 
 export type CodebaseProfileTypeFlow = Readonly<{
-  source: "@emsenn/organizing-with-jsnode/functions.workspaceTypeFlow";
+  source: "@red-cup-engineering/organizing-with-jsnode/functions.workspaceTypeFlow";
   summary: Readonly<{
     order: number;
     size: number;
@@ -106,8 +106,8 @@ export type CodebaseProfile = Readonly<{
     codebase: "read-codebase";
     fileTouchMarket: "market-file-touch";
     packageBins: "package.json#bin";
-    workspace: "@emsenn/organizing-with-jsnode/workspaces";
-    gaming: "@emsenn/gaming";
+    workspace: "@red-cup-engineering/organizing-with-jsnode/workspaces";
+    gaming: "@red-cup-engineering/gaming";
   }>;
   summary: Readonly<{
     carriers: number;
@@ -179,8 +179,8 @@ export async function deriveCodebaseProfile(repoRoot: string, params: CodebasePr
       codebase: "read-codebase" as const,
       fileTouchMarket: "market-file-touch" as const,
       packageBins: "package.json#bin" as const,
-      workspace: "@emsenn/organizing-with-jsnode/workspaces" as const,
-      gaming: "@emsenn/gaming" as const,
+      workspace: "@red-cup-engineering/organizing-with-jsnode/workspaces" as const,
+      gaming: "@red-cup-engineering/gaming" as const,
     }),
     summary: Object.freeze({
       carriers: carriers.length,
@@ -204,9 +204,9 @@ export async function deriveCodebaseProfile(repoRoot: string, params: CodebasePr
     reuse: Object.freeze({
       claim: "Codebase profile reuses the existing read-codebase, workspace atlas, package-bin catalog, and gaming reader instead of adding a second codebase scanner." as const,
       upstreams: Object.freeze([
-        upstream("@emsenn/organizing-with-jsnode/workspaces", reading.categorical.upstream.filter((item) => item.includes("organizing-with-jsnode"))),
-        upstream("@emsenn/organizing-with-jsnode/functions.workspaceTypeFlow", [`${typeFlow.summary.order} type-flow nodes`, `${typeFlow.summary.size} type-flow edges`]),
-        upstream("@emsenn/gaming", reading.categorical.upstream.filter((item) => item.includes("gaming"))),
+        upstream("@red-cup-engineering/organizing-with-jsnode/workspaces", reading.categorical.upstream.filter((item) => item.includes("organizing-with-jsnode"))),
+        upstream("@red-cup-engineering/organizing-with-jsnode/functions.workspaceTypeFlow", [`${typeFlow.summary.order} type-flow nodes`, `${typeFlow.summary.size} type-flow edges`]),
+        upstream("@red-cup-engineering/gaming", reading.categorical.upstream.filter((item) => item.includes("gaming"))),
         upstream("@emsenn/trading/market", [touchMarket.pricing]),
         upstream("Operations Manifold logs and state", reading.categorical.upstream.filter((item) => item.includes("data/logs") || item.includes("data/state"))),
       ]),
@@ -257,8 +257,8 @@ function auditFindingsFor(input: Readonly<{
       next: "Fuse the generic append/read/fold/write law through upstream JSONL/EAVT and state carriers; keep only Operations Manifold event/domain projection local.",
       upstreamCandidates: Object.freeze([
         "@emsenn/relating/writing/path/object/attribute/file/flatfile/serialization/json/jsonl",
-        "@emsenn/gaming/running/store",
-        "@emsenn/organizing-with-jsnode/organizing/packages/carrier",
+        "@red-cup-engineering/gaming/running/store",
+        "@red-cup-engineering/organizing-with-jsnode/organizing/packages/carrier",
       ]),
       typeWitnesses: Object.freeze([...new Set(localMechanicModules.flatMap((item) => item.symbols).flatMap(symbolCarrierTerms))].slice(0, 12)),
       domainWitnesses: Object.freeze(domainWitnessesForModules(localMechanicModules.map((item) => item.module))),
@@ -275,7 +275,7 @@ function auditFindingsFor(input: Readonly<{
       upstreamCandidates: Object.freeze([
         "src/operating/recording/events/stating/library/eavt-log-state.mts",
         "@emsenn/relating/writing/path/object/attribute/file/flatfile/serialization/json/jsonl",
-        "@emsenn/organizing-with-jsnode/organizing/packages/carrier",
+        "@red-cup-engineering/organizing-with-jsnode/organizing/packages/carrier",
       ]),
       typeWitnesses: Object.freeze([...new Set(localMechanicFiles.flatMap((item) => item.typeWitnesses))].slice(0, 12)),
       domainWitnesses: Object.freeze([...new Set(localMechanicFiles.flatMap((item) => item.domainWitnesses))].slice(0, 12)),
@@ -291,7 +291,7 @@ function auditFindingsFor(input: Readonly<{
       next: "Keep fold/projector logic local to each domain, and move the shared log-state carrier upstream only after another package needs the same filesystem law.",
       upstreamCandidates: Object.freeze([
         "@emsenn/relating/writing/path/object/attribute/file/flatfile/serialization/json/jsonl",
-        "@emsenn/organizing-with-jsnode/organizing/packages/carrier",
+        "@red-cup-engineering/organizing-with-jsnode/organizing/packages/carrier",
       ]),
       typeWitnesses: Object.freeze([...new Set(foldModules.flatMap((item) => item.symbols).flatMap(symbolCarrierTerms))].slice(0, 12)),
       domainWitnesses: Object.freeze(domainWitnessesForModules(foldModules.map((item) => item.module))),
@@ -310,7 +310,7 @@ function auditFindingsFor(input: Readonly<{
       severity: "info" as const,
       summary: `${input.scripts.length} package-bin processor(s) are exposed for shared stdio/HTTP/OpenAPI/MCP projection.`,
       next: "Keep scripts as thin stdio morphism interfaces and move domain/codomain logic into source carriers or upstream packages.",
-      upstreamCandidates: Object.freeze(["@emsenn/organizing-with-jsnode/packages.packageScriptCatalogFromPackage"]),
+      upstreamCandidates: Object.freeze(["@red-cup-engineering/organizing-with-jsnode/packages.packageScriptCatalogFromPackage"]),
       typeWitnesses: Object.freeze(["PackageScriptCatalog", "PackageBin"]),
       domainWitnesses: Object.freeze(["scripts", "package.json#bin", "stdio-eavt"]),
       evidence: Object.freeze(["package.json#bin", ...input.scripts.slice(0, 8).map((script) => script.name)]),
@@ -324,8 +324,8 @@ function auditFindingsFor(input: Readonly<{
       classification: "upstream-fusion" as const,
       severity: "watch" as const,
       summary: "The codebase reading did not witness upstream package use.",
-      next: "Route the carrier through @emsenn/organizing-with-jsnode, @emsenn/gaming, @emsenn/animating, @emsenn/relating, or another fitting upstream package.",
-      upstreamCandidates: Object.freeze(["@emsenn/organizing-with-jsnode", "@emsenn/gaming", "@emsenn/animating", "@emsenn/relating"]),
+      next: "Route the carrier through @red-cup-engineering/organizing-with-jsnode, @red-cup-engineering/gaming, @red-cup-engineering/animating, @emsenn/relating, or another fitting upstream package.",
+      upstreamCandidates: Object.freeze(["@red-cup-engineering/organizing-with-jsnode", "@red-cup-engineering/gaming", "@red-cup-engineering/animating", "@emsenn/relating"]),
       typeWitnesses: Object.freeze(["PackageAtlasView", "Arena", "WorkItem", "PredicationTerm"]),
       domainWitnesses: Object.freeze(["read-codebase.categorical.upstream"]),
       evidence: Object.freeze(["read-codebase.categorical.upstream"]),
@@ -404,7 +404,7 @@ function codebaseTypeFlow(repoRoot: string, reading: CodebaseReading): CodebaseP
     .map(compactTypeFlowNeighbourhood)
     .slice(0, 8);
   return Object.freeze({
-    source: "@emsenn/organizing-with-jsnode/functions.workspaceTypeFlow" as const,
+    source: "@red-cup-engineering/organizing-with-jsnode/functions.workspaceTypeFlow" as const,
     summary: Object.freeze({
       order: flow.order,
       size: flow.size,
@@ -524,9 +524,9 @@ function upstreamCandidatesForDuplicate(
   const text = `${group.name} ${group.modules.flatMap((item) => [item.module, item.signature]).join(" ")}`.toLowerCase();
   const candidates = [
     text.includes("json") || text.includes("log") || text.includes("event") ? "@emsenn/relating/writing" : null,
-    text.includes("script") || text.includes("package") || text.includes("module") || text.includes("symbol") ? "@emsenn/organizing-with-jsnode" : null,
-    text.includes("work") || text.includes("agent") || text.includes("operation") || text.includes("dispatch") ? "@emsenn/animating" : null,
-    text.includes("strategy") || text.includes("play") || text.includes("arena") ? "@emsenn/gaming" : null,
+    text.includes("script") || text.includes("package") || text.includes("module") || text.includes("symbol") ? "@red-cup-engineering/organizing-with-jsnode" : null,
+    text.includes("work") || text.includes("agent") || text.includes("operation") || text.includes("dispatch") ? "@red-cup-engineering/animating" : null,
+    text.includes("strategy") || text.includes("play") || text.includes("arena") ? "@red-cup-engineering/gaming" : null,
     text.includes("charge") || text.includes("predicate") || text.includes("term") ? "@emsenn/relating" : null,
     ...atlas.package.dependencies.filter((dependency) => dependency.startsWith("@emsenn/")),
   ].filter((candidate): candidate is string => candidate !== null);

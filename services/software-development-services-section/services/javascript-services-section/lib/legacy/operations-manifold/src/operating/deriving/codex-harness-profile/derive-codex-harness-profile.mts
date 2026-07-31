@@ -1,4 +1,4 @@
-import { HARNESS_PREDICATES } from "@emsenn/organizing-with-llm-agents/harness";
+import { HARNESS_PREDICATES } from "@red-cup-engineering/organizing-with-llm-agents/harness";
 
 import { agentPlatform, type AgentPlatformProjection } from "../../../agent-platform.mts";
 import { agenticReadiness, type AgenticReadinessCriterion, type AgenticReadinessReport } from "../../../agentic-readiness.mts";
@@ -50,7 +50,7 @@ export type CodexHarnessSessionInference = Readonly<{
 }>;
 
 export type CodexHarnessTopologyProjection = Readonly<{
-  source: "@emsenn/organizing-with-llm-agents/harness";
+  source: "@red-cup-engineering/organizing-with-llm-agents/harness";
   carrier: Readonly<{
     kind: "harness.carrier";
     term: string;
@@ -392,7 +392,7 @@ function inference(
 function harnessTopologyProjection(input: Readonly<{ focus: string; intent: string }>): CodexHarnessTopologyProjection {
   const harness = operationsManifoldAgentHarness();
   return Object.freeze({
-    source: "@emsenn/organizing-with-llm-agents/harness" as const,
+    source: "@red-cup-engineering/organizing-with-llm-agents/harness" as const,
     carrier: Object.freeze({
       kind: harness.carrier.kind,
       term: harness.carrier.term,

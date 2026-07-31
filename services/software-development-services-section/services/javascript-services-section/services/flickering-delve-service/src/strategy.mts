@@ -15,9 +15,9 @@
  *      through its own trusted, validated handlers. So a custom strategy can *decide*, never
  *      *cheat*.
  */
-import { type SExpr, evaluate, read } from "@emsenn/fizzos/lisp";
-import type { World } from "@emsenn/fizzos/world";
-import type { Content } from "@emsenn/fizzos/world-load";
+import { type SExpr, evaluate, read } from "@red-cup-engineering/fizzos/lisp";
+import type { World } from "@red-cup-engineering/fizzos/world";
+import type { Content } from "@red-cup-engineering/fizzos/world-load";
 
 /** The only actions a strategy may decide — anything else collapses to a safe `wait`. */
 export const STRATEGY_ACTIONS = ["attack", "descend", "retreat", "rekindle", "buy", "wait"] as const;

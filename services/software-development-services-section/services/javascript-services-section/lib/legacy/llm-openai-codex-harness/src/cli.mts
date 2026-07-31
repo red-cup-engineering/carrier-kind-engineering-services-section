@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// @emsenn/llm-openai-codex-harness CLI — start the persistent Codex hub.
+// @red-cup-engineering/llm-openai-codex-harness CLI — start the persistent Codex hub.
 //
 // Configuration via environment:
 //   PORT            (default 18806)
@@ -9,7 +9,7 @@
 //   CODEX_AUTOSTART (default "1"; set "0" to start the hub without spawning codex)
 
 import process from "node:process";
-import { start } from "@emsenn/http-server";
+import { start } from "@red-cup-engineering/http-server";
 import { createHarnessServerApp, DEFAULT_PORT, HUB_PATH } from "./service.mjs";
 import { createCodexProcess } from "./process.mjs";
 

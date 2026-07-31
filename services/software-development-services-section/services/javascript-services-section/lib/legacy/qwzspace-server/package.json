@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/qwzspace-server",
+  "name": "@red-cup-engineering/qwzspace-server",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -16,8 +16,8 @@
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "demo": "node examples/demo-server.mjs",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -53,8 +53,8 @@
   },
   "dependencies": {
     "@emsenn/relating": "workspace:*",
-    "@emsenn/organizing-with-the-web": "workspace:*",
-    "@emsenn/http-server": "workspace:*"
+    "@red-cup-engineering/organizing-with-the-web": "0.0.2",
+    "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

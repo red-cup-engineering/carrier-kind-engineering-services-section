@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/organizing-with-claude",
+  "name": "@red-cup-engineering/organizing-with-claude",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json && chmod +x dist/scripts/harness.mjs",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "bin": {
     "organizing-with-claude-harness": "./dist/scripts/harness.mjs"

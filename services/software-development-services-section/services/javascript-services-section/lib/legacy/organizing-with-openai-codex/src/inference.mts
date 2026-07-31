@@ -4,7 +4,7 @@ import {
   openaiAgentInfer,
   type HolographyOptions,
   type OpenaiAgentInfer,
-} from "@emsenn/organizing-with-openai-agents/inference";
+} from "@red-cup-engineering/organizing-with-openai-agents/inference";
 
 export type { HolographyOptions };
 

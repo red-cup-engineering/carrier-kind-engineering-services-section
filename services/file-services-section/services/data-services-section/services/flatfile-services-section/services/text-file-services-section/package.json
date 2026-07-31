@@ -3,12 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Proof-path section for decoded text flatfiles.",
-  "x-agentic-metro-enterprise": {
-    "node-id": "text-file-services-section",
-    "actor": "urn:ame:text-file-services-section",
-    "organizational-kind": "circuit-board",
-    "owners": ["flatfile-services-section"],
-    "owned-services": ["services/markdown-file-services-section"]
-  }
+  "description": "Proof-path section for decoded text flatfiles."
 }

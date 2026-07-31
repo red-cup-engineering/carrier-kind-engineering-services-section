@@ -19,57 +19,10 @@
   },
   "dependencies": {
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
     "@lenticule-science/wit-transition-assay": "1.0.0",
     "@red-cup-engineering/x402-services-section": "1.2.0",
     "express": "5.2.1"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "metered-inference-tollbooth",
-    "owners": [
-      "561-group",
-      "red-cup-engineering"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "composes": [
-      "one customer-selected sovereign inference provider",
-      "lenticule-science/obsmetrological-services-section/rmn-semantic-conformance",
-      "a contracted x402 v2 facilitator"
-    ],
-    "admission": "a structurally valid ActivityStreams Accept<ServiceContract> naming one signed provider Agent Card and carrying one canonical RMN effect bundle that directly embeds that provider's effect, after an official x402 v2 exact payment verifies and settles",
-    "refusal": "malformed or nonconforming RMN, mismatched caller/provider/law/composition, any request not settled by the configured x402 facilitator, or any request for a registry-selected provider, EOA fallback, custom payment envelope, or unsigned execution",
-    "operation-catalog": {
-      "serve-metered-inference": {
-        "contract": "ni:///sha-256;tfJ8bb1dC2rttGrvbplTrlay1KlOmS7hqmcYm2fRYo4",
-        "operation": "invoke-service",
-        "accepts": "POST application/activity+json after official x402 v2 exact settlement",
-        "returns": "ActivityStreams Accept<RmnMeteredInferenceSettlement>|Reject<Refusal>",
-        "carrier": "POST /inference (src/tollbooth.mjs)",
-        "timeoutMs": 1200000
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:metered-inference-tollbooth",
-    "operations": [
-      "serve-metered-inference"
-    ],
-    "capabilities": [
-      {
-        "capability": "metered-inference-tollbooth",
-        "faces": [
-          "serve-metered-inference"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/metered-inference-tollbooth"
   }
 }

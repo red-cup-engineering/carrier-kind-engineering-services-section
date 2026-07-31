@@ -12,9 +12,9 @@
  * because `runProcessCommand` is a `spawnSync` boundary with no stdin channel.
  */
 import process from "node:process";
-import { operation, type Operation } from "@emsenn/metroplat/operations";
-import { runProcessCommand, processCommandExitCode, processCommandOutputText } from "@emsenn/metroplat/integrations/process";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
+import { operation, type Operation } from "@red-cup-engineering/metroplat/operations";
+import { runProcessCommand, processCommandExitCode, processCommandOutputText } from "@red-cup-engineering/metroplat/integrations/process";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
 
 import { parseClaudeEvents, summarizeRun } from "./events.mts";
 

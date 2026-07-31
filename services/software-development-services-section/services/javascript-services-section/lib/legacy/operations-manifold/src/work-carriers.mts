@@ -22,7 +22,7 @@ export {
   workSubject,
   workTask,
   workTitle,
-} from "@emsenn/organizing";
+} from "@red-cup-engineering/organizing";
 
 export type {
   Fiber,
@@ -36,4 +36,4 @@ export type {
   WorkStatus,
   WorkTask,
   WorkType,
-} from "@emsenn/organizing";
+} from "@red-cup-engineering/organizing";

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// @emsenn/llm-server CLI — start the OpenAI-compatible chat-completions service.
+// @red-cup-engineering/llm-server CLI — start the OpenAI-compatible chat-completions service.
 //
 // Configuration via environment: LLM_UPSTREAM (groq|nvidia|cerebras|anthropic,
 // default groq), LLM_MODEL, PORT (default 8787). Keys are read by holography from
 // the upstream's own env vars (e.g. GROQ_API_KEY).
 
-import { start } from "@emsenn/http-server";
-import { ENDPOINTS, type EndpointSpec } from "@emsenn/organizing-with-llm-agents/algebra";
+import { start } from "@red-cup-engineering/http-server";
+import { ENDPOINTS, type EndpointSpec } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 import { createLlmServerApp } from "./service.mjs";
 
 export async function main(env: Readonly<Record<string, string | undefined>>): Promise<void> {

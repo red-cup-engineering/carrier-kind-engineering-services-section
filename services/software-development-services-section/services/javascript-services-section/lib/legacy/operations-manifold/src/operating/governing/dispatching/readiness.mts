@@ -106,7 +106,7 @@ export type AssessDispatchReadinessReading = Readonly<{
     authorities: readonly DispatchMatchReading[];
   }>;
   upstream: Readonly<{
-    package: "@emsenn/animating";
+    package: "@red-cup-engineering/animating";
     functions: readonly ["mode", "office", "provisions", "governOperation", "dispatchReadiness"];
   }>;
   evidence: readonly string[];
@@ -341,14 +341,14 @@ export async function assessDispatchReadiness(_repoRoot: string, params: AssessD
       authorities: Object.freeze(decision.readiness.authorityMatches.map(matchReading)),
     }),
     upstream: Object.freeze({
-      package: "@emsenn/animating" as const,
+      package: "@red-cup-engineering/animating" as const,
       functions: Object.freeze(["mode", "office", "provisions", "governOperation", "dispatchReadiness"] as const),
     }),
     evidence: Object.freeze([
       "src/operating/governing/dispatching/readiness.mts",
       "src/holography/llm/codex.mts",
-      "@emsenn/animating governOperation",
-      "@emsenn/animating dispatchReadiness",
+      "@red-cup-engineering/animating governOperation",
+      "@red-cup-engineering/animating dispatchReadiness",
     ]),
   });
 }

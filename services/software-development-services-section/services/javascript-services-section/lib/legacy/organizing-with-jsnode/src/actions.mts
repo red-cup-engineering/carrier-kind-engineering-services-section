@@ -11,21 +11,21 @@ import { action, carrierFrom, tm, type Action, type DataCarrier, type FromSchema
 export const JSNODE_CORE_PACKAGES = Object.freeze([
   "@emsenn/relating",
   "@emsenn/communicating",
-  "@emsenn/knowing",
-  "@emsenn/playing",
-  "@emsenn/animating",
-  "@emsenn/socializing",
-  "@emsenn/computing",
-  "@emsenn/gaming",
-  "@emsenn/organizing",
+  "@red-cup-engineering/knowing",
+  "@red-cup-engineering/playing",
+  "@red-cup-engineering/animating",
+  "@red-cup-engineering/socializing",
+  "@red-cup-engineering/computing",
+  "@red-cup-engineering/gaming",
+  "@red-cup-engineering/organizing",
 ] as const);
 
-const corePackageNameSchema = { anyOf: [{ const: "@emsenn/relating" }, { const: "@emsenn/communicating" }, { const: "@emsenn/knowing" }, { const: "@emsenn/playing" }, { const: "@emsenn/animating" }, { const: "@emsenn/socializing" }, { const: "@emsenn/computing" }, { const: "@emsenn/gaming" }, { const: "@emsenn/organizing" }] } as const;
+const corePackageNameSchema = { anyOf: [{ const: "@emsenn/relating" }, { const: "@emsenn/communicating" }, { const: "@red-cup-engineering/knowing" }, { const: "@red-cup-engineering/playing" }, { const: "@red-cup-engineering/animating" }, { const: "@red-cup-engineering/socializing" }, { const: "@red-cup-engineering/computing" }, { const: "@red-cup-engineering/gaming" }, { const: "@red-cup-engineering/organizing" }] } as const;
 const identityTerm = tm.lam(tm.var(0));
 
 export type JSNodeCorePackage = typeof JSNODE_CORE_PACKAGES[number];
 
-export const ancestrySchema = { $id: "organizing-with-jsnode/ancestry", title: "OrganizingWithJSNodeAncestry", description: "The nine-package relating-through-organizing spine this JSNode organizer is derived from.", type: "object", required: ["kind", "spine", "substrate", "binder"], properties: { kind: { const: "organizing-with-jsnode.ancestry" }, spine: { minItems: JSNODE_CORE_PACKAGES.length, maxItems: JSNODE_CORE_PACKAGES.length, type: "array", items: corePackageNameSchema }, substrate: { const: "@emsenn/relating" }, binder: { const: "@emsenn/organizing" } }, additionalProperties: false } as const;
+export const ancestrySchema = { $id: "organizing-with-jsnode/ancestry", title: "OrganizingWithJSNodeAncestry", description: "The nine-package relating-through-organizing spine this JSNode organizer is derived from.", type: "object", required: ["kind", "spine", "substrate", "binder"], properties: { kind: { const: "organizing-with-jsnode.ancestry" }, spine: { minItems: JSNODE_CORE_PACKAGES.length, maxItems: JSNODE_CORE_PACKAGES.length, type: "array", items: corePackageNameSchema }, substrate: { const: "@emsenn/relating" }, binder: { const: "@red-cup-engineering/organizing" } }, additionalProperties: false } as const;
 
 export const ancestryCarrier = carrierFrom(ancestrySchema);
 
@@ -36,7 +36,7 @@ export function organizingWithJSNodeAncestry(): OrganizingWithJSNodeAncestry {
     kind: "organizing-with-jsnode.ancestry",
     spine: JSNODE_CORE_PACKAGES,
     substrate: "@emsenn/relating",
-    binder: "@emsenn/organizing",
+    binder: "@red-cup-engineering/organizing",
   });
 }
 
@@ -64,7 +64,7 @@ export const workspaceSocialBoundaryCarrier = carrierFrom(workspaceSocialBoundar
 
 export type JSNodeWorkspaceSocialBoundaryCarrier = FromSchema<typeof workspaceSocialBoundarySchema>;
 
-export const workspaceOrganizationSummarySchema = { $id: "organizing-with-jsnode/workspace-organization-summary", title: "JSNodeWorkspaceOrganizationSummary", description: "The derived @emsenn/organizing organization read back as a compact JSNode workspace carrier.", type: "object", required: ["kind", "workspace", "identity", "packageCount", "members", "glued", "coordination", "socializing", "computing", "gaming", "dependencies", "ancestry"], properties: { kind: { const: "organizing-with-jsnode.workspace-organization-summary" }, workspace: { minLength: 1, type: "string" }, identity: { minLength: 1, type: "string" }, packageCount: { minimum: 0, type: "integer" }, members: { minimum: 0, type: "integer" }, glued: { type: "boolean" }, coordination: { anyOf: [{ const: "coordination-free" }, { const: "consensus-required" }] }, socializing: { minimum: 0, type: "integer" }, computing: { minimum: 0, type: "integer" }, gaming: { minimum: 0, type: "integer" }, dependencies: { minimum: 0, type: "integer" }, ancestry: { type: "array", items: corePackageNameSchema } }, additionalProperties: false } as const;
+export const workspaceOrganizationSummarySchema = { $id: "organizing-with-jsnode/workspace-organization-summary", title: "JSNodeWorkspaceOrganizationSummary", description: "The derived @red-cup-engineering/organizing organization read back as a compact JSNode workspace carrier.", type: "object", required: ["kind", "workspace", "identity", "packageCount", "members", "glued", "coordination", "socializing", "computing", "gaming", "dependencies", "ancestry"], properties: { kind: { const: "organizing-with-jsnode.workspace-organization-summary" }, workspace: { minLength: 1, type: "string" }, identity: { minLength: 1, type: "string" }, packageCount: { minimum: 0, type: "integer" }, members: { minimum: 0, type: "integer" }, glued: { type: "boolean" }, coordination: { anyOf: [{ const: "coordination-free" }, { const: "consensus-required" }] }, socializing: { minimum: 0, type: "integer" }, computing: { minimum: 0, type: "integer" }, gaming: { minimum: 0, type: "integer" }, dependencies: { minimum: 0, type: "integer" }, ancestry: { type: "array", items: corePackageNameSchema } }, additionalProperties: false } as const;
 
 export const workspaceOrganizationSummaryCarrier = carrierFrom(workspaceOrganizationSummarySchema);
 

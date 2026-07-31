@@ -45,6 +45,27 @@ if [ "$command_name" = commit ]; then
   fi
 fi
 
+# Fetch ingestion (Leader orders 2026-07-31: preserved machine bundles'
+# commits go to GitHub; repository divergence gets fixed; no free-floating
+# submodules). Fetch is admitted only when its source is an existing local
+# .bundle file or an explicit https GitHub URL: object and ref ingestion
+# without worktree mutation, serialized through the same exclusive lane as
+# every other mutation. Fetch by remote name or from any other host stays
+# refused; push remains the only credentialed network egress.
+if [ "$command_name" = fetch ]; then
+  admitted_source=false
+  for argument in "$@"; do
+    case "$argument" in
+      *.bundle) [ -f "$argument" ] && admitted_source=true ;;
+      https://github.com/*) admitted_source=true ;;
+    esac
+  done
+  if [ "$admitted_source" = false ]; then
+    echo "git contracted ingress refused: fetch admitted only from a local bundle file or an https GitHub URL" >&2
+    exit 126
+  fi
+fi
+
 # Serialized mutation face (Leader order 2026-07-26: committing must be
 # possible; extended 2026-07-26 to push). The hazard the raw-git ban answered
 # was concurrent agents mutating the repository at once; this face admits
@@ -117,7 +138,7 @@ case "$command_name" in
   add|commit|restore|rm|mv|checkout|switch|reset|merge|cherry-pick|revert|tag|stash|filter-repo|clean)
     run_mutation "$@"
     ;;
-  push)
+  push|fetch)
     acquire_mutation_lane
     token=$(gh auth token 2>/dev/null || true)
     [ -n "$token" ] || token=${GITHUB_TOKEN-}

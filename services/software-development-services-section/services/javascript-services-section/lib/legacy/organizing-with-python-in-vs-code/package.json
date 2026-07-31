@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/organizing-with-python-in-vs-code",
+  "name": "@red-cup-engineering/organizing-with-python-in-vs-code",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -28,8 +28,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/organizing-with-python": "workspace:*",
-    "@emsenn/organizing-with-vscode-agents": "workspace:*"
+    "@red-cup-engineering/organizing-with-python": "0.0.0",
+    "@red-cup-engineering/organizing-with-vscode-agents": "0.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

@@ -3,7 +3,7 @@ import {
   jsonRepr,
   type App,
   type Context,
-} from "@emsenn/http-server";
+} from "@red-cup-engineering/http-server";
 
 import { carrierFormScript, codeList, densePageStyles, functionInterfaceRows, functionPanel, htmlEscape, queryParamsFromContext, row, summaryMetaItems } from "../../projecting/web-ui.mts";
 import { deriveCodexHarnessProfile, type CodexHarnessProfile, type CodexHarnessProfileParams } from "./derive-codex-harness-profile.mts";

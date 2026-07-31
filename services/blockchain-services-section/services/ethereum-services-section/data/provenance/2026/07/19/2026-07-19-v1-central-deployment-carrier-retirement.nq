@@ -1,0 +1,4 @@
+<urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <urn:emsenn:DeploymentCarrierCutover> <urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> .
+<urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> <urn:emsenn:displacedCarrier> <ni:///sha-256;J1skm0i-uk0RMOJ3HD7e5zRaPpiKwcjVghvgJ9uB6Rc> <urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> .
+<urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> <urn:emsenn:successorCarrier> <ni:///sha-256;Fs9AI-Ohco-Ak5iHpJHy5h-ZGdZa80PFQXexQRXzOGM> <urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> .
+<urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> <urn:emsenn:reason> "The displaced v1 carrier combined standard deployments with a Union-wide account list. The successor records only provider-owned standard deployments; each settlement owns its v2 account binding and the census remains derived." <urn:uuid:bf145ae9-1f33-4a4a-81b0-34429eef5740> .

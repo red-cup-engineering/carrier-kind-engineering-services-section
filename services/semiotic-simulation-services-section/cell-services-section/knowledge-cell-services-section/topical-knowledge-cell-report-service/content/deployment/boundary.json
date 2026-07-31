@@ -1,0 +1,30 @@
+{
+  "type": "TopicalKnowledgeCellReportServiceDeploymentBoundary",
+  "version": 1,
+  "nodeId": "topical-knowledge-cell-report-service",
+  "status": "not-activated",
+  "runtimeAdapterModule": null,
+  "internalA2AStatus": "unbound",
+  "externalRetailStatus": "unbound",
+  "requiredBindings": {
+    "a2aProtocolProvider": null,
+    "activityPubProvider": null,
+    "x402FacilitatorProvider": null,
+    "notebookLmProvider": null,
+    "rmnIdentityProvider": null,
+    "rwilRdfProvider": null,
+    "payoutAccount": null,
+    "signedAgentCard": null
+  },
+  "activationGate": "all bindings must be exact, live, witnessed, and owned by their provider before this node may advertise itself as live",
+  "writableTerritory": [
+    "data/"
+  ],
+  "forbiddenClaims": [
+    "tests prove a live payment",
+    "an offer is revenue",
+    "a placeholder payout address is a wallet",
+    "an injected provider double is a hired provider",
+    "a report proves truth or source completeness"
+  ]
+}

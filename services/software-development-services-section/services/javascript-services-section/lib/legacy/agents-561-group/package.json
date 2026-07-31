@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/agents",
+  "name": "@red-cup-engineering/agents",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -20,8 +20,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/http-server": "workspace:*",
-    "@emsenn/organizing-with-the-web": "workspace:*",
+    "@red-cup-engineering/http-server": "0.0.2",
+    "@red-cup-engineering/organizing-with-the-web": "0.0.2",
     "@emsenn/organizing-with-openai-agents": "workspace:*",
     "@emsenn/organizing-with-llm-agents": "workspace:*",
     "@emsenn/relating": "workspace:*"

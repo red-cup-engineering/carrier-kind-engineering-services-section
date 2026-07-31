@@ -1,0 +1,17 @@
+[Unit]
+Description=Settlement Trace Chain node signed A2A face
+After=settlement-trace-chain-node-eip155-5615610.service
+Requires=settlement-trace-chain-node-eip155-5615610.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/blockchain-services-section/services/settlement-trace-chain-node-cell
+EnvironmentFile=/home/emsenn/.local/share/emsenn/settlement-trace-chain-node-cell/eip155-5615610.env
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node bin/server.mjs
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

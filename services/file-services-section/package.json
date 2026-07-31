@@ -4,6 +4,14 @@
   "private": true,
   "type": "module",
   "description": "Proof-path section for file-leg operations over typed resources.",
-  "x-agentic-metro-enterprise": { "node-id": "file-services-section", "actor": "urn:ame:file-services-section", "organizational-kind": "circuit-board", "owners": ["software-services-section"], "owned-services": ["services/data-services-section", "services/filesystem-custody-services-section", "services/proof-pathing-services-section"] },
-  "x-capability-recovery": [{ "capability": "bounded-markdown-read", "owner": "services/data-services-section/services/flatfile-services-section/services/text-file-services-section/services/markdown-file-services-section/services/markdown-file-reading-service" }, { "capability": "atomic-markdown-write", "owner": "services/data-services-section/services/flatfile-services-section/services/text-file-services-section/services/markdown-file-services-section/services/markdown-file-writing-service" }]
+  "x-capability-recovery": [
+    {
+      "capability": "bounded-markdown-read",
+      "owner": "services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/markdown-file-services-section/services/markdown-file-reading-service"
+    },
+    {
+      "capability": "atomic-markdown-write",
+      "owner": "services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/markdown-file-services-section/services/markdown-file-writing-service"
+    }
+  ]
 }

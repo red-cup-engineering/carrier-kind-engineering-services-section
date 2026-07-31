@@ -1,0 +1,29 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.mts",
+    "src/algebra.mts",
+    "src/dynamics.mts",
+    "src/theory.mts",
+    "src/arithmetic.mts"
+  ],
+  "entryPointStrategy": "expand",
+  "exclude": [
+    "**/*.test.mts",
+    "src/internal.mts"
+  ],
+  "tsconfig": "./tsconfig.json",
+  "plugin": [
+    "typedoc-plugin-markdown"
+  ],
+  "out": "docs/api",
+  "readme": "none",
+  "hideGenerator": true,
+  "githubPages": false,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "cleanOutputDir": true,
+  "useCodeBlocks": true,
+  "parametersFormat": "table"
+}

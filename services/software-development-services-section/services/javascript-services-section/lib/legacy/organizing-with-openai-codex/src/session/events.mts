@@ -11,8 +11,8 @@ import { createHash } from "node:crypto";
 
 import { action, carrierFrom, cell, charge, chargeValue, claim, mark, predicateOfClaim, tm, token, utterance, type ChargeCarrier, type ChargeValueName, type Mark, type PredicationPredicate, type PredicationTerm, type UtteranceCarrier } from "@emsenn/relating";
 import { canonical as canonicalJson, isJsonRecord, parseJsonlLines, requireJsonValue } from "@emsenn/relating/writing";
-import type { CostEvent } from "@emsenn/organizing-with-openai-agents/run";
-import { finding, type Finding } from "@emsenn/organizing-with-openai-agents/session";
+import type { CostEvent } from "@red-cup-engineering/organizing-with-openai-agents/run";
+import { finding, type Finding } from "@red-cup-engineering/organizing-with-openai-agents/session";
 
 export type CodexExecEvent = Readonly<Record<string, unknown> & {
   readonly type: string;

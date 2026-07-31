@@ -5,7 +5,7 @@ import {
   type LessonEvidence,
   type LessonJudgment,
   type LessonSettlement,
-} from "@emsenn/knowing/learning";
+} from "@red-cup-engineering/knowing/learning";
 
 import { operationsManifoldLogPath, operationsManifoldStatePath } from "../../../package-surface.mts";
 import { hash, optionalText } from "../../../records.mts";
@@ -80,8 +80,8 @@ export async function deriveMessageLearning(repoRoot: string, params: MessageLea
       messages: operationsManifoldLogPath("messages"),
       state: operationsManifoldStatePath("messages"),
       upstream: Object.freeze([
-        "@emsenn/knowing/learning.deriveLessons",
-        "@emsenn/knowing/learning.settleLessonJudgments",
+        "@red-cup-engineering/knowing/learning.deriveLessons",
+        "@red-cup-engineering/knowing/learning.settleLessonJudgments",
         "@emsenn/operations-manifold.readMessages",
       ]),
     }),

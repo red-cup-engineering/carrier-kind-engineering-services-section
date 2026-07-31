@@ -6,7 +6,7 @@
 // the systemd unit owns PORT/HOST; 0 means an ephemeral port.
 
 import process from "node:process";
-import { start, installGracefulShutdown } from "@emsenn/http-server";
+import { start, installGracefulShutdown } from "@red-cup-engineering/http-server";
 import { createApp } from "./index.ts";
 
 const envPort = process.env["PORT"] ? Number(process.env["PORT"]) : undefined;

@@ -1,6 +1,6 @@
 ---
 name: analyzing
-description: "Turn Monitor evidence into an explicit AnalysisK: use NotebookLM as a source-grounded language parser and data scientist to derive inventories, taxonomies, contradictions, dependency views, and falsifiable hypotheses; never grant it execution authority."
+description: "Diagnose a repository or system condition from bounded current evidence, including when a user asks what is broken, why behavior occurs, or what an unfamiliar formal system means. Use NotebookLM only for source-grounded parsing or modeling; never grant it execution authority or turn the user's explanatory vocabulary into an implementation assignment."
 ---
 
 # Analyze Codex office knowledge
@@ -12,6 +12,8 @@ patch, a command, or a coding recommendation.
 1. Start with a bounded Monitor result: exact paths, search terms, observed
    behavior, and any provider receipt. Do not upload an ambient repository or
    unselected transcript.
+   When the user supplies a conceptual framing, use it to evaluate evidence;
+   do not search every term or literalize examples into proposed components.
 2. Choose the smallest useful NotebookLM product:
    - **CSV data table** for inventories, classifications, term-to-record
      mappings, evidence matrices, and cross-face comparisons.

@@ -5,7 +5,7 @@
  * feasible given the ecosystem." So we don't hand-roll bookkeeping — we record every cleared
  * payment as a balanced double-entry transaction and lean on the ecosystem to *prove* the
  * books: the journal is rendered to canonical hledger text, parsed by
- * `@emsenn/computing-with-ledgers`, and loaded by organizing's accounting ledger, which
+ * `@red-cup-engineering/computing-with-ledgers`, and loaded by organizing's accounting ledger, which
  * reports the running balances and flags any malformed/imbalanced entry. "Auditable" here means a third
  * party can replay our journal text through the same standard tooling and get the same
  * balances — the trace is the audit.
@@ -13,9 +13,9 @@
  * Append-only: entries are never mutated or deleted, only appended, and persisted as a journal
  * file. That is the same event-sourced discipline the world trace uses, applied to money.
  */
-import loadLedger from "@emsenn/organizing/accounting/ledger";
-import { parseHledger } from "@emsenn/computing-with-ledgers/parse";
-import { formatAmount } from "@emsenn/computing-with-ledgers/decimal";
+import loadLedger from "@red-cup-engineering/organizing/accounting/ledger";
+import { parseHledger } from "@red-cup-engineering/computing-with-ledgers/parse";
+import { formatAmount } from "@red-cup-engineering/computing-with-ledgers/decimal";
 
 /** One side of a transaction: an account path and a signed amount in a commodity. */
 export interface Posting {

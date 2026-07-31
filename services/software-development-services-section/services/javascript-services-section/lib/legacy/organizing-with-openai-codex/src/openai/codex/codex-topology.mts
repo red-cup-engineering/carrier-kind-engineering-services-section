@@ -2,7 +2,7 @@
  * codex-topology — the Codex CLI as a settled meme-topology carrier.
  *
  * The "codex" half of the codex-cli-harness diamond: apex
- * `@emsenn/animating/becoming/doing/embodying/boundary`; middles `@emsenn/organizing-with-openai-agents/harness`
+ * `@red-cup-engineering/animating/becoming/doing/embodying/boundary`; middles `@red-cup-engineering/organizing-with-openai-agents/harness`
  * (agent + content) and this one (agent +
  * openai-models); floor `codex-cli-harness-topology` ⊂ both.
  *
@@ -19,7 +19,7 @@
  */
 import { action, carrierFrom, mark, tm, utterance, type UtteranceCarrier, type MemeTopologyFixedPointReadings, type SettlementFiltration } from "@emsenn/relating";
 
-import { fixedPointReadingsOfUtterances, settleUtterances, termOf } from "@emsenn/animating";
+import { fixedPointReadingsOfUtterances, settleUtterances, termOf } from "@red-cup-engineering/animating";
 import { modelTerm } from "../index.mjs";
 
 export type { UtteranceCarrier };

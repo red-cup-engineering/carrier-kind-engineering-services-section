@@ -59,7 +59,7 @@ test("independent OSS assay must bind the exact projected circuit and assembly",
           assembly: circuitAssemblyId(value.assembly),
           equivalent: true,
         },
-        receiptNi: semanticId(["mark", "independent assay receipt"]),
+        receiptNi: semanticId(["mark", "typed equivalence receipt"]),
       };
     },
   });

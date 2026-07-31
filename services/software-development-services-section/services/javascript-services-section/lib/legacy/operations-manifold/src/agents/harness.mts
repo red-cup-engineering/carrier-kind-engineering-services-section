@@ -1,5 +1,5 @@
-import { harness, induceHarnessTopology } from "@emsenn/organizing-with-llm-agents/harness";
-import { classifyRun, emptyRun, settleRun } from "@emsenn/organizing-with-llm-agents/running";
+import { harness, induceHarnessTopology } from "@red-cup-engineering/organizing-with-llm-agents/harness";
+import { classifyRun, emptyRun, settleRun } from "@red-cup-engineering/organizing-with-llm-agents/running";
 
 export function operationsManifoldAgentHarness() {
   const carrier = harness({

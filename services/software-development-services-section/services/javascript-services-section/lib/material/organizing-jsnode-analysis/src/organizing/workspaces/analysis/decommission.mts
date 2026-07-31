@@ -553,7 +553,7 @@ function investigatePackageKind(pkg: JSNodePackage, markers: readonly string[]):
   }
   if (
     local.startsWith("organizing-with-") &&
-    (dependencies.has("@emsenn/organizing-with-agents") || dependencies.has("@emsenn/organizing-with-llm-agents"))
+    (dependencies.has("@red-cup-engineering/organizing-with-agents") || dependencies.has("@red-cup-engineering/organizing-with-llm-agents"))
   ) {
     signals.push("organizing-with provider package depends on agent or LLM agent substrate");
     return { kind: "provider-adapter", signals: Object.freeze(signals) };

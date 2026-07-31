@@ -9,7 +9,7 @@
  */
 import process from "node:process";
 import { runOpenaiAgentTui } from "../app/index.mjs";
-import type { PulseConfig } from "@emsenn/organizing-with-openai-agents";
+import type { PulseConfig } from "@red-cup-engineering/organizing-with-openai-agents";
 
 const VALUE = new Set([
   "--session", "--endpoint", "--model", "--dream-endpoint", "--dream-model",

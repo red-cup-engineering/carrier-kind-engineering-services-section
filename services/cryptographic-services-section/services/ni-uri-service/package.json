@@ -1,0 +1,16 @@
+{
+  "name": "@red-cup-engineering/ni-uri-service",
+  "version": "0.1.0",
+  "description": "Builds and validates RFC 6920 ni: content-identity URIs from SHA-256 digests. Use when bytes need a stable content address.",
+  "type": "module",
+  "private": true,
+  "exports": "./src/ni-uri.mjs",
+  "scripts": {
+    "check": "node --check src/ni-uri.mjs && node --check test/ni-uri.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -12,45 +12,5 @@
   },
   "scripts": {
     "test": "node --test"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "coding-context-projection-service",
-    "actor": "urn:ame:coding-context-projection-service",
-    "organizational-kind": "sovereign-software-development-die",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one bounded task and read-only repository material authority",
-    "refusal": "whole-territory disclosure, mutation, inference, execution beyond observation, or acceptance",
-    "operation-catalog": {
-      "project-coding-context": {
-        "contract": "content/contracts/project-coding-context.rml",
-        "accepts": "bounded task and repository observation",
-        "returns": "digest-addressed context projection"
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:coding-context-projection-service",
-    "operations": [
-      "project-coding-context"
-    ],
-    "capabilities": [
-      {
-        "capability": "coding-context-projection-service",
-        "faces": [
-          "project-coding-context"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/coding-context-projection-service"
   }
 }

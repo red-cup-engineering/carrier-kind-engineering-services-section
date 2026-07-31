@@ -32,7 +32,7 @@ import {
   type SettlementFiltration,
 } from "@emsenn/relating";
 import { settleUtterances, fixedPointReadingsOfUtterances } from "../../../topology-settling.mjs";
-import { harness, harnessTerm } from "@emsenn/organizing-with-llm-agents/harness";
+import { harness, harnessTerm } from "@red-cup-engineering/organizing-with-llm-agents/harness";
 import { claudeCode, claudeCodeTerm } from "../index.mjs";
 
 export type { UtteranceCarrier };

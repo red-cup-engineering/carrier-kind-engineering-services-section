@@ -16,8 +16,8 @@
  * in shape), never a flat resource grant that could skip tutorial unlocks or prestige.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { RpcClient } from "@emsenn/computing-with-hive/rpc";
-import { getAccountHistory } from "@emsenn/computing-with-hive/chain";
+import { RpcClient } from "@red-cup-engineering/computing-with-hive/rpc";
+import { getAccountHistory } from "@red-cup-engineering/computing-with-hive/chain";
 import { type AuditLedger, type LedgerEntry } from "./ledger.mts";
 
 /** A purchasable boost. Prices are exact decimal strings; effects are bounded and time-limited. */

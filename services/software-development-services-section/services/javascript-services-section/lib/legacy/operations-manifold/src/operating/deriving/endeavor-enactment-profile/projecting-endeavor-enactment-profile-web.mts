@@ -3,7 +3,7 @@ import {
   jsonRepr,
   type App,
   type Context,
-} from "@emsenn/http-server";
+} from "@red-cup-engineering/http-server";
 
 import {
   adjacentObjectRelations,

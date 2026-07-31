@@ -1,0 +1,28 @@
+{
+  "name": "@red-cup-engineering/markdown-file-reading-service",
+  "version": "0.1.0",
+  "description": "Reads one bounded Markdown file as UTF-8 text.",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/read-markdown-file.mjs"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm test && npm pack --dry-run"
+  },
+  "files": [
+    "content/",
+    "src/",
+    "types/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {}
+}

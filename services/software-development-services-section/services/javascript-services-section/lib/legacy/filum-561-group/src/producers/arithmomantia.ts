@@ -10,8 +10,8 @@
 
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { reduceDate } from "@emsenn/divining/divination";
-import type { ClaimStateBundle } from "@emsenn/content/topology/news";
+import { reduceDate } from "@lenticule-science/divining/divination";
+import type { ClaimStateBundle } from "@red-cup-engineering/content/topology/news";
 
 import {
   assertedNow,
@@ -19,7 +19,7 @@ import {
   reportWrite,
   resolveDate,
   writeBundleIfAbsent,
-} from "@emsenn/producing-content/organizing-a-newswire";
+} from "@red-cup-engineering/producing-content/organizing-a-newswire";
 
 const WIRE = "arithmomantia";
 const WITNESS = "divination-topology numerology";

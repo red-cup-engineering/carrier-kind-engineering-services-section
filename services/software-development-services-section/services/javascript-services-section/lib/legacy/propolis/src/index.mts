@@ -2,8 +2,8 @@ import os from "node:os";
 import path from "node:path";
 import { readFileSync } from "node:fs";
 
-import type { App } from "@emsenn/http-server";
-import { htmlRepr, jsonRepr, mergeApps, mountAt, serveScripts } from "@emsenn/http-server";
+import type { App } from "@red-cup-engineering/http-server";
+import { htmlRepr, jsonRepr, mergeApps, mountAt, serveScripts } from "@red-cup-engineering/http-server";
 
 type HiveScriptMap = Record<string, (params: Record<string, string>) => Promise<unknown>>;
 type CreateHiveScripts = (config: {
@@ -83,9 +83,9 @@ function readWif(keyRoot: string, account: string, role: string): string | undef
 async function loadHiveScripts(): Promise<{ createHiveScripts: CreateHiveScripts } | { error: string }> {
   try {
     const importRuntime = Function("specifier", "return import(specifier)") as (specifier: string) => Promise<unknown>;
-    const imported = await importRuntime("@emsenn/computing-with-hive/scripts");
+    const imported = await importRuntime("@red-cup-engineering/computing-with-hive/scripts");
     const createHiveScripts = (imported as { createHiveScripts?: unknown }).createHiveScripts;
-    if (typeof createHiveScripts !== "function") return { error: "@emsenn/computing-with-hive/scripts does not export createHiveScripts" };
+    if (typeof createHiveScripts !== "function") return { error: "@red-cup-engineering/computing-with-hive/scripts does not export createHiveScripts" };
     return { createHiveScripts: createHiveScripts as CreateHiveScripts };
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };

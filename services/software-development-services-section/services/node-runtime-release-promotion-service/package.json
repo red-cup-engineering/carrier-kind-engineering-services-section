@@ -15,38 +15,5 @@
   },
   "engines": {
     "node": ">=22.18"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "node-runtime-release-promotion-service",
-    "actor": "urn:ame:node-runtime-release-promotion-service",
-    "organizational-kind": "capability-cell",
-    "owners": [
-      "red-cup-engineering"
-    ],
-    "operation-catalog": {
-      "promote-node-runtime-release": {
-        "contract": "content/contracts/promote-node-runtime-release.rml",
-        "accepts": "one verified content-addressed runtime release identity and one named deployment pointer",
-        "returns": "one atomic promotion receipt retaining the prior release identity"
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:node-runtime-release-promotion-service",
-    "operations": [
-      "promote-node-runtime-release"
-    ],
-    "capabilities": [
-      {
-        "capability": "node-runtime-release-promotion-service",
-        "faces": [
-          "promote-node-runtime-release"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/node-runtime-release-promotion-service"
   }
 }

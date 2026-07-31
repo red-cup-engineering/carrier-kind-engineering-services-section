@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/llm-server",
+  "name": "@red-cup-engineering/llm-server",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -19,8 +19,8 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json && chmod +x dist/cli.mjs",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "bin": {
     "llm-server": "./dist/cli.mjs"
@@ -48,8 +48,8 @@
   },
   "dependencies": {
     "@emsenn/organizing-with-llm-agents": "workspace:*",
-    "@emsenn/llm-computer": "workspace:*",
-    "@emsenn/http-server": "workspace:*"
+    "@red-cup-engineering/llm-computer": "0.0.0",
+    "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

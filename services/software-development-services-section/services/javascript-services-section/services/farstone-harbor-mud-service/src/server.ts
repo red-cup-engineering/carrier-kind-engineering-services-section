@@ -2,18 +2,18 @@
  * farstone.561.group — the live persistent harbor, playable in a browser.
  *
  * Farstone is the world; FizzOS is the kernel. This boots the FizzOS live text-MUD
- * server (`@emsenn/fizzos/mud-server`, on the upstream session carrier) over the Farstone
+ * server (`@red-cup-engineering/fizzos/mud-server`, on the upstream session carrier) over the Farstone
  * harbor bible (`world/harbor.json`) and serves the browser client at `/`: log in by
  * name, sail the harbor, trade, craft, talk. State persists durably to `FARSTONE_SAVE`.
  */
 import process from "node:process";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { type App, type Repr, htmlRepr, installGracefulShutdown, mergeApps, start } from "@emsenn/http-server";
-import { createFizzosMud } from "@emsenn/fizzos/mud-server";
-import { CLIENT_HTML } from "@emsenn/fizzos/client";
-import { checkpoint, fileStore } from "@emsenn/fizzos/persistence";
-import type { SceneSnapshot } from "@emsenn/fizzos/scene";
+import { type App, type Repr, htmlRepr, installGracefulShutdown, mergeApps, start } from "@red-cup-engineering/http-server";
+import { createFizzosMud } from "@red-cup-engineering/fizzos/mud-server";
+import { CLIENT_HTML } from "@red-cup-engineering/fizzos/client";
+import { checkpoint, fileStore } from "@red-cup-engineering/fizzos/persistence";
+import type { SceneSnapshot } from "@red-cup-engineering/fizzos/scene";
 
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 18_793;

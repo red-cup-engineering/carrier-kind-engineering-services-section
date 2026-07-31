@@ -21,53 +21,7 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "software-trajectory-memory-service",
-    "actor": "urn:ame:software-trajectory-memory-service",
-    "organizational-kind": "micro-enterprise",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "admission": "one canonical RMN memory transaction addressing the append, recall, induced-resolver, promotion, or customer-foldback port",
-    "refusal": "history rewrite, unbound foldback, unverified trajectory promotion, foreign execution provider, noncanonical carrier, or customer territory mutation",
-    "operation-catalog": {
-      "transact-software-trajectory-memory": {
-        "contract": "content/contracts/transact-software-trajectory-memory.rml",
-        "protocol": "A2A 1.0",
-        "legacyCompatibility": false
-      }
-    },
-    "x-foam-locus": {
-      "address": [
-        "software",
-        "development",
-        "trajectory",
-        "memory"
-      ],
-      "proposition": "There exists a sovereign Actor which retains and recalls software mission trajectories on its advertised settlement chain.",
-      "actor": "urn:ame:software-trajectory-memory-service",
-      "projection": "content/foam/locus.json"
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:software-trajectory-memory-service",
-    "operations": [
-      "transact-software-trajectory-memory"
-    ],
-    "capabilities": [
-      {
-        "capability": "software-trajectory-memory-service",
-        "faces": [
-          "transact-software-trajectory-memory"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/software-trajectory-memory-service"
   }
 }

@@ -1,1 +1,6 @@
-{"name":"@red-cup-engineering/file-integrity-services-section","version":"0.1.0","private":true,"type":"module","x-agentic-metro-enterprise":{"node-id":"file-integrity-services-section","actor":"urn:ame:file-integrity-services-section","organizational-kind":"circuit-board","owners":["file-data-services-section"],"owned-services":["services/file-cryptographic-integrity-service"]}}
+{
+  "name": "@red-cup-engineering/file-integrity-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module"
+}

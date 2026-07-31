@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// jsnode-workspace — read the workspace through @emsenn/organizing-with-jsnode carriers.
+// jsnode-workspace — read the workspace through @red-cup-engineering/organizing-with-jsnode carriers.
 //
 //   jsnode-workspace graph [--focus <package>] [--up N] [--down N] [--json]
 //   jsnode-workspace decommission [--focus <package>] [--include-unmarked-islands] [--no-source] [--no-source-markers] [--json]
@@ -44,13 +44,13 @@ import { findRepoRoot } from "./repo-root.mjs";
 const JSNODE_CORE_PACKAGES = Object.freeze([
   "@emsenn/relating",
   "@emsenn/communicating",
-  "@emsenn/knowing",
-  "@emsenn/playing",
-  "@emsenn/animating",
-  "@emsenn/socializing",
-  "@emsenn/computing",
-  "@emsenn/gaming",
-  "@emsenn/organizing",
+  "@red-cup-engineering/knowing",
+  "@red-cup-engineering/playing",
+  "@red-cup-engineering/animating",
+  "@red-cup-engineering/socializing",
+  "@red-cup-engineering/computing",
+  "@red-cup-engineering/gaming",
+  "@red-cup-engineering/organizing",
 ] as const);
 
 type ParsedArgs = Readonly<{

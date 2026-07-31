@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// @emsenn/llm-computer CLI — pure computing only (no network, no keys).
+// @red-cup-engineering/llm-computer CLI — pure computing only (no network, no keys).
 
-import { ENDPOINTS } from "@emsenn/organizing-with-llm-agents/algebra";
-import type { CostEvent } from "@emsenn/organizing-with-llm-agents/algebra";
+import { ENDPOINTS } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
+import type { CostEvent } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 import { costEventTransaction } from "./cost-ledger.mjs";
 
 export function runCli(argv: readonly string[]): string {

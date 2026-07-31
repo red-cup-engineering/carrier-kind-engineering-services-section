@@ -1,4 +1,4 @@
-import { discreteArena, event, eventStructure, flow, negative, play, positive, strategy, strategyReport } from "@emsenn/gaming";
+import { discreteArena, event, eventStructure, flow, negative, play, positive, strategy, strategyReport } from "@red-cup-engineering/gaming";
 
 import { projectContextSuit, type ContextSuit } from "./operating/contextualizing/suiting/library/context-control.mts";
 import { operationsManifoldGoals, type GoalRecord } from "./goals.mts";
@@ -305,8 +305,8 @@ function categoricalReading(input: Readonly<{
   const flowReading = flowJudgment.kind === "game-analysis.flow:witness" ? "flow" : flowJudgment.reason;
   return Object.freeze({
     upstream: Object.freeze([
-      "@emsenn/organizing-with-jsnode/workspaces: packageAtlas + workspaceDependencyGraph",
-      "@emsenn/gaming: arena + strategy + flow",
+      "@red-cup-engineering/organizing-with-jsnode/workspaces: packageAtlas + workspaceDependencyGraph",
+      "@red-cup-engineering/gaming: arena + strategy + flow",
       "561 Group Operations Manifold data/logs + data/state: work, goals, context suit",
     ]),
     arena: Object.freeze({

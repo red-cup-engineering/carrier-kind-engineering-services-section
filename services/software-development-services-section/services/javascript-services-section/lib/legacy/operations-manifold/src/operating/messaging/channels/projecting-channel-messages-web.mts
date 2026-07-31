@@ -3,7 +3,7 @@ import {
   jsonRepr,
   type App,
   type Context,
-} from "@emsenn/http-server";
+} from "@red-cup-engineering/http-server";
 
 import { carrierFormScript, carrierFormStyles, codeList, functionPanel, htmlEscape, queryParamsFromContext, row } from "../../projecting/web-ui.mts";
 import { readMessages, type ChannelMessageRecord, type ChannelSnapshot, type ReadMessagesParams } from "./channel-message.mts";

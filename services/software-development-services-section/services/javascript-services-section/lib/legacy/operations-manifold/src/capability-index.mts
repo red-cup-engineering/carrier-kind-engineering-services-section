@@ -152,7 +152,7 @@ const OPERATIONS_MANIFOLD_PUBLIC_CAPABILITIES = Object.freeze([
   Object.freeze({
     pkg: "@emsenn/operations-manifold",
     name: "federation",
-    domain: Object.freeze(["agent", "federation", "federated", "peer", "peers", "handoff", "protocol", "transport", "MCP", "OpenAPI", "HTTP", "WebUX", "package script", "upstream", "@emsenn/animating", "AgentFederation"]),
+    domain: Object.freeze(["agent", "federation", "federated", "peer", "peers", "handoff", "protocol", "transport", "MCP", "OpenAPI", "HTTP", "WebUX", "package script", "upstream", "@red-cup-engineering/animating", "AgentFederation"]),
     codomain: "FederationReading",
   }),
   Object.freeze({

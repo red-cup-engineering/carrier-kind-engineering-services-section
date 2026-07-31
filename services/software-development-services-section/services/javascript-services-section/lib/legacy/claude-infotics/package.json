@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/claude-infotics",
+  "name": "@red-cup-engineering/claude-infotics",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -27,7 +27,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/metroplat": "workspace:*"
+    "@red-cup-engineering/metroplat": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

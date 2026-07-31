@@ -21,9 +21,9 @@
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { operation, type Operation } from "@emsenn/metroplat/operations";
-import { openJournal } from "@emsenn/metroplat/journal";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
+import { operation, type Operation } from "@red-cup-engineering/metroplat/operations";
+import { openJournal } from "@red-cup-engineering/metroplat/journal";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
 
 /**
  * The platform's `TokenUsageCounts` field-for-field. Its constructor

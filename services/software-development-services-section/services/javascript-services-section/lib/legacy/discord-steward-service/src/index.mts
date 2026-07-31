@@ -1,6 +1,6 @@
 /**
- * @emsenn/app-discord-steward — the parameterized, runnable form of
- * @emsenn/organizing-with-discord.
+ * @red-cup-engineering/app-discord-steward — the parameterized, runnable form of
+ * @red-cup-engineering/organizing-with-discord.
  *
  * Give it a server name, a bot name, a bot key, and an admin username; it resolves
  * the server by name, goes online in it, and runs the autonomous steward: every
@@ -30,9 +30,9 @@ import {
   type MembershipService,
   type TendingGuild,
   type TendResult,
-} from "@emsenn/organizing-with-discord";
-import type { CostRates } from "@emsenn/organizing-with-openai-agents";
-import type { OpenaiAgentInfer } from "@emsenn/organizing-with-openai-agents";
+} from "@red-cup-engineering/organizing-with-discord";
+import type { CostRates } from "@red-cup-engineering/organizing-with-openai-agents";
+import type { OpenaiAgentInfer } from "@red-cup-engineering/organizing-with-openai-agents";
 
 /** Everything needed to run a steward in one server. */
 export type StewardConfig = Readonly<{

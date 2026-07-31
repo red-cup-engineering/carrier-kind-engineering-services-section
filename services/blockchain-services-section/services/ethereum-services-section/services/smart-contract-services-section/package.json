@@ -1,0 +1,6 @@
+{
+  "name": "@red-cup-engineering/smart-contract-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ethereum smart-contract arena; deployable contracts live in independently testable actor services below this locus."
+}

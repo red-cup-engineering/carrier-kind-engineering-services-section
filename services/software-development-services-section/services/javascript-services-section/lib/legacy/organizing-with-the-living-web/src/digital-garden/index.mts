@@ -1,4 +1,4 @@
-import type { FeedAuthor, FeedChannel, FeedItem, SitemapUrl } from "@emsenn/organizing-with-the-web/feed";
+import type { FeedAuthor, FeedChannel, FeedItem, SitemapUrl } from "@red-cup-engineering/organizing-with-the-web/feed";
 import {
   assertHttpUrl,
   atom,
@@ -12,14 +12,14 @@ import {
   scalars,
   sitemap,
   slugify,
-} from "@emsenn/organizing-with-the-web/feed";
-import type { MicroformatAuthor, MicroformatEntry, MicroformatFeed, MicroformatProperties } from "@emsenn/organizing-with-the-semantic-web/microformats";
-import { hEntry, hFeed } from "@emsenn/organizing-with-the-semantic-web/microformats";
-import { securityTxt, type SecurityTxt } from "@emsenn/organizing-with-the-semantic-web/page-metadata";
+} from "@red-cup-engineering/organizing-with-the-web/feed";
+import type { MicroformatAuthor, MicroformatEntry, MicroformatFeed, MicroformatProperties } from "@red-cup-engineering/organizing-with-the-semantic-web/microformats";
+import { hEntry, hFeed } from "@red-cup-engineering/organizing-with-the-semantic-web/microformats";
+import { securityTxt, type SecurityTxt } from "@red-cup-engineering/organizing-with-the-semantic-web/page-metadata";
 import type { App, Repr } from "@emsenn/relating/running/http";
-import type { FiniteAlgebra, TaxonomyRelation } from "@emsenn/organizing-with-the-semantic-web/taxonomy";
-import { buildTaxonomy, termsOf } from "@emsenn/organizing-with-the-semantic-web/taxonomy";
-import { minimal, render, type Theme, type ThemeContext } from "@emsenn/organizing-with-the-web/theming";
+import type { FiniteAlgebra, TaxonomyRelation } from "@red-cup-engineering/organizing-with-the-semantic-web/taxonomy";
+import { buildTaxonomy, termsOf } from "@red-cup-engineering/organizing-with-the-semantic-web/taxonomy";
+import { minimal, render, type Theme, type ThemeContext } from "@red-cup-engineering/organizing-with-the-web/theming";
 
 // A garden charge is a name-level reading with the four bedrock charge value
 // names: potential (witnessed), active (below threshold), stable (held

@@ -3,9 +3,9 @@
 // light + dark); the cable's sheath index and every wire's h-feed/h-entry render
 // through it via newscable.
 
-import type { Theme, ThemePalette } from "@emsenn/organizing-with-the-web/theming";
-import { assembleCss } from "@emsenn/organizing-with-the-web/theming";
-import { themePalette } from "@emsenn/organizing-with-the-web/theming-computer";
+import type { Theme, ThemePalette } from "@red-cup-engineering/organizing-with-the-web/theming";
+import { assembleCss } from "@red-cup-engineering/organizing-with-the-web/theming";
+import { themePalette } from "@red-cup-engineering/organizing-with-the-web/theming-computer";
 
 const palette: ThemePalette = themePalette(
   { ink: "#1a1a1a", surface: "#faf8f4", accent: "#a02c2c" },

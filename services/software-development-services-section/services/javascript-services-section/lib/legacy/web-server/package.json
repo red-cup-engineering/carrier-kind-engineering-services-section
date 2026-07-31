@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/web-server",
+  "name": "@red-cup-engineering/web-server",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,10 +14,10 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json && chmod +x dist/cli.mjs",
-    "serve": "pnpm run build && node dist/cli.mjs serve",
-    "serve:gateway": "pnpm run build && node dist/cli.mjs gateway",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "serve": "npm run build && node dist/cli.mjs serve",
+    "serve:gateway": "npm run build && node dist/cli.mjs gateway",
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts",
@@ -45,10 +45,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/animating": "workspace:*",
-    "@emsenn/computing": "workspace:*",
+    "@red-cup-engineering/animating": "0.0.2",
+    "@red-cup-engineering/computing": "0.0.0",
     "@emsenn/relating": "workspace:*",
-    "@emsenn/http-server": "workspace:*"
+    "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

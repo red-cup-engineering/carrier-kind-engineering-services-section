@@ -1,0 +1,9 @@
+#lang rmn/v2
+(map
+  ("type" "TopicalKnowledgeCellReportServiceLaw")
+  ("version" 2)
+  ("provider" "urn:ame:topical-knowledge-cell-report-service")
+  ("precondition" "One customer presents an exact fresh non-authoritative cell manifest, exact report terms, and one nondelegable single-use capability bound to the request body. An external buyer additionally presents one unexpired seller-authored x402 quote binding the product, manifest, terms, EIP-155 network, ERC-20 asset, atomic amount, payout account, and facilitator.")
+  ("operation" "The service verifies exact settlement through its hired x402 provider before hiring the manifest-named NotebookLM provider for one source-grounded artifact. It validates report bytes and source-receipt citations, records the provider charge without price conversion, computes same-asset gross margin, hires RWIL/RDF for its sale record, and hires ActivityPub for one private delivery.")
+  ("postcondition" "The customer receives one replayable content-addressed source-grounded report and, for an external sale, exact settlement and private-delivery receipts. The seller's books retain exact revenue, provider cost, and same-asset gross margin or an explicit unknown cross-asset margin.")
+  ("refusal" "Refuse stale, authoritative, or changed cell evidence; a quote not authored by this seller; a quote not bound to the exact manifest and report terms; expired or malformed quote terms; a settlement whose quote, operation, asset, atomic amount, payout account, network, facilitator, or transaction evidence differs; an ungrounded artifact; a missing provider-charge receipt; public delivery; replay collision; unavailable hired provider; or any request for notebook creation, source mutation, sharing, deletion, publication, settlement administration, or grant delegation."))

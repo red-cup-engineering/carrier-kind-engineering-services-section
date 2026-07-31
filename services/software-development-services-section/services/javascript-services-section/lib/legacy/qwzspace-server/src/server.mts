@@ -11,8 +11,8 @@
  * in *their* server. It opens no socket and binds no port.
  */
 
-import { createQwzspaceServer, type QwzspaceServer } from "@emsenn/organizing-with-the-web/qwzspace";
-import type { App } from "@emsenn/http-server";
+import { createQwzspaceServer, type QwzspaceServer } from "@red-cup-engineering/organizing-with-the-web/qwzspace";
+import type { App } from "@red-cup-engineering/http-server";
 import { Scene, validateIntent, type SceneOptions } from "./scene.mjs";
 import type { Intent, SceneEntry } from "./protocol.mjs";
 

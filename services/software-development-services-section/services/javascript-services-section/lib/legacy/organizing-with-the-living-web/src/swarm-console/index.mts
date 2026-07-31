@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import type { IncomingHttpHeaders } from "node:http";
 import { readJsonBody, sse, type App, type Context, type Repr } from "@emsenn/relating/running/http";
-import { bearerToken } from "@emsenn/organizing-with-the-web/sync-guard";
+import { bearerToken } from "@red-cup-engineering/organizing-with-the-web/sync-guard";
 import type { SectionFrame, SettledSection } from "../swarm-gui/index.mjs";
 import { renderSectionFrame } from "../swarm-gui/index.mjs";
 

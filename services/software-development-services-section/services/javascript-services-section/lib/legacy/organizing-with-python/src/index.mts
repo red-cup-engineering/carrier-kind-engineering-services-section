@@ -1,5 +1,5 @@
 /**
- * @emsenn/organizing-with-python
+ * @red-cup-engineering/organizing-with-python
  *
  * The generic Python faculty. It reads the JupyterLab platform as an
  * organizing harness: the lab server is a habitat; kernels (and the kernelspecs

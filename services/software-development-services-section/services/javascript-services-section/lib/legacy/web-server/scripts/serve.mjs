@@ -4,7 +4,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { existsSync } from "node:fs";
 
-import { installGracefulShutdown, start } from "@emsenn/http-server";
+import { installGracefulShutdown, start } from "@red-cup-engineering/http-server";
 
 function usage() {
   return [

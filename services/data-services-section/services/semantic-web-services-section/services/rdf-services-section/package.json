@@ -1,0 +1,5 @@
+{
+  "name": "@red-cup-engineering/rdf-services-section",
+  "private": true,
+  "description": "Holds the in-memory RDF model and algorithms — term construction, named-graph quad-set assembly, N-Quads serialization, and RDFC-1.0 canonicalization — extracted from the RWIL RDF projection service as self-contained, single-capability packages. Use when a consumer needs RDF term validation, a quad set, N-Quads text, or a canonical digest without pulling in RWIL's settlement-specific encoding."
+}

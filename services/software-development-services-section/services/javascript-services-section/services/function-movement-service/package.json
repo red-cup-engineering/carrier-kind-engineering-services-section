@@ -15,39 +15,5 @@
   },
   "engines": {
     "node": ">=22"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "function-movement-provider-client-service",
-    "actor": "urn:ame:function-movement-service",
-    "organizational-kind": "capability-cell",
-    "owners": ["javascript-services-section"],
-    "admission": "one exact signed request for the named deployed function-movement provider",
-    "refusal": "a non-HTTPS provider endpoint, missing private signing key, or the provider's typed refusal",
-    "operation-catalog": {
-      "invoke-function-movement-provider": {
-        "capability": "function-movement-provider-client-service",
-        "contract": "jsnode-function-movement-cloud/v1",
-        "protocols": ["HTTPS signed JSON"],
-        "provider": {
-          "package": "@free-compute/jsnode-function-movement-cloud-provider",
-          "actor": "urn:ame:jsnode-function-movement-cloud-provider",
-          "operation": "prepare-function-movement",
-          "deployment": "../../../../web-services-section/services/cloud-compute-services-section/services/jsnode-function-movement-cloud-provider/content/deployment.json"
-        },
-        "returns": "the independently provided ephemeral movement artifact response or refusal"
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "javascript-services-section",
-    "kind": "capability-cell",
-    "actor": "urn:ame:function-movement-service",
-    "operations": ["invoke-function-movement-provider"],
-    "capabilities": [{
-      "capability": "function-movement-provider-client-service",
-      "faces": ["invoke-function-movement-provider"]
-    }],
-    "package": "@red-cup-engineering/function-movement-service"
   }
 }

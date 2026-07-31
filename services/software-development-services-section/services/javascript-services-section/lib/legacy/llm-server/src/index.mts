@@ -1,7 +1,7 @@
-// @emsenn/llm-server — apps/llm-computer bound to transports.
+// @red-cup-engineering/llm-server — apps/llm-computer bound to transports.
 //
 // The OpenAI-compatible chat-completions service, plus library re-exports of the
-// pure computing (llm-computer) and the inference host projection (@emsenn/organizing-with-llm-agents/holography)
+// pure computing (llm-computer) and the inference host projection (@red-cup-engineering/organizing-with-llm-agents/holography)
 // so downstream callers depend on this single service package for the domain.
 
 export type {
@@ -12,5 +12,5 @@ export {
 } from "./service.mjs";
 
 // library re-exports (the computing this service binds)
-export { runAgentLoop, runGovernedToolCall, toolsFromMcpCatalog, costEventTransaction } from "@emsenn/llm-computer";
-export { witnessInference, endpointProjection, resolveApiKey, projectApiKey } from "@emsenn/organizing-with-llm-agents/holography";
+export { runAgentLoop, runGovernedToolCall, toolsFromMcpCatalog, costEventTransaction } from "@red-cup-engineering/llm-computer";
+export { witnessInference, endpointProjection, resolveApiKey, projectApiKey } from "@red-cup-engineering/organizing-with-llm-agents/holography";

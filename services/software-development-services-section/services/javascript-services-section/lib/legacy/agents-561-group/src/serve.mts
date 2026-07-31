@@ -20,7 +20,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { installGracefulShutdown, start, mergeApps } from "@emsenn/http-server";
+import { installGracefulShutdown, start, mergeApps } from "@red-cup-engineering/http-server";
 
 import { loadCharacters, rosterIndex } from "./characters.mts";
 import { loadAuth } from "./auth.mts";

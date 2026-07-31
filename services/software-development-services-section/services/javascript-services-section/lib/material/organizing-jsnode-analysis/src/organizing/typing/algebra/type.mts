@@ -1,4 +1,4 @@
-import { observeLabels, type Observation } from "@emsenn/computing/operating";
+import { observeLabels, type Observation } from "@red-cup-engineering/computing/operating";
 import type { UtteranceCarrier } from "@emsenn/relating";
 import { labelUtterances } from "./labels.mjs";
 

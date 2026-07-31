@@ -5,15 +5,15 @@
  * surface every transport (CLI, HTTP, MCP, LSP) projects. The app does not
  * hand-roll any of those faces.
  */
-import { projectSurface, type ProjectedSurface } from "@emsenn/metroplat/surfaces";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
+import { projectSurface, type ProjectedSurface } from "@red-cup-engineering/metroplat/surfaces";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
 
 import { claudeInfoticsOperations } from "./catalog.mts";
 import { claudeInfoticsGrants } from "./authorization.mts";
 
 export function claudeInfoticsSurface(binding: FilesystemBinding, at: string): ProjectedSurface {
   return projectSurface(claudeInfoticsOperations(binding), {
-    packageName: "@emsenn/claude-infotics",
+    packageName: "@red-cup-engineering/claude-infotics",
     capabilityAssertions: () => claudeInfoticsGrants(at),
   });
 }

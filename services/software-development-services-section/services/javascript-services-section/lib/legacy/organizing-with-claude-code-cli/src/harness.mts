@@ -10,7 +10,7 @@
  *   - a `--settings` JSON document carrying hooks (and permissions/env),
  *   - injected context (system / appended system prompt, extra dirs, capsules),
  *   - a `ClaudeRunOptions` fragment ready to spread into `runClaudePrint`, and
- *   - a settled `ClaudeCodeCliHarnessCarrier` (the @emsenn/organizing-with-claude
+ *   - a settled `ClaudeCodeCliHarnessCarrier` (the @red-cup-engineering/organizing-with-claude
  *     diamond floor) so the wiring is MOTIVATED by the relational mathematics,
  *     not just emitted as config.
  *
@@ -21,7 +21,7 @@
 import {
   claudeCodeCliHarness,
   type ClaudeCodeCliHarnessCarrier,
-} from "@emsenn/organizing-with-claude/claude/code/cli-harness";
+} from "@red-cup-engineering/organizing-with-claude/claude/code/cli-harness";
 import { action, carrierFrom, tm } from "@emsenn/relating";
 import type { ClaudeRunOptions } from "./exec.mjs";
 

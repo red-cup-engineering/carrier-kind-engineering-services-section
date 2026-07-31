@@ -1,4 +1,4 @@
-import { parseRml, semanticId } from "../../../../../../../../lenticule-science/services/obsmetrological-services-section/services/rmn-semantic-conformance-die/src/rmn-core.mjs";
+import { parseRml, semanticId } from "@lenticule-science/rmn-semantic-conformance-die/src/rmn-core.mjs";
 
 export const REQUIREMENT_IDS = Object.freeze(
   Array.from({ length: 9 }, (_, index) => `PPA-R${String(index + 1).padStart(3, "0")}`),

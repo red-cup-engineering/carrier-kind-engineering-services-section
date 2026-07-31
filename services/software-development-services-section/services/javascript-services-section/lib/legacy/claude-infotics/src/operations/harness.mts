@@ -8,8 +8,8 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
-import { operation, type Operation } from "@emsenn/metroplat/operations";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
+import { operation, type Operation } from "@red-cup-engineering/metroplat/operations";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
 
 interface McpServer {
   readonly name: string;

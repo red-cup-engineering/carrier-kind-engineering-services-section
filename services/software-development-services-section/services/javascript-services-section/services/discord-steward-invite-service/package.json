@@ -1,1 +1,9 @@
-{"name":"@red-cup-engineering/discord-steward-invite-service","version":"1.0.0","private":true,"type":"module","bin":{"discord-steward-invite":"./src/entry.mts"},"x-agentic-metro-enterprise":{"node-id":"discord-steward-invite-service","actor":"urn:ame:discord-steward-invite-service","organizational-kind":"external-platform-actuator","owners":["javascript-services-section"],"admission":"one explicit Discord bot client id and optional capability selection","refusal":"missing client id","operation-catalog":{"invite-discord-steward":{"command":"discord-steward-invite","returns":"one Discord OAuth2 invite URL or refusal"}}},"x-semiotic-voxel":{"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"javascript-services-section","kind":"capability-cell","actor":"urn:ame:discord-steward-invite-service","operations":["invite-discord-steward"],"capabilities":[{"capability":"discord-steward-invite-service","faces":["invite-discord-steward"]}],"package":"@red-cup-engineering/discord-steward-invite-service"}}
+{
+  "name": "@red-cup-engineering/discord-steward-invite-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "discord-steward-invite": "./src/entry.mts"
+  }
+}

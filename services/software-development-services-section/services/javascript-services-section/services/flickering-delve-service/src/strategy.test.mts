@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { world as makeWorld } from "@emsenn/fizzos/world";
+import { world as makeWorld } from "@red-cup-engineering/fizzos/world";
 import { decideAction, normalizeAction, validateStrategy } from "./strategy.mts";
 import { composeStrategy } from "./progression.mts";
 

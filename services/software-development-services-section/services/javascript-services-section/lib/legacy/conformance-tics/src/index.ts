@@ -1,9 +1,9 @@
-// @emsenn/conformance-tics — live package-conformance service.
+// @red-cup-engineering/conformance-tics — live package-conformance service.
 // Accepts a list of package paths at startup; serves an HTML audit of each
 // on demand by running conformance-computer checkPackage per request.
 
-import type { App } from "@emsenn/http-server";
-import { htmlRepr, jsonRepr } from "@emsenn/http-server";
+import type { App } from "@red-cup-engineering/http-server";
+import { htmlRepr, jsonRepr } from "@red-cup-engineering/http-server";
 import {
   lintPackage as checkPackage,
   type PackageLintReport as CheckReport,

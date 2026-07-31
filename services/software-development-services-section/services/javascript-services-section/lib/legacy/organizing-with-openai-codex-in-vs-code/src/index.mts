@@ -1,9 +1,9 @@
 /**
- * @emsenn/organizing-with-openai-codex-in-vs-code
+ * @red-cup-engineering/organizing-with-openai-codex-in-vs-code
  *
  * The Codex specialization of the generic VS Code agent cockpit. The benchmark,
  * adapters, habitat, cockpit carrier, readiness framework, and extension manifest
- * all live in @emsenn/organizing-with-vscode-agents; this package binds them to
+ * all live in @red-cup-engineering/organizing-with-vscode-agents; this package binds them to
  * Codex: codex session re-exports, the codex cockpit defaults, and the codex
  * readiness observers.
  */
@@ -20,7 +20,7 @@ import {
   type CockpitReadinessObservation,
   type CockpitReadinessReport,
   type VsCodeAgentCockpit,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 
 // Re-export the generic VS Code agent cockpit surface so existing importers
 // (notably sites/dev.bare-cedar-fog.emsenn.net) resolve it through this package.
@@ -39,7 +39,7 @@ export {
   defaultCockpitPanels,
   defaultCockpitAttachments,
   vscodeHarnessContributionManifest,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 export type {
   HarnessCapability,
   HarnessCapabilityId,
@@ -66,7 +66,7 @@ export type {
   VsCodeCommandContribution,
   VsCodeChatParticipantContribution,
   VsCodeLanguageModelToolContribution,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 
 // Codex session computation surface.
 export {
@@ -76,15 +76,15 @@ export {
   recall,
   recallStatus,
   suggestCommands,
-} from "@emsenn/organizing-with-openai-codex/session";
+} from "@red-cup-engineering/organizing-with-openai-codex/session";
 export type {
   ChangeImpact,
   Finding,
   ImpactPackage,
   Workspace,
   WsPackage,
-} from "@emsenn/organizing-with-openai-codex/session";
-export * as codex from "@emsenn/organizing-with-openai-codex";
+} from "@red-cup-engineering/organizing-with-openai-codex/session";
+export * as codex from "@red-cup-engineering/organizing-with-openai-codex";
 
 /** The Codex cockpit is a {@link VsCodeAgentCockpit} specialized to Codex. */
 export type CodexInVsCodeCockpit = VsCodeAgentCockpit;
@@ -98,7 +98,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-workspace",
     route: "/api/workspace",
-    packageName: "@emsenn/organizing-with-openai-codex",
+    packageName: "@red-cup-engineering/organizing-with-openai-codex",
     summary: "Load the workspace package mesh through the Codex session substrate.",
     readOnly: true,
     writesWorkspace: false,
@@ -106,7 +106,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-readiness",
     route: "/api/readiness",
-    packageName: "@emsenn/organizing-with-openai-codex-in-vs-code",
+    packageName: "@red-cup-engineering/organizing-with-openai-codex-in-vs-code",
     summary: "Evaluate cockpit readiness checks against the current workspace files.",
     readOnly: true,
     writesWorkspace: false,
@@ -130,8 +130,8 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-animating-actions",
     route: "/api/animating-actions",
-    packageName: "@emsenn/animating",
-    summary: "Read the induced @emsenn/animating action discovery surface for agent-operable verbs, resources, prompts, and utterances.",
+    packageName: "@red-cup-engineering/animating",
+    summary: "Read the induced @red-cup-engineering/animating action discovery surface for agent-operable verbs, resources, prompts, and utterances.",
     readOnly: true,
     writesWorkspace: false,
   },
@@ -154,23 +154,23 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-socializing-actions",
     route: "/api/socializing-actions",
-    packageName: "@emsenn/socializing",
-    summary: "Read the induced @emsenn/socializing action discovery surface for federation, social fields, consensus, and inter-observer verbs.",
+    packageName: "@red-cup-engineering/socializing",
+    summary: "Read the induced @red-cup-engineering/socializing action discovery surface for federation, social fields, consensus, and inter-observer verbs.",
     readOnly: true,
     writesWorkspace: false,
   },
   {
     name: "read-playing-actions",
     route: "/api/playing-actions",
-    packageName: "@emsenn/playing",
-    summary: "Read the induced @emsenn/playing action discovery surface for designs, interaction, cut, topology, and play carriers.",
+    packageName: "@red-cup-engineering/playing",
+    summary: "Read the induced @red-cup-engineering/playing action discovery surface for designs, interaction, cut, topology, and play carriers.",
     readOnly: true,
     writesWorkspace: false,
   },
   {
     name: "read-cockpit",
     route: "/api/cockpit",
-    packageName: "@emsenn/organizing-with-openai-codex-in-vs-code",
+    packageName: "@red-cup-engineering/organizing-with-openai-codex-in-vs-code",
     summary: "Read the VS Code cockpit composition as a stable JSON carrier.",
     readOnly: true,
     writesWorkspace: false,
@@ -178,7 +178,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "compute-impact",
     route: "/api/impact",
-    packageName: "@emsenn/organizing-with-openai-codex",
+    packageName: "@red-cup-engineering/organizing-with-openai-codex",
     summary: "Compute package and command impact for the current worktree.",
     readOnly: true,
     writesWorkspace: false,
@@ -186,7 +186,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "prepare-handoff",
     route: "/handoff",
-    packageName: "@emsenn/organizing-with-openai-codex",
+    packageName: "@red-cup-engineering/organizing-with-openai-codex",
     summary: "Project session findings and verification into a next-session handoff.",
     readOnly: true,
     writesWorkspace: false,
@@ -204,7 +204,7 @@ export const defaultCockpitReadinessChecks: readonly CockpitReadinessCheck[] = O
     id: "codex-upstream-built",
     label: "Codex upstream package builds",
     required: true,
-    evidence: "@emsenn/organizing-with-openai-codex exports session, impact, and harness surfaces.",
+    evidence: "@red-cup-engineering/organizing-with-openai-codex exports session, impact, and harness surfaces.",
   },
   {
     id: "mcp-configured",
@@ -224,7 +224,7 @@ export function codexInVsCodeCockpit(input: CodexInVsCodeCockpitInput = {}): Cod
   return vsCodeAgentCockpit({
     subject: input.subject ?? "dev.bare-cedar-fog.emsenn.net/codex-in-vs-code",
     provider: "codex",
-    upstreamPackage: "@emsenn/organizing-with-openai-codex",
+    upstreamPackage: "@red-cup-engineering/organizing-with-openai-codex",
     commands: input.commands ?? defaultCockpitCommands,
     readinessChecks: input.readinessChecks ?? defaultCockpitReadinessChecks,
   });
@@ -271,7 +271,7 @@ function observeSiteComposesCockpit(root: string): CockpitReadinessObservation {
   } else {
     missing.push("sites/dev.bare-cedar-fog.emsenn.net/src/index.mts writes /api/cockpit.json");
   }
-  if (sitePackage?.includes('"@emsenn/organizing-with-openai-codex-in-vs-code"') === true) {
+  if (sitePackage?.includes('"@red-cup-engineering/organizing-with-openai-codex-in-vs-code"') === true) {
     observed.push("sites/dev.bare-cedar-fog.emsenn.net/package.json depends on cockpit carrier");
   } else {
     missing.push("sites/dev.bare-cedar-fog.emsenn.net/package.json depends on cockpit carrier");

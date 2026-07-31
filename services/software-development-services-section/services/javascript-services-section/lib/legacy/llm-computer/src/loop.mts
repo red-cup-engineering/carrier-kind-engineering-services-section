@@ -1,7 +1,7 @@
-// @emsenn/llm-computer — the agentic loop driver and governed tool execution.
+// @red-cup-engineering/llm-computer — the agentic loop driver and governed tool execution.
 //
 // Pure computing: inference enters as an injected `Infer` function, so this module
-// touches no socket and no key. The loop folds each turn into an @emsenn/organizing-with-llm-agents/running
+// touches no socket and no key. The loop folds each turn into an @red-cup-engineering/organizing-with-llm-agents/running
 // settling run carrier — accumulating the conversation, tool runs, and per-turn cost
 // events — and stops at a fixed point (a final answer) or an obstruction (a step or
 // cost bound). Tool calls pass through a governance gate before they run.
@@ -14,7 +14,7 @@ import {
   type ToolDefinition,
   type ToolCall,
   inferenceCostEvent,
-} from "@emsenn/organizing-with-llm-agents/algebra";
+} from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 import {
   chargeValueName,
   mark,
@@ -32,7 +32,7 @@ import {
   runCost,
   settleRun,
   toolRunCharge,
-} from "@emsenn/organizing-with-llm-agents/running";
+} from "@red-cup-engineering/organizing-with-llm-agents/running";
 
 /** Inference as an injected capability — the holography layer supplies the real one. */
 export type Infer = (request: InferenceRequest) => Promise<InferenceResult>;

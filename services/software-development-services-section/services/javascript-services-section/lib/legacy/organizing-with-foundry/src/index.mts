@@ -1,5 +1,5 @@
 /**
- * @emsenn/organizing-with-foundry
+ * @red-cup-engineering/organizing-with-foundry
  *
  * Microsoft Foundry has two useful surfaces for this repo: Azure-hosted
  * Foundry projects and Foundry Local. This package names both while keeping the
@@ -14,8 +14,8 @@ import {
   type AgentCoreRealization,
   type AgentCoreRealizationInput,
   type CoreLibraryId,
-} from "@emsenn/organizing-with-agents/capabilities";
-import type { EndpointSpec } from "@emsenn/organizing-with-llm-agents/algebra";
+} from "@red-cup-engineering/organizing-with-agents/capabilities";
+import type { EndpointSpec } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 
 export const FOUNDRY_PROJECT_ENDPOINT_ENV = "FOUNDRY_PROJECT_ENDPOINT";
 export const FOUNDRY_CLOUD_DEFAULT_MODEL = "gpt-5-mini";

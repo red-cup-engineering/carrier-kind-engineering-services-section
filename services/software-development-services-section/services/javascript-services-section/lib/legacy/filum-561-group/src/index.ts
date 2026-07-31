@@ -4,7 +4,7 @@
 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { App } from "@emsenn/http-server";
+import type { App } from "@red-cup-engineering/http-server";
 import { createCableAppFromConfig } from "./cable-app.ts";
 
 export function createApp(): Promise<App> {

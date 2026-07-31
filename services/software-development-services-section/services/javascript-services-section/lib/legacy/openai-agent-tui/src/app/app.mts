@@ -10,9 +10,9 @@
  * tokens, whether it dreamed) rides the fiber into the GMCP panel (toggle: Ctrl-B).
  */
 import { run, TerminalInterface, type TerminalInterfaceOptions } from "@emsenn/app-tui";
-import { agentWorld, type AgentFiberCell, type AgentMessageResult } from "@emsenn/computing-with-terminal/world";
-import { NodeTerminalScreen } from "@emsenn/computing-with-terminal/screen";
-import { pulse, type PulseConfig, type PulseResult } from "@emsenn/organizing-with-openai-agents";
+import { agentWorld, type AgentFiberCell, type AgentMessageResult } from "@red-cup-engineering/computing-with-terminal/world";
+import { NodeTerminalScreen } from "@red-cup-engineering/computing-with-terminal/screen";
+import { pulse, type PulseConfig, type PulseResult } from "@red-cup-engineering/organizing-with-openai-agents";
 
 /**
  * Build an agent `message` function backed by the pulse. It keeps the running

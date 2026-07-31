@@ -1,7 +1,0 @@
-(map
-  ("type" "ProvideSemioticVoxelPackageRegistryLaw")
-  ("version" 2)
-  ("precondition" "Receive one explicit collision-free set of owner-scoped exact-version semiotic-voxel package directories, one empty artifact territory, one absolute HTTP registry address, and either a compute market or an explicit local capacity ceiling.")
-  ("operation" "Solicit and acquire a settled CPU-process-slot lease, pack carriers concurrently within the acquired parallelism without lifecycle scripts, identify each tarball by SHA-1 and SHA-512, preserve each carrier's declared x-semiotic-voxel and x-agentic-metro-enterprise operation graph without inference, emit npm-compatible package metadata and scoped client configuration, and expose only the fabricated metadata and tarball bytes through a read-only HTTP face.")
-  ("postcondition" "Return one registry receipt binding every package identity and version to exact artifact digests, byte counts, registry URLs, declared actor-operation-capability-contract graph fields, compute provider, acquired parallelism, and settlement; release leased capacity; clean installs require no workspace or local-path dependency protocol.")
-  ("refusal" "Refuse generic or duplicate identities, non-exact versions, undeclared carriers, unowned or unsettled market leases, lease capacity beyond the customer's ceiling, pack failures, artifact mutation, non-empty output, writes through the registry face, or ambient package discovery."))

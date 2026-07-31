@@ -4,7 +4,7 @@ import {
   observeLabels,
   type LabeledSettledMemeInput,
   type Observation,
-} from "@emsenn/computing/operating";
+} from "@red-cup-engineering/computing/operating";
 
 export type { Observation, UtteranceCarrier };
 

@@ -1,9 +1,9 @@
 /**
- * @emsenn/organizing-with-claude-code-in-vs-code
+ * @red-cup-engineering/organizing-with-claude-code-in-vs-code
  *
  * The Claude Code specialization of the generic VS Code agent cockpit. The
  * benchmark, adapters, habitat, cockpit carrier, readiness framework, and
- * extension manifest all live in @emsenn/organizing-with-vscode-agents; this
+ * extension manifest all live in @red-cup-engineering/organizing-with-vscode-agents; this
  * package binds them to Claude Code: claude-code-cli session re-exports, the
  * Claude cockpit defaults, the Claude harness adapter, and the Claude readiness
  * observers (workspace visibility, upstream build, `.claude/` config, MCP/LSP).
@@ -21,7 +21,7 @@ import {
   type CockpitReadinessObservation,
   type CockpitReadinessReport,
   type VsCodeAgentCockpit,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 
 // Re-export the generic VS Code agent cockpit surface so this package is a
 // complete cockpit boundary, symmetric with organizing-with-openai-codex-in-vs-code.
@@ -40,7 +40,7 @@ export {
   defaultCockpitPanels,
   defaultCockpitAttachments,
   vscodeHarnessContributionManifest,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 export type {
   HarnessCapability,
   HarnessCapabilityId,
@@ -67,7 +67,7 @@ export type {
   VsCodeCommandContribution,
   VsCodeChatParticipantContribution,
   VsCodeLanguageModelToolContribution,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 
 // Claude Code CLI session computation surface.
 export {
@@ -77,15 +77,15 @@ export {
   suggestCommands,
   recall,
   recallStatus,
-} from "@emsenn/organizing-with-claude-code-cli/session";
+} from "@red-cup-engineering/organizing-with-claude-code-cli/session";
 export type {
   Workspace,
   WsPackage,
   ImpactPackage,
   ChangeImpact,
   Finding,
-} from "@emsenn/organizing-with-claude-code-cli/session";
-export * as claudeCode from "@emsenn/organizing-with-claude-code-cli";
+} from "@red-cup-engineering/organizing-with-claude-code-cli/session";
+export * as claudeCode from "@red-cup-engineering/organizing-with-claude-code-cli";
 
 /** The Claude Code cockpit is a {@link VsCodeAgentCockpit} specialized to Claude Code. */
 export type ClaudeCodeInVsCodeCockpit = VsCodeAgentCockpit;
@@ -99,7 +99,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-workspace",
     route: "/api/workspace",
-    packageName: "@emsenn/organizing-with-claude-code-cli",
+    packageName: "@red-cup-engineering/organizing-with-claude-code-cli",
     summary: "Load the workspace package mesh through the Claude Code session substrate.",
     readOnly: true,
     writesWorkspace: false,
@@ -107,7 +107,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-readiness",
     route: "/api/readiness",
-    packageName: "@emsenn/organizing-with-claude-code-in-vs-code",
+    packageName: "@red-cup-engineering/organizing-with-claude-code-in-vs-code",
     summary: "Evaluate cockpit readiness checks against the current workspace files.",
     readOnly: true,
     writesWorkspace: false,
@@ -115,7 +115,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-claude-topology",
     route: "/api/claude-topology",
-    packageName: "@emsenn/organizing-with-claude",
+    packageName: "@red-cup-engineering/organizing-with-claude",
     summary: "Read the Claude / Claude Code CLI harness topology: hooks, MCP wiring, context injection, and settings projection.",
     readOnly: true,
     writesWorkspace: false,
@@ -123,7 +123,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-endeavor-enactment",
     route: "/api/endeavor-enactment",
-    packageName: "@emsenn/animating",
+    packageName: "@red-cup-engineering/animating",
     summary: "Read the animating work-tracking projection of endeavors, swarms, goals, assignments, governance, and next interfaces.",
     readOnly: true,
     writesWorkspace: false,
@@ -131,7 +131,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-opinions",
     route: "/api/opinions",
-    packageName: "@emsenn/561-group-operations-manifold",
+    packageName: "@red-cup-engineering/561-group-operations-manifold",
     summary: "Read the Operations Manifold opinion fiber of operator guidance, constraints, desires, feedback, and intuitions.",
     readOnly: true,
     writesWorkspace: false,
@@ -139,8 +139,8 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-animating-actions",
     route: "/api/animating-actions",
-    packageName: "@emsenn/animating",
-    summary: "Read the induced @emsenn/animating action discovery surface for agent-operable verbs, resources, prompts, and utterances.",
+    packageName: "@red-cup-engineering/animating",
+    summary: "Read the induced @red-cup-engineering/animating action discovery surface for agent-operable verbs, resources, prompts, and utterances.",
     readOnly: true,
     writesWorkspace: false,
   },
@@ -155,7 +155,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-cockpit",
     route: "/api/cockpit",
-    packageName: "@emsenn/organizing-with-claude-code-in-vs-code",
+    packageName: "@red-cup-engineering/organizing-with-claude-code-in-vs-code",
     summary: "Read the VS Code cockpit composition as a stable JSON carrier.",
     readOnly: true,
     writesWorkspace: false,
@@ -163,7 +163,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "compute-impact",
     route: "/api/impact",
-    packageName: "@emsenn/organizing-with-claude-code-cli",
+    packageName: "@red-cup-engineering/organizing-with-claude-code-cli",
     summary: "Compute package and command impact for the current worktree.",
     readOnly: true,
     writesWorkspace: false,
@@ -171,7 +171,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "prepare-handoff",
     route: "/handoff",
-    packageName: "@emsenn/organizing-with-claude-code-cli",
+    packageName: "@red-cup-engineering/organizing-with-claude-code-cli",
     summary: "Project session findings and verification into a next-session handoff.",
     readOnly: true,
     writesWorkspace: false,
@@ -189,7 +189,7 @@ export const defaultCockpitReadinessChecks: readonly CockpitReadinessCheck[] = O
     id: "claude-upstream-built",
     label: "Claude Code CLI upstream package builds",
     required: true,
-    evidence: "@emsenn/organizing-with-claude-code-cli exports session, harness, exec, and transcript surfaces.",
+    evidence: "@red-cup-engineering/organizing-with-claude-code-cli exports session, harness, exec, and transcript surfaces.",
   },
   {
     id: "mcp-configured",
@@ -211,7 +211,7 @@ export function claudeCodeInVsCodeCockpit(
   return vsCodeAgentCockpit({
     subject: input.subject ?? "dev.bare-cedar-fog.emsenn.net/claude-code-in-vs-code",
     provider: "claude",
-    upstreamPackage: "@emsenn/organizing-with-claude-code-cli",
+    upstreamPackage: "@red-cup-engineering/organizing-with-claude-code-cli",
     commands: input.commands ?? defaultCockpitCommands,
     readinessChecks: input.readinessChecks ?? defaultCockpitReadinessChecks,
   });

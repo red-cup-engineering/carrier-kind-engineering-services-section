@@ -1,7 +1,7 @@
-// @emsenn/organizing-with-claude/session - Claude-facing coding-agent session substrate.
+// @red-cup-engineering/organizing-with-claude/session - Claude-facing coding-agent session substrate.
 //
 // The generic workspace/impact/findings and mount carriers live upstream in
-// @emsenn/organizing-with-llm-agents. This package exposes them as the normative
+// @red-cup-engineering/organizing-with-llm-agents. This package exposes them as the normative
 // Claude session surface so Claude leaves depend on Claude, not the raw generic
 // substrate.
 export {
@@ -9,8 +9,8 @@ export {
   wsPackageCarrier,
   findRepoRoot,
   loadWorkspace,
-} from "@emsenn/organizing-with-llm-agents/session";
-export type { WsPackage, Workspace } from "@emsenn/organizing-with-llm-agents/session";
+} from "@red-cup-engineering/organizing-with-llm-agents/session";
+export type { WsPackage, Workspace } from "@red-cup-engineering/organizing-with-llm-agents/session";
 
 export {
   ImpactPackageSchema,
@@ -19,8 +19,8 @@ export {
   changeImpactCarrier,
   computeImpact,
   suggestCommands,
-} from "@emsenn/organizing-with-llm-agents/session";
-export type { ImpactPackage, ChangeImpact } from "@emsenn/organizing-with-llm-agents/session";
+} from "@red-cup-engineering/organizing-with-llm-agents/session";
+export type { ImpactPackage, ChangeImpact } from "@red-cup-engineering/organizing-with-llm-agents/session";
 
 export {
   FindingSchema,
@@ -28,8 +28,8 @@ export {
   finding,
   recall,
   recallStatus,
-} from "@emsenn/organizing-with-llm-agents/session";
-export type { Finding } from "@emsenn/organizing-with-llm-agents/session";
+} from "@red-cup-engineering/organizing-with-llm-agents/session";
+export type { Finding } from "@red-cup-engineering/organizing-with-llm-agents/session";
 
 export {
   FindingLogEntrySchema,
@@ -48,12 +48,12 @@ export {
   sessionStateFold,
   sessionStateTerm,
   cutSessionState,
-} from "@emsenn/organizing-with-llm-agents/session";
+} from "@red-cup-engineering/organizing-with-llm-agents/session";
 export type {
   FindingLogEntryCarrier,
   SessionRecallCarrier,
   SessionStateCarrier,
-} from "@emsenn/organizing-with-llm-agents/session";
+} from "@red-cup-engineering/organizing-with-llm-agents/session";
 
 export {
   DatePartitionSchema,
@@ -70,10 +70,10 @@ export {
   writeState,
   readState,
   cutRecord,
-} from "@emsenn/organizing-with-llm-agents/mount";
+} from "@red-cup-engineering/organizing-with-llm-agents/mount";
 export type {
   DatePartition,
   MountRecord,
   JsonValue,
   LogFold,
-} from "@emsenn/organizing-with-llm-agents/mount";
+} from "@red-cup-engineering/organizing-with-llm-agents/mount";

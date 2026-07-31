@@ -147,8 +147,8 @@ function packageFacets(input: Readonly<{
     out.push(facet("symbol", "reader-projection", symbols.filter((symbol) => includesAny(symbol, ["read", "discover", "index", "search", "graph", "atlas"])).slice(0, 12)));
   }
 
-  if (deps.some((dep) => dep === "@emsenn/http-server" || dep === "@emsenn/organizing-with-the-web")) out.push(facet("dependency", "web-capability", deps.filter((dep) => dep === "@emsenn/http-server" || dep === "@emsenn/organizing-with-the-web")));
-  if (deps.some((dep) => dep === "@emsenn/organizing-with-jsnode")) out.push(facet("dependency", "jsnode-capability", ["@emsenn/organizing-with-jsnode"]));
+  if (deps.some((dep) => dep === "@red-cup-engineering/http-server" || dep === "@red-cup-engineering/organizing-with-the-web")) out.push(facet("dependency", "web-capability", deps.filter((dep) => dep === "@red-cup-engineering/http-server" || dep === "@red-cup-engineering/organizing-with-the-web")));
+  if (deps.some((dep) => dep === "@red-cup-engineering/organizing-with-jsnode")) out.push(facet("dependency", "jsnode-capability", ["@red-cup-engineering/organizing-with-jsnode"]));
   if (deps.some((dep) => dep.includes("llm") || dep.includes("animating"))) out.push(facet("dependency", "agentic-capability", deps.filter((dep) => dep.includes("llm") || dep.includes("animating"))));
 
   return Object.freeze(out);

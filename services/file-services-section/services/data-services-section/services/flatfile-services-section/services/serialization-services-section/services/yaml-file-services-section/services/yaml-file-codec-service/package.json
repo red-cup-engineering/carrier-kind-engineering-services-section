@@ -4,18 +4,21 @@
   "private": false,
   "type": "module",
   "description": "Canonical YAML frontmatter-subset codec recovered from MetroPlat.",
-  "exports": { ".": { "types": "./dist/index.d.mts", "import": "./dist/index.mjs" } },
-  "scripts": { "build": "tsc -p tsconfig.build.json", "test": "node --test test/*.test.mjs" },
-  "dependencies": { "@red-cup-engineering/json-file-codec-service": "workspace:*" },
-  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
-  "x-agentic-metro-enterprise": {
-    "node-id": "yaml-file-codec-service",
-    "actor": "urn:ame:yaml-file-codec-service",
-    "organizational-kind": "capability-cell",
-    "owners": ["yaml-file-services-section"],
-    "operation-catalog": {
-      "decode-yaml-file-text": { "accepts": "YAML frontmatter-subset text", "returns": "a JSON record" },
-      "encode-yaml-file-text": { "accepts": "a JSON record", "returns": "canonical YAML text" }
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/json-file-codec-service": "0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
   }
 }

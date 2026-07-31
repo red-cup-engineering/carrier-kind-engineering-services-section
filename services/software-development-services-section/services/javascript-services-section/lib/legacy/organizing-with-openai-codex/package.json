@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/organizing-with-openai-codex",
+  "name": "@red-cup-engineering/organizing-with-openai-codex",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json && chmod +x dist/scripts/harness.mjs dist/scripts/session.mjs",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "bin": {
     "organizing-with-openai-codex-harness": "./dist/scripts/harness.mjs",
@@ -68,8 +68,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/animating": "workspace:*",
-    "@emsenn/computing": "workspace:*",
+    "@red-cup-engineering/animating": "0.0.2",
+    "@red-cup-engineering/computing": "0.0.0",
     "@emsenn/organizing-with-openai-agents": "workspace:*",
     "@emsenn/relating": "workspace:*"
   },

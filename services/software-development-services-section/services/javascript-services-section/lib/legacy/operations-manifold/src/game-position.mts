@@ -12,7 +12,7 @@
  * anxiety, skill beyond it is boredom, commensurate is flow. The position is a
  * genuine read of the play, computed by the gaming package, not a tally.
  */
-import { arena, challengeOf, event, eventStructure, flow, negative, play, skillOf, strategy } from "@emsenn/gaming";
+import { arena, challengeOf, event, eventStructure, flow, negative, play, skillOf, strategy } from "@red-cup-engineering/gaming";
 
 import { operationsLedger, type OperationLedgerEntry } from "./operating/recording/operations/ledgering/library/operation-ledger.mts";
 import { operationsManifoldWork } from "./work-management.mts";

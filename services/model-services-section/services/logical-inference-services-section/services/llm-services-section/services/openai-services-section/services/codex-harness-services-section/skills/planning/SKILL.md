@@ -1,6 +1,6 @@
 ---
 name: planning
-description: "Turn RequirementK and AnalysisK into a bounded ActuationPlanK: use source-grounded models, uncertainty, and falsification needs to choose the next repair move; never collapse an analysis artifact or generated code into execution."
+description: "Plan a requested repository or system change from settled requirements and current evidence. Use when the user explicitly requests a plan or a risky change needs a short actuation decision; select one existing migration edge or bounded move, and never convert explanatory examples into a new architecture."
 ---
 
 # Plan Codex office work
@@ -18,8 +18,11 @@ write the change.
 3. Prefer plans that improve the next MAPE-K cycle: emit a reusable table,
    parser, schema, source selector, or observer when it eliminates recurring
    rediscovery. Do not create a new harness merely to summarize this turn.
+   If an implementation is already in flight, finish its existing cutover
+   instead of naming a new foundation, platform, migration, or compatibility
+   layer.
 4. Treat NotebookLM CSV/JSON/Python artifacts as planning inputs. A Python
-   artifact may be independently assayed as an analytical instrument in a
+   artifact may be assayed as an analytical instrument in a
    bounded environment, but it is never a candidate repository patch and
    never crosses into Execute without a separately chosen implementation
    decision.

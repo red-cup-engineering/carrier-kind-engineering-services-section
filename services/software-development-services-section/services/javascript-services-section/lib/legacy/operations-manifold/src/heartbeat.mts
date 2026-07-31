@@ -1,12 +1,12 @@
-import { ENDPOINTS } from "@emsenn/organizing-with-llm-agents/algebra";
-import { endpointProjection, type EndpointProjection } from "@emsenn/organizing-with-llm-agents/holography";
+import { ENDPOINTS } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
+import { endpointProjection, type EndpointProjection } from "@red-cup-engineering/organizing-with-llm-agents/holography";
 import {
   dreaming,
   observation,
   task,
   type DreamResult,
   type Observation,
-} from "@emsenn/knowing/dreaming";
+} from "@red-cup-engineering/knowing/dreaming";
 import { cell, mark, witnessedPotential } from "@emsenn/relating";
 
 import { contextControl, type ContextControlSnapshot } from "./operating/contextualizing/suiting/library/context-control.mts";
@@ -441,7 +441,7 @@ function heartbeatWorkItems(
       92,
       "operations-manifold.governance",
       `${dreamContext.observations.length} deterministic dreamContext observation(s) surfaced repeated pressure that should be admitted, deferred, or rejected.`,
-      ["@emsenn/knowing/dreaming"],
+      ["@red-cup-engineering/knowing/dreaming"],
       ["operations-manifold", "heartbeat", "dreamContext"],
     ));
   }

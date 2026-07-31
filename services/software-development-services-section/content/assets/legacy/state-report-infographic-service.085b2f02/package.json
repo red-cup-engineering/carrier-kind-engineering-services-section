@@ -14,21 +14,10 @@
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@emsenn/rwil-rdf-services": "file:../../../../../lenticule-science/services/obsmetrological-services-section/services/rwil-rdf-services"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "state-report-infographic-service",
-    "actor": "urn:ame:state-report-infographic-service",
-    "owner": "software-development-services-section",
-    "membrane": { "law": "lib/", "lasting-instances": "content/", "append-only-instances": "data/" },
-    "admission": "direct ActivityStreams contracting plus an exact customer-accepted implementation admission",
-    "refusal": "untyped packet, caller-selected implementation controls, absent or replayed capability, source-digest drift, or non-customer result decision",
-    "operation-catalog": {
-      "solicit-service": { "contract": "state-report-infographic", "accepts": "Offer<ServiceSolicitation>", "returns": "Offer<StateReportInfographicOffer>|Reject" },
-      "invoke-service": { "contract": "state-report-infographic", "accepts": "Accept<ServiceContract>", "returns": "Accept<ProposedStateReportInfographicProduct>|Reject" },
-      "accept-result": { "contract": "state-report-infographic", "accepts": "Accept|Reject<StateReportInfographicCustomerDecision>", "returns": "Accept<CustomerDecisionReceipt>|Reject" }
-    }
   }
 }

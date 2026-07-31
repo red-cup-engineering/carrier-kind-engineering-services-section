@@ -11,8 +11,8 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
-import { operation, type Operation } from "@emsenn/metroplat/operations";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
+import { operation, type Operation } from "@red-cup-engineering/metroplat/operations";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
 
 const DEFAULT_PACKAGE_FILES = ["package.json", "README.md", "src/index.mts", "src/index.ts", "tsconfig.json"] as const;
 const DEFAULT_MAX_BYTES = 24 * 1024;

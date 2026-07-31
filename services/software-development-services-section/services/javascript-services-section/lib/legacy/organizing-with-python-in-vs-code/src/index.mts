@@ -1,16 +1,16 @@
 /**
- * @emsenn/organizing-with-python-in-vs-code
+ * @red-cup-engineering/organizing-with-python-in-vs-code
  *
  * The JupyterLab specialization of the generic VS Code agent cockpit. The
  * cockpit carrier, panels, attachments, and readiness framework all live in
- * @emsenn/organizing-with-vscode-agents; this package binds them to JupyterLab:
+ * @red-cup-engineering/organizing-with-vscode-agents; this package binds them to JupyterLab:
  * the generic Python faculty re-exports, the "jupyter" cockpit defaults
  * (open notebook, run cell, restart kernel, run the lab gate), and the JupyterLab
  * readiness observers (WSL uv venv present, jupyter installed, notebooks
  * jupytext-paired).
  *
  * It mirrors lib/organizing-with-claude-code-in-vs-code/src/index.mts exactly:
- * provider="jupyter", upstreamPackage="@emsenn/organizing-with-python",
+ * provider="jupyter", upstreamPackage="@red-cup-engineering/organizing-with-python",
  * a defaultCockpitCommands list, defaultCockpitReadinessChecks, per-check
  * observers, and a `pythonInVsCodeCockpit()` factory.
  */
@@ -26,7 +26,7 @@ import {
   type CockpitReadinessObservation,
   type CockpitReadinessReport,
   type VsCodeAgentCockpit,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 
 // Re-export the generic VS Code agent cockpit surface so this package is a
 // complete cockpit boundary, symmetric with organizing-with-claude-code-in-vs-code.
@@ -34,7 +34,7 @@ export {
   vsCodeAgentCockpit,
   defaultCockpitPanels,
   defaultCockpitAttachments,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 export type {
   CockpitPanel,
   CockpitPanelId,
@@ -46,11 +46,11 @@ export type {
   CockpitReadinessEvaluation,
   CockpitReadinessStatus,
   VsCodeAgentCockpit,
-} from "@emsenn/organizing-with-vscode-agents";
+} from "@red-cup-engineering/organizing-with-vscode-agents";
 
 // The generic Python faculty: carriers (habitat, kernel, kernelspec,
 // notebook document, cell, session, execution) and their actions.
-export * as jupyterLab from "@emsenn/organizing-with-python";
+export * as jupyterLab from "@red-cup-engineering/organizing-with-python";
 export {
   labHabitatCarrier,
   kernelCarrier,
@@ -65,7 +65,7 @@ export {
   codeCellCount,
   pendingCellExecution,
   executeCellAction,
-} from "@emsenn/organizing-with-python";
+} from "@red-cup-engineering/organizing-with-python";
 export type {
   JupyterLabHabitat,
   JupyterKernel,
@@ -79,7 +79,7 @@ export type {
   JupyterCellExecution,
   ExecutionStatus,
   OutputKind,
-} from "@emsenn/organizing-with-python";
+} from "@red-cup-engineering/organizing-with-python";
 
 /** The JupyterLab cockpit is a {@link VsCodeAgentCockpit} specialized to JupyterLab. */
 export type PythonInVsCodeCockpit = VsCodeAgentCockpit;
@@ -98,7 +98,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-workspace",
     route: "/api/workspace",
-    packageName: "@emsenn/organizing-with-python",
+    packageName: "@red-cup-engineering/organizing-with-python",
     summary: "Load the JupyterLab habitat: base URL, kernelspecs, live kernels, and sessions.",
     readOnly: true,
     writesWorkspace: false,
@@ -106,7 +106,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-readiness",
     route: "/api/readiness",
-    packageName: "@emsenn/organizing-with-python-in-vs-code",
+    packageName: "@red-cup-engineering/organizing-with-python-in-vs-code",
     summary: "Evaluate cockpit readiness checks against the current lab/ submodule files.",
     readOnly: true,
     writesWorkspace: false,
@@ -114,7 +114,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "read-cockpit",
     route: "/api/cockpit",
-    packageName: "@emsenn/organizing-with-python-in-vs-code",
+    packageName: "@red-cup-engineering/organizing-with-python-in-vs-code",
     summary: "Read the JupyterLab VS Code cockpit composition as a stable JSON carrier.",
     readOnly: true,
     writesWorkspace: false,
@@ -124,7 +124,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
     // Maps to the VS Code command `jupyter.openNotebook` / vscode.open on the
     // notebook document. TODO(verify): exact command id for the active editor.
     route: "/notebook/open",
-    packageName: "@emsenn/organizing-with-python",
+    packageName: "@red-cup-engineering/organizing-with-python",
     summary: "Open a notebook document (paired .py or .ipynb) in the editor, bound to a kernel session.",
     readOnly: true,
     writesWorkspace: false,
@@ -132,7 +132,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "run-cell",
     route: "/notebook/run-cell",
-    packageName: "@emsenn/organizing-with-python",
+    packageName: "@red-cup-engineering/organizing-with-python",
     summary: "Submit a code cell to its kernel and settle the cell-execution carrier (outputs + status).",
     readOnly: false,
     writesWorkspace: false,
@@ -140,7 +140,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
   {
     name: "restart-kernel",
     route: "/kernel/restart",
-    packageName: "@emsenn/organizing-with-python",
+    packageName: "@red-cup-engineering/organizing-with-python",
     summary: "Restart the notebook's kernel, returning the kernel carrier in its restarting/idle state.",
     readOnly: false,
     writesWorkspace: false,
@@ -149,7 +149,7 @@ export const defaultCockpitCommands: readonly CockpitCommand[] = Object.freeze([
     name: "run-lab-gate",
     // Wraps `make check` in lab/ (lint + format-check + types + tests).
     route: "/lab/gate",
-    packageName: "@emsenn/organizing-with-python-in-vs-code",
+    packageName: "@red-cup-engineering/organizing-with-python-in-vs-code",
     summary: "Run the lab/ full gate (make check): ruff lint+format, mypy strict, and the pytest suite.",
     readOnly: false,
     writesWorkspace: false,
@@ -161,7 +161,7 @@ export const defaultCockpitReadinessChecks: readonly CockpitReadinessCheck[] = O
     id: "workspace-visible",
     label: "Workspace package graph is visible",
     required: true,
-    evidence: "pnpm-workspace.yaml includes this package and @emsenn/organizing-with-python.",
+    evidence: "pnpm-workspace.yaml includes this package and @red-cup-engineering/organizing-with-python.",
   },
   {
     id: "lab-venv-present",
@@ -189,7 +189,7 @@ export function pythonInVsCodeCockpit(
   return vsCodeAgentCockpit({
     subject: input.subject ?? "dev.bare-cedar-fog.emsenn.net/python-in-vs-code",
     provider: "python",
-    upstreamPackage: "@emsenn/organizing-with-python",
+    upstreamPackage: "@red-cup-engineering/organizing-with-python",
     commands: input.commands ?? defaultCockpitCommands,
     readinessChecks: input.readinessChecks ?? defaultCockpitReadinessChecks,
   });

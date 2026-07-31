@@ -1,0 +1,16 @@
+{
+  "name": "@red-cup-engineering/semiotic-voxel-package-descriptor-fabrication-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fabricates one semiotic-voxel package descriptor from separately admitted identity and classification resources.",
+  "exports": "./src/fabricate-semiotic-voxel-package-descriptor.mjs",
+  "scripts": {
+    "check": "node --check src/fabricate-semiotic-voxel-package-descriptor.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

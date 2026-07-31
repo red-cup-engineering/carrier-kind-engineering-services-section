@@ -4,7 +4,7 @@
  *
  * The split is deliberate and is the whole architecture in miniature:
  *
- *   - the **world** is a `@emsenn/fizzos` settled charge valuation: who/what is
+ *   - the **world** is a `@red-cup-engineering/fizzos` settled charge valuation: who/what is
  *     `located-in` where, and which room exits to which. That is the part with
  *     mechanics — perception, conservation, the tick — so it lives in the engine.
  *   - **content** is prose: the names, descriptions, exit *directions*, and tags
@@ -17,7 +17,7 @@
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { world } from "@emsenn/fizzos/engine";
+import { world } from "@red-cup-engineering/fizzos/engine";
 
 export const PLAYER = "player";
 
@@ -48,7 +48,7 @@ export function isTakeable(tags = []) {
  * @param {object} bible  the parsed `harbor.json`
  * @param {object} [opts]
  * @param {string} [opts.player]  the player entity id (default `"player"`)
- * @returns {{ world: import("@emsenn/fizzos/engine").World, content: object }}
+ * @returns {{ world: import("@red-cup-engineering/fizzos/engine").World, content: object }}
  */
 export function loadHarbor(bible = readHarborBible(), opts = {}) {
   const player = opts.player ?? PLAYER;

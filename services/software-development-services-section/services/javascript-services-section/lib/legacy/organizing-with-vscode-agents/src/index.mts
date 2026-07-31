@@ -1,5 +1,5 @@
 /**
- * @emsenn/organizing-with-vscode-agents
+ * @red-cup-engineering/organizing-with-vscode-agents
  *
  * The generic VS Code agent layer. It names the editor-side agent capabilities an
  * extension mounts (chat participants, language-model chat providers, tools, MCP
@@ -23,7 +23,7 @@ import {
   type AgentCoreRealization,
   type AgentCoreRealizationInput,
   type CoreLibraryId,
-} from "@emsenn/organizing-with-agents/capabilities";
+} from "@red-cup-engineering/organizing-with-agents/capabilities";
 import type * as vscode from "vscode";
 
 export const VsCodeAgentCapabilitySchema = {

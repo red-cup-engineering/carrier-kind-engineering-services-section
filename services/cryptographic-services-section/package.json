@@ -5,7 +5,7 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0"
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
   },
   "bin": {
     "solicit-service": "./src/cryptographic-services.mjs",
@@ -17,53 +17,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "cryptographic-services-section",
-    "owners": [
-      "561-group",
-      "red-cup-engineering"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "a directly addressed ActivityStreams solicitation naming one operation in the offer's operation set, with any private key supplied only as invocation input under the caller's own custody",
-    "refusal": "unknown operations, key material requested inside an offer or persisted to any record, and requests to broadcast or move value (the section derives identity and signs; settlement broadcast belongs to the holding enterprise)",
-    "operation-catalog": {
-      "solicit-service": {
-        "contract": "ni:///sha-256;9Rosqk_puV3ino26o7QdYipnrC9P5rPMnBQLR7FvI5U",
-        "accepts": "ActivityStreams Offer<ServiceSolicitation>",
-        "returns": "ActivityStreams Offer<ExecutableServiceOffer>|Question|Reject",
-        "timeoutMs": 30000
-      },
-      "invoke-service": {
-        "contract": "ni:///sha-256;9Rosqk_puV3ino26o7QdYipnrC9P5rPMnBQLR7FvI5U",
-        "accepts": "ActivityStreams Accept<ServiceContract>",
-        "returns": "ActivityStreams Accept<CryptographicResult>|Reject",
-        "timeoutMs": 30000
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:cryptographic-services-section",
-    "operations": [
-      "invoke-service",
-      "solicit-service"
-    ],
-    "capabilities": [
-      {
-        "capability": "cryptographic-services-section",
-        "faces": [
-          "invoke-service",
-          "solicit-service"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/cryptographic-services-section"
   }
 }

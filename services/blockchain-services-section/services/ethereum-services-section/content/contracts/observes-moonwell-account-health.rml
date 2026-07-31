@@ -1,0 +1,11 @@
+#lang rmn/v2
+(map
+  ("type" "MoonwellAccountHealthObservationLaw")
+  ("version" 1)
+  ("provider" "urn:ame:ethereum-services-section")
+  ("precondition" "A sovereign customer supplies one public Base CAIP-10 account, the exact Moonwell Comptroller, one credential-free HTTPS Base RPC source, a target health-factor mantissa, and bounded stress and interest horizons.")
+  ("operation" "The provider pins one Base block, reads only the public Moonwell Comptroller, oracle, entered markets, current simulated account balances, rates, and protocol liquidity at that block, then evaluates all values with unsigned integer arithmetic, downward collateral rounding, upward debt rounding, zero future supply yield, wrapper-basis stresses, and bounded per-timestamp debt compounding.")
+  ("postcondition" "The response binds the snapshot block and timestamp, account, Comptroller, oracle, exact raw market observations, protocol liquidity, rational health factor, stress and interest states, target-preserving withdrawal ceilings, and minimum repayment or collateral-addition remedies.")
+  ("refusal" "Refuse secrets, signer material, credential-bearing RPC sources, non-Base accounts or RPCs, unlisted or failed markets, zero oracle prices, malformed scales, duplicate markets or scenarios, unbounded horizons, transaction assembly, signing, broadcast, mutation, or asset movement.")
+  ("authority" "Public fixed-block observation and deterministic risk evaluation only; no custody, transaction authority, liquidation warranty, independent price certification, or financial-advice claim.")
+  ("evidence" "RWIL-RDF"))

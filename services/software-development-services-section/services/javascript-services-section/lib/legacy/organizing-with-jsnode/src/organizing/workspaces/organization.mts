@@ -6,7 +6,7 @@ import {
   type Organization,
   type SocialBoundary,
   type SocialProjection,
-} from "@emsenn/organizing";
+} from "@red-cup-engineering/organizing";
 import { JSNODE_CORE_PACKAGES, type JSNodeCorePackage } from "../../actions.mjs";
 import type { JSNodePackage, JSNodeWorkspace } from "../packages/carrier.mjs";
 import {

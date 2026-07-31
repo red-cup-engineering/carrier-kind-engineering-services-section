@@ -7,7 +7,7 @@ import { readdir, access } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
-import { start, installGracefulShutdown } from "@emsenn/http-server";
+import { start, installGracefulShutdown } from "@red-cup-engineering/http-server";
 import { createConformanceTicsApp } from "./index.ts";
 
 const DEFAULT_HOST = "127.0.0.1";

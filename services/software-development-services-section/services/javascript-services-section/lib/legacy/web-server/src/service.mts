@@ -22,11 +22,11 @@
  * service does not invent one.
  */
 
-import type { App, Context, Repr } from "@emsenn/http-server";
-import { readJsonBody } from "@emsenn/http-server";
+import type { App, Context, Repr } from "@red-cup-engineering/http-server";
+import { readJsonBody } from "@red-cup-engineering/http-server";
 import {
   joinKnowledgeNames,
-} from "@emsenn/animating";
+} from "@red-cup-engineering/animating";
 import {
   asChargeValueName,
   articulate,

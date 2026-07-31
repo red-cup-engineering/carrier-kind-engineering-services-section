@@ -3,12 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Canonical serialization boundary for reusable HTML carriers, packets, and safe document assembly.",
-  "x-agentic-metro-enterprise": {
-    "node-id": "html-services-section",
-    "actor": "urn:ame:html-services-section",
-    "organizational-kind": "circuit-board",
-    "owners": ["serialization-services-section"],
-    "owned-services": ["services/html-file-codec-service"]
-  }
+  "description": "Canonical serialization boundary for reusable HTML carriers, packets, and safe document assembly."
 }

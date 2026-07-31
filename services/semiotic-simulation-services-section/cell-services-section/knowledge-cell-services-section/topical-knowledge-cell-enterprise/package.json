@@ -1,0 +1,40 @@
+{
+  "name": "@red-cup-engineering/topical-knowledge-cell-enterprise",
+  "version": "0.1.0",
+  "description": "Generic sovereign enterprise carrier for owner-admitted topical knowledge cells that hire independent storage, discovery, report, market, identity, and witness services.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "files": [
+    "bin",
+    "content",
+    "lib",
+    "ops",
+    "src"
+  ],
+  "exports": {
+    ".": "./lib/cell.mjs",
+    "./law": "./lib/law.mjs",
+    "./protocol": "./src/protocol.mjs"
+  },
+  "bin": {
+    "serve-topical-knowledge-cell-enterprise-a2a": "./bin/server.mjs"
+  },
+  "scripts": {
+    "check": "node --check lib/law.mjs && node --check lib/cell.mjs && node --check src/protocol.mjs && node --check src/runtime.mjs && node --check src/owned-runtime.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test",
+    "pack:check": "npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-sovereign-operation-boundary-service": "1.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
+    "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
+  }
+}

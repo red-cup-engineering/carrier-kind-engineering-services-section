@@ -1,6 +1,6 @@
 // The codex coding-agent session computer: the generic session substrate
 // (workspace discovery, change-impact, charged findings) now lives in
-// @emsenn/organizing-with-openai-agents/session and is surfaced here as the
+// @red-cup-engineering/organizing-with-openai-agents/session and is surfaced here as the
 // normative Codex session substrate; codex adds the `codex exec --json` trace
 // projection and the four-capability CLI.
 export {
@@ -8,8 +8,8 @@ export {
   wsPackageCarrier,
   findRepoRoot,
   loadWorkspace,
-} from "@emsenn/organizing-with-openai-agents/session";
-export type { WsPackage, Workspace } from "@emsenn/organizing-with-openai-agents/session";
+} from "@red-cup-engineering/organizing-with-openai-agents/session";
+export type { WsPackage, Workspace } from "@red-cup-engineering/organizing-with-openai-agents/session";
 
 export {
   ImpactPackageSchema,
@@ -18,8 +18,8 @@ export {
   changeImpactCarrier,
   computeImpact,
   suggestCommands,
-} from "@emsenn/organizing-with-openai-agents/session";
-export type { ImpactPackage, ChangeImpact } from "@emsenn/organizing-with-openai-agents/session";
+} from "@red-cup-engineering/organizing-with-openai-agents/session";
+export type { ImpactPackage, ChangeImpact } from "@red-cup-engineering/organizing-with-openai-agents/session";
 
 export {
   FindingSchema,
@@ -27,8 +27,8 @@ export {
   finding,
   recall,
   recallStatus,
-} from "@emsenn/organizing-with-openai-agents/session";
-export type { Finding } from "@emsenn/organizing-with-openai-agents/session";
+} from "@red-cup-engineering/organizing-with-openai-agents/session";
+export type { Finding } from "@red-cup-engineering/organizing-with-openai-agents/session";
 
 export {
   CliResultSchema,

@@ -1,0 +1,16 @@
+{
+  "name": "@red-cup-engineering/semiotic-voxel-package-classification-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Classifies one package carrier from its admitted operation and capability declarations.",
+  "exports": "./src/classify-semiotic-voxel-package.mjs",
+  "scripts": {
+    "check": "node --check src/classify-semiotic-voxel-package.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

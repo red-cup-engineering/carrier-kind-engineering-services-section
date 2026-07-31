@@ -74,10 +74,10 @@ const TREE = {
           success: "lib/computing compiles on relating-experimental + gaming; the gate is open.",
           focus: "lib/computing",
           children: [
-            { kind: "task", title: "Fold lib/animating onto relating-experimental", intent: "Fold the animating-experimental sibling into lib/animating on the new line.", success: "pnpm --filter @emsenn/animating check is green.", focus: "lib/animating" },
-            { kind: "task", title: "Fold lib/gaming onto relating-experimental", intent: "Fold the gaming-experimental sibling into lib/gaming on the new line.", success: "pnpm --filter @emsenn/gaming check is green.", focus: "lib/gaming" },
+            { kind: "task", title: "Fold lib/animating onto relating-experimental", intent: "Fold the animating-experimental sibling into lib/animating on the new line.", success: "pnpm --filter @red-cup-engineering/animating check is green.", focus: "lib/animating" },
+            { kind: "task", title: "Fold lib/gaming onto relating-experimental", intent: "Fold the gaming-experimental sibling into lib/gaming on the new line.", success: "pnpm --filter @red-cup-engineering/gaming check is green.", focus: "lib/gaming" },
             { kind: "task", title: "Retarget lib/managing-operations to the canonical line", intent: "Promote the useful work-management surface into lib/managing-operations and retarget consumers to the canonical package.", success: "pnpm --filter @emsenn/managing-operations check is green.", focus: "lib/managing-operations" },
-            { kind: "task", title: "Rederive lib/computing in place", intent: "Rederive computing onto relating-experimental + gaming with no -experimental sibling.", success: "pnpm --filter @emsenn/computing check is green; the gate opens.", focus: "lib/computing" },
+            { kind: "task", title: "Rederive lib/computing in place", intent: "Rederive computing onto relating-experimental + gaming with no -experimental sibling.", success: "pnpm --filter @red-cup-engineering/computing check is green; the gate opens.", focus: "lib/computing" },
           ],
         },
         {

@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/flickering.561.group",
+  "name": "@red-cup-engineering/flickering-561-group",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -21,10 +21,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/fizzos": "workspace:*",
-    "@emsenn/http-server": "workspace:*",
-    "@emsenn/organizing-with-the-web": "workspace:*",
-    "@emsenn/organizing": "workspace:*",
+    "@red-cup-engineering/fizzos": "0.0.1",
+    "@red-cup-engineering/http-server": "0.0.2",
+    "@red-cup-engineering/organizing-with-the-web": "0.0.2",
+    "@red-cup-engineering/organizing": "0.0.0",
     "@emsenn/computing-with-ledgers": "workspace:*",
     "@emsenn/computing-with-hive": "workspace:*"
   },
@@ -32,23 +32,5 @@
     "@types/node": "^22.0.0",
     "typescript": "^5.8.0"
   },
-  "sideEffects": false,
-  "x-agentic-metro-enterprise": {
-    "node-id": "flickering-delve-service",
-    "actor": "urn:ame:flickering-delve-service",
-    "organizational-kind": "interactive-world-actuator",
-    "owners": [
-      "javascript-services-section"
-    ],
-    "admission": "one explicit Flickering server launch with caller-supplied listening, persistence, ledger, and optional payment-provider configuration",
-    "refusal": "an invalid FLICKERING_PORT value",
-    "operation-catalog": {
-      "serve-flickering-delve": {
-        "command": "node src/server.mts",
-        "configuration": "world/dungeon.json with HOST, FLICKERING_PORT or PORT, optional FLICKERING_SAVE and FLICKERING_LEDGER, plus optional Stripe or Hive provider environment",
-        "returns": "a browser-accessible Flickering Delve game service with its sole-writer tick loop and configured persistence"
-      }
-    }
-  },
-  "x-semiotic-voxel": {"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"javascript-services-section","kind":"capability-cell","actor":"urn:ame:flickering-delve-service","operations":["serve-flickering-delve"],"capabilities":[{"capability":"flickering-delve-service","faces":["serve-flickering-delve"]}],"package":"@emsenn/flickering.561.group"}
+  "sideEffects": false
 }

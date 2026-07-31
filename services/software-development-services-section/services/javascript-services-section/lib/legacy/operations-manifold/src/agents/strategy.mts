@@ -1,4 +1,4 @@
-import { flow, play, strategy, strategyReport } from "@emsenn/gaming";
+import { flow, play, strategy, strategyReport } from "@red-cup-engineering/gaming";
 
 import { OPERATIONS_MANIFOLD_AGENT_EVENTS, operationsManifoldAgentArena } from "./arena.mts";
 

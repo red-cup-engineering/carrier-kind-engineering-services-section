@@ -1,0 +1,18 @@
+{
+  "type": "Offer",
+  "id": "urn:offer:settlement-trace-chain-node-cell:eip155-5615610:v1",
+  "actor": "urn:ame:settlement-trace-chain-node-cell",
+  "object": {
+    "type": "Service",
+    "id": "urn:service:settlement-trace-chain:eip155-5615610",
+    "protocol": "Ethereum JSON-RPC",
+    "chain": "eip155:5615610"
+  },
+  "price": {
+    "basis": "integration-internal-at-cost",
+    "quantity": "1",
+    "unit": "rpc-operation"
+  },
+  "availability": "integration",
+  "productionEligible": false
+}

@@ -1,4 +1,4 @@
-import type { LabeledSettledMemeInput } from "@emsenn/computing/operating";
+import type { LabeledSettledMemeInput } from "@red-cup-engineering/computing/operating";
 import { mark, utterance, type UtteranceCarrier } from "@emsenn/relating";
 
 export function labelUtterances(labels: readonly LabeledSettledMemeInput[]): readonly UtteranceCarrier[] {

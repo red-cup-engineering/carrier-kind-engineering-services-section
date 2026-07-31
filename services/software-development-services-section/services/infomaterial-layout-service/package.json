@@ -29,50 +29,8 @@
     "@lenticule-science/infomaterial-observation": "2.0.0",
     "@lenticule-science/infomaterial-patch-cover": "3.0.0",
     "@lenticule-science/rmn-circuit-board-carrier-refinement": "2.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
     "@lenticule-science/wasm-four-carrier-refinement": "1.0.0"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "infomaterial-layout-service",
-    "actor": "urn:ame:infomaterial-layout-service",
-    "organizational-kind": "micro-enterprise",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one placement-neutral M1 circuit family, one exact sovereign assembly, one recursive material cover, and one mechanically refinement-gated carrier for every mount",
-    "refusal": "layout gaps or overlaps, function labels, absent independent refinement, carrier/material/component drift, uncarried definitions, embedded occurrence identity, inferred cuts, child-circuit-interior reads, carrier retention, customer writes, self-attestation, or legacy topology/conductor envelopes",
-    "operation-catalog": {
-      "serve-infomaterial-layout-a2a": {
-        "contract": "ni:///sha-256;YXj4A42j74Ds8b9mKyExLpbI4Seutg4g5eHJgmpovsk",
-        "protocol": "A2A 1.0",
-        "accepts": "application/rmn+cbor HierarchicalInfomaterialLayoutAssayRequest carrying M1 v2 definitions, assembly, cover, observed carriers, and producer identities",
-        "returns": "application/rmn+cbor HierarchicalInfomaterialLayoutAssayReceipt|standard A2A refusal",
-        "legacyCompatibility": false
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:infomaterial-layout-service",
-    "operations": [
-      "serve-infomaterial-layout-a2a"
-    ],
-    "capabilities": [
-      {
-        "capability": "infomaterial-layout-service",
-        "faces": [
-          "serve-infomaterial-layout-a2a"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/infomaterial-layout-service"
   }
 }

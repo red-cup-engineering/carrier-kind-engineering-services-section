@@ -1,6 +1,6 @@
 {
   "name": "RMN Semantic Conformance",
-  "description": "Checks and normalizes canonical typed RMN terms; WIT transitions, circuit equivalence, and typed residues are owned by independent assay providers.",
+  "description": "Checks and normalizes canonical typed RMN terms; WIT transitions, circuit equivalence, and typed residues remain distinct attributable judgments with re-executable evidence, and producer identity neither proves nor disproves them.",
   "supportedInterfaces": [
     {
       "url": "${BASE_URL}/a2a/jsonrpc",

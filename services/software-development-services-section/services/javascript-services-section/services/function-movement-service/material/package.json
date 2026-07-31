@@ -12,14 +12,5 @@
   },
   "engines": {
     "node": ">=22"
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "javascript-services-section",
-    "kind": "inert-material",
-    "actor": "urn:ame:function-movement-material",
-    "operations": [],
-    "capabilities": [],
-    "package": "@red-cup-engineering/function-movement-material"
   }
 }

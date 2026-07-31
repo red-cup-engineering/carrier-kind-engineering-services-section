@@ -1,0 +1,5 @@
+{
+  "name": "@red-cup-engineering/semantic-web-services-section",
+  "private": true,
+  "description": "Holds the services that model RDF as data in memory — terms, named graphs, N-Quads text, and RDFC-1.0 canonicalization — as distinct from the HTTP and linked-data-platform concerns a semantic web deployment also needs. Use when working on the RDF model or algorithms themselves rather than how a dataset is transported or published."
+}

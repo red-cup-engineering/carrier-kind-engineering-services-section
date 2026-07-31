@@ -1,0 +1,8 @@
+# Runtime state belongs outside source control.
+**/data/a2a/tasks/
+**/data/projections/
+**/data/rmn/
+**/data/rwil/
+**/data/runtime/
+**/data/records/work-order-receipts/
+

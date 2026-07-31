@@ -1,0 +1,10 @@
+#lang rmn/v2
+(map
+  ("type" "ServeSettlementTraceChainLaw")
+  ("version" 1)
+  ("provider" "urn:ame:settlement-trace-chain-node-cell")
+  ("chain" "eip155:5615610")
+  ("precondition" "One admitted Ethereum JSON-RPC operation or canonical typed RMN status request addresses the integration Settlement Trace Chain.")
+  ("operation" "Serve the persisted chain state through standard Ethereum JSON-RPC and report its exact CAIP-2 identity, block height, block hash, and configured RPC membrane.")
+  ("postcondition" "Return the standard protocol response without claiming finality beyond the named integration profile.")
+  ("refusal" "Refuse eip155:561561, another chain, public administrative custody, fabricated finality, customer interior storage, or another blockchain capability."))

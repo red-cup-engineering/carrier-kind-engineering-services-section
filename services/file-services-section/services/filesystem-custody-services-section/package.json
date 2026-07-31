@@ -3,11 +3,5 @@
   "private": true,
   "type": "module",
   "description": "Owns POSIX workspace access receipts; version control consumes those receipts downstream.",
-  "x-agentic-metro-enterprise": {
-    "node-id": "filesystem-custody-services-section",
-    "actor": "urn:ame:filesystem-custody-services-section",
-    "organizational-kind": "circuit-board",
-    "owners": ["file-services-section"],
-    "owned-services": ["services/workspace-filesystem-provider"]
-  }
+  "version": "0.1.0"
 }

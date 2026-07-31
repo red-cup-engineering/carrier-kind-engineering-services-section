@@ -143,7 +143,7 @@
     {
       "id": "derive-infomaterial-cut-graph",
       "name": "Derive infomaterial cut graph",
-      "description": "Binds an independently assayed recursive circuit and mechanically refined carrier layout into reusable component nodes, child-to-consumer edges, occurrence counts, and leaf-first parallel waves.",
+      "description": "Binds exact attributable and replayable recursive-circuit and mechanically refined carrier-layout evidence into reusable component nodes, child-to-consumer edges, occurrence counts, and leaf-first parallel waves.",
       "tags": [
         "eda",
         "rmn",

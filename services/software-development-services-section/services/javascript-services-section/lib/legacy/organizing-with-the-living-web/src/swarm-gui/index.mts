@@ -1,5 +1,5 @@
-import type { Context, HyperCell, Page } from "@emsenn/organizing-with-the-semantic-web/semantic-hypertext";
-import { AUDIT, PUBLIC, algebraToPage, projectArticle, projectDocument, stack } from "@emsenn/organizing-with-the-semantic-web/semantic-hypertext";
+import type { Context, HyperCell, Page } from "@red-cup-engineering/organizing-with-the-semantic-web/semantic-hypertext";
+import { AUDIT, PUBLIC, algebraToPage, projectArticle, projectDocument, stack } from "@red-cup-engineering/organizing-with-the-semantic-web/semantic-hypertext";
 
 export type SettledCharge = Readonly<{
   value?: readonly unknown[];

@@ -1,0 +1,7 @@
+(map
+  ("type" "ProvideNpmRegistryLaw")
+  ("version" 3)
+  ("precondition" "Receive one explicit collision-free set of scoped exact-version package directories, one empty output directory, one absolute HTTP registry address, an optional immutable predecessor registry, and either a compute market or an explicit local capacity ceiling.")
+  ("operation" "Solicit and acquire a settled CPU-process-slot lease, copy an explicitly supplied predecessor registry when present, pack the supplied packages concurrently within the acquired parallelism without lifecycle scripts, replace only exact name-version matches, identify each tarball by SHA-1 and SHA-512, strip custom x- manifest fields so published packages are plain npm packages, emit npm-compatible package metadata and scoped client configuration, and expose only the built metadata and tarball bytes through a read-only HTTP face.")
+  ("postcondition" "Return one registry receipt binding every package name and version to exact artifact digests, byte counts, registry URLs, compute provider, acquired parallelism, and settlement; release leased capacity; clean installs require no workspace or local-path dependency protocol.")
+  ("refusal" "Refuse generic or duplicate names, non-exact versions, unowned or unsettled market leases, lease capacity beyond the customer's ceiling, pack failures, artifact mutation, non-empty output, writes through the registry face, or ambient package discovery."))

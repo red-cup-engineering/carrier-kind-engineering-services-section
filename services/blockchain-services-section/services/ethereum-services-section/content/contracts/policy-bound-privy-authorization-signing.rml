@@ -1,0 +1,11 @@
+#lang rmn/v2
+(map
+  ("type" "PolicyBoundPrivyAuthorizationSigningLaw")
+  ("version" 1)
+  ("provider" "urn:ame:ethereum-services-section")
+  ("precondition" "A sovereign customer supplies a create-only private credential path, a private password file, one exact Privy wallet identifier, app identifier, EVM wallet address, bounded chain and signing-contract allowlists, bounded RPC signing methods, an optional expiry and callback signature ceiling, and any exact UserOperation call-data digests already admitted by the customer's own execution policy.")
+  ("operation" "The provider creates or opens one encrypted PKCS8 P-256 authorization key, validates the canonical Privy authorization envelope before key decryption, refuses requests outside the exact wallet, app, URL, method, chain, sender, contract, message-clock, and optional call-data bounds, then returns only a base64 DER ECDSA-P256-SHA256 signature.")
+  ("postcondition" "The customer receives a public SPKI key and policy-bound signing callback; private key bytes and password bytes are not returned, and the callback grants neither arbitrary EVM signing nor commercial-job admission.")
+  ("refusal" "Refuse public credential files, replacement of an existing keystore, plaintext or exported private keys, malformed or noncanonical payloads, arbitrary messages, unsupported RPC methods, wallets, apps, chains, senders or contracts, expired policy, exhausted callback limit, transaction broadcast, asset custody, or a claim that this cryptographic boundary alone proves one-job or price conformance.")
+  ("protocol" "Privy wallet authorization signature over canonical JSON bytes")
+  ("evidence" "Customer-owned execution admission plus provider-local custody and signing receipts"))

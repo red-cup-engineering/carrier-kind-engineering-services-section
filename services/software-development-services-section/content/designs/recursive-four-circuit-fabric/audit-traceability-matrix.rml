@@ -1,8 +1,8 @@
 #lang rmn/v2
 (map
   ("type" "RecursiveFourCircuitFabricAuditTraceabilityMatrix")
-  ("version" 9)
-  ("date" "2026-07-23")
+  ("version" 10)
+  ("date" "2026-07-29")
   ("requirements" "requirements-baseline.rml")
   ("architecture" "software-architecture-specification.rml")
   ("pdk" "process-design-kit-baseline.rml")
@@ -16,7 +16,7 @@
        ("live-occurrence" "http://127.0.0.1:19848/.well-known/agent-card.json")
        ("invocation-receipt" "ni:///sha-256;BwW0ewOMtRDcri0-qPeR1KVC_lJ-G-K3siPgYKfXRRI")
        ("downstream-product" "ni:///sha-256;fYw9VtGpL-c7tduo9yoj6HUn3_5Wes7xxOJO-NI2p8k")
-       ("status" "implemented-live; fresh-process activation observed; independent black-gate receipt unresolved"))
+       ("status" "implemented-live; fresh-process activation observed; exact re-executable black-gate receipt unresolved"))
      (map
        ("subject" "bare-cedar-fog local typed inference carrier")
        ("requirements" ("FAB-R002" "FAB-R009" "FAB-R010" "FAB-R019" "PDK-R007"))
@@ -86,7 +86,7 @@
        ("mission-settlement" "ni:///sha-256;kFQ_h9geRDbeJQnLsWVIa5hPgvEnVggJy7JEMddZ03c")
        ("circuit" "ni:///sha-256;lVUd1ycijQWWFbJYDS9ahOw50Jiy3UbGYB4o__JWC-g")
        ("assembly" "ni:///sha-256;7jVM-xO6tlkQcCnfVCRF3WchJdAd66IlKKAoH23-L7w")
-       ("independent-circuit-assay" (map
+       ("typed-circuit-equivalence-assay" (map
          ("provider" "eip155:31337:0xeab9a6b8a96342b12d0bf97adfe2cc8a329e3931")
          ("receipt" "ni:///sha-256;C19rku-TTIX8PCybwNVgRSqrUqGEci6fUoKAHziM2KI")
          ("equivalent" true)))
@@ -126,7 +126,7 @@
          ("failed-boundary" "post-provider LMT witness projection through RMN conformance")
          ("failure" "contracted executor SIGKILL")
          ("recovered-by" "LMT-owned exact task-placement observations and automatic A2A resumption without provider re-execution")))
-       ("status" "historical bounded charge; signed program and mission A2A, two cheap schema-admitted NPU lots, exact economic fold, verified candidate, protected acceptance, independent circuit equivalence assay, bounded witness projection, durable task placement, and automatic fresh-process resumption were observed. Its direct customer mutation is superseded and is not lawful receiver-induction evidence; current mission execution returns a by-value proposal and current synthesis halts awaiting receiver induction.")
+       ("status" "historical bounded charge; signed program and mission A2A, two cheap schema-admitted NPU lots, exact economic fold, verified candidate, protected acceptance, typed circuit equivalence assay, bounded witness projection, durable task placement, and automatic fresh-process resumption were observed. Its direct customer mutation is superseded and is not lawful receiver-induction evidence; current mission execution returns a by-value proposal and current synthesis halts awaiting receiver induction.")
        ("superseded-customer-write" (map
          ("removed-function" "software-mission-execution-service/src/mission-runtime.mjs:integrateCandidate")
          ("current-mission-disposition" "awaiting-receiver-induction")
@@ -160,7 +160,7 @@
                         "review-and-admit-staged-software-delivery-correction"))))
        ("retired-predecessor" "local CLI/direct-call-only receiver access with no canonical RMN/A2A ingress")
        ("unresolved-deviations" ("receiver-local custom JSON identity and JSONL evidence have not yet been replaced by canonical RMN/CBOR and RWIL/RDF"
-                                "the Agent Card does not yet expose an independently assayed sovereign circuit interface or smart-account occurrence"
+                                "the Agent Card does not yet expose a sovereign circuit interface with exact attributable replay evidence or a smart-account occurrence"
                                 "no SDSS-local die yet forms a complete customer-decidable plate from SoftwareMissionChangeProposal"
                                 "the empty portable-node-carrier-service did not perform this deployment bootstrap"))
        ("status" "signed persistent A2A occurrence live and fresh-process active; solicitation and invocation carriers implemented; no receiver admission or full FAB conformance claimed")))))

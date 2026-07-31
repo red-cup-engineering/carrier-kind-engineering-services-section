@@ -1,5 +1,5 @@
-import { ENDPOINTS, checkBudget, inferenceCostEvent, user, type Budget, type BudgetStatus, type Conversation } from "@emsenn/organizing-with-llm-agents/algebra";
-import { witnessInference } from "@emsenn/organizing-with-llm-agents/holography";
+import { ENDPOINTS, checkBudget, inferenceCostEvent, user, type Budget, type BudgetStatus, type Conversation } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
+import { witnessInference } from "@red-cup-engineering/organizing-with-llm-agents/holography";
 import { chargeValueName, valueOf, type ChargeValueName } from "@emsenn/relating";
 import { requireJsonValue, type EAVT, type JsonValue } from "@emsenn/relating/writing";
 

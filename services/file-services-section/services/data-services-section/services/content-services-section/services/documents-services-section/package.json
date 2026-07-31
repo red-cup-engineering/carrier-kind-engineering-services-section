@@ -3,7 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Restricts content carriers to decoded and independently assayed documents.",
-  "x-agentic-metro-enterprise": { "node-id": "documents-services-section", "actor": "urn:ame:documents-services-section", "organizational-kind": "circuit-board", "owners": ["content-services-section"], "owned-services": ["services/articles-services-section"] },
-  "x-capability-recovery": [{ "capability": "frontmatter-body-assertion-document-codec", "source": "@red-cup-engineering/organizing-a-knowledge-vault" }, { "capability": "document-territory-conformance-assay", "source": "@red-cup-engineering/standards-conformance-services-section" }]
+  "description": "Restricts content carriers to decoded documents with exact attributable and assay evidence.",
+  "x-capability-recovery": [
+    {
+      "capability": "frontmatter-body-assertion-document-codec",
+      "source": "@red-cup-engineering/organizing-a-knowledge-vault"
+    },
+    {
+      "capability": "document-territory-conformance-assay",
+      "source": "@red-cup-engineering/standards-conformance-services-section"
+    }
+  ]
 }

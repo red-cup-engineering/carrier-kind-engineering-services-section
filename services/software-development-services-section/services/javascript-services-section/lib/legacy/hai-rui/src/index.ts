@@ -1,4 +1,4 @@
-// @emsenn/hai-rui
+// @red-cup-engineering/hai-rui
 //
 // A domain presented as witnessed predication: vocabulary enters as marks,
 // facts enter as witnesses, computation is induce() plus readings.
@@ -7,9 +7,9 @@
 // paths (Three Dots and a Dash: "." generated-from, ":" witnesses,
 // "-" obstructs). See dev/docs/explanations/package-invariants.md.
 
-import type { App } from "@emsenn/http-server";
-import { htmlRepr, jsonRepr } from "@emsenn/http-server";
-import { render } from "@emsenn/organizing-with-the-web/theming";
+import type { App } from "@red-cup-engineering/http-server";
+import { htmlRepr, jsonRepr } from "@red-cup-engineering/http-server";
+import { render } from "@red-cup-engineering/organizing-with-the-web/theming";
 import { haiRuiTheme } from "./theme.ts";
 
 export type HaiRuiCarrier = Readonly<{

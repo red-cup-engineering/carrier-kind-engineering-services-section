@@ -1,7 +1,7 @@
-// @emsenn/organizing-with-the-living-web
+// @red-cup-engineering/organizing-with-the-living-web
 //
-// The living web fuses the web tier (@emsenn/organizing-with-the-web) with the
-// semantic-web tier (@emsenn/organizing-with-the-semantic-web): the composite
+// The living web fuses the web tier (@red-cup-engineering/organizing-with-the-web) with the
+// semantic-web tier (@red-cup-engineering/organizing-with-the-semantic-web): the composite
 // surfaces where transport, syndication, and theming meet linked data,
 // microformats, semantic hypertext, and taxonomy. These are whole sites and
 // app surfaces — a content API, a professional blog, a digital garden, a

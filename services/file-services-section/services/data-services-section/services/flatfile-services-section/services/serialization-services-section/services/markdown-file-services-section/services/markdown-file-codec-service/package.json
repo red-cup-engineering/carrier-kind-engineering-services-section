@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/markdown-file-codec-service",
+  "version": "0.1.1",
+  "private": false,
+  "type": "module",
+  "description": "Compatibility shim re-exporting the six single-capability Markdown packages this package was split into. Its 0.1.0 registry publish still serves the old, fully-implemented bytes; only 0.1.1+ is this thin re-export.",
+  "exports": {
+    ".": {
+      "types": "./dist/markdown/index.d.mts",
+      "import": "./dist/markdown/index.mjs"
+    }
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.build.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm run build && npm test"
+  },
+  "dependencies": {
+    "@red-cup-engineering/markdown-document-codec-service": "0.1.0",
+    "@red-cup-engineering/markdown-html-render-service": "0.1.0",
+    "@red-cup-engineering/markdown-diff-service": "0.1.0",
+    "@red-cup-engineering/markdown-edit-service": "0.1.0",
+    "@red-cup-engineering/markdown-validation-service": "0.1.0",
+    "@red-cup-engineering/markdown-workbench-service": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}

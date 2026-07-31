@@ -1,7 +1,7 @@
 import path from "node:path";
 
-import { packageScriptCatalogFromPackage, type PackageScript } from "@emsenn/organizing-with-jsnode/packages";
-import { eachWorkspacePackageDir, type DiscoveredPackage } from "@emsenn/organizing-with-jsnode/workspaces";
+import { packageScriptCatalogFromPackage, type PackageScript } from "@red-cup-engineering/organizing-with-jsnode/packages";
+import { eachWorkspacePackageDir, type DiscoveredPackage } from "@red-cup-engineering/organizing-with-jsnode/workspaces";
 
 import { readApiIndex, refreshApiIndex, type ApiIndexSymbol } from "../../../../api-index.mts";
 import { operationsManifoldStatePath } from "../../../../package-surface.mts";
@@ -95,8 +95,8 @@ export async function deriveContextRelevance(repoRoot: string, params: ContextRe
       operationsManifoldStatePath("jsnode-api-surface"),
       "readApiIndex",
       "package.json#bin",
-      "@emsenn/organizing-with-jsnode/packages.packageScriptCatalogFromPackage",
-      "@emsenn/organizing-with-jsnode/workspaces.eachWorkspacePackageDir",
+      "@red-cup-engineering/organizing-with-jsnode/packages.packageScriptCatalogFromPackage",
+      "@red-cup-engineering/organizing-with-jsnode/workspaces.eachWorkspacePackageDir",
     ]),
   });
 }

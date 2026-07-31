@@ -1,5 +1,5 @@
 /**
- * @emsenn/claude-infotics — Red Cup Engineering's Claude capability, as an
+ * @red-cup-engineering/claude-infotics — Red Cup Engineering's Claude capability, as an
  * application ON the MetroPlat platform.
  *
  * It is NOT a standalone toolkit: its Claude capabilities are authored as

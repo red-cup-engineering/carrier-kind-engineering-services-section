@@ -1,5 +1,5 @@
 import type { EAVT, JsonValue } from "@emsenn/relating/writing";
-import type { RunRegime } from "@emsenn/organizing-with-llm-agents/running";
+import type { RunRegime } from "@red-cup-engineering/organizing-with-llm-agents/running";
 
 import { clamp, hash, isRecord, isString, optionalText, requireText, slug as sharedSlug, stringList } from "../../../../../records.mts";
 import type { ContextControlSnapshot } from "../../../suiting/library/context-control.mts";

@@ -2,7 +2,7 @@
  * openai-topology — the openai models as a settled meme-topology carrier.
  *
  * This is the "openai" half of the codex-cli-harness diamond
- * (apex `@emsenn/animating/becoming/doing/embodying/boundary`; middles `@emsenn/organizing-with-openai-agents/harness`
+ * (apex `@red-cup-engineering/animating/becoming/doing/embodying/boundary`; middles `@red-cup-engineering/organizing-with-openai-agents/harness`
  * = agent+content and
  * `codex-topology` = agent+openai-topology; floor `codex-cli-harness-topology`
  * ⊂ both). It is scoped to *only the models*: the GPT-5 family that the Codex
@@ -10,7 +10,7 @@
  *
  * An openai model is read two ways, both downstream of animating topology:
  *  - it `realizes` an agent — the inference surface an agent's prehensions run on
- *    (`agentTerm` from `@emsenn/animating/becoming/doing/embodying/boundary`), the edge that makes this node a refinement
+ *    (`agentTerm` from `@red-cup-engineering/animating/becoming/doing/embodying/boundary`), the edge that makes this node a refinement
  *    of the apex; and
  *  - it sits `at-tier` a formality tier. Per the agent-algebra tier-routing
  *    reading the tiers are F0 (flagship), F1, F2 — gpt-5-codex/gpt-5 at F0,
@@ -23,7 +23,7 @@
  */
 import { action, carrierFrom, mark, tm, utterance, type UtteranceCarrier, type MemeTopologyFixedPointReadings, type SettlementFiltration } from "@emsenn/relating";
 
-import { fixedPointReadingsOfUtterances, settleUtterances, termOf } from "@emsenn/animating";
+import { fixedPointReadingsOfUtterances, settleUtterances, termOf } from "@red-cup-engineering/animating";
 
 export type { UtteranceCarrier };
 

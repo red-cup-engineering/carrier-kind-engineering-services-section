@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:jsonschema:org.emsenn.settlement-trace-chain.status.v1",
+  "type": "object",
+  "required": ["kind", "chain", "blockNumber", "blockHash", "productionEligible"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {"const": "org.emsenn.settlement-trace-chain.status.v1"},
+    "chain": {"const": "eip155:5615610"},
+    "blockNumber": {"type": "integer", "minimum": 0},
+    "blockHash": {"type": "string", "pattern": "^0x[0-9a-f]{64}$"},
+    "productionEligible": {"const": false}
+  }
+}

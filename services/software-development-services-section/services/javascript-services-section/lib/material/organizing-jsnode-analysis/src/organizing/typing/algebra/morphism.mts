@@ -1,10 +1,10 @@
-import { type Morphism } from "@emsenn/computing/categorifying";
+import { type Morphism } from "@red-cup-engineering/computing/categorifying";
 import {
   observeLabels,
   type Observation,
   type ObservationArena,
   type LabeledSettledMemeInput,
-} from "@emsenn/computing/operating";
+} from "@red-cup-engineering/computing/operating";
 import type { UtteranceCarrier } from "@emsenn/relating";
 import { labelUtterances } from "./labels.mjs";
 

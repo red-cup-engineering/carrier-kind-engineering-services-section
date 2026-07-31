@@ -6,7 +6,7 @@ import {
   stack,
   type FiniteAlgebra,
   type Page,
-} from "@emsenn/organizing-with-the-semantic-web/semantic-hypertext";
+} from "@red-cup-engineering/organizing-with-the-semantic-web/semantic-hypertext";
 import {
   el,
   escapeHtml,
@@ -14,7 +14,7 @@ import {
   render,
   type Theme,
   type ThemeContext,
-} from "@emsenn/organizing-with-the-web/theming";
+} from "@red-cup-engineering/organizing-with-the-web/theming";
 
 export interface OperationSurfaceFact {
   readonly subject: unknown;

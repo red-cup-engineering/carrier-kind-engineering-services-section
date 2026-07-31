@@ -22,61 +22,9 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/activitypub-services-section": "1.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/activitypub-services-section": "1.0.2",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
     "@lenticule-science/software-change-proposal-assay": "0.1.0"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "deterministic-intent-compiler-supplier",
-    "actor": "urn:ame:red-cup-engineering:deterministic-intent-compiler-supplier",
-    "organizational-kind": "micro-enterprise",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one canonical RMN/CBOR supplier pulse through the hired A2A provider, then exact ActivityPub customer lots and awards",
-    "refusal": "direct JSON or package-import invocation, other product class, inference, model selection, customer mutation, oracle authorship, unsafe path, or self-review",
-    "operation-catalog": {
-      "pulse-deterministic-intent-compiler-supplier": {
-        "contract": "ni:///sha-256;OANjsuaC_04TRuQlCWLQl1ajQKkOLWrNcFZYh3PFdDU",
-        "protocols": [
-          "RMN",
-          "A2A 1.0",
-          "ActivityPub",
-          "RWIL/RDF"
-        ],
-        "runtimeFiles": [
-          "content/contracts/supply-deterministic-intent-compiler.rml",
-          "content/policies/deterministic-intent-compiler.json",
-          "content/templates/bounded-inference-intent-compiler.mjs"
-        ],
-        "accepts": "DeterministicIntentCompilerSupplierPulseRequest",
-        "returns": "DeterministicIntentCompilerSupplierPulseResult|Reject",
-        "legacyCompatibility": false
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:red-cup-engineering:deterministic-intent-compiler-supplier",
-    "operations": [
-      "pulse-deterministic-intent-compiler-supplier"
-    ],
-    "capabilities": [
-      {
-        "capability": "deterministic-intent-compiler-supplier",
-        "faces": [
-          "pulse-deterministic-intent-compiler-supplier"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/deterministic-intent-compiler-supplier"
   }
 }

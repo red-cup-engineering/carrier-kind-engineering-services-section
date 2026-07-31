@@ -251,7 +251,7 @@ export async function assayExecutionGeometryCircuit(source, options = {}) {
     assembly: projected.assembly,
     signal: options.signal,
   });
-  if (result?.receipt?.equivalent !== true || result.receipt.circuit !== projected.projection.circuit || result.receipt.assembly !== projected.projection.assembly) fail("independent assay did not bind the exact projected family and assembly");
+  if (result?.receipt?.equivalent !== true || result.receipt.circuit !== projected.projection.circuit || result.receipt.assembly !== projected.projection.assembly) fail("typed equivalence judgment did not bind the exact projected family and assembly");
   return { ...projected, assay: { provider: result.receipt.provider, receipt: result.receiptNi, equivalent: true } };
 }
 

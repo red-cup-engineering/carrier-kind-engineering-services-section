@@ -1,11 +1,11 @@
-// @emsenn/llm-computer - project an inference cost event into a balanced ledger transaction.
+// @red-cup-engineering/llm-computer - project an inference cost event into a balanced ledger transaction.
 //
 // A CostEvent becomes one exact transaction: each consumed resource is posted to
 // an expense account and balanced against an equity account. This module owns the
 // tiny exact-rational ledger carrier it needs; it does not depend on an animating
 // accounting subpath that no longer exists.
 
-import type { CostEvent } from "@emsenn/organizing-with-llm-agents/algebra";
+import type { CostEvent } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 
 export type Amount = Readonly<{
   num: bigint;

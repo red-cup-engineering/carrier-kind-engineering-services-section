@@ -16,10 +16,10 @@ import { fileURLToPath } from "node:url";
 import {
   type App, type Context, type Repr, htmlRepr, installGracefulShutdown, jsonRepr, mergeApps,
   readJsonBody, readTextBody, start,
-} from "@emsenn/http-server";
-import { createQueuedWebSessionCarrier } from "@emsenn/organizing-with-the-web/session-carrier";
-import { throttleIntents } from "@emsenn/fizzos/mud-server";
-import { checkpoint, fileStore } from "@emsenn/fizzos/persistence";
+} from "@red-cup-engineering/http-server";
+import { createQueuedWebSessionCarrier } from "@red-cup-engineering/organizing-with-the-web/session-carrier";
+import { throttleIntents } from "@red-cup-engineering/fizzos/mud-server";
+import { checkpoint, fileStore } from "@red-cup-engineering/fizzos/persistence";
 import { DelveScene, type DelveSnapshot, TICK_SECONDS } from "./scene.mts";
 import { type DungeonConfig, DEFAULT_DUNGEON } from "./dungeon.mts";
 import { type LedgerEntry, AuditLedger } from "./ledger.mts";

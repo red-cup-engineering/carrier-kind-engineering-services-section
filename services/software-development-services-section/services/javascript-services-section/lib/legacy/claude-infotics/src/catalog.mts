@@ -10,11 +10,11 @@
  * (`claudeSessionOperations`, `claudeFleetOperations`) and git worktree change
  * (`gitWorkspaceOperations`, the change-half of the #15 impact capability).
  */
-import type { Operation } from "@emsenn/metroplat/operations";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
-import { claudeSessionOperations, claudeFleetOperations } from "@emsenn/metroplat/integrations/anthropic";
-import { gitWorkspaceOperations } from "@emsenn/metroplat/integrations/git";
-import { agentTokenUsageOperations } from "@emsenn/metroplat/integrations/token-usage";
+import type { Operation } from "@red-cup-engineering/metroplat/operations";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
+import { claudeSessionOperations, claudeFleetOperations } from "@red-cup-engineering/metroplat/integrations/anthropic";
+import { gitWorkspaceOperations } from "@red-cup-engineering/metroplat/integrations/git";
+import { agentTokenUsageOperations } from "@red-cup-engineering/metroplat/integrations/token-usage";
 
 import { claudeRunOperations } from "./operations/run.mts";
 import { claudeMessagesOperations } from "./operations/messages.mts";

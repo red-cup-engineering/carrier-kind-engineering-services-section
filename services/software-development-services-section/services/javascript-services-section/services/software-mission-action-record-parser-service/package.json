@@ -1,1 +1,10 @@
-{"name":"@red-cup-engineering/software-mission-action-record-parser-service","version":"1.0.0","private":true,"type":"module","exports":"./src/action-record-parser.mjs","x-agentic-metro-enterprise":{"node-id":"software-mission-action-record-parser-service","actor":"urn:ame:software-mission-action-record-parser-service","organizational-kind":"capability-cell","owners":["javascript-services-section"],"operation-catalog":{"parse-software-mission-action-record":{"returns":"one deterministic bounded mission action record or null"}}},"x-semiotic-voxel":{"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"javascript-services-section","kind":"capability-cell","actor":"urn:ame:software-mission-action-record-parser-service","operations":["parse-software-mission-action-record"],"capabilities":[{"capability":"software-mission-action-record-parser-service","faces":["parse-software-mission-action-record"]}],"package":"@red-cup-engineering/software-mission-action-record-parser-service"}}
+{
+  "name": "@red-cup-engineering/software-mission-action-record-parser-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/action-record-parser.mjs",
+    "./src/action-record-parser.mjs": "./src/action-record-parser.mjs"
+  }
+}

@@ -61,7 +61,7 @@ Read the condition as a pattern across these simultaneous aspects:
   scope, and consequence until a warranted resolution exists.
 - Do not let a local node, office, tool, model, or session impersonate the
   body. The two identity axes remain root DID and cell RMN address.
-- Do not use `database-proof` as a substitute for independent verification or
+- Do not use `database-proof` as a substitute for verification or
   Leader acceptance.
 - Do not increase ossification merely to make an output look settled. Preserve
   the flexible complement required for transport, repair, and learning.

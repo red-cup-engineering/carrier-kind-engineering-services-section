@@ -3,12 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Proof-path section for Turtle RDF serialization.",
-  "x-agentic-metro-enterprise": {
-    "node-id": "turtle-file-services-section",
-    "actor": "urn:ame:turtle-file-services-section",
-    "organizational-kind": "circuit-board",
-    "owners": ["rdf-file-services-section"],
-    "owned-services": ["services/turtle-term-writing-service"]
-  }
+  "description": "Proof-path section for Turtle RDF serialization."
 }

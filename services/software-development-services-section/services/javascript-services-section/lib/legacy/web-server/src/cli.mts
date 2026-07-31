@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 import process from "node:process";
-import { loadEnvironmentalConfiguration } from "@emsenn/computing/codecs";
+import { loadEnvironmentalConfiguration } from "@red-cup-engineering/computing/codecs";
 import {
   installGracefulShutdown,
   start,
   type App,
   type StartOptions,
   type StartResult,
-} from "@emsenn/http-server";
+} from "@red-cup-engineering/http-server";
 import {
   createWebTicsService,
   normalizeWebTicsConfig,

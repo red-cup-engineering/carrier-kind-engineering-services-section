@@ -1,0 +1,5 @@
+<urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <urn:emsenn:DirectExecutionRetirement> <urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> .
+<urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> <urn:emsenn:displacedCarrier> <ni:///sha-256;eFot3yif7ZpJsJH7EHHs3n1nzJiZUDzefRSh_9vY3aI> <urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> .
+<urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> <urn:emsenn:successorCarrier> <ni:///sha-256;IRydztiSToNToC01_e-7q6TV_O9ntPmQXprxhMJwFKc> <urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> .
+<urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> <urn:emsenn:retainedCapability> "Pure EAS schema-registration and attestation request projection" <urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> .
+<urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> <urn:emsenn:reason> "A concurrent contribution restored direct controller-key execution. Only EntryPoint-mediated ERC-4337 execution is admitted; pure official-EAS calldata preparation remains." <urn:uuid:b2e5e647-5282-4660-b2cc-0bf04b38b39b> .

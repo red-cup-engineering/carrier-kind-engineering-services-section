@@ -1,0 +1,10 @@
+#lang rmn/v2
+(map
+  ("type" "ExpectedSignerMnemonicEncryptionServiceLaw")
+  ("version" 1)
+  ("provider" "urn:ame:ethereum-services-section")
+  ("customer-retains" "The mnemonic, expected signer identity, encrypted keystore, password file, retirement decision, and every later signing authority.")
+  ("precondition" "The customer supplies one transient valid BIP-39 mnemonic, one exact expected EVM signer, one private password file, and one absent create-only output path under an explicit migration grant.")
+  ("operation" "Derive the default Ethereum account, refuse unless it equals the expected signer, encrypt it as Ethereum Secret Storage v3, create the keystore with owner-only permissions, and return only public signer and format metadata.")
+  ("postcondition" "The customer holds a create-only encrypted keystore whose reopened signer equals the expected identity; no mnemonic or private key appears in the receipt.")
+  ("refusal" "Refuse invalid word counts, invalid mnemonic checksum, signer mismatch, public password material, an existing output path, any request to return secret material, or any claim that encryption authorizes runtime use."))

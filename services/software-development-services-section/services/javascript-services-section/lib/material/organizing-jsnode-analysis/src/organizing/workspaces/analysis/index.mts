@@ -1,5 +1,5 @@
 /**
- * @emsenn/organizing-with-jsnode/analysis — pure analytical invariants of the workspace
+ * @red-cup-engineering/organizing-with-jsnode/analysis — pure analytical invariants of the workspace
  * dependency graph.
  *
  * Combinatorial geometry and analysis of the package dependency DAG

@@ -13,7 +13,7 @@
  */
 
 import { readFile } from "node:fs/promises";
-import type { EndpointRef } from "@emsenn/organizing-with-openai-agents";
+import type { EndpointRef } from "@red-cup-engineering/organizing-with-openai-agents";
 
 /** One character on the roster. */
 export interface Character {

@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/llm-openai-codex-harness",
+  "name": "@red-cup-engineering/llm-openai-codex-harness",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,8 +15,8 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json && chmod +x dist/cli.mjs",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "bin": {
     "llm-openai-codex-harness-server": "./dist/cli.mjs"
@@ -47,8 +47,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/organizing-with-openai-codex": "workspace:*",
-    "@emsenn/http-server": "workspace:*",
+    "@red-cup-engineering/organizing-with-openai-codex": "0.0.0",
+    "@red-cup-engineering/http-server": "0.0.2",
     "@emsenn/relating": "workspace:*"
   },
   "devDependencies": {

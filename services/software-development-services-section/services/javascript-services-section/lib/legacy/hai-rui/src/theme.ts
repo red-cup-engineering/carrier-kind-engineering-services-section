@@ -2,9 +2,9 @@
 // derived from seeds by web-theming-computer (light + dark), mono-forward to suit
 // a conformance/advice console.
 
-import type { Theme, ThemePalette } from "@emsenn/organizing-with-the-web/theming";
-import { assembleCss } from "@emsenn/organizing-with-the-web/theming";
-import { themePalette } from "@emsenn/organizing-with-the-web/theming-computer";
+import type { Theme, ThemePalette } from "@red-cup-engineering/organizing-with-the-web/theming";
+import { assembleCss } from "@red-cup-engineering/organizing-with-the-web/theming";
+import { themePalette } from "@red-cup-engineering/organizing-with-the-web/theming-computer";
 
 const palette: ThemePalette = themePalette(
   { ink: "#16181d", surface: "#f7f8fa", accent: "#2f7d57" },

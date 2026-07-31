@@ -15,54 +15,6 @@
     "check": "node --check src/contract-notebooklm.js && node --check src/contract-notebooklm-sources.js && node --check src/contract-notebooklm-audio-delivery.js && python3 -m py_compile run-one-exchange.py reconcile-notebook-sources.py",
     "test": "node --test test/*.test.js"
   },
-  "x-agentic-metro-enterprise": {
-    "node-id": "notebooklm-inference-team",
-    "owners": [
-      "561-group",
-      "red-cup-engineering",
-      "logical-inference-service-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "a directly addressed ActivityStreams ServiceSolicitation or an Accept carrying an attenuated capability for one provider-authored executable offer",
-    "refusal": "unmatched intent, incomplete packet, unstated external source egress, authority beyond the accepted offer, or an unsupported artifact type",
-    "operation-catalog": {
-      "solicit-service": {
-        "contract": "notebooklm-service",
-        "accepts": "ActivityStreams Offer<ServiceSolicitation>",
-        "returns": "ActivityStreams Offer<ExecutableServiceOffer>|Question|Reject",
-        "timeoutMs": 30000
-      },
-      "invoke-service": {
-        "contract": "notebooklm-service",
-        "accepts": "ActivityStreams Accept<ServiceContract>",
-        "returns": "ActivityStreams Accept<NotebookLMServiceResult>|Reject",
-        "timeoutMs": 5500000
-      },
-      "solicit-source-reconciliation": {
-        "contract": "notebooklm-source-reconciliation",
-        "accepts": "ActivityStreams Offer<ServiceSolicitation>",
-        "returns": "ActivityStreams Offer<ExecutableServiceOffer>|Question|Reject",
-        "timeoutMs": 30000
-      },
-      "invoke-source-reconciliation": {
-        "contract": "notebooklm-source-reconciliation",
-        "accepts": "ActivityStreams Accept<ServiceContract>",
-        "returns": "ActivityStreams Accept<NotebookLMSourceReconciliationResult>|Reject",
-        "timeoutMs": 3630000
-      },
-      "deliver-notebooklm-audio": {
-        "contract": "notebooklm-audio-delivery",
-        "accepts": "NotebookLMAudioDeliveryRequest",
-        "returns": "NotebookLMAudioArtifact|NotebookLMAudioDeliveryRefusal",
-        "timeoutMs": 30000,
-        "effects": []
-      }
-    }
-  },
   "license": "UNLICENSED",
   "keywords": [
     "sovereign-state-enterprise"

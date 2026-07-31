@@ -1,5 +1,5 @@
 import { moneyFromParts as amount, toDecimalString, toExactString, type Money as Amount } from "@emsenn/relating/economy";
-import { bestAsk, bestBid, midpoint, relativeSpread, spread, type OrderBook } from "@emsenn/gaming/market";
+import { bestAsk, bestBid, midpoint, relativeSpread, spread, type OrderBook } from "@red-cup-engineering/gaming/market";
 
 export type FileTouchMarketParams = Readonly<{
   focus?: string | undefined;
@@ -41,7 +41,7 @@ export type FileTouchMarket = Readonly<{
   kind: "operations-manifold.file-touch.market";
   generatedAt: string;
   source: "read-operations-ledger";
-  pricing: "read demand bids against write pressure ask using @emsenn/gaming/market exact order-book laws";
+  pricing: "read demand bids against write pressure ask using @red-cup-engineering/gaming/market exact order-book laws";
   totals: Readonly<{
     files: number;
     reads: number;
@@ -123,7 +123,7 @@ export function foldFileTouchMarket(entries: readonly FileTouchOperationEntry[])
     kind: "operations-manifold.file-touch.market" as const,
     generatedAt: new Date().toISOString(),
     source: "read-operations-ledger" as const,
-    pricing: "read demand bids against write pressure ask using @emsenn/gaming/market exact order-book laws" as const,
+    pricing: "read demand bids against write pressure ask using @red-cup-engineering/gaming/market exact order-book laws" as const,
     totals: totalsFor(assets),
     assets: Object.freeze(assets),
     topAttention: Object.freeze(assets.slice(0, 24)),

@@ -17,55 +17,12 @@
     "@a2a-js/sdk": "1.0.0-beta.0",
     "@red-cup-engineering/a2a-agent-card-key-service": "1.0.0",
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
-    "@lenticule-science/rmn-semantic-conformance-die": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
+    "@lenticule-science/rmn-semantic-conformance-die": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
     "@lenticule-science/wit-transition-assay": "1.0.0"
   },
   "engines": {
     "node": ">=20"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "bare-cedar-fog-npu-inference-team",
-    "owners": [
-      "561-group",
-      "red-cup-engineering"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one exact classification, extraction, summarization, inquiry, or software-engineering RMN effect within the provider's signed source, request, and output bounds, addressed to this provider's law and sovereign account through a contracted A2A 1.0 carrier",
-    "refusal": "nonconforming RMN, changed provider identity, unsupported model or mode, unavailable locally operated inference endpoint, or provider refusal",
-    "operation-catalog": {
-      "typed-rmn-npu-inference": {
-        "law": "ni:///sha-256;vOEOhGu_1vbdmYeoqHdYV7sc4ugud4TCIFIPU1cJHmw",
-        "accepts": "A2A 1.0 Message<RMN effect bundle>",
-        "returns": "A2A 1.0 Message<RMN witnessed completion or refusal>",
-        "protocolProvider": "urn:ame:a2a-contracted-agent-service",
-        "agentCard": "content/agent-cards/bare-cedar-fog-npu-inference-team.json",
-        "entrypoint": "serve-inference-a2a",
-        "compatibility": false
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:bare-cedar-fog-npu-inference-team",
-    "operations": [
-      "typed-rmn-npu-inference"
-    ],
-    "capabilities": [
-      {
-        "capability": "bare-cedar-fog-npu-inference-team",
-        "faces": [
-          "typed-rmn-npu-inference"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/bare-cedar-fog-npu-inference-team"
   }
 }

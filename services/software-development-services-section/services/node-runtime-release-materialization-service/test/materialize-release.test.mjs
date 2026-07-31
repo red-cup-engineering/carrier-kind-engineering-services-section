@@ -28,6 +28,71 @@ test("materializes a deterministic isolated local runtime closure", async () => 
   }
 });
 
+test("hoists one admitted transitive provider for sibling consumers", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-hoisted-transitive-"));
+  try {
+    const app = join(root, "workspace", "app");
+    const one = join(root, "workspace", "one");
+    const two = join(root, "workspace", "two");
+    const shared = join(root, "workspace", "shared");
+    for (const directory of [app, one, two, shared]) await mkdir(join(directory, "src"), { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({ name: "@test/app", version: "1.0.0", dependencies: { "@test/one": "1.0.0", "@test/two": "1.0.0" } }));
+    await writeFile(join(app, "src", "server.mts"), 'import "@test/one"; import "@test/two";\n');
+    for (const [directory, name] of [[one, "@test/one"], [two, "@test/two"]]) {
+      await writeFile(join(directory, "package.json"), JSON.stringify({ name, version: "1.0.0", type: "module", exports: "./src/index.mjs", dependencies: { "@test/shared": "1.0.0" } }));
+      await writeFile(join(directory, "src", "index.mjs"), 'import "@test/shared";\n');
+    }
+    await writeFile(join(shared, "package.json"), JSON.stringify({ name: "@test/shared", version: "1.0.0", type: "module", exports: "./src/index.mjs" }));
+    await writeFile(join(shared, "src", "index.mjs"), "export {};\n");
+    const release = await materializeNodeRuntimeRelease({
+      entryPackageDirectory: app,
+      providerSources: { "@test/one": one, "@test/two": two, "@test/shared": shared },
+      outputRoot: join(root, "releases"),
+    });
+    assert.equal((await verifyNodeRuntimeRelease(release.releaseDirectory)).ok, true);
+    assert.match(await readFile(join(release.releaseDirectory, "app", "node_modules", "@test", "shared", "src", "index.mjs"), "utf8"), /export/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("copies root export carriers selected by root-level files globs", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-root-glob-"));
+  try {
+    const app = join(root, "workspace", "app");
+    const library = join(root, "workspace", "library");
+    await mkdir(join(app, "src"), { recursive: true });
+    await mkdir(join(library, "src"), { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({ name: "@test/app", version: "1.0.0", dependencies: { "@test/library": "1.0.0" } }));
+    await writeFile(join(app, "src", "server.mts"), 'import "@test/library";\n');
+    await writeFile(join(library, "package.json"), JSON.stringify({ name: "@test/library", version: "1.0.0", type: "module", files: ["src", "**/*.mjs"], exports: "./index.mjs" }));
+    await writeFile(join(library, "index.mjs"), "export {};\n");
+    const release = await materializeNodeRuntimeRelease({ entryPackageDirectory: app, providerSources: { "@test/library": library }, outputRoot: join(root, "releases") });
+    assert.equal((await verifyNodeRuntimeRelease(release.releaseDirectory)).ok, true);
+    assert.match(await readFile(join(release.releaseDirectory, "app", "node_modules", "@test", "library", "index.mjs"), "utf8"), /export/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("verifies conventional main targets that omit the dot slash prefix", async () => {
+  const root = await mkdtemp(join(tmpdir(), "node-release-conventional-main-"));
+  try {
+    const app = join(root, "workspace", "app");
+    const library = join(root, "workspace", "library");
+    await mkdir(join(app, "src"), { recursive: true });
+    await mkdir(library, { recursive: true });
+    await writeFile(join(app, "package.json"), JSON.stringify({ name: "@test/app", version: "1.0.0", dependencies: { conventional: "1.0.0" } }));
+    await writeFile(join(app, "src", "server.mts"), 'import "conventional";\n');
+    await writeFile(join(library, "package.json"), JSON.stringify({ name: "conventional", version: "1.0.0", files: ["index.js"], main: "index.js" }));
+    await writeFile(join(library, "index.js"), "module.exports = {};\n");
+    const release = await materializeNodeRuntimeRelease({ entryPackageDirectory: app, providerSources: { conventional: library }, outputRoot: join(root, "releases") });
+    assert.equal((await verifyNodeRuntimeRelease(release.releaseDirectory)).ok, true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("verification detects post-materialization mutation", async () => {
   const root = await mkdtemp(join(tmpdir(), "node-release-materialization-tamper-"));
   try {

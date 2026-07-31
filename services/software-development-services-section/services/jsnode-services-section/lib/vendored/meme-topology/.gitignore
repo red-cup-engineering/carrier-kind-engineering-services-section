@@ -1,0 +1,11 @@
+dist/
+.tmp/
+node_modules/
+docs/.astro/
+docs/api/
+docs/dist/
+docs/node_modules/
+docs/src/content/docs/api/
+sites/starlight/.astro/
+sites/starlight/dist/
+sites/starlight/node_modules/

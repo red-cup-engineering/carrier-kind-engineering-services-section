@@ -18,8 +18,8 @@
 
 import crypto from "node:crypto";
 
-import { pulse, recallMemory, type PulseConfig, type PulseResult } from "@emsenn/organizing-with-openai-agents";
-import { user, assistant, type ChatMessage } from "@emsenn/organizing-with-llm-agents/algebra";
+import { pulse, recallMemory, type PulseConfig, type PulseResult } from "@red-cup-engineering/organizing-with-openai-agents";
+import { user, assistant, type ChatMessage } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 
 import type { Character } from "./characters.mts";
 

@@ -10,12 +10,12 @@
 import {
   defaultFilesystemBinding,
   journalRpcWitness,
-} from "@emsenn/metroplat/integrations/filesystem";
+} from "@red-cup-engineering/metroplat/integrations/filesystem";
 import {
   cliHelpRequested,
   cliHelpText,
   dispatchProjectedSurface,
-} from "@emsenn/metroplat/integrations/cli";
+} from "@red-cup-engineering/metroplat/integrations/cli";
 import {
   isDirectEntrypoint,
   processArguments,
@@ -28,7 +28,7 @@ import {
   runProcessMain,
   writeProcessStderr,
   writeProcessStdout,
-} from "@emsenn/metroplat/integrations/process";
+} from "@red-cup-engineering/metroplat/integrations/process";
 
 import { claudeInfoticsSurface } from "../surface.mts";
 import { CLAUDE_INFOTICS_PROGRAM, CLAUDE_INFOTICS_SUBJECT } from "../authorization.mts";

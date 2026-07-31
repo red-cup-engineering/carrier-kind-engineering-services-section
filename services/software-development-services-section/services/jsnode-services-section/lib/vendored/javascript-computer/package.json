@@ -1,0 +1,51 @@
+{
+  "name": "@emsenn/javascript-computer",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "JavaScript computer — projects a TypeScript declaration surface (.d.ts) into the javascript type category: a TypeCatalog of objects, morphisms, and subtype edges read from real source via the TypeScript compiler API.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/javascript-computer.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "bin": {
+    "javascript-computer": "./dist/cli.mjs"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json && node ../../scripts/package-boundary/copy-dmts-to-dts.mjs dist",
+    "test": "pnpm run build && tsc -p tsconfig.test.json && node --test \".tmp/test-dist/**/*.test.mjs\"",
+    "audit:boundary": "node ../../scripts/package-boundary/audit-package-boundary.mjs .",
+    "verify": "pnpm run check && pnpm run test && pnpm run audit:boundary",
+    "prepack": "pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@emsenn/javascript": "workspace:*",
+    "typescript": "^5.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  },
+  "sideEffects": false
+}

@@ -10,7 +10,7 @@
 import process from "node:process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ingestCableFromConfig } from "@emsenn/producing-content/organizing-a-newscable";
+import { ingestCableFromConfig } from "@red-cup-engineering/producing-content/organizing-a-newscable";
 
 const configPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "newscable.config.json");
 const onSkip = (message: string): void => {

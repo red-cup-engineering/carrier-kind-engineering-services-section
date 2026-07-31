@@ -27,6 +27,77 @@ export interface GeneratorWitness {
   readonly codomain: AddressableTerm;
 }
 
+/**
+ * RMN's small, transport-safe proof vocabulary.  A coordinate is a settled
+ * term, rather than a pathname or a digest.  The file-path AST below is one
+ * read-only rendering of a settlement coordinate.
+ */
+export interface ArticulationTerm {
+  readonly type: "articulation";
+  readonly resourceType: string;
+  readonly value: AddressableTerm;
+}
+
+export interface PredicationTerm {
+  readonly type: "predication";
+  readonly resourceType: string;
+  readonly subject: AddressableTerm;
+  readonly predicate: AddressableTerm;
+  readonly object: AddressableTerm;
+}
+
+export interface PositingTerm {
+  readonly type: "positing";
+  readonly resourceType: string;
+  readonly value: AddressableTerm;
+}
+
+export interface GeneratorWitnessTerm {
+  readonly type: "generator-witness";
+  readonly witness: GeneratorWitness;
+}
+
+export interface SettlementTerm {
+  readonly type: "settlement";
+  readonly resourceType: string;
+  readonly root: AddressableTerm;
+  readonly target: AddressableTerm;
+  readonly witnesses: readonly GeneratorWitness[];
+}
+
+export type RmnProofTerm = ArticulationTerm | PredicationTerm | PositingTerm | GeneratorWitnessTerm | SettlementTerm;
+
+/** Canonical, immutable resource identity.  It contains no locator or hash. */
+export interface ProofCoordinate {
+  readonly type: "rmn-proof-coordinate";
+  readonly version: 1;
+  readonly settlement: SettlementTerm;
+}
+
+/** A dynamic name is deliberately not assignable to ProofCoordinate. */
+export interface ProofSelector {
+  readonly type: "rmn-proof-selector";
+  readonly selector: string;
+  readonly resolver: string;
+}
+
+export interface CryptographicWitness {
+  readonly type: "commitment" | "merkle" | "signature" | "anchor-5615611";
+  readonly algorithm: string;
+  readonly value: string;
+}
+
+/** Public carriers always retain the coordinate; witnesses are boundary policy. */
+export interface ProofEnvelope {
+  readonly type: "rmn-proof-envelope";
+  readonly coordinate: ProofCoordinate;
+  readonly witnesses: readonly CryptographicWitness[];
+}
+
+export type ProofCoordinateResult =
+  | Readonly<{ ok: true; coordinate: ProofCoordinate; route: ProofRoute }>
+  | Readonly<{ ok: false; reason: "invalid-coordinate" | "invalid-resource-type" | "invalid-witness" | "unearned-coordinate" }>;
+
 export interface RouteStep {
   readonly generator: Generator;
   readonly node: AddressableTerm;
@@ -56,6 +127,41 @@ export interface PosixFilepathAst {
   readonly absolute: false;
   readonly root: TermSegmentNode;
   readonly steps: readonly ProofStepNode[];
+}
+
+/** A derived catalog entry.  Its address is an earned path, never a lookup key. */
+export interface ProofPathCatalogEntry<A extends AddressableTerm = AddressableTerm> {
+  readonly atom: A;
+  readonly address: string;
+  readonly ast: PosixFilepathAst;
+}
+
+/** An evictable, deterministic projection of successful proof-path derivations. */
+export interface ProofPathCatalog<A extends AddressableTerm = AddressableTerm> {
+  readonly type: "proof-path-catalog";
+  readonly entries: readonly ProofPathCatalogEntry<A>[];
+  readonly refusals: readonly StructurationResult<A>[];
+}
+
+export interface ProofPathChartNode {
+  readonly type: "proof-path-chart-node";
+  readonly role: "root" | "codomain";
+  readonly key: string;
+  readonly segment: string;
+}
+
+export interface ProofPathChartEdge {
+  readonly type: "proof-path-chart-edge";
+  readonly from: ProofPathChartNode;
+  readonly generator: Generator;
+  readonly to: ProofPathChartNode;
+}
+
+/** The chart is a readout of catalogued proofs; it does not create evidence. */
+export interface ProofPathChart {
+  readonly type: "proof-path-chart";
+  readonly nodes: readonly ProofPathChartNode[];
+  readonly edges: readonly ProofPathChartEdge[];
 }
 
 export type RefusalCode =
@@ -210,6 +316,119 @@ export function normalizeWitnesses(values: readonly GeneratorWitness[]): readonl
     found.set(witnessKey(witness), witness);
   }
   return Object.freeze([...found.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, witness]) => witness));
+}
+
+function resourceTypeOf(value: unknown): string {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new AdmissionError("invalid-request", "a proof coordinate requires a nonempty resource type");
+  }
+  return value;
+}
+
+function canonicalJson(value: unknown): string {
+  return JSON.stringify(canonicalValue(value));
+}
+
+/**
+ * Settle a bounded, typed RMN coordinate.  This is the semantic identity
+ * operation: hashes and paths may carry its result, but cannot replace it.
+ */
+export function settleProofCoordinate(input: {
+  readonly resourceType: string;
+  readonly root: AddressableTerm;
+  readonly target: AddressableTerm;
+  readonly witnesses: readonly GeneratorWitness[];
+}): ProofCoordinateResult {
+  try {
+    if (!input || typeof input !== "object") return Object.freeze({ ok: false, reason: "invalid-coordinate" });
+    const resourceType = resourceTypeOf(input.resourceType);
+    canonicalValue(input.root);
+    canonicalValue(input.target);
+    const witnesses = normalizeWitnesses(input.witnesses);
+    const route = routeOf(witnesses, input.root, input.target);
+    if (!route) return Object.freeze({ ok: false, reason: "unearned-coordinate" });
+    const settlement: SettlementTerm = Object.freeze({
+      type: "settlement",
+      resourceType,
+      root: input.root,
+      target: input.target,
+      witnesses,
+    });
+    return Object.freeze({
+      ok: true,
+      coordinate: Object.freeze({ type: "rmn-proof-coordinate", version: 1, settlement }),
+      route,
+    });
+  } catch (error) {
+    if (error instanceof AdmissionError && error.code === "invalid-witness") {
+      return Object.freeze({ ok: false, reason: "invalid-witness" });
+    }
+    if (error instanceof AdmissionError && error.message.includes("resource type")) {
+      return Object.freeze({ ok: false, reason: "invalid-resource-type" });
+    }
+    return Object.freeze({ ok: false, reason: "invalid-coordinate" });
+  }
+}
+
+/** Canonical JSON transport encoding, also suitable as input to a commitment actuator. */
+export function encodeProofCoordinate(coordinate: ProofCoordinate): string {
+  const checked = settleProofCoordinate(coordinate?.settlement);
+  if (!checked.ok || coordinate.type !== "rmn-proof-coordinate" || coordinate.version !== 1) {
+    throw new TypeError("a settled RMN proof coordinate is required");
+  }
+  return canonicalJson(checked.coordinate);
+}
+
+/** Compact textual rendering for model context. It is not a POSIX pathname. */
+export function renderProofCoordinate(coordinate: ProofCoordinate): string {
+  return `rmn1:${sanitizeSegment(encodeProofCoordinate(coordinate))}`;
+}
+
+export type ParseProofCoordinateResult =
+  | Readonly<{ ok: true; coordinate: ProofCoordinate }>
+  | Readonly<{ ok: false; reason: "malformed-coordinate" | "noncanonical-coordinate" | "unearned-coordinate" }>;
+
+export function parseProofCoordinate(value: string): ParseProofCoordinateResult {
+  if (typeof value !== "string" || !value.startsWith("rmn1:")) {
+    return Object.freeze({ ok: false, reason: "malformed-coordinate" });
+  }
+  try {
+    const encoded = desanitizeSegment(value.slice(5));
+    const parsed: unknown = JSON.parse(encoded);
+    if (canonicalJson(parsed) !== encoded) return Object.freeze({ ok: false, reason: "noncanonical-coordinate" });
+    if (!parsed || typeof parsed !== "object" || (parsed as { type?: unknown }).type !== "rmn-proof-coordinate" || (parsed as { version?: unknown }).version !== 1) {
+      return Object.freeze({ ok: false, reason: "malformed-coordinate" });
+    }
+    const settled = settleProofCoordinate((parsed as { settlement?: never }).settlement);
+    if (!settled.ok) return Object.freeze({ ok: false, reason: settled.reason === "unearned-coordinate" ? "unearned-coordinate" : "malformed-coordinate" });
+    if (encodeProofCoordinate(settled.coordinate) !== encoded) return Object.freeze({ ok: false, reason: "noncanonical-coordinate" });
+    return Object.freeze({ ok: true, coordinate: settled.coordinate });
+  } catch {
+    return Object.freeze({ ok: false, reason: "malformed-coordinate" });
+  }
+}
+
+/** POSIX remains an optional rendering/projection of the settled coordinate. */
+export function proofPathOfCoordinate(coordinate: ProofCoordinate): PosixFilepathAst {
+  const settled = settleProofCoordinate(coordinate?.settlement);
+  if (!settled.ok || coordinate.type !== "rmn-proof-coordinate" || coordinate.version !== 1) {
+    throw new TypeError("an earned RMN proof coordinate is required");
+  }
+  return astOfRoute(settled.route);
+}
+
+/** Attach externally produced crypto evidence without confusing it with identity. */
+export function envelopeProofCoordinate(coordinate: ProofCoordinate, witnesses: readonly CryptographicWitness[] = []): ProofEnvelope {
+  encodeProofCoordinate(coordinate);
+  if (!Array.isArray(witnesses)) throw new TypeError("cryptographic witnesses must be an array");
+  const normalized = witnesses.map((witness) => {
+    if (!witness || typeof witness !== "object" || !["commitment", "merkle", "signature", "anchor-5615611"].includes(witness.type)
+      || typeof witness.algorithm !== "string" || witness.algorithm === "" || typeof witness.value !== "string" || witness.value === "") {
+      throw new TypeError("a cryptographic witness requires type, algorithm, and value");
+    }
+    return Object.freeze({ type: witness.type, algorithm: witness.algorithm, value: witness.value });
+  }).sort((left, right) => canonicalJson(left).localeCompare(canonicalJson(right)));
+  return Object.freeze({ type: "rmn-proof-envelope", coordinate, witnesses: Object.freeze(normalized) });
 }
 
 const cell = (subject: AddressableTerm, predicate: AddressableTerm, object: AddressableTerm): RelationalCell =>
@@ -410,4 +629,73 @@ export function structureSemioticAtom<A extends AddressableTerm>(request: Struct
   } catch (error) {
     return refusal(error instanceof AdmissionError ? error.code : "invalid-request");
   }
+}
+
+/**
+ * Derive a stable catalog from independently supplied proof requests.  Failed
+ * derivations remain typed refusals and never become catalog entries.
+ */
+export function catalogProofPaths<A extends AddressableTerm>(
+  requests: readonly StructurationRequest<A>[],
+): ProofPathCatalog<A> {
+  if (!Array.isArray(requests)) throw new TypeError("proof-path catalog requests must be an array");
+  const entries = new Map<string, ProofPathCatalogEntry<A>>();
+  const refusals: StructurationResult<A>[] = [];
+  for (const request of requests) {
+    const result = structureSemioticAtom(request);
+    if (!result.ok) {
+      refusals.push(result);
+      continue;
+    }
+    const address = renderProofPathAst(result.ast);
+    entries.set(address, Object.freeze({ atom: result.atom, address, ast: result.ast }));
+  }
+  return Object.freeze({
+    type: "proof-path-catalog",
+    entries: Object.freeze([...entries.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, entry]) => entry)),
+    refusals: Object.freeze(refusals),
+  });
+}
+
+const chartNodeOf = (node: TermSegmentNode): ProofPathChartNode => Object.freeze({
+  type: "proof-path-chart-node",
+  role: node.role,
+  key: node.key,
+  segment: node.segment,
+});
+
+const chartNodeKey = (node: ProofPathChartNode): string => `${node.role}\u0000${node.key}`;
+
+/**
+ * Project an evictable graph from the catalog's earned edges.  The projection
+ * is intentionally unable to add edges that were not present in a proof.
+ */
+export function chartProofPathCatalog(catalog: ProofPathCatalog): ProofPathChart {
+  if (!catalog || catalog.type !== "proof-path-catalog" || !Array.isArray(catalog.entries)) {
+    throw new TypeError("proof-path chart requires a proof-path catalog");
+  }
+  const nodes = new Map<string, ProofPathChartNode>();
+  const edges = new Map<string, ProofPathChartEdge>();
+  const nodeOf = (node: TermSegmentNode): ProofPathChartNode => {
+    const candidate = chartNodeOf(node);
+    const key = chartNodeKey(candidate);
+    const known = nodes.get(key);
+    if (known) return known;
+    nodes.set(key, candidate);
+    return candidate;
+  };
+  for (const entry of catalog.entries) {
+    let from = nodeOf(entry.ast.root);
+    for (const step of entry.ast.steps) {
+      const to = nodeOf(step.node);
+      const key = `${chartNodeKey(from)}\u0000${step.generator}\u0000${chartNodeKey(to)}`;
+      edges.set(key, Object.freeze({ type: "proof-path-chart-edge", from, generator: step.generator, to }));
+      from = to;
+    }
+  }
+  return Object.freeze({
+    type: "proof-path-chart",
+    nodes: Object.freeze([...nodes.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, node]) => node)),
+    edges: Object.freeze([...edges.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([, edge]) => edge)),
+  });
 }

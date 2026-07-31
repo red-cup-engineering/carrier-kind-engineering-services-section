@@ -1,6 +1,6 @@
 ---
 name: contract-cheapest-inference
-description: Route bounded language-model work through the Logical Inference Service Section's verified, registry-priced inference fabric before spending interactive Codex inference on it. Use for classification, extraction, summarization, inquiry, code review, candidate generation, repeated text transformations, parallel independent reviews, and any larger task with text-only subproblems that can be supplied finite context and checked without granting tools or mutation authority.
+description: Route bounded language-model work through the Logical Inference Service Section's verified, registry-priced inference fabric before spending interactive Codex inference on it. Use for classification, extraction, summarization, inquiry, code review, candidate generation, repeated text transformations, parallel reviews, and any larger task with text-only subproblems that can be supplied finite context and checked without granting tools or mutation authority.
 ---
 
 # Contract Cheapest Inference
@@ -71,7 +71,7 @@ Rank feasible suppliers by:
 
 Require comparable cost units and capability closure. Let observed verification failures reduce the supplier's success estimate. Use interactive Codex only when no external offer is feasible, external verification would cost more than local completion, or the task carries tools/authority that cannot lawfully leave the session.
 
-For semantic outputs that a JSON schema cannot judge, procure a separate independent review only when the risk justifies it. Do not label schema-valid prose semantically correct by default.
+For semantic outputs that a JSON schema cannot judge, procure a separate review only when the risk justifies it. Do not label schema-valid prose semantically correct by default.
 
 ## Admit private workers
 

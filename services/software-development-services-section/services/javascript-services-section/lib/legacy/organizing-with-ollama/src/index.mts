@@ -1,5 +1,5 @@
 /**
- * @emsenn/organizing-with-ollama
+ * @red-cup-engineering/organizing-with-ollama
  *
  * Local-first model work for small machines. Ollama also exposes an
  * OpenAI-compatible endpoint, but this package keeps the native Ollama host and
@@ -15,8 +15,8 @@ import {
   type AgentCoreRealization,
   type AgentCoreRealizationInput,
   type CoreLibraryId,
-} from "@emsenn/organizing-with-agents/capabilities";
-import type { ChatMessage, EndpointSpec, InferenceRequest } from "@emsenn/organizing-with-llm-agents/algebra";
+} from "@red-cup-engineering/organizing-with-agents/capabilities";
+import type { ChatMessage, EndpointSpec, InferenceRequest } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 
 export const OLLAMA_DEFAULT_HOST = "http://127.0.0.1:11434";
 export const OLLAMA_OPENAI_BASE_URL = `${OLLAMA_DEFAULT_HOST}/v1`;

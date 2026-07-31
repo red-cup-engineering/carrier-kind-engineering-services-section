@@ -1,1 +1,33 @@
-{"name":"@red-cup-engineering/xml-file-codec-service","version":"0.1.1","private":false,"type":"module","exports":{".":{"types":"./dist/xml/index.d.mts","import":"./dist/xml/index.mjs"},"./svg":{"types":"./dist/xml/svg/index.d.mts","import":"./dist/xml/svg/index.mjs"},"./svg/radial":{"types":"./dist/xml/svg/radial/index.d.mts","import":"./dist/xml/svg/radial/index.mjs"}},"scripts":{"build":"tsc -p tsconfig.build.json","test":"node --test test/*.test.mjs"},"dependencies":{"@lenticule-science/articulating":"workspace:*","@red-cup-engineering/file-projection-kernel-service":"workspace:*","@red-cup-engineering/json-file-codec-service":"workspace:*"},"devDependencies":{"@types/node":"^22.0.0","typescript":"^5.8.0"},"x-agentic-metro-enterprise":{"node-id":"xml-file-codec-service","actor":"urn:ame:xml-file-codec-service","organizational-kind":"capability-cell","owners":["xml-file-services-section"]},"x-semiotic-voxel":{"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"red-cup-engineering","kind":"capability-cell","actor":"urn:ame:xml-file-codec-service","operations":["read-xml-file","write-xml-file"],"capabilities":[{"capability":"xml-file-codec","faces":["Node"]}],"package":"@red-cup-engineering/xml-file-codec-service"}}
+{
+  "name": "@red-cup-engineering/xml-file-codec-service",
+  "version": "0.1.1",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/xml/index.d.mts",
+      "import": "./dist/xml/index.mjs"
+    },
+    "./svg": {
+      "types": "./dist/xml/svg/index.d.mts",
+      "import": "./dist/xml/svg/index.mjs"
+    },
+    "./svg/radial": {
+      "types": "./dist/xml/svg/radial/index.d.mts",
+      "import": "./dist/xml/svg/radial/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@lenticule-science/articulating": "0.1.1",
+    "@red-cup-engineering/file-projection-kernel-service": "0.1.1",
+    "@red-cup-engineering/json-file-codec-service": "0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}

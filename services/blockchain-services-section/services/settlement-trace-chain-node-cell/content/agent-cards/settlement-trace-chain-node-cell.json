@@ -1,0 +1,66 @@
+{
+  "name": "Settlement Trace Chain Node Cell",
+  "description": "Serves the eip155:5615610 reconstruction Settlement Trace Chain and reports its exact current chain head.",
+  "supportedInterfaces": [
+    {"url": "${BASE_URL}/a2a/jsonrpc", "protocolBinding": "JSONRPC", "tenant": "", "protocolVersion": "1.0"},
+    {"url": "${BASE_URL}/a2a/rest", "protocolBinding": "HTTP+JSON", "tenant": "", "protocolVersion": "1.0"}
+  ],
+  "provider": {"url": "https://emsenn.net/", "organization": "Red Cup Engineering Blockchain Services Section"},
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [
+      {
+        "uri": "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M",
+        "description": "Sovereign Settlement Trace Chain node circuit.",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.rmn.sovereign-circuit-interface.v1",
+          "account": "eip155:5615610:0x22f76920cd627bd82fc0ab2c34e9482380caf975",
+          "authority": "ni:///sha-256;LVkWZQ6eORcNdd3Y7uUXmpMcz2uVpnWv905Fj9del4g",
+          "custody": "ni:///sha-256;82E16LxFxWmjGKao7HawEsaWYXC_pwH9rS_05ZsGpow",
+          "territory": "ni:///sha-256;piPAJlBFyBT_IiM4kVsu5EWHyPNSgOTa6VLzZZoZaNs",
+          "component": {
+            "profile": "org.emsenn.rmn.hierarchical-circuit.v3",
+            "law": "ni:///sha-256;-y6SRIWkUhweDq2xr-wLS7f8bGrlNSTWEY4l_sSpu84",
+            "ports": [
+              {"name": "request", "direction": "input", "predicate": "ni:///sha-256;SNOwH-EMpCczbng7QAr_j32T1C_wSG3rLqKjTg2I-To", "carrier": "ni:///sha-256;26yhJdOOlhTnfii4rSwcuzCRsxqeOw-fOAhWfYbbjq8", "mode": "tensor"},
+              {"name": "status", "direction": "output", "predicate": "ni:///sha-256;MxzsjYUIK-8h9N09x9AmQofHgbXg2yqR-j-RK1QeDoU", "carrier": "ni:///sha-256;26yhJdOOlhTnfii4rSwcuzCRsxqeOw-fOAhWfYbbjq8", "mode": "tensor"}
+            ],
+            "instances": [],
+            "nets": [],
+            "behavior": {
+              "factors": [{
+                "inputs": ["request"],
+                "outputs": ["status"],
+                "rows": [
+                  {"input": [{"positiveEvidence": false, "negativeEvidence": false}], "output": [{"positiveEvidence": false, "negativeEvidence": false}]},
+                  {"input": [{"positiveEvidence": true, "negativeEvidence": false}], "output": [{"positiveEvidence": true, "negativeEvidence": false}]},
+                  {"input": [{"positiveEvidence": false, "negativeEvidence": true}], "output": [{"positiveEvidence": false, "negativeEvidence": true}]},
+                  {"input": [{"positiveEvidence": true, "negativeEvidence": true}], "output": [{"positiveEvidence": true, "negativeEvidence": true}]}
+                ]
+              }]
+            }
+          }
+        }
+      }
+    ],
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": ["application/rmn+cbor"],
+  "defaultOutputModes": ["application/rmn+cbor"],
+  "skills": [{
+    "id": "serve-settlement-trace-chain-rpc",
+    "name": "Observe Settlement Trace Chain status",
+    "description": "Returns the exact eip155:5615610 current block identity without asserting finality.",
+    "tags": ["blockchain", "trace", "chain", "eip155:5615610"],
+    "examples": [],
+    "inputModes": ["application/rmn+cbor"],
+    "outputModes": ["application/rmn+cbor"],
+    "securityRequirements": []
+  }],
+  "signatures": []
+}

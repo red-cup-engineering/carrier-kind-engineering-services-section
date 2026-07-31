@@ -30,43 +30,7 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/relating": "0.0.0",
+    "@red-cup-engineering/relating": "0.0.1",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "typed-resource-catalog-service",
-    "actor": "urn:ame:typed-resource-catalog-service",
-    "organizational-kind": "capability-cell",
-    "owners": ["software-development-services-section"],
-    "operation-catalog": {
-      "classify-typed-resource": {
-        "contractSource": "content/contracts/classify-typed-resource.rml",
-        "protocols": ["RMN", "MCP", "CLI"]
-      },
-      "check-language-cone": {
-        "contractSource": "content/contracts/check-language-cone.rml",
-        "protocols": ["RMN", "MCP", "CLI"]
-      },
-      "catalog-node-workspace-sources": {
-        "contractSource": "content/contracts/catalog-node-workspace-sources.rml",
-        "protocols": ["RMN", "MCP", "CLI"]
-      },
-      "scan-temporal-failure-marks": {
-        "contractSource": "content/contracts/scan-temporal-failure-marks.rml",
-        "protocols": ["RMN", "MCP", "CLI"]
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:typed-resource-catalog-service",
-    "operations": ["classify-typed-resource", "check-language-cone", "catalog-node-workspace-sources", "scan-temporal-failure-marks"],
-    "capabilities": [{
-      "capability": "typed-resource-catalog",
-      "faces": ["classify-typed-resource", "check-language-cone", "catalog-node-workspace-sources", "scan-temporal-failure-marks"]
-    }],
-    "package": "@red-cup-engineering/typed-resource-catalog"
   }
 }

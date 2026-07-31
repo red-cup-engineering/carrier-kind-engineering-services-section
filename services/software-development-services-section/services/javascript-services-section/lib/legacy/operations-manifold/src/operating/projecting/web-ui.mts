@@ -1,4 +1,4 @@
-import type { Context } from "@emsenn/http-server";
+import type { Context } from "@red-cup-engineering/http-server";
 import { escapeHtml as htmlEscape } from "@red-cup-engineering/html-file-codec-service/string-rendering";
 
 export { htmlEscape };

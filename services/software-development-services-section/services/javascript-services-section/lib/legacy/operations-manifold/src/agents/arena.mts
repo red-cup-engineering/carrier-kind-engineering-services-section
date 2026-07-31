@@ -1,5 +1,5 @@
-import { observeLabels } from "@emsenn/computing";
-import { arena, event, eventStructure, negative, positive } from "@emsenn/gaming";
+import { observeLabels } from "@red-cup-engineering/computing";
+import { arena, event, eventStructure, negative, positive } from "@red-cup-engineering/gaming";
 
 type ArenaEventSpec = Readonly<{
   id: string;

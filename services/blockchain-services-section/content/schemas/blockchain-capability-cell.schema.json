@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:jsonschema:org.emsenn.blockchain-capability-cell.v1",
+  "title": "Blockchain Capability Cell",
+  "type": "object",
+  "required": ["nodeId", "actor", "capability", "chain", "organs"],
+  "additionalProperties": false,
+  "properties": {
+    "nodeId": {"type": "string", "minLength": 1},
+    "actor": {"type": "string", "pattern": "^urn:"},
+    "capability": {"type": "string", "minLength": 1},
+    "chain": {"type": "string", "pattern": "^eip155:[1-9][0-9]*$"},
+    "organs": {
+      "type": "object",
+      "required": ["package", "repo", "law", "schema", "executable", "account", "agentCard", "offer", "deployment", "tests", "book"],
+      "additionalProperties": false,
+      "properties": {
+        "package": {"type": "boolean"},
+        "repo": {"type": "boolean"},
+        "law": {"type": "boolean"},
+        "schema": {"type": "boolean"},
+        "executable": {"type": "boolean"},
+        "account": {"type": "boolean"},
+        "agentCard": {"type": "boolean"},
+        "offer": {"type": "boolean"},
+        "deployment": {"type": "boolean"},
+        "tests": {"type": "boolean"},
+        "book": {"type": "boolean"}
+      }
+    }
+  }
+}

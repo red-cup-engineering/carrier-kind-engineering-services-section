@@ -5,7 +5,7 @@
   "purpose": "proposal-only platform-node readiness assay",
   "operations": ["solicit-service", "invoke-service", "accept-result"],
   "precondition": "An exact root-owned solicitation names the admitted platform-node territory, one configured offering, finite ceilings, and no foreign-write authority.",
-  "move": "Issue an immutable digest-bound offer; accept it only with an exact expiring single-use capability and attributable provider formation receipt; return fixture evidence or a typed causal refusal.",
+  "move": "Issue an immutable digest-bound offer; accept it only with an exact expiring single-use capability and provider formation receipt; return fixture evidence or a typed causal refusal.",
   "postcondition": "The provider returns a readiness proposal or typed refusal with provider-local evidence and no customer mutation.",
   "futureFullHandoverObligation": "A later production contract must prove the induced settlement operates, refuses, transacts, attests, amends, improves, and rolls back with root and the Leader absent; this test fixture is not that independent outcome.",
   "typedRefusals": [

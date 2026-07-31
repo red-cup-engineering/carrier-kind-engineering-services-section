@@ -22,8 +22,8 @@ import {
   lunationOf,
   motionOf,
   signPlacement,
-} from "@emsenn/divining/astrology";
-import type { AssertedClaim, ClaimStateBundle } from "@emsenn/content/topology/news";
+} from "@lenticule-science/divining/astrology";
+import type { AssertedClaim, ClaimStateBundle } from "@red-cup-engineering/content/topology/news";
 
 import {
   addDays,
@@ -32,7 +32,7 @@ import {
   reportWrite,
   resolveDate,
   writeBundleIfAbsent,
-} from "@emsenn/producing-content/organizing-a-newswire";
+} from "@red-cup-engineering/producing-content/organizing-a-newswire";
 
 const WIRE = "astrologia";
 const WITNESS = "astrology-topology ephemeris";

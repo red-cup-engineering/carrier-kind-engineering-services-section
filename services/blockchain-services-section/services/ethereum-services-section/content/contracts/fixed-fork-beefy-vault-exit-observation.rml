@@ -1,0 +1,11 @@
+#lang rmn/v2
+(map
+  ("type" "FixedForkBeefyVaultExitObservationLaw")
+  ("version" 2)
+  ("owner" "urn:ame:ethereum-services-section")
+  ("precondition" "The customer supplies one exact Base block number, hash, timestamp, the exact official credential-free Base archive RPC, and a bounded subset of the provider-reviewed Yanagi Beefy V7 Aerodrome LP recovery candidates under fixed-fork-only authority with no signer material or transaction authority.")
+  ("operation" "Verify the remote block identity, observe the public priority-fee recommendation, run the provider-owned Foundry harness on an ephemeral fork at that exact block, impersonate only the public Yanagi address without a key, withdraw all named Beefy vault shares, burn only the LP tokens received by that withdrawal, verify share, LP, and two-sided token conservation, apply a declared route-gas safety factor plus three transaction intrinsic and calldata ceilings, query the Base GasPriceOracle for three unsigned-transaction-size L1 upper bounds and the complete post-Jovian operator fee, and project only the typed recovery and fee event rather than calls, traces, or calldata.")
+  ("postcondition" "Return content-identified fixed-block shares burned, LP burned, two token outputs, route gas observed, exact declared full gas-unit ceiling, RPC-block-bound base fee, timestamped doubled-recommended-priority fee observation, doubled-base-fee plus that priority ceiling, L1 data fee ceiling, operator fee ceiling, and total fee ceiling for each admitted candidate. Output and fee verification are true, while price evidence, execution, transaction assembly, signing, broadcast, and live chain mutation remain false.")
+  ("refusal" "Refuse any other chain, RPC, wallet, candidate, vault, LP token, malformed block identity, duplicate candidate, missing or failed harness test, missing or contradictory typed event, empty output side, secret-bearing environment, transaction-shaped output, or widened authority.")
+  ("authority" "Ephemeral fixed-fork simulation and public fee evidence only; custody, live transaction calls, transaction construction, pricing, approval, signing, broadcasting, and chain mutation remain outside this service.")
+  ("evidence" "RWIL-RDF"))

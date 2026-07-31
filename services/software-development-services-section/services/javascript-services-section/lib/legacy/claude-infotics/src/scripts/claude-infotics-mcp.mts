@@ -15,8 +15,8 @@ import { createInterface } from "node:readline";
 import {
   defaultFilesystemBinding,
   journalRpcWitness,
-} from "@emsenn/metroplat/integrations/filesystem";
-import { mcpJsonRpcLine, type JsonRpcRequest } from "@emsenn/metroplat/integrations/mcp";
+} from "@red-cup-engineering/metroplat/integrations/filesystem";
+import { mcpJsonRpcLine, type JsonRpcRequest } from "@red-cup-engineering/metroplat/integrations/mcp";
 import {
   isDirectEntrypoint,
   processArguments,
@@ -27,7 +27,7 @@ import {
   processStdin,
   processStdout,
   runProcessMain,
-} from "@emsenn/metroplat/integrations/process";
+} from "@red-cup-engineering/metroplat/integrations/process";
 
 import { claudeInfoticsSurface } from "../surface.mts";
 import { handleMcpRequest } from "../mcp.mts";

@@ -1,6 +1,6 @@
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { createSoftwareProgramSynthesisSolicitation } from "../../software-program-synthesis-solicitation-service/src/solicitation.mjs";
+import { createSoftwareProgramSynthesisSolicitation } from "@red-cup-engineering/software-program-synthesis-solicitation-service/src/solicitation.mjs";
 import { runProgram } from "./program-runtime.mjs";
 import { ACTOR, SYNTHESIS_EFFECTS, SYNTHESIS_LAW, exactOperation, operationBytes, operationFromBytes, record } from "./protocol.mjs";
 export { ACTOR, SYNTHESIS_EFFECTS, SYNTHESIS_LAW, exactOperation, operationBytes, operationFromBytes, record } from "./protocol.mjs";

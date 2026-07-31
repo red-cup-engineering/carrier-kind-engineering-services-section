@@ -13,7 +13,7 @@ export async function dispatchBatch(jobs, options = {}) {
     ...options,
     agentUrl: marketUrl(options.marketAgentUrl),
     customer: ACTOR,
-    purpose: "Produce one independent acceptance-oracle proposal; do not implement customer software or claim acceptance.",
+    purpose: "Produce one attributable acceptance-oracle proposal with exact replay evidence; do not implement customer software or claim the distinct customer-acceptance judgment.",
     desiredUse: "Submit one advisory oracle artifact to the separately owned protected-acceptance assay.",
     workLotPrefix: "acceptance-capsule",
   });

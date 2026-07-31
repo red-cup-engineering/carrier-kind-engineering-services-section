@@ -1,4 +1,4 @@
-// @emsenn/llm-computer — the LLM domain's computing.
+// @red-cup-engineering/llm-computer — the LLM domain's computing.
 //
 // Composes the algebra, codecs, and topology layers into the pure work of running
 // an agentic loop, governing tools, converting MCP catalogs, and projecting cost

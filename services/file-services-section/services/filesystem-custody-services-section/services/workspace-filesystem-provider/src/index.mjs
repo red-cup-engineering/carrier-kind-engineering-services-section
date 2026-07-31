@@ -1,9 +1,11 @@
 import { createHash, randomUUID } from "node:crypto";
-import { appendFile, lstat, mkdir, open, readFile, realpath, rename, rm, writeFile } from "node:fs/promises";
+import { appendFile, lstat, mkdir, open, readFile, readdir, realpath, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const MAX_READ_BYTES = 256 * 1024;
 export const MAX_WRITE_BYTES = 1024 * 1024;
+export const MAX_RESOURCE_BYTES = 64 * 1024 * 1024;
+export const MAX_RESOURCE_ENTRIES = 10_000;
 
 const digest = value => createHash("sha256").update(value).digest("hex");
 const canonical = value => JSON.stringify(value, Object.keys(value).sort());
@@ -43,6 +45,116 @@ async function appendReceipt(outbox, receipt) {
     await handle.sync();
   } finally {
     await handle.close();
+  }
+}
+
+function relativeTarget(root, relativePath) {
+  if (typeof relativePath !== "string" || relativePath.length === 0 || path.isAbsolute(relativePath)) fail("invalid-path", "path must be a non-empty relative path");
+  const target = path.resolve(root, relativePath);
+  const relative = path.relative(root, target);
+  if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) fail("outside-root", "path escapes the custody root");
+  return { target, relative: relative.split(path.sep).join("/") };
+}
+
+async function assertUnlinkedDescent(root, target, { permitAbsentLeaf = false } = {}) {
+  const displacement = path.relative(root, target);
+  let cursor = root;
+  const segments = displacement.split(path.sep);
+  for (let index = 0; index < segments.length; index += 1) {
+    cursor = path.join(cursor, segments[index]);
+    try {
+      if ((await lstat(cursor)).isSymbolicLink()) fail("symlink-target", "custody provider does not traverse symlinks");
+    } catch (error) {
+      if (error?.code === "ENOENT" && permitAbsentLeaf) return;
+      throw error;
+    }
+  }
+}
+
+function resourceIdentity(bytes) {
+  return `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
+}
+
+async function resourceTree(target, { maxBytes = MAX_RESOURCE_BYTES, maxEntries = MAX_RESOURCE_ENTRIES } = {}) {
+  const records = [];
+  let bytes = 0;
+  let entries = 0;
+  async function visit(absolute, relativePath) {
+    entries += 1;
+    if (entries > maxEntries) fail("resource-too-many-entries", `resource exceeds ${maxEntries} entries`);
+    const entry = await lstat(absolute);
+    if (entry.isSymbolicLink()) fail("symlink-resource", "custody provider does not move resources containing symlinks");
+    if (entry.isFile()) {
+      const content = await readFile(absolute);
+      bytes += content.byteLength;
+      if (bytes > maxBytes) fail("resource-too-large", `resource exceeds ${maxBytes} bytes`);
+      records.push(Buffer.from(`file\0${relativePath}\0${content.byteLength}\0`, "utf8"), content);
+      return;
+    }
+    if (!entry.isDirectory()) fail("unsupported-resource", "custody provider moves only regular files and directories");
+    records.push(Buffer.from(`directory\0${relativePath}\0`, "utf8"));
+    const children = await readdir(absolute, { withFileTypes: true });
+    children.sort((left, right) => left.name.localeCompare(right.name));
+    for (const child of children) {
+      await visit(path.join(absolute, child.name), relativePath ? `${relativePath}/${child.name}` : child.name);
+    }
+  }
+  await visit(target, "");
+  return Object.freeze({ bytes, entries, contentDigest: resourceIdentity(Buffer.concat(records)) });
+}
+
+export async function observeWorkspaceResource({ root, path: relativePath, resource = null, maxBytes = MAX_RESOURCE_BYTES, maxEntries = MAX_RESOURCE_ENTRIES }) {
+  const resolvedRoot = await custodyRoot(root);
+  const address = relativeTarget(resolvedRoot, relativePath);
+  await assertUnlinkedDescent(resolvedRoot, address.target);
+  const measured = await resourceTree(address.target, { maxBytes, maxEntries });
+  return Object.freeze({ kind: "filesystem-resource-observation/v1", resource, path: address.relative, ...measured });
+}
+
+export async function moveWorkspaceResource({ root, from, to, expectedContentDigest, resource = null, outbox }) {
+  if (typeof expectedContentDigest !== "string" || !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(expectedContentDigest)) fail("invalid-expected", "expectedContentDigest must be an RFC 6920 SHA-256 identity");
+  if (typeof outbox !== "string" || outbox.length === 0) fail("invalid-outbox", "outbox path is required");
+  const resolvedRoot = await custodyRoot(root);
+  const source = relativeTarget(resolvedRoot, from);
+  const destination = relativeTarget(resolvedRoot, to);
+  if (source.target === destination.target) fail("same-path", "source and destination must differ");
+  await assertUnlinkedDescent(resolvedRoot, source.target);
+  await assertUnlinkedDescent(resolvedRoot, destination.target, { permitAbsentLeaf: true });
+  try {
+    await lstat(destination.target);
+    fail("target-exists", "relocation target already exists");
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
+  const pre = await observeWorkspaceResource({ root: resolvedRoot, path: source.relative, resource });
+  if (pre.contentDigest !== expectedContentDigest) fail("stale-source", "source no longer matches the admitted content identity");
+  await mkdir(path.dirname(destination.target), { recursive: true });
+  await assertUnlinkedDescent(resolvedRoot, path.dirname(destination.target));
+  const lock = `${source.target}.filesystem-custody-move.lock`;
+  let lockHandle;
+  try {
+    lockHandle = await open(lock, "wx", 0o600);
+  } catch (error) {
+    if (error?.code === "EEXIST") fail("busy", "source has an active custody move");
+    throw error;
+  }
+  try {
+    await rename(source.target, destination.target);
+    let post;
+    try {
+      post = await observeWorkspaceResource({ root: resolvedRoot, path: destination.relative, resource });
+      if (post.contentDigest !== pre.contentDigest) fail("postimage-mismatch", "relocation changed the resource content identity");
+    } catch (error) {
+      await rename(destination.target, source.target).catch(() => {});
+      throw error;
+    }
+    const receiptCore = { kind: "filesystem-move-receipt/v1", resource, from: source.relative, to: destination.relative, contentDigest: pre.contentDigest, bytes: pre.bytes, entries: pre.entries, occurredAt: new Date().toISOString() };
+    const receipt = Object.freeze({ ...receiptCore, id: `sha256:${digest(canonical(receiptCore))}`, outbox: path.resolve(outbox) });
+    await appendReceipt(outbox, receipt);
+    return receipt;
+  } finally {
+    await lockHandle.close();
+    await rm(lock, { force: true });
   }
 }
 

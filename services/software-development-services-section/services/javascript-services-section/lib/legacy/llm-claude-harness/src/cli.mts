@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// @emsenn/llm-claude-harness CLI — start the 561 Group Operations Manifold MCP hub.
+// @red-cup-engineering/llm-claude-harness CLI — start the 561 Group Operations Manifold MCP hub.
 //
 // Configuration via environment: PORT (default 18805), HUB_PATH (default /hub/mcp).
 
-import { start } from "@emsenn/http-server";
+import { start } from "@red-cup-engineering/http-server";
 import { createHarnessServerApp, DEFAULT_PORT, HUB_PATH } from "./service.mjs";
 
 export async function main(env: Readonly<Record<string, string | undefined>>): Promise<void> {

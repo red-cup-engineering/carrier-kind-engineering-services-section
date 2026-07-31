@@ -4,28 +4,6 @@
   "private": true,
   "type": "module",
   "description": "Circuit board whose independently contractible software-development dies are seated under services/; the board owns no aggregate runtime.",
-  "x-agentic-metro-enterprise": {
-    "node-id": "software-development-services-section",
-    "actor": "urn:ame:software-development-services-section",
-    "organizational-kind": "circuit-board",
-    "owner": "red-cup-engineering",
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "customers address one exact child service membrane; the section face is the verified tensor assembly of those sovereign child circuits and owns no aggregate operation",
-    "refusal": "ambient software-development authority, undeclared execution, section-owned customer state, inferred die boundaries, or a root runtime"
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:software-development-services-section",
-    "operations": [],
-    "capabilities": [],
-    "package": "@red-cup-engineering/software-development-services-section"
-  },
   "exports": {
     "./lib/management/skills/enforcing-mesh-scope/scripts/mesh-scope.js": "./lib/management/skills/enforcing-mesh-scope/scripts/mesh-scope.js"
   }

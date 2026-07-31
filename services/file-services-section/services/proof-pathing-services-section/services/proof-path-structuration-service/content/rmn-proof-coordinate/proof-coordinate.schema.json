@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harmonious-union.org/schemas/rmn-proof-coordinate-v1.json",
+  "title": "RMN Proof Coordinate",
+  "description": "Canonical immutable proof settlement. A path, registry key, selector, or cryptographic digest is not a ProofCoordinate.",
+  "oneOf": [
+    { "$ref": "#/$defs/proofCoordinate" },
+    { "$ref": "#/$defs/proofSelector" },
+    { "$ref": "#/$defs/proofEnvelope" }
+  ],
+  "$defs": {
+    "json": {
+      "anyOf": [
+        { "type": "null" }, { "type": "boolean" }, { "type": "number" }, { "type": "string" },
+        { "type": "array", "items": { "$ref": "#/$defs/json" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/json" } }
+      ]
+    },
+    "generatorWitness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["domain", "generator", "codomain"],
+      "properties": {
+        "domain": { "$ref": "#/$defs/json" },
+        "generator": { "enum": ["specialization", "converse", "subject-projection", "object-projection"] },
+        "codomain": { "$ref": "#/$defs/json" }
+      }
+    },
+    "settlement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "resourceType", "root", "target", "witnesses"],
+      "properties": {
+        "type": { "const": "settlement" },
+        "resourceType": { "type": "string", "minLength": 1 },
+        "root": { "$ref": "#/$defs/json" },
+        "target": { "$ref": "#/$defs/json" },
+        "witnesses": { "type": "array", "items": { "$ref": "#/$defs/generatorWitness" } }
+      }
+    },
+    "proofCoordinate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "version", "settlement"],
+      "properties": { "type": { "const": "rmn-proof-coordinate" }, "version": { "const": 1 }, "settlement": { "$ref": "#/$defs/settlement" } }
+    },
+    "proofSelector": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "selector", "resolver"],
+      "properties": { "type": { "const": "rmn-proof-selector" }, "selector": { "type": "string", "minLength": 1 }, "resolver": { "type": "string", "minLength": 1 } }
+    },
+    "cryptographicWitness": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "algorithm", "value"],
+      "properties": { "type": { "enum": ["commitment", "merkle", "signature", "anchor-5615611"] }, "algorithm": { "type": "string", "minLength": 1 }, "value": { "type": "string", "minLength": 1 } }
+    },
+    "proofEnvelope": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "coordinate", "witnesses"],
+      "properties": { "type": { "const": "rmn-proof-envelope" }, "coordinate": { "$ref": "#/$defs/proofCoordinate" }, "witnesses": { "type": "array", "items": { "$ref": "#/$defs/cryptographicWitness" } } }
+    }
+  }
+}

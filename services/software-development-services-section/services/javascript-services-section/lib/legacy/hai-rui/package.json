@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/hai-rui",
+  "name": "@red-cup-engineering/hai-rui",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,9 +19,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/conformance-tics": "workspace:*",
-    "@emsenn/organizing-with-the-web": "workspace:*",
-    "@emsenn/http-server": "workspace:*"
+    "@red-cup-engineering/conformance-tics": "0.0.1",
+    "@red-cup-engineering/organizing-with-the-web": "0.0.2",
+    "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

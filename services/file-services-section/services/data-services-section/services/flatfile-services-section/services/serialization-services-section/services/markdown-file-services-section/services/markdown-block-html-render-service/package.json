@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/markdown-block-html-render-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Renders Markdown block structure — headings, paragraphs, lists, blockquotes, callouts, fenced code, and thematic breaks — to HTML, delegating every inline text run to the inline render service. Use when projecting a full Markdown body to HTML blocks.",
+  "exports": {
+    ".": {
+      "types": "./dist/block.d.mts",
+      "import": "./dist/block.mjs"
+    }
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.build.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm run build && npm test"
+  },
+  "dependencies": {
+    "@red-cup-engineering/html-file-codec-service": "0.1.1",
+    "@red-cup-engineering/markdown-inline-html-render-service": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}

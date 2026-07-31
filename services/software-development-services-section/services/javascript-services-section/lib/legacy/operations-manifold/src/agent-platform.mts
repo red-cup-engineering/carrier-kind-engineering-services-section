@@ -1,4 +1,4 @@
-import type { ChangeImpact } from "@emsenn/organizing-with-openai-codex/session";
+import type { ChangeImpact } from "@red-cup-engineering/organizing-with-openai-codex/session";
 import type { PredicationTerm } from "@emsenn/relating";
 
 import type { CodexBridgeWork, CodexHolographyProjection } from "./holography/llm/codex.mts";
@@ -109,8 +109,8 @@ export async function agentPlatform(
     { sitePlay },
     { codexHolographyProjection },
   ] = await Promise.all([
-    import("@emsenn/computing/git"),
-    import("@emsenn/organizing-with-openai-codex/session"),
+    import("@red-cup-engineering/computing/git"),
+    import("@red-cup-engineering/organizing-with-openai-codex/session"),
     import("./site-play.mts"),
     import("./holography/llm/codex.mts"),
   ]);

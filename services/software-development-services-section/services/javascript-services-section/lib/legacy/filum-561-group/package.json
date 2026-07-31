@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/filum.561.group",
+  "name": "@red-cup-engineering/filum-561-group",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -18,11 +18,11 @@
     "assert": "node src/producers/arithmomantia.ts && node src/producers/astrologia.ts && node src/producers/cartomantia.ts && node src/producers/lectio.ts && node src/producers/rete-agentium.ts"
   },
   "dependencies": {
-    "@emsenn/content": "workspace:*",
-    "@emsenn/producing-content": "workspace:*",
-    "@emsenn/divining": "workspace:*",
-    "@emsenn/organizing-with-the-web": "workspace:*",
-    "@emsenn/http-server": "workspace:*"
+    "@red-cup-engineering/content": "0.0.1",
+    "@red-cup-engineering/producing-content": "0.0.1",
+    "@lenticule-science/divining": "0.2.0",
+    "@red-cup-engineering/organizing-with-the-web": "0.0.2",
+    "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

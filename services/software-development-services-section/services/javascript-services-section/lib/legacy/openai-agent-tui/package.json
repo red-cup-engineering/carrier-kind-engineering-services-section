@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/app-openai-agent-tui",
+  "name": "@red-cup-engineering/app-openai-agent-tui",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,11 +15,11 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "build:deps": "pnpm --filter @emsenn/app-tui --filter @emsenn/computing-with-terminal --filter @emsenn/organizing-with-openai-agents run build",
     "check:local": "tsc --noEmit",
-    "check": "pnpm run build:deps && pnpm run check:local",
+    "check": "npm run build:deps && npm run check:local",
     "build:local": "tsc -p tsconfig.build.json && chmod +x dist/scripts/tui.mjs",
-    "build": "pnpm run build:deps && pnpm run build:local",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "build": "npm run build:deps && npm run build:local",
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "main": "./dist/app/index.mjs",
   "types": "./dist/app/index.d.mts",

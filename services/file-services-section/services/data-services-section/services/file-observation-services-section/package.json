@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/file-observation-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Walks the real filesystem under a working-tree root and reports what is present, with no inference about meaning. Use as the observation leg that feeds a working-tree package registry, before any graphing or classification is layered on."
+}

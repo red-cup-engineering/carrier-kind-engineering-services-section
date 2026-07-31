@@ -14,8 +14,8 @@
  * boundary; the library stays pure of it.
  */
 import process from "node:process";
-import { availableEndpoints } from "@emsenn/organizing-with-openai-agents";
-import { ALL_CAPABILITIES, botTokenProjection, type Capability, type GateMode } from "@emsenn/organizing-with-discord";
+import { availableEndpoints } from "@red-cup-engineering/organizing-with-openai-agents";
+import { ALL_CAPABILITIES, botTokenProjection, type Capability, type GateMode } from "@red-cup-engineering/organizing-with-discord";
 import { inviteUrl, loadConfig, runSteward, type StewardConfig } from "../index.mjs";
 
 const VALUE = new Set(["--config", "--server", "--bot", "--admin", "--charter", "--endpoint", "--model", "--data", "--client-id", "--capabilities", "--gate"]);

@@ -3,12 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Proof-path section for finite single-file data carriers.",
-  "x-agentic-metro-enterprise": {
-    "node-id": "flatfile-services-section",
-    "actor": "urn:ame:flatfile-services-section",
-    "organizational-kind": "circuit-board",
-    "owners": ["file-data-services-section"],
-    "owned-services": ["services/text-file-services-section", "services/serialization-services-section"]
-  }
+  "description": "Proof-path section for finite single-file data carriers."
 }

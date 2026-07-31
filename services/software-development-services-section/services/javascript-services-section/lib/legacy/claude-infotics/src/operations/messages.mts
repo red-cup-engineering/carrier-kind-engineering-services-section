@@ -8,10 +8,10 @@
  * without it the source terminates in a `configuration` obstruction, which this
  * operation reports rather than throwing.
  */
-import { operation, type Operation } from "@emsenn/metroplat/operations";
-import { anthropicMessagesInferenceSource } from "@emsenn/metroplat/integrations/anthropic";
-import { inference } from "@emsenn/metroplat/agents";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
+import { operation, type Operation } from "@red-cup-engineering/metroplat/operations";
+import { anthropicMessagesInferenceSource } from "@red-cup-engineering/metroplat/integrations/anthropic";
+import { inference } from "@red-cup-engineering/metroplat/agents";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
 
 function str(record: Record<string, unknown>, ...keys: string[]): string | undefined {
   for (const key of keys) {

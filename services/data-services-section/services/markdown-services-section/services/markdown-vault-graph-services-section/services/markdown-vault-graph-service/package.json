@@ -1,0 +1,20 @@
+{
+  "name": "@red-cup-engineering/markdown-vault-graph-service",
+  "version": "0.1.0",
+  "description": "Derives a tiered graph — link, frontmatter-reference, and external-URL tiers — over a Markdown notes vault, resolving relative links, wikilinks, and transclusions to vault-relative file addresses content-digested by SHA-256, and reporting unresolved references and slug collisions as defects. Use when charting how a vault of Markdown notes cites, transcludes, or depends on itself, or when asking what a note links to and what nothing resolves.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "exports": "./src/vault-graph.mjs",
+  "bin": {
+    "render-markdown-vault-graph": "./bin/render-vault-graph.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/vault-graph.mjs && node --check bin/render-vault-graph.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

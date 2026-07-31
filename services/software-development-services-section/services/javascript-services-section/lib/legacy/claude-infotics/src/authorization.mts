@@ -12,7 +12,7 @@
  * attenuated, per-subject grants to the data root via `admitCapabilityAssertions`
  * — this in-code grant covers only the trusted local-CLI case.
  */
-import type { CapabilityAssertion } from "@emsenn/metroplat/core/capability";
+import type { CapabilityAssertion } from "@red-cup-engineering/metroplat/core/capability";
 
 /** Dispatch `program` (= invocation.resource) and subject the CLI runs as. */
 export const CLAUDE_INFOTICS_PROGRAM = "claude-infotics";

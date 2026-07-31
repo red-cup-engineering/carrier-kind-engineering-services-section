@@ -2,7 +2,7 @@
  * auth — the multi-user Google-OAuth gate for agents.561.group.
  *
  * This is the SAME ecosystem authorization server the single-operator surfaces
- * use (`@emsenn/organizing-with-the-web/oauth-google`), but admitting MANY users
+ * use (`@red-cup-engineering/organizing-with-the-web/oauth-google`), but admitting MANY users
  * instead of one: every verified Google account is admitted by default, or a
  * bounded allowlist via `OAUTH_ALLOWED_EMAILS`. The verified email is the user's
  * stable identity, and that identity is what keys each character's discrete
@@ -27,9 +27,9 @@ import {
   oauthConfigFromEnv,
   authorizationServerMetadata,
   protectedResourceMetadata,
-} from "@emsenn/organizing-with-the-web/oauth-google";
-import { authorizeBearer } from "@emsenn/organizing-with-the-web/sync-guard";
-import { jsonRepr, type App, type Context, type Handler, type Repr } from "@emsenn/http-server";
+} from "@red-cup-engineering/organizing-with-the-web/oauth-google";
+import { authorizeBearer } from "@red-cup-engineering/organizing-with-the-web/sync-guard";
+import { jsonRepr, type App, type Context, type Handler, type Repr } from "@red-cup-engineering/http-server";
 
 export interface AgentsAuth {
   readonly oauth: OAuthServer;

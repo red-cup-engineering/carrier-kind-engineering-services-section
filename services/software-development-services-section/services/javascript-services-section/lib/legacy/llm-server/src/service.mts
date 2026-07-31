@@ -1,20 +1,20 @@
-// @emsenn/llm-server — the OpenAI-compatible chat-completions service.
+// @red-cup-engineering/llm-server — the OpenAI-compatible chat-completions service.
 //
-// Binds apps/llm-computer's agentic loop to an HTTP transport via @emsenn/web-server.
-// Inference enters through @emsenn/organizing-with-llm-agents/holography (the only place keys and sockets
+// Binds apps/llm-computer's agentic loop to an HTTP transport via @red-cup-engineering/web-server.
+// Inference enters through @red-cup-engineering/organizing-with-llm-agents/holography (the only place keys and sockets
 // live); the computer and topology stay pure. The OpenAI request/response mapping
 // is pure and separately testable from the transport.
 
-import { type App, type Context, jsonRepr, readJsonBody } from "@emsenn/http-server";
+import { type App, type Context, jsonRepr, readJsonBody } from "@red-cup-engineering/http-server";
 import {
   type EndpointSpec,
   type InferenceRequest,
   type Role,
   ENDPOINTS,
-} from "@emsenn/organizing-with-llm-agents/algebra";
-import { type AgentRun, classifyRun, runCost } from "@emsenn/organizing-with-llm-agents/running";
-import { type CostRates, type Infer, runAgentLoop } from "@emsenn/llm-computer";
-import { type HolographyOptions, witnessInference } from "@emsenn/organizing-with-llm-agents/holography";
+} from "@red-cup-engineering/organizing-with-llm-agents/algebra";
+import { type AgentRun, classifyRun, runCost } from "@red-cup-engineering/organizing-with-llm-agents/running";
+import { type CostRates, type Infer, runAgentLoop } from "@red-cup-engineering/llm-computer";
+import { type HolographyOptions, witnessInference } from "@red-cup-engineering/organizing-with-llm-agents/holography";
 
 /** Adapt holography's witnessed inference into the computer's injected Infer capability. */
 export function inferFromHolography(endpoint: EndpointSpec, options: HolographyOptions = {}): Infer {
@@ -74,7 +74,7 @@ export function completionFromRun(run: AgentRun, model: string): Record<string, 
 
 // ── the app ────────────────────────────────────────────────────────────────────
 /** Service projection controls for binding the pure LLM computer to HTTP.
- *  Inference, run state, and cost settle in @emsenn/organizing-with-llm-agents carriers; these options
+ *  Inference, run state, and cost settle in @red-cup-engineering/organizing-with-llm-agents carriers; these options
  *  only choose the upstream, route, limits, and injected clocks/costs. */
 export type LlmServerOptions = Readonly<{
   upstream?: EndpointSpec;

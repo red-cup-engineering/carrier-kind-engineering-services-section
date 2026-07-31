@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/conformance-tics",
+  "name": "@red-cup-engineering/conformance-tics",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@emsenn/jsnode-ick": "workspace:*",
-    "@emsenn/http-server": "workspace:*"
+    "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

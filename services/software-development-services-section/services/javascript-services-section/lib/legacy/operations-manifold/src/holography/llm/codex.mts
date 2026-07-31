@@ -2,7 +2,7 @@ import {
   finding,
   recallStatus,
   type ChangeImpact,
-} from "@emsenn/organizing-with-openai-codex/session";
+} from "@red-cup-engineering/organizing-with-openai-codex/session";
 import {
   dispatchReadiness,
   incumbentProvisions,

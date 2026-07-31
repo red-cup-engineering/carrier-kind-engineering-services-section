@@ -5,7 +5,7 @@
  * `--output-format stream-json` emits the same events newline-delimited. Both are
  * the right automation boundary, so this module keeps it and projects each event
  * into the shared relational trace vocabulary (@emsenn/relating utterances/cells,
- * @emsenn/animating work, @emsenn/organizing-with-claude cost) — symmetric to
+ * @red-cup-engineering/animating work, @red-cup-engineering/organizing-with-claude cost) — symmetric to
  * the codex `codex exec --json` projection, so a manifold can publish the
  * evidence without inventing another DTO. NOTHING here spawns or reads sockets.
  */
@@ -30,8 +30,8 @@ import {
   type UtteranceCarrier,
 } from "@emsenn/relating";
 import { canonical, isJsonRecord, parseJsonlLines, requireJsonValue, type JsonValue } from "@emsenn/relating/writing";
-import type { CostEvent } from "@emsenn/organizing-with-claude/inference";
-import { finding, type Finding } from "@emsenn/organizing-with-claude/session";
+import type { CostEvent } from "@red-cup-engineering/organizing-with-claude/inference";
+import { finding, type Finding } from "@red-cup-engineering/organizing-with-claude/session";
 
 export type ClaudeEvent = Readonly<Record<string, unknown> & { readonly type: string }>;
 

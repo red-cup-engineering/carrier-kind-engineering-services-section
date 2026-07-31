@@ -21,54 +21,11 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/wit-transition-assay": "1.0.0",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
     "jose": "6.2.3",
     "viem": "2.55.4"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "git-services-section",
-    "owners": [
-      "561-group",
-      "red-cup-engineering",
-      "software-development-services-section",
-      "version-control-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "ActivityStreams request whose task effect conforms to the hired org.emsenn.rmn.core.v3 service",
-    "refusal": "unbounded Git argv, repository escape, missing CAIP-10 parties, RMN refusal, or unavailable device I/O provider",
-    "operation-catalog": {
-      "serve-bound-git-induction": {
-        "contract": "bound-git-induction-tree-v1",
-        "protocol": "A2A 1.0",
-        "accepts": "one signed BoundGitInductionOperation RMN part",
-        "returns": "one signed BoundGitInductionReceipt or BoundGitInductionRefusal RMN part",
-        "deadline": "none"
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:git-services-section",
-    "operations": [
-      "serve-bound-git-induction"
-    ],
-    "capabilities": [
-      {
-        "capability": "git-services-section",
-        "faces": [
-          "serve-bound-git-induction"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/git-services-section"
   },
   "exports": {
     "./src/collect-colony-activity.mjs": "./src/collect-colony-activity.mjs"

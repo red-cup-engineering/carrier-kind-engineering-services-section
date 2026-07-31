@@ -1,0 +1,8 @@
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <urn:emsenn:Erc4337AccountCutover> <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <urn:emsenn:displacedBinding> <ni:///sha-256;EUadpQNiOgTLPwdlAea3RzR1_9J3KYG3b0NQIXQELsg> <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <urn:emsenn:successorBinding> <ni:///sha-256;e6AJw2NS92f7rGXKRhYqv_RpwEV1tUy779XpfzcBnKc> <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <urn:emsenn:account> <eip155:31337:0x6bfc4897e481e189d238394b0ad99ed792750208> <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <urn:emsenn:factory> <eip155:31337:0x54b8d8e2455946f2a5b8982283f2359812e815ce> <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <urn:emsenn:deploymentTransaction> <eip155:31337:tx:0xa81d853512d636b945ffee0deb3950f5c58fd14db6d09ecb235e2db0dd8f8f97> <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <urn:emsenn:retiredProfile> "org.emsenn.evm.sovereign-enterprise-account.v1" <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .
+<urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> <urn:emsenn:admittedProfile> "org.emsenn.evm.sovereign-enterprise-account.v2" <urn:uuid:915e99ba-c113-4d8d-a88d-104299efff01> .

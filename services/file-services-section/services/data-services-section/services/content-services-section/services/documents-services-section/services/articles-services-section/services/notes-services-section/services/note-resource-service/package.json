@@ -10,24 +10,7 @@
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
-  "engines": { "node": ">=22" },
-  "x-agentic-metro-enterprise": {
-    "node-id": "note-resource-service",
-    "actor": "urn:ame:note-resource-service",
-    "organizational-kind": "capability-cell",
-    "owners": ["notes-services-section"],
-    "operation-catalog": {
-      "catalog-node-notes": { "accepts": "one admitted actuator node root", "returns": "a bounded typed catalog receipt" },
-      "deposit-note-carrier": { "accepts": "one exact Markdown carrier, provenance, date, and admitted actuator node root", "returns": "an atomic deposit receipt" }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:note-resource-service",
-    "operations": ["catalog-node-notes", "deposit-note-carrier"],
-    "capabilities": [{ "capability": "note-resource-service", "faces": ["catalog-node-notes", "deposit-note-carrier"] }],
-    "package": "@red-cup-engineering/note-resource-service"
+  "engines": {
+    "node": ">=22"
   }
 }

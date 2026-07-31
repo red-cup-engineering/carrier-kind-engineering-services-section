@@ -4,6 +4,14 @@
   "private": true,
   "type": "module",
   "description": "Restricts file carriers to witnessed data identities and encodings.",
-  "x-agentic-metro-enterprise": { "node-id": "file-data-services-section", "actor": "urn:ame:file-data-services-section", "organizational-kind": "circuit-board", "owners": ["file-services-section"], "owned-services": ["services/content-services-section", "services/flatfile-services-section", "services/file-projection-services-section", "services/file-integrity-services-section"] },
-  "x-capability-recovery": [{ "capability": "typed-resource-classification", "source": "@red-cup-engineering/typed-resource-catalog" }, { "capability": "canonical-relational-dataset-custody", "source": "content-addressed-dataset-store-service" }]
+  "x-capability-recovery": [
+    {
+      "capability": "typed-resource-classification",
+      "source": "@red-cup-engineering/typed-resource-catalog"
+    },
+    {
+      "capability": "canonical-relational-dataset-custody",
+      "source": "content-addressed-dataset-store-service"
+    }
+  ]
 }

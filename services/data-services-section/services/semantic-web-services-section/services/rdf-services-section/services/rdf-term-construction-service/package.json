@@ -1,0 +1,16 @@
+{
+  "name": "@red-cup-engineering/rdf-term-construction-service",
+  "version": "0.1.0",
+  "description": "Constructs and validates RDF 1.1 terms — IRIs and literals with a datatype-XOR-language qualifier — refusing blank nodes and malformed IRIs. Use when a caller needs a well-formed RDF term before it is assembled into a statement.",
+  "type": "module",
+  "private": true,
+  "exports": "./src/rdf-terms.mjs",
+  "scripts": {
+    "check": "node --check src/rdf-terms.mjs && node --check test/rdf-terms.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

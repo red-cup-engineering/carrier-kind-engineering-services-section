@@ -85,7 +85,7 @@ export const defaultAgentHabitatFacets: readonly AgentHabitatFacet[] = Object.fr
     designConsequence: "The cockpit can render progress as a playable route through current work, not just a transcript scroll.",
     sourceEvidence: Object.freeze([
       "sites/ops.561.group/src/agents/strategy.mts",
-      "@emsenn/gaming flow/play/strategy/strategyReport",
+      "@red-cup-engineering/gaming flow/play/strategy/strategyReport",
     ]),
     harnessCapabilities: Object.freeze(["agent-handoff", "telemetry-trace", "subagent-orchestration"]),
   }),
@@ -96,7 +96,7 @@ export const defaultAgentHabitatFacets: readonly AgentHabitatFacet[] = Object.fr
     designConsequence: "Before write-capable moves, the cockpit should expose readiness, contested gaps, next interfaces, and the office authorizing the move.",
     sourceEvidence: Object.freeze([
       "sites/ops.561.group/src/operating/governing/dispatching/readiness.mts",
-      "@emsenn/animating governOperation and dispatchReadiness",
+      "@red-cup-engineering/animating governOperation and dispatchReadiness",
     ]),
     harnessCapabilities: Object.freeze(["human-approval-gates", "sandbox-policy", "language-model-tool", "mcp-tooling"]),
   }),

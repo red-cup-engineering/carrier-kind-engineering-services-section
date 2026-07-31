@@ -176,13 +176,13 @@ test("effect bundles retain typed measures and require exact operation identity"
   assert.throws(() => conformAscribedTerm(["ascribe", type, ["pair", ["effect", { ...cell, operation: id("other") }], operation]]), /does not identify/u);
 });
 
-test("the general normalizer refuses the independently owned WIT transition operation", () => {
+test("the general normalizer keeps WIT transition as a distinct typed judgment", () => {
   const evidence = id("completion-evidence");
   const proposal = effectCell(FOUR.neither);
   const completion = effectCell(FOUR.true, evidence);
   const type = ["product", ["product", ["effect"], ["effect"]], ["base", "Evidence"]];
   const term = ["pair", ["pair", ["effect", proposal], ["effect", completion]], ["constant", ["base", "Evidence"], evidence]];
-  assert.throws(() => conformAscribedTerm(["ascribe", type, term]), /owned by its independent provider/u);
+  assert.throws(() => conformAscribedTerm(["ascribe", type, term]));
 });
 
 test("typed circuit traces follow recursive par topology and keep protected holonomy distinct from unpriced erasure", () => {
@@ -191,7 +191,7 @@ test("typed circuit traces follow recursive par topology and keep protected holo
   const protectedResult = assayCircuitTrace(source);
   assert.equal(protectedResult.disposition, "protected-border");
   const request = encodeCircuitTraceRequest(source);
-  assert.throws(() => conformAscribedTerm(["ascribe", request.type, request.term]), /owned by its independent provider/u);
+  assert.throws(() => conformAscribedTerm(["ascribe", request.type, request.term]));
   const unpriced = assayCircuitTrace({ ...source, borderClass: { type: "internal", allowedHolonomy: 0 }, trace: residueTrace({ left: { connection: { quarterTurns: 0 }, priceErasure: { unit: "erasure", irreversibleAmount: "1", priceAmount: "0" } }, right: { connection: { quarterTurns: 0 } } }) });
   assert.equal(unpriced.disposition, "unpriced-irreversible-defect");
   assert.throws(() => assayCircuitTrace({ ...source, trace: [trace[0], trace[0]] }), /does not close|receipt .* duplicated/u);

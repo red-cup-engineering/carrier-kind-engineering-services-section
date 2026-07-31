@@ -1,5 +1,5 @@
 /**
- * play — the Farstone command loop, built honestly on `@emsenn/fizzos/engine`.
+ * play — the Farstone command loop, built honestly on `@red-cup-engineering/fizzos/engine`.
  *
  * A turn is pure: `step(state, input) -> { state, output, quit }`. The state is
  * `{ world, content, actor }`; the world is a FizzOS settled charge valuation and
@@ -16,7 +16,7 @@
  * The command loop owns *parsing and prose*; the engine owns *mechanics and truth*.
  * That boundary is the point: Farstone is the proof that the library is playable.
  */
-import { contentsOf, drop as engineDrop, give as engineGive, go as engineGo, perceive, placeOf, take as engineTake } from "@emsenn/fizzos/engine";
+import { contentsOf, drop as engineDrop, give as engineGive, go as engineGo, perceive, placeOf, take as engineTake } from "@red-cup-engineering/fizzos/engine";
 import { isTakeable, loadHarbor, PLAYER, readHarborBible } from "./world-load.mjs";
 
 /** Canonical compass directions, with the short aliases players actually type. */

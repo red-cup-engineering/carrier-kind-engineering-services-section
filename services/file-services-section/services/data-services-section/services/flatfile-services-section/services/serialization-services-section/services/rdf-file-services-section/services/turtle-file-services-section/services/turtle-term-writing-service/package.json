@@ -4,16 +4,13 @@
   "private": false,
   "type": "module",
   "description": "Canonical Turtle IRIREF and literal writing actuator recovered from Relating.",
-  "exports": { ".": { "types": "./src/index.mts", "import": "./src/index.mts" } },
-  "scripts": { "test": "node --test test/*.test.mjs" },
-  "x-agentic-metro-enterprise": {
-    "node-id": "turtle-term-writing-service",
-    "actor": "urn:ame:turtle-term-writing-service",
-    "organizational-kind": "capability-cell",
-    "owners": ["turtle-file-services-section"],
-    "operation-catalog": {
-      "write-turtle-iri-reference": { "accepts": "an IRI string", "returns": "one Turtle IRIREF" },
-      "write-turtle-literal": { "accepts": "one JSON-shaped literal value", "returns": "one Turtle literal" }
+  "exports": {
+    ".": {
+      "types": "./src/index.mts",
+      "import": "./src/index.mts"
     }
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
   }
 }

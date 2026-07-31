@@ -13,8 +13,8 @@
 
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import { lectionFor, rclYear, romanDay } from "@emsenn/divining/liturgy";
-import type { AssertedClaim, ClaimStateBundle } from "@emsenn/content/topology/news";
+import { lectionFor, rclYear, romanDay } from "@lenticule-science/divining/liturgy";
+import type { AssertedClaim, ClaimStateBundle } from "@red-cup-engineering/content/topology/news";
 
 import {
   assertedNow,
@@ -22,7 +22,7 @@ import {
   reportWrite,
   resolveDate,
   writeBundleIfAbsent,
-} from "@emsenn/producing-content/organizing-a-newswire";
+} from "@red-cup-engineering/producing-content/organizing-a-newswire";
 
 const WIRE = "lectio";
 const WITNESS = "liturgy-topology";

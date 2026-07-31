@@ -11,7 +11,7 @@ import { buildCodingContextPacket } from "@red-cup-engineering/coding-context-pr
 import { resolutionCreditPolicy, validateConsiderationPolicy } from "@harmonious-union/inference-work-lot-service/consideration";
 import { executeAcceptanceCapsule, loadAcceptanceCapsule, materializeAcceptanceCapsule, validateAcceptanceCapsule } from "@red-cup-engineering/protected-acceptance-service/client";
 import { githubApi } from "@red-cup-engineering/github-services-section";
-import { actionBlocks, parseSoftwareMissionActionRecord } from "../../software-mission-action-record-parser-service/src/action-record-parser.mjs";
+import { actionBlocks, parseSoftwareMissionActionRecord } from "@red-cup-engineering/software-mission-action-record-parser-service/src/action-record-parser.mjs";
 
 export const ACTION_SCHEMA = {
   type: "object",

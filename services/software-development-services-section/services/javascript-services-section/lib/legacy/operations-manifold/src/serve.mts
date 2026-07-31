@@ -1,5 +1,5 @@
 import process from "node:process";
-import { start, installGracefulShutdown } from "@emsenn/http-server";
+import { start, installGracefulShutdown } from "@red-cup-engineering/http-server";
 import { createOperationsManifoldApp } from "./app.mts";
 import { repoRootFromModule } from "./runtime.mts";
 

@@ -25,9 +25,9 @@ import {
   type JsonRpcEnvelope,
   type JsonRpcRequest,
   type McpTool,
-} from "@emsenn/metroplat/integrations/mcp";
-import { dispatchProjectedSurface } from "@emsenn/metroplat/integrations/cli";
-import type { ProjectedSurface } from "@emsenn/metroplat/surfaces";
+} from "@red-cup-engineering/metroplat/integrations/mcp";
+import { dispatchProjectedSurface } from "@red-cup-engineering/metroplat/integrations/cli";
+import type { ProjectedSurface } from "@red-cup-engineering/metroplat/surfaces";
 
 const SERVER_INFO = Object.freeze({ name: "claude-infotics", version: "0.1.0" });
 

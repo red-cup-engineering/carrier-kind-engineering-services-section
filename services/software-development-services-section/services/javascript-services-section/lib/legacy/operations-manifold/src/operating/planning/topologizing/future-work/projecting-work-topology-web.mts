@@ -3,7 +3,7 @@ import {
   jsonRepr,
   type App,
   type Context,
-} from "@emsenn/http-server";
+} from "@red-cup-engineering/http-server";
 
 import { carrierFormScript, codeList, densePageStyles, functionInterfaceRows, functionPanel, htmlEscape, queryParamsFromContext, row, summaryMetaItems } from "../../../projecting/web-ui.mts";
 import { futureWorkTopology, type FutureWorkTopology, type FutureWorkTopologyParams } from "./library/future-work-topology.mts";

@@ -1,13 +1,13 @@
-// @emsenn/llm-claude-harness/service — the 561 Group Operations Manifold MCP hub.
+// @red-cup-engineering/llm-claude-harness/service — the 561 Group Operations Manifold MCP hub.
 //
-// Binds @emsenn/organizing-with-claude's harness computer to an MCP transport via
-// @emsenn/http-server. Loopback-trusted (no auth required from 127.0.0.1), so
+// Binds @red-cup-engineering/organizing-with-claude's harness computer to an MCP transport via
+// @red-cup-engineering/http-server. Loopback-trusted (no auth required from 127.0.0.1), so
 // Claude Code CLI processes on this host connect without a bearer token.
 // The hub serves /hub/mcp to match the address applyMcpConfig writes into
 // .mcp.json by default.
 
-import { createMcpApp, type App, type McpTool, type McpDispatch } from "@emsenn/http-server";
-import { readHarness, renderHarness, applyMcpConfig } from "@emsenn/organizing-with-claude/harness";
+import { createMcpApp, type App, type McpTool, type McpDispatch } from "@red-cup-engineering/http-server";
+import { readHarness, renderHarness, applyMcpConfig } from "@red-cup-engineering/organizing-with-claude/harness";
 
 export const HUB_PATH = "/hub/mcp";
 export const DEFAULT_PORT = 18805;
@@ -60,7 +60,7 @@ const dispatch: McpDispatch = async (name, args) => {
 };
 
 /** Service projection controls for the MCP transport. Harness state and apply
- *  results are read from @emsenn/organizing-with-claude harness carriers; this option only
+ *  results are read from @red-cup-engineering/organizing-with-claude harness carriers; this option only
  *  selects the route where those tools are exposed. */
 export type HarnessServerOptions = Readonly<{
   path?: string;

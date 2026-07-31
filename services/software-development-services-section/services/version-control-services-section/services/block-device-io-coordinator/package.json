@@ -20,59 +20,9 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/wit-transition-assay": "1.0.0",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
     "jose": "6.2.3"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "block-device-io-coordinator",
-    "owners": [
-      "561-group",
-      "red-cup-engineering",
-      "software-development-services-section",
-      "version-control-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "ActivityStreams request carrying a parent typed-RMN task identity and CAIP-10 caller",
-    "refusal": "unscoped device, absent RMN parent, missing CAIP-10 party, RMN refusal, non-Git operation, customer-territory write authority, unenforceable device-wide claim, or unavailable host authority",
-    "operation-catalog": {
-      "serve-bound-git-profile": {
-        "contract": "bound-git-semantic-profile-v1",
-        "protocol": "A2A 1.0",
-        "accepts": "one Git-signed BoundGitProfileOperation RMN part",
-        "returns": "one coordinator-signed BoundGitProfileReceipt or BoundGitProfileRefusal RMN part",
-        "deadline": "none"
-      },
-      "host-readiness": {
-        "contract": "bound-git-semantic-profile-v1",
-        "accepts": "local executable host assay",
-        "returns": "HostReadinessReport"
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:block-device-io-coordinator",
-    "operations": [
-      "host-readiness",
-      "serve-bound-git-profile"
-    ],
-    "capabilities": [
-      {
-        "capability": "block-device-io-coordinator",
-        "faces": [
-          "host-readiness",
-          "serve-bound-git-profile"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/block-device-io-coordinator"
   }
 }

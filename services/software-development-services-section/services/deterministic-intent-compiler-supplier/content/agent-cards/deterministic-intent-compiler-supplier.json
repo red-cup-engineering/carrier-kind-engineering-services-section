@@ -1,6 +1,6 @@
 {
   "name": "Deterministic Intent Compiler Supplier",
-  "description": "Supplies one independently assayed deterministic intent-compiler proposal through standard improvement markets.",
+  "description": "Supplies one attributable deterministic intent-compiler proposal with exact replayable assay evidence through standard improvement markets.",
   "supportedInterfaces": [
     {
       "url": "${BASE_URL}/a2a/jsonrpc",

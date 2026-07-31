@@ -21,11 +21,11 @@ One iteration, run against the Leader Movement Team's demand
    `content/documents/specifications/` tree, marked `DRAFT-FOR-LEADER-REVIEW`
    in its front matter and body. It is not published, not pushed to GitHub,
    and not represented anywhere as accepted.
-5. **Track, don't self-attest.** One LMT work order of class `define` is
-   minted against the draft's path. This node never records its own draft as
-   accepted — that disposition is the Leader's or the Leader's delegate's,
-   recorded separately, the same discipline the zeolitization-service cycle
-   already holds for its own seating step.
+5. **Track exact evidence.** One LMT work order of class `define` is
+   minted against the draft's path. Draft evidence binds exact source,
+   transformation, result, attribution, and replay material; the distinct
+   acceptance disposition remains the Leader's or the Leader's delegate's.
+   Producer identity neither proves nor disproves the draft's correctness.
 
 Win condition: a semantic token that has become unique and rich enough moves
 from corpus prose to a reviewable standards-form draft without emsenn having

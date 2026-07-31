@@ -26,8 +26,8 @@ export async function refreshApiIndex(repoRoot: string): Promise<ApiIndexState> 
     { eachWorkspacePackageDir },
     { readPackageDocSymbols },
   ] = await Promise.all([
-    import("@emsenn/organizing-with-jsnode/workspaces"),
-    import("@emsenn/organizing-with-jsnode/modules"),
+    import("@red-cup-engineering/organizing-with-jsnode/workspaces"),
+    import("@red-cup-engineering/organizing-with-jsnode/modules"),
   ]);
   const packages: ApiIndexPackage[] = [];
   const symbols: ApiIndexSymbol[] = [];
@@ -79,7 +79,7 @@ export async function refreshApiIndex(repoRoot: string): Promise<ApiIndexState> 
 
 export async function refreshFocusedApiIndex(repoRoot: string, requested: string): Promise<ApiIndexState> {
   const [{ eachWorkspacePackageDir }, packages, current] = await Promise.all([
-    import("@emsenn/organizing-with-jsnode/workspaces"),
+    import("@red-cup-engineering/organizing-with-jsnode/workspaces"),
     readApiPackages(repoRoot),
     readApiIndex(repoRoot),
   ]);
@@ -146,7 +146,7 @@ export async function readFocusedApiIndex(repoRoot: string, requested: string): 
 }
 
 async function readWorkspacePackageSymbols(repoRoot: string, pkg: { readonly name: string; readonly dir: string }): Promise<Readonly<{ pkg: ApiIndexPackage; symbols: readonly ApiIndexSymbol[] }>> {
-  const { readPackageDocSymbols } = await import("@emsenn/organizing-with-jsnode/modules");
+  const { readPackageDocSymbols } = await import("@red-cup-engineering/organizing-with-jsnode/modules");
   const packagePath = path.relative(repoRoot, pkg.dir).split(path.sep).join("/");
   const symbols: ApiIndexSymbol[] = [];
   for (const symbol of readPackageDocSymbols(pkg.dir, { excludeDirs: ["scripts"] })) {

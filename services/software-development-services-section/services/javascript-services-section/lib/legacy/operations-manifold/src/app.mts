@@ -4,11 +4,11 @@ import {
   mergeApps,
   mountAt,
   type App,
-} from "@emsenn/http-server";
+} from "@red-cup-engineering/http-server";
 import { createJsnodeIckPackageBinWebApp } from "@emsenn/jsnode-ick/package-bin-web";
 import { serveJsnodeIckPackageBinTransportProcesses } from "@emsenn/jsnode-ick/package-bin-transport";
 import { createJsnodeTopologyWebApp, createWorkspaceDagWebApp } from "@emsenn/jsnode-ick/topology";
-import { createHarnessServerApp } from "@emsenn/llm-openai-codex-harness/service";
+import { createHarnessServerApp } from "@red-cup-engineering/llm-openai-codex-harness/service";
 import { EAVT_JSONL } from "@emsenn/relating/writing";
 
 import { createCodebaseProfileWebApp } from "./operating/deriving/codebase-profile/projecting-codebase-profile-web.mts";

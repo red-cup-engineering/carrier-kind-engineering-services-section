@@ -22,47 +22,7 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "recursive-observation-circuit-synthesis",
-    "actor": "urn:ame:recursive-observation-circuit-synthesis",
-    "organizational-kind": "micro-enterprise",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one exact recursive observation synthesis request over provider-owned sovereign black-box interfaces",
-    "refusal": "provider discovery, material access, execution, attestation, interior disclosure, flat unbounded fan-in, or fallback topology",
-    "operation-catalog": {
-      "synthesize-recursive-observation-circuit": {
-        "contract": "ni:///sha-256;zG-JFCQ_pduJ21eFblsuushcMcPeCtM5mgfg2BzppLU",
-        "protocol": "A2A 1.0",
-        "legacyCompatibility": false
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:recursive-observation-circuit-synthesis",
-    "operations": [
-      "synthesize-recursive-observation-circuit"
-    ],
-    "capabilities": [
-      {
-        "capability": "recursive-observation-circuit-synthesis",
-        "faces": [
-          "synthesize-recursive-observation-circuit"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/recursive-observation-circuit-synthesis"
   }
 }

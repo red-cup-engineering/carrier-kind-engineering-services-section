@@ -16,11 +16,11 @@
 import process from "node:process";
 import path from "node:path";
 import { existsSync, readFileSync } from "node:fs";
-import { operation, type Operation } from "@emsenn/metroplat/operations";
-import { openJournal, journal } from "@emsenn/metroplat/journal";
-import { readGitWorkspaceChange } from "@emsenn/metroplat/integrations/git";
-import { readModuleTopology } from "@emsenn/metroplat/monitoring";
-import type { FilesystemBinding } from "@emsenn/metroplat/integrations/filesystem";
+import { operation, type Operation } from "@red-cup-engineering/metroplat/operations";
+import { openJournal, journal } from "@red-cup-engineering/metroplat/journal";
+import { readGitWorkspaceChange } from "@red-cup-engineering/metroplat/integrations/git";
+import { readModuleTopology } from "@red-cup-engineering/metroplat/monitoring";
+import type { FilesystemBinding } from "@red-cup-engineering/metroplat/integrations/filesystem";
 
 const FINDINGS_FEED = "claude-findings";
 const FINDING_ATTR = "claude.finding";

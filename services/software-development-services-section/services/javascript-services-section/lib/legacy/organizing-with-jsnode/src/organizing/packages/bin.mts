@@ -1,5 +1,5 @@
 /**
- * @emsenn/organizing-with-jsnode/package-bin — Node package binaries as computing
+ * @red-cup-engineering/organizing-with-jsnode/package-bin — Node package binaries as computing
  * strategy boundaries.
  *
  * A package binary is admitted from `package.json#bin`: the package manifest

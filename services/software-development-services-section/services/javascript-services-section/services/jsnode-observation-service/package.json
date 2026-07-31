@@ -12,31 +12,5 @@
   },
   "engines": {
     "node": ">=22"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "jsnode-observation-service",
-    "actor": "urn:ame:jsnode-observation-service",
-    "organizational-kind": "capability-cell",
-    "owners": ["javascript-services-section"],
-    "admission": "one caller-supplied canonical JSNode API-index state and a bounded query projection",
-    "refusal": "malformed index state, an unbounded query, or an unsupported query projection",
-    "operation-catalog": {
-      "project-jsnode-api-index-query": {
-        "accepts": "canonical API-index state plus bounded package, match, kind, and limit parameters",
-        "returns": "one deterministic bounded JSNode API surface projection"
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "javascript-services-section",
-    "kind": "capability-cell",
-    "actor": "urn:ame:jsnode-observation-service",
-    "operations": ["project-jsnode-api-index-query"],
-    "capabilities": [{
-      "capability": "jsnode-observation-service",
-      "faces": ["project-jsnode-api-index-query"]
-    }],
-    "package": "@red-cup-engineering/jsnode-observation-service"
   }
 }

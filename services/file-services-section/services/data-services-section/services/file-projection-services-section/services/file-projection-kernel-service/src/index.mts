@@ -16,11 +16,11 @@
  *
  * Generic over the carried type `T`: this module imports nothing.
  *
- * The action boundary is implemented in the sibling module under
- * `src/running`: an induced action family is one apex, and its
- * CLI/HTTP/OpenAPI/MCP/form/witness faces are projections. The projector kernel
- * stays here because it is the
- * representation-facing part, not the process loop users run.
+ * This package has no action-face module: there is no `src/running` here,
+ * and this kernel does not implement an action boundary. CLI/HTTP/OpenAPI/MCP/
+ * form/witness faces live elsewhere, in the (unrelated) `relating` package.
+ * This module stays purely representation-facing — how a type scopes to a
+ * resource — not the process loop users run.
  */
 
 /** A boundary resource presented to a projector: its address and its content. */

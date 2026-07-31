@@ -13,7 +13,7 @@
  * is a single-process browser convenience, not the machine-to-machine path.
  */
 
-import { htmlRepr, jsonRepr, type App, type Context, type Repr } from "@emsenn/http-server";
+import { htmlRepr, jsonRepr, type App, type Context, type Repr } from "@red-cup-engineering/http-server";
 
 import type { Character } from "./characters.mts";
 import { pkcePair, type AgentsAuth } from "./auth.mts";

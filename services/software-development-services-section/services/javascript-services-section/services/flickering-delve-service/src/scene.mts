@@ -3,7 +3,7 @@
  *
  * This is the "kernel + purpose-built scene" decision in code. We do NOT reuse the harbor
  * `FizzosScene` (its ships/ecology/governance verbs are off-theme redundant systems); we DO
- * build directly on `@emsenn/fizzos/world` — the settled, append-only charge valuation. Every
+ * build directly on `@red-cup-engineering/fizzos/world` — the settled, append-only charge valuation. Every
  * scrap of player state is a functional cell on the player entity (`essence`, `depth`,
  * `gen:*`, `upgrade:*`, `automation:*`, `echoes`, …), read with `numberOf`/`valueOf` exactly
  * as the harbor reads `coin`/`health`. Because the world is an append-only fact trace, the
@@ -15,7 +15,7 @@
  * command handlers manual play uses — the Lisp strategy only *decides* which verb to run, and
  * the scene runs it through one trusted path. There is exactly one implementation of "attack".
  */
-import { type Fact, type World, numberOf, registerFunctional, settledFacts, tell, valueOf, world as makeWorld } from "@emsenn/fizzos/world";
+import { type Fact, type World, numberOf, registerFunctional, settledFacts, tell, valueOf, world as makeWorld } from "@red-cup-engineering/fizzos/world";
 import {
   type GameState, COMBAT_UPGRADES, GENERATORS, UPGRADES, avatarStats, combatCost, combatDef,
   echoMultiplier, generatorCost, generatorDef, offlineAccrual, stepEconomy, upgradeDef,

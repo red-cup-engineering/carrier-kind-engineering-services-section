@@ -16,8 +16,8 @@
 
 import process from "node:process";
 import { fileURLToPath } from "node:url";
-import type { AssertedClaim, ClaimStateBundle, NewsClaim, NewsClaimSet } from "@emsenn/content/topology/news";
-import { assertedNow, resolveDate, reportWrite, writeBundleIfAbsent } from "@emsenn/producing-content/organizing-a-newswire";
+import type { AssertedClaim, ClaimStateBundle, NewsClaim, NewsClaimSet } from "@red-cup-engineering/content/topology/news";
+import { assertedNow, resolveDate, reportWrite, writeBundleIfAbsent } from "@red-cup-engineering/producing-content/organizing-a-newswire";
 
 const CLAIM_SETS_URL =
   process.env.RETE_AGENTIUM_CLAIM_SETS ?? "http://127.0.0.1:18791/newsroom-claim-sets.json";

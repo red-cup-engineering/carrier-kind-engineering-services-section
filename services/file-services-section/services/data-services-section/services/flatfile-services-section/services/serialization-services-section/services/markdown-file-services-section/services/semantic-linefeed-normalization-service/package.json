@@ -1,0 +1,33 @@
+{
+  "name": "@red-cup-engineering/semantic-linefeed-normalization-service",
+  "version": "0.1.0",
+  "description": "Normalizes Markdown prose to semantic linefeeds without changing Markdown structure.",
+  "type": "module",
+  "license": "MIT",
+  "private": false,
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/normalize-semantic-linefeeds.mjs"
+    }
+  },
+  "bin": {
+    "semantic-linefeed-normalize": "./bin/semantic-linefeed-normalize.mjs",
+    "semantic-linefeed-normalization-service": "./bin/server.mjs"
+  },
+  "files": [
+    "bin/",
+    "content/",
+    "src/",
+    "types/",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm test && npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {}
+}

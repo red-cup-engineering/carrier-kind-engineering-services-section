@@ -1,9 +1,9 @@
-// @emsenn/llm-openai-codex-harness/service — the persistent Codex hub.
+// @red-cup-engineering/llm-openai-codex-harness/service — the persistent Codex hub.
 //
 // Two jobs over one loopback-trusted MCP endpoint (so Codex/other CLIs on this
 // host connect without a bearer token):
 //   1. wire — rig the canonical You<->MCP<->561 Group Operations Manifold MCP server
-//      into ~/.codex/config.toml, via @emsenn/organizing-with-openai-codex's harness computer;
+//      into ~/.codex/config.toml, via @red-cup-engineering/organizing-with-openai-codex's harness computer;
 //   2. supervise — keep a persistent `codex mcp` process warm and let callers
 //      drive it (start/stop/restart, and a raw JSON-RPC passthrough).
 //
@@ -11,7 +11,7 @@
 // Codex config now points at 561 Group Operations Manifold's mounted copy:
 //   http://127.0.0.1:18805/codex/hub/mcp
 
-import { createMcpApp, type App, type McpAuth, type McpTool, type McpDispatch } from "@emsenn/http-server";
+import { createMcpApp, type App, type McpAuth, type McpTool, type McpDispatch } from "@red-cup-engineering/http-server";
 import { EAVT_JSONL } from "@emsenn/relating/writing";
 import {
   DEFAULT_OPERATIONS_MANIFOLD_CODEX_HUB_URL,
@@ -19,7 +19,7 @@ import {
   renderHarness,
   applyConfig,
   pointsAtOperationsManifold,
-} from "@emsenn/organizing-with-openai-codex/harness";
+} from "@red-cup-engineering/organizing-with-openai-codex/harness";
 import { createCodexProcess, type CodexProcessHandle } from "./process.mjs";
 
 export const HUB_PATH = "/hub/mcp";

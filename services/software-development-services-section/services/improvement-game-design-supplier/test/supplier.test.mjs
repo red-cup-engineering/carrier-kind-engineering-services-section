@@ -16,7 +16,7 @@ const lot = record({ type: "ImprovementGameDesignWorkLot", consumer: "urn:custom
 const quote = record({ type: "ImprovementGameBuyerQuote", lot: lot.id, tick: 1, consideration: { amount: 7, unit: "u" } });
 const offer = record({ "@context": CONTEXT, type: "Offer", actor: "urn:customer", target: "public", object: lot, attachment: [quote] });
 
-test("independent supplier competes below the free-compute ask", () => { const bid = bidForGameOffer(offer, policy); assert.equal(bid.actor, ACTOR); assert.equal(bid.object.consideration.amount, 6); assert.equal(bid.object.estimatedInferenceCalls, 1); });
+test("supplier competes below the free-compute ask", () => { const bid = bidForGameOffer(offer, policy); assert.equal(bid.actor, ACTOR); assert.equal(bid.object.consideration.amount, 6); assert.equal(bid.object.estimatedInferenceCalls, 1); });
 test("the record-improvement ingress advertises the exact capability profile this supplier can bid", () => {
   const finding = { type: "RecordImprovementFinding", customer: BOARD, provider: "urn:ame:record-curator", territory: "/customer", findingClass: "missing-description", path: "content/example.md", contentDigest: digest("4"), observationDigest: digest("5"), observedAt: "2026-07-22T00:00:00.000Z", summary: "a record needs its customer-approved description", resourceObservation: { baselinePerTick: { amount: 1, unit: "record-findings" }, expectedTicks: 4 }, protectedOracleEnvelope: { ...envelope, customer: BOARD, sourceDigests: [digest("4"), digest("5")] } };
   const opportunity = formRecordImprovementOpportunity(finding, { denomination: "u", minimumBounty: 5, maximumBounty: 31, recordOpportunity: { enabled: true, inquiryBudget: { amount: 9, unit: "u" } } });
@@ -25,10 +25,10 @@ test("the record-improvement ingress advertises the exact capability profile thi
   const recordOffer = record({ "@context": CONTEXT, type: "Offer", actor: BOARD, target: "public", object: recordLot, attachment: [recordQuote] });
   assert.equal(bidForGameOffer(recordOffer, policy)?.object.type, "ImprovementGameDesignBid");
 });
-test("protected oracle envelope compiles deterministically and review excludes author", async () => {
+test("protected oracle envelope compiles deterministically and review preserves attribution without review", async () => {
   const bid = bidForGameOffer(offer, policy), award = record({ "@context": CONTEXT, type: "Accept", actor: "urn:customer", target: ACTOR, object: { type: "ImprovementGameDesignAward", lot: lot.id, bid: bid.id, bidSnapshot: bid, customerMutationAuthorized: false, implementationAuthorized: false, oracleAuthorshipAuthorized: false } });
-  const result = await fulfillGameAward(award, bid, { policy, contractInferenceWork: async (request) => { assert.equal(typeof request.context, "string"); assert.deepEqual(request.excludeProviders, [ACTOR]); assert.equal(request.maxTokens, 600); assert.equal(request.considerationPolicy.acceptableAlternatives[0].obligations[0].maximumAmount, 40); return { outcome: "candidate-pending-customer-acceptance", provider: "urn:independent-reviewer", candidate: { accepted: true, reason: "bounded" }, evidence: { selectedOffer: "urn:offer" } }; } });
-  assert.equal(result.object.proposedResidue.type, "ImprovementResidue"); assert.equal(result.object.resources.inferenceAttempts, 0); assert.equal(result.attachment[0].actor, "urn:independent-reviewer");
+  const result = await fulfillGameAward(award, bid, { policy, contractInferenceWork: async (request) => { assert.equal(typeof request.context, "string"); assert.equal("excludeProviders" in request, false); assert.equal(request.maxTokens, 600); assert.equal(request.considerationPolicy.acceptableAlternatives[0].obligations[0].maximumAmount, 40); return { outcome: "candidate-pending-customer-acceptance", provider: ACTOR, candidate: "bounded attributable advisory", evidence: { selectedOffer: "urn:offer", replay: "urn:replay" } }; } });
+  assert.equal(result.object.proposedResidue.type, "ImprovementResidue"); assert.equal(result.object.resources.inferenceAttempts, 0); assert.equal(result.attachment[0].actor, ACTOR);
 });
 test("a separate deterministic assay retires the review inference call", async () => {
   const bid = bidForGameOffer(offer, policy), award = record({ "@context": CONTEXT, type: "Accept", actor: "urn:customer", target: ACTOR, object: { type: "ImprovementGameDesignAward", lot: lot.id, bid: bid.id, bidSnapshot: bid, customerMutationAuthorized: false, implementationAuthorized: false, oracleAuthorshipAuthorized: false } }); let inference = 0;

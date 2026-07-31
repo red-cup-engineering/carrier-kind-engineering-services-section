@@ -3,7 +3,7 @@ import {
   strategyContainsPlay,
   strategyExtensionsAfter,
   strategyMovePolarity,
-} from "@emsenn/gaming";
+} from "@red-cup-engineering/gaming";
 
 import {
   OPERATIONS_MANIFOLD_AGENT_EVENTS,
@@ -147,8 +147,8 @@ export function enactStrategy(
       admittedExtensions: Object.freeze(admittedExtensions),
     }),
     evidence: Object.freeze([
-      "@emsenn/gaming play",
-      "@emsenn/gaming strategyExtensionsAfter",
+      "@red-cup-engineering/gaming play",
+      "@red-cup-engineering/gaming strategyExtensionsAfter",
       "src/agents/arena.mts",
       "src/agents/strategy.mts",
       "derive-context-relevance",

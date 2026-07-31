@@ -15,7 +15,7 @@
  * same user talking over the chat API.
  */
 
-import { createMcpApp, mergeApps, type App, type McpRequestMeta } from "@emsenn/http-server";
+import { createMcpApp, mergeApps, type App, type McpRequestMeta } from "@red-cup-engineering/http-server";
 
 import type { Character } from "./characters.mts";
 import type { AgentsAuth } from "./auth.mts";

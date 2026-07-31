@@ -1,0 +1,22 @@
+[Unit]
+Description=Bare Cedar Fog write capability assay A2A die (legacy id: standing-write-capability-assay)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/write-capability-assay-service
+Environment=PORT=19833
+Environment=HOST=127.0.0.1
+Environment=BASE_URL=http://127.0.0.1:19833
+Environment=AGENT_CARD_SIGNING_KEY=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/write-capability-assay-service/data/agent-card-signing/ed25519-private.pem
+Environment=AGENT_CARD_JWKS=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/write-capability-assay-service/content/agent-card-signing/jwks.json
+Environment=AGENT_CARD_SIGNING_KID=standing-write-capability-assay-service-2026-07-21
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node bin/server.mjs
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

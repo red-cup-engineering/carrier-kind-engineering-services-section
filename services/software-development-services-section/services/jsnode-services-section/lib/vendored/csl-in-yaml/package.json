@@ -1,0 +1,61 @@
+{
+  "name": "@lenticule-science/csl-in-yaml",
+  "version": "0.1.0",
+  "description": "Author, lint, sort, and generate CSL-in-YAML citation blocks — CSL-JSON bibliographic records living in Markdown frontmatter. Zero dependencies.",
+  "keywords": [
+    "csl",
+    "csl-json",
+    "citation",
+    "bibliography",
+    "yaml",
+    "frontmatter",
+    "markdown",
+    "pandoc",
+    "citeproc",
+    "cli",
+    "sovereign-state-enterprise"
+  ],
+  "license": "MIT",
+  "author": "emsenn <morgan.sennhauser@gmail.com>",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "csl-in-yaml": "bin/cli.mjs"
+  },
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "lint-self": "node bin/cli.mjs --help >/dev/null"
+  },
+  "dependencies": {},
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "lenticule-science",
+    "kind": "capability-cell",
+    "actor": "urn:ame:csl-in-yaml",
+    "operations": [
+      "csl-in-yaml"
+    ],
+    "capabilities": [
+      {
+        "capability": "csl-in-yaml",
+        "faces": [
+          "csl-in-yaml"
+        ]
+      }
+    ],
+    "package": "@lenticule-science/csl-in-yaml"
+  }
+}

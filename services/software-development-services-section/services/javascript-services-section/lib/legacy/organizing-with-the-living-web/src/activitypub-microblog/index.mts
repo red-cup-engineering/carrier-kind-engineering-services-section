@@ -9,7 +9,7 @@ import type {
   WebFingerAccount,
   WebFingerDecision,
   WebFingerQuery,
-} from "@emsenn/organizing-with-the-web/activitypub";
+} from "@red-cup-engineering/organizing-with-the-web/activitypub";
 import {
   NODEINFO_2_1_PATH,
   NODEINFO_WELL_KNOWN,
@@ -23,15 +23,15 @@ import {
   signHttpRequest,
   webfinger,
   witnessActivity,
-} from "@emsenn/organizing-with-the-web/activitypub";
-import type { FeedAuthor, FeedChannel, FeedItem, SitemapUrl } from "@emsenn/organizing-with-the-web/feed";
-import { assertHttpUrl, atom, escapeHtmlText, jsonFeed, jsonFeedObject, robots, rss2, sitemap } from "@emsenn/organizing-with-the-web/feed";
-import type { MicroformatAuthor, MicroformatEntry, MicroformatFeed, MicroformatProperties } from "@emsenn/organizing-with-the-semantic-web/microformats";
-import { hEntry, hFeed } from "@emsenn/organizing-with-the-semantic-web/microformats";
-import type { MicropubAppOptions, MicropubCommand, MicropubSource, MicropubWriter } from "@emsenn/organizing-with-the-web/micropub";
-import { commandAssertions, micropubApp } from "@emsenn/organizing-with-the-web/micropub";
-import { securityTxt, type SecurityTxt } from "@emsenn/organizing-with-the-semantic-web/page-metadata";
-import { minimal, render, type Theme, type ThemeContext } from "@emsenn/organizing-with-the-web/theming";
+} from "@red-cup-engineering/organizing-with-the-web/activitypub";
+import type { FeedAuthor, FeedChannel, FeedItem, SitemapUrl } from "@red-cup-engineering/organizing-with-the-web/feed";
+import { assertHttpUrl, atom, escapeHtmlText, jsonFeed, jsonFeedObject, robots, rss2, sitemap } from "@red-cup-engineering/organizing-with-the-web/feed";
+import type { MicroformatAuthor, MicroformatEntry, MicroformatFeed, MicroformatProperties } from "@red-cup-engineering/organizing-with-the-semantic-web/microformats";
+import { hEntry, hFeed } from "@red-cup-engineering/organizing-with-the-semantic-web/microformats";
+import type { MicropubAppOptions, MicropubCommand, MicropubSource, MicropubWriter } from "@red-cup-engineering/organizing-with-the-web/micropub";
+import { commandAssertions, micropubApp } from "@red-cup-engineering/organizing-with-the-web/micropub";
+import { securityTxt, type SecurityTxt } from "@red-cup-engineering/organizing-with-the-semantic-web/page-metadata";
+import { minimal, render, type Theme, type ThemeContext } from "@red-cup-engineering/organizing-with-the-web/theming";
 import {
   htmlRepr as serverHtmlRepr,
   jsonRepr as serverJsonRepr,

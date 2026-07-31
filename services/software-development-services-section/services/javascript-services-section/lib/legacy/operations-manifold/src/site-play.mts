@@ -1,4 +1,4 @@
-import { joinKnowledgeNames } from "@emsenn/animating";
+import { joinKnowledgeNames } from "@red-cup-engineering/animating";
 import type { ChargeValueName } from "@emsenn/relating";
 
 import { generatedAtRecord, numberField, recordOf, slug, stringField } from "./records.mts";

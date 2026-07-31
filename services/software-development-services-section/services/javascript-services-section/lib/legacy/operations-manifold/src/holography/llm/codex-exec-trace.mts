@@ -5,8 +5,8 @@ import {
   codexExecUsageCostEvents,
   parseCodexExecTraceJsonl,
   type CodexExecTraceCarrier,
-} from "@emsenn/organizing-with-openai-codex/session/events";
-import type { CostEvent } from "@emsenn/organizing-with-llm-agents/algebra";
+} from "@red-cup-engineering/organizing-with-openai-codex/session/events";
+import type { CostEvent } from "@red-cup-engineering/organizing-with-llm-agents/algebra";
 import { isJsonRecord, parseJson } from "@emsenn/relating/writing";
 import { chargeValueName, valueOf } from "@emsenn/relating";
 

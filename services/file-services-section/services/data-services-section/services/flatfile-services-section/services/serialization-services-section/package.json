@@ -3,12 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Proof-path section for decoded and encoded flatfile serializations.",
-  "x-agentic-metro-enterprise": {
-    "node-id": "serialization-services-section",
-    "actor": "urn:ame:serialization-services-section",
-    "organizational-kind": "circuit-board",
-    "owners": ["flatfile-services-section"],
-    "owned-services": ["services/json-file-services-section", "services/xml-file-services-section", "services/html-services-section", "services/toml-file-services-section", "services/yaml-file-services-section", "services/rdf-file-services-section"]
-  }
+  "description": "Proof-path section for decoded and encoded flatfile serializations."
 }

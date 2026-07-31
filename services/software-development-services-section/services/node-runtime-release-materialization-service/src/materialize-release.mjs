@@ -62,9 +62,15 @@ function runtimeDependencies(manifest) {
 async function copyPackage(source, target, manifest, entry = false) {
   await mkdir(target, { recursive: true });
   if (Array.isArray(manifest.files) && manifest.files.length > 0) {
-    const carriers = [...new Set(manifest.files.filter((carrier) => typeof carrier === "string" && !carrier.startsWith("!"))
+    const positiveCarriers = manifest.files.filter((carrier) => typeof carrier === "string" && !carrier.startsWith("!"));
+    const rootGlob = positiveCarriers.some((carrier) => carrier.split(/[?*[{]/u, 1)[0].replace(/\/$/u, "") === "");
+    const carriers = [...new Set(positiveCarriers
       .map((carrier) => carrier.split(/[?*[{]/u, 1)[0].replace(/\/$/u, ""))
       .filter(Boolean))];
+    // A root-level glob (for example zod's **/*.js) names runtime files at
+    // the package root. Copying only its empty static prefix silently omits
+    // those exports. copyTree still enforces the release-wide omissions.
+    if (rootGlob) await copyTree(source, target);
     for (const carrier of carriers) {
       const sourcePath = resolve(source, carrier);
       if (!inside(source, sourcePath) || !(await exists(sourcePath))) continue;
@@ -135,7 +141,10 @@ function conditionalExportTarget(target, patternMatch = null) {
 
 function packageExportTarget(manifest, subpath) {
   const exports = manifest.exports;
-  if (exports === undefined) return subpath === "." ? (manifest.main ?? "./index.js") : subpath;
+  if (exports === undefined) {
+    const target = subpath === "." ? (manifest.main ?? "./index.js") : subpath;
+    return target.startsWith("./") ? target : `./${target}`;
+  }
   if (typeof exports === "string" || Array.isArray(exports)) return subpath === "." ? conditionalExportTarget(exports) : null;
   if (exports === null || typeof exports !== "object") return null;
   const keys = Object.keys(exports);
@@ -307,6 +316,10 @@ export async function materializeNodeRuntimeRelease({ entryPackageDirectory, pro
         if (!EXACT_VERSION.test(requested ?? "")) throw new Error(`runtime dependency ${dependency} must use one exact provider version, received ${requested}`);
         const provider = index.get(dependency);
         if (provider && provider.manifest.version !== requested) throw new Error(`runtime dependency ${dependency} requested ${requested} but admitted provider is ${provider.manifest.version}`);
+        // The release carries one identity-selected provider per package.
+        // Seat that singleton at the application root so every consumer can
+        // resolve it; nesting the first traversal edge while de-duplicating by
+        // identity leaves later sibling consumers with no reachable package.
         await include(dependency, join(temporary, "app", "node_modules", ...dependency.split("/")));
       }
     }

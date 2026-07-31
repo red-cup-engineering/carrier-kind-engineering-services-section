@@ -4,8 +4,8 @@
 import { spawn } from "node:child_process";
 import process from "node:process";
 
-import type { App, Context, Repr } from "@emsenn/http-server";
-import { jsonRepr, readBody } from "@emsenn/http-server";
+import type { App, Context, Repr } from "@red-cup-engineering/http-server";
+import { jsonRepr, readBody } from "@red-cup-engineering/http-server";
 
 export type WebGatewayHeaderValue = string | readonly string[];
 export type WebGatewayHeaders = Record<string, WebGatewayHeaderValue>;

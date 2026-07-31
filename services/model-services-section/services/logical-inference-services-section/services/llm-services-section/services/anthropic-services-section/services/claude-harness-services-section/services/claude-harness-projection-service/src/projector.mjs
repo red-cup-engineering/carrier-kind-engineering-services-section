@@ -88,6 +88,14 @@ export function projectClaudeHarness({ policyPath, repoRoot, target = repoRoot, 
   if (colleagueIds(policy).includes(policy.rootOffice)) {
     throw new Error(`policy roster names its own rootOffice '${policy.rootOffice}' as a colleague — the root office is not projected as a subordinate`);
   }
+  // The root seat is checked by the same law, before any colleague is
+  // projected. loadPolicy only established that rootSeating names a character
+  // and an incumbency at all; here — where repoRoot is held — those records
+  // are resolved. The root office is not projected as a subagent, so the
+  // returned paths are not used: what is wanted is the refusal. A policy
+  // whose own root is bare projects nothing at all rather than dispatching a
+  // roster of colleagues out from under an officer who does not exist.
+  verifyIncumbency(policy.rootSeating, repoRoot, policy.rootOffice, "root");
   const projector = resolveOfficeProjector(repoRoot);
   const flags = dryRun ? ["--dry-run"] : [];
   const receipts = [];
@@ -95,7 +103,7 @@ export function projectClaudeHarness({ policyPath, repoRoot, target = repoRoot, 
     const officePath = join(repoRoot, office);
     if (!existsSync(officePath)) throw new Error(`policy names an office that seats nowhere: ${officePath}`);
     const id = office.split("/").at(-1).replace(/\.json$/u, "");
-    const { characterPath, incumbencyPath } = verifyIncumbency(policy, repoRoot, id);
+    const { characterPath, incumbencyPath } = verifyIncumbency(policy.colleagueSeatings[id], repoRoot, id);
     const result = spawnSync(
       process.execPath,
       [projector, officePath, target, "--root", repoRoot, "--character", characterPath, "--incumbency", incumbencyPath, ...flags],
@@ -110,19 +118,25 @@ export function projectClaudeHarness({ policyPath, repoRoot, target = repoRoot, 
 }
 
 // office + character + recognition + induction = officer, checked for real:
-// a colleague office is refused rather than projected unless there is an
-// incumbency record that seats exactly this office id, whose holder resolves
-// to an existing character record of kind "session". A vacant seat (no
-// incumbency, or one that does not resolve) is dispatchable data, never a
-// dispatchable officer — this is the check that keeps this projector from
-// ever again seating a bare office, which is what
+// an office is refused rather than projected unless there is an incumbency
+// record that seats exactly this office id, whose holder resolves to an
+// existing character record of kind "session". A vacant seat (no incumbency,
+// or one that does not resolve) is dispatchable data, never a dispatchable
+// officer — this is the check that keeps this projector from ever again
+// seating a bare office, which is what
 // harness-seats-bare-offices-without-incumbency was raised against.
-function verifyIncumbency(policy, repoRoot, id) {
-  const seating = policy.colleagueSeatings[id];
+//
+// One law, one implementation, applied to every seat the policy names. It
+// takes the seating pair rather than reading colleagueSeatings itself,
+// because rootSeating is the same pair under a different key and the root
+// office is subject to the same law: the seat a session already holds is not
+// exempt from having an officer behind it. `role` only names which seat is
+// being refused in the error; it never varies what is checked.
+function verifyIncumbency(seating, repoRoot, id, role = "colleague") {
   const incumbencyPath = join(repoRoot, seating.incumbency);
   if (!existsSync(incumbencyPath)) {
     throw new Error(
-      `colleague office '${id}' has no incumbency record seated at ${incumbencyPath} — refusing to project a bare office with no officer behind it`,
+      `${role} office '${id}' has no incumbency record seated at ${incumbencyPath} — refusing to project a bare office with no officer behind it`,
     );
   }
   let incumbency;
@@ -139,7 +153,7 @@ function verifyIncumbency(policy, repoRoot, id) {
   const characterPath = join(repoRoot, seating.character);
   if (!existsSync(characterPath)) {
     throw new Error(
-      `colleague office '${id}' names holder '${incumbency.holder}' but no character record is seated at ${characterPath} — refusing to project a bare office with no officer behind it`,
+      `${role} office '${id}' names holder '${incumbency.holder}' but no character record is seated at ${characterPath} — refusing to project a bare office with no officer behind it`,
     );
   }
   let character;

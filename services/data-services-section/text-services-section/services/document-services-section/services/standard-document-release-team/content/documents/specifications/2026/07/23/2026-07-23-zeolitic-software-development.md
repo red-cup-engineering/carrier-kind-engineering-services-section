@@ -67,7 +67,7 @@ cited by its exact repository-relative path as read on 2026-07-23.
 
 - `lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/content/documents/articles/notes/2026/07/23/2026-07-23-eda-as-diagenetic-zeolitization-of-digital-information.md` — the framing's canonical compact statement.
 - `lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/content/documents/articles/notes/2026/07/23/2026-07-23-software-process-design-kit.md` — the software register's own process design kit; this specification's design rules restate and cite the same exemplars this note names.
-- `lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/content/documents/articles/notes/2026/07/23/2026-07-23-finance-process-design-kit.md` — a sibling department projection, cited for the shared design-rule pattern (digest-pinned law, typed refusal, no self-attestation) it independently confirms against a different codebase.
+- `lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/content/documents/articles/notes/2026/07/23/2026-07-23-finance-process-design-kit.md` — a sibling department projection, cited for the shared design-rule pattern: digest-pinned law, typed refusal, exact attribution, and re-executable evidence regardless of producer identity.
 - `lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/content/documents/articles/notes/2026/07/18/2026-07-18-gyrobifastigial-chu-hoare-territory-audit.md` — the geometric and Hoare-traversal grounding (J26, Chu–Hoare complex) the framing note builds on.
 - `lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/content/glossary/terms/diagenetic-zeolitization.json`
 - `lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/services/leader-movement-team/content/glossary/terms/semiocenic-material.json`
@@ -239,22 +239,22 @@ rule that "within a domain the register is the domain's own (software
 speaks software)," per
 `.../2026-07-23-eda-as-diagenetic-zeolitization-of-digital-information.md`.
 
-### 4.7 No self-attestation (ruled practice, confirmed against two
-independent codebases)
+### 4.7 Exact attributable replay evidence (ruled practice)
 
-A die MUST NOT store its own status, health, or value. Every such fact MUST
-be derived by re-running a check. *Rule 7, software PDK.* The finance PDK's
+A stored status, health, or value MUST bind the exact inputs, profile, result,
+attribution, and material required to re-run its check. *Rule 7, software PDK.*
+Producer identity neither proves nor disproves the result. The finance PDK's
 rule 5 confirms the identical discipline for evidence: absence of evidence
 MUST be its own carried state, never folded into zero or false, so that a
-die never reports "no problem found" indistinguishably from "did not look."
+report never says "no problem found" indistinguishably from "did not look."
 
 ### 4.8 Cell library and design-rule checks (method)
 
 A department adopting this specification SHOULD maintain a cell library:
 exemplars in its own register that pattern-match the rules above, cited by
 running path rather than described in the abstract. This specification's
-own cell library, inherited from the software PDK and independently
-re-confirmed at draft time where noted, is: `formation-lianqun` (circuit
+own cell library, inherited from the software PDK and re-executed from
+declared evidence at draft time where noted, is: `formation-lianqun` (circuit
 of dies: the academy's live formation circuit, successor to the
 `formation-mape-chain` retired 2026-07-18 as excluded prior art) and
 `union-recovery-service` (enterprise-scale die: card, contracts, own

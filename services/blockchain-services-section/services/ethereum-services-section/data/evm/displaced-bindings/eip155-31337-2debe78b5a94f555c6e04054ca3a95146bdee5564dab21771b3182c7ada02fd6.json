@@ -1,0 +1,28 @@
+{
+  "profile": "org.emsenn.evm.sovereign-enterprise-account.v3",
+  "enterprise": {
+    "nodeId": "ethereum-services-section",
+    "urn": "urn:ame:ethereum-services-section",
+    "enterpriseId": "0xa92728e5fc19393b4daf4958876b6d8d11d396b7b5a7f57012133d6fea6e1ea5"
+  },
+  "chain": {
+    "chainId": 31337,
+    "caip2": "eip155:31337"
+  },
+  "account": {
+    "address": "0xdf313f202d23ac37388dc3a8e76ed00273e71529",
+    "caip10": "eip155:31337:0xdf313f202d23ac37388dc3a8e76ed00273e71529"
+  },
+  "factory": {
+    "address": "0xb334795bf50e4943d076dfb38d8c1a50f9f5a101",
+    "userSalt": "0xb673b5fd66617f5eff26630bd1a0fb00bfdb20d848798d261cdb44e690ea1e92"
+  },
+  "policy": {
+    "signer": "0x749c0ce5f121fe5dce20c6f5043c5be0c2334b86",
+    "custody": "settlement-private"
+  },
+  "deployment": {
+    "transaction": "0xaea0abfa0d81534076b132e8f52627f22f7eebc13b89be3ea37c2a19d1e86a67",
+    "block": 1268
+  }
+}

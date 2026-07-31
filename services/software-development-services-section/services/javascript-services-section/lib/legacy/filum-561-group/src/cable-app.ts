@@ -1,21 +1,21 @@
 // cable-app.ts — mount filum's newswire cable on web transport.
 //
 // The cable's FORMING (wires, sheath, surfaces, store, production kit) lives in
-// @emsenn/producing-content/organizing-a-newscable, web-free. This file is the thin transport
+// @red-cup-engineering/producing-content/organizing-a-newscable, web-free. This file is the thin transport
 // mount, parallel to koios's surface.ts: it injects filum's theme as the HTML
 // document shell (the `render` seam the forming leaves open) and wraps the
 // cable's `handle` in a single web App catch-all, routed by Host upstream.
 
 import { Buffer } from "node:buffer";
-import type { App } from "@emsenn/http-server";
-import { render } from "@emsenn/organizing-with-the-web/theming";
+import type { App } from "@red-cup-engineering/http-server";
+import { render } from "@red-cup-engineering/organizing-with-the-web/theming";
 import {
   createNewscable,
   readNewscableSiteConfig,
   aggregateWires,
   type Newscable,
   type RenderDocument,
-} from "@emsenn/producing-content/organizing-a-newscable";
+} from "@red-cup-engineering/producing-content/organizing-a-newscable";
 
 import { filumTheme } from "./theme.ts";
 

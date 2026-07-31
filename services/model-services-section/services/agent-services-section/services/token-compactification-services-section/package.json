@@ -1,0 +1,55 @@
+{
+  "name": "@red-cup-engineering/token-compactification-services-section",
+  "version": "0.1.1",
+  "description": "Deterministic, extractive-first, receipt-bearing compaction of LLM agent transcripts under a derived context budget, with Obsmetrologia erasure accounting.",
+  "type": "module",
+  "private": false,
+  "exports": {
+    ".": "./src/token-compactification.mjs",
+    "./erasure-nerve": "./src/erasure-nerve.mjs",
+    "./claude-transcript-adapter": "./src/claude-transcript-adapter.mjs",
+    "./inference-market-summarizer": "./src/inference-market-summarizer.mjs"
+  },
+  "dependencies": {
+    "@lenticule-science/english-language-algebra": "0.1.0"
+  },
+  "optionalDependencies": {
+    "@harmonious-union/inference-work-lot-service": "4.0.0"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "AGENTS.md"
+  ],
+  "scripts": {
+    "check": "node --check src/token-compactification.mjs && node --check src/erasure-nerve.mjs && node --check src/claude-transcript-adapter.mjs && node --check src/inference-market-summarizer.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm run test"
+  },
+  "keywords": [
+    "sovereign-state-enterprise",
+    "context-compaction",
+    "token-budget",
+    "transcript",
+    "llm-agent"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "actor",
+    "actor": "urn:ame:token-compactification-services-section",
+    "operations": [
+      "derive-context-budget",
+      "plan-token-compactification",
+      "apply-token-compactification",
+      "price-erasure-receipt",
+      "adapt-claude-transcript",
+      "contract-market-summarization"
+    ],
+    "capabilities": [{ "capability": "token-compactification", "faces": ["Node"] }],
+    "package": "@red-cup-engineering/token-compactification-services-section"
+  }
+}

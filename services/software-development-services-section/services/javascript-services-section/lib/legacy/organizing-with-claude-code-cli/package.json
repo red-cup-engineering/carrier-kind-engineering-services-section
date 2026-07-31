@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/organizing-with-claude-code-cli",
+  "name": "@red-cup-engineering/organizing-with-claude-code-cli",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "clean": "rm -rf dist .tmp/test-dist",
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json && chmod +x dist/scripts/run.mjs dist/scripts/session.mjs",
-    "prepack": "pnpm run rebuild",
-    "rebuild": "pnpm run clean && pnpm run build"
+    "prepack": "npm run rebuild",
+    "rebuild": "npm run clean && npm run build"
   },
   "bin": {
     "claude-run": "./dist/scripts/run.mjs",
@@ -60,8 +60,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/organizing-with-claude": "workspace:*",
-    "@emsenn/computing": "workspace:*",
+    "@red-cup-engineering/organizing-with-claude": "0.0.0",
+    "@red-cup-engineering/computing": "0.0.0",
     "@emsenn/relating": "workspace:*"
   },
   "devDependencies": {

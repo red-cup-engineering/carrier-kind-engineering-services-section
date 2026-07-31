@@ -1,5 +1,5 @@
 /**
- * @emsenn/organizing-with-jsnode/codecs - the JSNode package ecosystem as
+ * @red-cup-engineering/organizing-with-jsnode/codecs - the JSNode package ecosystem as
  * factual RDF and self-describing SVG.
  */
 export {

@@ -1,5 +1,5 @@
 import { readJsonBody, type App, type Repr } from "@emsenn/relating/running/http";
-import { JsonRpcClient, type JsonRpcClientOptions, type JsonRpcParams } from "@emsenn/organizing-with-the-web/jsonrpc";
+import { JsonRpcClient, type JsonRpcClientOptions, type JsonRpcParams } from "@red-cup-engineering/organizing-with-the-web/jsonrpc";
 import { linkHeader } from "@emsenn/relating/writing/http";
 import {
   logFor,
@@ -7,7 +7,7 @@ import {
   type Assertion,
   type AssertionTrace,
   type WorldInput,
-} from "@emsenn/organizing-with-the-web/assertion-worlds";
+} from "@red-cup-engineering/organizing-with-the-web/assertion-worlds";
 import {
   linkedDataSubject,
   subjectIri,
@@ -15,17 +15,17 @@ import {
   type LinkedDataCell,
   type LinkedDataSettleOptions,
   type LinkedDataSubject,
-} from "@emsenn/organizing-with-the-semantic-web/linked-data";
+} from "@red-cup-engineering/organizing-with-the-semantic-web/linked-data";
 import {
   paginate,
   paginationLinkHeader,
   type Page,
-} from "@emsenn/organizing-with-the-web/pagination";
+} from "@red-cup-engineering/organizing-with-the-web/pagination";
 import {
   authorizeBearer,
   type AuthDecision,
   type TokenPolicy,
-} from "@emsenn/organizing-with-the-web/sync-guard";
+} from "@red-cup-engineering/organizing-with-the-web/sync-guard";
 
 export type ContentField = LinkedDataCell;
 

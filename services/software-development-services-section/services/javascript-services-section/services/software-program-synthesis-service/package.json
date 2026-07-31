@@ -30,49 +30,14 @@
     "@red-cup-engineering/coding-context-projection-service": "1.0.0",
     "@lenticule-science/hierarchical-circuit-equivalence-assay": "1.0.0",
     "@harmonious-union/inference-work-lot-service": "4.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2",
     "@red-cup-engineering/sandbox-command-execution-service": "1.0.0",
     "@red-cup-engineering/software-mission-execution-service": "1.0.0",
-    "@red-cup-engineering/planned-transition-admission-service": "0.1.1"
+    "@red-cup-engineering/planned-transition-admission-service": "0.1.1",
+    "@red-cup-engineering/software-program-synthesis-solicitation-service": "1.0.0"
   },
   "engines": {
     "node": ">=22"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "software-program-synthesis-service",
-    "actor": "urn:ame:software-program-synthesis-service",
-    "organizational-kind": "software-program-circuit-provider",
-    "owners": [
-      "javascript-services-section"
-    ],
-    "admission": "one canonical RMN/CBOR SoftwareProgramSynthesisRequest received through the hired A2A 1.0 provider",
-    "refusal": "unbounded territory, unknown acceptance gates, cyclic or spatially unsound layout, noncanonical identity, customer-package import, or direct JSON/local-process customer invocation",
-    "operation-catalog": {
-      "invoke-software-program-synthesis": {
-        "contract": "content/contracts/software-program-synthesis.rml",
-        "protocols": [
-          "RMN",
-          "A2A 1.0",
-          "RWIL/RDF"
-        ],
-        "returns": "SoftwareProgramSynthesisContractResult|refusal",
-        "legacyCompatibility": false
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "javascript-services-section",
-    "kind": "capability-cell",
-    "actor": "urn:ame:software-program-synthesis-service",
-    "operations": ["invoke-software-program-synthesis"],
-    "capabilities": [
-      {
-        "capability": "software-program-synthesis-service",
-        "faces": ["invoke-software-program-synthesis"]
-      }
-    ],
-    "package": "@red-cup-engineering/software-program-synthesis-service"
   }
 }

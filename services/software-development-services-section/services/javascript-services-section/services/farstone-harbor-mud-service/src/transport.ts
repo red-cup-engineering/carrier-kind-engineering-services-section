@@ -15,12 +15,12 @@
  * yields its stdout — the literal "stuff that pipes out". A `Script` can equally be
  * an in-process async generator; both are just byte streams to the transport.
  *
- * The world logic lives in the packages (`@emsenn/fizzos`, and below it
+ * The world logic lives in the packages (`@red-cup-engineering/fizzos`, and below it
  * computing/games/relationality). The site is only transport.
  */
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import type { App, Context, Repr, Resource } from "@emsenn/http-server";
+import type { App, Context, Repr, Resource } from "@red-cup-engineering/http-server";
 
 /** What a script pipes out: a byte stream (the pipe) or a ready string. */
 export type Piped = AsyncIterable<Uint8Array> | string;

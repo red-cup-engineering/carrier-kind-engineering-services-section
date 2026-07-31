@@ -1,0 +1,8 @@
+#lang rmn/v2
+(map
+  ("type" "SovereignEnterpriseAccountProfile")
+  ("version" 3)
+  ("precondition" "typed RMN core v3 effect, canonical ERC-4337 EntryPoint v0.8, and settlement-owned policy authority")
+  ("operation" "authorize and execute one UserOperation carrying the exact SHA-256 RMN semantic digest")
+  ("postcondition" "emit the RMN core v3 profile digest and exact call commitment through the settlement smart account")
+  ("refusal" "EOA execution, direct policy-signer execution, missing RMN digest, noncanonical EntryPoint, or unbound chain identity"))

@@ -1,5 +1,5 @@
 {
-  "name": "@emsenn/farstone.561.group",
+  "name": "@red-cup-engineering/farstone-561-group",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -19,30 +19,12 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@emsenn/fizzos": "workspace:*",
-    "@emsenn/http-server": "workspace:*"
+    "@red-cup-engineering/fizzos": "0.0.1",
+    "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.8.0"
   },
-  "sideEffects": false,
-  "x-agentic-metro-enterprise": {
-    "node-id": "farstone-harbor-mud-service",
-    "actor": "urn:ame:farstone-harbor-mud-service",
-    "organizational-kind": "interactive-world-actuator",
-    "owners": [
-      "javascript-services-section"
-    ],
-    "admission": "one explicit Farstone server launch over the committed harbor world with caller-supplied host, port, and optional persistence path",
-    "refusal": "an invalid FARSTONE_PORT value",
-    "operation-catalog": {
-      "serve-farstone-harbor": {
-        "command": "node src/server.ts",
-        "configuration": "world/harbor.json with FARSTONE_HOST, FARSTONE_PORT, and optional FARSTONE_SAVE",
-        "returns": "a browser-accessible Farstone FizzOS MUD service; FARSTONE_SAVE enables checkpointed persistence"
-      }
-    }
-  },
-  "x-semiotic-voxel": {"profile":"org.harmonious-union.semiotic-voxel.v1","owner":"javascript-services-section","kind":"capability-cell","actor":"urn:ame:farstone-harbor-mud-service","operations":["serve-farstone-harbor"],"capabilities":[{"capability":"farstone-harbor-mud-service","faces":["serve-farstone-harbor"]}],"package":"@emsenn/farstone.561.group"}
+  "sideEffects": false
 }

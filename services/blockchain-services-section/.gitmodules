@@ -1,0 +1,3 @@
+[submodule "services/ethereum-services-section"]
+	path = services/ethereum-services-section
+	url = https://github.com/emsenn/ethereum-services-section.git

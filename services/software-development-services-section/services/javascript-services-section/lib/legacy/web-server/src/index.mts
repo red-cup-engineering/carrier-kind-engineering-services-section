@@ -1,4 +1,4 @@
-// @emsenn/web-server — deployable web-tier services.
+// @red-cup-engineering/web-server — deployable web-tier services.
 //
 // WebTics holds the web tier's utterance log. The binary gateway transports
 // whole HTTP requests through configured Node binaries over stdio.

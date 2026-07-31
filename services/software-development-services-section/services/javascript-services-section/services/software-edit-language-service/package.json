@@ -6,45 +6,5 @@
   "exports": "./src/edit-language.mjs",
   "scripts": {
     "test": "node --test"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "software-edit-language-service",
-    "actor": "urn:ame:software-edit-language-service",
-    "organizational-kind": "sovereign-software-development-die",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one bounded source plus deterministic SEARCH/REPLACE candidate",
-    "refusal": "whole-repository mutation, fuzzy unmatched edits, execution, inference, or acceptance",
-    "operation-catalog": {
-      "materialize-edit": {
-        "contract": "content/contracts/materialize-software-edit.rml",
-        "accepts": "typed bounded edit candidate",
-        "returns": "deterministic changed source or refusal"
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:software-edit-language-service",
-    "operations": [
-      "materialize-edit"
-    ],
-    "capabilities": [
-      {
-        "capability": "software-edit-language-service",
-        "faces": [
-          "materialize-edit"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/software-edit-language-service"
   }
 }

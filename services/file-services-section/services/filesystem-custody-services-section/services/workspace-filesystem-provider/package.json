@@ -3,22 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Root-confined POSIX reads and atomic writes with content-addressed custody receipts.",
+  "description": "Root-confined POSIX reads, atomic writes, and content-preserving relocations with content-addressed custody receipts.",
   "exports": "./src/index.mjs",
   "scripts": {
     "check": "node --check src/index.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
-  "engines": { "node": ">=22" },
-  "x-agentic-metro-enterprise": {
-    "node-id": "workspace-filesystem-provider",
-    "actor": "urn:ame:workspace-filesystem-provider",
-    "organizational-kind": "capability-cell",
-    "owners": ["filesystem-custody-services-section"],
-    "operation-catalog": {
-      "read-workspace-file": { "accepts": "a custody root and relative file path", "returns": "a bounded content-addressed read receipt" },
-      "write-workspace-file": { "accepts": "a custody root, relative file path, expected SHA-256, and UTF-8 content", "returns": "an atomic write receipt appended to the settlement outbox" }
-    }
+  "engines": {
+    "node": ">=22"
   }
 }

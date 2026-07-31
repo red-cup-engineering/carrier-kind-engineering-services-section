@@ -1,4 +1,4 @@
-import type { FeedAuthor, FeedChannel, FeedItem, SitemapUrl } from "@emsenn/organizing-with-the-web/feed";
+import type { FeedAuthor, FeedChannel, FeedItem, SitemapUrl } from "@red-cup-engineering/organizing-with-the-web/feed";
 import {
   assertHttpUrl,
   atom,
@@ -12,11 +12,11 @@ import {
   scalars,
   sitemap,
   slugify,
-} from "@emsenn/organizing-with-the-web/feed";
-import type { MicroformatAuthor, MicroformatEntry, MicroformatFeed, MicroformatProperties } from "@emsenn/organizing-with-the-semantic-web/microformats";
-import { hEntry, hFeed } from "@emsenn/organizing-with-the-semantic-web/microformats";
-import { securityTxt, type SecurityTxt } from "@emsenn/organizing-with-the-semantic-web/page-metadata";
-import type { FeedLink, FeedPage } from "@emsenn/organizing-with-the-web/pagination";
+} from "@red-cup-engineering/organizing-with-the-web/feed";
+import type { MicroformatAuthor, MicroformatEntry, MicroformatFeed, MicroformatProperties } from "@red-cup-engineering/organizing-with-the-semantic-web/microformats";
+import { hEntry, hFeed } from "@red-cup-engineering/organizing-with-the-semantic-web/microformats";
+import { securityTxt, type SecurityTxt } from "@red-cup-engineering/organizing-with-the-semantic-web/page-metadata";
+import type { FeedLink, FeedPage } from "@red-cup-engineering/organizing-with-the-web/pagination";
 import {
   hfeedAnchors,
   hfeedHeadLinks,
@@ -25,12 +25,12 @@ import {
   pagedLinksToAtom,
   pagedLinksToHeader,
   paginateFeed,
-} from "@emsenn/organizing-with-the-web/pagination";
-import type { TaxonomyIndex, TaxonomyItem } from "@emsenn/organizing-with-the-semantic-web/taxonomy";
-import { taxonomyIndex } from "@emsenn/organizing-with-the-semantic-web/taxonomy";
+} from "@red-cup-engineering/organizing-with-the-web/pagination";
+import type { TaxonomyIndex, TaxonomyItem } from "@red-cup-engineering/organizing-with-the-semantic-web/taxonomy";
+import { taxonomyIndex } from "@red-cup-engineering/organizing-with-the-semantic-web/taxonomy";
 import { readTextBody, type App, type Context, type Repr, type Resource } from "@emsenn/relating/running/http";
-import { minimal, render, type Theme, type ThemeContext } from "@emsenn/organizing-with-the-web/theming";
-import { classifyMention, receiveMention, type MentionType, type ReceiveResult } from "@emsenn/organizing-with-the-web/webmention";
+import { minimal, render, type Theme, type ThemeContext } from "@red-cup-engineering/organizing-with-the-web/theming";
+import { classifyMention, receiveMention, type MentionType, type ReceiveResult } from "@red-cup-engineering/organizing-with-the-web/webmention";
 
 export type BlogCell = Readonly<{ predicate: string; object: unknown; citation?: string; claimedBy?: string; contraryClaimedBy?: string }>;
 export type BlogAlgebra = Readonly<{ subject: string; potential?: readonly BlogCell[]; active?: readonly BlogCell[]; stable?: readonly BlogCell[]; t?: unknown }>;

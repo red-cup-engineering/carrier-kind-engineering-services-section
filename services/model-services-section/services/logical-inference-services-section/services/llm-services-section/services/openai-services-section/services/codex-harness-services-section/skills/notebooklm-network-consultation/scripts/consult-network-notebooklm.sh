@@ -29,7 +29,7 @@ done
 [[ $artifact = json || -z $result_schema ]] || { echo "--schema is valid only with --artifact json" >&2; exit 2; }
 
 repo=${EMSENN_REPOSITORY_ROOT:-/home/emsenn/info}
-runner="$repo/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/model-services-section/services/logical-inference-services-section/services/notebooklm-inference-team/run-one-exchange.py"
+runner="$repo/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/model-services-section/services/logical-inference-services-section/services/notebooklm-services-section/run-one-exchange.py"
 [[ -f $runner ]] || { echo "NotebookLM exchange harness unavailable: $runner" >&2; exit 1; }
 
 packet_dir=$(mktemp -d "${TMPDIR:-/tmp}/notebooklm-network-consult.XXXXXX")

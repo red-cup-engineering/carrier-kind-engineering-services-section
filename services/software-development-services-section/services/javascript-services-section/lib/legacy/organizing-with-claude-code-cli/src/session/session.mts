@@ -2,7 +2,7 @@
  * session — the Claude Code CLI coding-agent session computer.
  *
  * The same four capabilities the codex session computer exposes, over the SAME
- * generic substrate surfaced by @emsenn/organizing-with-claude/session, plus a `trace`
+ * generic substrate surfaced by @red-cup-engineering/organizing-with-claude/session, plus a `trace`
  * capability unique to a CLI we actually drive: project a `claude --output-format
  * json|stream-json` dump (or a persisted transcript) into findings/cost/work.
  *
@@ -19,7 +19,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { gitStatus } from "@emsenn/computing/git";
+import { gitStatus } from "@red-cup-engineering/computing/git";
 import {
   carrierFrom,
   action,
@@ -39,7 +39,7 @@ import {
   loadWorkspace,
   recallSessionSubject,
   renderSessionRecall,
-} from "@emsenn/organizing-with-claude/session";
+} from "@red-cup-engineering/organizing-with-claude/session";
 import { claudeUsageCostEvents, parseClaudeTrace } from "../events.mjs";
 
 export interface CliResult { readonly code: number; readonly output: string }

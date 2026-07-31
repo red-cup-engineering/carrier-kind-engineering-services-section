@@ -3,12 +3,12 @@
  *
  * `farstoneApp` is a landing page plus a table of transported routes. Each route's
  * handler runs a package script and streams whatever pipes out of it. The world is
- * not modelled here; it lives in the scripts (and in @emsenn/fizzos beneath them).
+ * not modelled here; it lives in the scripts (and in @red-cup-engineering/fizzos beneath them).
  * Adding to the world is adding a script and a row to the table — never plumbing a
  * new response object through the server.
  */
-import type { App } from "@emsenn/http-server";
-import { htmlRepr, mergeApps } from "@emsenn/http-server";
+import type { App } from "@red-cup-engineering/http-server";
+import { htmlRepr, mergeApps } from "@red-cup-engineering/http-server";
 import { pipeNode, transportApp } from "./transport.ts";
 
 const scriptsDir = new URL("../scripts/", import.meta.url);

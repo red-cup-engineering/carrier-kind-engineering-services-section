@@ -1,0 +1,26 @@
+{
+  "name": "@red-cup-engineering/blockchain-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "RCE's Blockchain Services Section: the parent home for every chain-specific blockchain service the Union operates, starting with Ethereum/EVM.",
+  "files": [
+    "bin",
+    "content",
+    "lib",
+    "src"
+  ],
+  "bin": {
+    "assay-blockchain-capability-cells": "./bin/assay-capability-cells.mjs"
+  },
+  "scripts": {
+    "check": "node --check lib/capability-cell.mjs && node --check bin/assay-capability-cells.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test",
+    "assay:cells": "node bin/assay-capability-cells.mjs"
+  },
+  "keywords": [
+    "blockchain"
+  ],
+  "license": "UNLICENSED"
+}

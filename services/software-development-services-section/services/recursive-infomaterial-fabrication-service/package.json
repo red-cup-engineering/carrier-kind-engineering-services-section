@@ -31,49 +31,7 @@
     "@lenticule-science/infomaterial-observation": "2.0.0",
     "@lenticule-science/infomaterial-patch-cover": "3.0.0",
     "@red-cup-engineering/recursive-observation-circuit-synthesis": "1.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "recursive-infomaterial-fabrication-service",
-    "actor": "urn:ame:recursive-infomaterial-fabrication-service",
-    "organizational-kind": "circuit-board-nation",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one exact synthesis, plate, cover, and M1 provider plus a total child-observer routing table",
-    "refusal": "self-owned synthesis, material access, route gaps or overlaps, provider substitution, direct-import fallback, partial fan-in, absent smart account, or absent RWIL seam",
-    "operation-catalog": {
-      "fabricate-directory-patch": {
-        "contract": "ni:///sha-256;cJoU8SHW5Kut5H2Zlv_LV8ye_cVmLuCdO9RCzikMXuw",
-        "protocol": "signed A2A Agent Card discovery, independent recursive synthesis, independent equivalence assay, then required-extension A2A 1.0 composition",
-        "accepts": "canonical RMN fabrication schedule naming signed synthesis, equivalence, and recursively composable patch-provider Agent Cards",
-        "returns": "canonical RMN patch-evidence receipt plus synthesis, equivalence, and execution seam receipt",
-        "legacyCompatibility": false
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:recursive-infomaterial-fabrication-service",
-    "operations": [
-      "fabricate-directory-patch"
-    ],
-    "capabilities": [
-      {
-        "capability": "recursive-infomaterial-fabrication-service",
-        "faces": [
-          "fabricate-directory-patch"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/recursive-infomaterial-fabrication-service"
   }
 }

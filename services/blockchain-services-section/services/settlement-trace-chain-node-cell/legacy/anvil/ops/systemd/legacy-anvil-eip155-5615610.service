@@ -1,0 +1,20 @@
+[Unit]
+# Historical reference only. This is not a live Besu unit.
+Description=Legacy Anvil Settlement Trace Chain (chain ID fixed in legacy/anvil/bin/run-chain.mjs)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/blockchain-services-section/services/settlement-trace-chain-node-cell
+Environment=TRACE_CHAIN_PORT=8561
+Environment=TRACE_CHAIN_STATE_INTERVAL=30
+Environment=ANVIL_BIN=/home/emsenn/.config/.foundry/bin/anvil
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node legacy/anvil/bin/run-chain.mjs
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

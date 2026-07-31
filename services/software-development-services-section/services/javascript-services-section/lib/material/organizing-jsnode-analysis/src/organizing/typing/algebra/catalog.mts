@@ -1,4 +1,4 @@
-import { observeLabels, type LabeledSettledMemeInput, type Observation } from "@emsenn/computing/operating";
+import { observeLabels, type LabeledSettledMemeInput, type Observation } from "@red-cup-engineering/computing/operating";
 import type { UtteranceCarrier } from "@emsenn/relating";
 
 import type { JsType } from "./type.mjs";

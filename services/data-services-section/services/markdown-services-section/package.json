@@ -1,0 +1,5 @@
+{
+  "name": "@red-cup-engineering/markdown-services-section",
+  "private": true,
+  "description": "Holds the services that operate on Markdown as a corpus, charting how a body of Markdown documents relates to itself, as distinct from the file-format codec services that read and write individual Markdown bytes. Use when working on how a set of Markdown notes cites, links, or depends on each other rather than how one Markdown file is parsed or serialized."
+}

@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "private": true,
   "type": "module",
-  "description": "Deterministic leaf-first cut-order derivation from independently assayed recursive circuit and material-layout evidence.",
+  "description": "Deterministic leaf-first cut-order derivation from exact attributable and re-executable recursive-circuit and material-layout evidence.",
   "exports": {
     ".": "./src/cut-graph.mjs",
     "./client": "./src/client.mjs"
@@ -26,49 +26,7 @@
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
     "@red-cup-engineering/infomaterial-layout-service": "5.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.0",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
     "@lenticule-science/rwil-rdf-projection-service": "1.0.2"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "infomaterial-cut-graph-service",
-    "actor": "urn:ame:infomaterial-cut-graph-service",
-    "organizational-kind": "micro-enterprise",
-    "owners": [
-      "software-development-services-section"
-    ],
-    "membrane": {
-      "law": "lib/",
-      "lasting-instances": "content/",
-      "append-only-instances": "data/"
-    },
-    "admission": "one M1 v2 circuit family, one exact sovereign assembly, one recursive cover, and mechanically refinement-gated carrier placement accepted by the hired layout provider",
-    "refusal": "self-attestation, identity drift, function labels, absent refinement receipts, containment cycles, missing carriers, inferred boundaries, retained carrier bytes, customer-material reads or writes, cut execution, legacy topology envelopes, or fallback paths",
-    "operation-catalog": {
-      "serve-infomaterial-cut-graph-a2a": {
-        "contract": "ni:///sha-256;BZN8qzQ-o--7d4pTBdvl4FmwO_e0FlZTUdQCQ5W85h0",
-        "protocol": "A2A 1.0",
-        "accepts": "application/rmn+cbor InfomaterialCutGraphRequest",
-        "returns": "application/rmn+cbor InfomaterialCutGraphReceipt|standard A2A refusal",
-        "legacyCompatibility": false
-      }
-    }
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:infomaterial-cut-graph-service",
-    "operations": [
-      "serve-infomaterial-cut-graph-a2a"
-    ],
-    "capabilities": [
-      {
-        "capability": "infomaterial-cut-graph-service",
-        "faces": [
-          "serve-infomaterial-cut-graph-a2a"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/infomaterial-cut-graph-service"
   }
 }

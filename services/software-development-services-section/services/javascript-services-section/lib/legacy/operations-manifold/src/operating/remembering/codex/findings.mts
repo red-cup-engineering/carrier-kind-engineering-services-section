@@ -1,4 +1,4 @@
-import { finding, recallStatus, type Finding } from "@emsenn/organizing-with-openai-codex/session";
+import { finding, recallStatus, type Finding } from "@red-cup-engineering/organizing-with-openai-codex/session";
 import { charge, chargeValue, isChargeValueName, valueOf, type ChargeValueName } from "@emsenn/relating";
 import type { EAVT, JsonValue } from "@emsenn/relating/writing";
 

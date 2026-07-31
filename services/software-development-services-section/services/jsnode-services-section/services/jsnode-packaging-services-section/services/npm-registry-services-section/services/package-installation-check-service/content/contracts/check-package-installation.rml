@@ -1,0 +1,7 @@
+(map
+  ("type" "AssaySemioticVoxelPackageInstallationLaw")
+  ("version" 1)
+  ("precondition" "Receive an immutable registry receipt, its npm client configuration, an explicit package-name selection only when unambiguous or an exact name-at-version release selection, and positive bounded parallelism.")
+  ("operation" "For each selected identity, create an isolated customer territory, install only that identity and version by registry name, refuse lifecycle scripts, validate npm's complete dependency tree, syntax-check shipped JavaScript, and verify every declared export, binary, main, module, type, and static relative import target remains inside the installed package membrane.")
+  ("postcondition" "Return one receipt whose package count equals the selection and whose records bind identity, version, installed dependency count, and shipped JavaScript count; erase assay territories after observation.")
+  ("refusal" "Refuse registry drift, install failure, missing or wrong identity, incomplete dependency tree, missing executable face, syntax failure, relative import membrane escape, missing relative import target, or assay-territory retention."))

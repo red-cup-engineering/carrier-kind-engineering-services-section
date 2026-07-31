@@ -19,7 +19,7 @@
  */
 
 import { readJsonBody } from "@emsenn/relating/running/http";
-import { jsonRepr, type App, type Context, type Repr } from "@emsenn/http-server";
+import { jsonRepr, type App, type Context, type Repr } from "@red-cup-engineering/http-server";
 
 import type { Character } from "./characters.mts";
 import { converse, type OpenAiMessage } from "./engine.mts";
