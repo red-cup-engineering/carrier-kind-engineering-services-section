@@ -78,7 +78,7 @@ export {
   perceiveInbox,
   type OrderedCollection,
 } from "./writing/activitypub/collections.mjs";
-// the RWIL functor: an agent's outbox IS its witness log (two channel-codes of one source)
+// the WitnessJournal functor: an agent's outbox IS its witness log (two channel-codes of one source)
 export {
   activityCell,
   activityFromCell,
@@ -415,7 +415,7 @@ export {
 // Unified agent identity (bridge #5): one AgentIdentity root, five coherent facets —
 // the ActivityPub Actor, did:web DID, A2A Agent Card, VC subject, and WebAuthn
 // credential are functorial views of one identity, so a single rotation/revocation
-// reflects across all of them. Each facet is an RWIL Reading; cohere proves any two
+// reflects across all of them. Each facet is an WitnessJournal Reading; cohere proves any two
 // commute through the shared identity witness.
 // See dev/docs/notes/2026-06-26-unified-agent-identity.md.
 export {

@@ -18,16 +18,16 @@ async function withFixture(fn) {
 test("reads frontmatter and headings for a well-formed document", async () => {
   await withFixture(async (root) => {
     await writeFile(
-      join(root, "rwil.md"),
-      "---\ntitle: RWIL RDF Projection\nslug: rwil-rdf-projection\n---\n# RWIL overview\n\nSome body text.\n\n## Design notes\n\nMore text.\n",
+      join(root, "witnessJournal.md"),
+      "---\ntitle: WitnessJournal RDF Projection\nslug: witness-journal-rdf-projection\n---\n# WitnessJournal overview\n\nSome body text.\n\n## Design notes\n\nMore text.\n",
     );
-    const index = await observeMarkdownDocumentIndex({ paths: ["rwil.md"], root });
+    const index = await observeMarkdownDocumentIndex({ paths: ["witnessJournal.md"], root });
     assert.equal(index.length, 1);
     const [entry] = index;
-    assert.equal(entry.path, "rwil.md");
-    assert.equal(entry.frontmatter.title, "RWIL RDF Projection");
-    assert.equal(entry.frontmatter.slug, "rwil-rdf-projection");
-    assert.deepEqual(entry.headings.map((h) => h.title), ["RWIL overview", "Design notes"]);
+    assert.equal(entry.path, "witnessJournal.md");
+    assert.equal(entry.frontmatter.title, "WitnessJournal RDF Projection");
+    assert.equal(entry.frontmatter.slug, "witness-journal-rdf-projection");
+    assert.deepEqual(entry.headings.map((h) => h.title), ["WitnessJournal overview", "Design notes"]);
   });
 });
 

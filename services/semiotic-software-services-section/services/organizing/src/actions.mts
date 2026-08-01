@@ -845,8 +845,8 @@ export const organizeDirectoryAction: Action = action({
   inputFormat: "string",
   outputFormat: "json",
   options: ["directory", "data-root", "content-root", "content-limit"],
-  summary: "Read a directory root as organizing's governed substrate: workspace packages, RWIL chronicles, content tree, constituents, and work items.",
-  description: "Domain: a directory path, passed as --directory or string input. Codomain: organizing/substrate/directory, a schema-backed intake reading whose packages come from local package manifests, chronicles from the RWIL/EAVT ledger, and content from the governed content tree.",
+  summary: "Read a directory root as organizing's governed substrate: workspace packages, WitnessJournal chronicles, content tree, constituents, and work items.",
+  description: "Domain: a directory path, passed as --directory or string input. Codomain: organizing/substrate/directory, a schema-backed intake reading whose packages come from local package manifests, chronicles from the WitnessJournal/EAVT ledger, and content from the governed content tree.",
   domain: directorySubstrateRequestCarrier,
   codomain: directorySubstrateCarrier,
   run: (input: unknown, args: Record<string, unknown>): JsonValue => {

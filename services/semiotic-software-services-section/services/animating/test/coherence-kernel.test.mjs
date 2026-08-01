@@ -1,5 +1,5 @@
 /**
- * Cross-package coherence: shipped protocol functors as RWIL readings.
+ * Cross-package coherence: shipped protocol functors as WitnessJournal readings.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -48,7 +48,7 @@ const otlpSpanReading = Object.freeze({
 
 const protocolReadings = Object.freeze([activityPubReading, cloudEventsReading, otlpSpanReading]);
 
-test("ActivityPub, CloudEvents, and OTLP are coherent readings of one RWIL witness", () => {
+test("ActivityPub, CloudEvents, and OTLP are coherent readings of one witness journal entry", () => {
   for (const left of protocolReadings) {
     for (const right of protocolReadings) {
       const report = cohere(left, right, witness);
@@ -57,7 +57,7 @@ test("ActivityPub, CloudEvents, and OTLP are coherent readings of one RWIL witne
   }
 });
 
-test("VC, x402, and AT Protocol are coherent log readings of one ordered RWIL witness log", () => {
+test("VC, x402, and AT Protocol are coherent log readings of one ordered witness journal entry log", () => {
   const repo = atRepo("did:plc:coherence", [
     atRepoCommit({
       did: "did:plc:coherence",

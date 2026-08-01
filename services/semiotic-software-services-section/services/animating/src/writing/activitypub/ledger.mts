@@ -1,13 +1,13 @@
 /**
- * writing/activitypub/ledger — the RWIL functor: an agent's outbox IS its witness log.
+ * writing/activitypub/ledger — the WitnessJournal functor: an agent's outbox IS its witness log.
  *
- * This is the load-bearing claim of the RWIL note made into code: a `log` of EAVT
+ * This is the load-bearing claim of the WitnessJournal note made into code: a `log` of EAVT
  * witnesses (relating's witness ledger) and an `outbox` of AS2 Activities (WMAP's
  * across face) are two CHANNEL-CODES of one information source. This module is the
  * functor `F: Activity → EAVT witness` (`activityCell`) and its inverse
  * `G: witness → Activity` (`activityFromCell`); the isomorphism laws — round-trip,
  * surprisal-dedup, ⊤-preservation, and the bulk merge-square — are pinned in
- * test/rwil-outbox-iso.test.mjs.
+ * test/witness-journal-outbox-iso.test.mjs.
  *
  * No second ontology: `F` reuses the existing utterance bridge verbatim
  * (`utteranceFromActivity` / `activityFromUtterance`). The ONLY thing the EAVT form

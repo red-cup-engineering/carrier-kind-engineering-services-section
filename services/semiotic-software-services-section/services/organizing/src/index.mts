@@ -408,7 +408,7 @@ export {
 
 // ── the coordinated consensus frontier: Raft as the fallback where CALM fails ──
 // monotone operations lift with no Raft round; non-monotone operations enter the
-// leader-elected, totally ordered RWIL log with one command per index.
+// leader-elected, totally ordered WitnessJournal log with one command per index.
 export {
   raftLeadershipCarrier,
   raftLogEntryCarrier,
@@ -524,7 +524,7 @@ export {
   transactionAttestationCarrier,
   transactionWitnessCarrier,
   transactionWitness,
-  rwilWitnessOf,
+  WitnessJournalOf,
   transactionFromWitness,
   attestTransaction,
   makeTransactionWitness,

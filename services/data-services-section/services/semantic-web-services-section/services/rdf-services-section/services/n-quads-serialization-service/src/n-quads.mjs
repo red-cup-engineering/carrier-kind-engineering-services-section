@@ -1,17 +1,17 @@
 // n-quads — serializes named-graph quad sets to W3C RDF 1.1 N-Quads text
 // (W3C Recommendation, 25 February 2014, https://www.w3.org/TR/n-quads/).
-// Adapted byte-for-byte from the RWIL RDF projection service's
+// Adapted byte-for-byte from the WitnessJournal RDF projection service's
 // `nquadObject` helper and its inline per-statement line template
 // (`<s> <p> object <g> .`, one line per statement, joined with a trailing
 // newline); this package extracts just the N-Quads text production, taking
-// a plain quad set rather than a settlement-typed RWIL batch.
+// a plain quad set rather than a settlement-typed WitnessJournal batch.
 import { iri } from "../../rdf-term-construction-service/src/rdf-terms.mjs";
 
 function fail(message) {
   throw new Error(message);
 }
 
-// Quote a literal's lexical form the same way the RWIL source does: as a
+// Quote a literal's lexical form the same way the WitnessJournal source does: as a
 // JSON string. JSON's `"`/`\`/control-character escaping is a subset of
 // N-Quads STRING_LITERAL_QUOTE's ECHAR/UCHAR escaping, so the result is
 // always a valid N-Quads quoted literal.

@@ -38,7 +38,7 @@
  * bricks — recorded as frontiers in dev/docs/notes/2026-06-25-dids-vcs-as-communicating.md.
  */
 import { carrierFrom, codecs, mark, claim, type Claim, type ChargeValueName, type FromSchema, type JsonValue } from "@red-cup-engineering/relating";
-import type { LogReading, RWILWitnessLog } from "@red-cup-engineering/relating/ledger";
+import type { LogReading, WitnessJournal } from "@red-cup-engineering/relating/ledger";
 import type { Actor } from "../activitypub/actor.mjs";
 import type { Capability } from "../activitypub/capability.mjs";
 import { signingString, signRequest, verifyRequest } from "../activitypub/signatures.mjs";
@@ -334,42 +334,42 @@ export function claimOfCredential(credential: VerifiableCredential): Claim {
 }
 
 function credentialWitnessBase(credential: VerifiableCredential): string {
-  return `urn:rwil:animating:did:credential:${credential.id ?? `${credential.issuer}:${credential.credentialSubject.id}:${credential.issuanceDate}`}`;
+  return `urn:witnessJournal:animating:did:credential:${credential.id ?? `${credential.issuer}:${credential.credentialSubject.id}:${credential.issuanceDate}`}`;
 }
 
 function credentialSubjectRecord(credential: VerifiableCredential): Record<string, unknown> {
   return credential.credentialSubject as unknown as Record<string, unknown>;
 }
 
-function witnessLogOfSubject(credential: VerifiableCredential): RWILWitnessLog | undefined {
+function witnessLogOfSubject(credential: VerifiableCredential): WitnessJournal | undefined {
   const witnessLog = credentialSubjectRecord(credential)["witnessLog"];
   if (!Array.isArray(witnessLog)) return undefined;
   return Object.freeze(witnessLog.map((row) => eavtRecord(row as EAVTRecord)));
 }
 
-function firstWitnessTime(log: RWILWitnessLog): string {
+function firstWitnessTime(log: WitnessJournal): string {
   const time = log[0]?.t;
   return typeof time === "string" && time.length > 0 ? time : new Date(0).toISOString();
 }
 
 /**
- * credentialFromWitness — wrap an ordered RWIL log as a VC envelope.
+ * credentialFromWitness — wrap an ordered WitnessJournal log as a VC envelope.
  *
  * The log is carried inside the credential subject so the envelope, not only the
  * subject claim text, is a reversible wire for higher-block coherence.
  */
-export function credentialFromWitness(log: RWILWitnessLog, options: CredentialWitnessOptions = {}): VerifiableCredential {
+export function credentialFromWitness(log: WitnessJournal, options: CredentialWitnessOptions = {}): VerifiableCredential {
   const witnessLog = Object.freeze(log.map((row) => eavtRecord(row)));
   const issuanceDate = options.issuanceDate ?? firstWitnessTime(witnessLog);
   return credentialCarrier.assert(Object.freeze({
     "@context": [...VC_CONTEXT],
     ...(options.id === undefined ? {} : { id: options.id }),
-    type: ["VerifiableCredential", "RWILLogCredential"],
+    type: ["VerifiableCredential", "WitnessJournalLogCredential"],
     issuer: options.issuer ?? "did:web:dev.bare-cedar-fog.emsenn.net:agents:codex",
     issuanceDate,
     credentialSubject: Object.freeze({
-      id: options.subject ?? "urn:rwil:shared-log",
-      claim: options.claim ?? "carries-rwil-witness-log",
+      id: options.subject ?? "urn:witnessJournal:shared-log",
+      claim: options.claim ?? "carries-witness-journal-log",
       witnessLog,
     }),
     charge: options.charge ?? "potential",
@@ -377,14 +377,14 @@ export function credentialFromWitness(log: RWILWitnessLog, options: CredentialWi
 }
 
 /**
- * witnessFromCredential — recover the ordered RWIL log carried by a VC envelope.
+ * witnessFromCredential — recover the ordered WitnessJournal log carried by a VC envelope.
  *
  * Credentials minted by `credentialFromWitness` return their embedded shared
  * log. Other credentials still admit a witness: the whole VC envelope unfolded
  * as JSON EAVT rows, so signed credentials are read as envelope evidence rather
  * than collapsed to only `credentialSubject.claim`.
  */
-export function witnessFromCredential(credential: VerifiableCredential): RWILWitnessLog {
+export function witnessFromCredential(credential: VerifiableCredential): WitnessJournal {
   const admitted = credentialCarrier.assert(credential, "credential witness") as VerifiableCredential;
   const embedded = witnessLogOfSubject(admitted);
   if (embedded !== undefined) return embedded;
@@ -400,7 +400,7 @@ export const credentialLogReading: LogReading<VerifiableCredential> = Object.fre
   fromWire: witnessFromCredential,
 });
 
-export function credentialEnvelopeFromWitnessLog(log: RWILWitnessLog): VerifiableCredential {
+export function credentialEnvelopeFromWitnessLog(log: WitnessJournal): VerifiableCredential {
   return credentialCarrier.assert(foldJson(log), "credential envelope witness log") as VerifiableCredential;
 }
 

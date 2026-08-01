@@ -103,7 +103,7 @@ test("the quartet algebra is executable: both nucleus-paths commute to Process",
   assert.equal(advanceExecution(inquiry).closureKind, "derivation");
 });
 
-test("the perceive-act-witness loop induces only invocable skills from its own RWIL history", () => {
+test("the perceive-act-witness loop induces only invocable skills from its own WitnessJournal history", () => {
   const root = mkdtempSync(path.join(tmpdir(), "animating-skill-loop-"));
   const store = {
     logDir: path.join(root, "log"),
@@ -172,7 +172,7 @@ test("the perceive-act-witness loop induces only invocable skills from its own R
   }
 });
 
-test("skill ecology reads practice regimes and obstruction repair skills from the RWIL light cone", () => {
+test("skill ecology reads practice regimes and obstruction repair skills from the WitnessJournal light cone", () => {
   const success = {
     kind: "animating.skill.play",
     agent: "sol",

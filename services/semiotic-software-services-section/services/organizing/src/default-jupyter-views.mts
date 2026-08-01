@@ -2,7 +2,7 @@
  * default-jupyter-views - the organizing-owned Jupyter/data-science projections.
  *
  * This is not a bespoke dashboard. It is the default notebook set over an
- * organizing instance's carriers: RWIL witnesses, MASH/session events, camps,
+ * organizing instance's carriers: witness journal entries, MASH/session events, camps,
  * graded federation reports, accountable records, and an optional JS/Node package
  * mesh supplied by a downstream workspace reader.
  */
@@ -19,7 +19,7 @@ import {
   type ChargeValueName,
   type JsonValue,
 } from "@red-cup-engineering/relating";
-import { type RWILWitness } from "@red-cup-engineering/relating/ledger";
+import { type WitnessJournalEntry } from "@red-cup-engineering/relating/ledger";
 import {
   readEntriesAtPath,
   type WitnessJournalDirectories as WitnessStore,
@@ -86,7 +86,7 @@ export interface OrganizingDefaultViewSessionEvent {
 export interface OrganizingDefaultJupyterViewsInput {
   readonly instance: string;
   readonly exportedAt?: string;
-  readonly witnessRows?: readonly (EAVT | EAVTRecord | RWILWitness)[];
+  readonly witnessRows?: readonly (EAVT | EAVTRecord | WitnessJournalEntry)[];
   readonly witnessLedger?: OrganizingWitnessLedgerHandle;
   readonly sessionEvents?: readonly OrganizingDefaultViewSessionEvent[];
   readonly camps?: readonly Camp[];
@@ -271,7 +271,7 @@ export function organizingDefaultNotebookDocuments(instance: string, exportedAt:
 }
 
 export function organizingDefaultViewSessionEventsFromWitnessRows(
-  rows: readonly (EAVT | EAVTRecord | RWILWitness)[],
+  rows: readonly (EAVT | EAVTRecord | WitnessJournalEntry)[],
 ): readonly OrganizingDefaultViewSessionEvent[] {
   return Object.freeze(rows
     .map((row, index) => sessionEventFromWitnessRow(eavtRecord(row), index))
@@ -323,7 +323,9 @@ function normalizeWitnessRows(input: OrganizingDefaultJupyterViewsInput): readon
   }
   return Object.freeze(rows.map(({ row, source }) => {
     const chargeName = chargeNameOf(row);
-    const [truth, falsity] = chargeValue(chargeName).coordinates.map(chargeSideName);
+    const coordinates = chargeValue(chargeName).coordinates;
+    const truth = chargeSideName(coordinates[0]);
+    const falsity = chargeSideName(coordinates[1]);
     return Object.freeze({
       id: eavtId(row),
       entity: row.e,
@@ -561,13 +563,13 @@ function defaultNotebookDocuments(instance: string, exportedAt: string): readonl
     {
       id: "witness-ledger",
       title: "Organizing Witness Ledger",
-      summary: "RWIL EAVT rows with bilattice charge, knowledge-order, and truth-order columns.",
+      summary: "WitnessJournal EAVT rows with bilattice charge, knowledge-order, and truth-order columns.",
       cells: witnessLedgerCells(),
     },
     {
       id: "infotile-field",
       title: "Organizing InfoTile Field",
-      summary: "RWIL witness rows as a finite FOUR-coloured tile field.",
+      summary: "witness journal entry rows as a finite FOUR-coloured tile field.",
       cells: infotileFieldCells(),
     },
     {
@@ -663,7 +665,7 @@ def load_jsonl(name, columns):
 
 function witnessLedgerCells(): readonly OrganizingNotebookCell[] {
   return Object.freeze([
-    markdown("# Witness Ledger\n\nRWIL EAVT rows projected with charge, leq_k, and leq_t columns."),
+    markdown("# Witness Ledger\n\nWitnessJournal EAVT rows projected with charge, leq_k, and leq_t columns."),
     setupCell(),
     code(`ledger = load_jsonl("witness-ledger.jsonl", ["id", "entity", "attribute", "value", "time", "source", "charge", "truth_side", "falsity_side", "leq_k", "leq_t"])
 ledger[["id", "source", "time", "attribute", "charge", "leq_k", "leq_t", "entity", "value"]]`),
@@ -679,7 +681,7 @@ alt.Chart(charge_counts).mark_bar().encode(
 
 function infotileFieldCells(): readonly OrganizingNotebookCell[] {
   return Object.freeze([
-    markdown("# InfoTile Field\n\nRWIL witness rows read as a finite FOUR-coloured tile field. This is an operational projection over the canonical witness ledger, not a separate display ledger."),
+    markdown("# InfoTile Field\n\nwitness journal entry rows read as a finite FOUR-coloured tile field. This is an operational projection over the canonical witness ledger, not a separate display ledger."),
     setupCell(),
     code(`tiles = load_jsonl("infotile-field.jsonl", ["id", "title", "role", "source", "charge", "truth_side", "falsity_side", "leq_k", "leq_t", "x", "y", "evidence", "time", "entity", "attribute", "value"])
 tiles[["id", "source", "charge", "leq_k", "leq_t", "x", "y", "evidence", "time"]]`),

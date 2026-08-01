@@ -3,7 +3,7 @@
  * Agent Card, VC subject, and WebAuthn credential are ONE identity — coherent functorial
  * views of a single AgentIdentity root. These tests pin the three laws:
  *   (a) all five facets derive from one identity and round-trip back to it through the
- *       RWIL coherence kernel;
+ *       WitnessJournal coherence kernel;
  *   (b) the projections COMMUTE — DID, Actor, Agent Card, VC subject agree on the one
  *       DID-rooted identity;
  *   (c) one rotation / revocation of the root reflects across every facet's id

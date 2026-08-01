@@ -11,7 +11,7 @@ import {
   attestationReading,
   isAccountable,
   makeTransactionWitness,
-  rwilWitnessOf,
+  WitnessJournalOf,
   sameAccountableWitness,
   transactionWitness,
   x402ReceiptReading,
@@ -117,9 +117,9 @@ test("a claimed payment without a witnessed x402 receipt surfaces as bilattice t
   assert.deepEqual(report.disputed, ["payment is claimed but no witnessed x402 receipt is present"]);
 });
 
-test("the same RWIL witness reads as capability invoke, x402 receipt, and attestation", () => {
+test("the same witness journal entry reads as capability invoke, x402 receipt, and attestation", () => {
   const witness = transaction();
-  const row = rwilWitnessOf(witness);
+  const row = WitnessJournalOf(witness);
   const capabilityWire = capabilityInvokeReading.toWire(row);
   const receiptWire = x402ReceiptReading.toWire(row);
   const attestationWire = attestationReading.toWire(row);

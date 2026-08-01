@@ -55,7 +55,7 @@ function workspaceFixture(root) {
   };
 }
 
-test("directory substrate reads packages, RWIL/EAVT chronicles, content, constituents, and work items", () => {
+test("directory substrate reads packages, WitnessJournal/EAVT chronicles, content, constituents, and work items", () => {
   const root = fixtureRoot();
   const reading = readDirectorySubstrate(root, {
     dataRoot: "data",

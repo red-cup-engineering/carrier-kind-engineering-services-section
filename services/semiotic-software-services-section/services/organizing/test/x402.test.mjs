@@ -59,7 +59,7 @@ test("a 402 challenge crosses the membrane as a payment and settles to a receipt
   assert.equal(receipt.valueConserved, true);
 });
 
-test("a settled payment is a witnessed exchange in the RWIL ledger", () => {
+test("a settled payment is a witnessed exchange in the WitnessJournal ledger", () => {
   const payment = paymentFromChallenge(challenge, {
     payer: "did:web:agent.example",
     authorization: "test-authorization-only",

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { startRmnProviderProcess } from "../src/test-provider.mjs";
 
 const root = new URL("../", import.meta.url);
-const service = readFileSync(new URL("ops/systemd/bare-cedar-fog-rmn-semantic-conformance.service", root), "utf8");
+const service = readFileSync(new URL("data/records/systemd/bare-cedar-fog-rmn-semantic-conformance.service", root), "utf8");
 
 function serviceValue(key) {
   return service.split(/\r?\n/u).find((line) => line.startsWith(`${key}=`))?.slice(key.length + 1);

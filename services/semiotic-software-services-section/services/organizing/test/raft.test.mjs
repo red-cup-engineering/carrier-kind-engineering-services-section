@@ -41,7 +41,7 @@ test("Raft preserves one-value-per-index safety under concurrent appends", () =>
   ]);
 
   const state = projectRaftState(result.log);
-  assert.equal(Object.keys(state).length, 2, "RWIL projection has one entity per log index");
+  assert.equal(Object.keys(state).length, 2, "WitnessJournal projection has one entity per log index");
   assert.equal(state['["organizing","raft","ops",1]'].leader, "mara");
   assert.deepEqual(state['["organizing","raft","ops",1]'].command, { set: "budget", value: 10 });
 });

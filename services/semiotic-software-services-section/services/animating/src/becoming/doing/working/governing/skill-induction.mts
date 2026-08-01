@@ -1,5 +1,5 @@
 /**
- * skill-induction -- fold an agent's own RWIL light cone back into invocable skills.
+ * skill-induction -- fold an agent's own WitnessJournal light cone back into invocable skills.
  *
  * The ledger is the memory medium: each successful play is witnessed as an EAVT
  * invocation row (E = agent, A = skill+locus+input, V = result, T = time). Folding
@@ -12,7 +12,7 @@ import {
   registerLogReading,
   type Feed,
   type LogReading,
-  type RWILWitness,
+  type WitnessJournalEntry,
   type Witness,
 } from "@red-cup-engineering/relating/ledger";
 import {
@@ -120,7 +120,7 @@ export interface SkillCapabilityProjection {
 
 export interface SkillEcologyTrace {
   readonly kind: "animating.skill.ecology-trace";
-  readonly witnessLog: readonly RWILWitness[];
+  readonly witnessLog: readonly WitnessJournalEntry[];
   readonly induction: SkillInductionReport;
 }
 
@@ -167,7 +167,7 @@ export interface SkillInductionOptions {
 export interface WitnessedSkillLoopInput extends SkillInductionOptions {
   readonly input: JsonValue;
   readonly memory?: JsonValue;
-  readonly witnessLog: readonly RWILWitness[];
+  readonly witnessLog: readonly WitnessJournalEntry[];
   readonly agent?: AgentOptions;
 }
 
@@ -180,19 +180,19 @@ export interface WitnessedSkillLoop {
 
 export const skillEcologyLogReading: LogReading<SkillEcologyTrace> = registerLogReading(Object.freeze({
   id: "animating.skill.ecology",
-  toWire: (witnessLog: readonly RWILWitness[]): SkillEcologyTrace =>
+  toWire: (witnessLog: readonly WitnessJournalEntry[]): SkillEcologyTrace =>
     skillEcologyTraceFromWitnessLog(witnessLog, { affordances: [] }),
-  fromWire: (wire: SkillEcologyTrace): readonly RWILWitness[] => wire.witnessLog,
+  fromWire: (wire: SkillEcologyTrace): readonly WitnessJournalEntry[] => wire.witnessLog,
 }));
 
 export const skillPlayFeed: Feed<SkillPlayObservation> = Object.freeze({
   name: SKILL_PLAY_FEED,
   functional: Object.freeze([]),
-  cellize: (observation: SkillPlayObservation, at: Witness): readonly RWILWitness[] =>
+  cellize: (observation: SkillPlayObservation, at: Witness): readonly WitnessJournalEntry[] =>
     Object.freeze([skillPlayWitness(observation, at)]),
 });
 
-export function skillPlayWitness(observation: SkillPlayObservation, at: Witness): RWILWitness {
+export function skillPlayWitness(observation: SkillPlayObservation, at: Witness): WitnessJournalEntry {
   const attribute: SkillPlayAttribute = Object.freeze({
     kind: SKILL_PLAY_ATTRIBUTE_KIND,
     name: observation.name,
@@ -216,12 +216,12 @@ export function witnessSkillPlay(
   return witnessObservation(store, skillPlayFeed, observation, at);
 }
 
-export function readSkillPlayWitnesses(store: WitnessStore): readonly RWILWitness[] {
+export function readSkillPlayWitnesses(store: WitnessStore): readonly WitnessJournalEntry[] {
   return Object.freeze(readWitnessLog(store, SKILL_PLAY_FEED));
 }
 
 export function candidateSkillsFromWitnessLog(
-  witnessLog: readonly RWILWitness[],
+  witnessLog: readonly WitnessJournalEntry[],
   opts: { readonly minEvidence?: number } = {},
 ): readonly CandidateSkill[] {
   const minEvidence = opts.minEvidence ?? 1;
@@ -268,7 +268,7 @@ export function candidateSkillsFromWitnessLog(
 }
 
 export function skillEcologyTraceFromWitnessLog(
-  witnessLog: readonly RWILWitness[],
+  witnessLog: readonly WitnessJournalEntry[],
   opts: SkillInductionOptions,
 ): SkillEcologyTrace {
   return Object.freeze({
@@ -278,7 +278,7 @@ export function skillEcologyTraceFromWitnessLog(
   });
 }
 
-export function skillPracticeFromWitnessLog(witnessLog: readonly RWILWitness[]): readonly SkillPracticeProfile[] {
+export function skillPracticeFromWitnessLog(witnessLog: readonly WitnessJournalEntry[]): readonly SkillPracticeProfile[] {
   const groups = new Map<string, MutablePractice>();
   for (const row of witnessLog) {
     const play = playFromWitness(row);
@@ -334,7 +334,7 @@ export function skillPracticeFromWitnessLog(witnessLog: readonly RWILWitness[]):
 }
 
 export function skillObstructionsFromWitnessLog(
-  witnessLog: readonly RWILWitness[],
+  witnessLog: readonly WitnessJournalEntry[],
   opts: { readonly minEvidence?: number } = {},
 ): readonly SkillObstruction[] {
   const minEvidence = opts.minEvidence ?? 1;
@@ -381,7 +381,7 @@ export function skillObstructionsFromWitnessLog(
 }
 
 export function induceSkillsFromWitnessLog(
-  witnessLog: readonly RWILWitness[],
+  witnessLog: readonly WitnessJournalEntry[],
   opts: SkillInductionOptions,
 ): SkillInductionReport {
   const candidates = candidateSkillsFromWitnessLog(
@@ -437,7 +437,7 @@ export function publishSkillEcology(report: SkillInductionReport, opts: { readon
         type: "object",
         additionalProperties: false,
         properties: {
-          input: { description: "skill input witnessed into the animating RWIL play log" },
+          input: { description: "skill input witnessed into the animating WitnessJournal play log" },
           capability: { const: entry.capability.id },
           locus: { const: entry.locus },
         },
@@ -473,7 +473,7 @@ export function closeWitnessedSkillLoop(input: WitnessedSkillLoopInput): Witness
   });
 }
 
-function playFromWitness(row: RWILWitness): { readonly attribute: SkillPlayAttribute; readonly value: SkillPlayValue } | null {
+function playFromWitness(row: WitnessJournalEntry): { readonly attribute: SkillPlayAttribute; readonly value: SkillPlayValue } | null {
   if (!isSkillPlayAttribute(row.a) || !isSkillPlayValue(row.v)) return null;
   return { attribute: row.a, value: row.v };
 }
@@ -496,7 +496,7 @@ interface MutableObstruction {
   evidence: number;
 }
 
-function practiceKey(row: RWILWitness, attribute: SkillPlayAttribute): string {
+function practiceKey(row: WitnessJournalEntry, attribute: SkillPlayAttribute): string {
   return canonical({
     agent: row.e,
     name: attribute.name,

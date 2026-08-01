@@ -604,7 +604,7 @@ function edgeWitnessAttribute(edge: PipelineEdge): string {
 }
 
 /**
- * captpWitnessLog — read a CapTP authority graph as an RWIL-shaped EAVT log.
+ * captpWitnessLog — read a CapTP authority graph as an witness-journal-shaped EAVT log.
  * This is the holographic bridge: the transport graph is not merely control
  * flow; every admitted or blocked power becomes a durable witness row. Blocked
  * rows are kept deliberately, because absence of authority is evidence.
@@ -875,7 +875,7 @@ export function turnTraceFromAuthorityGraph(
   };
 }
 
-/** Project a turn trace to RWIL-shaped rows: the temporal face of the same power. */
+/** Project a turn trace to witness-journal-shaped rows: the temporal face of the same power. */
 export function turnTraceWitnessLog(trace: CapTpTurnTrace, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(trace.events.map((event, index) => Object.freeze({
     e: event.to,
@@ -935,7 +935,7 @@ export function causalFrontierFromTurnTraces(
   });
 }
 
-/** Project a causal frontier to RWIL-shaped rows: vector time as witness rows. */
+/** Project a causal frontier to witness-journal-shaped rows: vector time as witness rows. */
 export function causalFrontierWitnessLog(frontier: CapTpCausalFrontier, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(frontier.events.map((entry, index) => Object.freeze({
     e: entry.event.to,
@@ -999,7 +999,7 @@ export function baCausalFrame(ba: AuthorityBa, frontier: CapTpCausalFrontier): C
   });
 }
 
-/** Project a ba-local causal frame to RWIL-shaped rows. */
+/** Project a ba-local causal frame to witness-journal-shaped rows. */
 export function baCausalFrameWitnessLog(frame: CapTpBaCausalFrame, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(frame.events.map((entry, index) => Object.freeze({
     e: entry.event.event.to,
@@ -1081,7 +1081,7 @@ export function concurrentTraceFromCausalFrontier(frontier: CapTpCausalFrontier)
   });
 }
 
-/** Project a concurrent trace normal form to RWIL-shaped rows. */
+/** Project a concurrent trace normal form to witness-journal-shaped rows. */
 export function concurrentTraceWitnessLog(trace: CapTpConcurrentTrace, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(trace.layers.flatMap((layer) => layer.events.map((entry, eventIndex) => Object.freeze({
     e: entry.event.to,
@@ -1169,7 +1169,7 @@ export function causalCutFromClock(frontier: CapTpCausalFrontier, clock: CapTpVe
   );
 }
 
-/** Project a causal cut to RWIL-shaped rows. */
+/** Project a causal cut to witness-journal-shaped rows. */
 export function causalCutWitnessLog(cut: CapTpCausalCut, at?: string): readonly CapTpWitnessRow[] {
   const included = cut.included.map((entry, index) => Object.freeze({
     e: entry.event.to,
@@ -1263,7 +1263,7 @@ export function causalCutQuiescence(cut: CapTpCausalCut, vat: VatTable): CapTpCu
   });
 }
 
-/** Project a cut-quiescence predicate reading to RWIL-shaped rows. */
+/** Project a cut-quiescence predicate reading to witness-journal-shaped rows. */
 export function causalCutQuiescenceWitnessLog(quiescence: CapTpCutQuiescence, at?: string): readonly CapTpWitnessRow[] {
   const summary = Object.freeze({
     e: quiescence.vat.id,
@@ -1379,7 +1379,7 @@ export function invocationSettlement(
   });
 }
 
-/** Project an invocation settlement certificate to RWIL-shaped rows. */
+/** Project an invocation settlement certificate to witness-journal-shaped rows. */
 export function invocationSettlementWitnessLog(settlement: CapTpInvocationSettlement, at?: string): readonly CapTpWitnessRow[] {
   const summary = Object.freeze({
     e: settlement.root ?? settlement.vat.id,
@@ -1498,7 +1498,7 @@ export function promiseRetirementCertificate(
   });
 }
 
-/** Project a promise-retirement certificate to RWIL-shaped rows. */
+/** Project a promise-retirement certificate to witness-journal-shaped rows. */
 export function promiseRetirementWitnessLog(certificate: CapTpPromiseRetirementCertificate, at?: string): readonly CapTpWitnessRow[] {
   const summary = Object.freeze({
     e: certificate.settlement.root ?? certificate.settlement.vat.id,
@@ -1850,7 +1850,7 @@ function presenceWitnessAttribute(presence: VatPresence): string {
   ].join("|");
 }
 
-/** Project a vat table to RWIL-shaped rows, preserving settled/broken/dropped state. */
+/** Project a vat table to witness-journal-shaped rows, preserving settled/broken/dropped state. */
 export function vatWitnessLog(vat: VatTable, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(vat.presences.map((presence, index) => Object.freeze({
     e: presence.id,
@@ -1860,7 +1860,7 @@ export function vatWitnessLog(vat: VatTable, at?: string): readonly CapTpWitness
   })));
 }
 
-/** Project a CapTP export-count table to RWIL-shaped rows. */
+/** Project a CapTP export-count table to witness-journal-shaped rows. */
 export function exportTableWitnessLog(table: CapTpExportTable, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(table.exports.map((entry, index) => Object.freeze({
     e: `${table.session}:export:${entry.position}`,
@@ -1877,7 +1877,7 @@ export function exportTableWitnessLog(table: CapTpExportTable, at?: string): rea
   })));
 }
 
-/** Project one gc-exports application to RWIL-shaped rows, including anomalies. */
+/** Project one gc-exports application to witness-journal-shaped rows, including anomalies. */
 export function exportGcWitnessLog(result: CapTpExportGc, at?: string): readonly CapTpWitnessRow[] {
   const rows: CapTpWitnessRow[] = result.operation.exportPositions.map((position, index) => Object.freeze({
     e: `${result.table.session}:gc-export:${position}`,
@@ -2136,7 +2136,7 @@ function handoffClaimWitnessAttribute(claim: HandoffClaimRecord): string {
   ].join("|");
 }
 
-/** Project a handoff gift table to RWIL-shaped rows, including blocked attempts. */
+/** Project a handoff gift table to witness-journal-shaped rows, including blocked attempts. */
 export function handoffWitnessLog(table: HandoffTable, at?: string): readonly CapTpWitnessRow[] {
   const giftRows = table.gifts.map((gift, index) => Object.freeze({
     e: gift.id,
@@ -2445,7 +2445,7 @@ function joinWitnessAttribute(join: ReferenceJoin, candidate: ReferenceJoinCandi
   ].join("|");
 }
 
-/** Project a reference join judgment into RWIL-shaped equality evidence. */
+/** Project a reference join judgment into witness-journal-shaped equality evidence. */
 export function refJoinWitnessLog(join: ReferenceJoin, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(join.candidates.map((candidate, index) => Object.freeze({
     e: candidate.ref.id,
@@ -2989,7 +2989,7 @@ function operationWitnessValue(operation: CapTpOperation): CapTpWitnessValue {
   }
 }
 
-/** Project protocol operations to RWIL-shaped rows. */
+/** Project protocol operations to witness-journal-shaped rows. */
 export function operationWitnessLog(operations: readonly CapTpOperation[], at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(operations.map((operation, index) => Object.freeze({
     e: operation.kind,
@@ -3033,7 +3033,7 @@ export function foldSessionTranscript(session: string, operations: readonly CapT
   };
 }
 
-/** Project a folded session transcript to RWIL-shaped operation-boundary rows. */
+/** Project a folded session transcript to witness-journal-shaped operation-boundary rows. */
 export function sessionTranscriptWitnessLog(transcript: CapTpSessionTranscript, at?: string): readonly CapTpWitnessRow[] {
   const acceptedRows = transcript.operations.map((operation, index) => Object.freeze({
     e: transcript.session,
@@ -3100,7 +3100,7 @@ export function commitSessionTranscript(transcript: CapTpSessionTranscript, seed
   };
 }
 
-/** Project a transcript commitment chain to RWIL-shaped rows. */
+/** Project a transcript commitment chain to witness-journal-shaped rows. */
 export function transcriptCommitWitnessLog(chain: CapTpTranscriptCommitChain, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(chain.commits.map((commit, index) => Object.freeze({
     e: chain.session,
@@ -3287,7 +3287,7 @@ function answerSlotWitnessValue(slot: CapTpAnswerSlot): CapTpWitnessValue {
   }
 }
 
-/** Project a folded answer table to RWIL-shaped rows, including blocked uses. */
+/** Project a folded answer table to witness-journal-shaped rows, including blocked uses. */
 export function answerTableWitnessLog(table: CapTpAnswerTable, at?: string): readonly CapTpWitnessRow[] {
   const answerRows = table.answers.map((slot, index) => Object.freeze({
     e: `${table.session}:answer:${slot.position}`,
@@ -3387,7 +3387,7 @@ function promiseTraceWitnessValue(entry: CapTpPromiseTraceEntry): CapTpWitnessVa
   }
 }
 
-/** Project a folded promise trace to RWIL-shaped listener/settlement rows. */
+/** Project a folded promise trace to witness-journal-shaped listener/settlement rows. */
 export function promiseTraceWitnessLog(trace: readonly CapTpPromiseTraceEntry[], at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(trace.map((entry, index) => Object.freeze({
     e: entry.promise,
@@ -3448,7 +3448,7 @@ export function foldProjectionTrace(operations: readonly CapTpOperation[]): read
     .map((operation) => Object.freeze(projectionTraceEntry(operation))));
 }
 
-/** Project structural promise selectors to RWIL-shaped rows. */
+/** Project structural promise selectors to witness-journal-shaped rows. */
 export function projectionTraceWitnessLog(trace: readonly CapTpProjectionTraceEntry[], at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze(trace.map((entry, index) => Object.freeze({
     e: `desc:answer:${entry.answerPos}`,
@@ -3463,7 +3463,7 @@ export function projectionTraceWitnessLog(trace: readonly CapTpProjectionTraceEn
   })));
 }
 
-/** Project a session state to an RWIL-shaped row. */
+/** Project a session state to an witness-journal-shaped row. */
 export function sessionWitnessLog(session: CapTpSession, at?: string): readonly CapTpWitnessRow[] {
   return Object.freeze([Object.freeze({
     e: session.id,
@@ -3480,7 +3480,7 @@ export function sessionWitnessLog(session: CapTpSession, at?: string): readonly 
   })]);
 }
 
-/** Project a crossed-hello resolution to RWIL-shaped session arbitration rows. */
+/** Project a crossed-hello resolution to witness-journal-shaped session arbitration rows. */
 export function crossedHelloWitnessLog(resolution: CapTpCrossedHelloResolution, at?: string): readonly CapTpWitnessRow[] {
   const sessions = [
     { role: "kept", session: resolution.kept },

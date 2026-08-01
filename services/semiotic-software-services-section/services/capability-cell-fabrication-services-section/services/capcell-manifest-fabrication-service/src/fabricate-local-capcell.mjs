@@ -26,7 +26,7 @@ export const REQUIRED_PROVIDER_CAPABILITIES = Object.freeze([
   "ocapn-admission",
   "captp-session",
   "x402-clearing",
-  "rwil-receipt-append",
+  "witness-journal-receipt-append",
   "behavioral-assay",
 ]);
 export class CapCellSpecificationError extends Error {

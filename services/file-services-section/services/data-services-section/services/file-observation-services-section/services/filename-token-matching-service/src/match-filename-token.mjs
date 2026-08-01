@@ -2,7 +2,7 @@
 // file's full relative path string, never a basename alone. walkPosixPaths
 // never records a directory as its own entry (a directory only ever shows up
 // as a segment inside a file's path), so this firm's real service/directory
-// identifiers ("rwil-rdf-projection-service/") are only visible to a
+// identifiers ("witness-journal-rdf-projection-service/") are only visible to a
 // full-path test — a basename-only matcher would systematically miss them.
 // Never touches the filesystem and never walks; operates on any array of
 // {path} records (a PosixPathWalk.files array, or a plain subset of one),
@@ -21,7 +21,7 @@ function basenameOf(path) {
   return index === -1 ? path : path.slice(index + 1);
 }
 
-// The basename with its final extension stripped ("RWIL.md" -> "RWIL"),
+// The basename with its final extension stripped ("WitnessJournal.md" -> "WitnessJournal"),
 // so a file literally named after the token (any extension) counts as an
 // exact-basename hit, not just a path-substring one.
 function basenameStemOf(basename) {
@@ -33,17 +33,37 @@ function folded(value, caseSensitive) {
   return caseSensitive ? value : value.toLowerCase();
 }
 
-// Finds where `needle` (already case-folded per `caseSensitive`) sits in
-// `path`'s folded form and returns the matching slice of the *original*
-// (case-preserved) path text, so `matchedText` reads like the real path
-// rather than a lowercased copy of it.
+function separatorStripped(value) {
+  return value.replace(/[-_]/g, "");
+}
+
+// A camelCase hump is a spelling of the word separator, not a case claim:
+// the capital in "witnessJournal" encodes the same boundary "-" does in
+// "witness-journal", so it is decapitalized before matching even under
+// case-sensitivity. A leading capital ("WitnessJournal") is a real case
+// claim and is preserved.
+function humpFolded(value) {
+  return value.replace(/([a-z0-9])([A-Z])/g, (_, before, hump) => `${before}${hump.toLowerCase()}`);
+}
+
+// The token matches with separator tolerance: "WitnessJournal",
+// "witnessJournal", and "witness-journal" each find "witness-journal" in a
+// path (subject to case-sensitivity on non-hump letters). Built as a regex
+// whose characters admit an optional separator between them, so the match
+// slice returned is the *original* path text.
+function separatorTolerantRegExpSource(needle) {
+  return separatorStripped(humpFolded(needle)).split("").map(escapeRegExp).join("[-_]?");
+}
+
 function matchedTextFor(path, needle, caseSensitive, wordBoundary) {
+  const source = separatorTolerantRegExpSource(needle);
+  if (source === "") return null;
+  const flags = caseSensitive ? "" : "i";
   if (!wordBoundary) {
-    const foldedPath = folded(path, caseSensitive);
-    const at = foldedPath.indexOf(needle);
-    return at === -1 ? null : path.slice(at, at + needle.length);
+    const match = new RegExp(source, flags).exec(path);
+    return match === null ? null : match[0];
   }
-  const boundaryRe = new RegExp(`(?:^|[^A-Za-z0-9])(${escapeRegExp(needle)})(?=[^A-Za-z0-9]|$)`, caseSensitive ? "" : "i");
+  const boundaryRe = new RegExp(`(?:^|[^A-Za-z0-9])(${source})(?=[^A-Za-z0-9]|$)`, flags);
   const match = boundaryRe.exec(path);
   return match === null ? null : match[1];
 }
@@ -70,8 +90,10 @@ export function matchFilenameToken({ token, files, options = {} } = {}) {
     const matchedText = matchedTextFor(file.path, needle, caseSensitive, wordBoundary);
     if (matchedText === null) continue;
     const base = basenameOf(file.path);
+    const strippedNeedle = separatorStripped(humpFolded(needle));
     const isExactBasename =
-      folded(base, caseSensitive) === needle || folded(basenameStemOf(base), caseSensitive) === needle;
+      separatorStripped(humpFolded(folded(base, caseSensitive))) === strippedNeedle ||
+      separatorStripped(humpFolded(folded(basenameStemOf(base), caseSensitive))) === strippedNeedle;
     const matchKind = isExactBasename ? "exact-basename" : "path-substring";
     matches.push({
       path: file.path,

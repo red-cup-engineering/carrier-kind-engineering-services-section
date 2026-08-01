@@ -8,7 +8,7 @@
  *  2. peer disagreement routes through CONTRADICTION-AWARE FEDERATION: a monotone
  *     overlap lifts coordination-free with no Raft round, while a non-monotone one
  *     routes only its H1 residue to consensus;
- * and the cockpit's RWIL claim trace reads coherently through the kernel.
+ * and the cockpit's WitnessJournal claim trace reads coherently through the kernel.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -157,12 +157,12 @@ test("a non-monotone peer disagreement routes its H1 residue to consensus", () =
   ]);
 });
 
-test("the cockpit's RWIL claim trace reads coherently through the kernel", () => {
+test("the cockpit's WitnessJournal claim trace reads coherently through the kernel", () => {
   const path = "lib/organizing/src/theatre.mts";
   const claim = activeClaim("alpha", "c-alpha", [path]);
   const row = claimWitness(claim, path);
 
-  // the held-capability reading is an iso on the RWIL row: round-trips losslessly
+  // the held-capability reading is an iso on the WitnessJournal row: round-trips losslessly
   const report = cohere(heldCapabilityReading, heldCapabilityReading, row);
   assert.equal(report.ok, true);
   assert.equal(report.leftIso, true);

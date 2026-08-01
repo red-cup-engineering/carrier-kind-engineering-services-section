@@ -5,9 +5,9 @@ import { matchMarkdownToken } from "../src/match-markdown-token.mjs";
 
 const INDEX = Object.freeze([
   Object.freeze({
-    path: "services/rwil-rdf-projection-service/README.md",
-    frontmatter: Object.freeze({ title: "RWIL RDF Projection", tags: Object.freeze(["rdf", "projection"]) }),
-    headings: Object.freeze([Object.freeze({ title: "Overview" }), Object.freeze({ title: "RWIL data flow" })]),
+    path: "services/witness-journal-rdf-projection-service/README.md",
+    frontmatter: Object.freeze({ title: "WitnessJournal RDF Projection", tags: Object.freeze(["rdf", "projection"]) }),
+    headings: Object.freeze([Object.freeze({ title: "Overview" }), Object.freeze({ title: "WitnessJournal data flow" })]),
   }),
   Object.freeze({
     path: "services/other-service/README.md",
@@ -22,17 +22,17 @@ const INDEX = Object.freeze([
 ]);
 
 test("matches a title-like frontmatter key as frontmatter-title", () => {
-  const matches = matchMarkdownToken({ token: "RWIL", index: INDEX });
-  const titleHit = matches.find((m) => m.path === "services/rwil-rdf-projection-service/README.md" && m.matchKind === "frontmatter-title");
+  const matches = matchMarkdownToken({ token: "WitnessJournal", index: INDEX });
+  const titleHit = matches.find((m) => m.path === "services/witness-journal-rdf-projection-service/README.md" && m.matchKind === "frontmatter-title");
   assert.ok(titleHit);
-  assert.equal(titleHit.matchedText, "RWIL RDF Projection");
+  assert.equal(titleHit.matchedText, "WitnessJournal RDF Projection");
 });
 
 test("matches a heading title as matchKind heading", () => {
-  const matches = matchMarkdownToken({ token: "RWIL", index: INDEX });
+  const matches = matchMarkdownToken({ token: "WitnessJournal", index: INDEX });
   const headingHit = matches.find((m) => m.matchKind === "heading");
   assert.ok(headingHit);
-  assert.equal(headingHit.matchedText, "RWIL data flow");
+  assert.equal(headingHit.matchedText, "WitnessJournal data flow");
 });
 
 test("a non-title frontmatter field is tagged frontmatter-field", () => {
@@ -59,17 +59,17 @@ test("a document with frontmatter: null is skipped for frontmatter matching but 
 });
 
 test("case-folded by default", () => {
-  const matches = matchMarkdownToken({ token: "rwil", index: INDEX });
+  const matches = matchMarkdownToken({ token: "witnessJournal", index: INDEX });
   assert.ok(matches.length > 0);
 });
 
 test("case-sensitive option requires exact case", () => {
-  const matches = matchMarkdownToken({ token: "rwil", index: INDEX, options: { caseSensitive: true } });
+  const matches = matchMarkdownToken({ token: "witnessJournal", index: INDEX, options: { caseSensitive: true } });
   assert.equal(matches.length, 0);
 });
 
 test("returned records are frozen and carry only the settled fields", () => {
-  const matches = matchMarkdownToken({ token: "RWIL", index: INDEX });
+  const matches = matchMarkdownToken({ token: "WitnessJournal", index: INDEX });
   assert.ok(Object.isFrozen(matches));
   assert.ok(Object.isFrozen(matches[0]));
   assert.deepEqual(Object.keys(matches[0]).sort(), ["matchKind", "matchedText", "path", "score"]);
@@ -84,5 +84,5 @@ test("throws when index is not an array", () => {
 });
 
 test("no matches over an empty index", () => {
-  assert.deepEqual(matchMarkdownToken({ token: "RWIL", index: [] }), []);
+  assert.deepEqual(matchMarkdownToken({ token: "WitnessJournal", index: [] }), []);
 });

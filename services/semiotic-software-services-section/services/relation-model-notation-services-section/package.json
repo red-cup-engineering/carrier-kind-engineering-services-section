@@ -3,5 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Holds Relation Model Notation itself: the term grammar, its structural operations, and conformance checking, separate from every use of the notation. Use when parsing, normalizing, or checking RMN terms."
+  "description": "Holds the services for the relation model notation itself: its terms, syntax, normalization, and conformance. The notation is separate from its uses; mathematics services belong to Lenticule Science."
 }

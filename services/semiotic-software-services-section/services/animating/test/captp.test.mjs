@@ -379,7 +379,7 @@ test("an unheld root ref blocks the whole promise authority branch", () => {
   assert.equal(graph.compression.pipelinedRoundTrips, 0);
 });
 
-test("CapTP authority graphs project to RWIL-shaped witness rows, including blocked power", () => {
+test("CapTP authority graphs project to witness-journal-shaped witness rows, including blocked power", () => {
   const foo = deliver(greeterRef, "foo", [], "p:foo:witness");
   const bar = pipeline(foo, "bar", [], "p:bar:witness");
   const admitted = pipelineAuthorityGraph([greeterRef], [foo, bar], ["carol#greeter"]);

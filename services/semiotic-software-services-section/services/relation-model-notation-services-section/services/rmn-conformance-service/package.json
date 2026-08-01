@@ -2,6 +2,9 @@
   "name": "@red-cup-engineering/rmn-semantic-conformance",
   "version": "6.0.2",
   "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
   "exports": {
     ".": "./src/rmn-core.mjs",
     "./canonical-cbor": "./src/canonical-cbor.mjs",
@@ -22,6 +25,6 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.5",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.1",
-    "@lenticule-science/rmn-semantic-conformance-die": "6.0.1"
+    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
   }
 }

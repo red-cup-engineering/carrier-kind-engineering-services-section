@@ -39,9 +39,9 @@ function liveLawCarrier(path) {
 }
 
 export const RULES = Object.freeze([
-  { id: "authoritative-jsonl", scope: "file-jsonl", message: "authoritative JSONL is forbidden; preserve bytes by digest and cut to RWIL/RDF" },
-  { id: "jsonl-operation", scope: "operational", pattern: /\.jsonl\b/giu, message: "operational JSONL creation, reading, schema, or fixture is forbidden; use typed RMN and RWIL/RDF" },
-  { id: "jsonl-instruction", scope: "instructions", pattern: /(?:\b(?:use|uses|using|write|writes|writing|read|reads|reading|scan|scans|scanning|append|appends|appending|dated|emit|emits|emitting)\b[^\n.]{0,120}\bJSONL\b|\bdispatch-jsonl(?:\.mjs)?\b)/giu, message: "operational instructions may not direct JSONL work; use typed RMN and the hired RWIL/RDF provider" },
+  { id: "authoritative-jsonl", scope: "file-jsonl", message: "authoritative JSONL is forbidden; preserve bytes by digest and cut to witness-journal RDF" },
+  { id: "jsonl-operation", scope: "operational", pattern: /\.jsonl\b/giu, message: "operational JSONL creation, reading, schema, or fixture is forbidden; use typed RMN and witness-journal RDF" },
+  { id: "jsonl-instruction", scope: "instructions", pattern: /(?:\b(?:use|uses|using|write|writes|writing|read|reads|reading|scan|scans|scanning|append|appends|appending|dated|emit|emits|emitting)\b[^\n.]{0,120}\bJSONL\b|\bdispatch-jsonl(?:\.mjs)?\b)/giu, message: "operational instructions may not direct JSONL work; use typed RMN and the hired witness-journal RDF provider" },
   { id: "metroplat-umbrella", scope: "operational", pattern: /(?:@emsenn\/metroplat\b|\burn:ame:metroplat\b|\bMETROPLAT_DATA_ROOT\b|(?:^|["'`/])src\/apps\/metroplat(?:["'`/]|$))/gmu, message: "the dissolved MetroPlat package, actor, runtime, and source route are forbidden; contract directly with the canonical faculty provider" },
   { id: "metroplat-law-namespace", scope: "live-law", pattern: /\bmetroplat\.(?:contract|energetic-obligation)\b/gu, message: "the dissolved MetroPlat namespace cannot define live law; use the normalized RMN law identity" },
   { id: "legacy-path", scope: "file-legacy-path", message: "live compatibility or legacy path is forbidden" },

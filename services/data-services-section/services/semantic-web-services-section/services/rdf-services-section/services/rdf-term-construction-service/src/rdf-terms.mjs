@@ -1,8 +1,8 @@
 // rdf-terms — IRI and literal construction/validation per RDF 1.1 Concepts
 // and Abstract Syntax (W3C Recommendation, 25 February 2014,
 // https://www.w3.org/TR/rdf11-concepts/, sections 3.2 "IRIs" and 3.3
-// "Literals"). Adapted from the RWIL RDF projection service's `iri`,
-// `literal`, and `objectTerm` helpers, with the RWIL-specific RMN term
+// "Literals"). Adapted from the WitnessJournal RDF projection service's `iri`,
+// `literal`, and `objectTerm` helpers, with the witness-journal-specific RMN term
 // encoding stripped out: what remains is pure term validation independent
 // of any particular serialization or algebraic representation.
 const LANGUAGE = /^[A-Za-z]{1,8}(?:-[A-Za-z0-9]{1,8})*$/u;

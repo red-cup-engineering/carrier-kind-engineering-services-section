@@ -1,1 +1,1 @@
-export * from "@lenticule-science/rmn-semantic-conformance-die/hierarchical-circuit";
+export * from "@red-cup-engineering/rmn-semantic-conformance-die/hierarchical-circuit";

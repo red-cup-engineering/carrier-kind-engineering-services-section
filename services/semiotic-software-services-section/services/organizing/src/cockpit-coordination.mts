@@ -2,7 +2,7 @@
  * cockpit-coordination — make the live MASH cockpit coordinate over its OWN
  * bridges.
  *
- * The cockpit already runs on RWIL witnesses (the hook-event ledger), capability
+ * The cockpit already runs on witness journal entries (the hook-event ledger), capability
  * claims ("workspace:X held by agent S until T"), and federated peer disagreement
  * (`claimed-locus-overlap`). Today the running hook loop reports those overlaps as
  * a flat list; nobody holds the contradiction, and nothing tells the operator how
@@ -13,7 +13,7 @@
  * Two wirings, both on the relating kernel:
  *
  *  1. ACCOUNTABLE CAPABILITY CLAIM. A held write-capability is an accountable
- *     transaction over one RWIL witness: it is `authorized` (the work-locus
+ *     transaction over one witness journal entry: it is `authorized` (the work-locus
  *     `Capability` actually grants the claimed path), `witnessed` (the claim is a
  *     single EAVT row through the coherence kernel's `Reading`), and `queryable`
  *     (`accountableClaim` answers authorized ∧ witnessed in one shot). When two
@@ -48,7 +48,7 @@ import {
   cohere,
   type CoherenceReport,
   type Reading,
-  type RWILWitness,
+  type WitnessJournalEntry,
 } from "@red-cup-engineering/relating/ledger";
 import type { Capability } from "@red-cup-engineering/animating";
 import {
@@ -61,7 +61,7 @@ import type {
   OrganizingTheatreActiveWorkLocusClaim,
 } from "./theatre.mjs";
 
-// ── the held write-capability as one RWIL witness row ────────────────────────
+// ── the held write-capability as one witness journal entry row ────────────────────────
 
 const CLAIM_ATTRIBUTE = "workspace-write-capability-held";
 
@@ -77,7 +77,7 @@ function claimEntity(path: string): readonly JsonValue[] {
 export function claimWitness(
   claim: OrganizingTheatreActiveWorkLocusClaim,
   path: string,
-): RWILWitness {
+): WitnessJournalEntry {
   return cell(
     claimEntity(path),
     CLAIM_ATTRIBUTE,
@@ -114,7 +114,7 @@ export interface HeldCapabilityWire {
   readonly event: string | null;
 }
 
-function heldCapabilityFromWitness(row: RWILWitness): HeldCapabilityWire {
+function heldCapabilityFromWitness(row: WitnessJournalEntry): HeldCapabilityWire {
   if (row.e === null || typeof row.e !== "object" || !Array.isArray(row.e)) {
     throw new TypeError("cockpit claim reading: witness entity is not a path tuple");
   }
@@ -157,7 +157,7 @@ function heldCapabilityFromWitness(row: RWILWitness): HeldCapabilityWire {
   });
 }
 
-function witnessFromHeldCapability(wire: HeldCapabilityWire): RWILWitness {
+function witnessFromHeldCapability(wire: HeldCapabilityWire): WitnessJournalEntry {
   return cell(
     claimEntity(wire.path),
     CLAIM_ATTRIBUTE,
@@ -182,7 +182,7 @@ function witnessFromHeldCapability(wire: HeldCapabilityWire): RWILWitness {
 /**
  * The held write-capability read as a coherence-kernel `Reading`: the claim row
  * and the held-capability wire are the same object under two codes, exactly like
- * `outbox ≅ log`. This is what makes the claim QUERYABLE — it is a real RWIL
+ * `outbox ≅ log`. This is what makes the claim QUERYABLE — it is a real WitnessJournal
  * reading, not an ad-hoc record.
  */
 export const heldCapabilityReading: Reading<HeldCapabilityWire> = Object.freeze({
@@ -211,7 +211,7 @@ const accountableClaimSchema = {
   $id: "organizing/cockpit/accountable-claim",
   title: "CockpitAccountableClaim",
   description:
-    "A held workspace write-capability read as an accountable transaction: authorized (capability grants the path), witnessed (one RWIL row), and queryable. A contested path is held as bilattice top, never silently won.",
+    "A held workspace write-capability read as an accountable transaction: authorized (capability grants the path), witnessed (one WitnessJournal row), and queryable. A contested path is held as bilattice top, never silently won.",
   type: "object",
   additionalProperties: false,
   required: ["kind", "path", "query", "witness", "authorized", "witnessed", "accountable", "legs", "standing", "holders", "coherence"],
@@ -328,7 +328,7 @@ export function accountableClaim(
       witness: `${claim.session}:${claim.claimId}`,
       authorized,
     }));
-    // The claim round-trips through the kernel: it IS a coherent RWIL reading.
+    // The claim round-trips through the kernel: it IS a coherent WitnessJournal reading.
     coherence.push(cohere(heldCapabilityReading, heldCapabilityReading, row));
   }
   const sortedHolders = Object.freeze([...holders].sort((left, right) => left.session.localeCompare(right.session) || left.claimId.localeCompare(right.claimId)));

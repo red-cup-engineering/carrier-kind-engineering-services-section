@@ -4,31 +4,31 @@ import test from "node:test";
 import { matchFilenameToken } from "../src/match-filename-token.mjs";
 
 const FILES = Object.freeze([
-  { path: "services/rwil-rdf-projection-service/README.md" },
-  { path: "services/rwil-rdf-projection-service/package.json" },
-  { path: "services/rwil-rdf-projection-service/ops/cloud-run/README.md" },
+  { path: "services/witness-journal-rdf-projection-service/README.md" },
+  { path: "services/witness-journal-rdf-projection-service/package.json" },
+  { path: "services/witness-journal-rdf-projection-service/ops/cloud-run/README.md" },
   { path: "services/cover-nerve-rank-readout-service/README.md" },
-  { path: "services/other-service/RWIL.md" },
+  { path: "services/other-service/WitnessJournal.md" },
   { path: "services/other-service/src/notes.mjs" },
 ]);
 
 test("matches the token against the full relative path, not just the basename", () => {
-  const matches = matchFilenameToken({ token: "RWIL", files: FILES });
+  const matches = matchFilenameToken({ token: "WitnessJournal", files: FILES });
   const paths = matches.map((m) => m.path);
-  assert.ok(paths.includes("services/rwil-rdf-projection-service/README.md"));
-  assert.ok(paths.includes("services/rwil-rdf-projection-service/ops/cloud-run/README.md"));
+  assert.ok(paths.includes("services/witness-journal-rdf-projection-service/README.md"));
+  assert.ok(paths.includes("services/witness-journal-rdf-projection-service/ops/cloud-run/README.md"));
   assert.equal(paths.includes("services/other-service/src/notes.mjs"), false);
 });
 
 test("is case-folded by default", () => {
-  const matches = matchFilenameToken({ token: "rwil", files: FILES });
-  assert.ok(matches.some((m) => m.path === "services/rwil-rdf-projection-service/README.md"));
+  const matches = matchFilenameToken({ token: "witnessJournal", files: FILES });
+  assert.ok(matches.some((m) => m.path === "services/witness-journal-rdf-projection-service/README.md"));
 });
 
 test("case-sensitive option excludes a differently-cased hit", () => {
-  const matches = matchFilenameToken({ token: "rwil", files: FILES, options: { caseSensitive: true } });
-  assert.equal(matches.some((m) => m.path.includes("rwil-rdf-projection-service")), true);
-  assert.equal(matches.some((m) => m.path === "services/other-service/RWIL.md"), false);
+  const matches = matchFilenameToken({ token: "witnessJournal", files: FILES, options: { caseSensitive: true } });
+  assert.equal(matches.some((m) => m.path.includes("witness-journal-rdf-projection-service")), true);
+  assert.equal(matches.some((m) => m.path === "services/other-service/WitnessJournal.md"), false);
 });
 
 test("an exact basename match outranks a path-substring match, then sorts alphabetically", () => {
@@ -55,7 +55,7 @@ test("word-boundary option rejects a substring embedded in a longer undelimited 
 });
 
 test("returned records are frozen and carry only the settled fields", () => {
-  const matches = matchFilenameToken({ token: "RWIL", files: FILES });
+  const matches = matchFilenameToken({ token: "WitnessJournal", files: FILES });
   assert.ok(Object.isFrozen(matches));
   assert.ok(Object.isFrozen(matches[0]));
   assert.deepEqual(Object.keys(matches[0]).sort(), ["matchKind", "matchedText", "path", "score"]);
@@ -71,5 +71,5 @@ test("throws when files is not an array", () => {
 });
 
 test("an empty files array yields no matches", () => {
-  assert.deepEqual(matchFilenameToken({ token: "RWIL", files: [] }), []);
+  assert.deepEqual(matchFilenameToken({ token: "WitnessJournal", files: [] }), []);
 });

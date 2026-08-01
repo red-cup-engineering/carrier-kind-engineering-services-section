@@ -1,5 +1,5 @@
 {
-  "name": "@lenticule-science/rmn-semantic-conformance-die",
+  "name": "@red-cup-engineering/rmn-semantic-conformance-die",
   "version": "6.0.1",
   "description": "Placement-independent deterministic RML/RMN parsing, typing, normalization, RFC 8949 CBOR, RFC 6920 identity, FOUR, WIT, and finite circuit residues.",
   "type": "module",

@@ -8,10 +8,10 @@
  */
 import { carrierFrom, codecs, type FromSchema } from "@red-cup-engineering/relating";
 
-const { profile_forms_render_fiber } = codecs.text.xml.html;
+const { buildHtmlDocumentPlan } = codecs.text.xml.html;
 type CssSystem = codecs.text.xml.html.CssSystem;
 type HtmlCarrierOf = codecs.text.xml.html.HtmlCarrierOf;
-type RenderFiberJudgment = codecs.text.xml.html.RenderFiberJudgment;
+type RenderFiberJudgment = codecs.text.xml.html.RenderDocumentPlanJudgment;
 type RenderProfile = codecs.text.xml.html.RenderProfile;
 type StyleBehavior = codecs.text.xml.html.StyleBehavior;
 
@@ -291,7 +291,7 @@ export function jupyterNotebookHtmlFiber(
   }>,
 ): JupyterHtmlRenderFiberJudgment {
   const notebook = jupyterNotebookCarrier.assert(input.notebook, "jupyterNotebookHtmlFiber");
-  const renderFiber = profile_forms_render_fiber(
+  const renderFiber = buildHtmlDocumentPlan(
     jupyterHtmlRenderProfile,
     input.carrier,
     input.system,

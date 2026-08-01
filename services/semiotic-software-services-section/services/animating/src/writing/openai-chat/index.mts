@@ -345,7 +345,7 @@ export function createOpenAiChatCompletionAction(options: OpenAiChatCompletionAc
     inputFormat: "json",
     outputFormat: "json",
     summary: "OpenAI-compatible Chat Completions as an animating perceive->act loop wire.",
-    description: "Domain: the de-facto /v1/chat/completions request with messages, function tools/tool_calls, and structured outputs. Codomain: a spec-shaped chat.completion whose tool call is a playing capability invoke/cut and whose dispatch can be witnessed by RWIL.",
+    description: "Domain: the de-facto /v1/chat/completions request with messages, function tools/tool_calls, and structured outputs. Codomain: a spec-shaped chat.completion whose tool call is a playing capability invoke/cut and whose dispatch can be witnessed by WitnessJournal.",
     domain: openAiChatCompletionRequestCarrier,
     codomain: openAiChatCompletionCarrier,
     run: (input: unknown): JsonValue => runOpenAiChatCompletion(input as OpenAiChatCompletionRequest, options) as unknown as JsonValue,

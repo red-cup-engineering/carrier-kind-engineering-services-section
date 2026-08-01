@@ -1,8 +1,8 @@
 /**
- * federate-graded - contradiction-aware federation over coherent RWIL readings.
+ * federate-graded - contradiction-aware federation over coherent WitnessJournal readings.
  *
  * This is the bridge where held top and graded H1 meet: sources contribute
- * protocol-local collections, each cell is admitted as a Reading over one RWIL
+ * protocol-local collections, each cell is admitted as a Reading over one WitnessJournal
  * witness, disagreement is retained as a bilattice top, and only nonzero-H1
  * residue is routed into Raft.
  */
@@ -25,7 +25,7 @@ import {
   type JsonRecord,
   type JsonValue,
 } from "@red-cup-engineering/relating";
-import { cell, cohere, type CoherenceReport, type Reading, type RWILWitness } from "@red-cup-engineering/relating/ledger";
+import { cell, cohere, type CoherenceReport, type Reading, type WitnessJournalEntry } from "@red-cup-engineering/relating/ledger";
 import type { Activity } from "@red-cup-engineering/animating";
 import type { Federation } from "./schemas.mjs";
 import { ACTIVITYSTREAMS_CONTEXT, federateActivities, mergeActivities } from "./writing/activitypub/index.mjs";
@@ -58,7 +58,7 @@ export const federateGradedSourceSchema = {
   $id: "organizing/federate-graded/source",
   title: "FederateGradedSource",
   description:
-    "One protocol source admitted into contradiction-aware federation. Its cells are protocol-local readings of RWIL witnesses.",
+    "One protocol source admitted into contradiction-aware federation. Its cells are protocol-local readings of witness journal entries.",
   type: "object",
   additionalProperties: false,
   required: ["id", "protocol", "collection"],
@@ -255,7 +255,7 @@ function statementOf(source: FederateGradedSource, cellInput: FederateGradedCell
   });
 }
 
-function witnessOf(statement: FederateGradedStatement): RWILWitness {
+function witnessOf(statement: FederateGradedStatement): WitnessJournalEntry {
   return cell(
     Object.freeze({
       bridge: "organizing.federate-graded",
@@ -275,7 +275,7 @@ function witnessOf(statement: FederateGradedStatement): RWILWitness {
   );
 }
 
-function sourceWireFromWitness(row: RWILWitness): SourceWire {
+function sourceWireFromWitness(row: WitnessJournalEntry): SourceWire {
   if (row.e === null || typeof row.e !== "object" || Array.isArray(row.e)) throw new TypeError("federateGraded reading: witness entity is not a record");
   if (row.a === null || typeof row.a !== "object" || Array.isArray(row.a)) throw new TypeError("federateGraded reading: witness attribute is not a record");
   if (row.t === null || typeof row.t !== "object" || Array.isArray(row.t)) throw new TypeError("federateGraded reading: witness time is not a record");

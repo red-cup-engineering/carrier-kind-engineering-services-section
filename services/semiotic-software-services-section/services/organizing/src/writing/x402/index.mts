@@ -4,7 +4,7 @@
  * A 402 challenge is not a new economic kernel. It is a protocol projection of
  * organizing's record-state work: a resource demands value settlement, a payment
  * authorization crosses the membrane, and the receipt records a witnessed
- * value-conserving exchange in RWIL.
+ * value-conserving exchange in WitnessJournal.
  *
  * Real rail verification remains downstream. This module owns only the
  * rail-neutral organizing carrier and witness law.
@@ -12,7 +12,7 @@
 import { createHash } from "node:crypto";
 
 import { canonical, carrierFrom, codecs, type FromSchema, type JsonRecord, type JsonValue } from "@red-cup-engineering/relating";
-import { cell, projectStateView, type LogReading, type RWILWitnessLog } from "@red-cup-engineering/relating/ledger";
+import { cell, projectStateView, type LogReading, type WitnessJournal } from "@red-cup-engineering/relating/ledger";
 import type { Action } from "@red-cup-engineering/relating/running";
 
 const { eavtRecord } = codecs.text.json.jsonl.eavt;
@@ -102,7 +102,7 @@ export const x402ReceiptSchema = {
   $id: "organizing/economy/x402/receipt",
   title: "X402Receipt",
   description:
-    "The witnessed RWIL settlement receipt for an HTTP 402 exchange; debit equals credit.",
+    "The witnessed WitnessJournal settlement receipt for an HTTP 402 exchange; debit equals credit.",
   type: "object",
   additionalProperties: false,
   required: [
@@ -280,11 +280,11 @@ export function isWitnessedExchange(receipt: X402Receipt): boolean {
   return rows.some((row) => row.kind === "organizing.economy.exchange.settlement" && row.valueConserved === true);
 }
 
-function witnessLogId(log: RWILWitnessLog): string {
+function witnessLogId(log: WitnessJournal): string {
   return createHash("sha256").update(canonical(log as unknown as JsonValue), "utf8").digest("hex").slice(0, 16);
 }
 
-function firstWitnessCoordinate(log: RWILWitnessLog): string {
+function firstWitnessCoordinate(log: WitnessJournal): string {
   const time = log[0]?.t;
   return typeof time === "string" && time.length > 0 ? time : new Date(0).toISOString();
 }
@@ -313,7 +313,7 @@ function asRail(value: JsonValue | undefined): X402Rail {
   throw new TypeError("receiptFromWitnessLog: missing rail");
 }
 
-function receiptStateFromWitnessLog(log: RWILWitnessLog): { readonly id: string; readonly view: ReturnType<typeof projectStateView>[string] } | undefined {
+function receiptStateFromWitnessLog(log: WitnessJournal): { readonly id: string; readonly view: ReturnType<typeof projectStateView>[string] } | undefined {
   if (log.length === 0) return undefined;
   const entity = log[0]!.e;
   const entityKey = canonical(entity);
@@ -326,9 +326,9 @@ function receiptStateFromWitnessLog(log: RWILWitnessLog): { readonly id: string;
 }
 
 /**
- * witnessLogFromReceipt — read an x402 receipt as its ordered RWIL witness log.
+ * witnessLogFromReceipt — read an x402 receipt as its ordered witness journal entry log.
  */
-export function witnessLogFromReceipt(receipt: X402Receipt): RWILWitnessLog {
+export function witnessLogFromReceipt(receipt: X402Receipt): WitnessJournal {
   const admitted = x402ReceiptCarrier.assert(receipt, "x402 receipt witness log") as unknown as X402Receipt;
   return Object.freeze(admitted.witnessLedger.map((row) => eavtRecord(row)));
 }
@@ -337,10 +337,10 @@ export function witnessLogFromReceipt(receipt: X402Receipt): RWILWitnessLog {
  * receiptFromWitnessLog — reconstruct or envelope an x402 receipt around a log.
  *
  * Logs produced by `receiptFromPayment` reconstruct the settlement receipt. Any
- * other ordered RWIL log is still a valid receipt wire because x402 receipts
+ * other ordered WitnessJournal log is still a valid receipt wire because x402 receipts
  * carry `witnessLedger` as the protocol evidence field.
  */
-export function receiptFromWitnessLog(log: RWILWitnessLog): X402Receipt {
+export function receiptFromWitnessLog(log: WitnessJournal): X402Receipt {
   const witnessLedger = Object.freeze(log.map((row) => eavtRecord(row)));
   const state = receiptStateFromWitnessLog(witnessLedger);
   if (state !== undefined) {
@@ -363,13 +363,13 @@ export function receiptFromWitnessLog(log: RWILWitnessLog): X402Receipt {
   }
 
   const id = `receipt-log-${witnessLogId(witnessLedger)}`;
-  const amount = quantity(0, 1, "RWIL");
+  const amount = quantity(0, 1, "WitnessJournal");
   return x402ReceiptCarrier.assert(Object.freeze({
     kind: "organizing.economy.x402.receipt" as const,
     id,
     challengeId: `${id}/challenge`,
     paymentId: `${id}/payment`,
-    resource: "urn:rwil:shared-log",
+    resource: "urn:witnessJournal:shared-log",
     payer: "did:web:dev.bare-cedar-fog.emsenn.net:agents:codex",
     payee: "did:web:dev.bare-cedar-fog.emsenn.net:agents:codex",
     debit: amount,
@@ -428,7 +428,7 @@ export const x402ReceiptAction: Action = Object.freeze({
   options: ["payment", "settledAt", "id"],
   summary: "Settle an HTTP 402 payment to its witnessed value-conserving receipt.",
   description:
-    "Domain: organizing/economy/x402/challenge plus a payment option. Codomain: organizing/economy/x402/receipt, an RWIL witness of the exchange where debit equals credit.",
+    "Domain: organizing/economy/x402/challenge plus a payment option. Codomain: organizing/economy/x402/receipt, an witness journal entry of the exchange where debit equals credit.",
   domain: x402ChallengeCarrier,
   codomain: x402ReceiptCarrier,
   run: (input: unknown, args: Record<string, unknown> = {}): JsonValue => {

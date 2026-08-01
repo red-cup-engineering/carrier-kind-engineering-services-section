@@ -3,7 +3,7 @@
  *
  * Raft is not organizing's default merge. CALM keeps monotone operations
  * coordination-free; Raft appears only where the CALM reading reports a
- * non-monotone obstruction. The log below is a functorial RWIL view: each
+ * non-monotone obstruction. The log below is a functorial WitnessJournal view: each
  * leader-elected entry maps to append-only EAVT witnesses whose functional
  * projection has one command per log index.
  */
@@ -41,7 +41,7 @@ export const raftLogEntrySchema = {
   $id: "organizing/writing/raft/log-entry",
   title: "RaftLogEntry",
   description:
-    "One totally ordered RWIL log entry. The index is the log address, term+leader are the elected order witness, and command is the single value admitted at that index.",
+    "One totally ordered WitnessJournal log entry. The index is the log address, term+leader are the elected order witness, and command is the single value admitted at that index.",
   type: "object",
   additionalProperties: false,
   required: ["kind", "cluster", "index", "term", "leader", "command", "witness"],
@@ -64,7 +64,7 @@ export const raftLogSchema = {
   $id: "organizing/writing/raft/log",
   title: "RaftLog",
   description:
-    "A Raft log as a sorted sequence of elected RWIL entries. Safety requires that each index carry exactly one command.",
+    "A Raft log as a sorted sequence of elected WitnessJournal entries. Safety requires that each index carry exactly one command.",
   type: "object",
   additionalProperties: false,
   required: ["kind", "cluster", "entries"],

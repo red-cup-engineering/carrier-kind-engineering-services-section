@@ -17,7 +17,7 @@ import { assay, decodeSemantic, formatRml, parseRml, semanticId } from "../src/r
 import { decodeRelationalValue, encodeRelationalValue } from "../src/relational-value.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const DIE_ROOT = resolve(dirname(fileURLToPath(import.meta.resolve("@lenticule-science/rmn-semantic-conformance-die"))), "..");
+const DIE_ROOT = resolve(dirname(fileURLToPath(import.meta.resolve("@red-cup-engineering/rmn-semantic-conformance-die"))), "..");
 const id = (label) => semanticId(["mark", label]);
 const account = (suffix) => `eip155:31337:0x${suffix.padStart(40, "0")}`;
 

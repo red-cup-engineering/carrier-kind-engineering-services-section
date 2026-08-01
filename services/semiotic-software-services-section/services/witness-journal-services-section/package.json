@@ -3,5 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Holds the witness journal: append-only EAVT entries whose predicates are RMN terms, with state readouts and settled records projected from them. Use when recording witnessed relations through time or reading them back."
+  "description": "Holds the services for the witness journal: append-ordered EAVT rows over RMN claims, where Time is stored and the Trace is the entry's ordinal in its journal. Journals are logs under data/logs; readouts are state under data/state."
 }

@@ -1,1 +1,1 @@
-export * from "@lenticule-science/rmn-semantic-conformance-die/circuit-residue";
+export * from "@red-cup-engineering/rmn-semantic-conformance-die/circuit-residue";

@@ -1,1 +1,1 @@
-export * from "@lenticule-science/rmn-semantic-conformance-die/conformance";
+export * from "@red-cup-engineering/rmn-semantic-conformance-die/conformance";

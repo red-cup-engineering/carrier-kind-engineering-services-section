@@ -15,7 +15,7 @@
  * from that key, a rotation `epoch`, and a `revoked` flag. Every facet is a functorial
  * VIEW of that one root, computed by REUSING the already-shipped functors
  * (`actorOfAgent`, `didFromActor`, `agentCardOfAgent`, `issueCredential`), never a
- * re-authored identity. Each facet is exposed as an RWIL `Reading<Wire>` over one
+ * re-authored identity. Each facet is exposed as an WitnessJournal `Reading<Wire>` over one
  * witness row that encodes the identity, so the coherence kernel's `cohere` proves any
  * two facets commute through the shared identity pivot — the same law the
  * `outbox ≅ log` proof established, now over the five identity surfaces.
@@ -32,7 +32,7 @@
  * read-only. See dev/docs/notes/2026-06-26-unified-agent-identity.md.
  */
 import { carrierFrom, codecs, type FromSchema } from "@red-cup-engineering/relating";
-import type { Reading, RWILWitness } from "@red-cup-engineering/relating/ledger";
+import type { Reading, WitnessJournalEntry } from "@red-cup-engineering/relating/ledger";
 import { createHash } from "node:crypto";
 
 import { agent, type Agent } from "../../becoming/doing/working/governing/agent.mjs";
@@ -244,14 +244,14 @@ export function verifyFacet(root: AgentIdentity, facet: FacetName, presentedId: 
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// the RWIL readings — each facet as a Reading over one identity witness row
+// the WitnessJournal readings — each facet as a Reading over one identity witness row
 // ────────────────────────────────────────────────────────────────────────────
 
-/** The RWIL witness row that encodes one agent identity: entity = the DID, attribute =
+/** The witness journal entry row that encodes one agent identity: entity = the DID, attribute =
  *  the identity label + epoch, value = the key id, time = derived from the epoch. This is
  *  the shared pivot all five facet readings round-trip through, the way the protocol-wave
  *  readings round-trip the AP-shaped witness. */
-export function identityWitness(root: AgentIdentity): RWILWitness {
+export function identityWitness(root: AgentIdentity): WitnessJournalEntry {
   return eavtRecord({
     e: vcSubjectFacet(root),
     a: `agent-identity|${root.identity}|epoch=${root.epoch}`,
@@ -261,7 +261,7 @@ export function identityWitness(root: AgentIdentity): RWILWitness {
 }
 
 /** Recover the identity root from its witness row (the inverse of `identityWitness`). */
-export function identityFromWitness(witness: RWILWitness, template: AgentIdentity): AgentIdentity {
+export function identityFromWitness(witness: WitnessJournalEntry, template: AgentIdentity): AgentIdentity {
   const row = eavtRecord(witness) as EAVTRecord;
   const attribute = String(row.a);
   const epochMatch = /epoch=(\d+)$/.exec(attribute);
@@ -282,8 +282,8 @@ export function identityFromWitness(witness: RWILWitness, template: AgentIdentit
 function facetReading(facet: FacetName, template: AgentIdentity): Reading<string> {
   return Object.freeze({
     id: `animating.identity.${facet}`,
-    toWire: (witness: RWILWitness): string => facetIdOf(identityFromWitness(witness, template), facet),
-    fromWire: (id: string): RWILWitness => {
+    toWire: (witness: WitnessJournalEntry): string => facetIdOf(identityFromWitness(witness, template), facet),
+    fromWire: (id: string): WitnessJournalEntry => {
       // The facet id carries the DID and (for key-bound facets) the key id after `#`.
       const hash = id.indexOf("#");
       const did = hash < 0 ? id : id.slice(0, hash);

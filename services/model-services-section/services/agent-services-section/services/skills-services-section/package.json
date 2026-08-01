@@ -12,14 +12,14 @@
     }
   },
   "bin": {
-    "write-agent-skill": "./bin/write-agent-skill.mjs"
+    "write-agent-skill": "./scripts/write-agent-skill.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "verify": "npm test && npm pack --dry-run"
   },
   "files": [
-    "bin/",
+    "scripts/",
     "content/",
     "src/",
     "types/",

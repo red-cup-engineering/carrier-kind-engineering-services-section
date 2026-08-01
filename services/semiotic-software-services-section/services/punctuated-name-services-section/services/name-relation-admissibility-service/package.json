@@ -1,0 +1,21 @@
+{
+  "name": "@red-cup-engineering/name-relation-admissibility-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Transforms a punctuated-name derivation (the RMN term produced by punctuated-name-derivation-service — mark(atom), or nested pair(previous, pair(mark(relation), mark(atom))) per step) plus a caller-supplied admitted-relations table into {admitted: true} or {admitted: false, refusedAtStep, reason}: the paper's Section 7 Adm(A, mark, B) relation, checked against the term's own structure, not merely asserted. The table is DATA the caller passes in from a content record — never hardcoded here — because K_valid is specific to each system's own domain, not to this convention.",
+  "exports": {
+    ".": {
+      "types": "./src/name-relation-admissibility-service.d.mts",
+      "import": "./src/name-relation-admissibility-service.mjs"
+    }
+  },
+  "scripts": {
+    "check": "node --check src/name-relation-admissibility-service.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

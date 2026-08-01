@@ -19,7 +19,7 @@
  * notebook this codec builds is `jupyter.mts`'s `JupyterNotebook` verbatim — the cells
  * ARE the log, so the log→records projection is a READING of the notebook, not a copy.
  *
- * The load-bearing brick (mirrors animating's RWIL `ledger.mts`): executing a sequence
+ * The load-bearing brick (mirrors animating's WitnessJournal `ledger.mts`): executing a sequence
  * of cells produces a notebook whose LOG (its code cells, in order) projects to RECORDS
  * (one record per cell: its execution_count, source, and the outputs it broadcast), and
  * that projection ROUND-TRIPS — `recordsToCells ∘ cellsToRecords = id` on the code-cell

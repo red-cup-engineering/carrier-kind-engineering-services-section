@@ -1213,7 +1213,7 @@ export const institutionCarrier = carrierFrom(institution);
 export const institutionMembrane = {
   "$id": "organizing/institution/membrane",
   "title": "InstitutionMembrane",
-  "description": "The re-seedable membrane of a settled organization: the institution exposed as a first-class relating node plus the witnessed social boundary it settled from. `node` is byte-shaped like animating.reseed (`identity|individuated`), here `identity|institution`; it is the scale-3 name that can pass through FSym name-mobility. `seed` is the institution boundary membrane the federation can admit without a caller re-supplying the original cover. `witnesses` are RWIL/EAVT rows witnessing the node and each membrane line.",
+  "description": "The re-seedable membrane of a settled organization: the institution exposed as a first-class relating node plus the witnessed social boundary it settled from. `node` is byte-shaped like animating.reseed (`identity|individuated`), here `identity|institution`; it is the scale-3 name that can pass through FSym name-mobility. `seed` is the institution boundary membrane the federation can admit without a caller re-supplying the original cover. `witnesses` are WitnessJournal/EAVT rows witnessing the node and each membrane line.",
   "type": "object",
   "required": [
     "kind",

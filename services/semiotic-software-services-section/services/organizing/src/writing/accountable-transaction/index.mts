@@ -4,7 +4,7 @@
  *
  * This module does not create a trading kernel. It assembles lower-faculty
  * readings into one organizing-scale record: animating authority, CapTP
- * invocation, playing/WASI execution projection, x402 settlement, and RWIL
+ * invocation, playing/WASI execution projection, x402 settlement, and WitnessJournal
  * provenance all cohere over the same witness.
  */
 import {
@@ -32,7 +32,7 @@ import {
   sameWitness,
   type CoherenceReport,
   type Reading,
-  type RWILWitness,
+  type WitnessJournalEntry,
 } from "@red-cup-engineering/relating/ledger";
 import {
   isWitnessedExchange,
@@ -76,7 +76,7 @@ export const transactionWitnessSchema = {
   $id: "organizing/accountable-transaction/witness",
   title: "AccountableTransactionWitness",
   description:
-    "One accountable agentic transaction: UCAN/capability authority, CapTP/WASI invocation, x402 settlement, and a thin provenance attestation over one RWIL witness.",
+    "One accountable agentic transaction: UCAN/capability authority, CapTP/WASI invocation, x402 settlement, and a thin provenance attestation over one witness journal entry.",
   type: "object",
   additionalProperties: false,
   required: ["kind", "id", "witnessedAt", "affordances", "capability", "authorization", "invocation", "settlement"],
@@ -236,7 +236,7 @@ function transactionEntity(id: string): readonly JsonValue[] {
   return Object.freeze(["organizing", "accountable-transaction", id] as const);
 }
 
-export function rwilWitnessOf(transaction: TransactionWitness): RWILWitness {
+export function WitnessJournalOf(transaction: TransactionWitness): WitnessJournalEntry {
   transactionWitnessCarrier.assert(transaction, "accountable transaction witness");
   return eavtRecord({
     e: transactionEntity(transaction.id),
@@ -246,7 +246,7 @@ export function rwilWitnessOf(transaction: TransactionWitness): RWILWitness {
   });
 }
 
-export function transactionFromWitness(row: RWILWitness): TransactionWitness {
+export function transactionFromWitness(row: WitnessJournalEntry): TransactionWitness {
   const witness = eavtRecord(row);
   if (witness.a !== TRANSACTION_ATTRIBUTE) {
     throw new TypeError(`transactionFromWitness: unsupported attribute ${JSON.stringify(witness.a)}`);
@@ -258,7 +258,7 @@ function structuralSignature(signer: string, datom: Datom): string {
   return `structural-signature(${signer}:${canonical(datom as unknown as JsonValue)})`;
 }
 
-export function attestTransaction(row: RWILWitness, signer: string, signedAt: string): TransactionAttestation {
+export function attestTransaction(row: WitnessJournalEntry, signer: string, signedAt: string): TransactionAttestation {
   const witness = eavtRecord(row);
   const transaction = transactionFromWitness(witness);
   const datom: Datom = [
@@ -324,7 +324,7 @@ export function makeTransactionWitness(options: TransactionWitnessOptions): Tran
   }, "accountable transaction witness") as TransactionWitness;
 
   if (options.attestBy === undefined) return base;
-  const attestation = attestTransaction(rwilWitnessOf(base), options.attestBy, options.witnessedAt);
+  const attestation = attestTransaction(WitnessJournalOf(base), options.attestBy, options.witnessedAt);
   return transactionWitnessCarrier.assert({
     ...base,
     provenance: {
@@ -387,7 +387,7 @@ function attestationStanding(transaction: TransactionWitness): { readonly ok: bo
 
 export const capabilityInvokeReading: Reading<CapabilityInvokeWire> = registerReading(Object.freeze({
   id: "organizing.accountable.capability-invoke",
-  toWire: (row: RWILWitness) => {
+  toWire: (row: WitnessJournalEntry) => {
     const witness = transactionFromWitness(row);
     return {
       kind: "organizing.accountable.capability-invoke" as const,
@@ -397,12 +397,12 @@ export const capabilityInvokeReading: Reading<CapabilityInvokeWire> = registerRe
       wasi: witness.invocation.wasi,
     };
   },
-  fromWire: (wire: CapabilityInvokeWire) => rwilWitnessOf(wire.witness),
+  fromWire: (wire: CapabilityInvokeWire) => WitnessJournalOf(wire.witness),
 }));
 
 export const x402ReceiptReading: Reading<X402ReceiptWire> = registerReading(Object.freeze({
   id: "organizing.accountable.x402-receipt",
-  toWire: (row: RWILWitness) => {
+  toWire: (row: WitnessJournalEntry) => {
     const witness = transactionFromWitness(row);
     const receipt = witness.settlement.receipt;
     if (receipt === undefined) throw new TypeError("x402ReceiptReading: transaction has no receipt");
@@ -412,12 +412,12 @@ export const x402ReceiptReading: Reading<X402ReceiptWire> = registerReading(Obje
       receipt,
     };
   },
-  fromWire: (wire: X402ReceiptWire) => rwilWitnessOf(wire.witness),
+  fromWire: (wire: X402ReceiptWire) => WitnessJournalOf(wire.witness),
 }));
 
 export const attestationReading: Reading<AttestationWire> = registerReading(Object.freeze({
   id: "organizing.accountable.attestation",
-  toWire: (row: RWILWitness) => {
+  toWire: (row: WitnessJournalEntry) => {
     const witness = transactionFromWitness(row);
     const attestation = witness.provenance?.attestation;
     if (attestation === undefined) throw new TypeError("attestationReading: transaction has no attestation");
@@ -427,7 +427,7 @@ export const attestationReading: Reading<AttestationWire> = registerReading(Obje
       attestation,
     };
   },
-  fromWire: (wire: AttestationWire) => rwilWitnessOf(wire.witness),
+  fromWire: (wire: AttestationWire) => WitnessJournalOf(wire.witness),
 }));
 
 export const accountableReadings = Object.freeze([
@@ -437,7 +437,7 @@ export const accountableReadings = Object.freeze([
 ] as const);
 
 export function cohereAccountable(transaction: TransactionWitness): readonly CoherenceReport[] {
-  const row = rwilWitnessOf(transaction);
+  const row = WitnessJournalOf(transaction);
   return Object.freeze([
     cohere(capabilityInvokeReading, x402ReceiptReading, row),
     cohere(capabilityInvokeReading, attestationReading, row),
@@ -447,7 +447,7 @@ export function cohereAccountable(transaction: TransactionWitness): readonly Coh
 
 export function isAccountable(transaction: TransactionWitness): AccountabilityReport {
   const witness = transactionWitnessCarrier.assert(transaction, "accountable transaction witness") as TransactionWitness;
-  const row = rwilWitnessOf(witness);
+  const row = WitnessJournalOf(witness);
   const authority = authorityStanding(witness);
   const payment = paymentStanding(witness);
   const attestation = attestationStanding(witness);
@@ -473,5 +473,5 @@ export function isAccountable(transaction: TransactionWitness): AccountabilityRe
 }
 
 export function sameAccountableWitness(left: TransactionWitness, right: TransactionWitness): boolean {
-  return sameWitness(rwilWitnessOf(left), rwilWitnessOf(right));
+  return sameWitness(WitnessJournalOf(left), WitnessJournalOf(right));
 }

@@ -12,7 +12,8 @@
  *   organize-serve            # or: PORT=8791 ORGANIZING_DATA=.data organize-serve
  */
 import { fileURLToPath } from "node:url";
-import { induceBins, serve } from "@red-cup-engineering/relating";
+import { induceBins } from "@red-cup-engineering/relating/running";
+import { serve } from "@red-cup-engineering/relating/services/http";
 import { actions } from "../src/actions.mjs";
 
 function main(): void {
