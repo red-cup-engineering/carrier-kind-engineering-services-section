@@ -11,7 +11,7 @@ import {
 import {
   formatRml,
   parseRml,
-} from "@lenticule-science/rmn-semantic-conformance-die";
+} from "@red-cup-engineering/rmn-semantic-conformance-die";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const ARCHITECTURE = readFileSync(

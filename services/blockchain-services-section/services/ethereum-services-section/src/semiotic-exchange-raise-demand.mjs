@@ -1,4 +1,4 @@
-import { induceCapabilityRepairDemand } from "./semiotic-exchange-demand-induction.mjs";
+import { induceCapabilityRepairDemand } from "@red-cup-engineering/semiotic-exchange-chain-services-section/semiotic-exchange-demand-induction";
 
 /**
  * Node projection of the authoritative `SemioticExchange.raiseDemand` move.

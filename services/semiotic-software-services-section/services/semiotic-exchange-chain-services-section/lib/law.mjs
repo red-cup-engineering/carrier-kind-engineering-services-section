@@ -1,7 +1,7 @@
 import {
   parseRml,
   semanticId,
-} from "@lenticule-science/rmn-semantic-conformance-die";
+} from "@red-cup-engineering/rmn-semantic-conformance-die";
 
 const ARCHITECTURE_TYPE = "SemioticExchangeChainSoftwareArchitectureSpecification";
 const BASELINE_TYPE = "SemioticExchangeChainRequirementsBaseline";
