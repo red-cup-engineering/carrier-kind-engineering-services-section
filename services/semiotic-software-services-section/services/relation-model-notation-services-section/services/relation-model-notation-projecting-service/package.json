@@ -1,0 +1,22 @@
+{
+  "name": "@red-cup-engineering/relation-model-notation-projecting",
+  "version": "1.0.0",
+  "description": "The JSON<->Term bridge for Relation Model Notation: jsonToTerm/termToJson admit/decode JSON values against the RMN grammar, plus the fixed-shape builder API (objectTerm/arrayTerm/stringTerm/projectField/objectTy/arrayTy) for terms and types authored directly, without a runtime field search.",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/relation-model-notation": "1.0.0"
+  }
+}
