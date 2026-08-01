@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/u;
 const BYTES = /^0x(?:[0-9a-fA-F]{2})*$/u;
@@ -51,7 +51,7 @@ export function createUserOperationAuthorizationPolicy(input) {
       if (userOperation.paymaster !== "0x") address(userOperation.paymaster, "user operation paymaster");
       bytes(userOperation.paymaster_data, "user operation paymaster_data");
       for (const field of optional) if (userOperation[field] !== undefined) quantity(userOperation[field], `user operation ${field}`);
-      const digest = `ni:///sha-256;${createHash("sha256").update(Buffer.from(callData.slice(2), "hex")).digest("base64url")}`;
+      const digest = rawNiUri(Buffer.from(callData.slice(2), "hex"));
       if (callDataDigests && !callDataDigests.has(digest)) throw new Error("authorization policy refuses the user operation call data");
       if (input.maxSignatures !== undefined && signatures >= input.maxSignatures) throw new Error("authorization policy signature limit is exhausted");
       signatures += 1;

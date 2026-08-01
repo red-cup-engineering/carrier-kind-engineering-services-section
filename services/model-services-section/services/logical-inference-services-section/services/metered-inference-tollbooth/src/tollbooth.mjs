@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import { readFileSync } from "node:fs";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
@@ -138,7 +139,7 @@ async function appendSettlementWitnessJournal(context, agentUrl) {
   if (activityResult?.object?.type !== "RmnMeteredInferenceSettlement") return;
   const at = new Date().toISOString();
   const transaction = context.result.transaction;
-  const graph = `ni:///sha-256;${createHash("sha256").update(`${context.result.network}\0${transaction}`).digest("base64url")}`;
+  const graph = rawNiUri(`${context.result.network}\0${transaction}`);
   const assertions = [
     ["urn:rmn:proposal", activityResult.object.proposal],
     ["urn:rmn:completion", activityResult.object.completion],

@@ -53,7 +53,8 @@
     "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
     "@openzeppelin/contracts": "^5.6.1",
     "ethers": "6.17.0",
-    "viem": "2.55.4"
+    "viem": "2.55.4",
+    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
   },
   "scripts": {
     "validate:glass-sponge-deployment-plan": "node scripts/validate-glass-sponge-deployment-plan.mjs",

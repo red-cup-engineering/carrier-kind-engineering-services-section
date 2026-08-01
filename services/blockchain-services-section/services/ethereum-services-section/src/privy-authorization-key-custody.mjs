@@ -1,3 +1,4 @@
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import {
   createHash,
   createPrivateKey,
@@ -73,9 +74,6 @@ function canonicalJson(value) {
   throw new Error("authorization payload contains a non-JSON value");
 }
 
-function base64Url(bytes) {
-  return Buffer.from(bytes).toString("base64url");
-}
 
 function decodeBase64(value, label) {
   if (typeof value !== "string" || value.length === 0 || value.length % 4 !== 0 || !/^[A-Za-z0-9+/]+={0,2}$/u.test(value)) {
@@ -272,7 +270,7 @@ function parseKeystore(path) {
   if (!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(parsed.keyId)) throw new Error("Privy authorization keyId is invalid");
   const publicDer = decodeBase64(parsed.publicKey.data, "public key");
   try {
-    const actualKeyId = `ni:///sha-256;${base64Url(createHash("sha256").update(publicDer).digest())}`;
+    const actualKeyId = rawNiUri(publicDer);
     if (actualKeyId !== parsed.keyId) throw new Error("Privy authorization keyId does not match its public key");
   } finally {
     publicDer.fill(0);
@@ -293,7 +291,7 @@ export function createPrivyAuthorizationKeyKeystore({ path, passwordFile }) {
       passphrase: password,
     });
     publicDer = publicKey.export({ format: "der", type: "spki" });
-    const keyId = `ni:///sha-256;${base64Url(createHash("sha256").update(publicDer).digest())}`;
+    const keyId = rawNiUri(publicDer);
     const record = {
       type: TYPE,
       version: 1,
