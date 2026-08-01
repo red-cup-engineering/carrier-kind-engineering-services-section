@@ -35,6 +35,38 @@ test("launcher provides a hermetic read face", () => {
   assert.equal(diff.status, 0, diff.stderr);
 });
 
+test("admitted init proceeds where no repository exists yet", () => {
+  // Regression: the orphan-index-lock reclaimer probed rev-parse without a
+  // fallback, so under set -e any admitted write in a not-yet-a-repository
+  // directory died with 128 before git ever ran.
+  const scratch = mkdtempSync(resolve(tmpdir(), "managed-git-init-"));
+  try {
+    const conf = resolve(scratch, "machine.conf");
+    writeFileSync(conf, [
+      `repo_root=${scratch}`,
+      "colony_actor=urn:test:managed-git-policy",
+      `home_dir=${process.env.HOME}`,
+      `lock_file=${resolve(scratch, "lock")}`,
+      "lock_wait_seconds=30",
+      "stale_index_lock_seconds=300",
+      "managed_gitconfig_name=managed.gitconfig",
+      'read_commands="status rev-parse"',
+      'write_commands="init"',
+      "forbid_ambient_add=true",
+      "require_scoped_commit=true",
+      "",
+    ].join("\n"));
+    const fresh = resolve(scratch, "fresh");
+    mkdirSync(fresh);
+    const init = spawnSync(launcher, ["init", "-q", "."], { cwd: fresh, encoding: "utf8", env: { ...process.env, MANAGED_GIT_CONF: conf } });
+    assert.equal(init.status, 0, init.stderr);
+    const inside = spawnSync(launcher, ["rev-parse", "--is-inside-work-tree"], { cwd: fresh, encoding: "utf8", env: { ...process.env, MANAGED_GIT_CONF: conf } });
+    assert.equal(inside.stdout.trim(), "true");
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
 test("launcher serializes local mutation inside a disposable repository", () => {
   const fixtures = resolve(root, "data/test-fixtures");
   mkdirSync(fixtures, { recursive: true });

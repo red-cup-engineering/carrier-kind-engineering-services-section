@@ -44,7 +44,7 @@ command_name=${1-}
 word_in_list() {
   needle=$1
   shift
-  for word in $*; do
+  for word in "$@"; do
     [ "$word" = "$needle" ] && return 0
   done
   return 1
@@ -90,8 +90,15 @@ acquire_write_lane() {
 }
 
 reclaim_witnessed_orphan_index_lock() {
-  index_lock=$(/usr/bin/git -C "$physical_pwd" rev-parse --git-path index.lock)
+  # Outside any repository (e.g. init) there is no index lock to reclaim.
+  index_lock=$(/usr/bin/git -C "$physical_pwd" rev-parse --git-path index.lock 2>/dev/null) || return 0
   [ -e "$index_lock" ] || return 0
+  # Without fuser the live-holder half of the orphanhood evidence is
+  # unobtainable; age alone must not authorize deleting a possibly-live lock.
+  if ! command -v fuser >/dev/null 2>&1; then
+    echo "managed git: deferred: cannot witness lock liveness (fuser unavailable) for $index_lock" >&2
+    return 75
+  fi
   if fuser -s "$index_lock"; then
     echo "managed git: deferred: live index lock witnessed at $index_lock" >&2
     return 75
