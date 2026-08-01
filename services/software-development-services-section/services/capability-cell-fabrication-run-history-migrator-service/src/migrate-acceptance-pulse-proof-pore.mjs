@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve, sep } from "node:path";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
@@ -6,9 +6,7 @@ import { relationalWitnessJournalDocument } from "@lenticule-science/witness-jou
 import { supplierDesignId } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-foam";
 import { createProofPoreJournal } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-pore-journal";
 
-function sourceIdentity(bytes) {
-  return `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
-}
+const sourceIdentity = rawNiUri;
 
 function providerFor(path) {
   const segments = resolve(path).split(sep);

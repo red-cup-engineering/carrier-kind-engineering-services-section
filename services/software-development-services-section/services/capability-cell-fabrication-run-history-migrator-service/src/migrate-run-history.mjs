@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { NI_URI as NI, rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import {
   existsSync,
   mkdirSync,
@@ -12,11 +12,8 @@ import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-con
 import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const RUN_FILE = /^[0-9a-f-]{36}\.jsonl$/u;
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 
-function byteIdentity(bytes) {
-  return `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
-}
+const byteIdentity = rawNiUri;
 
 function semanticDocument(value) {
   return relationalWitnessJournalDocument(value);

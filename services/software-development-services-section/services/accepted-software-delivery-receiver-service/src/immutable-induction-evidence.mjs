@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import {
   closeSync,
   existsSync,
@@ -56,9 +56,7 @@ function exact(value, keys) {
   return value && Object.getPrototypeOf(value) === Object.prototype &&
     Object.keys(value).sort().join("\0") === [...keys].sort().join("\0");
 }
-function rawNi(bytes) {
-  return `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
-}
+const rawNi = rawNiUri;
 async function signOutput({ bytes, privateKeyPem, signingKid, signingJwks }) {
   const key = await importPKCS8(privateKeyPem, "EdDSA");
   return new FlattenedSign(bytes)

@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { appendFile, lstat, mkdir, open, readFile, readdir, realpath, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -71,9 +72,7 @@ async function assertUnlinkedDescent(root, target, { permitAbsentLeaf = false } 
   }
 }
 
-function resourceIdentity(bytes) {
-  return `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
-}
+const resourceIdentity = rawNiUri;
 
 async function resourceTree(target, { maxBytes = MAX_RESOURCE_BYTES, maxEntries = MAX_RESOURCE_ENTRIES } = {}) {
   const records = [];

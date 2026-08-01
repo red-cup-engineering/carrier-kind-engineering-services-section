@@ -19,7 +19,8 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.5",
     "@red-cup-engineering/sign-ethereum-digest-with-cloud-kms-services-section": "1.0.0",
     "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
-    "ethers": "6.17.0"
+    "ethers": "6.17.0",
+    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
   },
   "scripts": {
     "check": "node --check scripts/provision-enterprise-account.mjs && node --check scripts/bind-enterprise-account.mjs && node --check scripts/serve-a2a.mjs && node --check scripts/execute-a2a-message.mjs && node --check src/account-binding.mjs && node --check src/provision-enterprise-account.mjs && node --check src/a2a-executor.mjs && node --check src/enterprise-account-provisioning-contract.mjs",

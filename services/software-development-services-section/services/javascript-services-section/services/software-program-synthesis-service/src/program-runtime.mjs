@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -171,7 +172,7 @@ function bytesSource(path, extra = {}) {
   const bytes = readFileSync(path);
   return {
     identity: path,
-    semanticId: `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`,
+    semanticId: rawNiUri(bytes),
     bytesBase64: bytes.toString("base64"),
     ...extra,
   };
@@ -181,7 +182,7 @@ function valueSource(identity, value, extra = {}) {
   const bytes = Buffer.from(typeof value === "string" ? value : JSON.stringify(value, null, 2));
   return {
     identity,
-    semanticId: `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`,
+    semanticId: rawNiUri(bytes),
     bytesBase64: bytes.toString("base64"),
     ...extra,
   };

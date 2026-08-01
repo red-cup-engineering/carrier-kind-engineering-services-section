@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { deflateSync } from "node:zlib";
 import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
@@ -55,9 +56,7 @@ const GLYPHS = Object.freeze({
   Y:["10001","10001","01010","00100","00100","00100","00100"], Z:["11111","00001","00010","00100","01000","10000","11111"],
 });
 
-export function sha256(bytes) {
-  return `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
-}
+export const sha256 = rawNiUri;
 
 // The Discord publication boundary (discord-publication.mjs) verifies attachment
 // bytes against `sha256:<hex>` digests -- the house convention used everywhere
