@@ -6,17 +6,23 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
 import test from "node:test";
-import { assay, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { circuitInterfaceFromAgentCard } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
-import { ACCOUNT, ACTOR, LAW, OPERATION_TYPE, createServer, executeSettledContract } from "../src/tollbooth.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { assay, semanticBytes, semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
+import { circuitInterfaceFromAgentCard } from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
+import { ACCOUNT, ACTOR, OPERATION_TYPE, createServer, executeSettledContract } from "../src/tollbooth.mjs";
+import { rawNiUri } from "@red-cup-engineering/relation-model-notation-runtime/canonical-cbor";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(import.meta.url);
+// Locate each contracted service's package root through node module
+// resolution (its exported face's package.json), never by relative
+// traversal across a package boundary.
+const packageRoot = (specifier) => dirname(require.resolve(`${specifier}/package.json`));
 const PROVIDER_ROOT = resolve(ROOT, "../gemini-inference-team");
-const RMN_ROOT = resolve(ROOT, "../../../relational-model-services-section/services/relational-model-notation-services-section/services/rmn-conformance-service");
-const WITNESS_JOURNAL_ROOT = resolve(ROOT, "../../../../../../../lenticule-science/services/obsmetrological-services-section/services/witness-journal-rdf-projection-service");
-const WIT_ROOT = resolve(ROOT, "../../../../../../../lenticule-science/services/obsmetrological-services-section/services/wit-transition-assay");
+const RMN_ROOT = packageRoot("@red-cup-engineering/relation-model-notation-conformance");
+const WITNESS_JOURNAL_ROOT = packageRoot("@red-cup-engineering/witness-journal-rdf-projection-service");
+const WIT_ROOT = packageRoot("@lenticule-science/wit-transition-assay");
 const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const PROVIDER_CARD = resolve(PROVIDER_ROOT, "content/agent-cards/gemini-inference-team.json");
 const PROVIDER_INTERFACE = circuitInterfaceFromAgentCard(JSON.parse(readFileSync(PROVIDER_CARD, "utf8")));
@@ -38,16 +44,16 @@ function conform(term, expectedType) {
   const result = assay({ term, expectedType, fuel: 0 });
   return { term: semanticId(result.normalizedTerm), canonicalBytesBase64: semanticBytes(result.normalizedTerm).toString("base64") };
 }
-function effect({ law, caller, provider, operation, label }) { return { law, caller, provider, precondition: ni(`${label}-pre`), operation, postcondition: ni(`${label}-post`), refusal: ni(`${label}-refusal`), evidenceRoot: ni(`${label}-bottom`), outcome: { positiveEvidence: false, negativeEvidence: false }, measures: [], parent: null }; }
+function effect({ law, caller, provider, operation, label }) { return { ...(law !== undefined ? { law } : {}), caller, provider, precondition: ni(`${label}-pre`), operation, postcondition: ni(`${label}-post`), refusal: ni(`${label}-refusal`), evidenceRoot: ni(`${label}-bottom`), outcome: { positiveEvidence: false, negativeEvidence: false }, measures: [], parent: null }; }
 function makeContract(providerAgentCard = "http://127.0.0.1:1/.well-known/agent-card.json") {
   const providerOperation = ["pair", ["mark", "Answer briefly."], ["pair", ["mark", "What is two plus two?"], ["pair", ["mark", "general-text"], ["mark", "dry-run"]]]];
   const providerOp = conform(providerOperation, PROVIDER_OPERATION_TYPE);
   const providerCell = effect({ law: PROVIDER_INTERFACE.component.law, caller: ACCOUNT, provider: PROVIDER_INTERFACE.account, operation: providerOp.term, label: "provider" });
   const provider = conform(["pair", ["effect", providerCell], providerOperation], ["product", ["effect"], PROVIDER_OPERATION_TYPE]);
   const caller = "eip155:31337:0x0000000000000000000000000000000000000001";
-  const cell = effect({ law: LAW, caller, provider: ACCOUNT, operation: provider.term, label: "toll" });
+  const cell = effect({ caller, provider: ACCOUNT, operation: provider.term, label: "toll" });
   const outer = conform(["pair", ["effect", cell], ["pair", ["effect", providerCell], providerOperation]], ["product", ["effect"], OPERATION_TYPE]);
-  return { "@context": CONTEXT, id: `urn:test:${randomUUID()}`, type: "Accept", actor: "urn:test:customer", target: ACTOR, object: { type: "ServiceContract", contract: LAW, callerAccount: caller, providerAgentCard, proposal: { type: "Document", id: outer.term, mediaType: "application/rmn+cbor", content: outer.canonicalBytesBase64 } } };
+  return { "@context": CONTEXT, id: `urn:test:${randomUUID()}`, type: "Accept", actor: "urn:test:customer", target: ACTOR, object: { type: "ServiceContract", callerAccount: caller, providerAgentCard, proposal: { type: "Document", id: outer.term, mediaType: "application/rmn+cbor", content: outer.canonicalBytesBase64 } } };
 }
 
 const facilitator = { async getSupported() { return { kinds: [{ x402Version: 2, scheme: "exact", network: TEST_ENV.X402_NETWORK }], extensions: [], signers: {} }; }, async verify() { throw new Error("unpaid test must not verify"); }, async settle() { throw new Error("unpaid test must not settle"); } };
@@ -62,9 +68,8 @@ test("pre-payment boundary refuses malformed input and emits official x402 v2 fo
     const challenge = JSON.parse(Buffer.from(header, "base64").toString("utf8")); const option = challenge.accepts[0];
     assert.equal(challenge.x402Version, 2); assert.equal(option.scheme, "exact"); assert.equal(option.network, TEST_ENV.X402_NETWORK); assert.equal(option.payTo.toLowerCase(), TEST_ENV.X402_PAY_TO);
     assert.equal(challenge.extensions.bazaar.info.input.method, "POST");
-    assert.equal(challenge.extensions.bazaar.info.input.body.object.contract, LAW);
     const status = await fetch(`http://127.0.0.1:${server.address().port}/status`);
-    assert.equal(status.status, 200); assert.equal((await status.json()).contract, LAW);
+    assert.equal(status.status, 200);
     await response.arrayBuffer();
     const malformed = await fetch(`http://127.0.0.1:${server.address().port}/inference`, { method: "POST", headers: { "content-type": "application/activity+json" }, body: "{}" });
     assert.equal(malformed.status, 422); assert.equal((await malformed.json()).type, "Reject");
@@ -82,11 +87,11 @@ test("settled handler composes tollbooth RMN directly to the selected signed pro
   Object.assign(process.env, { AGENT_CARD_SIGNING_KEY: signingKey, AGENT_CARD_JWKS: signingJwks, AGENT_CARD_SIGNING_KID: signingKid, RMN_CONFORMANCE_AGENT: `${rmnBaseUrl}/.well-known/agent-card.json`, WITNESS_JOURNAL_RDF_AGENT: `${witnessJournalBaseUrl}/.well-known/agent-card.json`, WIT_TRANSITION_ASSAY_AGENT: `${witBaseUrl}/.well-known/agent-card.json`, GEMINI_WITNESS_JOURNAL_ROOT: providerData });
   const service = resolve(ROOT, "../../../../../web-services-section/services/a2a-services-section/services/a2a-contracted-agent-service");
   const rmnServer = await startA2a({ port: rmnPort, baseUrl: rmnBaseUrl, env: process.env,
-    card: resolve(RMN_ROOT, "content/agent-cards/rmn-semantic-conformance.json"), executor: resolve(RMN_ROOT, "bin/execute-a2a-task.mjs") });
+    card: resolve(RMN_ROOT, "content/agent-cards/rmn-semantic-conformance.json"), executor: resolve(RMN_ROOT, "scripts/execute-a2a-task.mjs") });
   const witnessJournalServer = await startA2a({ port: witnessJournalPort, baseUrl: witnessJournalBaseUrl, env: process.env,
-    card: resolve(WITNESS_JOURNAL_ROOT, "content/agent-cards/witness-journal-rdf.json"), executor: resolve(WITNESS_JOURNAL_ROOT, "bin/execute-a2a-task.mjs") });
+    card: resolve(WITNESS_JOURNAL_ROOT, "content/agent-cards/witness-journal-rdf.json"), executor: resolve(WITNESS_JOURNAL_ROOT, "scripts/execute-a2a-task.mjs") });
   const witServer = await startA2a({ port: witPort, baseUrl: witBaseUrl, env: process.env,
-    card: resolve(WIT_ROOT, "content/agent-cards/wit-transition-assay.json"), executor: resolve(WIT_ROOT, "bin/execute-a2a-task.mjs") });
+    card: resolve(WIT_ROOT, "content/agent-cards/wit-transition-assay.json"), executor: resolve(WIT_ROOT, "scripts/execute-a2a-task.mjs") });
   const providerServer = await startA2a({ port: providerPort, baseUrl: providerBaseUrl, env: process.env,
     card: PROVIDER_CARD, executor: resolve(ROOT, "test/fixtures/deterministic-provider-executor.mjs") });
   try { const result = await executeSettledContract(makeContract(`${providerBaseUrl}/.well-known/agent-card.json`)); assert.equal(result.type, "Accept"); assert.equal(result.object.disposition, "completion"); assert.equal(result.object.inference.candidate, "ready"); assert.equal(result.object.inference.provider, PROVIDER_INTERFACE.account); assert.match(result.object.witness, /^ni:\/\/\/sha-256;/u); }

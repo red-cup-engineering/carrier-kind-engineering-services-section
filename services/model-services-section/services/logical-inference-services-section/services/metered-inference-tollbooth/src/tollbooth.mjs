@@ -2,16 +2,15 @@
 
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { rawNiUri } from "@red-cup-engineering/relation-model-notation-runtime/canonical-cbor";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
 import { a2aResultMetadata, a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
-import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/relation-model-notation-conformance/client";
+import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
 import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
-import { recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-rdf-projection-service/client";
 import {
   CDP_FACILITATOR_URL,
   createCdpFacilitatorContract,
@@ -24,8 +23,6 @@ const ROOT = resolve(HERE, "..");
 const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const ACTOR = "urn:ame:metered-inference-tollbooth";
 const ACCOUNT = JSON.parse(readFileSync(resolve(ROOT, "content/evm/accounts/eip155-31337.json"), "utf8")).account.caip10;
-const LAW_SOURCE = readFileSync(resolve(ROOT, "content/contracts/sell-x402-rmn-inference.rml"), "utf8");
-const LAW = semanticId(["ascribe", ["mark"], ["mark", LAW_SOURCE]]);
 const INFERENCE_MARKET_OFFER_EXTENSION = "ni:///sha-256;hLCUM4R4uZnPEVaY9Cb6sDwruIVBtw2bjleYGbeATaQ";
 const PROVIDER_OPERATION_TYPE = ["product", ["mark"], ["product", ["mark"], ["product", ["mark"], ["mark"]]]];
 const PROVIDER_BUNDLE_TYPE = ["product", ["effect"], PROVIDER_OPERATION_TYPE];
@@ -35,15 +32,15 @@ const DISCOVERY = declareDiscoveryExtension({
   bodyType: "json",
   input: {
     "@context": CONTEXT, id: "urn:example:metered-inference-contract", type: "Accept", actor: "urn:example:customer", target: ACTOR,
-    object: { type: "ServiceContract", contract: LAW, callerAccount: "eip155:8453:0x0000000000000000000000000000000000000001", providerAgentCard: "https://provider.example/.well-known/agent-card.json", proposal: { type: "Document", id: "ni:///sha-256;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", mediaType: "application/rmn+cbor", content: "oA==" } },
+    object: { type: "ServiceContract", callerAccount: "eip155:8453:0x0000000000000000000000000000000000000001", providerAgentCard: "https://provider.example/.well-known/agent-card.json", proposal: { type: "Document", id: "ni:///sha-256;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", mediaType: "application/rmn+cbor", content: "oA==" } },
   },
   inputSchema: {
     type: "object",
     required: ["@context", "id", "type", "actor", "target", "object"],
     properties: {
       "@context": { const: CONTEXT }, id: { type: "string" }, type: { const: "Accept" }, actor: { type: "string" }, target: { const: ACTOR },
-      object: { type: "object", required: ["type", "contract", "callerAccount", "providerAgentCard", "proposal"], properties: {
-        type: { const: "ServiceContract" }, contract: { const: LAW }, callerAccount: { type: "string" },
+      object: { type: "object", required: ["type", "callerAccount", "providerAgentCard", "proposal"], properties: {
+        type: { const: "ServiceContract" }, callerAccount: { type: "string" },
         providerAgentCard: { type: "string", description: "Customer-selected signed A2A 1.0 provider Agent Card URL." },
         proposal: { type: "object", description: "Canonical application/rmn+cbor effect bundle encoded as an ActivityStreams Document." },
       } },
@@ -81,8 +78,8 @@ function sameField(proposal, completion, field) {
 }
 
 function validateEnvelope(source) {
-  if (source?.["@context"] !== CONTEXT || source.type !== "Accept" || source.target !== ACTOR || source.object?.type !== "ServiceContract" || source.object.contract !== LAW) {
-    throw new Error("metered inference requires an ActivityStreams Accept<ServiceContract> addressed to the tollbooth RMN law");
+  if (source?.["@context"] !== CONTEXT || source.type !== "Accept" || source.target !== ACTOR || source.object?.type !== "ServiceContract") {
+    throw new Error("metered inference requires an ActivityStreams Accept<ServiceContract> addressed to the tollbooth");
   }
   if (typeof source.object.providerAgentCard !== "string" || !/^https?:\/\//u.test(source.object.providerAgentCard)) throw new Error("service contract must name the selected provider's signed A2A Agent Card");
   document(source.object.proposal, "proposal");
@@ -95,7 +92,7 @@ export async function executeSettledContract(source) {
   validateEnvelope(source);
   const proposal = await conformBundle(source.object.proposal);
   const cell = proposal.effectCell;
-  if (cell.law !== LAW || cell.provider !== ACCOUNT) throw new Error("proposal is not addressed to the tollbooth law, account, and service scale");
+  if (cell.provider !== ACCOUNT) throw new Error("proposal is not addressed to the tollbooth account and service scale");
   if (source.object.callerAccount !== cell.caller) throw new Error("ActivityStreams callerAccount does not match the RMN caller");
   if (cell.outcome?.positiveEvidence !== false || cell.outcome?.negativeEvidence !== false) throw new Error("proposal must enter at FOUR-bottom");
   const operation = proposal.normalForm[2];
@@ -123,7 +120,7 @@ export async function executeSettledContract(source) {
   const completionTerm = ["pair", ["effect", completionCell], operation];
   const completion = await conformTerm({ agentUrl: rmnAgent(), term: completionTerm, expectedType: ["product", ["effect"], OPERATION_TYPE] });
   return response(accepted ? "Accept" : "Reject", source, {
-    type: "RmnMeteredInferenceSettlement", contract: LAW,
+    type: "RmnMeteredInferenceSettlement",
     disposition: accepted ? "completion" : "refused",
     proposal: proposal.term, completion: completion.term, witness: transition.witness,
     inference: providerSettlement,
@@ -195,15 +192,15 @@ export function createServer(env = process.env, { facilitatorClient } = {}) {
   const app = express();
   app.disable("x-powered-by");
   app.use(express.json({ type: ["application/activity+json", "application/ld+json", "application/json"], limit: "4mb" }));
-  app.get("/status", (_request, res) => res.json({ status: "ok", service: "metered-inference-tollbooth", network: config.network, price: config.price, contract: LAW }));
+  app.get("/status", (_request, res) => res.json({ status: "ok", service: "metered-inference-tollbooth", network: config.network, price: config.price }));
   app.post("/inference", (req, res, next) => {
     try { validateEnvelope(req.body); next(); }
-    catch (error) { res.status(422).type("application/activity+json").send(response("Reject", req.body ?? {}, { type: "Refusal", contract: LAW, reason: "malformed-contract", message: error.message })); }
+    catch (error) { res.status(422).type("application/activity+json").send(response("Reject", req.body ?? {}, { type: "Refusal", reason: "malformed-contract", message: error.message })); }
   });
   app.use(payment.middleware);
   app.post("/inference", async (req, res) => {
     try { res.status(200).type("application/activity+json").send(await executeSettledContract(req.body)); }
-    catch (error) { res.status(422).type("application/activity+json").send(response("Reject", req.body, { type: "Refusal", contract: LAW, reason: "contract-refused", message: error.message })); }
+    catch (error) { res.status(422).type("application/activity+json").send(response("Reject", req.body, { type: "Refusal", reason: "contract-refused", message: error.message })); }
   });
   return { app, resourceServer: payment.resourceServer, ...config };
 }
@@ -213,4 +210,4 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   app.listen(port, () => process.stdout.write(`${JSON.stringify({ service: ACTOR, route: `http://127.0.0.1:${port}/inference`, network, payTo, facilitator: facilitatorUrl, price })}\n`));
 }
 
-export { ACCOUNT, ACTOR, LAW, OPERATION_TYPE };
+export { ACCOUNT, ACTOR, OPERATION_TYPE };
