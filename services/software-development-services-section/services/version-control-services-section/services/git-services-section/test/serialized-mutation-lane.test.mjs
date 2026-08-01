@@ -9,7 +9,7 @@ import test from "node:test";
 
 const execute = promisify(execFile);
 const root = "/home/emsenn/info";
-const ingress = join(root, "lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/version-control-services-section/services/git-services-section/bin/git");
+const ingress = join(root, "lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/version-control-services-section/services/git-services-section/scripts/git-services");
 
 async function fixture() {
   const directory = await mkdtemp(join(root, ".git-services-lane-"));

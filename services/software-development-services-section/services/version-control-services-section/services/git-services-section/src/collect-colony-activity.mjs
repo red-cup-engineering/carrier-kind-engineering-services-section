@@ -5,7 +5,11 @@ import { queryWitnessJournalDocumentsByCategory } from "@lenticule-science/witne
 
 export const GIT_ACTIVITY_PROVIDER = "urn:ame:git-services-section:activity-pulse-provider";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const COLONY_ACTOR = "urn:ame:bare-cedar-fog-colony";
+// The colony this machine belongs to is machine-specific policy, never a
+// constant in shared software: every machine on the network runs this same
+// code under its own actor. Set COLONY_ACTOR in the environment (the managed
+// git wrapper exports it from etc/machine.conf).
+const COLONY_ACTOR = process.env.COLONY_ACTOR ?? "urn:ame:unnamed-colony";
 function digest(value) { return createHash("sha256").update(value).digest("hex"); }
 export async function collectGitColonyActivity({ window, recordedAt, dataRoot = join(ROOT, "data") } = {}) {
   const from = Date.parse(window.fromExclusive); const to = Date.parse(window.toInclusive); const witnesses = []; const rows = [];

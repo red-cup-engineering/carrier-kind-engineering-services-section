@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/scripts/env bash
 set -euo pipefail
 
 : "${GOOGLE_CLOUD_PROJECT:?set GOOGLE_CLOUD_PROJECT}"
@@ -35,7 +35,7 @@ actuator_module="$repository_root/services/software-services-section/services/we
 for command in gcloud node; do command -v "$command" >/dev/null || { echo "missing required command: $command" >&2; exit 69; }; done
 if [[ -n "${ACTUATOR_CLI:-}" ]]; then command -v "$ACTUATOR_CLI" >/dev/null || { echo "ACTUATOR_CLI bootstrap override is unavailable" >&2; exit 69; }
 else
-  actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/bin/gcloud-cloud-run-actuator.mjs"
+  actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/scripts/gcloud-cloud-run-actuator.mjs"
   [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }
 fi
 tag=${BUILD_TAG:-$(git -C "$script_dir" rev-parse --verify HEAD)}

@@ -1,4 +1,4 @@
-// Exercises the live bin/git managed wrapper's policy: command admission,
+// Exercises the live scripts/git-services managed wrapper's policy: command admission,
 // the repository-override refusal, its hermetic read face, and its
 // serialized-write lane. Renamed from bound-git-induction-release.test.js —
 // despite that name, its assertions were always about this wrapper, not
@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const launcher = resolve(root, "bin/git");
+const launcher = resolve(root, "scripts/git-services");
 
 test("launcher refuses missing commands and repository overrides", () => {
   const absent = spawnSync(launcher, [], { cwd: root, encoding: "utf8", env: { PATH: process.env.PATH } });

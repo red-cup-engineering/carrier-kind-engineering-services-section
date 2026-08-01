@@ -19,6 +19,9 @@ if [ ! -f "$conf" ]; then
   exit 78
 fi
 . "$conf"
+# Machine-specific identity travels to the tools this wrapper runs, so shared
+# software carries no colony constant of its own.
+[ -n "${colony_actor:-}" ] && export COLONY_ACTOR="$colony_actor"
 managed_gitconfig=$etc_dir/${managed_gitconfig_name:-managed.gitconfig}
 
 physical_pwd=$(pwd -P)

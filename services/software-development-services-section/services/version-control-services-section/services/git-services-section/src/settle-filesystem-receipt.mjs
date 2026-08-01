@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 
 const sha256 = value => createHash("sha256").update(value).digest("hex");
-const defaultGit = path.resolve(import.meta.dirname, "../bin/git");
+const defaultGit = path.resolve(import.meta.dirname, "../scripts/git-services");
 
 function run(command, args, cwd) {
   return new Promise((resolve, reject) => {
