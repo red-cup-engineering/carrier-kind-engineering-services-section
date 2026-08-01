@@ -742,72 +742,6 @@
                 },
                 {
                   "inputs": [
-                    "recursive-settlement-fabric-assay/request"
-                  ],
-                  "outputs": [
-                    "recursive-settlement-fabric-assay/receipt"
-                  ],
-                  "rows": [
-                    {
-                      "input": [
-                        {
-                          "negativeEvidence": false,
-                          "positiveEvidence": false
-                        }
-                      ],
-                      "output": [
-                        {
-                          "negativeEvidence": false,
-                          "positiveEvidence": false
-                        }
-                      ]
-                    },
-                    {
-                      "input": [
-                        {
-                          "negativeEvidence": true,
-                          "positiveEvidence": false
-                        }
-                      ],
-                      "output": [
-                        {
-                          "negativeEvidence": true,
-                          "positiveEvidence": false
-                        }
-                      ]
-                    },
-                    {
-                      "input": [
-                        {
-                          "negativeEvidence": false,
-                          "positiveEvidence": true
-                        }
-                      ],
-                      "output": [
-                        {
-                          "negativeEvidence": false,
-                          "positiveEvidence": true
-                        }
-                      ]
-                    },
-                    {
-                      "input": [
-                        {
-                          "negativeEvidence": true,
-                          "positiveEvidence": true
-                        }
-                      ],
-                      "output": [
-                        {
-                          "negativeEvidence": true,
-                          "positiveEvidence": true
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "inputs": [
                     "repository-state-observation-service/request"
                   ],
                   "outputs": [
@@ -1559,20 +1493,6 @@
                 "mode": "tensor",
                 "name": "recursive-observation-circuit-synthesis/request",
                 "predicate": "ni:///sha-256;-W94HPUBCSZw4O8nyZGGpTuj3IRuED0CD3grSZmMrkU"
-              },
-              {
-                "carrier": "ni:///sha-256;GsWa09M_SCIWzIWNDK-48rYEOO-cpZobaxxLRCGXPtQ",
-                "direction": "output",
-                "mode": "tensor",
-                "name": "recursive-settlement-fabric-assay/receipt",
-                "predicate": "ni:///sha-256;_Y3q57_v-c81_QhF75AkOS1CEVB45Nh2VX90YG_gb6s"
-              },
-              {
-                "carrier": "ni:///sha-256;GsWa09M_SCIWzIWNDK-48rYEOO-cpZobaxxLRCGXPtQ",
-                "direction": "input",
-                "mode": "tensor",
-                "name": "recursive-settlement-fabric-assay/request",
-                "predicate": "ni:///sha-256;_Y3q57_v-c81_QhF75AkOS1CEVB45Nh2VX90YG_gb6s"
               },
               {
                 "carrier": "ni:///sha-256;IyUh6cT2QUgbg1bx5YHIIQ081Sy1DgzOdUelf_lZZNw",
