@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/enterprise-account-provisioning-service",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "Deterministic CREATE2 ERC-4337 enterprise-account provisioning with remote Cloud KMS custody.",
@@ -15,10 +15,10 @@
     "./binding": "./src/account-binding.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.5",
     "@red-cup-engineering/sign-ethereum-digest-with-cloud-kms-services-section": "1.0.0",
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
     "ethers": "6.17.0"
   },
   "scripts": {

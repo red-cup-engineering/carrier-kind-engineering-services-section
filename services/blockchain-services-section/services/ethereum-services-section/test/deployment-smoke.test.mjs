@@ -6,8 +6,8 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { censusEnterpriseWallets } from "../bin/census-enterprise-wallets.mjs";
-import { verifyLiveEnterpriseAccounts } from "../bin/verify-live-enterprise-accounts.mjs";
+import { censusEnterpriseWallets } from "../scripts/census-enterprise-wallets.mjs";
+import { verifyLiveEnterpriseAccounts } from "../scripts/verify-live-enterprise-accounts.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const FIRST_ANVIL_ACCOUNT = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
@@ -112,7 +112,7 @@ test("deploys the Union EVM standards to an isolated owned chain", async (contex
     "x-agentic-metro-enterprise": { "node-id": "smoke-enterprise", "organizational-kind": "micro-enterprise" }
   })}\n`, "utf8");
   const binding = spawnSync(process.execPath, [
-    "services/account-abstraction-services-section/services/enterprise-account-provisioning-service/bin/bind-enterprise-account.mjs",
+    "services/account-abstraction-services-section/services/enterprise-account-provisioning-service/scripts/bind-enterprise-account.mjs",
     "--workspace", bindingWorkspace,
     "--settlement", settlement,
     "--urn", enterpriseUrn,

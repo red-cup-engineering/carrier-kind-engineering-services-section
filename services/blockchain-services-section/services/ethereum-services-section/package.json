@@ -47,10 +47,10 @@
   "dependencies": {
     "@account-abstraction/contracts": "0.8.0",
     "@lenticule-science/articulating": "0.1.1",
-    "@lenticule-science/articulating-language-cone-service": "0.1.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
+    "@lenticule-science/articulating-language-cone-service": "0.1.1",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
     "@red-cup-engineering/semiotic-exchange-chain-services-section": "0.1.0",
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
     "@openzeppelin/contracts": "^5.6.1",
     "ethers": "6.17.0",
     "viem": "2.55.4"

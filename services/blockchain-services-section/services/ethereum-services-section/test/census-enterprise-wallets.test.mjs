@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { censusEnterpriseWallets } from "../bin/census-enterprise-wallets.mjs";
+import { censusEnterpriseWallets } from "../scripts/census-enterprise-wallets.mjs";
 
 function writeJson(path, value) {
   mkdirSync(dirname(path), { recursive: true });

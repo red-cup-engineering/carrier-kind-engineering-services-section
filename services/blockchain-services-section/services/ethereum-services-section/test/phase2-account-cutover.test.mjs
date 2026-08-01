@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { verifyPhase2AccountCutover } from "../bin/verify-phase2-account-cutover.mjs";
+import { verifyPhase2AccountCutover } from "../scripts/verify-phase2-account-cutover.mjs";
 
 function write(path, value) {
   mkdirSync(dirname(path), { recursive: true });

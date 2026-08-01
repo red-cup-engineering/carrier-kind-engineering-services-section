@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/multi-chain-finality-services-section",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "Sovereign chain-receipt policy assay, FOUR ACI merge, replay refusal, and exclusive-custody assay for ERC-7786 cross-chain seams.",
@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@lenticule-science/articulating": "0.1.1",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3"
   },
   "engines": {
     "node": ">=22.18"

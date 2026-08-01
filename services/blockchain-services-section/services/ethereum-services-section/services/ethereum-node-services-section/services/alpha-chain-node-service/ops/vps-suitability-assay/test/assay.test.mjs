@@ -77,7 +77,7 @@ test("recognizes RFC1918, carrier-grade private, and IPv6 ULA addresses only", (
 test("CLI consumes JSON from stdin and makes refusal machine-visible", () => {
   const result = spawnSync(
     process.execPath,
-    [new URL("../bin/assay-vps.mjs", import.meta.url).pathname, "-"],
+    [new URL("../scripts/assay-vps.mjs", import.meta.url).pathname, "-"],
     { input: JSON.stringify({ ...suitableFacts, architecture: "i386" }), encoding: "utf8" },
   );
   assert.equal(result.status, 2);

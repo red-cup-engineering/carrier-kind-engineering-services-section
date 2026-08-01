@@ -5,19 +5,19 @@
   "type": "module",
   "description": "RCE's Blockchain Services Section: the parent home for every chain-specific blockchain service the Union operates, starting with Ethereum/EVM.",
   "files": [
-    "bin",
+    "scripts",
     "content",
     "lib",
     "src"
   ],
   "bin": {
-    "assay-blockchain-capability-cells": "./bin/assay-capability-cells.mjs"
+    "assay-blockchain-capability-cells": "./scripts/assay-capability-cells.mjs"
   },
   "scripts": {
-    "check": "node --check lib/capability-cell.mjs && node --check bin/assay-capability-cells.mjs",
+    "check": "node --check lib/capability-cell.mjs && node --check scripts/assay-capability-cells.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test",
-    "assay:cells": "node bin/assay-capability-cells.mjs"
+    "assay:cells": "node scripts/assay-capability-cells.mjs"
   },
   "keywords": [
     "blockchain"

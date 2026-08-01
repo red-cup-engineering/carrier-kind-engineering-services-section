@@ -8,11 +8,11 @@
     ".": "./src/alpha-chain.mjs"
   },
   "bin": {
-    "generate-alpha-chain-genesis": "./bin/generate-network.mjs",
-    "run-alpha-chain-node": "./bin/run-node.mjs"
+    "generate-alpha-chain-genesis": "./scripts/generate-network.mjs",
+    "run-alpha-chain-node": "./scripts/run-node.mjs"
   },
   "scripts": {
-    "check": "node --check src/alpha-chain.mjs && node --check bin/generate-network.mjs && node --check bin/run-node.mjs && node --check test/alpha-chain.test.mjs",
+    "check": "node --check src/alpha-chain.mjs && node --check scripts/generate-network.mjs && node --check scripts/run-node.mjs && node --check test/alpha-chain.test.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

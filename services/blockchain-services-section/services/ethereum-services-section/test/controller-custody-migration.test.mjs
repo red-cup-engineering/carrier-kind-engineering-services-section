@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { Wallet } from "ethers";
-import { migrateSettlementControllerCustody } from "../bin/migrate-settlement-controller-custody.mjs";
+import { migrateSettlementControllerCustody } from "../scripts/migrate-settlement-controller-custody.mjs";
 
 function write(path, value, mode = 0o600) {
   mkdirSync(dirname(path), { recursive: true });

@@ -8,10 +8,10 @@
     ".": "./src/assay.mjs"
   },
   "bin": {
-    "assay-alpha-chain-vps": "./bin/assay-vps.mjs"
+    "assay-alpha-chain-vps": "./scripts/assay-vps.mjs"
   },
   "scripts": {
-    "check": "node --check src/assay.mjs && node --check bin/assay-vps.mjs && node --check test/assay.test.mjs",
+    "check": "node --check src/assay.mjs && node --check scripts/assay-vps.mjs && node --check test/assay.test.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
