@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { assayReceiptFinalityPolicy, chainReceiptKey, mergeChainReceiptViews, reorganizationCorrection } from "../src/finality-merge.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { rawNiUri } from "@red-cup-engineering/relation-model-notation-runtime/canonical-cbor";
 
 const ni = rawNiUri;
 const receipt = { chainId: "eip155:1", blockHash: `0x${"11".repeat(32)}`, transactionHash: `0x${"22".repeat(32)}`, logIndex: 3, rmnAct: ni("act"), evidenceRoot: ni("evidence") };

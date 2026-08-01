@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { ACTOR, CONTRACT, EFFECTS, run } from "../src/finality-service-contract.mjs";
+import { ACTOR, EFFECTS, run } from "../src/finality-service-contract.mjs";
 
 const at = "2026-07-24T22:30:00.000Z";
 const env = {
@@ -39,7 +38,6 @@ function solicitation(value = request) {
     target: ACTOR,
     object: {
       type: "ServiceSolicitation",
-      contract: CONTRACT,
       request: value,
       requestDigest: "sha256:request",
       sourceActivity: { id: "urn:leader:source" },
@@ -55,7 +53,6 @@ function invocation(offered) {
     target: ACTOR,
     object: {
       type: "ServiceContract",
-      contract: CONTRACT,
       offer: offered,
       capability: {
         type: "Capability",
@@ -71,17 +68,10 @@ function invocation(offered) {
   };
 }
 
-test("the discoverable service operations name the compiled RMN law", () => {
-  const manifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
-  assert.equal(manifest["x-agentic-metro-enterprise"]["operation-catalog"]["solicit-service"].contract, CONTRACT);
-  assert.equal(manifest["x-agentic-metro-enterprise"]["operation-catalog"]["invoke-service"].contract, CONTRACT);
-});
-
 test("offers only the exact receipt-finality-policy assay demand through the advertised carrier", async () => {
   const offered = await run(solicitation(), "solicit-service", at, env, undefined, recorder);
   assert.equal(offered.type, "Offer");
   assert.equal(offered.object.type, "ExecutableServiceOffer");
-  assert.equal(offered.object.contract, CONTRACT);
   assert.deepEqual(offered.object.effects, EFFECTS);
   assert.equal(offered.object.request, request);
   assert.ok(recorded.at(-1).category.endsWith("receipt-finality-policy-assay-offer"));

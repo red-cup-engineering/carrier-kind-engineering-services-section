@@ -3,18 +3,14 @@ import { readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
-import { recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
+import { recordSettlementRecord, relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-rdf-projection-service/client";
 import { assayReceiptFinalityPolicy, chainReceiptKey } from "./finality-merge.mjs";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
 export const ACTOR = "urn:ame:multi-chain-finality-services-section";
 export const NODE_ID = "multi-chain-finality-services-section";
 const HERE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const LAW_PATH = resolve(HERE, "content/contracts/assay-receipt-finality-policy.rml");
-export const LAW = compileRmlLaw(readFileSync(LAW_PATH, "utf8"));
-export const CONTRACT = LAW.id;
 export const EFFECTS = Object.freeze(["provider-local-witness-journal-evidence"]);
 const INTENT_SIGNATURE = "assay-one-chain-qualified-receipt-against-one-finality-policy/v1";
 
@@ -87,7 +83,6 @@ function solicitationProblem(activity) {
   if (activity?.["@context"] !== CONTEXT || activity.type !== "Offer" || activity.target !== ACTOR || activity.object?.type !== "ServiceSolicitation") {
     return "solicitation-must-be-an-addressed-activitystreams-service-offer";
   }
-  if (activity.object.contract !== CONTRACT) return "solicitation-must-name-exact-finality-assay-contract";
   try { exactRequest(activity.object.request); } catch (error) { return error.message; }
   if (activity.object.requestDigest === undefined || activity.object.sourceActivity?.id === undefined) {
     return "solicitation-must-bind-request-digest-and-source-activity";
@@ -97,7 +92,6 @@ function solicitationProblem(activity) {
 function offer(source, request, recordedAt) {
   return response("Offer", source, {
     type: "ExecutableServiceOffer",
-    contract: CONTRACT,
     sourceActivity: source.object.sourceActivity.id,
     request,
     requestDigest: source.object.requestDigest,
@@ -117,7 +111,7 @@ function invocationProblem(activity) {
   if (activity?.["@context"] !== CONTEXT || activity.type !== "Accept" || activity.target !== ACTOR || contract?.type !== "ServiceContract") {
     return "invocation-must-be-an-addressed-activitystreams-service-contract";
   }
-  if (contract.contract !== CONTRACT || offered?.type !== "Offer" || offered.actor !== ACTOR || offered.target !== activity.actor || offered.object?.contract !== CONTRACT) {
+  if (offered?.type !== "Offer" || offered.actor !== ACTOR || offered.target !== activity.actor) {
     return "invocation-must-accept-an-exact-provider-authored-offer";
   }
   try { exactRequest(offered.object.request); } catch (error) { return error.message; }
@@ -143,7 +137,6 @@ function invocationProblem(activity) {
 async function refusal(source, reason, recordedAt, env, recorder) {
   const record = response("Reject", source, {
     type: "ReceiptFinalityPolicyAssayRefusal",
-    law: CONTRACT,
     reason,
     positiveEvidence: false,
     negativeEvidence: false,
@@ -157,7 +150,6 @@ async function refusal(source, reason, recordedAt, env, recorder) {
   } catch {
     return response("Reject", source, {
       type: "ReceiptFinalityPolicyAssayRefusal",
-      law: CONTRACT,
       reason,
       witnessStatus: "unsettled-provider-witness-boundary-unavailable",
       positiveEvidence: false,
@@ -189,7 +181,6 @@ export async function run(
     } catch {
       return response("Reject", activity, {
         type: "ReceiptFinalityPolicyAssayRefusal",
-        law: CONTRACT,
         reason: "provider-witness-boundary-unavailable",
         witnessStatus: "unsettled-provider-witness-boundary-unavailable",
         positiveEvidence: false,
@@ -208,7 +199,6 @@ export async function run(
     const result = await assay(request.receipt, request.policy);
     const record = response("Accept", activity, {
       type: "ReceiptFinalityPolicyAssay",
-      law: CONTRACT,
       result,
       positiveEvidence: true,
       negativeEvidence: false,
