@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/capability-cell-fabrication-run-history-migrator-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Receipt-bearing migration of fabrication JSONL histories into canonical semantic carriers and evidence-resolved stage laws.",
@@ -17,9 +17,9 @@
     "verify": "npm run check && npm test"
   },
   "dependencies": {
-    "@red-cup-engineering/acceptance-capsule-procurement-service": "1.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
+    "@red-cup-engineering/acceptance-capsule-procurement-service": "1.0.1",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3"
   },
   "engines": {
     "node": ">=22"

@@ -1,43 +1,70 @@
 {
   "name": "@red-cup-engineering/json-schema-services-section",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "description": "Canonical Red Cup JSON Schema semantics and path-addressed reading, writing, searching, validation, resolution, projection, and census services.",
   "exports": {
-    ".": { "types": "./dist/index.d.mts", "import": "./dist/index.mjs" },
-    "./read-a-schema": "./bin/read-a-schema.mjs",
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./read-a-schema": "./scripts/read-a-schema.mjs",
     "./write-a-schema": "./services/writing-a-schema/src/write-a-schema.js",
     "./search-path-for-schema": "./services/search-path-for-schema/src/search-path-for-schema.mjs",
     "./census": "./dist/census.mjs"
   },
   "bin": {
-    "json-schema-census": "./bin/json-schema-census.mjs",
-    "read-a-schema": "./bin/read-a-schema.mjs",
+    "json-schema-census": "./scripts/json-schema-census.mjs",
+    "read-a-schema": "./scripts/read-a-schema.mjs",
     "write-a-schema": "./services/writing-a-schema/src/write-a-schema.js",
     "search-path-for-schema": "./services/search-path-for-schema/scripts/search-path-for-schema.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/json-file-codec-service": "0.1.1",
+    "@red-cup-engineering/json-file-codec-service": "0.1.2",
     "@lenticule-science/rmn-semantic-conformance-die": "6.0.1"
   },
-  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.8.0" },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "check": "node --check src/route-a-service.js && node --check bin/json-schema-census.mjs && node --check bin/read-a-schema.mjs && node --check services/writing-a-schema/src/write-a-schema.js && node --check services/search-path-for-schema/src/search-path-for-schema.mjs && node --check services/search-path-for-schema/scripts/search-path-for-schema.mjs",
-    "test": "node --experimental-strip-types --experimental-loader ./bin/workspace-loader.mjs --test test/*.test.mjs services/search-path-for-schema/test/*.test.mjs",
-    "census": "node --experimental-strip-types --experimental-loader ./bin/workspace-loader.mjs bin/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json",
-    "census:verify": "node --experimental-strip-types --experimental-loader ./bin/workspace-loader.mjs bin/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json --verify",
+    "check": "node --check src/route-a-service.js && node --check scripts/json-schema-census.mjs && node --check scripts/read-a-schema.mjs && node --check services/writing-a-schema/src/write-a-schema.js && node --check services/search-path-for-schema/src/search-path-for-schema.mjs && node --check services/search-path-for-schema/scripts/search-path-for-schema.mjs",
+    "test": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs --test test/*.test.mjs services/search-path-for-schema/test/*.test.mjs",
+    "census": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json",
+    "census:verify": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json --verify",
     "verify": "npm run build && npm run check && npm test"
   },
-  "x-agentic-metro-enterprise": { "node-id": "json-schema-services-section", "owners": ["json-file-services-section"] },
+  "x-agentic-metro-enterprise": {
+    "node-id": "json-schema-services-section",
+    "owners": [
+      "json-file-services-section"
+    ]
+  },
   "x-semiotic-voxel": {
     "profile": "org.harmonious-union.semiotic-voxel.v1",
     "owner": "red-cup-engineering",
     "kind": "actor",
     "actor": "urn:ame:json-schema-services-section",
-    "operations": ["create-json-schema", "validate-json-schema-instance", "project-json-schema-assertions", "read-a-schema", "write-a-schema", "search-path-for-schema", "census-json-schema-corpus"],
-    "capabilities": [{ "capability": "json-schema", "faces": ["Node", "CLI"] }],
+    "operations": [
+      "create-json-schema",
+      "validate-json-schema-instance",
+      "project-json-schema-assertions",
+      "read-a-schema",
+      "write-a-schema",
+      "search-path-for-schema",
+      "census-json-schema-corpus"
+    ],
+    "capabilities": [
+      {
+        "capability": "json-schema",
+        "faces": [
+          "Node",
+          "CLI"
+        ]
+      }
+    ],
     "package": "@red-cup-engineering/json-schema-services-section"
   }
 }

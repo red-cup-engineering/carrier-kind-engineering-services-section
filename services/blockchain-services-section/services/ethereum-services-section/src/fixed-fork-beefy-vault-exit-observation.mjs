@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { Interface } from "ethers";
 
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { FIXED_FORK_BEEFY_VAULT_EXIT_OBSERVATION_CONTRACT }
   from "./fixed-fork-beefy-vault-exit-law.mjs";
 
@@ -30,7 +30,7 @@ const DEFINITIONS = Object.freeze({
     vault: "0xdee327bf6b0182a1727caec9c6344a0d27d6da99", lpToken: "0x456c166e63634d75a4b49edec86cb51424d4c926" }),
 });
 
-function digest(value) { return semanticId(relationalRwilDocument(value)); }
+function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
 function assertNoNumericOrTransactionMaterial(value, path = "input") {
   if (typeof value === "number" || typeof value === "bigint") {
     throw new TypeError(`${path} must encode integers as decimal text`);
@@ -210,7 +210,7 @@ export async function recordFixedForkBeefyVaultExitObservation(input, result, op
   const record = { type: "FixedForkBeefyVaultExitObservationRecord", owner: ACTOR,
     observation: result, evidenceInput: request, recordedAt, decisionBoundary: result.gate };
   const projection = await (options.record ?? ((request) => recordSettlementRecord({
-    agentUrl: options.agentUrl ?? process.env.RWIL_RDF_AGENT, settlement: SETTLEMENT, actor: ACTOR, ...request,
+    agentUrl: options.agentUrl ?? process.env.WITNESS_JOURNAL_RDF_AGENT, settlement: SETTLEMENT, actor: ACTOR, ...request,
   })))({ category: RECORD_CATEGORY, recordedAt, record });
   return { result, record, projection };
 }

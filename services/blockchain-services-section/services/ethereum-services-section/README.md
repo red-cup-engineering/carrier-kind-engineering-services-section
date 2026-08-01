@@ -74,7 +74,7 @@ Run `npm test` for the local EVM proof and negative controls.
 
 The typed effect cell is owned by the RMN semantic-conformance provider, not by
 this EVM settlement. Git ANT and device I/O now hire that provider and witness
-local task/syscall FOUR cover transitions in RWIL. They do not buy consensus
+local task/syscall FOUR cover transitions in WitnessJournal. They do not buy consensus
 for factorable local work. This EVM service is used only when an effect is a
 genuine par seam: shared authority, custody, scarcity, atomic payment, or a
 typed inter-settlement residue. There is no JavaScript effect ontology beside

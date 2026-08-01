@@ -3,11 +3,11 @@ import { Message, Role } from "@a2a-js/sdk";
 import { a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { operationBytes, operationFromBytes } from "./a2a-executor.mjs";
 import { ACTOR } from "./observer.mjs";
 
-const id = (value) => semanticId(relationalRwilDocument(value));
+const id = (value) => semanticId(relationalWitnessJournalDocument(value));
 const record = (body) => Object.freeze({ id: id(body), ...body });
 export async function observeRepository(request, { agentCardUrl = process.env.REPOSITORY_STATE_OBSERVATION_AGENT_CARD_URL, send = sendRmnTask, signal } = {}) {
   if (typeof agentCardUrl !== "string" || !agentCardUrl) throw new Error("REPOSITORY_STATE_OBSERVATION_AGENT_CARD_URL is required");

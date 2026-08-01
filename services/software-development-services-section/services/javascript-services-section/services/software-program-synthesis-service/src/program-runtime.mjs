@@ -7,8 +7,8 @@ import { join, resolve } from "node:path";
 import { repoFileList } from "@red-cup-engineering/coding-context-projection-service";
 import { hireOfficerContextCompilation } from "@union-officer-academy/officer-context-compilation-service/client";
 import { executeSoftwareMission as defaultExecuteSoftwareMission } from "@red-cup-engineering/software-mission-execution-service/client";
-import { normalizeCausalRwil } from "@lenticule-science/witness-journal-rdf-projection-service/causal";
-import { createSettlementStore, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { normalizeCausalWitnessJournal } from "@lenticule-science/witness-journal-rdf-projection-service/causal";
+import { createSettlementStore, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { runTestsCommand } from "@red-cup-engineering/sandbox-command-execution-service";
 import {
@@ -435,7 +435,7 @@ export async function runProgram(input, {
   runInquiry = defaultExecuteSoftwareMission,
   runMission,
   runMissionPipeline,
-  rwilAgentUrl = process.env.RWIL_RDF_AGENT,
+  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
   recordExecutionEvent,
   checkCommand = (territory, command) => runTestsCommand(territory, command),
   projectExecutionGeometryCircuit = defaultProjectExecutionGeometryCircuit,
@@ -446,7 +446,7 @@ export async function runProgram(input, {
   const id = input.id || `urn:ame:software-program-synthesis-service:program:${randomUUID()}`, territory = resolve(input.territory);
   const startedAt = new Date().toISOString(), cycles = [];
   const appendExecutionEvent = recordExecutionEvent ?? (() => {
-    const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: rwilAgentUrl });
+    const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: witnessJournalAgentUrl });
     return ({ category, recordedAt, record }) => store.record({ category, recordedAt, record });
   })();
   let acceptance = checkCommand(territory, input.acceptanceCommand);
@@ -488,13 +488,13 @@ export async function runProgram(input, {
         executionProvider: result?.executionProvider ?? null,
         executionInput: receipt?.inputNi ?? null,
         executionOutput: receipt?.outputNi ?? null,
-        executionAgentCard: receipt?.agentCard ? semanticId(relationalRwilDocument(receipt.agentCard)) : null,
+        executionAgentCard: receipt?.agentCard ? semanticId(relationalWitnessJournalDocument(receipt.agentCard)) : null,
         executionAuthentication: receipt?.authentication ?? null,
         integrated: result?.outcome?.integrated === true,
         reason,
       };
-      const event = { id: semanticId(relationalRwilDocument(body)), ...body };
-      normalizeCausalRwil([...executionEvents, event]);
+      const event = { id: semanticId(relationalWitnessJournalDocument(body)), ...body };
+      normalizeCausalWitnessJournal([...executionEvents, event]);
       const projection = await appendExecutionEvent({
         category: "software-program.mission-settlement",
         recordedAt,

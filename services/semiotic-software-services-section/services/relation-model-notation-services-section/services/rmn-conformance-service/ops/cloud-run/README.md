@@ -5,7 +5,7 @@ conformance checker. `src/*.mjs` and `bin/*.mjs` never write to the
 filesystem; the service's only local state is the generic A2A protocol task
 store that `@emsenn/a2a-contracted-agent-service` keeps for every provider
 (one JSON envelope per task, used for task replay/resume), and it is disposable.
-Unlike `rwil-rdf-projection-service` or `paid-ephemeris-gateway`, this carrier mounts no
+Unlike `witness-journal-rdf-projection-service` or `paid-ephemeris-gateway`, this carrier mounts no
 volume and carries no single-instance ceiling — it scales like any other
 stateless HTTP service.
 
@@ -19,7 +19,7 @@ band, the same way `paid-ephemeris-gateway`'s prerequisites were):
 - a billing-enabled Google Cloud project with Cloud Build, Artifact Registry,
   Cloud Run, and Secret Manager APIs enabled;
 - the named Artifact Registry Docker repository (`obsmetrological-services`,
-  shared with `rwil-rdf-projection-service`);
+  shared with `witness-journal-rdf-projection-service`);
 - a dedicated Cloud Run service account
   (`rmn-semantic-conformance@PROJECT.iam.gserviceaccount.com`);
 - Secret Manager secrets `rmn-semantic-conformance-signing-key` (the real

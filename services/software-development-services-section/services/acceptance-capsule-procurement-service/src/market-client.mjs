@@ -24,5 +24,5 @@ export const fabricDefaults = Object.freeze({
   market: "urn:ame:inference-work-lot-service",
   selectionOwner: "urn:ame:inference-work-lot-service",
   acceptanceOwner: ACTOR,
-  carrier: ["signed A2A 1.0 Agent Card", "canonical RMN/CBOR", "RWIL/RDF"],
+  carrier: ["signed A2A 1.0 Agent Card", "canonical RMN/CBOR", "witness-journal RDF"],
 });

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
 export const ACTOR = "urn:ame:enterprise-account-provisioning-service";
@@ -17,7 +17,7 @@ const HERE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LAW_PATH = resolve(HERE, "content/contracts/provision-enterprise-account.rml");
 export const LAW = compileRmlLaw(readFileSync(LAW_PATH, "utf8"));
 export const CONTRACT = LAW.id;
-export const EFFECTS = Object.freeze(["provider-local-RWIL-evidence", "conditional-remote-kms-create2-deployment"]);
+export const EFFECTS = Object.freeze(["provider-local-witness-journal-evidence", "conditional-remote-kms-create2-deployment"]);
 export const MISSING_PRODUCTION_CAPABILITIES = Object.freeze([
   Object.freeze({
     token: "urn:capability:union-sovereign-settlement-root",
@@ -60,16 +60,16 @@ export const UPSTREAM_DEMANDS = Object.freeze([
   }),
 ]);
 
-function identified(body) { return Object.freeze({ id: semanticId(relationalRwilDocument(body)), ...body }); }
+function identified(body) { return Object.freeze({ id: semanticId(relationalWitnessJournalDocument(body)), ...body }); }
 function argument(flag) { const at = process.argv.indexOf(flag); return at < 0 ? undefined : process.argv[at + 1]; }
 function atNow() { return argument("--now") ?? new Date().toISOString(); }
 function dataRoot(env = process.env) { return resolve(env.ENTERPRISE_ACCOUNT_PROVISIONING_DATA_ROOT ?? `${HERE}/data`); }
-function rwilAgent(env = process.env) {
-  if (!env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT must name the provisioning provider's contracted RWIL/RDF A2A provider");
-  return env.RWIL_RDF_AGENT;
+function witnessJournalAgent(env = process.env) {
+  if (!env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT must name the provisioning provider's contracted witness-journal RDF A2A provider");
+  return env.WITNESS_JOURNAL_RDF_AGENT;
 }
 async function append(record, category, recordedAt, env, recorder = recordSettlementRecord) {
-  return recorder({ agentUrl: rwilAgent(env), root: dataRoot(env), nodeId: NODE_ID, settlement: ACTOR, actor: ACTOR, category, recordedAt, record });
+  return recorder({ agentUrl: witnessJournalAgent(env), root: dataRoot(env), nodeId: NODE_ID, settlement: ACTOR, actor: ACTOR, category, recordedAt, record });
 }
 function response(type, source, object, recordedAt) {
   return identified({ "@context": CONTEXT, type, actor: ACTOR, target: source?.actor ?? null, inReplyTo: source?.id ?? null, law: CONTRACT, object, published: recordedAt });

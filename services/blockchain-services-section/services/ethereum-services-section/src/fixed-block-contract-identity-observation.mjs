@@ -1,6 +1,6 @@
 import { keccak256 } from "ethers";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -45,7 +45,7 @@ function serializable(value) {
   if (value != null && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, serializable(item)]));
   return value;
 }
-function digest(value) { return semanticId(relationalRwilDocument(value)); }
+function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
 function codeIdentity(code) { return { semanticDigest: digest({ type: "EvmRuntimeBytecode", code: code.toLowerCase() }), keccak256: keccak256(code) }; }
 function wordAddress(word) {
   if (!HASH.test(word ?? "") || word.toLowerCase() === ZERO_WORD) return null;
@@ -256,7 +256,7 @@ export async function recordFixedBlockContractIdentityObservation(input, result,
   const record = { type: "FixedBlockContractIdentityObservationRecord", owner: ACTOR,
     observation: result, evidenceInput: serializable(input), recordedAt, decisionBoundary: result.gate };
   const projection = await (options.record ?? ((request) => recordSettlementRecord({
-    agentUrl: options.agentUrl ?? process.env.RWIL_RDF_AGENT, settlement: SETTLEMENT, actor: ACTOR, ...request,
+    agentUrl: options.agentUrl ?? process.env.WITNESS_JOURNAL_RDF_AGENT, settlement: SETTLEMENT, actor: ACTOR, ...request,
   })))({ category: RECORD_CATEGORY, recordedAt, record });
   return { result, record, projection };
 }

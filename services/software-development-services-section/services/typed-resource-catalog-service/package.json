@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/typed-resource-catalog",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "Typed resource identity, proof-path classification, and checked language-cone readings over the Red Cup relating substrate.",
@@ -11,17 +11,17 @@
     "./rmn": "./src/rmn.mjs"
   },
   "bin": {
-    "typed-resource-catalog": "./bin/typed-resource-catalog.mjs"
+    "typed-resource-catalog": "./scripts/typed-resource-catalog.mjs"
   },
   "files": [
-    "bin/",
+    "scripts/",
     "content/",
     "examples/",
     "src/",
     "types/"
   ],
   "scripts": {
-    "check": "node --check src/canonical.mjs && node --check src/recognition.mjs && node --check src/catalog.mjs && node --check src/language-cone.mjs && node --check src/rmn.mjs && node --check src/actions.mjs && node --check src/node-package-source-catalog.mjs && node --check src/node-workspace-source-catalog.mjs && node --check src/temporal-failure-normalization.mjs && node --check src/index.mjs && node --check bin/typed-resource-catalog.mjs",
+    "check": "node --check src/canonical.mjs && node --check src/recognition.mjs && node --check src/catalog.mjs && node --check src/language-cone.mjs && node --check src/rmn.mjs && node --check src/actions.mjs && node --check src/node-package-source-catalog.mjs && node --check src/node-workspace-source-catalog.mjs && node --check src/temporal-failure-normalization.mjs && node --check src/index.mjs && node --check scripts/typed-resource-catalog.mjs",
     "test": "node --test test/*.test.mjs",
     "example:articulating": "node examples/obsmetrologia-articulating-cone.mjs",
     "verify": "npm run check && npm test && npm run example:articulating"
@@ -31,6 +31,6 @@
   },
   "dependencies": {
     "@red-cup-engineering/relating": "0.0.1",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2"
   }
 }

@@ -10,7 +10,7 @@ import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
 import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
 import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
-import { recordRwil, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import {
   CDP_FACILITATOR_URL,
   createCdpFacilitatorContract,
@@ -130,7 +130,7 @@ export async function executeSettledContract(source) {
   });
 }
 
-async function appendSettlementRwil(context, agentUrl) {
+async function appendSettlementWitnessJournal(context, agentUrl) {
   const body = context.transportContext?.responseBody;
   if (!body) return;
   let activityResult;
@@ -149,7 +149,7 @@ async function appendSettlementRwil(context, agentUrl) {
     ["urn:x402:amount", context.result.amount ?? context.requirements.amount],
     ["urn:prov:generatedAtTime", at],
   ].map(([predicate, value]) => ({ subject: graph, predicate, object: { kind: "literal", value: String(value) } }));
-  await recordRwil({ agentUrl, batch: { settlement: ACCOUNT, graph, recordedAt: at, document: relationalRwilDocument({ type: "X402InferenceSettlementWitness", settlement: activityResult.object, payment: { network: context.result.network, transaction, payer: context.result.payer ?? null, amount: context.result.amount ?? context.requirements.amount } }), assertions } });
+  await recordWitnessJournalBatch({ agentUrl, batch: { settlement: ACCOUNT, graph, recordedAt: at, document: relationalWitnessJournalDocument({ type: "X402InferenceSettlementWitness", settlement: activityResult.object, payment: { network: context.result.network, transaction, payer: context.result.payer ?? null, amount: context.result.amount ?? context.requirements.amount } }), assertions } });
 }
 
 function envConfiguration(env) {
@@ -175,7 +175,7 @@ function selectedFacilitator(env, config, injected) {
 
 export function createServer(env = process.env, { facilitatorClient } = {}) {
   const config = envConfiguration(env);
-  if (!env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT must name the hired RWIL/RDF provider's A2A 1.0 Agent Card");
+  if (!env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT must name the hired witness-journal RDF provider's A2A 1.0 Agent Card");
   const payment = createExactEvmPaymentBoundary({
     network: config.network,
     facilitatorUrl: config.facilitatorUrl,
@@ -189,7 +189,7 @@ export function createServer(env = process.env, { facilitatorClient } = {}) {
         extensions: DISCOVERY,
       },
     },
-    afterSettle: async (context) => appendSettlementRwil(context, env.RWIL_RDF_AGENT),
+    afterSettle: async (context) => appendSettlementWitnessJournal(context, env.WITNESS_JOURNAL_RDF_AGENT),
   });
   const app = express();
   app.disable("x-powered-by");

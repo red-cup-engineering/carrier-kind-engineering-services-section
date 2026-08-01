@@ -6,7 +6,7 @@ wallet, web identity, public offer, and receipts are facets of that one cell.
 They are not a bag of capabilities.
 
 Every other effectful power is another CapCell. A cell that needs A2A,
-ActivityPub, OCapN, CapTP, x402, RWIL, Git hosting, package publication,
+ActivityPub, OCapN, CapTP, x402, WitnessJournal, Git hosting, package publication,
 deployment, or witnessing binds an independently advertised provider from the
 same market. It does not import that provider implementation into its own
 process and call the resulting composite a cell.

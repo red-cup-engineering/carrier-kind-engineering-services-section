@@ -33,7 +33,7 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/semantic-content-identify-service": "0.1.7"
+    "@red-cup-engineering/semantic-content-identify-service": "0.1.8"
   },
   "repository": {
     "type": "git",

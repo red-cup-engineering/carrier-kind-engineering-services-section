@@ -2,14 +2,14 @@ import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { induceGithubSoftwareProposalLocally } from "./post-attempt.mjs";
 import { executeInductionSaga } from "./induction-saga.mjs";
 
 export const ACTOR = "urn:ame:github-software-induction-service";
-const id = (value) => semanticId(relationalRwilDocument(value));
+const id = (value) => semanticId(relationalWitnessJournalDocument(value));
 export const record = (body) => Object.freeze({ id: id(body), ...body });
-export const operationBytes = (value) => semanticBytes(relationalRwilDocument(value));
+export const operationBytes = (value) => semanticBytes(relationalWitnessJournalDocument(value));
 export function operationFromBytes(bytes) {
   const term = decodeSemantic(bytes);
   if (term?.[0] !== "ascribe" || term.length !== 3) throw new Error("GitHub induction operation is not typed relational RMN");

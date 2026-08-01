@@ -24,7 +24,7 @@
       "amount": "unknown-not-zero-until-provider-offer-is-accepted"
     },
     {
-      "providerRole": "rmn-identity-and-rwil-rdf-witness",
+      "providerRole": "rmn-identity-and-witness-journal-rdf-witness",
       "amount": "unknown-not-zero-until-provider-offers-are-accepted"
     }
   ],

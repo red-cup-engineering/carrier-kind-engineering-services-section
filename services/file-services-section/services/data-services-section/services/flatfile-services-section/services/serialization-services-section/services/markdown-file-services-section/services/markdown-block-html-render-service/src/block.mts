@@ -57,7 +57,7 @@ function renderBlocks(lines: readonly string[], start: number): RenderedBlocks {
 
     const fence = fenceStart(line);
     if (fence !== null) {
-      const rendered = renderFence(lines, index, fence);
+      const rendered = renderFence(lines, index, fence, fenceInfoString(line, fence));
       blocks.push(rendered.html);
       index = rendered.next;
       continue;
@@ -106,7 +106,7 @@ function renderBlocks(lines: readonly string[], start: number): RenderedBlocks {
   return { html: blocks.join("\n"), next: index };
 }
 
-function renderFence(lines: readonly string[], start: number, fence: string): RenderedBlocks {
+function renderFence(lines: readonly string[], start: number, fence: string, infoString: string): RenderedBlocks {
   const code: string[] = [];
   let index = start + 1;
   while (index < lines.length && !closingFence(lines[index]!, fence)) {
@@ -114,7 +114,9 @@ function renderFence(lines: readonly string[], start: number, fence: string): Re
     index++;
   }
   if (index < lines.length) index++;
-  return { html: renderElement("pre", {}, [htmlElement("code", {}, [code.join("\n")])]), next: index };
+  const language = fenceLanguage(infoString);
+  const codeAttributes = language === null ? {} : { class: `language-${language}` };
+  return { html: renderElement("pre", {}, [htmlElement("code", codeAttributes, [code.join("\n")])]), next: index };
 }
 
 function renderCallout(
@@ -212,6 +214,17 @@ function isBlockStart(line: string): boolean {
 function fenceStart(line: string): string | null {
   const match = line.match(/^ {0,3}(`{3,}|~{3,})/u);
   return match?.[1] ?? null;
+}
+
+/** The info string trailing the opening fence marker on its line, e.g. `js` in ` ```js `. */
+function fenceInfoString(line: string, fence: string): string {
+  return line.slice(line.indexOf(fence) + fence.length).trim();
+}
+
+/** The language token (first word) of a fence info string, or null if there is none. */
+function fenceLanguage(infoString: string): string | null {
+  const token = infoString.trim().split(/\s+/u)[0] ?? "";
+  return /\w/u.test(token) ? token : null;
 }
 
 function closingFence(line: string, fence: string): boolean {

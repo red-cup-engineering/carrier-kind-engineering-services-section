@@ -1,6 +1,6 @@
 import { Interface, TypedDataEncoder, keccak256, toUtf8Bytes } from "ethers";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const PROFILE = "org.emsenn.evm.enterprise-account-controller-binding.v1";
 const MAGIC = "0x1626ba7e";
@@ -52,7 +52,7 @@ function uint(value, name, maximum = (1n << 256n) - 1n) {
 }
 function lowerAddress(value, name) { return text(value, ADDRESS, name).toLowerCase(); }
 function hashText(value) { return keccak256(toUtf8Bytes(value)); }
-function identify(value) { return semanticId(relationalRwilDocument(value)); }
+function identify(value) { return semanticId(relationalWitnessJournalDocument(value)); }
 function blockTag(value) { return `0x${value.toString(16)}`; }
 
 function normalizeInput(raw) {

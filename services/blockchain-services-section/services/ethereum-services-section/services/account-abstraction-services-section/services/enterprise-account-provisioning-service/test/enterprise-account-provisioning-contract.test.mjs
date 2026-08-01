@@ -13,7 +13,7 @@ import {
 const at = "2026-07-24T12:00:00.000Z";
 const recorded = [];
 const recorder = async (entry) => { recorded.push(entry); return { documentNi: "ni:///sha-256;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" }; };
-const env = { RWIL_RDF_AGENT: "https://rwil.example/.well-known/agent-card.json", ENTERPRISE_ACCOUNT_PROVISIONING_DATA_ROOT: "/tmp/eap-test" };
+const env = { WITNESS_JOURNAL_RDF_AGENT: "https://witnessJournal.example/.well-known/agent-card.json", ENTERPRISE_ACCOUNT_PROVISIONING_DATA_ROOT: "/tmp/eap-test" };
 function solicitation(request = {
   type: "EnterpriseAccountProvisioningDemand",
   chain: { caip2: "eip155:1", role: UNION_ROOT_ROLE, settlementParent: null, executionLifetime: "persistent" },

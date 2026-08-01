@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/rmn-semantic-conformance",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "type": "module",
   "exports": {
     ".": "./src/rmn-core.mjs",
@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@a2a-js/sdk": "1.0.0-beta.0",
-    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.0",
-    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
-    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
-    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.1",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.5",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.1",
     "@lenticule-science/rmn-semantic-conformance-die": "6.0.1"
   }
 }

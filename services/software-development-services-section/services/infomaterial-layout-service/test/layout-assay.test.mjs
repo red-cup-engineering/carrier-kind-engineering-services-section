@@ -33,7 +33,7 @@ const FOUR = [
 const ACCOUNT = "eip155:31337:0x1111111111111111111111111111111111111111";
 const ACCOUNT_TWO = "eip155:31337:0x2222222222222222222222222222222222222222";
 const EQUIVALENCE_ROOT = resolve(import.meta.dirname, "../../../../../../lenticule-science/services/obsmetrological-services-section/services/hierarchical-circuit-equivalence-assay");
-const RWIL_ROOT = resolve(import.meta.dirname, "../../../../../../lenticule-science/services/obsmetrological-services-section/services/rwil-rdf-projection-service");
+const WITNESS_JOURNAL_ROOT = resolve(import.meta.dirname, "../../../../../../lenticule-science/services/obsmetrological-services-section/services/witness-journal-rdf-projection-service");
 const ni = (label) => semanticId(["constant", ["base", "Text"], label]);
 const PREDICATE = ni("conducts witnessed distinction"), CARRIER = ni("FOUR evidence pair");
 const PORTS = [
@@ -161,16 +161,16 @@ test("a function label is not material refinement", async () => {
 });
 
 test("the placement die hires the independent equivalence die through signed A2A", async () => {
-  const priorRwil = process.env.RWIL_RDF_AGENT;
-  const rwilPort = await freePort(), rwilBaseUrl = `http://127.0.0.1:${rwilPort}`;
-  const rwilKeys = generateKeyPairSync("ed25519");
-  const rwil = await serveContractedAgent({
-    port: rwilPort, host: "127.0.0.1", baseUrl: rwilBaseUrl,
-    agentCard: join(RWIL_ROOT, "content/agent-cards/rwil-rdf.json"), executor: process.execPath,
-    executorArgs: [join(RWIL_ROOT, "bin/execute-a2a-task.mjs")],
-    ...createAgentCardSigningConfiguration({ baseUrl: rwilBaseUrl, kid: "layout-rwil-test-ed25519", privateKey: rwilKeys.privateKey, publicJwk: rwilKeys.publicKey.export({ format: "jwk" }) }),
+  const priorWitnessJournal = process.env.WITNESS_JOURNAL_RDF_AGENT;
+  const witnessJournalPort = await freePort(), witnessJournalBaseUrl = `http://127.0.0.1:${witnessJournalPort}`;
+  const witnessJournalKeys = generateKeyPairSync("ed25519");
+  const witnessJournal = await serveContractedAgent({
+    port: witnessJournalPort, host: "127.0.0.1", baseUrl: witnessJournalBaseUrl,
+    agentCard: join(WITNESS_JOURNAL_ROOT, "content/agent-cards/witness-journal-rdf.json"), executor: process.execPath,
+    executorArgs: [join(WITNESS_JOURNAL_ROOT, "bin/execute-a2a-task.mjs")],
+    ...createAgentCardSigningConfiguration({ baseUrl: witnessJournalBaseUrl, kid: "layout-witness-journal-test-ed25519", privateKey: witnessJournalKeys.privateKey, publicJwk: witnessJournalKeys.publicKey.export({ format: "jwk" }) }),
   });
-  process.env.RWIL_RDF_AGENT = `${rwil.baseUrl}/.well-known/agent-card.json`;
+  process.env.WITNESS_JOURNAL_RDF_AGENT = `${witnessJournal.baseUrl}/.well-known/agent-card.json`;
   const port = await freePort();
   const baseUrl = `http://127.0.0.1:${port}`;
   const { privateKey, publicKey } = generateKeyPairSync("ed25519");
@@ -194,7 +194,7 @@ test("the placement die hires the independent equivalence die through signed A2A
     assert.equal(result.receipt.circuit, hierarchicalCircuitId(request.circuit));
   } finally {
     await new Promise((accept) => running.server.close(accept));
-    await new Promise((accept) => rwil.server.close(accept));
-    if (priorRwil === undefined) delete process.env.RWIL_RDF_AGENT; else process.env.RWIL_RDF_AGENT = priorRwil;
+    await new Promise((accept) => witnessJournal.server.close(accept));
+    if (priorWitnessJournal === undefined) delete process.env.WITNESS_JOURNAL_RDF_AGENT; else process.env.WITNESS_JOURNAL_RDF_AGENT = priorWitnessJournal;
   }
 });

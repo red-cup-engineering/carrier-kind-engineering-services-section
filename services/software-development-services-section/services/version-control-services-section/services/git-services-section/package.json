@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/git-services-section",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "type": "module",
   "description": "Runs git on a shared machine through one serialized write lane, with machine-specific policy, identity, and credentials in per-machine config files. Use when people and agents share one tree and concurrent git writes would corrupt work or overload the disk.",
@@ -16,7 +16,7 @@
     "node": ">=22.18"
   },
   "dependencies": {
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2"
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3"
   },
   "exports": {
     "./src/collect-colony-activity.mjs": "./src/collect-colony-activity.mjs"

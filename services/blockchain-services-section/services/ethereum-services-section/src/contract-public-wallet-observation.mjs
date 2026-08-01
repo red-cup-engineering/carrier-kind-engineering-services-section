@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { getAddress } from "ethers";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { queryRwilDocumentsByCategory, recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { queryWitnessJournalDocumentsByCategory, recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 import { PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT } from "./public-wallet-observation-law.mjs";
 import { PUBLIC_EVM_LEDGER_PROFILE, observePublicEvmLedger } from "./public-evm-ledger.mjs";
@@ -16,7 +16,7 @@ const ACTOR = "urn:ame:ethereum-services-section";
 const SETTLEMENT = "eip155:31337:0x9a1ace657ad8688fb1236291c0e30d934931290f";
 const NODE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const OBSERVATION_CATEGORY = "ethereum-services.public-wallet-source-observation";
-const EFFECTS = ["public-network-read", "provider-local-rwil-evidence"];
+const EFFECTS = ["public-network-read", "provider-local-witness-journal-evidence"];
 
 const TRUSTED_CONTRACTS = new Map(Object.entries({
   "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f": { symbol: "WBTC", decimals: 8, kind: "ERC-20", role: "settlement-asset" },
@@ -31,19 +31,19 @@ const TRUSTED_CONTRACTS = new Map(Object.entries({
 
 const SOURCE_IDS = ["gmx-positions", "gmx-orders", "gmx-staking-power", "gmx-oracle", "gmx-glp-compensation", "arbitrum-blockscout"];
 
-export function digest(value) { return semanticId(relationalRwilDocument(value)); }
+export function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
 function identify(body) { return { id: digest(body), ...body }; }
 function contentValid(value) { const { id: _id, ...body } = value ?? {}; return value?.id === digest(body); }
 function arg(flag) { const index = process.argv.indexOf(flag); return index < 0 ? undefined : process.argv[index + 1]; }
 function operation() { return arg("--operation") ?? "invoke-service"; }
 function instant() { return arg("--now") ?? new Date().toISOString(); }
 function dataRoot(env = process.env) { return resolve(env.ETHEREUM_OBSERVATION_DATA_ROOT ?? join(NODE_ROOT, "data")); }
-function rwilAgent(env = process.env) {
-  if (!env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT must name the Ethereum provider's contracted RWIL/RDF provider");
-  return env.RWIL_RDF_AGENT;
+function witnessJournalAgent(env = process.env) {
+  if (!env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT must name the Ethereum provider's contracted witness-journal RDF provider");
+  return env.WITNESS_JOURNAL_RDF_AGENT;
 }
 async function append(root, category, record, at, env, evidence) {
-  return recordSettlementRecord({ agentUrl: rwilAgent(env), settlement: SETTLEMENT,
+  return recordSettlementRecord({ agentUrl: witnessJournalAgent(env), settlement: SETTLEMENT,
     actor: ACTOR, category, recordedAt: at, record, ...evidence });
 }
 async function defaultFetchJson(url, init = {}) {
@@ -171,7 +171,7 @@ async function solicit(root, activity, at, env, observer, evidence) {
   const offer = response("Offer", activity, object, at); await append(root, "ethereum-services.public-wallet-observation-offer", offer, at, env, evidence); return offer;
 }
 async function sourceObservation(root, id, evidence) {
-  return (await queryRwilDocumentsByCategory(OBSERVATION_CATEGORY, evidence)).map((document) => document.value?.record).find((record) => record?.id === id);
+  return (await queryWitnessJournalDocumentsByCategory(OBSERVATION_CATEGORY, evidence)).map((document) => document.value?.record).find((record) => record?.id === id);
 }
 async function invocationProblem(activity, root, evidence) {
   if (activity?.["@context"] !== CONTEXT || activity.type !== "Accept" || activity.target !== ACTOR) return "invocation must be an ActivityStreams Accept addressed to the provider";

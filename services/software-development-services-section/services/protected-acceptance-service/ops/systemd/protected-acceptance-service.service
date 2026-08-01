@@ -1,7 +1,7 @@
 [Unit]
 Description=Sovereign protected acceptance A2A provider
-After=network-online.target rwil-rdf-projection-service.service acceptance-oracle-assay-service.service
-Requires=rwil-rdf-projection-service.service acceptance-oracle-assay-service.service
+After=network-online.target witness-journal-rdf-projection-service.service acceptance-oracle-assay-service.service
+Requires=witness-journal-rdf-projection-service.service acceptance-oracle-assay-service.service
 Wants=network-online.target
 
 [Service]
@@ -9,7 +9,7 @@ Type=simple
 WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/protected-acceptance-service
 Environment=PORT=19846
 Environment=BASE_URL=http://127.0.0.1:19846
-Environment=RWIL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
+Environment=WITNESS_JOURNAL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
 Environment=ACCEPTANCE_ORACLE_ASSAY_AGENT_CARD_URL=http://127.0.0.1:19845/.well-known/agent-card.json
 Environment=AGENT_CARD_SIGNING_KEY=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/protected-acceptance-service/data/agent-card-signing/ed25519-private.pem
 Environment=AGENT_CARD_JWKS=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/protected-acceptance-service/content/agent-card-signing/jwks.json

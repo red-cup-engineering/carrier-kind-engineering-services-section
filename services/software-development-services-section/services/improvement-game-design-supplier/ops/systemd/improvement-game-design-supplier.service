@@ -1,8 +1,8 @@
 [Unit]
 Description=Improvement Game Design Supplier A2A provider
-After=network-online.target rwil-rdf-projection-service.service
+After=network-online.target witness-journal-rdf-projection-service.service
 Wants=network-online.target
-Requires=rwil-rdf-projection-service.service
+Requires=witness-journal-rdf-projection-service.service
 
 [Service]
 Type=simple
@@ -10,7 +10,7 @@ WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cu
 Environment=HOST=127.0.0.1
 Environment=PORT=8805
 Environment=BASE_URL=http://127.0.0.1:8805
-Environment=RWIL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
+Environment=WITNESS_JOURNAL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
 Environment=AGENT_CARD_SIGNING_KEY=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/improvement-game-design-supplier/data/a2a/agent-card-signing-key.pem
 Environment=AGENT_CARD_JWKS=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/improvement-game-design-supplier/data/a2a/jwks.json
 Environment=AGENT_CARD_SIGNING_KID=improvement-game-design-supplier-2026-07

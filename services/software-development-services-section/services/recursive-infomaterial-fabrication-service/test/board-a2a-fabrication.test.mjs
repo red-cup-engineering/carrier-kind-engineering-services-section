@@ -42,11 +42,11 @@ test("a customer hires the signed recursive board without importing its interior
   await writeFile(join(territory, "alpha"), "alpha");
   await writeFile(join(territory, "beta"), "beta");
   const priorTerritory = process.env.INFOMATERIAL_TERRITORY_ROOT;
-  const priorRwil = process.env.RWIL_RDF_AGENT;
+  const priorWitnessJournal = process.env.WITNESS_JOURNAL_RDF_AGENT;
   const running = [];
   try {
     process.env.INFOMATERIAL_TERRITORY_ROOT = territory;
-    process.env.RWIL_RDF_AGENT = "http://127.0.0.1:19764/.well-known/agent-card.json";
+    process.env.WITNESS_JOURNAL_RDF_AGENT = "http://127.0.0.1:19764/.well-known/agent-card.json";
     const plate = await provider(PLATE, "directory-plate-observation.json", "execute-a2a-task.mjs", await freePort());
     const observe = await provider(OBSERVE, "infomaterial-observation.json", "execute-a2a-task.mjs", await freePort());
     const cover = await provider(COVER, "directory-patch-cover.json", "execute-a2a-task.mjs", await freePort());
@@ -75,8 +75,8 @@ test("a customer hires the signed recursive board without importing its interior
     await Promise.all(running.reverse().map(({ server }) => new Promise((done) => server.close(done))));
     if (priorTerritory === undefined) delete process.env.INFOMATERIAL_TERRITORY_ROOT;
     else process.env.INFOMATERIAL_TERRITORY_ROOT = priorTerritory;
-    if (priorRwil === undefined) delete process.env.RWIL_RDF_AGENT;
-    else process.env.RWIL_RDF_AGENT = priorRwil;
+    if (priorWitnessJournal === undefined) delete process.env.WITNESS_JOURNAL_RDF_AGENT;
+    else process.env.WITNESS_JOURNAL_RDF_AGENT = priorWitnessJournal;
   }
 });
 
@@ -86,11 +86,11 @@ test("the recursive board occupies its own child socket", { skip: process.env.LI
   await mkdir(join(territory, "nested"));
   await writeFile(join(territory, "nested", "leaf"), "leaf");
   const priorTerritory = process.env.INFOMATERIAL_TERRITORY_ROOT;
-  const priorRwil = process.env.RWIL_RDF_AGENT;
+  const priorWitnessJournal = process.env.WITNESS_JOURNAL_RDF_AGENT;
   const running = [];
   try {
     process.env.INFOMATERIAL_TERRITORY_ROOT = territory;
-    process.env.RWIL_RDF_AGENT = "http://127.0.0.1:19764/.well-known/agent-card.json";
+    process.env.WITNESS_JOURNAL_RDF_AGENT = "http://127.0.0.1:19764/.well-known/agent-card.json";
     const plate = await provider(PLATE, "directory-plate-observation.json", "execute-a2a-task.mjs", await freePort());
     const observe = await provider(OBSERVE, "infomaterial-observation.json", "execute-a2a-task.mjs", await freePort());
     const cover = await provider(COVER, "directory-patch-cover.json", "execute-a2a-task.mjs", await freePort());
@@ -132,7 +132,7 @@ test("the recursive board occupies its own child socket", { skip: process.env.LI
     await Promise.all(running.reverse().map(({ server }) => new Promise((done) => server.close(done))));
     if (priorTerritory === undefined) delete process.env.INFOMATERIAL_TERRITORY_ROOT;
     else process.env.INFOMATERIAL_TERRITORY_ROOT = priorTerritory;
-    if (priorRwil === undefined) delete process.env.RWIL_RDF_AGENT;
-    else process.env.RWIL_RDF_AGENT = priorRwil;
+    if (priorWitnessJournal === undefined) delete process.env.WITNESS_JOURNAL_RDF_AGENT;
+    else process.env.WITNESS_JOURNAL_RDF_AGENT = priorWitnessJournal;
   }
 });

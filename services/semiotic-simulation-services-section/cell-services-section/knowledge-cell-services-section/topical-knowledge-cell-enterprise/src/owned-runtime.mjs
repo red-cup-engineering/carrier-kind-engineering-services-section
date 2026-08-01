@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import { agentCardSignatureEvidence, discoverSignedAgentCard } from "@red-cup-engineering/a2a-agent-card-discovery-service";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
-import { querySettlementRecords, recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { querySettlementRecords, recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const ACTOR = "urn:ame:topical-knowledge-cell-enterprise-carrier";
 const NODE_ID = "topical-knowledge-cell-enterprise";
@@ -17,17 +17,17 @@ async function verified(binding, role) {
 }
 
 export async function createTopicalKnowledgeCellEnterpriseRuntime({ boundary, root }) {
-  const bindingReceipt = semanticId(relationalRwilDocument(boundary.providerBindings));
+  const bindingReceipt = semanticId(relationalWitnessJournalDocument(boundary.providerBindings));
   let rmnAgentUrl = boundary.providerBindings?.rmnSemanticConformance?.agentUrl;
-  let rwilAgentUrl = boundary.providerBindings?.rwilRdf?.agentUrl;
+  let witnessJournalAgentUrl = boundary.providerBindings?.witnessJournalRdf?.agentUrl;
   if (process.env.TOPICAL_CELL_PROVIDER_BINDING_RECEIPT !== bindingReceipt) {
     rmnAgentUrl = await verified(boundary.providerBindings?.rmnSemanticConformance, "RMN");
-    rwilAgentUrl = await verified(boundary.providerBindings?.rwilRdf, "RWIL");
+    witnessJournalAgentUrl = await verified(boundary.providerBindings?.witnessJournalRdf, "WitnessJournal");
     process.env.TOPICAL_CELL_PROVIDER_BINDING_RECEIPT = bindingReceipt;
   }
   const dataRoot = resolve(root, "data");
   async function identify(value) {
-    const document = relationalRwilDocument(value);
+    const document = relationalWitnessJournalDocument(value);
     const evidence = await conformTerm({ agentUrl: rmnAgentUrl, term: document[2], expectedType: document[1] });
     return { id: semanticId(document), evidence: { provider: rmnAgentUrl, request: evidence.requestNi, response: evidence.exchange.outputNi, normalForm: evidence.normalFormId } };
   }
@@ -35,7 +35,7 @@ export async function createTopicalKnowledgeCellEnterpriseRuntime({ boundary, ro
     providers: {
       identify,
       lookupRequest: async (requestId) => (await querySettlementRecords(CATEGORY)).find((record) => record.requestId === requestId) ?? null,
-      record: async (record) => recordSettlementRecord({ agentUrl: rwilAgentUrl, settlement: ACCOUNT, actor: ACTOR, category: CATEGORY, recordedAt: record.recordedAt, record }),
+      record: async (record) => recordSettlementRecord({ agentUrl: witnessJournalAgentUrl, settlement: ACCOUNT, actor: ACTOR, category: CATEGORY, recordedAt: record.recordedAt, record }),
     },
     options: {},
   };

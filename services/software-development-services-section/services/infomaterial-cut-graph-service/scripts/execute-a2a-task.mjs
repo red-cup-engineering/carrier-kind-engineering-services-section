@@ -18,7 +18,7 @@ export async function executeA2aMessage(source, env = process.env) {
   const message = Message.fromJSON(source);
   if (message.role !== Role.ROLE_USER) throw new Error("cut-graph derivation requires an A2A ROLE_USER message");
   if (!env.INFOMATERIAL_LAYOUT_AGENT) throw new Error("INFOMATERIAL_LAYOUT_AGENT is required; cut-graph derivation cannot attest its own layout");
-  if (!env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT is required; cut-graph derivation cannot keep an ambient book");
+  if (!env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT is required; cut-graph derivation cannot keep an ambient book");
   const input = extractRmnPart(message.parts), term = decodeSemantic(input.bytes);
   if (!semanticBytes(term).equals(input.bytes)) throw new Error("cut-graph request is not canonical RMN CBOR");
   if (term?.[0] !== "ascribe" || term.length !== 3) throw new Error("cut-graph request must be one typed RMN object");
@@ -28,7 +28,7 @@ export async function executeA2aMessage(source, env = process.env) {
     assayLayout: (layout) => conformInfomaterialLayout({ agentUrl: env.INFOMATERIAL_LAYOUT_AGENT, ...layout }),
   });
   const recordedAt = new Date().toISOString();
-  const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.RWIL_RDF_AGENT });
+  const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.WITNESS_JOURNAL_RDF_AGENT });
   await store.record({ category: "infomaterial-cut-graph.receipt", recordedAt, record: { ...result.receipt, semanticId: result.semanticId, law: INFOMATERIAL_CUT_GRAPH_LAW.id } });
   return Message.toJSON({
     messageId: randomUUID(), contextId: message.contextId, taskId: message.taskId,

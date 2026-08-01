@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/html-file-codec-service",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": false,
   "type": "module",
   "exports": {
@@ -34,8 +34,8 @@
     "@red-cup-engineering/css-cascade-service": "0.0.1",
     "@red-cup-engineering/file-projection-kernel-service": "0.1.1",
     "@red-cup-engineering/html-render-fiber-service": "0.0.1",
-    "@red-cup-engineering/json-file-codec-service": "0.1.1",
-    "@red-cup-engineering/xml-file-codec-service": "0.1.1"
+    "@red-cup-engineering/json-file-codec-service": "0.1.2",
+    "@red-cup-engineering/xml-file-codec-service": "0.1.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

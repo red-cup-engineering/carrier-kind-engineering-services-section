@@ -439,7 +439,7 @@ function replayInducedTrajectory(manifest, resolver, acceptanceCapsule) {
 async function runMaterializedMission(input, {
   dispatch = defaultDispatch,
   dataRoot,
-  rwilAgentUrl = process.env.RWIL_RDF_AGENT,
+  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
   custody,
   categoryIndex,
   keepWorkspaces = false,
@@ -530,7 +530,7 @@ async function runMaterializedMission(input, {
     : !manifest.acceptanceCommand || manifest.acceptanceCommand === manifest.verifyCommand ? baselineVerification : runTestsCommand(manifest.territory, manifest.acceptanceCommand);
   const memoryOptions = {
     dataRoot,
-    rwilAgentUrl,
+    witnessJournalAgentUrl,
     custody,
     categoryIndex,
     agentCardUrl: process.env.SOFTWARE_TRAJECTORY_MEMORY_AGENT_CARD_URL,

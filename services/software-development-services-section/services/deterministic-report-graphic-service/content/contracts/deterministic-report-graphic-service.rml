@@ -2,6 +2,6 @@
 (map
   ("type" "DeterministicReportGraphicServiceLaw") ("version" 2) ("provider" "urn:ame:deterministic-report-graphic-service")
   ("precondition" "The hired A2A provider delivers one provider-addressed canonical RMN HarmoniousUnionDeltaPacket whose claims and measurements carry explicit positiveEvidence and negativeEvidence bits.")
-  ("operation" "Normalize the typed packet, derive canonical CBOR and ni identity, emit one RFC 7996-safe SVG subset including FOUR evidence counts, rasterize every exact SVG primitive into PNG, bind both artifacts, and append provider-local evidence through the hired RWIL/RDF provider.")
+  ("operation" "Normalize the typed packet, derive canonical CBOR and ni identity, emit one RFC 7996-safe SVG subset including FOUR evidence counts, rasterize every exact SVG primitive into PNG, bind both artifacts, and append provider-local evidence through the hired witness-journal RDF provider.")
   ("postcondition" "Return one canonical RMN result containing byte-stable SVG and PNG artifacts with ni identities and no customer-territory effect, or refuse without an artifact.")
   ("refusal" "Refuse a foreign provider, noncanonical operation, absent or ordinal FOUR valuation, untyped or drifted packet, nondeterministic rendering, unsupported or omitted visual primitive, digest mismatch, customer-territory read or write, Union-membership or settlement-truth claim, NotebookLM substitution, or publication."))

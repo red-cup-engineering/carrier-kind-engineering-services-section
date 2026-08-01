@@ -14,7 +14,7 @@ export const ROOT = new URL("..", import.meta.url).pathname;
 export const CONTRACT = compileRmlLaw(readFileSync(new URL("../content/contracts/supply-deterministic-intent-compiler.rml", import.meta.url), "utf8")).id;
 const CATEGORY = "deterministic-intent-compiler-supplier.foraging";
 const PUBLIC = "https://www.w3.org/ns/activitystreams#Public";
-const activityBytes = (activity) => semanticBytes(relationalRwilDocument(activity));
+const activityBytes = (activity) => semanticBytes(relationalWitnessJournalDocument(activity));
 function activityFromBytes(bytes) { const term = decodeSemantic(bytes); if (term?.[0] !== "ascribe" || term.length !== 3) throw new Error("ActivityPub RMN object is not one typed relational document"); return decodeRelationalValue(term[1], term[2]); }
 function requiredEnvironment(name) { const value = process.env[name]; if (typeof value !== "string" || !value) throw new Error(`${name} is required`); return value; }
 function validatePolicy(policy) {
@@ -36,7 +36,7 @@ async function invokeBoard(board, operation, input = null) {
   throw new Error(`operation ${operation} is outside the ActivityPub board treaty`);
 }
 function defaultLedger(options = {}) {
-  const dataRoot = resolve(options.dataRoot ?? process.env.DETERMINISTIC_INTENT_COMPILER_SUPPLIER_DATA_ROOT ?? new URL("../data", import.meta.url).pathname), settlement = createSettlementStore({ settlementRoot: ROOT, agentUrl: options.rwilAgentUrl ?? process.env.RWIL_RDF_AGENT });
+  const dataRoot = resolve(options.dataRoot ?? process.env.DETERMINISTIC_INTENT_COMPILER_SUPPLIER_DATA_ROOT ?? new URL("../data", import.meta.url).pathname), settlement = createSettlementStore({ settlementRoot: ROOT, agentUrl: options.witnessJournalAgentUrl ?? process.env.WITNESS_JOURNAL_RDF_AGENT });
   return { read: async () => await querySettlementRecords(CATEGORY), append: (value, at) => settlement.record({ category: CATEGORY, recordedAt: at, record: value }) };
 }
 export function memoryLedger(seed = []) { const rows = [...seed]; return { read: () => [...rows], append: async (value) => { rows.push(value); return value; } }; }

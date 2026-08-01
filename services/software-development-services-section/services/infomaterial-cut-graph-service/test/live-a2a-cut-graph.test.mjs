@@ -69,9 +69,9 @@ async function fixture() {
 
 test("the cut graph contracts layout through a live standard A2A seam", { skip: process.env.RUN_LIVE_A2A_CUT_GRAPH !== "1", timeout: 120_000 }, async () => {
   const wasmPort = await freePort(), boardPort = await freePort(), layoutPort = await freePort(), cutPort = await freePort();
-  const prior = { EQUIVALENCE_AGENT_URL: process.env.EQUIVALENCE_AGENT_URL, RWIL_RDF_AGENT: process.env.RWIL_RDF_AGENT, INFOMATERIAL_LAYOUT_AGENT: process.env.INFOMATERIAL_LAYOUT_AGENT, WASM_FOUR_REFINEMENT_AGENT_URL: process.env.WASM_FOUR_REFINEMENT_AGENT_URL, RMN_BOARD_REFINEMENT_AGENT_URL: process.env.RMN_BOARD_REFINEMENT_AGENT_URL };
+  const prior = { EQUIVALENCE_AGENT_URL: process.env.EQUIVALENCE_AGENT_URL, WITNESS_JOURNAL_RDF_AGENT: process.env.WITNESS_JOURNAL_RDF_AGENT, INFOMATERIAL_LAYOUT_AGENT: process.env.INFOMATERIAL_LAYOUT_AGENT, WASM_FOUR_REFINEMENT_AGENT_URL: process.env.WASM_FOUR_REFINEMENT_AGENT_URL, RMN_BOARD_REFINEMENT_AGENT_URL: process.env.RMN_BOARD_REFINEMENT_AGENT_URL };
   process.env.EQUIVALENCE_AGENT_URL = process.env.EQUIVALENCE_AGENT_URL ?? "http://127.0.0.1:19825/.well-known/agent-card.json";
-  process.env.RWIL_RDF_AGENT = process.env.RWIL_RDF_AGENT ?? "http://127.0.0.1:19764/.well-known/agent-card.json";
+  process.env.WITNESS_JOURNAL_RDF_AGENT = process.env.WITNESS_JOURNAL_RDF_AGENT ?? "http://127.0.0.1:19764/.well-known/agent-card.json";
   let wasm, board, layout, cut;
   try {
     const wasmBaseUrl = `http://127.0.0.1:${wasmPort}`, boardBaseUrl = `http://127.0.0.1:${boardPort}`;

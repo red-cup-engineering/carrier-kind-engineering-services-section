@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { ACTOR, executeA2aMessage, operationBytes, operationFromBytes } from "../src/a2a-executor.mjs";
 import { MECHANICAL_CLASSIFICATIONS, renderDeterministicReportGraphic } from "../src/deterministic-report-graphic.mjs";
 
@@ -39,7 +39,7 @@ test("nonzero measurements outrank schema-order zero counters", () => {
 });
 
 test("the A2A die returns canonical artifacts and records one witness", async () => {
-  const requestBody = { type: "DeterministicReportGraphicOperation", provider: ACTOR, packet }, request = { id: semanticId(relationalRwilDocument(requestBody)), ...requestBody };
+  const requestBody = { type: "DeterministicReportGraphicOperation", provider: ACTOR, packet }, request = { id: semanticId(relationalWitnessJournalDocument(requestBody)), ...requestBody };
   const message = Message.toJSON({ messageId: "1", contextId: "", taskId: "", role: Role.ROLE_USER, parts: [rmnPart(operationBytes(request))], metadata: {}, extensions: [], referenceTaskIds: [] });
   const witnesses = [], output = await executeA2aMessage(message, { recordedAt: "2026-07-21T00:00:00.000Z", recordResult: async (value) => witnesses.push(value) });
   const response = operationFromBytes(extractRmnPart(Message.fromJSON(output).parts).bytes);

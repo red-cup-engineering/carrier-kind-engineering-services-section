@@ -332,7 +332,14 @@ export async function buildPackageRegistry({ packageDirectories, outputDirectory
     await releaseComputeLease();
     return receipt;
   } catch (error) {
-    await rm(staging, { recursive: true, force: true });
+    // Cleanup must never mask the build's real failure: sibling pack workers
+    // may still be writing into staging when the first error rejects the
+    // Promise.all, so removal can race them and throw ENOTEMPTY itself.
+    try {
+      await rm(staging, { recursive: true, force: true });
+    } catch {
+      await rm(staging, { recursive: true, force: true }).catch(() => {});
+    }
     await releaseComputeLease();
     throw error;
   }

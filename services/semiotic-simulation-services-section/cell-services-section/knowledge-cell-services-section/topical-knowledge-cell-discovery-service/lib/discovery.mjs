@@ -31,7 +31,7 @@ export async function discoverTopicalKnowledgeCells(request, providers, options 
   if (new Set(routes.map((item) => item.endpointId)).size !== routes.length || new Set(routes.map((item) => item.agentCardUrl)).size !== routes.length) fail("endpoint denominator contains duplicates");
   if (!Number.isSafeInteger(request.maximumAgeSeconds) || request.maximumAgeSeconds < 1 || request.maximumAgeSeconds > (options.maximumAgeSeconds ?? 31_536_000)) fail("maximumAgeSeconds is outside the admitted bound");
   const evaluatedAt = time(request.evaluatedAt, "evaluatedAt"), auth = request.authorization;
-  if (!providers || typeof providers.identify !== "function" || typeof providers.discover !== "function" || typeof providers.lookupRequest !== "function" || typeof providers.record !== "function") fail("contracted discovery, identity, and RWIL providers are required");
+  if (!providers || typeof providers.identify !== "function" || typeof providers.discover !== "function" || typeof providers.lookupRequest !== "function" || typeof providers.record !== "function") fail("contracted discovery, identity, and WitnessJournal providers are required");
   const bodyIdentity = await providers.identify({ type: request.type, requestId: request.requestId, actor: request.actor, endpoints: routes, maximumAgeSeconds: request.maximumAgeSeconds, evaluatedAt: request.evaluatedAt });
   exact(auth, ["holder", "operation", "requestId", "requestBodyId", "expiresAt", "nondelegable", "singleUse"]);
   if (auth.holder !== request.actor || auth.operation !== "discover-topical-knowledge-cells" || auth.requestId !== request.requestId || auth.requestBodyId !== bodyIdentity.id) fail("discovery authority is not bound to the exact actor, operation, and request body");

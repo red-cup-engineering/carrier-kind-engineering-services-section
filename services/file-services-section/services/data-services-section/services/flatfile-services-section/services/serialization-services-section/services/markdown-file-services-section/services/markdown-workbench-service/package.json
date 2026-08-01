@@ -17,8 +17,8 @@
     "verify": "npm run check && npm run build && npm test"
   },
   "dependencies": {
-    "@red-cup-engineering/json-file-codec-service": "0.1.1",
-    "@red-cup-engineering/markdown-document-codec-service": "0.1.0",
+    "@red-cup-engineering/json-file-codec-service": "0.1.2",
+    "@red-cup-engineering/markdown-document-codec-service": "0.1.1",
     "@red-cup-engineering/markdown-edit-service": "0.1.0",
     "@red-cup-engineering/markdown-html-render-service": "0.1.0",
     "@red-cup-engineering/markdown-validation-service": "0.1.0"

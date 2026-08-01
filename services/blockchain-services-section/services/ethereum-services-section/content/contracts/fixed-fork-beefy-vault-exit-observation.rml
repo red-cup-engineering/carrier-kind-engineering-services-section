@@ -8,4 +8,4 @@
   ("postcondition" "Return content-identified fixed-block shares burned, LP burned, two token outputs, route gas observed, exact declared full gas-unit ceiling, RPC-block-bound base fee, timestamped doubled-recommended-priority fee observation, doubled-base-fee plus that priority ceiling, L1 data fee ceiling, operator fee ceiling, and total fee ceiling for each admitted candidate. Output and fee verification are true, while price evidence, execution, transaction assembly, signing, broadcast, and live chain mutation remain false.")
   ("refusal" "Refuse any other chain, RPC, wallet, candidate, vault, LP token, malformed block identity, duplicate candidate, missing or failed harness test, missing or contradictory typed event, empty output side, secret-bearing environment, transaction-shaped output, or widened authority.")
   ("authority" "Ephemeral fixed-fork simulation and public fee evidence only; custody, live transaction calls, transaction construction, pricing, approval, signing, broadcasting, and chain mutation remain outside this service.")
-  ("evidence" "RWIL-RDF"))
+  ("evidence" "WITNESS-JOURNAL-RDF"))

@@ -1,7 +1,7 @@
 // rdf-canonicalization — RDFC-1.0 (RDF Dataset Canonicalization, W3C
 // Recommendation, https://www.w3.org/TR/rdf-canon/) over N-Quads text, via
-// the `rdf-canonize` package. Adapted from the RWIL RDF projection
-// service's `projectRwil`, which calls
+// the `rdf-canonize` package. Adapted from the WitnessJournal RDF projection
+// service's `projectWitnessJournalBatch`, which calls
 // `rdfCanonize.canonize(source, { algorithm: "RDFC-1.0", inputFormat:
 // "application/n-quads", format: "application/n-quads" })` on assembled
 // N-Quads text; this package extracts just that canonicalization call.

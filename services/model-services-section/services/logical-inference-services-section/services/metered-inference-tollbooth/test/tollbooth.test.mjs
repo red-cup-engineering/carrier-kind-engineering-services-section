@@ -14,14 +14,14 @@ import { ACCOUNT, ACTOR, LAW, OPERATION_TYPE, createServer, executeSettledContra
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PROVIDER_ROOT = resolve(ROOT, "../gemini-inference-team");
 const RMN_ROOT = resolve(ROOT, "../../../relational-model-services-section/services/relational-model-notation-services-section/services/rmn-conformance-service");
-const RWIL_ROOT = resolve(ROOT, "../../../../../../../lenticule-science/services/obsmetrological-services-section/services/rwil-rdf-projection-service");
+const WITNESS_JOURNAL_ROOT = resolve(ROOT, "../../../../../../../lenticule-science/services/obsmetrological-services-section/services/witness-journal-rdf-projection-service");
 const WIT_ROOT = resolve(ROOT, "../../../../../../../lenticule-science/services/obsmetrological-services-section/services/wit-transition-assay");
 const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const PROVIDER_CARD = resolve(PROVIDER_ROOT, "content/agent-cards/gemini-inference-team.json");
 const PROVIDER_INTERFACE = circuitInterfaceFromAgentCard(JSON.parse(readFileSync(PROVIDER_CARD, "utf8")));
 const PROVIDER_OPERATION_TYPE = ["product", ["mark"], ["product", ["mark"], ["product", ["mark"], ["mark"]]]];
 const ni = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
-const TEST_ENV = { X402_NETWORK: "eip155:84532", X402_PAY_TO: ACCOUNT.split(":").at(-1), X402_FACILITATOR: "https://facilitator.invalid", X402_PRICE: "$0.001", RWIL_RDF_AGENT: "http://127.0.0.1:1/.well-known/agent-card.json", PORT: "0" };
+const TEST_ENV = { X402_NETWORK: "eip155:84532", X402_PAY_TO: ACCOUNT.split(":").at(-1), X402_FACILITATOR: "https://facilitator.invalid", X402_PRICE: "$0.001", WITNESS_JOURNAL_RDF_AGENT: "http://127.0.0.1:1/.well-known/agent-card.json", PORT: "0" };
 
 async function freePort() { const server = createNetServer(); await new Promise((ok) => server.listen(0, "127.0.0.1", ok)); const port = server.address().port; await new Promise((ok) => server.close(ok)); return port; }
 async function startA2a({ port, baseUrl, env, card, executor }) {
@@ -73,21 +73,21 @@ test("pre-payment boundary refuses malformed input and emits official x402 v2 fo
 
 test("settled handler composes tollbooth RMN directly to the selected signed provider A2A task", async () => {
   const signingData = mkdtempSync(join(tmpdir(), "toll-signing-")), providerData = mkdtempSync(join(tmpdir(), "toll-provider-"));
-  const rmnPort = await freePort(), rwilPort = await freePort(), witPort = await freePort(), providerPort = await freePort();
-  const rmnBaseUrl = `http://127.0.0.1:${rmnPort}`, rwilBaseUrl = `http://127.0.0.1:${rwilPort}`, witBaseUrl = `http://127.0.0.1:${witPort}`, providerBaseUrl = `http://127.0.0.1:${providerPort}`;
-  const prior = { AGENT_CARD_SIGNING_KEY: process.env.AGENT_CARD_SIGNING_KEY, AGENT_CARD_JWKS: process.env.AGENT_CARD_JWKS, AGENT_CARD_SIGNING_KID: process.env.AGENT_CARD_SIGNING_KID, RMN_CONFORMANCE_AGENT: process.env.RMN_CONFORMANCE_AGENT, RWIL_RDF_AGENT: process.env.RWIL_RDF_AGENT, WIT_TRANSITION_ASSAY_AGENT: process.env.WIT_TRANSITION_ASSAY_AGENT, GEMINI_RWIL_ROOT: process.env.GEMINI_RWIL_ROOT };
+  const rmnPort = await freePort(), witnessJournalPort = await freePort(), witPort = await freePort(), providerPort = await freePort();
+  const rmnBaseUrl = `http://127.0.0.1:${rmnPort}`, witnessJournalBaseUrl = `http://127.0.0.1:${witnessJournalPort}`, witBaseUrl = `http://127.0.0.1:${witPort}`, providerBaseUrl = `http://127.0.0.1:${providerPort}`;
+  const prior = { AGENT_CARD_SIGNING_KEY: process.env.AGENT_CARD_SIGNING_KEY, AGENT_CARD_JWKS: process.env.AGENT_CARD_JWKS, AGENT_CARD_SIGNING_KID: process.env.AGENT_CARD_SIGNING_KID, RMN_CONFORMANCE_AGENT: process.env.RMN_CONFORMANCE_AGENT, WITNESS_JOURNAL_RDF_AGENT: process.env.WITNESS_JOURNAL_RDF_AGENT, WIT_TRANSITION_ASSAY_AGENT: process.env.WIT_TRANSITION_ASSAY_AGENT, GEMINI_WITNESS_JOURNAL_ROOT: process.env.GEMINI_WITNESS_JOURNAL_ROOT };
   const { privateKey, publicKey } = generateKeyPairSync("ed25519"), signingKey = resolve(signingData, "agent-card-signing-key.pem"), signingJwks = resolve(signingData, "agent-card-jwks.json"), signingKid = "tollbooth-integration-test-ed25519";
   writeFileSync(signingKey, privateKey.export({ format: "pem", type: "pkcs8" }), { mode: 0o600 }); writeFileSync(signingJwks, JSON.stringify({ keys: [{ ...publicKey.export({ format: "jwk" }), kid: signingKid, alg: "EdDSA", use: "sig" }] }));
-  Object.assign(process.env, { AGENT_CARD_SIGNING_KEY: signingKey, AGENT_CARD_JWKS: signingJwks, AGENT_CARD_SIGNING_KID: signingKid, RMN_CONFORMANCE_AGENT: `${rmnBaseUrl}/.well-known/agent-card.json`, RWIL_RDF_AGENT: `${rwilBaseUrl}/.well-known/agent-card.json`, WIT_TRANSITION_ASSAY_AGENT: `${witBaseUrl}/.well-known/agent-card.json`, GEMINI_RWIL_ROOT: providerData });
+  Object.assign(process.env, { AGENT_CARD_SIGNING_KEY: signingKey, AGENT_CARD_JWKS: signingJwks, AGENT_CARD_SIGNING_KID: signingKid, RMN_CONFORMANCE_AGENT: `${rmnBaseUrl}/.well-known/agent-card.json`, WITNESS_JOURNAL_RDF_AGENT: `${witnessJournalBaseUrl}/.well-known/agent-card.json`, WIT_TRANSITION_ASSAY_AGENT: `${witBaseUrl}/.well-known/agent-card.json`, GEMINI_WITNESS_JOURNAL_ROOT: providerData });
   const service = resolve(ROOT, "../../../../../web-services-section/services/a2a-services-section/services/a2a-contracted-agent-service");
   const rmnServer = await startA2a({ port: rmnPort, baseUrl: rmnBaseUrl, env: process.env,
     card: resolve(RMN_ROOT, "content/agent-cards/rmn-semantic-conformance.json"), executor: resolve(RMN_ROOT, "bin/execute-a2a-task.mjs") });
-  const rwilServer = await startA2a({ port: rwilPort, baseUrl: rwilBaseUrl, env: process.env,
-    card: resolve(RWIL_ROOT, "content/agent-cards/rwil-rdf.json"), executor: resolve(RWIL_ROOT, "bin/execute-a2a-task.mjs") });
+  const witnessJournalServer = await startA2a({ port: witnessJournalPort, baseUrl: witnessJournalBaseUrl, env: process.env,
+    card: resolve(WITNESS_JOURNAL_ROOT, "content/agent-cards/witness-journal-rdf.json"), executor: resolve(WITNESS_JOURNAL_ROOT, "bin/execute-a2a-task.mjs") });
   const witServer = await startA2a({ port: witPort, baseUrl: witBaseUrl, env: process.env,
     card: resolve(WIT_ROOT, "content/agent-cards/wit-transition-assay.json"), executor: resolve(WIT_ROOT, "bin/execute-a2a-task.mjs") });
   const providerServer = await startA2a({ port: providerPort, baseUrl: providerBaseUrl, env: process.env,
     card: PROVIDER_CARD, executor: resolve(ROOT, "test/fixtures/deterministic-provider-executor.mjs") });
   try { const result = await executeSettledContract(makeContract(`${providerBaseUrl}/.well-known/agent-card.json`)); assert.equal(result.type, "Accept"); assert.equal(result.object.disposition, "completion"); assert.equal(result.object.inference.candidate, "ready"); assert.equal(result.object.inference.provider, PROVIDER_INTERFACE.account); assert.match(result.object.witness, /^ni:\/\/\/sha-256;/u); }
-  finally { for (const server of [providerServer, witServer, rwilServer, rmnServer]) { server.kill("SIGTERM"); await new Promise((ok) => server.once("exit", ok)); } for (const [key, value] of Object.entries(prior)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+  finally { for (const server of [providerServer, witServer, witnessJournalServer, rmnServer]) { server.kill("SIGTERM"); await new Promise((ok) => server.once("exit", ok)); } for (const [key, value] of Object.entries(prior)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
 });

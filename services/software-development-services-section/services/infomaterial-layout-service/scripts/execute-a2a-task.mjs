@@ -23,7 +23,7 @@ export async function executeA2aMessage(source, env = process.env) {
   if (!env.EQUIVALENCE_AGENT_URL) throw new Error("EQUIVALENCE_AGENT_URL is required; layout cannot attest its own circuit");
   if (!env.WASM_FOUR_REFINEMENT_AGENT_URL) throw new Error("WASM_FOUR_REFINEMENT_AGENT_URL is required; layout cannot label carrier material itself");
   if (!env.RMN_BOARD_REFINEMENT_AGENT_URL) throw new Error("RMN_BOARD_REFINEMENT_AGENT_URL is required; layout cannot label recursive board material itself");
-  if (!env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT is required; layout cannot keep an ambient book");
+  if (!env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT is required; layout cannot keep an ambient book");
   const input = extractRmnPart(message.parts);
   const term = decodeSemantic(input.bytes);
   if (!semanticBytes(term).equals(input.bytes)) throw new Error("layout request is not canonical RMN CBOR");
@@ -40,7 +40,7 @@ export async function executeA2aMessage(source, env = process.env) {
       : assayRmnCircuitBoardCarrier({ agentUrl: env.RMN_BOARD_REFINEMENT_AGENT_URL, producer, circuit, components, assembly, component, materialObservation, carrier }),
   });
   const recordedAt = new Date().toISOString();
-  const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.RWIL_RDF_AGENT });
+  const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.WITNESS_JOURNAL_RDF_AGENT });
   await store.record({ category: "infomaterial-layout-assay.receipt", recordedAt, record: { ...result.receipt, semanticId: result.semanticId, law: INFOMATERIAL_LAYOUT_LAW.id } });
   return Message.toJSON({
     messageId: randomUUID(), contextId: message.contextId, taskId: message.taskId,

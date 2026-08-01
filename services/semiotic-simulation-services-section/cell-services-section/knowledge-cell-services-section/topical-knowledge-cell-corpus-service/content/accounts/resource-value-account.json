@@ -4,7 +4,7 @@
   "owner": "urn:ame:topical-knowledge-cell-corpus-service",
   "inputs": {
     "rmnIdentityConformance": "unknown-not-zero",
-    "rwilRdfDurability": "unknown-not-zero",
+    "witnessJournalRdfDurability": "unknown-not-zero",
     "validationAndComparison": "unknown-not-zero",
     "storage": "unknown-not-zero"
   },

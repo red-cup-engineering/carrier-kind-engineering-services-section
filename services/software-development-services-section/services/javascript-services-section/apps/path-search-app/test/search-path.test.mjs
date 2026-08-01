@@ -16,13 +16,13 @@ async function withRoot(fn) {
 }
 
 async function buildFixture(root) {
-  await mkdir(join(root, "content", "rwil-project"), { recursive: true });
+  await mkdir(join(root, "content", "witness-journal-project"), { recursive: true });
   await mkdir(join(root, "other"), { recursive: true });
   await writeFile(
-    join(root, "content", "rwil-project", "README.md"),
-    "---\ntitle: RWIL Overview\n---\n# Notes\n\nBody text.\n\n## RWIL Deep Dive\n\nMore text.\n",
+    join(root, "content", "witness-journal-project", "README.md"),
+    "---\ntitle: WitnessJournal Overview\n---\n# Notes\n\nBody text.\n\n## WitnessJournal Deep Dive\n\nMore text.\n",
   );
-  await writeFile(join(root, "other", "rwil-notes.md"), "# Just some notes\n\nNo relevant heading here.\n");
+  await writeFile(join(root, "other", "witness-journal-notes.md"), "# Just some notes\n\nNo relevant heading here.\n");
   await writeFile(join(root, "other", "unrelated.md"), "# Unrelated\n\nNothing here.\n");
 }
 
@@ -65,7 +65,7 @@ test("stagedTokenSearch yields matches strictly in ascending stage order", async
   await withRoot(async (root) => {
     await buildFixture(root);
     const matches = [];
-    for await (const match of stagedTokenSearch({ token: "RWIL", root, priorityPaths: ["content"], excludes: [] })) {
+    for await (const match of stagedTokenSearch({ token: "WitnessJournal", root, priorityPaths: ["content"], excludes: [] })) {
       matches.push(match);
     }
     const stages = matches.map((m) => m.stage);
@@ -82,11 +82,11 @@ test("stage 1 finds the priority-path directory-name hit by full path, not basen
   await withRoot(async (root) => {
     await buildFixture(root);
     const matches = [];
-    for await (const match of stagedTokenSearch({ token: "RWIL", root, priorityPaths: ["content"], excludes: [] })) {
+    for await (const match of stagedTokenSearch({ token: "WitnessJournal", root, priorityPaths: ["content"], excludes: [] })) {
       matches.push(match);
     }
     const stage1 = matches.filter((m) => m.stage === 1);
-    assert.ok(stage1.some((m) => m.path === "content/rwil-project/README.md"));
+    assert.ok(stage1.some((m) => m.path === "content/witness-journal-project/README.md"));
   });
 });
 
@@ -94,12 +94,12 @@ test("stage 2 does not re-emit a file already covered by a single-segment priori
   await withRoot(async (root) => {
     await buildFixture(root);
     const matches = [];
-    for await (const match of stagedTokenSearch({ token: "RWIL", root, priorityPaths: ["content"], excludes: [] })) {
+    for await (const match of stagedTokenSearch({ token: "WitnessJournal", root, priorityPaths: ["content"], excludes: [] })) {
       matches.push(match);
     }
     const stage2Paths = matches.filter((m) => m.stage === 2).map((m) => m.path);
-    assert.equal(stage2Paths.includes("content/rwil-project/README.md"), false);
-    assert.ok(stage2Paths.includes("other/rwil-notes.md"));
+    assert.equal(stage2Paths.includes("content/witness-journal-project/README.md"), false);
+    assert.ok(stage2Paths.includes("other/witness-journal-notes.md"));
   });
 });
 
@@ -107,32 +107,32 @@ test("stage 3 carries the frontmatter-title hit and stage 4 carries the heading 
   await withRoot(async (root) => {
     await buildFixture(root);
     const matches = [];
-    for await (const match of stagedTokenSearch({ token: "RWIL", root, priorityPaths: ["content"], excludes: [] })) {
+    for await (const match of stagedTokenSearch({ token: "WitnessJournal", root, priorityPaths: ["content"], excludes: [] })) {
       matches.push(match);
     }
     const stage3 = matches.filter((m) => m.stage === 3);
     const stage4 = matches.filter((m) => m.stage === 4);
-    assert.ok(stage3.some((m) => m.path === "content/rwil-project/README.md" && m.matchKind === "frontmatter-title"));
-    assert.ok(stage4.some((m) => m.path === "content/rwil-project/README.md" && m.matchKind === "heading" && m.matchedText === "RWIL Deep Dive"));
+    assert.ok(stage3.some((m) => m.path === "content/witness-journal-project/README.md" && m.matchKind === "frontmatter-title"));
+    assert.ok(stage4.some((m) => m.path === "content/witness-journal-project/README.md" && m.matchKind === "heading" && m.matchedText === "WitnessJournal Deep Dive"));
   });
 });
 
 test("a deep (multi-segment) priority path is walked in stage 1 and excluded from stage 2 by post-filter", async () => {
   await withRoot(async (root) => {
     await mkdir(join(root, "a", "b", "content"), { recursive: true });
-    await writeFile(join(root, "a", "b", "content", "rwil-thing.md"), "# rwil-thing\n");
+    await writeFile(join(root, "a", "b", "content", "witness-journal-thing.md"), "# witness-journal-thing\n");
     await mkdir(join(root, "elsewhere"), { recursive: true });
-    await writeFile(join(root, "elsewhere", "rwil-other.md"), "# rwil-other\n");
+    await writeFile(join(root, "elsewhere", "witness-journal-other.md"), "# witness-journal-other\n");
 
     const matches = [];
-    for await (const match of stagedTokenSearch({ token: "RWIL", root, priorityPaths: ["a/b/content"], excludes: [] })) {
+    for await (const match of stagedTokenSearch({ token: "WitnessJournal", root, priorityPaths: ["a/b/content"], excludes: [] })) {
       matches.push(match);
     }
     const stage1Paths = matches.filter((m) => m.stage === 1).map((m) => m.path);
     const stage2Paths = matches.filter((m) => m.stage === 2).map((m) => m.path);
-    assert.ok(stage1Paths.includes("a/b/content/rwil-thing.md"));
-    assert.equal(stage2Paths.includes("a/b/content/rwil-thing.md"), false);
-    assert.ok(stage2Paths.includes("elsewhere/rwil-other.md"));
+    assert.ok(stage1Paths.includes("a/b/content/witness-journal-thing.md"));
+    assert.equal(stage2Paths.includes("a/b/content/witness-journal-thing.md"), false);
+    assert.ok(stage2Paths.includes("elsewhere/witness-journal-other.md"));
   });
 });
 
@@ -140,11 +140,11 @@ test("no priority paths configured still runs stage 2 and markdown stages over t
   await withRoot(async (root) => {
     await buildFixture(root);
     const matches = [];
-    for await (const match of stagedTokenSearch({ token: "RWIL", root, priorityPaths: [], excludes: [] })) {
+    for await (const match of stagedTokenSearch({ token: "WitnessJournal", root, priorityPaths: [], excludes: [] })) {
       matches.push(match);
     }
     assert.equal(matches.some((m) => m.stage === 1), false);
-    assert.ok(matches.some((m) => m.stage === 2 && m.path === "content/rwil-project/README.md"));
+    assert.ok(matches.some((m) => m.stage === 2 && m.path === "content/witness-journal-project/README.md"));
   });
 });
 
@@ -152,7 +152,7 @@ test("a nonexistent configured priority path is skipped rather than throwing", a
   await withRoot(async (root) => {
     await buildFixture(root);
     const matches = [];
-    for await (const match of stagedTokenSearch({ token: "RWIL", root, priorityPaths: ["does-not-exist", "content"], excludes: [] })) {
+    for await (const match of stagedTokenSearch({ token: "WitnessJournal", root, priorityPaths: ["does-not-exist", "content"], excludes: [] })) {
       matches.push(match);
     }
     assert.ok(matches.some((m) => m.stage === 1));

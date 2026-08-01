@@ -5,7 +5,7 @@ import { conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/clien
 import {
   querySettlementRecords,
   recordSettlementRecord,
-  relationalRwilDocument,
+  relationalWitnessJournalDocument,
 } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const ACTOR = "urn:ame:topical-knowledge-cell-corpus-service";
@@ -21,17 +21,17 @@ async function verified(binding, role) {
 }
 
 export async function createTopicalKnowledgeCellCorpusRuntime({ boundary, root }) {
-  const bindingReceipt = semanticId(relationalRwilDocument(boundary.providerBindings));
+  const bindingReceipt = semanticId(relationalWitnessJournalDocument(boundary.providerBindings));
   let rmnAgentUrl = boundary.providerBindings?.rmnSemanticConformance?.agentUrl;
-  let rwilAgentUrl = boundary.providerBindings?.rwilRdf?.agentUrl;
+  let witnessJournalAgentUrl = boundary.providerBindings?.witnessJournalRdf?.agentUrl;
   if (process.env.TOPICAL_CORPUS_PROVIDER_BINDING_RECEIPT !== bindingReceipt) {
     rmnAgentUrl = await verified(boundary.providerBindings?.rmnSemanticConformance, "RMN");
-    rwilAgentUrl = await verified(boundary.providerBindings?.rwilRdf, "RWIL");
+    witnessJournalAgentUrl = await verified(boundary.providerBindings?.witnessJournalRdf, "WitnessJournal");
     process.env.TOPICAL_CORPUS_PROVIDER_BINDING_RECEIPT = bindingReceipt;
   }
   const dataRoot = resolve(root, "data");
   async function identify(value) {
-    const document = relationalRwilDocument(value);
+    const document = relationalWitnessJournalDocument(value);
     const evidence = await conformTerm({
       agentUrl: rmnAgentUrl,
       term: document[2],
@@ -53,7 +53,7 @@ export async function createTopicalKnowledgeCellCorpusRuntime({ boundary, root }
       lookupRequest: async (requestId) =>
         (await querySettlementRecords(CATEGORY)).find((record) => record.requestId === requestId) ?? null,
       record: async (record) => recordSettlementRecord({
-        agentUrl: rwilAgentUrl,
+        agentUrl: witnessJournalAgentUrl,
         settlement: ACCOUNT,
         actor: ACTOR,
         category: CATEGORY,

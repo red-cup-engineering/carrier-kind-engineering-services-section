@@ -5,8 +5,8 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { Interface } from "ethers";
-import { querySettlementRecords, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { startRwilProviderProcess } from "@lenticule-science/witness-journal-rdf-projection-service/test-provider";
+import { querySettlementRecords, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { startWitnessJournalProviderProcess } from "@lenticule-science/witness-journal-rdf-projection-service/test-provider";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 
 import { observePublicWallet, run } from "../src/contract-public-wallet-observation.mjs";
@@ -21,7 +21,7 @@ const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const BASE_ACCOUNT = "0x224C08A8526751887a83e2711B167f890c6D078d";
 const BASE_TOKEN = "0x4200000000000000000000000000000000000006";
 
-function digest(value) { return semanticId(relationalRwilDocument(value)); }
+function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
 function identify(body) { return { id: digest(body), ...body }; }
 function networkEvidence() {
   const objects = new Map(), memberships = new Map();
@@ -127,8 +127,8 @@ test("dispatches a bounded multi-account ledger scope with index claims verified
 
 test("performs an exact-law offer and invocation without transaction authority", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ethereum-public-observation-")); t.after(() => rmSync(root, { recursive: true, force: true }));
-  const rwil = await startRwilProviderProcess(); t.after(async () => rwil.close());
-  const env = { ETHEREUM_OBSERVATION_DATA_ROOT: root, RWIL_RDF_AGENT: rwil.agentCardUrl };
+  const witnessJournal = await startWitnessJournalProviderProcess(); t.after(async () => witnessJournal.close());
+  const env = { ETHEREUM_OBSERVATION_DATA_ROOT: root, WITNESS_JOURNAL_RDF_AGENT: witnessJournal.agentCardUrl };
   const evidence = networkEvidence();
   const observer = (request, at) => observePublicWallet(request, at, { fetchJson: fixtureFetch() });
   const solicitation = identify({ "@context": CONTEXT, type: "Offer", actor: CUSTOMER, target: PROVIDER,
@@ -139,7 +139,7 @@ test("performs an exact-law offer and invocation without transaction authority",
     law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, object: { type: "ServiceContract", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
       offer, termsAcceptance: { termDigest: offer.object.termsDigest, acceptedBy: CUSTOMER }, capability: { type: "Capability",
         holder: PROVIDER, invocationTarget: PROVIDER, parentOffer: offer.id, attenuation: { sourceObservationDigest: offer.object.sourceObservationDigest },
-        capTP: { target: PROVIDER, method: "invoke-service" }, allowedActions: ["invoke-service", "public-network-read", "provider-local-rwil-evidence"] } }, published: AT });
+        capTP: { target: PROVIDER, method: "invoke-service" }, allowedActions: ["invoke-service", "public-network-read", "provider-local-witness-journal-evidence"] } }, published: AT });
   const result = await run(acceptance, "invoke-service", AT, env, observer, evidence);
   assert.equal(result.type, "Accept");
   assert.equal(result.object.exchange.observation.transactionAssembly, false);
@@ -149,8 +149,8 @@ test("performs an exact-law offer and invocation without transaction authority",
 
 test("refuses any request shape that carries signer material", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ethereum-public-observation-refusal-")); t.after(() => rmSync(root, { recursive: true, force: true }));
-  const rwil = await startRwilProviderProcess(); t.after(async () => rwil.close());
-  const env = { ETHEREUM_OBSERVATION_DATA_ROOT: root, RWIL_RDF_AGENT: rwil.agentCardUrl };
+  const witnessJournal = await startWitnessJournalProviderProcess(); t.after(async () => witnessJournal.close());
+  const env = { ETHEREUM_OBSERVATION_DATA_ROOT: root, WITNESS_JOURNAL_RDF_AGENT: witnessJournal.agentCardUrl };
   const evidence = networkEvidence();
   const request = { ...REQUEST, privateKey: "forbidden" };
   const solicitation = identify({ "@context": CONTEXT, type: "Offer", actor: CUSTOMER, target: PROVIDER,

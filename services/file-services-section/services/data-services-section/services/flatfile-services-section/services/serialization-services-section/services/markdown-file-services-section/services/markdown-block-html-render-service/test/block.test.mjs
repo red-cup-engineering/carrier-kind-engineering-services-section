@@ -17,6 +17,21 @@ test("markdownBodyToHtml renders fenced code, lists, and blockquotes", () => {
   assert.match(html, /<blockquote>[\s\S]*quoted[\s\S]*<\/blockquote>/u);
 });
 
+test("markdownBodyToHtml adds a language-* class to fenced code with an info string", () => {
+  const html = markdownBodyToHtml("```js\ncode\n```");
+  assert.equal(html, '<pre><code class="language-js">code</code></pre>');
+});
+
+test("markdownBodyToHtml uses only the first word of the info string as the language token", () => {
+  const html = markdownBodyToHtml('```js title="x.js"\ncode\n```');
+  assert.equal(html, '<pre><code class="language-js">code</code></pre>');
+});
+
+test("markdownBodyToHtml omits the class attribute for fenced code with no info string", () => {
+  const html = markdownBodyToHtml("```\ncode\n```");
+  assert.equal(html, "<pre><code>code</code></pre>");
+});
+
 test("markdownBodyToHtml returns the empty-body default and honors the emptyHtml option", () => {
   assert.equal(markdownBodyToHtml(""), "<p></p>");
   assert.equal(markdownBodyToHtml("   \n  ", { emptyHtml: "<p>empty</p>" }), "<p>empty</p>");

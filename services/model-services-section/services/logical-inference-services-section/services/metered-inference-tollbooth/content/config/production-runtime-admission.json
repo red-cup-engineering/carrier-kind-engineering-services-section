@@ -18,7 +18,7 @@
     "CDP_API_KEY_SECRET",
     "RMN_CONFORMANCE_AGENT",
     "WIT_TRANSITION_ASSAY_AGENT",
-    "RWIL_RDF_AGENT",
+    "WITNESS_JOURNAL_RDF_AGENT",
     "PORT"
   ],
   "requiredProperties": {
@@ -31,7 +31,7 @@
     "CDP_API_KEY_SECRET": "runtime-only Coinbase Developer Platform facilitator credential",
     "RMN_CONFORMANCE_AGENT": "hired signed RMN semantic-conformance provider Agent Card",
     "WIT_TRANSITION_ASSAY_AGENT": "hired signed WIT transition-assay provider Agent Card",
-    "RWIL_RDF_AGENT": "hired signed RWIL/RDF provider Agent Card",
+    "WITNESS_JOURNAL_RDF_AGENT": "hired signed witness-journal RDF provider Agent Card",
     "PORT": "owner-selected local listener port behind an independently admitted public ingress"
   },
   "admissionCommand": "npm run check-runtime-admission",
@@ -47,7 +47,7 @@
     "start the owner-local systemd unit",
     "obtain one anonymous 402 challenge from the public ingress",
     "submit one customer-selected settled contract",
-    "verify the settlement's RWIL named-graph receipt",
+    "verify the settlement's WitnessJournal named-graph receipt",
     "admit the exact public service listing through x402-services-section"
   ]
 }

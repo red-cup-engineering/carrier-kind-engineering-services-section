@@ -184,9 +184,18 @@ function linkSpan(text: string, start: number): { readonly label: string; readon
   });
 }
 
-/** Reject `javascript:`/`data:` targets; everything else passes through trimmed. */
+const SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/iu;
+const ALLOWED_SCHEMES = new Set(["http:", "https:", "mailto:"]);
+
+/**
+ * Admit `http:`/`https:`/`mailto:` targets and schemeless relative paths or
+ * fragments (`./foo`, `../bar`, `foo/bar`, `#section`); reject every other
+ * URL scheme (`javascript:`, `data:`, `ftp:`, `vbscript:`, `file:`, ...).
+ */
 export function safeHref(value: string): string | null {
   const trimmed = value.trim();
-  if (trimmed === "" || /^(?:javascript|data):/iu.test(trimmed)) return null;
+  if (trimmed === "") return null;
+  const scheme = trimmed.match(SCHEME_PATTERN)?.[0];
+  if (scheme !== undefined && !ALLOWED_SCHEMES.has(scheme.toLowerCase())) return null;
   return trimmed;
 }

@@ -19,7 +19,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@red-cup-engineering/fizzos": "0.0.1",
+    "@red-cup-engineering/fizzos": "0.0.2",
     "@red-cup-engineering/http-server": "0.0.2"
   },
   "devDependencies": {

@@ -8,5 +8,5 @@
   ("postcondition" "Return deterministic per-block contract-set identities, complete or explicit incomplete proxy evidence, and equality only when both fixed-block identities are complete; execution authority remains false.")
   ("refusal" "Refuse credentials, unofficial or mismatched chains, unsupported RPC methods, malformed blocks, code, slots, addresses or proxy shapes, ambiguous or custom beacon resolution, missing reviewed proxy expectations, calldata, transaction assembly, signing, broadcast, mutation, or assertions derived from incomplete evidence.")
   ("protocol" "Ethereum JSON-RPC public read")
-  ("evidence" "RWIL-RDF"))
+  ("evidence" "WITNESS-JOURNAL-RDF"))
 

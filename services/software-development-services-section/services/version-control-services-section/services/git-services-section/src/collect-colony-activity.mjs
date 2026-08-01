@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { queryRwilDocumentsByCategory } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { queryWitnessJournalDocumentsByCategory } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const GIT_ACTIVITY_PROVIDER = "urn:ame:git-services-section:activity-pulse-provider";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -9,7 +9,7 @@ const COLONY_ACTOR = "urn:ame:bare-cedar-fog-colony";
 function digest(value) { return createHash("sha256").update(value).digest("hex"); }
 export async function collectGitColonyActivity({ window, recordedAt, dataRoot = join(ROOT, "data") } = {}) {
   const from = Date.parse(window.fromExclusive); const to = Date.parse(window.toInclusive); const witnesses = []; const rows = [];
-  for (const document of await queryRwilDocumentsByCategory(dataRoot)) {
+  for (const document of await queryWitnessJournalDocumentsByCategory(dataRoot)) {
     const row = document.value;
     if (row?.type !== "GitOperationWitness") continue;
     const at = Date.parse(row.recordedAt);

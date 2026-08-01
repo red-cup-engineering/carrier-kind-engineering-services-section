@@ -12,7 +12,7 @@
     "x402FacilitatorProvider": null,
     "notebookLmProvider": null,
     "rmnIdentityProvider": null,
-    "rwilRdfProvider": null,
+    "witnessJournalRdfProvider": null,
     "payoutAccount": null,
     "signedAgentCard": null
   },

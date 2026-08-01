@@ -3,7 +3,7 @@
 This section holds the in-memory RDF model and algorithms: term
 construction, named-graph quad-set assembly, N-Quads serialization, and
 RDFC-1.0 canonicalization. Each is a single-capability package adapted from
-`rwil-rdf-projection-service`'s `src/rwil-rdf.mjs`.
+`witness-journal-rdf-projection-service`'s `src/witness-journal-rdf.mjs`.
 
 ## See also — rdf-file-services-section
 

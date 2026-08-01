@@ -17,11 +17,11 @@ export async function executeA2aMessage(source, env = process.env) {
   const message = Message.fromJSON(source);
   if (message.role !== Role.ROLE_USER) throw new Error("territory conformance requires an A2A ROLE_USER message");
   if (!env.CONFORMANCE_TERRITORY_ROOT) throw new Error("CONFORMANCE_TERRITORY_ROOT is required");
-  if (!env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT is required; the die cannot keep an ambient book");
+  if (!env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT is required; the die cannot keep an ambient book");
   const input = extractRmnPart(message.parts), request = decodeTerritoryScanRequest(input.bytes);
   const report = scanTerritory(authorizeTerritory(env.CONFORMANCE_TERRITORY_ROOT, request.relativePath));
   const encoded = encodeRelationalValue(report), term = ["ascribe", encoded.type, encoded.term], bytes = semanticBytes(term), receiptNi = semanticId(term), recordedAt = new Date().toISOString();
-  const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.RWIL_RDF_AGENT });
+  const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.WITNESS_JOURNAL_RDF_AGENT });
   await store.record({ category: "phase2-territory-conformance.receipt", recordedAt, record: { report: receiptNi, ruleset: report.ruleset, territory: report.territory, conforming: report.conforming, violationCount: report.violationCount, request: input.ni, law: PHASE2_TERRITORY_CONFORMANCE_LAW.id } });
   return Message.toJSON({ messageId: randomUUID(), contextId: message.contextId, taskId: message.taskId, role: Role.ROLE_AGENT, parts: [rmnPart(bytes, "phase2-territory-conformance-report.rmn.cbor")], metadata: { disposition: report.conforming ? "conformant" : "violations", receiptNi, ruleset: report.ruleset, violationCount: report.violationCount }, extensions: [], referenceTaskIds: [] });
 }

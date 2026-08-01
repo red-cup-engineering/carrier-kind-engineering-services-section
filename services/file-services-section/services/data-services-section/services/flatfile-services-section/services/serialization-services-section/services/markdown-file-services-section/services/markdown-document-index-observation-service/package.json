@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/markdown-document-index-observation-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Reads each given markdown path once and decodes it through the markdown-document-codec-service into a frontmatter-and-headings index entry. Use to build the one shared parse a caller matches frontmatter or heading titles against, not to match tokens itself.",
@@ -14,6 +14,6 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/markdown-document-codec-service": "0.1.0"
+    "@red-cup-engineering/markdown-document-codec-service": "0.1.1"
   }
 }

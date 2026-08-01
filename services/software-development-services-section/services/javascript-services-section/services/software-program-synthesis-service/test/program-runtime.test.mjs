@@ -3,7 +3,7 @@ import { mkdtempSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { compileProgram, deriveExecutionGeometry, runProgram, validatePlan } from "../src/program-runtime.mjs";
 
@@ -23,7 +23,7 @@ const missionResult = () => ({
   processNode: { id: "process-node", status: "verified" },
 });
 const recordExecutionEvent = async ({ recordedAt, record }) => ({
-  documentNi: semanticId(relationalRwilDocument({ type: "TestProgramEventRecord", recordedAt, record })),
+  documentNi: semanticId(relationalWitnessJournalDocument({ type: "TestProgramEventRecord", recordedAt, record })),
   digest: record.graph,
   requestNi: ni("D"),
   responseNi: ni("E"),

@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const BIN = join(HERE, "..", "bin", "search-path.mjs");
+const BIN = join(HERE, "..", "scripts", "search-path.mjs");
 
 async function withRoot(fn) {
   const root = await mkdtemp(join(tmpdir(), "search-path-bin-"));
@@ -19,10 +19,10 @@ async function withRoot(fn) {
 }
 
 async function buildFixture(root) {
-  await mkdir(join(root, "content", "rwil-project"), { recursive: true });
+  await mkdir(join(root, "content", "witness-journal-project"), { recursive: true });
   await writeFile(
-    join(root, "content", "rwil-project", "README.md"),
-    "---\ntitle: RWIL Overview\n---\n# Notes\n\n## RWIL Deep Dive\n\ntext\n",
+    join(root, "content", "witness-journal-project", "README.md"),
+    "---\ntitle: WitnessJournal Overview\n---\n# Notes\n\n## WitnessJournal Deep Dive\n\ntext\n",
   );
   await mkdir(join(root, "etc"), { recursive: true });
   await writeFile(join(root, "etc", "priority-paths.json"), JSON.stringify({ priorityPaths: ["content"], excludes: [] }));
@@ -31,14 +31,14 @@ async function buildFixture(root) {
 test("the bin streams NDJSON lines, each one valid JSON, in ascending stage order", async () => {
   await withRoot(async (root) => {
     await buildFixture(root);
-    const result = spawnSync(process.execPath, [BIN, "RWIL", "--root", root], { encoding: "utf8" });
+    const result = spawnSync(process.execPath, [BIN, "WitnessJournal", "--root", root], { encoding: "utf8" });
     assert.equal(result.status, 0, result.stderr);
     const lines = result.stdout.trim().split("\n").filter((l) => l.length > 0);
     assert.ok(lines.length > 0);
     const records = lines.map((line) => JSON.parse(line));
     const stages = records.map((r) => r.stage);
     assert.deepEqual(stages, [...stages].sort((a, b) => a - b));
-    assert.ok(records.some((r) => r.stage === 1 && r.path === "content/rwil-project/README.md"));
+    assert.ok(records.some((r) => r.stage === 1 && r.path === "content/witness-journal-project/README.md"));
   });
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/markdown-document-codec-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Reads Markdown text into a document model — frontmatter, structure, links and features — and writes it back out. Use when parsing or serializing Markdown, not editing, diffing, or rendering it.",
@@ -17,9 +17,9 @@
     "verify": "npm run check && npm run build && npm test"
   },
   "dependencies": {
-    "@red-cup-engineering/json-file-codec-service": "0.1.1",
+    "@red-cup-engineering/json-file-codec-service": "0.1.2",
     "@red-cup-engineering/toml-file-codec-service": "0.1.0",
-    "@red-cup-engineering/yaml-file-codec-service": "0.1.0",
+    "@red-cup-engineering/yaml-file-codec-service": "0.1.1",
     "@red-cup-engineering/semantic-linefeed-normalization-service": "0.1.0"
   },
   "devDependencies": {

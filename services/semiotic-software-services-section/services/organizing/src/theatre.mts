@@ -8,7 +8,7 @@
   type OrderedCollection,
 } from "@red-cup-engineering/animating";
 import { codecs } from "@red-cup-engineering/relating";
-import type { RWILWitness } from "@red-cup-engineering/relating/ledger";
+import type { WitnessJournalEntry } from "@red-cup-engineering/relating/ledger";
 import {
   organizingTheatreActionNamesFromActivities,
   organizingTheatreAgentActorsForEvents,
@@ -382,7 +382,7 @@ function trimmedBase(baseUrl: string): string {
 }
 
 export function organizingTheatreAgentEventsFromWitnessRows(
-  rows: readonly (EAVT | EAVTRecord | RWILWitness)[],
+  rows: readonly (EAVT | EAVTRecord | WitnessJournalEntry)[],
   config: OrganizingTheatreServiceConfig,
   options: OrganizingTheatreWitnessAgentEventOptions = {},
 ): readonly OrganizingTheatreAgentSignalEvent[] {

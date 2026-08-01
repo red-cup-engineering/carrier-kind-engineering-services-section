@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/yaml-file-codec-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "type": "module",
   "description": "Canonical YAML frontmatter-subset codec recovered from MetroPlat.",
@@ -15,7 +15,7 @@
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/json-file-codec-service": "0.1.1"
+    "@red-cup-engineering/json-file-codec-service": "0.1.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

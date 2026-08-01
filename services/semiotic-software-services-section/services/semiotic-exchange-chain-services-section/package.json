@@ -29,6 +29,6 @@
   "dependencies": {
     "@lenticule-science/rmn-semantic-conformance-die": "6.0.1",
     "@lenticule-science/articulating": "0.1.1",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2"
   }
 }

@@ -18,7 +18,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@red-cup-engineering/json-schema-services-section": "0.1.0"
+    "@red-cup-engineering/json-schema-services-section": "0.1.1"
   },
   "engines": {
     "node": ">=22"

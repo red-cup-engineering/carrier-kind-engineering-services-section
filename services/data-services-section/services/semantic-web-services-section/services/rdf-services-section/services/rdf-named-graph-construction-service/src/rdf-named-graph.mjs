@@ -1,9 +1,9 @@
 // rdf-named-graph — assembles subject/predicate/object statements and a
 // graph-name IRI into one frozen named-graph quad-set record. Adapted from
-// the RWIL RDF projection service's `projectRwil`, which folds a batch's
-// assertions plus its RWIL graph identity into the same shape before
+// the WitnessJournal RDF projection service's `projectWitnessJournalBatch`, which folds a batch's
+// assertions plus its WitnessJournal graph identity into the same shape before
 // N-Quads serialization; this package extracts just that assembly step,
-// independent of RWIL's settlement/document encoding.
+// independent of WitnessJournal's settlement/document encoding.
 import { iri, isTerm } from "../../rdf-term-construction-service/src/rdf-terms.mjs";
 
 function fail(message) {

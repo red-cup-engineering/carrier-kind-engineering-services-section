@@ -1,7 +1,7 @@
 {
   "name": "@red-cup-engineering/rdf-canonicalization-service",
   "version": "0.1.0",
-  "description": "Canonicalizes N-Quads text under RDFC-1.0 via the rdf-canonize package, the same dependency the RWIL RDF projection service uses. Use when two N-Quads serializations of the same dataset need to compare or hash equal regardless of statement order.",
+  "description": "Canonicalizes N-Quads text under RDFC-1.0 via the rdf-canonize package, the same dependency the WitnessJournal RDF projection service uses. Use when two N-Quads serializations of the same dataset need to compare or hash equal regardless of statement order.",
   "type": "module",
   "private": true,
   "exports": "./src/rdf-canonicalization.mjs",

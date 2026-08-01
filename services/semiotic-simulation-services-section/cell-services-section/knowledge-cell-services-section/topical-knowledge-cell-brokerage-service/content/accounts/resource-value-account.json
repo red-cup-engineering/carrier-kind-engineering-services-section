@@ -2,7 +2,7 @@
   "id": "urn:account:topical-knowledge-cell-brokerage-service:resource-value",
   "type": "ResourceValueAccount",
   "owner": "urn:ame:topical-knowledge-cell-brokerage-service",
-  "inputs": { "packageAssays": "measured-per-listing", "agentCardAssays": "measured-per-listing", "rmnIdentity": "unknown-not-zero", "rwilRdfDurability": "unknown-not-zero", "comparison": "unknown-not-zero" },
+  "inputs": { "packageAssays": "measured-per-listing", "agentCardAssays": "measured-per-listing", "rmnIdentity": "unknown-not-zero", "witnessJournalRdfDurability": "unknown-not-zero", "comparison": "unknown-not-zero" },
   "offeredRevenue": {
     "assetId": "eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
     "amountAtomicPerListing": "50000",

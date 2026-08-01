@@ -7,15 +7,15 @@
   "license": "MIT",
   "exports": "./src/package-registry.mjs",
   "bin": {
-    "build-npm-registry": "./bin/build-registry.mjs",
-    "serve-npm-registry": "./bin/serve-registry.mjs",
-    "render-npm-registry-graph": "./bin/render-registry-graph.mjs",
-    "serve-union-package-registry-snapshot": "./bin/a2a-server.mjs",
-    "execute-union-package-registry-snapshot-a2a": "./bin/execute-a2a-task.mjs"
+    "build-npm-registry": "./scripts/build-registry.mjs",
+    "serve-npm-registry": "./scripts/serve-registry.mjs",
+    "render-npm-registry-graph": "./scripts/render-registry-graph.mjs",
+    "serve-union-package-registry-snapshot": "./scripts/a2a-server.mjs",
+    "execute-union-package-registry-snapshot-a2a": "./scripts/execute-a2a-task.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/package-registry.mjs && node --check src/cloudflare-worker.mjs && node --check src/snapshot.mjs && node --check src/protocol.mjs && node --check src/registry-graph.mjs && node --check bin/build-registry.mjs && node --check bin/render-registry-graph.mjs && node --check bin/serve-registry.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/a2a-server.mjs && node --test test/*.test.mjs",
+    "verify": "node --check src/package-registry.mjs && node --check src/cloudflare-worker.mjs && node --check src/snapshot.mjs && node --check src/protocol.mjs && node --check src/registry-graph.mjs && node --check scripts/build-registry.mjs && node --check scripts/render-registry-graph.mjs && node --check scripts/serve-registry.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/a2a-server.mjs && node --test test/*.test.mjs",
     "deploy:cloudflare": "wrangler deploy --config ops/cloudflare-worker/wrangler.jsonc"
   },
   "engines": {
@@ -23,9 +23,9 @@
   },
   "dependencies": {
     "@a2a-js/sdk": "1.0.0-beta.0",
-    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
-    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
-    "@red-cup-engineering/a2a-sovereign-operation-boundary-service": "1.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.5",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
+    "@red-cup-engineering/a2a-sovereign-operation-boundary-service": "1.0.1",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2"
   }
 }

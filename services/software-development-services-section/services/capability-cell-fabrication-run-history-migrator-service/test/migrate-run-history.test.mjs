@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { createProofPoreJournal } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-pore-journal";
 import { migrateFabricationRunHistory } from "../src/migrate-run-history.mjs";
 import {
@@ -67,19 +67,19 @@ test("writes canonical replacement histories and a full identity mapping without
     .trim().split("\n").map(JSON.parse);
   for (const [index, event] of migrated.entries()) {
     const { id, ...body } = event;
-    assert.equal(id, semanticId(relationalRwilDocument(body)));
+    assert.equal(id, semanticId(relationalWitnessJournalDocument(body)));
     assert.equal(event.previous, index === 0 ? null : migrated[index - 1].id);
     const carrierIdentity = result.runs[0].carriers[index].carrier;
-    assert.equal(carrierIdentity, semanticId(relationalRwilDocument(event)));
+    assert.equal(carrierIdentity, semanticId(relationalWitnessJournalDocument(event)));
     const digest = carrierIdentity.slice("ni:///sha-256;".length);
     const carrier = readFileSync(join(target, "rmn", "sha-256", digest.slice(0, 2), `${digest}.rmn.cbor`));
-    assert.deepEqual(carrier, semanticBytes(relationalRwilDocument(event)));
+    assert.deepEqual(carrier, semanticBytes(relationalWitnessJournalDocument(event)));
   }
   assert.equal(result.runs[0].carriers.length, 2);
   assert.equal(result.runs[0].carriers[1].event, result.runs[0].headAfter);
   assert.equal(JSON.parse(readFileSync(receipt, "utf8")).id, result.id);
   const { id: _receiptId, ...receiptBody } = result;
-  assert.equal(result.id, semanticId(relationalRwilDocument(receiptBody)));
+  assert.equal(result.id, semanticId(relationalWitnessJournalDocument(receiptBody)));
   assert.throws(() => migrateFabricationRunHistory({
     sourceRuns: source,
     targetRoot: target,

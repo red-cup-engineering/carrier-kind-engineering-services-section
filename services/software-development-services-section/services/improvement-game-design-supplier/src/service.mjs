@@ -7,7 +7,7 @@ import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { createSettlementStore, querySettlementRecords } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { requestImprovementGameProposalAssay } from "@lenticule-science/improvement-game-proposal-assay/client";
 import { ACTOR, CONTEXT, bidForGameOffer, fulfillGameAward } from "./supplier.mjs";
 
@@ -15,7 +15,7 @@ export const ROOT = new URL("..", import.meta.url).pathname;
 export const CONTRACT = compileRmlLaw(readFileSync(new URL("../content/contracts/supply-improvement-game-design.rml", import.meta.url), "utf8")).id;
 const CATEGORY = "improvement-game-design-supplier.foraging";
 const PUBLIC = "https://www.w3.org/ns/activitystreams#Public";
-const activityBytes=(activity)=>semanticBytes(relationalRwilDocument(activity));
+const activityBytes=(activity)=>semanticBytes(relationalWitnessJournalDocument(activity));
 function activityFromBytes(bytes){const term=decodeSemantic(bytes);if(term?.[0]!=="ascribe"||term.length!==3)throw new Error("ActivityPub RMN object is not one typed relational document");return decodeRelationalValue(term[1],term[2]);}
 function requiredEnvironment(name){const value=process.env[name];if(typeof value!=="string"||!value)throw new Error(`${name} is required`);return value;}
 function validatePolicy(policy){if(!policy?.proposalAssay?.agentCard||!Array.isArray(policy.boards)||policy.boards.some((board)=>["packageRoot","nodeId","contract"].some((field)=>Object.hasOwn(board,field))||!board.activityPubActor||!board.activityPubOutbox||!board.activityPubInbox||!board.a2aAgentCard||!board.supplierActivityPubActor))throw new Error("game supplier policy requires standard ActivityPub boards and one A2A proposal assay without package imports");return policy;}
@@ -23,7 +23,7 @@ export function loadPolicy(path=new URL("../content/policies/red-cup-game-design
 async function invokeBoard(board,operation,input=null){if(operation===board.listOperation&&input===null){const projections=await listAddressedRmnOutbox({outboxUrl:board.activityPubOutbox,expectedActor:board.activityPubActor,expectedAgentCard:board.a2aAgentCard,recipient:board.supplierActivityPubActor});const items=projections.map(({type,objectBytes})=>{const activity=activityFromBytes(objectBytes);if(activity?.type!==type||activity.actor!==board.actor||![PUBLIC,ACTOR].includes(activity.target))throw new Error("board projection disagrees with its RMN activity");return activity;});return{"@context":CONTEXT,type:"OrderedCollection",actor:board.actor,totalItems:items.length,orderedItems:items};}if(operation===board.submitOperation&&input?.actor===ACTOR&&input.target===board.actor){const origin=requiredEnvironment("GAME_DESIGN_ACTIVITYPUB_ORIGIN"),identifier=requiredEnvironment("GAME_DESIGN_ACTIVITYPUB_IDENTIFIER"),agentCard=requiredEnvironment("GAME_DESIGN_A2A_AGENT_CARD"),keyPath=requiredEnvironment("GAME_DESIGN_ACTIVITYPUB_KEYS_PATH"),projection=projectRmnActivity({type:input.type,origin,identifier,recipient:board.activityPubActor,objectBytes:activityBytes(input),agentCard});return deliverFromEnvironment(projection,{actor:ACTOR,origin,identifier,agentCard,keyPath,recipient:board.activityPubActor,inbox:board.activityPubInbox});}throw new Error(`operation ${operation} is outside the ActivityPub board treaty`);}
 function defaultLedger(options = {}) {
   const dataRoot = resolve(options.dataRoot ?? process.env.RED_CUP_GAME_DESIGN_DATA_ROOT ?? new URL("../data", import.meta.url).pathname), rows = async () => await querySettlementRecords(CATEGORY);
-  const settlement = createSettlementStore({ settlementRoot: ROOT, agentUrl: options.rwilAgentUrl ?? process.env.RWIL_RDF_AGENT });
+  const settlement = createSettlementStore({ settlementRoot: ROOT, agentUrl: options.witnessJournalAgentUrl ?? process.env.WITNESS_JOURNAL_RDF_AGENT });
   return { read: rows, append: (value, at) => settlement.record({ category: CATEGORY, recordedAt: at, record: value }) };
 }
 export function memoryLedger(seed = []) { const rows = [...seed]; return { read: () => [...rows], append: async (value) => { rows.push(value); return value; } }; }

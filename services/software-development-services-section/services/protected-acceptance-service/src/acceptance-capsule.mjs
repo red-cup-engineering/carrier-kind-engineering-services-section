@@ -3,7 +3,7 @@ import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rm
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { runTestsCommand } from "@red-cup-engineering/sandbox-command-execution-service";
 import { requestAcceptanceOracleAssay } from "@red-cup-engineering/acceptance-oracle-assay-service/client";
 
@@ -101,7 +101,7 @@ function materializeArtifacts(workspace, artifacts) {
 
 export function acceptanceCapsuleDigest(capsule) {
   const { digest: _digest, ...body } = capsule;
-  return semanticId(relationalRwilDocument(body));
+  return semanticId(relationalWitnessJournalDocument(body));
 }
 
 export function validateAcceptanceCapsule(capsule, { territory } = {}) {

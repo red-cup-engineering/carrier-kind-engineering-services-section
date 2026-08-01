@@ -4,7 +4,7 @@
   "version": 1,
   "status": "not-activated",
   "runtimeAdapterModule": null,
-  "requiredProviders": ["signed-a2a-contracted-agent-service", "signed-agent-card-discovery-service", "rmn-semantic-conformance-service", "package-release-assay-service", "rwil-rdf-projection-service"],
+  "requiredProviders": ["signed-a2a-contracted-agent-service", "signed-agent-card-discovery-service", "rmn-semantic-conformance-service", "package-release-assay-service", "witness-journal-rdf-projection-service"],
   "writableRoots": ["data/"],
   "marketPublication": false,
   "productExecution": false,

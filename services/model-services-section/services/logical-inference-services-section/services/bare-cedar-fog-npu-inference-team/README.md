@@ -6,7 +6,7 @@ is the local Ollama service; it does not claim that Ollama dispatches work to
 the node's NPU. It is neither a provider
 registry nor a scheduler. It authors an exact ActivityStreams market offer,
 accepts the selected task through the independently hireable A2A Services
-Section, and returns one RMN FOUR cover with provider-local RWIL evidence.
+Section, and returns one RMN FOUR cover with provider-local WitnessJournal evidence.
 Its EVM identity is the settlement-owned ERC-4337 account bound in
 `content/evm/accounts/eip155-31337.json`; the executor reads the live binding
 rather than retaining an address-shaped copy.

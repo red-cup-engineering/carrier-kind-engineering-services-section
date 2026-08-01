@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/bare-cedar-fog-npu-inference-team",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "private": true,
   "description": "Sovereign short-source typed RMN inference provider over bare-cedar-fog-operated local silicon.",
@@ -15,12 +15,12 @@
   },
   "dependencies": {
     "@a2a-js/sdk": "1.0.0-beta.0",
-    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.0",
-    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.4",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
+    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.1",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.5",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
     "@lenticule-science/rmn-semantic-conformance-die": "6.0.1",
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2",
-    "@lenticule-science/wit-transition-assay": "1.0.0"
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
+    "@lenticule-science/wit-transition-assay": "1.0.1"
   },
   "engines": {
     "node": ">=20"

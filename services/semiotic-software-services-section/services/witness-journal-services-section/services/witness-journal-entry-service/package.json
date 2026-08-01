@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/witness-journal-entry-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Builds and validates one witness-journal entry: an EAVT row (subject, predicate, object, time) with a deterministic identity for dedup. An entry carries no charge and no stored trace; both are computed elsewhere, never written here.",
@@ -20,6 +20,6 @@
     "verify": "npm run check && npm test"
   },
   "dependencies": {
-    "@red-cup-engineering/json-file-codec-service": "0.1.1"
+    "@red-cup-engineering/json-file-codec-service": "0.1.2"
   }
 }

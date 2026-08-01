@@ -3,6 +3,6 @@
   ("type" "SoftwareTrajectoryMemoryLaw")
   ("version" 1)
   ("precondition" "One canonical RMN memory transaction addresses exactly one declared typed port and binds its complete input.")
-  ("operation" "Read or monotonically extend this settlement's RWIL trajectory plate; recall bounded relevant witnesses; derive resolvers only from repeated exact customer-accepted recipes; and verify foldback against the named supplier trajectory and execution provider.")
-  ("postcondition" "Return one canonical RMN receipt binding the exact request, port, output, and this smart account; every write is append-only through the hired RWIL/RDF provider.")
+  ("operation" "Read or monotonically extend this settlement's witness journal trajectory plate; recall bounded relevant witnesses; derive resolvers only from repeated exact customer-accepted recipes; and verify foldback against the named supplier trajectory and execution provider.")
+  ("postcondition" "Return one canonical RMN receipt binding the exact request, port, output, and this smart account; every write is append-only through the hired witness-journal RDF provider.")
   ("refusal" "Refuse history rewrite, ambiguous port, unverified promotion, shape-only equivalence, foreign or inexact foldback, noncanonical bytes, source mutation, or usefulness acceptance."))

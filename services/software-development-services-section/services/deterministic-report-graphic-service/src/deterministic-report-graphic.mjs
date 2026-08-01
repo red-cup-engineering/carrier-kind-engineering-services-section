@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { deflateSync } from "node:zlib";
 import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const CLASSIFICATIONS = Object.freeze([
   "added",
@@ -86,7 +86,7 @@ export function normalizeDeltaPacket(packet) {
   const claims = packet.claims.map((claim) => {
     if (!finiteText(claim?.settlement) || !finiteText(claim?.claimId) || !CLASSIFICATIONS.includes(claim?.classification)) throw new TypeError("each claim needs settlement, claimId, and a mechanical classification");
     return { settlement: claim.settlement, claimId: claim.claimId, classification: claim.classification, evidence: four(claim.evidence) };
-  }).sort((left, right) => semanticId(relationalRwilDocument(left)).localeCompare(semanticId(relationalRwilDocument(right))));
+  }).sort((left, right) => semanticId(relationalWitnessJournalDocument(left)).localeCompare(semanticId(relationalWitnessJournalDocument(right))));
   const keys = claims.map((claim) => `${claim.settlement}\0${claim.claimId}`);
   if (new Set(keys).size !== keys.length) throw new TypeError("settlement plus claimId must be unique");
   const metrics = (packet.metrics ?? []).map((metric) => {
@@ -228,7 +228,7 @@ export function rasterizeExactSvg(svgBytes) {
 export function renderDeterministicReportGraphic(packet) {
   try {
     const normalized = normalizeDeltaPacket(packet); const svgBytes = renderSvgBytes(normalized); const pngBytes = rasterizeExactSvg(svgBytes);
-    return { type: "DeterministicReportGraphicArtifact", packetDigest: semanticId(relationalRwilDocument(normalized)), packetBytes: sha256(semanticBytes(relationalRwilDocument(normalized))),
+    return { type: "DeterministicReportGraphicArtifact", packetDigest: semanticId(relationalWitnessJournalDocument(normalized)), packetBytes: sha256(semanticBytes(relationalWitnessJournalDocument(normalized))),
       svgProfile: "RFC7996-safe SVG Tiny 1.2 subset", svgDigest: sha256(svgBytes), svgBase64: svgBytes.toString("base64"),
       pngDigest: sha256Hex(pngBytes), pngBase64: pngBytes.toString("base64"), rasterizedFromExactSvgDigest: sha256(svgBytes) };
   } catch (error) {

@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/token-compactification-services-section",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Deterministic, extractive-first, receipt-bearing compaction of LLM agent transcripts under a derived context budget, with Obsmetrologia erasure accounting.",
   "type": "module",
   "private": false,
@@ -11,10 +11,10 @@
     "./inference-market-summarizer": "./src/inference-market-summarizer.mjs"
   },
   "dependencies": {
-    "@lenticule-science/english-language-algebra": "0.1.0"
+    "@lenticule-science/english-language-algebra": "0.1.1"
   },
   "optionalDependencies": {
-    "@harmonious-union/inference-work-lot-service": "4.0.0"
+    "@harmonious-union/inference-work-lot-service": "4.0.1"
   },
   "files": [
     "src",
@@ -49,7 +49,14 @@
       "adapt-claude-transcript",
       "contract-market-summarization"
     ],
-    "capabilities": [{ "capability": "token-compactification", "faces": ["Node"] }],
+    "capabilities": [
+      {
+        "capability": "token-compactification",
+        "faces": [
+          "Node"
+        ]
+      }
+    ],
     "package": "@red-cup-engineering/token-compactification-services-section"
   }
 }

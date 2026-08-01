@@ -1,29 +1,29 @@
 {
   "name": "@red-cup-engineering/planned-transition-admission-service",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "Admit one planned transition to execution through placement, proof-pore permeability, and game-foam materiality.",
   "license": "Apache-2.0",
   "bin": {
-    "admit-planned-transition": "./bin/admit-planned-transition.mjs"
+    "admit-planned-transition": "./scripts/admit-planned-transition.mjs"
   },
   "exports": {
     ".": "./src/admit-planned-transition.mjs"
   },
   "files": [
-    "bin",
+    "scripts",
     "content",
     "src"
   ],
   "scripts": {
-    "check": "node --check src/admit-planned-transition.mjs && node --check bin/admit-planned-transition.mjs",
+    "check": "node --check src/admit-planned-transition.mjs && node --check scripts/admit-planned-transition.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test && npm pack --dry-run"
   },
   "dependencies": {
     "@lenticule-science/articulating": "0.1.1",
-    "@red-cup-engineering/playing": "0.0.1",
+    "@red-cup-engineering/playing": "0.0.2",
     "@red-cup-engineering/relating": "0.0.1"
   },
   "engines": {

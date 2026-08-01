@@ -45,7 +45,7 @@ import {
   type SectionEntry,
   type UtteranceCarrier,
 } from "@red-cup-engineering/relating";
-import { cell, type RWILWitness } from "@red-cup-engineering/relating/ledger";
+import { cell, type WitnessJournalEntry } from "@red-cup-engineering/relating/ledger";
 import {
   admitSeed,
   descend,
@@ -833,7 +833,7 @@ function identityOf(options: OrganizationOptions): string {
   return options.identity !== undefined && options.identity.trim() !== "" ? options.identity.trim() : "organization";
 }
 
-function membraneWitness(identity: string, line: string, index: number): RWILWitness {
+function membraneWitness(identity: string, line: string, index: number): WitnessJournalEntry {
   return cell(
     Object.freeze({
       bridge: "organizing.reseed",

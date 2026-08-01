@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/mcp-tool-observation-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Observe and optionally invoke one named tool through an MCP Streamable HTTP boundary.",
   "type": "module",
   "license": "MIT",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@red-cup-engineering/public-https-url-admission-service": "0.1.0",
-    "@red-cup-engineering/semantic-content-identify-service": "0.1.7"
+    "@red-cup-engineering/semantic-content-identify-service": "0.1.8"
   },
   "engines": {
     "node": ">=22"

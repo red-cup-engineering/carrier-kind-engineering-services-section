@@ -17,7 +17,7 @@ provider. A refusal ends this customer act; it never selects another provider.
 
 The middleware verifies payment before executing the handler, buffers the
 result, and asks the configured facilitator to settle before releasing it.
-Successful settlement is recorded as an RWIL/RDF named graph. The standard
+Successful settlement is recorded as an witness-journal RDF named graph. The standard
 `PAYMENT-REQUIRED` and `PAYMENT-RESPONSE` headers are the payment wire format.
 
 ## Public product
@@ -40,7 +40,7 @@ Required configuration:
   credentials; never source or catalog metadata.
 - `X402_PRICE`: exact dollar price, such as `$0.001`.
 - `RMN_CONFORMANCE_AGENT`, `WIT_TRANSITION_ASSAY_AGENT`, and
-  `RWIL_RDF_AGENT`: signed Agent Cards for the hired semantic providers.
+  `WITNESS_JOURNAL_RDF_AGENT`: signed Agent Cards for the hired semantic providers.
 
 The protected route declares the official x402 v2 Bazaar extension. Coinbase
 indexes it only after the CDP facilitator completes a real settlement; there

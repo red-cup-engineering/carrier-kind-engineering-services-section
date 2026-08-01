@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { readFileSync } from "node:fs";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { createSettlementStore, querySettlementRecords, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { createSettlementStore, querySettlementRecords, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const TRAJECTORY_MEMORY_ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const DEFAULT_TRAJECTORY_MEMORY_DATA_ROOT = fileURLToPath(new URL("../data", import.meta.url));
@@ -14,7 +14,7 @@ export const TRAJECTORY_MEMORY_SETTLEMENT_CAIP2 = typeof ADVERTISED_ACCOUNT === 
   : "";
 if (!/^eip155:[0-9]+$/u.test(TRAJECTORY_MEMORY_SETTLEMENT_CAIP2)) throw new Error("trajectory-memory Agent Card must advertise one EIP-155 settlement account");
 
-function rmnId(value) { return semanticId(relationalRwilDocument(value)); }
+function rmnId(value) { return semanticId(relationalWitnessJournalDocument(value)); }
 function typedRecord(body) { return Object.freeze({ id: rmnId(body), ...body }); }
 
 function tokens(text) {
@@ -265,23 +265,23 @@ export async function latestMissionCheckpoint(missionId, sourceIdentity, { rows:
 }
 
 export async function appendTrajectory(record, {
-  rwilAgentUrl = process.env.RWIL_RDF_AGENT,
+  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
   settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
   signal,
   custody,
   categoryIndex,
 } = {}) {
-  return appendTrajectoryRecord(record, record.finishedAt, { rwilAgentUrl, settlementCaip2, signal, custody, categoryIndex });
+  return appendTrajectoryRecord(record, record.finishedAt, { witnessJournalAgentUrl, settlementCaip2, signal, custody, categoryIndex });
 }
 
 export async function appendTrajectoryRecord(record, recordedAt, {
-  rwilAgentUrl = process.env.RWIL_RDF_AGENT,
+  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
   settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
   signal,
   custody,
   categoryIndex,
 } = {}) {
-  const store = createSettlementStore({ settlementRoot: TRAJECTORY_MEMORY_ROOT, agentUrl: rwilAgentUrl, caip2: settlementCaip2, custody, categoryIndex });
+  const store = createSettlementStore({ settlementRoot: TRAJECTORY_MEMORY_ROOT, agentUrl: witnessJournalAgentUrl, caip2: settlementCaip2, custody, categoryIndex });
   const receipt = await store.record({ category: TRAJECTORY_CATEGORY, recordedAt, record, signal });
   return receipt;
 }
@@ -289,13 +289,13 @@ export async function appendTrajectoryRecord(record, recordedAt, {
 export async function admitCustomerTrajectoryFoldback(activity, {
   expectedCustomer,
   expectedSupplier,
-  rwilAgentUrl = process.env.RWIL_RDF_AGENT,
+  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
   settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
   signal,
   rows: suppliedRows,
   custody,
   categoryIndex,
-  append = (value, at) => appendTrajectoryRecord(value, at, { rwilAgentUrl, settlementCaip2, signal, custody, categoryIndex }),
+  append = (value, at) => appendTrajectoryRecord(value, at, { witnessJournalAgentUrl, settlementCaip2, signal, custody, categoryIndex }),
 } = {}) {
   const rows = suppliedRows ?? await projectedRows({ custody, categoryIndex });
   const decision = activity?.object, foldback = decision?.foldbackSnapshot;

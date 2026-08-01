@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve, sep } from "node:path";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { supplierDesignId } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-foam";
 import { createProofPoreJournal } from "@red-cup-engineering/acceptance-capsule-procurement-service/proof-pore-journal";
 
@@ -62,7 +62,7 @@ export function migrateAcceptancePulseProofPore({ subject, exchangePaths, target
   });
   const material = sources[0];
   const provider = providerFor(material.path);
-  const candidate = semanticId(relationalRwilDocument({
+  const candidate = semanticId(relationalWitnessJournalDocument({
     type: "AcceptanceOracleCandidate",
     artifact: material.projected.artifact,
     provider,
@@ -99,7 +99,7 @@ export function migrateAcceptancePulseProofPore({ subject, exchangePaths, target
     sourceCount: String(sources.length),
     target: journal.root,
   };
-  const receipt = { id: semanticId(relationalRwilDocument(body)), ...body };
+  const receipt = { id: semanticId(relationalWitnessJournalDocument(body)), ...body };
   mkdirSync(dirname(resolve(receiptPath)), { recursive: true });
   writeFileSync(resolve(receiptPath), `${JSON.stringify(receipt, null, 2)}\n`, { flag: "wx" });
   return Object.freeze(receipt);
@@ -149,7 +149,7 @@ export function migrateAcceptanceAssayCarrierObstructions({
     migrated,
     target: journal.root,
   };
-  const receipt = { id: semanticId(relationalRwilDocument(body)), ...body };
+  const receipt = { id: semanticId(relationalWitnessJournalDocument(body)), ...body };
   mkdirSync(dirname(resolve(receiptPath)), { recursive: true });
   writeFileSync(resolve(receiptPath), `${JSON.stringify(receipt, null, 2)}\n`, { flag: "wx" });
   return Object.freeze(receipt);

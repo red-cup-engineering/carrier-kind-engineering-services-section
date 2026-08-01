@@ -30,9 +30,29 @@ test("markdownInlineNodes returns a frozen HTML node array", () => {
   assert.equal(nodes[0].kind, "text");
 });
 
-test("safeHref denylists javascript/data and passes through everything else trimmed", () => {
+test("safeHref allowlists http/https/mailto and schemeless relative/fragment targets", () => {
   assert.equal(safeHref("  https://example.com  "), "https://example.com");
+  assert.equal(safeHref("http://example.com"), "http://example.com");
+  assert.equal(safeHref("mailto:x@y.com"), "mailto:x@y.com");
+  assert.equal(safeHref("./foo"), "./foo");
+  assert.equal(safeHref("../bar"), "../bar");
+  assert.equal(safeHref("foo/bar"), "foo/bar");
+  assert.equal(safeHref("#section"), "#section");
   assert.equal(safeHref("javascript:alert(1)"), null);
   assert.equal(safeHref("DATA:text/html,x"), null);
+  assert.equal(safeHref("ftp://example.com/file"), null);
+  assert.equal(safeHref("vbscript:msgbox(1)"), null);
+  assert.equal(safeHref("file:///etc/passwd"), null);
+  assert.equal(safeHref("evil:oops"), null);
   assert.equal(safeHref(""), null);
+});
+
+test("markdownInlineToHtml refuses ftp: link targets (no longer admitted)", () => {
+  assert.equal(markdownInlineToHtml("[x](ftp://example.com/file)"), "x");
+});
+
+test("markdownInlineToHtml admits relative-path and fragment link targets", () => {
+  assert.equal(markdownInlineToHtml("[x](./foo)"), '<a href="./foo">x</a>');
+  assert.equal(markdownInlineToHtml("[x](foo/bar)"), '<a href="foo/bar">x</a>');
+  assert.equal(markdownInlineToHtml("[x](#section)"), '<a href="#section">x</a>');
 });

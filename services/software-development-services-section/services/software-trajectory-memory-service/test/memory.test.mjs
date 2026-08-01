@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { loadSettlementAccount, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { loadSettlementAccount, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { admitCustomerTrajectoryFoldback, deriveInducedTrajectoryResolver, latestMissionCheckpoint, missionMemoryContext, recallTrajectories, TRAJECTORY_MEMORY_ROOT, TRAJECTORY_MEMORY_SETTLEMENT_CAIP2, trajectoryRecipeFingerprint } from "../src/memory.mjs";
 
 const edit = { action: "edit", args: { path: "source.mjs", blocks: { search: "old", replace: "new" } }, reason: "provider wording is not executable law" };
 const row = (id, action = edit, verified = true) => ({ type: "SoftwareMissionTrajectory", id, taskClass: "exact-repair", outcome: { verified, promotable: verified, selectedActions: [action] } });
-const record = (body) => ({ id: semanticId(relationalRwilDocument(body)), ...body });
+const record = (body) => ({ id: semanticId(relationalWitnessJournalDocument(body)), ...body });
 
 test("trajectory memory selects exactly the settlement chain advertised by its Actor face", () => {
   const account = loadSettlementAccount(TRAJECTORY_MEMORY_ROOT, { caip2: TRAJECTORY_MEMORY_SETTLEMENT_CAIP2 });
@@ -30,7 +30,7 @@ test("recalled verified knowledge is a complete canonical carrier", () => {
     dataRoot: "unused",
     rows: [{ ...row("urn:witness:canonical"), objective: "repair exact source" }],
   });
-  assert.doesNotThrow(() => relationalRwilDocument(knowledge));
+  assert.doesNotThrow(() => relationalWitnessJournalDocument(knowledge));
   assert.equal(knowledge[0].inferenceContacts, null);
 });
 

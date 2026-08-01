@@ -1,11 +1,11 @@
 {
   "name": "@red-cup-engineering/cryptographic-services-section",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The union's canonical secp256k1 + keccak256 core: EVM identity, signing, hashing, and x402 settlement primitives, offered as a directly contractable service.",
   "type": "module",
   "private": true,
   "dependencies": {
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1"
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2"
   },
   "bin": {
     "solicit-service": "./src/cryptographic-services.mjs",

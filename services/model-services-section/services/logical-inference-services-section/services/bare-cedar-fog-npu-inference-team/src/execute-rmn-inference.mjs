@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
-import { loadSettlementAccount, recordRwil, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { loadSettlementAccount, recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
@@ -43,7 +43,7 @@ function rmnAgent() {
   return process.env.RMN_CONFORMANCE_AGENT;
 }
 function witAgent() { if (!process.env.WIT_TRANSITION_ASSAY_AGENT) throw new Error("WIT_TRANSITION_ASSAY_AGENT must name the hired WIT transition provider's signed A2A 1.0 Agent Card"); return process.env.WIT_TRANSITION_ASSAY_AGENT; }
-function rwilAgent() { if (!process.env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT must name the hired RWIL/RDF provider's A2A 1.0 Agent Card"); return process.env.RWIL_RDF_AGENT; }
+function witnessJournalAgent() { if (!process.env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT must name the hired witness-journal RDF provider's A2A 1.0 Agent Card"); return process.env.WITNESS_JOURNAL_RDF_AGENT; }
 function rawPart(message) {
   const parts = (message.parts ?? []).filter((part) => part?.mediaType === "application/rmn+cbor" && typeof part.raw === "string");
   if (parts.length !== 1) throw new Error("NPU inference requires exactly one application/rmn+cbor A2A part");
@@ -60,12 +60,12 @@ function measures(prior, usage = {}) {
   if (Number.isInteger(usage.completion_tokens)) byDimension.set("output-token", { dimension: "output-token", quantity: String(usage.completion_tokens), unit: "token" });
   return [...byDimension.values()];
 }
-async function appendRwil({ proposal, completion, evidence, witness, disposition }) {
+async function appendWitnessJournal({ proposal, completion, evidence, witness, disposition }) {
   const at = new Date().toISOString();
-  const root = resolve(process.env.NPU_RWIL_ROOT ?? join(ROOT, "data"));
+  const root = resolve(process.env.NPU_WITNESS_JOURNAL_ROOT ?? join(ROOT, "data"));
   const assertions = [["urn:rmn:proposal", proposal], ["urn:rmn:completion", completion], ["urn:rmn:evidence", evidence], ["urn:rmn:witness", witness], ["urn:rmn:disposition", disposition], ["urn:prov:generatedAtTime", at]]
     .map(([predicate, value]) => ({ subject: completion, predicate, object: { kind: "literal", value } }));
-  return recordRwil({ agentUrl: rwilAgent(), batch: { settlement: ACCOUNT, graph: completion, recordedAt: at, document: relationalRwilDocument({ type: "InferenceExecutionWitness", proposal, completion, evidence, witness, disposition }), assertions } });
+  return recordWitnessJournalBatch({ agentUrl: witnessJournalAgent(), batch: { settlement: ACCOUNT, graph: completion, recordedAt: at, document: relationalWitnessJournalDocument({ type: "InferenceExecutionWitness", proposal, completion, evidence, witness, disposition }), assertions } });
 }
 async function perform({ instruction, input, model, mode }) {
   if (!["dry-run", "live"].includes(mode)) throw new Error("inference mode Mark must be dry-run or live");
@@ -116,7 +116,7 @@ export async function executeMessage(message) {
   const transition = await assayWitTransition({ agentUrl: witAgent(), proposalCell: cell, completionCell, evidence: evidence.term });
   const completionTerm = ["pair", ["effect", completionCell], operation];
   const completion = await conformTerm({ agentUrl: rmnAgent(), term: completionTerm, expectedType: ["product", ["effect"], OPERATION_TYPE] });
-  await appendRwil({ proposal: proposal.term, completion: completion.term, evidence: evidence.term, witness: transition.witness, disposition: performed.disposition });
+  await appendWitnessJournal({ proposal: proposal.term, completion: completion.term, evidence: evidence.term, witness: transition.witness, disposition: performed.disposition });
   return { messageId: randomUUID(), role: "ROLE_AGENT", parts: [{ raw: completion.canonicalBytesBase64, metadata: { ni: completion.term }, filename: "completion.rmn.cbor", mediaType: "application/rmn+cbor" }, { text: performed.text, metadata: { evidenceNi: evidence.term, disposition: performed.disposition }, mediaType: "text/plain" }], metadata: { disposition: performed.disposition, proposalNi: proposal.term, completionNi: completion.term, witnessNi: transition.witness } };
 }
 

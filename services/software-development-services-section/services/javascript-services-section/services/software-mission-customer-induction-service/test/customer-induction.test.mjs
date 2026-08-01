@@ -3,8 +3,8 @@ import test from "node:test";
 import { createSoftwareMissionCustomerInduction } from "../src/customer-induction.mjs";
 
 const semanticId = (value) => JSON.stringify(value);
-const relationalRwilDocument = (value) => value;
-const { induceVerifiedMissionProposal } = createSoftwareMissionCustomerInduction({ semanticId, relationalRwilDocument });
+const relationalWitnessJournalDocument = (value) => value;
+const { induceVerifiedMissionProposal } = createSoftwareMissionCustomerInduction({ semanticId, relationalWitnessJournalDocument });
 
 const mission = { id: "ni:///sha-256;mission", territory: "ni:///sha-256;territory", writablePaths: ["src"], verifyCommand: "npm test" };
 const result = { semanticId: "ni:///sha-256;result", outcome: { candidateVerified: true, proposal: { type: "SoftwareMissionChangeProposal", proposalOnly: true, customerMutation: false, changes: [{ path: "src/fix.mjs", beforeDigest: "sha256:before", afterDigest: "sha256:after", afterBytesBase64: "eA==" }] } } };

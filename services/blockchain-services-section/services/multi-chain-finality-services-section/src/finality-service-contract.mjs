@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
-import { recordSettlementRecord, relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { assayReceiptFinalityPolicy, chainReceiptKey } from "./finality-merge.mjs";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
@@ -15,11 +15,11 @@ const HERE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LAW_PATH = resolve(HERE, "content/contracts/assay-receipt-finality-policy.rml");
 export const LAW = compileRmlLaw(readFileSync(LAW_PATH, "utf8"));
 export const CONTRACT = LAW.id;
-export const EFFECTS = Object.freeze(["provider-local-RWIL-evidence"]);
+export const EFFECTS = Object.freeze(["provider-local-witness-journal-evidence"]);
 const INTENT_SIGNATURE = "assay-one-chain-qualified-receipt-against-one-finality-policy/v1";
 
 function identified(body) {
-  return Object.freeze({ id: semanticId(relationalRwilDocument(body)), ...body });
+  return Object.freeze({ id: semanticId(relationalWitnessJournalDocument(body)), ...body });
 }
 function response(type, source, object, recordedAt) {
   return identified({
@@ -32,13 +32,13 @@ function response(type, source, object, recordedAt) {
     published: recordedAt,
   });
 }
-function rwilAgent(env) {
-  if (!env.RWIL_RDF_AGENT) throw new Error("RWIL_RDF_AGENT must name the provider's contracted RWIL/RDF A2A provider");
-  return env.RWIL_RDF_AGENT;
+function witnessJournalAgent(env) {
+  if (!env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT must name the provider's contracted witness-journal RDF A2A provider");
+  return env.WITNESS_JOURNAL_RDF_AGENT;
 }
 async function append(record, category, recordedAt, env, recorder) {
   return recorder({
-    agentUrl: rwilAgent(env),
+    agentUrl: witnessJournalAgent(env),
     root: resolve(env.MULTI_CHAIN_FINALITY_DATA_ROOT ?? `${HERE}/data`),
     nodeId: NODE_ID,
     settlement: ACTOR,
@@ -103,7 +103,7 @@ function offer(source, request, recordedAt) {
     requestDigest: source.object.requestDigest,
     operation: "invoke-service",
     effects: EFFECTS,
-    requirements: ["exact-chain-finality-policy", "canonical-receipt-and-log", "provider-owned-RWIL-boundary"],
+    requirements: ["exact-chain-finality-policy", "canonical-receipt-and-log", "provider-owned-witness-journal-boundary"],
     intentSignature: INTENT_SIGNATURE,
     scope: Object.freeze({ chainId: request.receipt.chainId, finalityPolicy: request.policy.id }),
     chainMutation: false,

@@ -21,10 +21,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@red-cup-engineering/fizzos": "0.0.1",
+    "@red-cup-engineering/fizzos": "0.0.2",
     "@red-cup-engineering/http-server": "0.0.2",
-    "@red-cup-engineering/organizing-with-the-web": "0.0.2",
-    "@red-cup-engineering/organizing": "0.0.0",
+    "@red-cup-engineering/organizing-with-the-web": "0.0.3",
+    "@red-cup-engineering/organizing": "0.0.1",
     "@emsenn/computing-with-ledgers": "workspace:*",
     "@emsenn/computing-with-hive": "workspace:*"
   },

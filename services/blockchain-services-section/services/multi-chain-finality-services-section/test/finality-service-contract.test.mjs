@@ -6,7 +6,7 @@ import { ACTOR, CONTRACT, EFFECTS, run } from "../src/finality-service-contract.
 
 const at = "2026-07-24T22:30:00.000Z";
 const env = {
-  RWIL_RDF_AGENT: "https://rwil.example/.well-known/agent-card.json",
+  WITNESS_JOURNAL_RDF_AGENT: "https://witnessJournal.example/.well-known/agent-card.json",
   MULTI_CHAIN_FINALITY_DATA_ROOT: "/tmp/multi-chain-finality-contract-test",
 };
 const receipt = {

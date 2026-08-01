@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { delegate, invoke } from "@ucanto/core";
 import { ed25519 } from "@ucanto/principal";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { verifyUcanInvocation } from "../dist/index.mjs";
 
@@ -42,8 +42,8 @@ test("official ucanto proof DAG emits one content-addressed invocation verificat
   assert.match(receipt.id, /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
   assert.match(receipt.capabilityNi, /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
   const { id, ...body } = receipt;
-  assert.equal(id, semanticId(relationalRwilDocument(body)));
-  assert.equal(receipt.capabilityNi, semanticId(relationalRwilDocument(CAPABILITY)));
+  assert.equal(id, semanticId(relationalWitnessJournalDocument(body)));
+  assert.equal(receipt.capabilityNi, semanticId(relationalWitnessJournalDocument(CAPABILITY)));
 });
 
 test("revoked proof cannot produce an authorized receipt", async () => {

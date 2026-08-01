@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { runGitStatus as runContractedGitStatus } from "./git-ingress.mjs";
 
 export const ACTOR = "urn:ame:repository-state-observation-service";
@@ -9,7 +9,7 @@ export const FIXED_GIT_OPERATION = Object.freeze(["status", "--porcelain=v1", "-
 const ROOT = new URL("..", import.meta.url).pathname;
 export const ACCOUNT = JSON.parse(readFileSync(new URL("../content/evm/accounts/eip155-31337.json", import.meta.url), "utf8")).account.caip10;
 const rawNi = (await import(new URL("../../../../../../lenticule-science/services/obsmetrological-services-section/services/rmn-semantic-conformance-die/src/canonical-cbor.mjs", import.meta.url).href)).rawNiUri;
-const id = (value) => semanticId(relationalRwilDocument(value));
+const id = (value) => semanticId(relationalWitnessJournalDocument(value));
 export const record = (body) => Object.freeze({ id: id(body), ...body });
 
 export function validateRequest(request) {

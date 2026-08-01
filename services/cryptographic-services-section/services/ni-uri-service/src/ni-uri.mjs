@@ -1,7 +1,7 @@
 // ni-uri — builds and validates RFC 6920 ("Naming Things with Hashes")
 // `ni:` content-identity URIs over a SHA-256 digest. The named-information
 // scheme this module speaks is the narrow `ni:///sha-256;<base64url-digest>`
-// form the RWIL RDF projection service uses for graph and document
+// form the WitnessJournal RDF projection service uses for graph and document
 // identity; this package extracts just that construction and validation,
 // reusing the section's own sha256 rather than re-rolling a digest.
 import { sha256 } from "../../../src/hash.mjs";

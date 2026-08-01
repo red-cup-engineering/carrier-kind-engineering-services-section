@@ -64,7 +64,7 @@ export async function formCorpusReconciliationIntent(request, providers, options
   exactKeys(request, ["type", "requestId", "actor", "cellDefinition", "observedNotebookState", "desiredSourceSetId", "authorization", "intendedNotebookProvider"]);
   if (request.type !== "TopicalKnowledgeCellReconciliationRequest") fail("wrong request type");
   text(request.requestId, "requestId"); text(request.actor, "actor"); text(request.intendedNotebookProvider, "intendedNotebookProvider");
-  if (!providers || typeof providers.identify !== "function" || typeof providers.lookupRequest !== "function" || typeof providers.record !== "function") fail("contracted identity and RWIL providers are required");
+  if (!providers || typeof providers.identify !== "function" || typeof providers.lookupRequest !== "function" || typeof providers.record !== "function") fail("contracted identity and WitnessJournal providers are required");
   const cell = definition(request.cellDefinition), observation = observed(request.observedNotebookState, cell), now = options.now ?? new Date().toISOString();
   const desiredIdentity = await providers.identify({ type: "TopicalKnowledgeCellSourceSet", cellId: cell.cellId, sources: cell.sourceSet });
   if (request.desiredSourceSetId !== desiredIdentity.id) fail("desired source-set identity does not match RMN identity provider");

@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/animating",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
@@ -33,23 +33,23 @@
     "package.json"
   ],
   "dependencies": {
-    "@red-cup-engineering/json-file-codec-service": "0.1.1",
+    "@red-cup-engineering/json-file-codec-service": "0.1.2",
     "@lenticule-science/articulating": "0.1.1",
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.2",
-    "@red-cup-engineering/communicating": "0.0.0",
-    "@red-cup-engineering/knowing": "0.0.0",
-    "@red-cup-engineering/playing": "0.0.1",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
+    "@red-cup-engineering/communicating": "0.0.1",
+    "@red-cup-engineering/knowing": "0.0.1",
+    "@red-cup-engineering/playing": "0.0.2",
     "@red-cup-engineering/relating": "0.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.1",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
     "@ucanto/core": "10.4.6",
     "@ucanto/principal": "9.0.3",
     "@ucanto/validator": "10.0.1"
   },
   "devDependencies": {
-    "@red-cup-engineering/organizing": "0.0.0",
-    "@red-cup-engineering/socializing": "0.0.0",
-    "@red-cup-engineering/witness-journal-log-service": "0.1.0",
-    "@red-cup-engineering/witness-journal-state-service": "0.1.0",
+    "@red-cup-engineering/organizing": "0.0.1",
+    "@red-cup-engineering/socializing": "0.0.1",
+    "@red-cup-engineering/witness-journal-log-service": "0.1.1",
+    "@red-cup-engineering/witness-journal-state-service": "0.1.1",
     "@types/node": "^22.0.0",
     "typescript": "^5.8.0"
   },

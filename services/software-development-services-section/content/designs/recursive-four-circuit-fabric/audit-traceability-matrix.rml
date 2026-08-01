@@ -159,7 +159,7 @@
                         "stage-accepted-software-delivery-correction"
                         "review-and-admit-staged-software-delivery-correction"))))
        ("retired-predecessor" "local CLI/direct-call-only receiver access with no canonical RMN/A2A ingress")
-       ("unresolved-deviations" ("receiver-local custom JSON identity and JSONL evidence have not yet been replaced by canonical RMN/CBOR and RWIL/RDF"
+       ("unresolved-deviations" ("receiver-local custom JSON identity and JSONL evidence have not yet been replaced by canonical RMN/CBOR and witness-journal RDF"
                                 "the Agent Card does not yet expose a sovereign circuit interface with exact attributable replay evidence or a smart-account occurrence"
                                 "no SDSS-local die yet forms a complete customer-decidable plate from SoftwareMissionChangeProposal"
                                 "the empty portable-node-carrier-service did not perform this deployment bootstrap"))

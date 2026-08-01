@@ -1,5 +1,5 @@
 /** Standards-clean UCAN invocation admission using canonical ucanto DAG-CBOR/CID carriers. */
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 // @ts-expect-error The canonical RMN package is JavaScript and does not yet publish declarations.
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import type { API } from "@ucanto/core";
@@ -47,7 +47,7 @@ const RESOURCE = /^did:pkh:eip155:[1-9][0-9]*:0x[0-9a-fA-F]{40}$/u;
 const ABILITY = /^[a-z][a-z0-9-]*(?:\/[a-zA-Z][a-zA-Z0-9-]*)+$/u;
 
 function identify(value: unknown): string {
-  return semanticId(relationalRwilDocument(value));
+  return semanticId(relationalWitnessJournalDocument(value));
 }
 
 function exactCapability(value: UcanCapability): UcanCapability {

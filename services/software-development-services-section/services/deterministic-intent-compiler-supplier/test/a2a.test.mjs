@@ -3,11 +3,11 @@ import test from "node:test";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalRwilDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { executeA2aMessage, operationBytes, operationFromBytes } from "../src/a2a-executor.mjs";
 import { ACTOR, CONTEXT } from "../src/supplier.mjs";
 
-const exact = (body) => ({ id: semanticId(relationalRwilDocument(body)), ...body });
+const exact = (body) => ({ id: semanticId(relationalWitnessJournalDocument(body)), ...body });
 
 test("the supplier admits one provider-addressed canonical RMN pulse through A2A", async () => {
   const pulse = exact({

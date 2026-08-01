@@ -29,7 +29,7 @@ gcloud builds submit "$context_dir" \
 
 # RMN is a stateless RMN/RML canonicalization and conformance checker: it
 # writes nothing to disk of its own (verified against src/*.mjs and bin/*.mjs
-# before this deploy.sh was written), so unlike RWIL it carries no volume
+# before this deploy.sh was written), so unlike WitnessJournal it carries no volume
 # mount and no single-instance ceiling.
 gcloud run deploy "$service" \
   --project "$GOOGLE_CLOUD_PROJECT" \

@@ -8,4 +8,4 @@
   ("postcondition" "The provider and customer retain their own witnessed records; the response binds the exact public accounts, source and transport disclosures, snapshot blocks, verification completeness, contract code and proxy evidence, normalized protocol positions where requested, interpretation limits, typed resource vector, and service receipt.")
   ("refusal" "Refuse secrets or signer material, unsupported chains or scopes, non-CAIP accounts, credential-bearing or mismatched sources, changed observation or terms, customer mutation, transaction authority, all-source failure, or a capability broader than public reads and provider-local evidence.")
   ("protocol" "ActivityStreams-2.0")
-  ("evidence" "RWIL-RDF"))
+  ("evidence" "WITNESS-JOURNAL-RDF"))

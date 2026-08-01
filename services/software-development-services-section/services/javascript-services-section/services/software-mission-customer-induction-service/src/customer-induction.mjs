@@ -1,8 +1,8 @@
 // This cell is intentionally host-neutral.  A supplier can prove and propose
 // a transition; only the JS Mark admission boundary may inspect a filesystem,
 // check its preimages, and perform the transition.
-export function createSoftwareMissionCustomerInduction({ semanticId, relationalRwilDocument }) {
-  const rmnId = (value) => semanticId(relationalRwilDocument(value));
+export function createSoftwareMissionCustomerInduction({ semanticId, relationalWitnessJournalDocument }) {
+  const rmnId = (value) => semanticId(relationalWitnessJournalDocument(value));
   const record = (body) => Object.freeze({ id: rmnId(body), ...body });
 
   function verifiedProposal(mission, result) {

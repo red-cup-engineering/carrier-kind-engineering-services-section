@@ -3,7 +3,7 @@
 import { createServer } from "./tollbooth.mjs";
 
 try {
-  for (const name of ["RMN_CONFORMANCE_AGENT", "WIT_TRANSITION_ASSAY_AGENT", "RWIL_RDF_AGENT"]) {
+  for (const name of ["RMN_CONFORMANCE_AGENT", "WIT_TRANSITION_ASSAY_AGENT", "WITNESS_JOURNAL_RDF_AGENT"]) {
     if (typeof process.env[name] !== "string" || !/^https?:\/\//u.test(process.env[name])) throw new Error(`${name} must name one explicit hired provider Agent Card URL`);
   }
   const admitted = createServer(process.env);
@@ -15,11 +15,11 @@ try {
     payTo: admitted.payTo,
     price: admitted.price,
     facilitator: admitted.facilitatorUrl,
-    rwilProvider: process.env.RWIL_RDF_AGENT,
+    witnessJournalProvider: process.env.WITNESS_JOURNAL_RDF_AGENT,
     authority: {
       settlement: "contracted-x402-facilitator-only",
       providerSelection: "customer-contract-only",
-      record: "hired-rwil-rdf-provider-only",
+      record: "hired-witness-journal-rdf-provider-only",
       syntheticReceipt: false,
     },
   })}\n`);

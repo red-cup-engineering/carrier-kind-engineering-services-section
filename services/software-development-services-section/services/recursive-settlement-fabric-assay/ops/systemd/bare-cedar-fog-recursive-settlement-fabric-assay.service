@@ -1,7 +1,7 @@
 [Unit]
 Description=Bare Cedar Fog recursive settlement fabric assay A2A provider
-After=network-online.target rwil-rdf-projection-service.service
-Wants=network-online.target rwil-rdf-projection-service.service
+After=network-online.target witness-journal-rdf-projection-service.service
+Wants=network-online.target witness-journal-rdf-projection-service.service
 
 [Service]
 Type=simple
@@ -9,7 +9,7 @@ WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cu
 Environment=PORT=19828
 Environment=HOST=127.0.0.1
 Environment=BASE_URL=http://127.0.0.1:19828
-Environment=RWIL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
+Environment=WITNESS_JOURNAL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
 Environment=FABRIC_ASSAY_ALLOWED_ROOTS=/home/emsenn/info
 Environment=AGENT_CARD_SIGNING_KEY=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/recursive-settlement-fabric-assay/data/agent-card-signing/ed25519-private.pem
 Environment=AGENT_CARD_JWKS=/home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/recursive-settlement-fabric-assay/content/agent-card-signing/jwks.json
