@@ -5,7 +5,6 @@ import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-servi
 import {
   ACTOR,
   SYNTHESIS_EFFECTS,
-  SYNTHESIS_LAW,
   exactOperation,
   operationBytes,
   operationFromBytes,
@@ -72,7 +71,6 @@ export async function synthesizeSoftwareProgram(program, {
     || offer.solicitation !== solicitation.id
     || offer.request !== request.id
     || offer.program !== program.id
-    || offer.law !== SYNTHESIS_LAW.id
     || offer.operation !== "invoke-software-program-synthesis"
     || JSON.stringify(offer.effects) !== JSON.stringify(SYNTHESIS_EFFECTS)) {
     throw new Error("software program provider returned a foreign offer");

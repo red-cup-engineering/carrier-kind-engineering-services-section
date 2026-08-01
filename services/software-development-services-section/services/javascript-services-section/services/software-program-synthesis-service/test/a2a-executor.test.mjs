@@ -5,7 +5,6 @@ import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-servi
 import {
   ACTOR,
   SYNTHESIS_EFFECTS,
-  SYNTHESIS_LAW,
   executeA2aMessage,
   executeOperation,
   operationBytes,
@@ -20,7 +19,7 @@ const program = record({ type: "SoftwareProgram", objective: "bounded program", 
 function request() { return record({ type: "SoftwareProgramSynthesisRequest", provider: ACTOR, program }); }
 function solicitation(value = request()) { return record({ type: "SoftwareProgramSynthesisSolicitation", provider: ACTOR, customer: CUSTOMER, request: value }); }
 function grant(effects = SYNTHESIS_EFFECTS) {
-  return record({ type: "ResourceGrant", issuer: CUSTOMER, holder: ACTOR, law: SYNTHESIS_LAW.id, program: program.id, effects });
+  return record({ type: "ResourceGrant", issuer: CUSTOMER, holder: ACTOR, program: program.id, effects });
 }
 function message(operation) {
   return Message.toJSON({ messageId: "00000000-0000-4000-8000-000000000001", contextId: "", taskId: "", role: Role.ROLE_USER, parts: [rmnPart(operationBytes(operation))], metadata: {}, extensions: [], referenceTaskIds: [] });
@@ -29,7 +28,7 @@ function responseOperation(value) {
   return operationFromBytes(extractRmnPart(Message.fromJSON(value).parts).bytes);
 }
 
-test("signed A2A/RMN solicitation authors the law-bound offer without executing the program", async () => {
+test("signed A2A/RMN solicitation authors the offer without executing the program", async () => {
   let executions = 0;
   const input = solicitation();
   const output = await executeA2aMessage(message(input), { runProgram: async () => { executions += 1; } });
@@ -38,7 +37,6 @@ test("signed A2A/RMN solicitation authors the law-bound offer without executing 
   assert.equal(offer.solicitation, input.id);
   assert.equal(offer.request, input.request.id);
   assert.equal(offer.program, program.id);
-  assert.equal(offer.law, SYNTHESIS_LAW.id);
   assert.deepEqual(offer.effects, SYNTHESIS_EFFECTS);
   assert.equal(executions, 0);
 });
@@ -106,7 +104,6 @@ test("the client performs two signed A2A/RMN contacts and returns both transport
     { stage: "invocation", task: "provider-task-2" },
   ]);
   assert.equal(result.status, "complete");
-  assert.equal(result.synthesisOffer.law, SYNTHESIS_LAW.id);
   assert.equal(result.synthesisContract.resourceGrant.issuer, CUSTOMER);
   assert.equal(result.synthesisReceipt.solicitation.authentication.agentCardSignatureVerified, true);
   assert.equal(result.synthesisReceipt.invocation.authentication.agentCardSignatureVerified, true);

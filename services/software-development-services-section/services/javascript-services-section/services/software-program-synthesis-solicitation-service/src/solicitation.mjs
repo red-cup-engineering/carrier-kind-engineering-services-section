@@ -2,11 +2,10 @@ function hasExactKeys(value, keys) {
   return Object.keys(value).sort().join("\n") === [...keys].sort().join("\n");
 }
 
-export function createSoftwareProgramSynthesisSolicitation({ actor, law, effects, exactOperation, record }) {
+export function createSoftwareProgramSynthesisSolicitation({ actor, effects, exactOperation, record }) {
   const intentSignature = record({
     type: "SoftwareProgramSynthesisIntent",
     provider: actor,
-    law: law.id,
     operation: "invoke-software-program-synthesis",
     effects,
   }).id;
@@ -39,7 +38,6 @@ export function createSoftwareProgramSynthesisSolicitation({ actor, law, effects
       solicitation: solicitation.id,
       request: solicitation.request.id,
       program: solicitation.request.program.id,
-      law: law.id,
       operation: "invoke-software-program-synthesis",
       effects,
       requirements: [{ type: "ResourceGrantRequirement", effects }],
@@ -70,11 +68,10 @@ export function createSoftwareProgramSynthesisSolicitation({ actor, law, effects
       || offer.customer !== contract.customer
       || offer.request !== contract.request.id
       || offer.program !== contract.request.program.id
-      || offer.law !== law.id
       || offer.operation !== "invoke-software-program-synthesis"
       || offer.intentSignature !== intentSignature
       || JSON.stringify(offer.effects) !== JSON.stringify(effects)) {
-      throw new Error("software program synthesis offer is not bound to the exact solicitation and law");
+      throw new Error("software program synthesis offer is not bound to the exact solicitation");
     }
     const grant = contract.resourceGrant;
     const granted = new Set(Array.isArray(grant.effects) ? grant.effects : []);
@@ -84,7 +81,6 @@ export function createSoftwareProgramSynthesisSolicitation({ actor, law, effects
     if (grant.type !== "ResourceGrant"
       || grant.issuer !== contract.customer
       || grant.holder !== actor
-      || grant.law !== law.id
       || grant.program !== contract.request.program.id
       || !effects.every((effect) => granted.has(effect))) {
       throw new Error("resource grant does not cover the offered synthesis effects");

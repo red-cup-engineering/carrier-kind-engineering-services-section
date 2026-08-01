@@ -1,11 +1,11 @@
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { createSoftwareProgramSynthesisSolicitation } from "@red-cup-engineering/software-program-synthesis-solicitation-service/src/solicitation.mjs";
+import { createSoftwareProgramSynthesisSolicitation } from "@red-cup-engineering/software-program-synthesis-solicitation-service";
 import { runProgram } from "./program-runtime.mjs";
-import { ACTOR, SYNTHESIS_EFFECTS, SYNTHESIS_LAW, exactOperation, operationBytes, operationFromBytes, record } from "./protocol.mjs";
-export { ACTOR, SYNTHESIS_EFFECTS, SYNTHESIS_LAW, exactOperation, operationBytes, operationFromBytes, record } from "./protocol.mjs";
+import { ACTOR, SYNTHESIS_EFFECTS, exactOperation, operationBytes, operationFromBytes, record } from "./protocol.mjs";
+export { ACTOR, SYNTHESIS_EFFECTS, exactOperation, operationBytes, operationFromBytes, record } from "./protocol.mjs";
 
-const solicitationMaterial = createSoftwareProgramSynthesisSolicitation({ actor: ACTOR, law: SYNTHESIS_LAW, effects: SYNTHESIS_EFFECTS, exactOperation, record });
+const solicitationMaterial = createSoftwareProgramSynthesisSolicitation({ actor: ACTOR, effects: SYNTHESIS_EFFECTS, exactOperation, record });
 
 export async function executeContractedSoftwareProgramSynthesis(contract, options = {}) {
   const { offer, request } = solicitationMaterial.validateContractedSoftwareProgramSynthesis(contract);

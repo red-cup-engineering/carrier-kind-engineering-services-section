@@ -1,9 +1,6 @@
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
-import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
+import { decodeRelationalValue } from "@red-cup-engineering/relation-model-notation-runtime/relational-value";
+import { relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-rdf-projection-service/client";
 
 export const ACTOR = "urn:ame:software-program-synthesis-service";
 export const SYNTHESIS_EFFECTS = Object.freeze([
@@ -11,7 +8,6 @@ export const SYNTHESIS_EFFECTS = Object.freeze([
   "provider-local-witness-journal",
   "contracted-mission-provider-egress",
 ]);
-export const SYNTHESIS_LAW = compileRmlLaw(readFileSync(fileURLToPath(new URL("../content/contracts/software-program-synthesis.rml", import.meta.url)), "utf8"));
 
 function rmnId(value) { return semanticId(relationalWitnessJournalDocument(value)); }
 export function record(body) { return Object.freeze({ id: rmnId(body), ...body }); }
