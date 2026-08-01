@@ -7,11 +7,11 @@
   "license": "MIT",
   "exports": "./src/query-npm-registry.mjs",
   "bin": {
-    "query-npm-registry": "./bin/query-npm-registry.mjs"
+    "query-npm-registry": "./scripts/query-npm-registry.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/query-npm-registry.mjs && node --check bin/query-npm-registry.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/query-npm-registry.mjs && node --check scripts/query-npm-registry.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22"

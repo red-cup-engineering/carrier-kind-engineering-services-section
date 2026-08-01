@@ -48,7 +48,7 @@ test("clock pulse watches public offers and crosses only the board ingress", asy
   assert.equal(result.type, "Accept"); assert.deepEqual(calls.map((item) => item.operation), ["list", "submit"]); assert.equal(calls[1].input.object.type, "ImprovementGameDesignBid");
 });
 test("the advertised ScheduleDelivery entrypoint refuses a raw activity outside the supplier pulse contract", () => {
-  const entry = new URL("../bin/pulse-improvement-game-design-supplier.mjs", import.meta.url);
+  const entry = new URL("../scripts/pulse-improvement-game-design-supplier.mjs", import.meta.url);
   const result = spawnSync(process.execPath, [fileURLToPath(entry)], { input: JSON.stringify({}), encoding: "utf8" });
   assert.equal(result.status, 2); assert.equal(JSON.parse(result.stdout).type, "Reject");
 });

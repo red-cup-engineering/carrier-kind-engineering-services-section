@@ -6,10 +6,10 @@
   "description": "Reads the packages present under a machine path by walking it and slicing to JSNode manifests. Use when charting what a disk tree contains against what a registry has published.",
   "exports": "./src/observe-disk-packages.mjs",
   "bin": {
-    "observe-disk-packages": "./bin/observe-disk-packages.mjs"
+    "observe-disk-packages": "./scripts/observe-disk-packages.mjs"
   },
   "scripts": {
-    "check": "node --check src/observe-disk-packages.mjs && node --check bin/observe-disk-packages.mjs",
+    "check": "node --check src/observe-disk-packages.mjs && node --check scripts/observe-disk-packages.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

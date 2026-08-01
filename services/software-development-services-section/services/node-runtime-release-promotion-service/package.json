@@ -8,10 +8,10 @@
     ".": "./src/promote-release.mjs"
   },
   "bin": {
-    "promote-node-runtime-release": "./bin/promote-node-runtime-release.mjs"
+    "promote-node-runtime-release": "./scripts/promote-node-runtime-release.mjs"
   },
   "scripts": {
-    "verify": "node --check src/promote-release.mjs && node --check bin/promote-node-runtime-release.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/promote-release.mjs && node --check scripts/promote-node-runtime-release.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22.18"

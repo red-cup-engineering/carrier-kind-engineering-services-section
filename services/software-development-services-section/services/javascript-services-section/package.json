@@ -9,10 +9,10 @@
     "./discovery": "./src/discover-services.mjs"
   },
   "bin": {
-    "discover-javascript-services": "./bin/discover-services.mjs"
+    "discover-javascript-services": "./scripts/discover-services.mjs"
   },
   "scripts": {
-    "check": "node --check src/discover-services.mjs && node --check bin/discover-services.mjs",
+    "check": "node --check src/discover-services.mjs && node --check scripts/discover-services.mjs",
     "test": "node --test test/discover-services.test.mjs",
     "verify": "npm run check && npm test"
   }

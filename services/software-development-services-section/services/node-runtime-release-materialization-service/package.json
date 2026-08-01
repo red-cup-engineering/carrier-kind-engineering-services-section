@@ -8,13 +8,13 @@
     ".": "./src/materialize-release.mjs"
   },
   "bin": {
-    "materialize-node-runtime-release": "./bin/materialize-node-runtime-release.mjs",
-    "verify-node-runtime-release": "./bin/verify-node-runtime-release.mjs"
+    "materialize-node-runtime-release": "./scripts/materialize-node-runtime-release.mjs",
+    "verify-node-runtime-release": "./scripts/verify-node-runtime-release.mjs"
   },
   "scripts": {
-    "check": "node --check src/materialize-release.mjs && node --check bin/materialize-node-runtime-release.mjs && node --check bin/verify-node-runtime-release.mjs",
+    "check": "node --check src/materialize-release.mjs && node --check scripts/materialize-node-runtime-release.mjs && node --check scripts/verify-node-runtime-release.mjs",
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/materialize-release.mjs && node --check bin/materialize-node-runtime-release.mjs && node --check bin/verify-node-runtime-release.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/materialize-release.mjs && node --check scripts/materialize-node-runtime-release.mjs && node --check scripts/verify-node-runtime-release.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22.18"

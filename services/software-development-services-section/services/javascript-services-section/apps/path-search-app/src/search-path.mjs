@@ -102,7 +102,7 @@ export async function* stagedTokenSearch({ token, root, priorityPaths = [], excl
   for (const priorityPath of priorityPaths) {
     let walk;
     try {
-      walk = await walkPosixPaths({ root: join(absoluteRoot, priorityPath), excludes });
+      walk = await walkPosixPaths({ root: join(absoluteRoot, priorityPath), excludes, digest: false });
     } catch (error) {
       if (error.code === "ENOENT") continue; // configured priority path does not exist under this root
       throw error;
@@ -115,7 +115,7 @@ export async function* stagedTokenSearch({ token, root, priorityPaths = [], excl
 
   // Stage 2 — one walk of the rest of root.
   const stage2Excludes = [...excludes, ...singleSegmentPriorityPaths];
-  const walk2 = await walkPosixPaths({ root: absoluteRoot, excludes: stage2Excludes });
+  const walk2 = await walkPosixPaths({ root: absoluteRoot, excludes: stage2Excludes, digest: false });
   const stage2Files = walk2.files.filter((file) => !isCoveredByDeepPriorityPath(file.path, deepPriorityPaths));
   seenFiles.push(...stage2Files);
   const stage2Matches = matchFilenameToken({ token, files: stage2Files, options });

@@ -6,11 +6,11 @@
   "license": "MIT",
   "exports": "./src/check-package-installation.mjs",
   "bin": {
-    "check-package-installation": "./bin/check-package-installation.mjs"
+    "check-package-installation": "./scripts/check-package-installation.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/check-package-installation.mjs && node --check bin/check-package-installation.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/check-package-installation.mjs && node --check scripts/check-package-installation.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22"

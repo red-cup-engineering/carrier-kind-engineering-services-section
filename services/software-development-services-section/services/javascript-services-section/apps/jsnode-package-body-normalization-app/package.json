@@ -6,10 +6,10 @@
   "description": "Composition app for repository-wide JSNode package-body normalization through independently packaged atomic services.",
   "exports": "./src/normalize-jsnode-package-body.mjs",
   "bin": {
-    "normalize-jsnode-package-body": "./bin/normalize-jsnode-package-body.mjs"
+    "normalize-jsnode-package-body": "./scripts/normalize-jsnode-package-body.mjs"
   },
   "scripts": {
-    "check": "node --check src/normalize-jsnode-package-body.mjs && node --check bin/normalize-jsnode-package-body.mjs",
+    "check": "node --check src/normalize-jsnode-package-body.mjs && node --check scripts/normalize-jsnode-package-body.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

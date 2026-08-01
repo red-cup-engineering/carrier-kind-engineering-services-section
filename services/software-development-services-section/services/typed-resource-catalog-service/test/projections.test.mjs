@@ -40,7 +40,7 @@ test("one action apex projects matching discovery, CLI, and MCP faces", () => {
 });
 
 test("CLI is a thin stateless projection of the same action apex", () => {
-  const cli = fileURLToPath(new URL("../bin/typed-resource-catalog.mjs", import.meta.url));
+  const cli = fileURLToPath(new URL("../scripts/typed-resource-catalog.mjs", import.meta.url));
   const run = spawnSync(process.execPath, [cli, "classify-typed-resource"], {
     input: JSON.stringify(input), encoding: "utf8",
   });

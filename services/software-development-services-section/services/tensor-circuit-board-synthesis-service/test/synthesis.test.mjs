@@ -80,7 +80,7 @@ test("the die refuses repeated occurrence names and par faces rather than fabric
 });
 
 test("the live boundary receives one colony-owned socket instead of allocating its port", () => {
-  const server = readFileSync(new URL("../bin/server.mjs", import.meta.url), "utf8");
+  const server = readFileSync(new URL("../scripts/server.mjs", import.meta.url), "utf8");
   const unit = readFileSync(new URL("../ops/systemd/tensor-circuit-board-synthesis-service.service", import.meta.url), "utf8");
   const socket = readFileSync(new URL("../ops/systemd/tensor-circuit-board-synthesis-service.socket", import.meta.url), "utf8");
   assert.match(server, /process\.env\.PORT \?\? 19848/);

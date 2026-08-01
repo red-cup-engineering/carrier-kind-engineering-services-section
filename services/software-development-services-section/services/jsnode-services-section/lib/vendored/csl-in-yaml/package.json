@@ -22,7 +22,7 @@
     "node": ">=20"
   },
   "bin": {
-    "csl-in-yaml": "bin/cli.mjs"
+    "csl-in-yaml": "scripts/cli.mjs"
   },
   "main": "src/index.mjs",
   "exports": {
@@ -30,14 +30,14 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "bin",
+    "scripts",
     "src",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
     "test": "node --test",
-    "lint-self": "node bin/cli.mjs --help >/dev/null"
+    "lint-self": "node scripts/cli.mjs --help >/dev/null"
   },
   "dependencies": {},
   "x-semiotic-voxel": {

@@ -6,11 +6,11 @@
   "license": "MIT",
   "exports": "./src/fabricate-pnpm-workspace.mjs",
   "bin": {
-    "fabricate-pnpm-workspace": "./bin/fabricate-pnpm-workspace.mjs"
+    "fabricate-pnpm-workspace": "./scripts/fabricate-pnpm-workspace.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/fabricate-pnpm-workspace.mjs && node --check bin/fabricate-pnpm-workspace.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/fabricate-pnpm-workspace.mjs && node --check scripts/fabricate-pnpm-workspace.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22"

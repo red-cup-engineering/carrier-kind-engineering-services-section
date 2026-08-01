@@ -8,10 +8,10 @@
     ".": "./src/assay-package-authority.mjs"
   },
   "bin": {
-    "assay-node-package-authority": "./bin/assay-node-package-authority.mjs"
+    "assay-node-package-authority": "./scripts/assay-node-package-authority.mjs"
   },
   "scripts": {
-    "verify": "node --check src/assay-package-authority.mjs && node --check bin/assay-node-package-authority.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/assay-package-authority.mjs && node --check scripts/assay-node-package-authority.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22.18"

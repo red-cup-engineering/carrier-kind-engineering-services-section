@@ -7,11 +7,11 @@
   "license": "MIT",
   "exports": "./src/discover-npm-packages.mjs",
   "bin": {
-    "discover-npm-packages": "./bin/discover-npm-packages.mjs"
+    "discover-npm-packages": "./scripts/discover-npm-packages.mjs"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node --check src/discover-npm-packages.mjs && node --check bin/discover-npm-packages.mjs && node --test test/*.test.mjs"
+    "verify": "node --check src/discover-npm-packages.mjs && node --check scripts/discover-npm-packages.mjs && node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22"

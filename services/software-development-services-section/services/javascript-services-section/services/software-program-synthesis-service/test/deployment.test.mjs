@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const server = readFileSync(new URL("../bin/serve-a2a.mjs", import.meta.url), "utf8");
+const server = readFileSync(new URL("../scripts/serve-a2a.mjs", import.meta.url), "utf8");
 const unit = readFileSync(new URL("../ops/systemd/software-program-synthesis-service.service", import.meta.url), "utf8");
 
 test("the synthesis provider has a noncolliding live boundary wired to its providers", () => {

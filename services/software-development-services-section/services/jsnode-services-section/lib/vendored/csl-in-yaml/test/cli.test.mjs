@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const CLI = fileURLToPath(new URL('../bin/cli.mjs', import.meta.url));
+const CLI = fileURLToPath(new URL('../scripts/cli.mjs', import.meta.url));
 
 // Run the CLI, capturing stdout and exit code (never throwing on nonzero).
 const run = (args, input) => {
