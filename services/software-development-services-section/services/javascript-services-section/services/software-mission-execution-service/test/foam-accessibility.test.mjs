@@ -25,9 +25,6 @@ test("a generic Actor sees one consistent orchestration operation across FOAM, d
   assert.equal(offer.provider, ACTOR);
   assert.equal(offer.operation, operation);
   assert.ok(card.skills.some((skill) => skill.id === operation));
-  assert.ok(Object.hasOwn(manifest["x-agentic-metro-enterprise"]["operation-catalog"], operation));
-  assert.deepEqual(manifest["x-agentic-metro-enterprise"]["x-foam-locus"].address, locus.address);
-  assert.equal(manifest["x-agentic-metro-enterprise"]["x-foam-locus"].projection, "content/foam/locus.json");
   assert.deepEqual(locus.realizedBy.map(({ capability }) => capability), [
     "project-bounded-coding-context",
     "discover-and-hire-inference-provider",

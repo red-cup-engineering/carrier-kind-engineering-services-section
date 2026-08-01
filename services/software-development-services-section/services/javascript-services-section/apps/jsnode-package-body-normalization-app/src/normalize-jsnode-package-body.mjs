@@ -7,8 +7,6 @@ import { normalizeJsnodePackageIdentity } from "@red-cup-engineering/jsnode-pack
 import { normalizeJsnodePackageIdentityReferences } from "@red-cup-engineering/jsnode-package-identity-reference-normalization-service";
 import { normalizeJsnodePackageManifest } from "@red-cup-engineering/jsnode-package-manifest-normalization-service";
 import { projectJsnodePackageOwner } from "@red-cup-engineering/jsnode-package-owner-projection-service";
-import { classifySemioticVoxelPackage } from "@red-cup-engineering/semiotic-voxel-package-classification-service";
-import { fabricateSemioticVoxelPackageDescriptor } from "@red-cup-engineering/semiotic-voxel-package-descriptor-fabrication-service";
 
 export async function normalizeJsnodePackageBody({ root = process.cwd(), apply = false } = {}) {
   const observed = await observeJsnodePackageBody({ root });
@@ -35,10 +33,8 @@ export async function normalizeJsnodePackageBody({ root = process.cwd(), apply =
     const identity = identitiesByName.get(manifest.name);
     let after = normalizeJsnodePackageManifest({ manifest, identity });
     after = normalizeJsnodePackageDependencies({ manifest: after, manifestPath: path, root: absoluteRoot, providersByName: identitiesByName, providersByDirectory: identitiesByDirectory });
-    const classification = classifySemioticVoxelPackage({ manifest, path });
-    const descriptor = fabricateSemioticVoxelPackageDescriptor({ manifest, identity, classification });
-    after = { ...after, "x-semiotic-voxel": descriptor };
-    return { path, before: manifest, after, identity };
+    const { "x-semiotic-voxel": voxel, "x-agentic-metro-enterprise": enterprise, ...cleaned } = after;
+    return { path, before: manifest, after: cleaned, identity };
   });
   const rowByPath = new Map(rows.map((row) => [row.path, row]));
   const sourceRewrites = [], edges = new Set();
@@ -65,8 +61,6 @@ export async function normalizeJsnodePackageBody({ root = process.cwd(), apply =
     ...manifestRewrites.map(({ path, after }) => writeFile(resolve(absoluteRoot, path), JSON.stringify(after, null, 2) + "\n", "utf8")),
     ...sourceRewrites.map(({ path, after }) => writeFile(resolve(absoluteRoot, path), after, "utf8")),
   ]);
-  const kinds = rows.map(({ after }) => after["x-semiotic-voxel"].kind);
-  const byKind = Object.fromEntries([...new Set(kinds)].sort().map((kind) => [kind, kinds.filter((value) => value === kind).length]));
   return Object.freeze({
     type: "JsnodePackageBodyNormalizationReceipt",
     version: 1,
@@ -77,7 +71,5 @@ export async function normalizeJsnodePackageBody({ root = process.cwd(), apply =
     identityAliasesKnown: replacements.length,
     consumerFilesChanged: sourceRewrites.length,
     packageContractEdgesChanged: edges.size,
-    byKind,
-    aggregateDefects: rows.filter(({ after }) => after["x-semiotic-voxel"].kind === "aggregate-capability-defect").map(({ path, after }) => ({ path, package: after.name, operations: after["x-semiotic-voxel"].operations })),
   });
 }

@@ -3,17 +3,5 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Circuit board for bounded JavaScript/Node.js software-development actuators; it owns no aggregate runtime.",
-  "exports": {
-    ".": "./src/discover-services.mjs",
-    "./discovery": "./src/discover-services.mjs"
-  },
-  "bin": {
-    "discover-javascript-services": "./scripts/discover-services.mjs"
-  },
-  "scripts": {
-    "check": "node --check src/discover-services.mjs && node --check scripts/discover-services.mjs",
-    "test": "node --test test/discover-services.test.mjs",
-    "verify": "npm run check && npm test"
-  }
+  "description": "Groups the JavaScript and Node.js software-development services. It owns no runtime of its own."
 }

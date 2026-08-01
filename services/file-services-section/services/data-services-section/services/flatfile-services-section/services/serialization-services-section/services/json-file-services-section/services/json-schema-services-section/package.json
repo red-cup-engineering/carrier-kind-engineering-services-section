@@ -35,11 +35,5 @@
     "census": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json",
     "census:verify": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json --verify",
     "verify": "npm run build && npm run check && npm test"
-  },
-  "x-agentic-metro-enterprise": {
-    "node-id": "json-schema-services-section",
-    "owners": [
-      "json-file-services-section"
-    ]
   }
 }

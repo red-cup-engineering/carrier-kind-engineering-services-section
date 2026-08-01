@@ -77,7 +77,7 @@ async function projectCarrier(source, target, manifest, rewriteManifest) {
 
 async function pack(directory, destination, manifest, rewriteManifest) {
   const working = await mkdtemp(join(destination, ".pack-"));
-  const cache = await mkdtemp(join(tmpdir(), "semiotic-voxel-npm-cache-"));
+  const cache = await mkdtemp(join(tmpdir(), "npm-registry-pack-cache-"));
   try {
     const projection = join(working, "carrier");
     await projectCarrier(directory, projection, manifest, rewriteManifest);

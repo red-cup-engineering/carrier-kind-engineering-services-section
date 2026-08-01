@@ -46,19 +46,6 @@ function stringKeys(value) {
   return Object.entries(value).map(([name, requested]) => ({ name: text(name, "dependency name"), requested: text(requested, `${name} dependency request`) }));
 }
 
-function strings(value) {
-  return Array.isArray(value) ? value.filter((item) => typeof item === "string").sort() : [];
-}
-
-function operations(manifest) {
-  const enterprise = manifest["x-agentic-metro-enterprise"];
-  const voxel = manifest["x-semiotic-voxel"];
-  return [...new Set([
-    ...strings(voxel?.operations),
-    ...Object.keys(enterprise?.["operation-catalog"] ?? {}),
-  ])].sort();
-}
-
 function observe(raw, index) {
   if (raw === null || typeof raw !== "object" || Array.isArray(raw)) throw new TypeError(`resources[${index}] must be an object`);
   const path = portablePath(raw.path);
@@ -69,8 +56,6 @@ function observe(raw, index) {
   const name = text(manifest.name, `${path}.name`), version = text(manifest.version, `${path}.version`);
   const classification = classifyResource(WORKSPACE_CATALOG, { path, content });
   if (classification.classification !== "node-package-manifest") throw new Error(`${path} did not classify as a Node package manifest`);
-  const enterprise = manifest["x-agentic-metro-enterprise"] ?? {};
-  const voxel = manifest["x-semiotic-voxel"] ?? {};
   return {
     name,
     version,
@@ -82,12 +67,6 @@ function observe(raw, index) {
     // CHL derivation spine here; duplicating every rule per package would turn
     // a compact presentation into stored bulk.
     proofPath: classification.proofPath.map(({ ordinal, type, parent, witnessed }) => ({ ordinal, type, parent, witnessed })),
-    service: {
-      actor: typeof voxel.actor === "string" ? voxel.actor : typeof enterprise.actor === "string" ? enterprise.actor : null,
-      nodeId: typeof enterprise["node-id"] === "string" ? enterprise["node-id"] : null,
-      organizationalKind: typeof enterprise["organizational-kind"] === "string" ? enterprise["organizational-kind"] : typeof voxel.kind === "string" ? voxel.kind : null,
-      operations: operations(manifest),
-    },
   };
 }
 

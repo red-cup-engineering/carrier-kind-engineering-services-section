@@ -17,20 +17,6 @@
     "test": "node --test test/*.test.mjs",
     "verify": "node --check src/category-reference-index.mjs && node --test test/*.test.mjs"
   },
-  "x-agentic-metro-enterprise": {
-    "node-id": "category-reference-index-service",
-    "actor": "urn:ame:category-reference-index-service",
-    "organizational-kind": "capability-cell",
-    "owners": [
-      "red-cup-engineering"
-    ],
-    "operation-catalog": {
-      "index-category-reference": {
-        "accepts": "one category and one immutable NI reference",
-        "returns": "one idempotent network index admission or one bounded query page"
-      }
-    }
-  },
   "dependencies": {
     "@red-cup-engineering/resource-brokerage-service-section": "2.0.3",
     "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"

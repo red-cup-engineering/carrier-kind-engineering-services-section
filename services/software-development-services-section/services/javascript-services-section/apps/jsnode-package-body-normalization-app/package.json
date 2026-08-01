@@ -23,8 +23,6 @@
     "@red-cup-engineering/jsnode-package-identity-normalization-service": "1.0.0",
     "@red-cup-engineering/jsnode-package-identity-reference-normalization-service": "1.0.0",
     "@red-cup-engineering/jsnode-package-manifest-normalization-service": "1.0.0",
-    "@red-cup-engineering/jsnode-package-owner-projection-service": "1.0.0",
-    "@red-cup-engineering/semiotic-voxel-package-classification-service": "1.0.0",
-    "@red-cup-engineering/semiotic-voxel-package-descriptor-fabrication-service": "1.0.0"
+    "@red-cup-engineering/jsnode-package-owner-projection-service": "1.0.0"
   }
 }
