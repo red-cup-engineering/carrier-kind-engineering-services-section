@@ -34,9 +34,13 @@ async function sha256OfFile(path) {
 // Walks the real filesystem under root and reports the file, symlink, and
 // directory entries it finds — deterministically sorted, digested, and with
 // no ambient exclusion policy: the caller decides what "node_modules" means.
-export async function walkPosixPaths({ root, excludes = [] } = {}) {
+// `digest: false` skips content hashing (sha256: null on file entries) so
+// large trees can be walked at directory-listing cost; the default keeps the
+// digested contract existing consumers settle against.
+export async function walkPosixPaths({ root, excludes = [], digest = true } = {}) {
   if (typeof root !== "string" || !root) throw new TypeError("root is required");
   if (!Array.isArray(excludes)) throw new TypeError("excludes must be an array");
+  if (typeof digest !== "boolean") throw new TypeError("digest must be a boolean");
   const matchers = excludes.map(segmentMatcher);
   const absoluteRoot = resolve(root);
 
@@ -63,7 +67,7 @@ export async function walkPosixPaths({ root, excludes = [] } = {}) {
         directories += 1;
         await walk(absolutePath, relativePath);
       } else if (status.isFile()) {
-        files.push({ path: relativePath, kind: "file", bytes: status.size, sha256: await sha256OfFile(absolutePath) });
+        files.push({ path: relativePath, kind: "file", bytes: status.size, sha256: digest ? await sha256OfFile(absolutePath) : null });
       }
       // Other node kinds (sockets, fifos, devices) are neither files,
       // directories, nor symlinks in this walk's terms and are skipped.

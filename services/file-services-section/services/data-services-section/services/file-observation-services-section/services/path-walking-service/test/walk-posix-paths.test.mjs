@@ -113,3 +113,18 @@ test("glob-lite exclude matches a segment prefix", async () => {
 test("root is required", async () => {
   await assert.rejects(() => walkPosixPaths({}), TypeError);
 });
+
+test("digest: false skips content hashing but keeps every other field", async () => {
+  const { root, outsideTarget } = await buildFixture();
+  try {
+    const walk = await walkPosixPaths({ root, digest: false });
+    const files = walk.files.filter((f) => f.kind === "file");
+    assert.ok(files.length > 0);
+    for (const file of files) assert.equal(file.sha256, null);
+    const digested = await walkPosixPaths({ root });
+    assert.deepEqual(walk.files.map((f) => f.path), digested.files.map((f) => f.path));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+    await rm(outsideTarget, { recursive: true, force: true });
+  }
+});
