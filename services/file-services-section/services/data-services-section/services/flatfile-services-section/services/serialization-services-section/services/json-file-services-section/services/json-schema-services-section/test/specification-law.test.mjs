@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { conformJsonSchemaServiceSpecification, REQUIREMENT_IDS, SUPPORTED_VOCABULARY } from "../lib/specification-law.mjs";
-import { formatRml, parseRml } from "@lenticule-science/rmn-semantic-conformance-die";
+import { formatRml, parseRml } from "@red-cup-engineering/rmn-semantic-conformance-die";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DESIGN = join(ROOT, "content/designs/json-schema-services-section");

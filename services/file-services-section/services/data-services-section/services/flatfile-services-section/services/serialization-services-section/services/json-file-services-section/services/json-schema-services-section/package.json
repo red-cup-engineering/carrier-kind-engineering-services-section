@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@red-cup-engineering/json-file-codec-service": "0.1.2",
-    "@lenticule-science/rmn-semantic-conformance-die": "6.0.1"
+    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
