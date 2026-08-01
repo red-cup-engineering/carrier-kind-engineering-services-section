@@ -6,10 +6,11 @@
   "description": "Sovereign die that assays and seals one protected software-acceptance capsule.",
   "exports": {
     ".": "./src/client.mjs",
-    "./client": "./src/client.mjs"
+    "./client": "./src/client.mjs",
+    "./acceptance-capsule": "./src/acceptance-capsule.mjs"
   },
   "scripts": {
-    "check": "node --check src/acceptance-capsule.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check bin/execute-a2a-task.mjs && node --check bin/server.mjs",
+    "check": "node --check src/acceptance-capsule.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

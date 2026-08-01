@@ -16,7 +16,8 @@
     "./carrier-refinement": "./src/carrier-refinement.mjs",
     "./relational-value": "./src/relational-value.mjs",
     "./test-provider": "./src/test-provider.mjs",
-    "./src/hierarchical-circuit.mjs": "./src/hierarchical-circuit.mjs"
+    "./src/hierarchical-circuit.mjs": "./src/hierarchical-circuit.mjs",
+    "./package.json": "./package.json"
   },
   "dependencies": {
     "@a2a-js/sdk": "1.0.0-beta.0",
