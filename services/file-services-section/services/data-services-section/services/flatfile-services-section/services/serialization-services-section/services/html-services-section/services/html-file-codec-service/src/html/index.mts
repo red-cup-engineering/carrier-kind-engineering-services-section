@@ -664,10 +664,11 @@ export const rfc7992Profile: Profile = Object.freeze({
   lint,
 });
 
-/* ── carrier / render-fiber engine + CSS cascade (re-exported) ───────────
- * Moved out to @red-cup-engineering/css-cascade-service (the CSS cascade
- * closure and certification) and @red-cup-engineering/html-render-fiber-service
- * (the carrier + render-fiber engine, which depends on css-cascade-service by
+/* ── carrier / document-render engine + CSS style resolution (re-exported) ─
+ * Moved out to @red-cup-engineering/css-style-resolution-service (the CSS
+ * cascade closure and certification) and
+ * @red-cup-engineering/html-document-render-service (the carrier +
+ * document-render engine, which depends on css-style-resolution-service by
  * package name), each re-exported here unchanged so this package's export
  * surface stays identical. The SHP codec, lint, and escaping below stay here.
  */
@@ -682,11 +683,11 @@ export {
   type CssClassFactorMapWitness,
   type CssClassFactorMapObstruction,
   type CssClassFactorMapJudgment,
-  cssVisualValuation,
-  css_settles_to_valuation,
-  css_classes_are_factor_maps,
-  cssTextFromVisualValuation,
-} from "@red-cup-engineering/css-cascade-service";
+  resolveNodeStyles,
+  checkStyleResolutionSettled,
+  checkClassMapsValid,
+  cssTextFromResolvedStyles,
+} from "@red-cup-engineering/css-style-resolution-service";
 
 export {
   type HtmlCarrierNode,
@@ -697,15 +698,15 @@ export {
   type StyleBehavior,
   type PreservationLaw,
   type RenderProfile,
-  type RenderFiber,
-  type RenderFiberWitness,
-  type RenderFiberObstruction,
-  type RenderFiberJudgment,
-  profile_forms_render_fiber,
-  type HtmlFiberDocumentOptions,
-  type HtmlFiberDocument,
-  renderHtmlFiber,
-} from "@red-cup-engineering/html-render-fiber-service";
+  type RenderDocumentPlan,
+  type RenderDocumentPlanWitness,
+  type RenderDocumentPlanObstruction,
+  type RenderDocumentPlanJudgment,
+  buildHtmlDocumentPlan,
+  type HtmlDocumentPlanOptions,
+  type HtmlDocumentPlan,
+  renderHtmlDocument,
+} from "@red-cup-engineering/html-document-render-service";
 
 
 /** The html codec as a holography projector over `ChargedCell`. */

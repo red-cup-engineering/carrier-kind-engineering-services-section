@@ -114,7 +114,7 @@ test("carries trusted codec fragments and document chrome through a render fiber
     valuationSites: Object.freeze([{ kind: "settledDocument.valuationSite", address: "root", value: "potential", meme: {} }]),
   });
   assert.equal(typeof source.html_is_carrier_not_document, "function");
-  const { htmlCarrierOf, profile_forms_render_fiber, renderHtmlFiber } = await import("../dist/html/index.mjs");
+  const { htmlCarrierOf, buildHtmlDocumentPlan, renderHtmlDocument: renderHtmlDocumentFromPlan } = await import("../dist/html/index.mjs");
   const carrier = htmlCarrierOf(document, [{
     kind: "rendering.htmlCarrier.node",
     nodeId: "root",
@@ -133,9 +133,9 @@ test("carries trusted codec fragments and document chrome through a render fiber
     preservationLaws: ["preserve-addresses", "preserve-order", "preserve-references", "preserve-valuation-sites", "carrier-not-document", "css-settles"],
   };
   const system = { kind: "rendering.css.system", carrier, completionRegime: "ordinal.closure.regime.finite", declarations: [] };
-  const fiber = profile_forms_render_fiber(profile, carrier, system, "static");
+  const fiber = buildHtmlDocumentPlan(profile, carrier, system, "static");
   assert.equal(fiber.kind, "rendering.profile_forms_render_fiber:witness");
-  const rendered = renderHtmlFiber(fiber, {
+  const rendered = renderHtmlDocumentFromPlan(fiber, {
     head: ['<meta name="fixture" content="yes">'],
     bodyAttributes: { class: "fixture", hidden: "" },
   }).html;
