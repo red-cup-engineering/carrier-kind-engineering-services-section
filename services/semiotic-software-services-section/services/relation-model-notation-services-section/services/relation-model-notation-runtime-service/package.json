@@ -1,0 +1,39 @@
+{
+  "name": "@red-cup-engineering/relation-model-notation-runtime",
+  "version": "8.0.0",
+  "description": "The Relation Model Notation native runtime: deterministic parsing, typing, normalization, RFC 8949 canonical CBOR, RFC 6920 content addressing, FOUR, WIT, and finite circuit residues.",
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "LICENSE",
+    "src/",
+    "types/",
+    "content/profiles/",
+    "content/vectors/"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/rmn-core.mjs"
+    },
+    "./canonical-cbor": "./src/canonical-cbor.mjs",
+    "./conformance": "./src/conformance.mjs",
+    "./four": "./src/four.mjs",
+    "./hierarchical-circuit": {
+      "types": "./types/hierarchical-circuit.d.mts",
+      "import": "./src/hierarchical-circuit.mjs"
+    },
+    "./circuit-residue": "./src/circuit-residue.mjs",
+    "./carrier-refinement": "./src/carrier-refinement.mjs",
+    "./relational-value": "./src/relational-value.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
