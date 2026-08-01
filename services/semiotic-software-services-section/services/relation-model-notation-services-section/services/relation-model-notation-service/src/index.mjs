@@ -198,14 +198,31 @@ export const tm = {
   ),
   /** Prepend one element to an array term's spine — O(1), no `fold`: just a `pair` in
    *  front of the existing spine, reusing `array`'s OWN tag (`fst`) rather than a
-   *  freshly hardcoded mark. This and `reverseArray` are the ONLY array-combination
-   *  primitives this kernel has — there is no general two-arbitrary-list concatenation
-   *  (`append`). */
+   *  freshly hardcoded mark. This and `reverseArray` are the two array-combination
+   *  primitives this kernel has; `append` (below) is not a third — there is no general
+   *  two-arbitrary-list concatenation law in Obsmetrologia's proven math for it to
+   *  answer to, so it is only ever the call-site composition of these two. */
   consArray: (elem, array) => tm.pair(tm.fst(array), tm.pair(elem, tm.snd(array))),
   /** Reverse an array term — the one real `fold` either of these needs. */
   reverseArray: (array) => tm.pair(
     tm.fst(array),
     tm.fold(tm.lam(tm.lam(tm.pair(tm.var(0), tm.var(1)))), tm.star(), array),
+  ),
+  /**
+   * Concatenate two array terms, `left` then `right` in order — not a third kernel
+   * primitive with its own `fold` shape (metroplat's own kernel comment: no
+   * `Cell`/`Valuation`/`Charge`/`Articulating` law anywhere concatenates two lists,
+   * so there is nothing for a dedicated opcode to be sound against), but exactly the
+   * call-site composition its comment prescribes: `reverseArray(left)` once, then a
+   * single `fold` that `consArray`s each of its elements onto `right`. Reversed-left
+   * yields left's elements last-to-first, so consing them onto `right` in that order
+   * rebuilds left's original order in front of right; the result carries `right`'s
+   * tag, since `right` is the accumulator being grown.
+   */
+  append: (left, right) => tm.fold(
+    tm.lam(tm.lam(tm.consArray(tm.var(0), tm.var(1)))),
+    right,
+    tm.reverseArray(left),
   ),
   coincide: (left, right) => Object.freeze(["coincide", left, right]),
   /** The `eq`/`cond` elementary pair (McCarthy): dispatch by comparing an opaque mark. */

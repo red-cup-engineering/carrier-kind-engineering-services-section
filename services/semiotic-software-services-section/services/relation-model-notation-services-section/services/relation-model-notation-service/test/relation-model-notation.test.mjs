@@ -323,3 +323,104 @@ test("field compiles to a fold over an assoc-list spine, closed and schema-valid
   assert.equal(isTerm(compiled), true);
   assert.equal(validateAgainst(TmSchema, TmSchema, compiled), true);
 });
+
+// ── tm.append — golden-vectored against a small test-only reducer ──────────
+//
+// `append` is a `fold`/`consArray`/`reverseArray` composition, not a new
+// primitive, so verifying it structurally (as the `consArray` test above
+// does) only confirms it built A term — not that the term REDUCES to the
+// concatenation. To check that honestly we need to actually reduce it. The
+// reducer below extends the file's `reduceClosedTree` pattern to the wider
+// vocabulary array operations use (var/lam/app/pair/fst/snd/star/mark/fold);
+// its `fold` case mirrors metroplat's real reduction rule exactly (see
+// `eval/index.mts`'s `dev`/`normalize` and `reader/projecting/index.mts`'s
+// `arrayHeadTail`): `fold`'s third argument must reduce to a TAGGED
+// pair-spine term `pair(mark(tag), spine)`, one spine cell is peeled off per
+// step, and the tag is re-wrapped around the remaining spine for the
+// recursive tail — a bare, untagged spine is not fold-able. This reducer
+// lives only in this test file; it is a verification tool, not part of the
+// shipped notation.
+function reduceArrayTerm(term) {
+  switch (term[0]) {
+    case "star":
+      return tm.star();
+    case "mark":
+      return tm.mark(term[1]);
+    case "lam":
+      return term; // a function is already a value; this reducer never opens binders it doesn't apply
+    case "pair":
+      return tm.pair(reduceArrayTerm(term[1]), reduceArrayTerm(term[2]));
+    case "fst": {
+      const value = reduceArrayTerm(term[1]);
+      if (value[0] !== "pair") throw new Error(`reduceArrayTerm: fst of a non-pair: ${JSON.stringify(value)}`);
+      return value[1];
+    }
+    case "snd": {
+      const value = reduceArrayTerm(term[1]);
+      if (value[0] !== "pair") throw new Error(`reduceArrayTerm: snd of a non-pair: ${JSON.stringify(value)}`);
+      return value[2];
+    }
+    case "app": {
+      const fn = reduceArrayTerm(term[1]);
+      if (fn[0] !== "lam") throw new Error(`reduceArrayTerm: applying a non-lam: ${JSON.stringify(fn)}`);
+      return reduceArrayTerm(inst(fn[1], reduceArrayTerm(term[2])));
+    }
+    case "fold": {
+      const combine = term[1];
+      const init = reduceArrayTerm(term[2]);
+      const list = reduceArrayTerm(term[3]);
+      if (list[0] !== "pair" || list[1][0] !== "mark") {
+        throw new Error(`reduceArrayTerm: fold's list did not reduce to a tagged pair-spine: ${JSON.stringify(list)}`);
+      }
+      const tag = list[1];
+      const spine = list[2];
+      if (spine[0] === "star") return init;
+      if (spine[0] !== "pair") throw new Error(`reduceArrayTerm: malformed spine cell: ${JSON.stringify(spine)}`);
+      const head = spine[1];
+      const tail = tm.pair(tag, spine[2]);
+      const nextInit = reduceArrayTerm(tm.app(tm.app(combine, init), head));
+      return reduceArrayTerm(tm.fold(combine, nextInit, tail));
+    }
+    default:
+      throw new Error(`reduceArrayTerm: unsupported subterm tag in test reducer: ${term[0]}`);
+  }
+}
+
+/** Build a tagged array term, matching `tm.pair(tm.mark(tag), spine)`'s convention. */
+function arrayOf(tag, elements) {
+  return tm.pair(tm.mark(tag), elements.reduceRight((tail, elem) => tm.pair(elem, tail), tm.star()));
+}
+
+test("reverseArray reduces a 2-element array to its reverse, tag preserved (golden-vectored)", () => {
+  const array = arrayOf("t", [tm.mark("e0"), tm.mark("e1")]);
+  const reduced = reduceArrayTerm(tm.reverseArray(array));
+  assert.deepEqual(reduced, arrayOf("t", [tm.mark("e1"), tm.mark("e0")]));
+});
+
+test("tm.append produces a closed, schema-valid fold term before reduction", () => {
+  const left = arrayOf("left-tag", [tm.mark("a"), tm.mark("b")]);
+  const right = arrayOf("right-tag", [tm.mark("c"), tm.mark("d")]);
+  const appended = tm.append(left, right);
+  assert.equal(appended[0], "fold");
+  assert.equal(isTerm(appended), true);
+  assert.equal(validateAgainst(TmSchema, TmSchema, appended), true);
+});
+
+test("tm.append reduces two concrete arrays into their concatenation, left elements before right, right's tag wins (golden-vectored)", () => {
+  const left = arrayOf("left-tag", [tm.mark("a"), tm.mark("b")]);
+  const right = arrayOf("right-tag", [tm.mark("c"), tm.mark("d")]);
+  const reduced = reduceArrayTerm(tm.append(left, right));
+  assert.deepEqual(reduced, arrayOf("right-tag", [tm.mark("a"), tm.mark("b"), tm.mark("c"), tm.mark("d")]));
+});
+
+test("tm.append is a left/right identity: appending the empty array leaves the other side's elements and order unchanged", () => {
+  const left = arrayOf("left-tag", [tm.mark("a"), tm.mark("b")]);
+  const right = arrayOf("right-tag", [tm.mark("c"), tm.mark("d")]);
+  const empty = arrayOf("empty-tag", []);
+
+  const leftThenEmpty = reduceArrayTerm(tm.append(left, empty));
+  assert.deepEqual(leftThenEmpty, arrayOf("empty-tag", [tm.mark("a"), tm.mark("b")]));
+
+  const emptyThenRight = reduceArrayTerm(tm.append(empty, right));
+  assert.deepEqual(emptyThenRight, right);
+});
