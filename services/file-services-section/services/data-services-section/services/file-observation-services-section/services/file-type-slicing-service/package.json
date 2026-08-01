@@ -6,10 +6,10 @@
   "description": "Groups a PosixPathWalk's file list into counts and byte totals per lowercased extension, with no filesystem access. Use after a walk to see the shape of a tree before graphing it.",
   "exports": "./src/slice-files-by-type.mjs",
   "bin": {
-    "slice-files-by-type": "./bin/slice-files-by-type.mjs"
+    "slice-files-by-type": "./scripts/slice-files-by-type.mjs"
   },
   "scripts": {
-    "check": "node --check src/slice-files-by-type.mjs && node --check bin/slice-files-by-type.mjs",
+    "check": "node --check src/slice-files-by-type.mjs && node --check scripts/slice-files-by-type.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

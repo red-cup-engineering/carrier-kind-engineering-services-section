@@ -6,10 +6,10 @@
   "description": "Walks the real filesystem under one explicit root and reports the files, symlinks, and directories it finds, digested and deterministically sorted. Use to read a working-tree chart off disk before slicing or graphing it.",
   "exports": "./src/walk-posix-paths.mjs",
   "bin": {
-    "walk-posix-paths": "./bin/walk-posix-paths.mjs"
+    "walk-posix-paths": "./scripts/walk-posix-paths.mjs"
   },
   "scripts": {
-    "check": "node --check src/walk-posix-paths.mjs && node --check bin/walk-posix-paths.mjs",
+    "check": "node --check src/walk-posix-paths.mjs && node --check scripts/walk-posix-paths.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

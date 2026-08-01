@@ -5,7 +5,7 @@ import {
   normalizeSemanticLinefeeds,
   semanticLinefeedNormalization,
 } from "../src/normalize-semantic-linefeeds.mjs";
-import { createSemanticLinefeedServer } from "../bin/server.mjs";
+import { createSemanticLinefeedServer } from "../scripts/server.mjs";
 
 test("unwraps arbitrary columns and emits one sentence per line", () => {
   assert.equal(
@@ -58,7 +58,7 @@ test("returns the actor result and refuses non-string input", () => {
 });
 
 test("CLI is the same implementation", () => {
-  const result = spawnSync(process.execPath, ["bin/semantic-linefeed-normalize.mjs"], {
+  const result = spawnSync(process.execPath, ["scripts/semantic-linefeed-normalize.mjs"], {
     cwd: new URL("..", import.meta.url), input: "One wraps\nhere. Two.\n", encoding: "utf8",
   });
   assert.equal(result.status, 0, result.stderr);

@@ -12,11 +12,11 @@
     }
   },
   "bin": {
-    "semantic-linefeed-normalize": "./bin/semantic-linefeed-normalize.mjs",
-    "semantic-linefeed-normalization-service": "./bin/server.mjs"
+    "semantic-linefeed-normalize": "./scripts/semantic-linefeed-normalize.mjs",
+    "semantic-linefeed-normalization-service": "./scripts/server.mjs"
   },
   "files": [
-    "bin/",
+    "scripts/",
     "content/",
     "src/",
     "types/",
