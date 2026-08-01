@@ -5,22 +5,7 @@
 // test/service-contracts.test.mjs.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ACTOR, CONTRACT, run } from "../src/cryptographic-services.mjs";
-import { CRYPTOGRAPHIC_SERVICES_LAW } from "../src/law.mjs";
-
-test("every advertised operation resolves to the seated contract", () => {
-  assert.equal(CONTRACT, "ni:///sha-256;9Rosqk_puV3ino26o7QdYipnrC9P5rPMnBQLR7FvI5U");
-  assert.equal(CONTRACT, CRYPTOGRAPHIC_SERVICES_LAW.id);
-  assert.ok(CRYPTOGRAPHIC_SERVICES_LAW.bytes instanceof Uint8Array);
-});
-
-test("the contract keeps its no-secret, no-broadcast, deterministic promises", () => {
-  const c = CRYPTOGRAPHIC_SERVICES_LAW.value;
-  assert.match(c.precondition, /private key remains under caller custody/u);
-  assert.match(c.operation, /pure local operation/u);
-  assert.match(c.postcondition, /no network access, broadcast, value movement, secret retention/u);
-  assert.match(c.refusal, /retain secret material/u);
-});
+import { ACTOR, run } from "../src/cryptographic-services.mjs";
 
 test("the ActivityStreams face offers and executes one capability-bound pure derivation", () => {
   const solicitation = {
@@ -29,7 +14,7 @@ test("the ActivityStreams face offers and executes one capability-bound pure der
     type: "Offer",
     actor: "urn:ame:test-consumer",
     target: ACTOR,
-    object: { type: "ServiceSolicitation", contract: CONTRACT, operation: "keccak256" },
+    object: { type: "ServiceSolicitation", operation: "keccak256" },
   };
   const offer = run(solicitation, "solicit-service");
   assert.equal(offer.type, "Offer");
@@ -44,7 +29,6 @@ test("the ActivityStreams face offers and executes one capability-bound pure der
     target: ACTOR,
     object: {
       type: "ServiceContract",
-      contract: CONTRACT,
       offer,
       capability: { type: "Capability", holder: ACTOR, invocationTarget: ACTOR, parentOffer: offer.id, capTP: { target: ACTOR, method: "invoke-service" }, allowedActions: ["invoke-service"] },
       request: { operation: "keccak256", message: "hello" },
@@ -62,7 +46,7 @@ test("solicitation refuses operation inputs so private keys cannot enter an offe
     type: "Offer",
     actor: "urn:ame:test-consumer",
     target: ACTOR,
-    object: { type: "ServiceSolicitation", contract: CONTRACT, operation: "derive-address", privateKey: "forbidden" },
+    object: { type: "ServiceSolicitation", operation: "derive-address", privateKey: "forbidden" },
   }, "solicit-service");
   assert.equal(result.type, "Reject");
   assert.equal(result.object.reason, "operation-inputs-are-forbidden-in-solicitation");

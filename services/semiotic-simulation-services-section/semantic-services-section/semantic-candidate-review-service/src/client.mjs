@@ -4,7 +4,6 @@ import { a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-c
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION, circuitInterfaceFromAgentCard } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
-import { SEMANTIC_CANDIDATE_REVIEW_LAW } from "./law.mjs";
 import { decodeReviewReceipt, encodeReviewRequest } from "./protocol.mjs";
 
 const parts = a2aResultParts;
@@ -21,7 +20,7 @@ export async function requestSemanticCandidateReview({ agentUrl, manifest, candi
   const output = extractRmnPart(parts(exchange.result)), response = decodeSemantic(output.bytes);
   if (!semanticBytes(response).equals(output.bytes) || response?.[0] !== "ascribe" || response.length !== 3) throw new Error("semantic reviewer returned noncanonical RMN");
   const receipt = decodeReviewReceipt(response[1], response[2]), provider = circuitInterfaceFromAgentCard(exchange.agentCard);
-  if (provider.component.law !== SEMANTIC_CANDIDATE_REVIEW_LAW.id || receipt.provider !== provider.account) throw new Error("semantic review receipt does not belong to the signed contracted face");
+  if (receipt.provider !== provider.account) throw new Error("semantic review receipt does not belong to the signed contracted face");
   if (receipt.subject !== requestNi) throw new Error("semantic review receipt does not bind the exact review subject");
   return { receipt, review: receipt.review, receiptNi: semanticId(response), exchange };
 }

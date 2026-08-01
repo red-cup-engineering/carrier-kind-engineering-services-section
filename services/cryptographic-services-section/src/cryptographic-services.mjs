@@ -9,11 +9,9 @@ import {
 } from "./evm.mjs";
 import { sha256 } from "./hash.mjs";
 import { keccak256 } from "./keccak256.mjs";
-import { CRYPTOGRAPHIC_SERVICES_LAW } from "./law.mjs";
 
 const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const ACTOR = "urn:ame:cryptographic-services-section";
-const CONTRACT = CRYPTOGRAPHIC_SERVICES_LAW.id;
 
 const OPERATIONS = Object.freeze({
   "generate-account": { input: "{}", returns: "{ address, privateKey }", note: "caller takes custody; not recorded" },
@@ -38,7 +36,6 @@ const OFFER = Object.freeze({
   actor: ACTOR,
   object: {
     type: "ExecutableServiceOffer",
-    contract: CONTRACT,
     consideration: { amount: 1, unit: "cryptographic-operation-credit" },
     operations: OPERATIONS,
     settles: ["evm", "x402"],
@@ -62,12 +59,12 @@ function invoke(op, req) {
 }
 
 function reject(source, reason) {
-  const response = { "@context": CONTEXT, type: "Reject", actor: ACTOR, target: source?.actor ?? null, inReplyTo: source?.id ?? null, object: { type: "Refusal", contract: CONTRACT, reason } };
+  const response = { "@context": CONTEXT, type: "Reject", actor: ACTOR, target: source?.actor ?? null, inReplyTo: source?.id ?? null, object: { type: "Refusal", reason } };
   return { ...response, id: activityId(response) };
 }
 
 function solicitationProblem(activity) {
-  if (activity?.["@context"] !== CONTEXT || activity.type !== "Offer" || activity.target !== ACTOR || activity.object?.type !== "ServiceSolicitation" || activity.object.contract !== CONTRACT) return "solicitation-must-be-addressed-activitystreams-offer";
+  if (activity?.["@context"] !== CONTEXT || activity.type !== "Offer" || activity.target !== ACTOR || activity.object?.type !== "ServiceSolicitation") return "solicitation-must-be-addressed-activitystreams-offer";
   if (typeof activity.actor !== "string" || !activity.actor || typeof activity.id !== "string" || !activity.id) return "solicitation-must-name-actor-and-id";
   if (!Object.hasOwn(OPERATIONS, activity.object.operation)) return "unknown-operation";
   if (Object.hasOwn(activity.object, "request") || Object.hasOwn(activity.object, "privateKey")) return "operation-inputs-are-forbidden-in-solicitation";
@@ -82,8 +79,8 @@ function offerFor(activity) {
 
 function invocationProblem(activity) {
   const object = activity?.object, offer = object?.offer, capability = object?.capability;
-  if (activity?.["@context"] !== CONTEXT || activity.type !== "Accept" || activity.target !== ACTOR || object?.type !== "ServiceContract" || object.contract !== CONTRACT) return "invocation-must-be-addressed-activitystreams-accept";
-  if (offer?.type !== "Offer" || offer.actor !== ACTOR || offer.target !== activity.actor || offer.object?.contract !== CONTRACT || offer.object?.operation !== object.request?.operation) return "invocation-offer-does-not-bind-requested-operation";
+  if (activity?.["@context"] !== CONTEXT || activity.type !== "Accept" || activity.target !== ACTOR || object?.type !== "ServiceContract") return "invocation-must-be-addressed-activitystreams-accept";
+  if (offer?.type !== "Offer" || offer.actor !== ACTOR || offer.target !== activity.actor || offer.object?.operation !== object.request?.operation) return "invocation-offer-does-not-bind-requested-operation";
   if (capability?.type !== "Capability" || capability.holder !== ACTOR || capability.invocationTarget !== ACTOR || capability.parentOffer !== offer.id || capability.capTP?.target !== ACTOR || capability.capTP?.method !== "invoke-service") return "capability-is-not-attenuated-to-provider-offer";
   if (!Array.isArray(capability.allowedActions) || canonical(capability.allowedActions) !== canonical(["invoke-service"])) return "capability-allows-more-than-pure-invocation";
   if (!Object.hasOwn(OPERATIONS, object.request?.operation)) return "unknown-operation";
@@ -100,7 +97,7 @@ export function run(activity, operation = "invoke-service") {
   if (problem) return reject(activity, problem);
   const result = invoke(activity.object.request.operation, activity.object.request);
   if (result?.type === "Refusal") return reject(activity, result.reason);
-  const response = { "@context": CONTEXT, type: "Accept", actor: ACTOR, target: activity.actor, inReplyTo: activity.id, object: { type: "CryptographicResult", contract: CONTRACT, operation: activity.object.request.operation, result } };
+  const response = { "@context": CONTEXT, type: "Accept", actor: ACTOR, target: activity.actor, inReplyTo: activity.id, object: { type: "CryptographicResult", operation: activity.object.request.operation, result } };
   return { ...response, id: activityId(response) };
 }
 
@@ -116,4 +113,4 @@ if (process.argv[1] && resolve(process.argv[1]) === new URL(import.meta.url).pat
   if (result.type === "Reject") process.exitCode = 2;
 }
 
-export { ACTOR, CONTRACT, OPERATIONS, digest };
+export { ACTOR, OPERATIONS, digest };

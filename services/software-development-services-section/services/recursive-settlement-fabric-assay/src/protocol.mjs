@@ -22,9 +22,9 @@ export function decodeFabricAssayRequest(type, term) {
   return value;
 }
 
-export function encodeFabricAssayReceipt({ provider, law, request, assay }) {
-  if (typeof provider !== "string" || !provider.startsWith("eip155:") || typeof law !== "string" || !law.startsWith("ni:///sha-256;") || typeof request !== "string" || !request.startsWith("ni:///sha-256;")) throw new TypeError("fabric assay receipt identity is malformed");
-  return typed({ kind: FABRIC_ASSAY_RECEIPT_KIND, provider, law, request, assay });
+export function encodeFabricAssayReceipt({ provider, request, assay }) {
+  if (typeof provider !== "string" || !provider.startsWith("eip155:") || typeof request !== "string" || !request.startsWith("ni:///sha-256;")) throw new TypeError("fabric assay receipt identity is malformed");
+  return typed({ kind: FABRIC_ASSAY_RECEIPT_KIND, provider, request, assay });
 }
 
 export function authorizeFabricTerritory(territoryRoot, allowedRoots) {

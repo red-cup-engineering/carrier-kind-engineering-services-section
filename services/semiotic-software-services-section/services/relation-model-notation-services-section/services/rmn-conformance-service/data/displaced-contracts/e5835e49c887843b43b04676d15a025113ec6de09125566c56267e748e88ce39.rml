@@ -1,8 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "RmnHierarchicalCircuitEquivalenceLaw")
-  ("version" 2)
-  ("precondition" "A customer submits one normalized placement-neutral root circuit, a finite set of explicitly disclosed reusable child circuit definitions identified by deterministic RMN ni URIs, and one exact sovereign assembly placing every recursive occurrence, through the contracted A2A RMN-CBOR boundary.")
-  ("operation" "Validate exact circuit and assembly shapes; reject accounts or membranes embedded in a component definition or instance; validate typed pin directions and routing, tensor/par legality, complete bounded FOUR behavior, knowledge monotonicity, child identity, acyclic recursive containment, exact assembly root identity, one membrane per contextual occurrence with no gaps or extras, least-fixed-point composition, and equality of every declared behavior with Beh(Synth(D)).")
-  ("postcondition" "Return a canonical typed RMN receipt identifying the root design, sovereign assembly, composed behavior, and distinct reusable child identities with equivalent true, without retaining or publishing any child interior.")
-  ("refusal" "Refuse an unknown or legacy field; scale label; embedded membrane or instance account; malformed or incomplete pinout; uncontracted child; component or assembly identity drift; duplicate component definition; missing, duplicate, or unknown occurrence placement; type or mode mismatch; tensor consensus leak; unsettled par net; incomplete or nonmonotone behavior; containment cycle; nonconvergence; or synthesis-equivalence failure."))

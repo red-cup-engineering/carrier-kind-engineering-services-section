@@ -8,7 +8,6 @@ import { getAddress } from "ethers";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { queryWitnessJournalDocumentsByCategory, recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
-import { PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT } from "./public-wallet-observation-law.mjs";
 import { PUBLIC_EVM_LEDGER_PROFILE, observePublicEvmLedger } from "./public-evm-ledger.mjs";
 
 const CONTEXT = "https://www.w3.org/ns/activitystreams";
@@ -95,7 +94,7 @@ export async function observePublicWallet(request, at = new Date().toISOString()
   if (request?.scope === "public-evm-ledger") {
     const ledger = await observePublicEvmLedger({ profile: PUBLIC_EVM_LEDGER_PROFILE,
       accounts: request.accounts, sources: request.sources }, io);
-    return identify({ type: "PublicEvmLedgerObservation", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
+    return identify({ type: "PublicEvmLedgerObservation",
       scope: request.scope, intendedUse: request.intendedUse, observedAt: at, ledger,
       credentialAccess: false, signerMaterialAccepted: false, transactionAssembly: false, chainMutation: false,
       limits: ["public-indexes-are-discovery-only", "snapshot-blocks-may-differ-by-account",
@@ -115,7 +114,7 @@ export async function observePublicWallet(request, at = new Date().toISOString()
   if (fulfilled === 0) throw new Error("all public observation sources are unavailable");
   const positions = byId.get("gmx-positions")?.value; const orders = byId.get("gmx-orders")?.value;
   const staking = byId.get("gmx-staking-power")?.value ?? {}; const balanceView = normalizeBalances(byId.get("arbitrum-blockscout")?.value);
-  return identify({ type: "PublicEvmWalletObservation", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
+  return identify({ type: "PublicEvmWalletObservation",
     account: account.caip10, scope: request.scope, completeness: fulfilled === SOURCE_IDS.length ? "complete" : "partial",
     observedAt: at, sources: sources.map(({ value: _value, ...source }) => source).sort((a, b) => a.id.localeCompare(b.id)),
     positions: { openCount: Array.isArray(positions) ? positions.length : null, evidenceClass: "official-gmx-api" },
@@ -135,17 +134,16 @@ export async function observePublicWallet(request, at = new Date().toISOString()
 
 function response(type, source, object, at) {
   return identify({ "@context": CONTEXT, type, actor: ACTOR, target: source?.actor ?? null, inReplyTo: source?.id ?? null,
-    law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, object, published: at });
+    object, published: at });
 }
 async function reject(root, source, reason, at, env, evidence) {
-  const value = response("Reject", source, { type: "PublicEvmWalletObservationRefusal", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
+  const value = response("Reject", source, { type: "PublicEvmWalletObservationRefusal",
     reason, prohibitedEffectsPerformed: false, credentialAccess: false, signerMaterialAccepted: false,
     transactionAssembly: false, chainMutation: false, customerMutation: false }, at);
   await append(root, "ethereum-services.public-wallet-observation-refusal", value, at, env, evidence); return value;
 }
 function solicitationProblem(activity) {
   if (activity?.["@context"] !== CONTEXT || activity.type !== "Offer" || activity.target !== ACTOR || activity.object?.type !== "ServiceSolicitation") return "solicitation must be an ActivityStreams Offer<ServiceSolicitation> addressed to the provider";
-  if (activity.object.contract !== PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT) return "solicitation must name the exact normalized RMN law";
   const request = activity.object.request; const keys = Object.keys(request ?? {}).sort().join(",");
   if (request?.scope === "public-evm-ledger") {
     if (keys !== "accounts,intendedUse,scope,sources" || typeof request.intendedUse !== "string" || request.intendedUse.length === 0
@@ -163,9 +161,9 @@ async function solicit(root, activity, at, env, observer, evidence) {
   let observation; try { observation = await observer(activity.object.request, at); }
   catch (error) { return reject(root, activity, error.message === "all public observation sources are unavailable" ? error.message : "public observation failed closed", at, env, evidence); }
   await append(root, OBSERVATION_CATEGORY, observation, at, env, evidence);
-  const terms = { type: "UnpricedServiceTerms", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, assetPaymentRequired: false,
+  const terms = { type: "UnpricedServiceTerms", assetPaymentRequired: false,
     legalAcceptancePerformed: false, transactionAuthorityGranted: false, credentialAccessGranted: false };
-  const object = { type: "ExecutableServiceOffer", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, request: activity.object.request,
+  const object = { type: "ExecutableServiceOffer", request: activity.object.request,
     requestDigest: digest(activity.object.request), sourceObservationDigest: observation.id, terms, termsDigest: digest(terms),
     operation: "invoke-service", effects: EFFECTS };
   const offer = response("Offer", activity, object, at); await append(root, "ethereum-services.public-wallet-observation-offer", offer, at, env, evidence); return offer;
@@ -176,7 +174,7 @@ async function sourceObservation(root, id, evidence) {
 async function invocationProblem(activity, root, evidence) {
   if (activity?.["@context"] !== CONTEXT || activity.type !== "Accept" || activity.target !== ACTOR) return "invocation must be an ActivityStreams Accept addressed to the provider";
   const contract = activity.object; const offer = contract?.offer; const capability = contract?.capability; const actions = capability?.allowedActions ?? [];
-  if (contract?.type !== "ServiceContract" || contract.law !== PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT || offer?.actor !== ACTOR || !contentValid(offer)) return "invocation must accept the exact provider-authored offer and law";
+  if (contract?.type !== "ServiceContract" || offer?.actor !== ACTOR || !contentValid(offer)) return "invocation must accept the exact provider-authored offer";
   if (offer.object?.requestDigest !== digest(offer.object?.request) || offer.object?.termsDigest !== digest(offer.object?.terms) || contract.termsAcceptance?.termDigest !== offer.object.termsDigest) return "accepted request or terms changed";
   if (!await sourceObservation(root, offer.object.sourceObservationDigest, evidence)) return "offered source observation is unavailable from provider evidence";
   if (capability?.holder !== ACTOR || capability.invocationTarget !== ACTOR || capability.parentOffer !== offer.id || capability.attenuation?.sourceObservationDigest !== offer.object.sourceObservationDigest || capability.capTP?.method !== "invoke-service") return "capability is not bound to the provider's exact observation";
@@ -187,13 +185,13 @@ async function invoke(root, activity, at, env, evidence) {
   const invalid = await invocationProblem(activity, root, evidence); if (invalid) return reject(root, activity, invalid, at, env, evidence);
   const offer = activity.object.offer; const observation = await sourceObservation(root, offer.object.sourceObservationDigest, evidence); const started = performance.now();
   const resources = { type: "TypedResourceVector", computeSeconds: null, wallTimeSeconds: Number(((performance.now() - started) / 1000).toFixed(6)), assetAmount: null, gas: null };
-  const exchange = identify({ type: "PublicEvmWalletObservationExchange", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
+  const exchange = identify({ type: "PublicEvmWalletObservationExchange",
     request: offer.object.request, outcome: "completion", observation, resources, recordedAt: at,
     credentialAccess: false, signerMaterialAccepted: false, transactionAssembly: false, chainMutation: false, customerMutation: false });
-  const receipt = identify({ type: "ServicePerformanceReceipt", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
+  const receipt = identify({ type: "ServicePerformanceReceipt",
     provider: ACTOR, customer: activity.actor, offer: offer.id, invocation: activity.id, fulfillment: exchange.id,
     outcome: exchange.outcome, recordedAt: at, assetSettlementClaimed: false });
-  const result = response("Accept", activity, { type: "PublicEvmWalletObservationResult", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
+  const result = response("Accept", activity, { type: "PublicEvmWalletObservationResult",
     exchange, receipt, customerMutation: false }, at);
   await append(root, "ethereum-services.public-wallet-observation-exchange", exchange, at, env, evidence);
   await append(root, "ethereum-services.public-wallet-observation-receipt", receipt, at, env, evidence);

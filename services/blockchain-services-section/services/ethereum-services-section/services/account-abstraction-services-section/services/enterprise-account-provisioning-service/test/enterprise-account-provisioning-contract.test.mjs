@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   ACTOR,
-  CONTRACT,
   MISSING_PRODUCTION_CAPABILITIES,
   UNION_ROOT_ROLE,
   UPSTREAM_DEMANDS,
@@ -20,24 +19,21 @@ function solicitation(request = {
   enterprise: { urn: "urn:ame:customer" },
 }) {
   return { "@context": "https://www.w3.org/ns/activitystreams", id: "urn:test:solicitation", type: "Offer", actor: "urn:ame:customer", target: ACTOR,
-    object: { type: "ServiceSolicitation", contract: CONTRACT, request } };
+    object: { type: "ServiceSolicitation", request } };
 }
 
-test("the discoverable manifest operations remain bound to the compiled RMN law", () => {
+test("the discoverable manifest operations remain declared", () => {
   const manifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
   const catalog = manifest["x-agentic-metro-enterprise"]["operation-catalog"];
-  assert.equal(catalog["solicit-service"].contract, CONTRACT);
-  assert.equal(catalog["invoke-service"].contract, CONTRACT);
   assert.equal(catalog["solicit-service"].accepts, "ActivityStreams Offer<ServiceSolicitation<EnterpriseAccountProvisioningDemand>>");
   assert.equal(catalog["solicit-service"].returns, "ActivityStreams Question<MissingProductionEnterpriseAccountCapability>|Reject<EnterpriseAccountProvisioningRefusal>");
   assert.equal(catalog["invoke-service"].returns, "ActivityStreams Question<MissingProductionEnterpriseAccountCapability>|Reject<EnterpriseAccountProvisioningRefusal>");
 });
 
-test("advertises a canonical law-backed discoverable face without inventing production chain capability", async () => {
+test("advertises a canonical discoverable face without inventing production chain capability", async () => {
   const result = await run(solicitation(), "solicit-service", at, env, recorder);
   assert.equal(result.type, "Question");
   assert.equal(result.object.type, "MissingProductionEnterpriseAccountCapability");
-  assert.equal(result.object.law, CONTRACT);
   assert.ok(result.id.startsWith("ni:///sha-256;"));
   assert.equal(result.object.chainMutation, false);
   assert.equal(result.object.customerWalletSelected, false);
@@ -67,15 +63,6 @@ test("advertises a canonical law-backed discoverable face without inventing prod
     executionLifetime: "persistent",
   });
   assert.ok(recorded.at(-1).category.endsWith("solicitation-missing-capability"));
-});
-
-test("rejects the private law carrier when the advertised contract carrier is absent", async () => {
-  const activity = solicitation();
-  activity.object.law = activity.object.contract;
-  delete activity.object.contract;
-  const result = await run(activity, "solicit-service", at, env, recorder);
-  assert.equal(result.type, "Reject");
-  assert.equal(result.object.reason, "solicitation-must-name-exact-provisioning-rmn-contract");
 });
 
 test("refuses a different demand rather than impersonating its provider", async () => {
@@ -118,9 +105,9 @@ test("refuses every non-root chain relation at the Union enterprise-account boun
 });
 
 test("a customer cannot fabricate the executable offer that the unavailable provider never issued", async () => {
-  const offer = { id: "ni:///sha-256;BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", actor: ACTOR, law: CONTRACT, object: { type: "ExecutableServiceOffer" } };
+  const offer = { id: "ni:///sha-256;BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", actor: ACTOR, object: { type: "ExecutableServiceOffer" } };
   const invocation = { "@context": "https://www.w3.org/ns/activitystreams", id: "urn:test:invoke", type: "Accept", actor: "urn:ame:customer", target: ACTOR,
-    object: { type: "ServiceContract", law: CONTRACT, offer, capability: { holder: ACTOR, invocationTarget: ACTOR, parentOffer: offer.id, capTP: { method: "invoke-service" }, allowedActions: ["invoke-service"] } } };
+    object: { type: "ServiceContract", offer, capability: { holder: ACTOR, invocationTarget: ACTOR, parentOffer: offer.id, capTP: { method: "invoke-service" }, allowedActions: ["invoke-service"] } } };
   const result = await run(invocation, "invoke-service", at, env, recorder);
   assert.equal(result.type, "Reject");
   assert.equal(result.object.reason, "provider-has-not-issued-an-executable-production-offer");

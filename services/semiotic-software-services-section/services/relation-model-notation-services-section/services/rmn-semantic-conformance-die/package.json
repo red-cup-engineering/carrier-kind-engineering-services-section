@@ -26,10 +26,6 @@
     },
     "./circuit-residue": "./src/circuit-residue.mjs",
     "./carrier-refinement": "./src/carrier-refinement.mjs",
-    "./law": {
-      "types": "./types/law.d.mts",
-      "import": "./src/law.mjs"
-    },
     "./relational-value": "./src/relational-value.mjs",
     "./src/rmn-core.mjs": "./src/rmn-core.mjs",
     "./src/relational-value.mjs": "./src/relational-value.mjs"

@@ -1,9 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "RecursiveSettlementFabricAssayLaw")
-  ("version" 1)
-  ("provider" "urn:ame:recursive-settlement-fabric-assay")
-  ("precondition" "A sovereign customer grants read access to one exact bounded territory root containing settlement manifests, RMN laws, public A2A Agent Cards, and any board implementation and assembly sources to be assayed.")
-  ("operation" "Discover settlement membranes without reading data or lasting content outside the exact public descriptor paths; classify each contextual occurrence as an irreducible one-law die or a board of direct sovereign children; and verify each board public black box against Beh(Synth(D)), exact child placement, and typed tensor/par nets.")
-  ("postcondition" "Return a deterministic cut frontier naming every missing interface, mixed-law pseudo-die, unfabricated board, placement mismatch, or behavioral mismatch; a conforming result means only that the exact bounded recursive realization passed this profile.")
-  ("refusal" "Refuse an implicit territory, symlinked root, unreadable or malformed law, unknown circuit field, interior disclosure, topology synthesis, material-content interpretation, mutation, compatibility fallback, registry construction, or customer acceptance."))

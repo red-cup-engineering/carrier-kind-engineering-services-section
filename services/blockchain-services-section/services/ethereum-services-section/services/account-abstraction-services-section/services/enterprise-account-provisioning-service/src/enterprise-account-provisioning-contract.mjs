@@ -6,7 +6,6 @@ import { readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
@@ -14,9 +13,6 @@ export const CONTEXT = "https://www.w3.org/ns/activitystreams";
 export const ACTOR = "urn:ame:enterprise-account-provisioning-service";
 export const NODE_ID = "enterprise-account-provisioning-service";
 const HERE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const LAW_PATH = resolve(HERE, "content/contracts/provision-enterprise-account.rml");
-export const LAW = compileRmlLaw(readFileSync(LAW_PATH, "utf8"));
-export const CONTRACT = LAW.id;
 export const EFFECTS = Object.freeze(["provider-local-witness-journal-evidence", "conditional-remote-kms-create2-deployment"]);
 export const MISSING_PRODUCTION_CAPABILITIES = Object.freeze([
   Object.freeze({
@@ -72,16 +68,16 @@ async function append(record, category, recordedAt, env, recorder = recordSettle
   return recorder({ agentUrl: witnessJournalAgent(env), root: dataRoot(env), nodeId: NODE_ID, settlement: ACTOR, actor: ACTOR, category, recordedAt, record });
 }
 function response(type, source, object, recordedAt) {
-  return identified({ "@context": CONTEXT, type, actor: ACTOR, target: source?.actor ?? null, inReplyTo: source?.id ?? null, law: CONTRACT, object, published: recordedAt });
+  return identified({ "@context": CONTEXT, type, actor: ACTOR, target: source?.actor ?? null, inReplyTo: source?.id ?? null, object, published: recordedAt });
 }
 async function refusal(source, reason, recordedAt, env, recorder) {
-  const record = response("Reject", source, { type: "EnterpriseAccountProvisioningRefusal", law: CONTRACT, reason,
+  const record = response("Reject", source, { type: "EnterpriseAccountProvisioningRefusal", reason,
     directEoaExecution: false, customerWalletSelected: false, customerMutation: false, chainMutation: false, assetSettlementClaimed: false }, recordedAt);
   try {
     await append(record, "enterprise-account-provisioning.refusal", recordedAt, env, recorder);
     return record;
   } catch {
-    return response("Reject", source, { type: "EnterpriseAccountProvisioningRefusal", law: CONTRACT, reason,
+    return response("Reject", source, { type: "EnterpriseAccountProvisioningRefusal", reason,
       witnessStatus: "unsettled-provider-witness-boundary-unavailable",
       directEoaExecution: false, customerWalletSelected: false, customerMutation: false, chainMutation: false, assetSettlementClaimed: false }, recordedAt);
   }
@@ -89,7 +85,6 @@ async function refusal(source, reason, recordedAt, env, recorder) {
 function solicitationProblem(activity) {
   const request = activity?.object?.request;
   if (activity?.["@context"] !== CONTEXT || activity.type !== "Offer" || activity.target !== ACTOR || activity.object?.type !== "ServiceSolicitation") return "solicitation-must-be-addressed-activitystreams-offer";
-  if (activity.object.contract !== CONTRACT) return "solicitation-must-name-exact-provisioning-rmn-contract";
   if (!request || typeof request !== "object" || Array.isArray(request)) return "solicitation-must-carry-a-typed-provisioning-request";
   if (request.type !== "EnterpriseAccountProvisioningDemand") return "solicitation-request-is-not-enterprise-account-provisioning-demand";
   if (request.chain?.caip2 === "eip155:31337" || request.chain === "eip155:31337") return "development-chain-is-not-a-production-provisioning-capability";
@@ -100,7 +95,7 @@ function solicitationProblem(activity) {
   return null;
 }
 function capabilityQuestion(source, recordedAt) {
-  return response("Question", source, { type: "MissingProductionEnterpriseAccountCapability", law: CONTRACT,
+  return response("Question", source, { type: "MissingProductionEnterpriseAccountCapability",
     missing: MISSING_PRODUCTION_CAPABILITIES,
     upstreamDemands: UPSTREAM_DEMANDS,
     requiredCustomerInputs: [
@@ -127,7 +122,7 @@ async function missingCapability(source, stage, recordedAt, env, recorder) {
     await append(question, `enterprise-account-provisioning.${stage}-missing-capability`, recordedAt, env, recorder);
     return question;
   } catch {
-    return response("Reject", source, { type: "EnterpriseAccountProvisioningRefusal", law: CONTRACT,
+    return response("Reject", source, { type: "EnterpriseAccountProvisioningRefusal",
       reason: "provider-witness-boundary-unavailable", witnessStatus: "unsettled-provider-witness-boundary-unavailable",
       directEoaExecution: false, customerWalletSelected: false, customerMutation: false, chainMutation: false, assetSettlementClaimed: false }, recordedAt);
   }

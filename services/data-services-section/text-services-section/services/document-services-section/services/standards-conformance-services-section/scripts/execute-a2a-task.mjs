@@ -8,7 +8,6 @@ import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-servi
 import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
 import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { PHASE2_TERRITORY_CONFORMANCE_LAW } from "../src/law.mjs";
 import { authorizeTerritory, decodeTerritoryScanRequest } from "../src/protocol.mjs";
 import { scanTerritory } from "../src/scan-territory.mjs";
 
@@ -22,7 +21,7 @@ export async function executeA2aMessage(source, env = process.env) {
   const report = scanTerritory(authorizeTerritory(env.CONFORMANCE_TERRITORY_ROOT, request.relativePath));
   const encoded = encodeRelationalValue(report), term = ["ascribe", encoded.type, encoded.term], bytes = semanticBytes(term), receiptNi = semanticId(term), recordedAt = new Date().toISOString();
   const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.WITNESS_JOURNAL_RDF_AGENT });
-  await store.record({ category: "phase2-territory-conformance.receipt", recordedAt, record: { report: receiptNi, ruleset: report.ruleset, territory: report.territory, conforming: report.conforming, violationCount: report.violationCount, request: input.ni, law: PHASE2_TERRITORY_CONFORMANCE_LAW.id } });
+  await store.record({ category: "phase2-territory-conformance.receipt", recordedAt, record: { report: receiptNi, ruleset: report.ruleset, territory: report.territory, conforming: report.conforming, violationCount: report.violationCount, request: input.ni } });
   return Message.toJSON({ messageId: randomUUID(), contextId: message.contextId, taskId: message.taskId, role: Role.ROLE_AGENT, parts: [rmnPart(bytes, "phase2-territory-conformance-report.rmn.cbor")], metadata: { disposition: report.conforming ? "conformant" : "violations", receiptNi, ruleset: report.ruleset, violationCount: report.violationCount }, extensions: [], referenceTaskIds: [] });
 }
 

@@ -1,8 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "Phase2TerritoryConformanceLaw")
-  ("version" 1)
-  ("precondition" "A customer names one bounded territory beneath the provider's explicitly granted material root. The provider publishes the exact closed ruleset identity, sovereign circuit interface, and ERC-4337 account.")
-  ("operation" "Observe every nonexcluded live textual carrier in deterministic path order; apply the content-addressed closed conformance rules with their exact scopes; retain no customer bytes; and write only the resulting typed receipt through the hired witness-journal RDF provider.")
-  ("postcondition" "Return one canonical RMN report binding the ruleset, exact observed territory, every rule/path/line violation, aggregate counts, and the Boolean conformance judgment. The report certifies only this bounded observation and does not amend, waive, or repair any violation.")
-  ("refusal" "Refuse an absent or escaping territory, symbolic-link territory root, changed or unknown ruleset, unreadable material, oversized text interpreted as scanned, ignored live code, compatibility exception, customer mutation, provider-local JSONL, absent witness journal provider, noncanonical RMN, or any judgment without exact observation inputs, attribution, result, and replay material. Producer identity neither proves nor disproves correctness."))

@@ -6,8 +6,6 @@ import { Interface } from "ethers";
 
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { relationalWitnessJournalDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { FIXED_FORK_BEEFY_VAULT_EXIT_OBSERVATION_CONTRACT }
-  from "./fixed-fork-beefy-vault-exit-law.mjs";
 
 const execFileAsync = promisify(execFile);
 const NODE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -185,7 +183,7 @@ export async function observeFixedForkBeefyVaultExits(rawInput, options = {}) {
   const tests = harnessContract(harness);
   const candidates = input.candidates.map((candidateId) => parseCandidate(tests, candidateId, input.block,
     blockBaseFeePerGas, priorityFeePerGasObserved));
-  const result = { profile: PROFILE, law: FIXED_FORK_BEEFY_VAULT_EXIT_OBSERVATION_CONTRACT,
+  const result = { profile: PROFILE,
     requestDigest: digest(request), outcome: "completed-fixed-fork-beefy-vault-exit-observation",
     chain: input.chain, block: input.block.toString(), blockHash: input.blockHash,
     timestamp: input.timestamp.toString(), feeObservedAt, feeSource: input.rpcUrl,
@@ -201,7 +199,7 @@ export async function observeFixedForkBeefyVaultExits(rawInput, options = {}) {
 export async function recordFixedForkBeefyVaultExitObservation(input, result, options = {}) {
   const request = serializable(normalize(input));
   const { id, ...body } = result ?? {};
-  if (result?.profile !== PROFILE || result?.law !== FIXED_FORK_BEEFY_VAULT_EXIT_OBSERVATION_CONTRACT
+  if (result?.profile !== PROFILE
     || result?.requestDigest !== digest(request) || id !== digest(body) || result?.gate?.executionAdmitted !== false) {
     throw new TypeError("a valid request-bound fixed-fork Beefy exit observation is required");
   }

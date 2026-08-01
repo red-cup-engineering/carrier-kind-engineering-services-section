@@ -10,7 +10,6 @@ import {
 } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
 import { FABRICATION_PINOUT } from "@red-cup-engineering/recursive-observation-circuit-synthesis/pinout";
-import { RECURSIVE_INFOMATERIAL_FABRICATION_LAW } from "./law.mjs";
 import { RECURSIVE_FABRICATION_CIRCUIT_PROFILE } from "./own-circuit-profile.mjs";
 import { encodeFabricationRequest } from "./request.mjs";
 
@@ -29,9 +28,6 @@ function requirePin(component, name, direction, predicate, carrier) {
 
 function verifyBoardInterface(card, expectedAccount) {
   const exposed = circuitInterfaceFromAgentCard(card);
-  if (exposed.component.law !== RECURSIVE_INFOMATERIAL_FABRICATION_LAW.id) {
-    throw new Error("recursive fabrication board advertises a different RMN law");
-  }
   if (exposed.account !== expectedAccount.toLowerCase()) {
     throw new Error("recursive fabrication board account does not match the contracted account");
   }

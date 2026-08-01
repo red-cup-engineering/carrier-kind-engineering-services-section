@@ -17,24 +17,6 @@
     "test": "node --test test/*.test.mjs",
     "verify": "node --check src/category-reference-index.mjs && node --test test/*.test.mjs"
   },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "capability-cell",
-    "actor": "urn:ame:category-reference-index-service",
-    "operations": [
-      "index-category-reference"
-    ],
-    "capabilities": [
-      {
-        "capability": "category-reference-index-service",
-        "faces": [
-          "index-category-reference"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/category-reference-index-service"
-  },
   "x-agentic-metro-enterprise": {
     "node-id": "category-reference-index-service",
     "actor": "urn:ame:category-reference-index-service",

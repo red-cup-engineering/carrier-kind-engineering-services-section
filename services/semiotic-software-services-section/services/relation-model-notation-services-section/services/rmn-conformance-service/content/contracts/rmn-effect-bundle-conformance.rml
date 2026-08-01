@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "assays-rmn-effect-bundle"
-  (base "RmnEffectBundleConformanceRequest")
-  (base "RmnEffectBundleConformanceReceiptOrRefusal"))

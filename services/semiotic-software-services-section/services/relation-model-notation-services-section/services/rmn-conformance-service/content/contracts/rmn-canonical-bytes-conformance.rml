@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "assays-canonical-rmn-bytes"
-  (base "RmnCanonicalBytesConformanceRequest")
-  (base "RmnCanonicalBytesConformanceReceiptOrRefusal"))

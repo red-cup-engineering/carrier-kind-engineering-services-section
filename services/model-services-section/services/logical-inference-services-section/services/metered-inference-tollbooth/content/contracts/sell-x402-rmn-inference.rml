@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "sells-x402-settled-direct-provider-rmn-inference"
-  (base "ExactSovereignProviderInferenceProposal")
-  (base "WitnessedInferenceSettlementOrRefusal"))

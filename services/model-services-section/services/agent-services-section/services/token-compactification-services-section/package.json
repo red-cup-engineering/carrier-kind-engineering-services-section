@@ -35,28 +35,5 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:token-compactification-services-section",
-    "operations": [
-      "derive-context-budget",
-      "plan-token-compactification",
-      "apply-token-compactification",
-      "price-erasure-receipt",
-      "adapt-claude-transcript",
-      "contract-market-summarization"
-    ],
-    "capabilities": [
-      {
-        "capability": "token-compactification",
-        "faces": [
-          "Node"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/token-compactification-services-section"
   }
 }

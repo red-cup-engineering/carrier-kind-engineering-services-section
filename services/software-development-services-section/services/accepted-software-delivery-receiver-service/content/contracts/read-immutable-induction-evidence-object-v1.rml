@@ -1,5 +1,0 @@
-#lang rmn/v2
-(predicate "read-immutable-induction-evidence-object-v1"
-  (base "ImmutableInductionEvidenceReadRequest")
-  (base "ImmutableInductionEvidenceObjectResult")
-  (base "ImmutableInductionEvidenceReadRefusal"))

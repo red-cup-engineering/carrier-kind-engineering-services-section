@@ -1,9 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "BlockchainCapabilityCellAdmissionLaw")
-  ("version" 1)
-  ("provider" "urn:ame:blockchain-services-section")
-  ("precondition" "One bounded package root claims exactly one blockchain capability and names its actor, owner, chain profile, customer contract, executable, schema, account binding, deployment, tests, offer, and append-only record boundary.")
-  ("operation" "Inspect only the claimed package membrane and report the presence and internal consistency of every mandatory organ without executing customer work or importing custody.")
-  ("postcondition" "Return a complete finite assay whose admitted disposition is possible only when every mandatory organ is present and the declared account chain matches the declared deployment chain.")
-  ("refusal" "Refuse a mega-package, missing organ, foreign custody, unqualified chain, EOA path, implicit customer, undeclared protocol, non-testable executable, or compatibility fallback."))

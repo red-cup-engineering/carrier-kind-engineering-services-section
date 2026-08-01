@@ -2,14 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { PUBLIC_EVM_WALLET_OBSERVATION_PRODUCT } from "../src/public-wallet-observation-product.mjs";
-import { PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT } from "../src/public-wallet-observation-law.mjs";
 
 test("declares the deterministic wallet observation as its provider's deployment-neutral product", () => {
   assert.deepEqual(PUBLIC_EVM_WALLET_OBSERVATION_PRODUCT, {
     profile: "org.emsenn.public-service-product-declaration.v1",
     provider: "urn:ame:ethereum-services-section",
     skill: { id: "observe-public-evm-wallet", name: "Observe a public EVM wallet" },
-    law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
     epistemicStatus: "deterministic-public-observation",
     reproducibility: "exact-sources-and-chain-snapshots",
     credentialAccess: false,

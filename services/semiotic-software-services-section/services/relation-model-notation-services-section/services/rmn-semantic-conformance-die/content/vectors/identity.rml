@@ -1,5 +1,0 @@
-#lang rmn/v2
-; Pure placement-independent RMN die vector.
-; Reduces to (star), whose identity is
-; ni:///sha-256;U3uKJJT0vR4Qw4-gzCLa9apzf5Y3QXY-dXiIFV5IPA4
-(app (lam (var 0)) (star))

@@ -1,8 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "RmnHierarchicalCircuitTraceConformanceLaw")
-  ("version" 4)
-  ("precondition" "A customer supplies one exact M1 v2 placement-neutral circuit family, one exact sovereign circuit assembly, one declared border class, and one bounded closed trace whose steps carry typed par-seam receipts.")
-  ("operation" "Verify the circuit family and complete assembly; resolve receipt authority from the addressed assembly occurrence rather than from component definitions; require every route edge to be one declared par net on its declared CAIP-2 chain and contract; reject open routes and replayed receipts; separately assay Chu seam defect, C4 connection holonomy, typed price and erasure residue, and exact economic current-affinity residue.")
-  ("postcondition" "Return one canonical RMN receipt binding the circuit and assembly identities, distinct component definitions, border-relative disposition, typed residues, receipt count, and fuel used without reading any component interior.")
-  ("refusal" "Refuse malformed or legacy circuit, assembly, trace, receipt, chain, contract, authority, border, unit, rational, FOUR, or C4 values; missing occurrence population; tensor traces; open routes; receipt replay; fuel excess; undeclared holonomy; or any collapse of typed residue dimensions."))

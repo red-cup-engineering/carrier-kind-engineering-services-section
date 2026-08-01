@@ -13,7 +13,6 @@ import { WASM_FOUR_CARRIER_PROFILE } from "@lenticule-science/wasm-four-carrier-
 import { assayRmnCircuitBoardCarrier } from "@lenticule-science/rmn-circuit-board-carrier-refinement/client";
 import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { assayHierarchicalMaterialLayout, decodeLayoutAssayRequest } from "../src/layout-assay.mjs";
-import { INFOMATERIAL_LAYOUT_LAW } from "../src/law.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -41,7 +40,7 @@ export async function executeA2aMessage(source, env = process.env) {
   });
   const recordedAt = new Date().toISOString();
   const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: env.WITNESS_JOURNAL_RDF_AGENT });
-  await store.record({ category: "infomaterial-layout-assay.receipt", recordedAt, record: { ...result.receipt, semanticId: result.semanticId, law: INFOMATERIAL_LAYOUT_LAW.id } });
+  await store.record({ category: "infomaterial-layout-assay.receipt", recordedAt, record: { ...result.receipt, semanticId: result.semanticId } });
   return Message.toJSON({
     messageId: randomUUID(), contextId: message.contextId, taskId: message.taskId,
     role: Role.ROLE_AGENT,

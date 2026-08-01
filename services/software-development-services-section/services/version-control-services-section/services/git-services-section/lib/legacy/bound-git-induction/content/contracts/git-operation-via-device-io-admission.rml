@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "git-operation-via-device-io-admission"
-  (base "BoundedGitOperationRequest")
-  (base "WitnessedDeviceIOReceipt"))

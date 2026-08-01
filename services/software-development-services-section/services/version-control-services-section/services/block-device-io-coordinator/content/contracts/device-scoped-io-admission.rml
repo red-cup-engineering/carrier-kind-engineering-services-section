@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "device-scoped-io-admission"
-  (base "BoundedDeviceIORequest")
-  (base "WitnessedDeviceIOReceipt"))

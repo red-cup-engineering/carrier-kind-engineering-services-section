@@ -1,8 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "A2ASovereignCircuitInterfaceProfileLaw")
-  ("version" 1)
-  ("precondition" "One A2A 1.0 Agent Card declares exactly one extension under this law identity whose params expose exactly profile, account, authority, custody, territory, and component; profile is org.emsenn.rmn.sovereign-circuit-interface.v1; account is CAIP-10; authority, custody, and territory are SHA-256 ni URIs; and component is one placement-neutral M1 v2 leaf definition.")
-  ("operation" "Verify the signed standard Agent Card, normalize the exact public black-box leaf definition, refuse any instances or nets that disclose or absorb an interior, and bind the component pinout, FOUR behavior, RMN law, and deterministic identity to the endpoint's sovereign membrane.")
-  ("postcondition" "Return one normalized sovereign circuit interface whose black-box component may be composed recursively without importing the provider's internal circuit family. The same interface is a die from its consumer's board view and a membrane projection from its provider's settlement view.")
-  ("refusal" "Refuse an absent, repeated, malformed, unknown-field, wrong-profile, non-CAIP-10, non-ni, non-leaf, nonmonotone, incomplete, unsigned where authority is required, or endpoint-disagreeing declaration. Never synthesize a caller-chosen interface from only a provider law or organization role."))

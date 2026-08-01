@@ -4,8 +4,6 @@ import { relationalWitnessJournalDocument, recordSettlementRecord } from "@lenti
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { FIXED_BLOCK_CONTRACT_IDENTITY_OBSERVATION_CONTRACT } from "./fixed-block-contract-identity-law.mjs";
-
 const PROFILE = "org.emsenn.evm.fixed-block-contract-identity-observation.v1";
 const RECORD_CATEGORY = "ethereum-services.fixed-block-contract-identity-observation";
 const ACTOR = "urn:ame:ethereum-services-section";
@@ -235,7 +233,7 @@ export async function observeFixedBlockContractIdentities(rawInput, options = {}
       reason: !comparisonComplete ? "one or both fixed-block identities are incomplete"
         : baseline.identity === current.identity ? "complete identities are equal" : "complete identities differ" });
   }
-  const result = { profile: PROFILE, law: FIXED_BLOCK_CONTRACT_IDENTITY_OBSERVATION_CONTRACT,
+  const result = { profile: PROFILE,
     requestDigest: digest(input),
     outcome: "completed-fixed-block-contract-identity-observation",
     candidateCount: String(observations.length), comparisonCompleteCount: String(observations.filter((x) => x.comparisonComplete).length),
@@ -247,7 +245,7 @@ export async function observeFixedBlockContractIdentities(rawInput, options = {}
 
 export async function recordFixedBlockContractIdentityObservation(input, result, options = {}) {
   const { id, ...body } = result ?? {};
-  if (result?.profile !== PROFILE || result?.law !== FIXED_BLOCK_CONTRACT_IDENTITY_OBSERVATION_CONTRACT
+  if (result?.profile !== PROFILE
     || result?.requestDigest !== digest(input) || id !== digest(body)) {
     throw new TypeError("a valid request-bound fixed-block identity observation is required");
   }

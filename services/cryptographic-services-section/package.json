@@ -12,7 +12,7 @@
     "invoke-service": "./src/cryptographic-services.mjs"
   },
   "scripts": {
-    "check": "node --check src/law.mjs && node --check src/hash.mjs && node --check src/secp256k1.mjs && node --check src/keccak256.mjs && node --check src/evm.mjs && node --check src/cryptographic-services.mjs && node --check test/evm.test.mjs && node --check test/service-contracts.test.mjs",
+    "check": "node --check src/hash.mjs && node --check src/secp256k1.mjs && node --check src/keccak256.mjs && node --check src/evm.mjs && node --check src/cryptographic-services.mjs && node --check test/evm.test.mjs && node --check test/service-contracts.test.mjs",
     "test": "node --test test/evm.test.mjs test/service-contracts.test.mjs"
   },
   "engines": {

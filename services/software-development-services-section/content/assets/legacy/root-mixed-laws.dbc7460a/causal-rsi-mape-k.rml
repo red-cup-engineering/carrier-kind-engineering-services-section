@@ -1,7 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "CausalRsiMapeKLaw") ("version" 1) ("provider" "urn:ame:software-development-services-section")
-  ("precondition" "For one already selected and authorized provider-local change, SDSS has no prior guard record or the digest of its provider-owned delivery, refusal, and receipt evidence differs from the predecessor record.")
-  ("operation" "Derive and, only when authorized, admit one provider-local change while recording its causal predecessor, new-evidence gate, accepted-action gate, actual disposition, protected invariants, residue, and next observation basis.")
-  ("postcondition" "Append exactly one subordinate provider-local cycle and knowledge transition, or return a typed no-new-evidence refusal; never claim Union-wide monitoring, campaign completion, recursive self-improvement, or customer value.")
-  ("refusal" "Refuse unchanged evidence, absent authorization, a missing or mismatched predecessor, invariant violation, history rewrite, unknown resource use represented as zero, unilateral law change, or promotion of a local MAPE-K record into an RSI claim."))

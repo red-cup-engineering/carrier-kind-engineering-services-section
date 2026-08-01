@@ -1,8 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "SemanticCandidateReviewLaw")
-  ("version" 2)
-  ("precondition" "One signed A2A request carries a canonical RMN review subject with bounded changed source, exact objective and constraints, structured test vectors, action evidence, and an optional protected executable acceptance capsule.")
-  ("operation" "Purchase one bounded semantic advisory through the inference-work market, preserve its selection or refusal, and separately evaluate whether the protected executable behavioral-assay capsule carries its required red witness and exact artifacts. Provider identity and advisory opinion never decide acceptance.")
-  ("postcondition" "Return one canonical RMN behavioral-assay acceptance receipt binding the exact subject, protected assay evidence, advisory evidence or refusal, typed resource account, and a Boolean result derived only from the executable assay; append it through the hired witness-journal RDF provider.")
-  ("refusal" "Refuse malformed or unbounded source, missing objective or vectors, missing protected executable assay evidence, customer-selected market winner, noncanonical carrier, customer mutation, execution, or provider assertion of usefulness acceptance."))

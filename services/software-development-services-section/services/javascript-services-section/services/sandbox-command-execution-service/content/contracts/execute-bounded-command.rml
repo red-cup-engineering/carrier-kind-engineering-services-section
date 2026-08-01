@@ -1,2 +1,0 @@
-#lang rmn/v2
-(map ("type" "BoundedCommandExecutionLaw") ("version" 1) ("precondition" "One exact command, bounded disposable workspace, and timeout are authorized.") ("operation" "Execute only that command in the named workspace and capture bounded evidence.") ("postcondition" "Return exit status and bounded output without claiming acceptance.") ("refusal" "Refuse ambient shell authority, missing workspace or timeout, unbounded output, or fallback execution."))

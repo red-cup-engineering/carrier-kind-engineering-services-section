@@ -1,2 +1,0 @@
-#lang rmn/v2
-(map ("type" "CodingContextProjectionLaw") ("version" 1) ("precondition" "One bounded task and read-only repository material authority are supplied.") ("operation" "Select task-relevant paths and project bounded excerpts and observations.") ("postcondition" "Return a digest-addressed context packet without mutation or semantic acceptance.") ("refusal" "Refuse unbounded disclosure, write authority, inference, hidden execution, or invented repository facts."))

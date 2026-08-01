@@ -1,10 +1,18 @@
 /** Test-only resolver for the already-installed workspace codec; production uses package exports. */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+// Root is identified by the workspace root package.json's own name, not by a
+// hand-authored doc's presence (AGENTS.md was removed as unowned prose).
+function isRepoRootDirectory(dir) {
+  const path = join(dir, "package.json");
+  if (!existsSync(path)) return false;
+  try { return JSON.parse(readFileSync(path, "utf8")).name === "@bare-cedar-fog/machine-workspace"; }
+  catch { return false; }
+}
 let root = dirname(fileURLToPath(import.meta.url));
-while (!existsSync(join(root, "AGENTS.md")) && dirname(root) !== root) root = dirname(root);
+while (!isRepoRootDirectory(root) && dirname(root) !== root) root = dirname(root);
 const codec = pathToFileURL(join(root, "node_modules/.pnpm/node_modules/@red-cup-engineering/json-file-codec-service/dist/json/index.mjs")).href;
 const projection = `data:text/javascript,${encodeURIComponent('export const define=(x)=>({...x,parent:null});export const restrict=(p,x)=>({...x,parent:p,recognize:(r)=>p.recognize(r)&&(x.recognize?x.recognize(r):true),read:x.read??p.read,write:x.write??p.write,corner:x.corner??p.corner,rung:x.rung??p.rung});')}`;
 const integrity = `data:text/javascript,${encodeURIComponent('import{createHash}from"node:crypto";export const sha256Hex=(v)=>createHash("sha256").update(v,"utf8").digest("hex");')}`;

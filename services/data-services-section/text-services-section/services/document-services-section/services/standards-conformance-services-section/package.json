@@ -14,7 +14,7 @@
     "./protocol": "./src/protocol.mjs"
   },
   "scripts": {
-    "check": "node --check src/scan-territory.mjs && node --check src/law.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs && node --check test/scan-territory.test.mjs",
+    "check": "node --check src/scan-territory.mjs && node --check src/protocol.mjs && node --check src/client.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs && node --check test/scan-territory.test.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

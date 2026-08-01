@@ -39,23 +39,5 @@
     "test": "node --test",
     "lint-self": "node scripts/cli.mjs --help >/dev/null"
   },
-  "dependencies": {},
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "lenticule-science",
-    "kind": "capability-cell",
-    "actor": "urn:ame:csl-in-yaml",
-    "operations": [
-      "csl-in-yaml"
-    ],
-    "capabilities": [
-      {
-        "capability": "csl-in-yaml",
-        "faces": [
-          "csl-in-yaml"
-        ]
-      }
-    ],
-    "package": "@lenticule-science/csl-in-yaml"
-  }
+  "dependencies": {}
 }

@@ -1,8 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "FabricateLocalCapCellLaw")
-  ("version" 1)
-  ("precondition" "Receive one bounded CapCell specification naming one operation, RMN law, entrypoint, typed schemas, and requested external projections.")
-  ("operation" "Normalize and content-address the specification, emit canonical RMN CBOR and a deterministic local manifest, and assay which external projections remain absent; package-backed settlement is a separately hired capability.")
-  ("postcondition" "Return a local candidate bundle and its identities. Return complete only when independently supplied evidence binds every required public and deployed projection.")
-  ("refusal" "Refuse malformed specifications, path traversal, identity drift, missing required projections, or any request to represent a local candidate as a complete deployed CapCell."))

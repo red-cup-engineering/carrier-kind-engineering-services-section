@@ -1,7 +1,0 @@
-(map
-  ("type" "PromoteNodeRuntimeReleaseLaw")
-  ("version" 1)
-  ("precondition" "Receive one content-addressed release root, one exact SHA-256 release identity, one named deployment pointer, and one receipt territory.")
-  ("operation" "Verify the selected release bytes against both their address and materialization receipt, retain the prior release identity, and atomically replace the relative deployment pointer.")
-  ("postcondition" "Return and persist one promotion receipt naming the prior and selected release identities and observed digest.")
-  ("refusal" "Refuse absent or escaped releases, malformed identities, digest mismatch, invalid pointers, or unrecordable promotion."))

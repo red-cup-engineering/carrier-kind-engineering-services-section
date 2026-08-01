@@ -1,7 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "ReceiverFreshProcessAssuranceProcurementLaw") ("version" 1) ("provider" "urn:ame:fresh-node-process-evidence-service") ("customer" "urn:ame:software-development-services-section")
-  ("precondition" "The provider-owned catalog binds plan accepted-software-delivery-receiver-service-v1 to exactly six delivered artifact descriptors, one fresh Node test-module use, and one fresh Node verifier-script use with fixed provider argument --self-test; the customer supplies no command, executable, argument vector, environment, or ambient path.")
-  ("operation" "Invoke the fresh-node-process-evidence provider through its fresh-node-process-evidence law, allowing only service-local temporary staging, service-local child processes, service-local append-only outcome evidence, and an SDSS-local supplier receipt.")
-  ("postcondition" "Return independently produced fresh-process proposal-check evidence or a typed market-deficiency refusal without claiming operating-system or network isolation, customer usefulness, receiver staging, admission, or installation.")
-  ("refusal" "Refuse a missing or drifted provider plan, any caller-selected execution detail, ambient child-process substitution, undeclared effect, foreign-territory write, or promotion of proposal assurance into receiver admission or installation."))

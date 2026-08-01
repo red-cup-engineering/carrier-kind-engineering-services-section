@@ -1,5 +1,3 @@
-import { PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT } from "./public-wallet-observation-law.mjs";
-
 const PRODUCT_PROFILE = "org.emsenn.public-service-product-declaration.v1";
 
 function deepFreeze(value) {
@@ -17,7 +15,6 @@ export const PUBLIC_EVM_WALLET_OBSERVATION_PRODUCT = deepFreeze({
     id: "observe-public-evm-wallet",
     name: "Observe a public EVM wallet",
   },
-  law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
   epistemicStatus: "deterministic-public-observation",
   reproducibility: "exact-sources-and-chain-snapshots",
   credentialAccess: false,

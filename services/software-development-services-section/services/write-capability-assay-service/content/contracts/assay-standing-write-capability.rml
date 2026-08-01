@@ -1,9 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "StandingWriteCapabilityAssayLaw")
-  ("version" 1)
-  ("provider" "urn:ame:standing-write-capability-assay-service")
-  ("precondition" "One finite typed observation bundle names the invoked office, proposed write authorization, observed target and root scopes, exact target dispatch, and exact target office seat.")
-  ("operation" "Without accessing any filesystem or settlement interior, check that the authorization names the invoked office; target and roots remain inside their observed membrane without a nested boundary; the dispatch binds the exact task and office; the office seat has that identity; and the proposed dispatch digest equals the observed record.")
-  ("postcondition" "Return canonical typed RMN carrying either one content-derived write-capability observation with exact dispatch, office, and scope digests or an explicit refusal bound to the request.")
-  ("refusal" "Refuse material access, traversal, discovery, missing or ambiguous observed records, scope escape, nested boundary, dispatch or office drift, unknown fields, customer mutation, alternate carrier, or compatibility fallback."))

@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "witness-one-effect-four-cover-transition"
-  (base "RmnEffectProposal")
-  (base "RmnEffectCompletion"))

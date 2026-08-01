@@ -16,7 +16,7 @@
     "serve-deterministic-report-graphic-a2a": "./scripts/serve-a2a.mjs"
   },
   "scripts": {
-    "check": "node --check src/law.mjs && node --check src/deterministic-report-graphic.mjs && node --check src/client.mjs && node --check src/a2a-executor.mjs && node --check scripts/execute-a2a-message.mjs && node --check scripts/serve-a2a.mjs && node --check src/verify-deterministic-report-graphic.mjs",
+    "check": "node --check src/deterministic-report-graphic.mjs && node --check src/client.mjs && node --check src/a2a-executor.mjs && node --check scripts/execute-a2a-message.mjs && node --check scripts/serve-a2a.mjs && node --check src/verify-deterministic-report-graphic.mjs",
     "test": "node --test test/deterministic-report-graphic.test.mjs",
     "verify": "npm run check && npm test && node src/verify-deterministic-report-graphic.mjs --self-test"
   },

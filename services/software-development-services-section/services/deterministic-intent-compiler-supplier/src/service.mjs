@@ -5,13 +5,11 @@ import { projectRmnActivity } from "@red-cup-engineering/activitypub-services-se
 import { listAddressedRmnOutbox } from "@red-cup-engineering/activitypub-services-section/rmn-outbox-client";
 import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { createSettlementStore, querySettlementRecords } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { requestSoftwareChangeProposalAssay } from "@lenticule-science/software-change-proposal-assay/client";
 import { ACTOR, CONTEXT, bidForOffer, fulfillAward } from "./supplier.mjs";
 
 export const ROOT = new URL("..", import.meta.url).pathname;
-export const CONTRACT = compileRmlLaw(readFileSync(new URL("../content/contracts/supply-deterministic-intent-compiler.rml", import.meta.url), "utf8")).id;
 const CATEGORY = "deterministic-intent-compiler-supplier.foraging";
 const PUBLIC = "https://www.w3.org/ns/activitystreams#Public";
 const activityBytes = (activity) => semanticBytes(relationalWitnessJournalDocument(activity));
@@ -45,7 +43,7 @@ const tick = (item) => item?.object?.awardedAtTick ?? item?.attachment?.find((pa
 
 export async function operatePulse(activity, options = {}) {
   const policy = options.policy ?? loadPolicy(), at = options.recordedAt ?? new Date().toISOString();
-  if (activity?.["@context"] !== CONTEXT || activity.type !== "Create" || activity.actor !== policy.clockActor || activity.target !== ACTOR || activity.capability !== policy.deliveryCapabilityId || activity.object?.type !== "DeterministicIntentCompilerSupplierPulse" || !/#[0-9]+$/u.test(activity.object.pulseId ?? "")) return { "@context": CONTEXT, type: "Reject", actor: ACTOR, target: activity?.actor ?? null, inReplyTo: activity?.id ?? null, object: { type: "DeterministicIntentCompilerSupplierPulseRefusal", contract: CONTRACT, reason: "exact-contracted-clockkeeper-pulse-required", customerMutation: false } };
+  if (activity?.["@context"] !== CONTEXT || activity.type !== "Create" || activity.actor !== policy.clockActor || activity.target !== ACTOR || activity.capability !== policy.deliveryCapabilityId || activity.object?.type !== "DeterministicIntentCompilerSupplierPulse" || !/#[0-9]+$/u.test(activity.object.pulseId ?? "")) return { "@context": CONTEXT, type: "Reject", actor: ACTOR, target: activity?.actor ?? null, inReplyTo: activity?.id ?? null, object: { type: "DeterministicIntentCompilerSupplierPulseRefusal", reason: "exact-contracted-clockkeeper-pulse-required", customerMutation: false } };
   const ledger = options.ledger ?? defaultLedger(options), callBoard = options.invokeBoard ?? invokeBoard, reviewProposal = options.reviewProposal ?? (async (request) => (await requestSoftwareChangeProposalAssay(request, { agentCardUrl: policy.proposalAssay.agentCard })).review), outcomes = [];
   for (const board of policy.boards) {
     let outbox; try { outbox = await callBoard(board, board.listOperation, null); } catch (error) { outcomes.push({ board: board.actor, status: "transport-residue", reason: error.message }); continue; }
@@ -59,5 +57,5 @@ export async function operatePulse(activity, options = {}) {
       } catch (error) { const residue = { type: "DeterministicIntentCompilerSupplierDisposition", board: board.actor, activity: publication.id, status: "retryable-residue", detail: error.message, recordedAt: at, customerTerritoryMutation: false }; await ledger.append(residue, at); outcomes.push(residue); }
     }
   }
-  return { "@context": CONTEXT, type: "Accept", actor: ACTOR, target: activity.actor, inReplyTo: activity.id, object: { type: "DeterministicIntentCompilerSupplierTickReceipt", contract: CONTRACT, pulseId: activity.object.pulseId, outcomes, nextTickRequired: true, inferenceCalls: 0, customerMutation: false } };
+  return { "@context": CONTEXT, type: "Accept", actor: ACTOR, target: activity.actor, inReplyTo: activity.id, object: { type: "DeterministicIntentCompilerSupplierTickReceipt", pulseId: activity.object.pulseId, outcomes, nextTickRequired: true, inferenceCalls: 0, customerMutation: false } };
 }

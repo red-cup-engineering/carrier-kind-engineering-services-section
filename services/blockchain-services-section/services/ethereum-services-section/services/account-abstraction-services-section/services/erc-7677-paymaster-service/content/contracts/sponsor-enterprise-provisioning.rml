@@ -1,9 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "EnterpriseProvisioningSponsorshipLaw")
-  ("version" 1)
-  ("provider" "urn:ame:erc-7677-paymaster-services-section")
-  ("precondition" "A customer presents one unsigned ERC-4337 UserOperation for the canonical counterfactual EnterpriseAccount factory, the exact provisioning RMN law, this service's chain and EntryPoint, and its own predicted CAIP-10 account.")
-  ("operation" "Validate the complete deployment shape and issue ERC-7677 stub or final paymaster fields whose bounded EIP-712 sponsorship is validated through this provider's ERC-1271 enterprise account.")
-  ("postcondition" "The customer receives exact paymaster fields for bundler estimation or submission; the on-chain deployment-only paymaster independently revalidates factory, sender, law, time range, and provider smart-account authorization.")
-  ("refusal" "Refuse general gas sponsorship, non-provisioning calls, wrong account or chain, missing deposit, altered gas or calldata, EOA sponsorship authority, expired terms, custom RPC methods, or direct transaction submission."))

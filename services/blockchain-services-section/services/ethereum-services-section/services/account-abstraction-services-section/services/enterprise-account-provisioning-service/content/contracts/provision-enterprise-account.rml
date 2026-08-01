@@ -1,9 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "ProvisionEnterpriseAccountLaw")
-  ("version" 2)
-  ("provider" "urn:ame:enterprise-account-provisioning-service")
-  ("precondition" "A Union enterprise supplies one stable URN and node identifier, one remote Cloud KMS policy signer, and a nonnegative account funding floor. The provider holds only workload identity for the remote Cloud KMS deployment key and addresses the canonical EnterpriseAccount factory and ERC-4337 EntryPoint on eip155:5615611.")
-  ("operation" "Derive one deterministic CREATE2 account address from the chain, enterprise URN, and policy signer; reconcile the factory deployment from an ephemeral cloud runtime; transfer only the funding needed to meet the declared floor; and observe the factory event and transaction coordinate from the chain.")
-  ("postcondition" "The deployed smart account, factory event, chain-qualified enterprise identity, remote policy signer, deterministic salt, funding floor, and returned binding agree exactly. The receipt and binding separately record the requesting enterprise authority, policy capability, remote KMS treasury funding source, and durable chain coordinate; idempotent reconciliation records its lower activation path. No private key material or laptop-local custody enters the operation.")
-  ("refusal" "Refuse a chain other than eip155:5615611, a noncanonical EntryPoint or factory, an unstable enterprise identity, local or plaintext policy custody, a missing workload identity or Cloud KMS authority, a negative funding floor, an occupied mismatched CREATE2 address, a failed transaction, or a deployment event mismatch."))

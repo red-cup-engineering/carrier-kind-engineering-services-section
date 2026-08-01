@@ -16,7 +16,7 @@
     "./protocol": "./lib/protocol.mjs"
   },
   "scripts": {
-    "check": "node --check lib/law.mjs && node --check lib/status.mjs && node --check lib/protocol.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs",
+    "check": "node --check lib/status.mjs && node --check lib/protocol.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs",
     "legacy:anvil:check": "node --check legacy/anvil/scripts/run-chain.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"

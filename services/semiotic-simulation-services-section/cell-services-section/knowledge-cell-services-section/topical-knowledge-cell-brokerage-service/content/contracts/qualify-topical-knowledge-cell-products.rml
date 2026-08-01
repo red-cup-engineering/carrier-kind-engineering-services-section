@@ -1,9 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "TopicalKnowledgeCellProductQualificationLaw")
-  ("version" 1)
-  ("provider" "urn:ame:topical-knowledge-cell-brokerage-service")
-  ("precondition" "The customer supplies a finite exact denominator of provider-authored product listings, an explicit admissibility policy and evaluation instant, and a single-use nondelegable capability bound to the request body.")
-  ("operation" "Hire package, signed Agent Card, and RMN identity assayers; classify each listing as qualified, refused, or unknown; and project a componentwise comparison without scalarization, winner selection, or exchange-rate invention.")
-  ("postcondition" "Return one content-identified qualification receipt over exactly the supplied denominator and append only provider-local witness-journal RDF evidence. No listing is published, selected, purchased, installed, or operated.")
-  ("refusal" "Refuse unbounded or duplicate listings, identity drift, forged evidence, unknown policy, widened authority, replay collision, price conversion, central ranking, publication, purchase, installation, or product operation."))

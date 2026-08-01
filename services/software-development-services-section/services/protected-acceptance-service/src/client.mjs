@@ -4,7 +4,6 @@ import { a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-c
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
 import { SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION, circuitInterfaceFromAgentCard } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
-import { PROTECTED_ACCEPTANCE_LAW } from "./law.mjs";
 import { decodeReceipt, encodeRequest } from "./protocol.mjs";
 export { acceptanceCapsuleDigest, executeAcceptanceCapsule, loadAcceptanceCapsule, materializeAcceptanceCapsule, validateAcceptanceCapsule } from "./acceptance-capsule.mjs";
 
@@ -17,6 +16,6 @@ export async function prepareProtectedAcceptance(input, { agentCardUrl = process
   const output = extractRmnPart(parts(exchange.result)), term = decodeSemantic(output.bytes);
   if (!semanticBytes(term).equals(output.bytes) || term?.[0] !== "ascribe" || term.length !== 3) throw new Error("protected acceptance provider returned noncanonical RMN");
   const receipt = decodeReceipt(term[1], term[2]), provider = circuitInterfaceFromAgentCard(exchange.agentCard);
-  if (provider.component.law !== PROTECTED_ACCEPTANCE_LAW.id || receipt.provider !== provider.account || receipt.subject !== request.id) throw new Error("protected acceptance receipt does not bind the contracted face and exact subject");
+  if (receipt.provider !== provider.account || receipt.subject !== request.id) throw new Error("protected acceptance receipt does not bind the contracted face and exact subject");
   return Object.freeze(receipt.capsule);
 }

@@ -1,8 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "McpToolObservationLaw")
-  ("version" 1)
-  ("precondition" "Receive one admitted public HTTPS MCP endpoint, one exact tool name, and optionally one explicit argument object.")
-  ("operation" "Initialize one MCP Streamable HTTP session, exhaust tools/list pagination, select exactly one named tool, optionally invoke it through tools/call, and identify the observation semantically.")
-  ("postcondition" "Return the endpoint, negotiated protocol version, server identity, exact tool description, optional call result, and one content identity over that observation.")
-  ("refusal" "Refuse an inadmissible endpoint, malformed JSON-RPC, server errors, pagination cycles, absent or duplicate tool names, and malformed call results."))

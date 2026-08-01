@@ -12,7 +12,6 @@ import { CIRCUIT_TRACE_PROFILE, assayCircuitTrace, decodeCircuitTraceReceipt, en
 import { conformAscribedTerm } from "../src/conformance.mjs";
 import { FOUR, isKnowledgeCover } from "../src/four.mjs";
 import { CIRCUIT_ASSEMBLY_PROFILE, HIERARCHICAL_CIRCUIT_PROFILE, hierarchicalCircuitId } from "../src/hierarchical-circuit.mjs";
-import { compileRmlLaw, decodeCompiledLaw } from "../src/law.mjs";
 import { assay, decodeSemantic, formatRml, parseRml, semanticId } from "../src/rmn-core.mjs";
 import { decodeRelationalValue, encodeRelationalValue } from "../src/relational-value.mjs";
 
@@ -93,15 +92,6 @@ test("relational values round-trip structured carrier data as typed RMN without 
   const encoded = encodeRelationalValue(source);
   assert.deepEqual(decodeRelationalValue(encoded.type, encoded.term), source);
   assert.deepEqual(encodeRelationalValue({ a: "é", z: [true, null, { price: 2.5, amount: 7 }] }), encoded);
-});
-
-test("RML laws have one deterministic typed RMN identity and require the full effect boundary", () => {
-  const left = compileRmlLaw('#lang rmn/v2\n(map ("type" "ServiceLaw") ("version" 1) ("precondition" "admitted") ("operation" "act") ("postcondition" "settled") ("refusal" "refused"))');
-  const right = compileRmlLaw('#lang rmn/v2\n(map ("refusal" "refused") ("postcondition" "settled") ("operation" "act") ("precondition" "admitted") ("version" 1) ("type" "ServiceLaw"))');
-  assert.equal(left.id, right.id);
-  assert.deepEqual(left.bytes, right.bytes);
-  assert.deepEqual(decodeCompiledLaw(decodeSemantic(left.bytes)), left.value);
-  assert.throws(() => compileRmlLaw('#lang rmn/v2\n(map ("type" "IncompleteLaw") ("version" 1) ("precondition" "x") ("operation" "x") ("postcondition" "x"))'), /requires refusal/u);
 });
 
 test("NFC-equivalent terms have one RFC 6920 identity", () => {

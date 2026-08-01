@@ -50,7 +50,7 @@ test("typed relational RMN is canonical and round-trips without JSON", () => {
 });
 
 test("bounded normalization and FOUR knowledge covers remain exact", () => {
-  const term = parseRml(readFileSync(join(ROOT, "content/vectors/identity.rml"), "utf8"));
+  const term = parseRml("#lang rmn/v2\n(app (lam (var 0)) (star))");
   assert.deepEqual(assay({ term, expectedType: ["unit"], fuel: 4 }).normalForm, ["star"]);
   assert.deepEqual(
     conformAscribedTerm(["ascribe", ["unit"], ["app", ["lam", ["var", 0]], ["star"]]]).response,

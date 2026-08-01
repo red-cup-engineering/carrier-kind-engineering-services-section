@@ -5,14 +5,12 @@ import { projectRmnActivity } from "@red-cup-engineering/activitypub-services-se
 import { listAddressedRmnOutbox } from "@red-cup-engineering/activitypub-services-section/rmn-outbox-client";
 import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
 import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
 import { createSettlementStore, querySettlementRecords } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { requestImprovementGameProposalAssay } from "@lenticule-science/improvement-game-proposal-assay/client";
 import { ACTOR, CONTEXT, bidForGameOffer, fulfillGameAward } from "./supplier.mjs";
 
 export const ROOT = new URL("..", import.meta.url).pathname;
-export const CONTRACT = compileRmlLaw(readFileSync(new URL("../content/contracts/supply-improvement-game-design.rml", import.meta.url), "utf8")).id;
 const CATEGORY = "improvement-game-design-supplier.foraging";
 const PUBLIC = "https://www.w3.org/ns/activitystreams#Public";
 const activityBytes=(activity)=>semanticBytes(relationalWitnessJournalDocument(activity));
@@ -33,7 +31,7 @@ const activityTick = (item) => item?.object?.awardedAtTick ?? item?.attachment?.
 export async function operatePulse(activity, options = {}) {
   const policy = options.policy ?? loadPolicy(), at = options.recordedAt ?? new Date().toISOString();
   const valid = activity?.["@context"] === CONTEXT && activity.type === "Create" && activity.actor === policy.clockActor && activity.target === ACTOR && activity.capability === policy.deliveryCapabilityId && activity.object?.type === "IndependentImprovementGameSupplierPulse" && /#[0-9]+$/u.test(activity.object.pulseId ?? "");
-  if (!valid) return { "@context": CONTEXT, type: "Reject", actor: ACTOR, target: activity?.actor ?? null, inReplyTo: activity?.id ?? null, object: { type: "ImprovementGameSupplierPulseRefusal", contract: CONTRACT, reason: "exact-contracted-clockkeeper-pulse-required", customerMutation: false } };
+  if (!valid) return { "@context": CONTEXT, type: "Reject", actor: ACTOR, target: activity?.actor ?? null, inReplyTo: activity?.id ?? null, object: { type: "ImprovementGameSupplierPulseRefusal", reason: "exact-contracted-clockkeeper-pulse-required", customerMutation: false } };
   const ledger = options.ledger ?? defaultLedger(options), callBoard = options.invokeBoard ?? invokeBoard, reviewProposal = options.reviewProposal ?? (async(request)=>(await requestImprovementGameProposalAssay(request,{agentCardUrl:policy.proposalAssay.agentCard})).review), outcomes = [];
   for (const board of policy.boards) {
     let outbox; try { outbox = await callBoard(board, board.listOperation, null); } catch (error) { outcomes.push({ board: board.actor, status: "transport-residue", reason: error.message }); continue; }
@@ -51,5 +49,5 @@ export async function operatePulse(activity, options = {}) {
       } catch (error) { const residue = { type: "ImprovementGameSupplierDisposition", board: board.actor, activity: publication.id, status: "retryable-residue", detail: error.message, recordedAt: at, customerTerritoryMutation: false }; await ledger.append(residue, at); outcomes.push(residue); }
     }
   }
-  return { "@context": CONTEXT, type: "Accept", actor: ACTOR, target: activity.actor, inReplyTo: activity.id, object: { type: "IndependentImprovementGameSupplierTickReceipt", contract: CONTRACT, pulseId: activity.object.pulseId, outcomes, nextTickRequired: true, customerTerritoryMutation: false } };
+  return { "@context": CONTEXT, type: "Accept", actor: ACTOR, target: activity.actor, inReplyTo: activity.id, object: { type: "IndependentImprovementGameSupplierTickReceipt", pulseId: activity.object.pulseId, outcomes, nextTickRequired: true, customerTerritoryMutation: false } };
 }

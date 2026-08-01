@@ -41,30 +41,5 @@
     "owners": [
       "json-file-services-section"
     ]
-  },
-  "x-semiotic-voxel": {
-    "profile": "org.harmonious-union.semiotic-voxel.v1",
-    "owner": "red-cup-engineering",
-    "kind": "actor",
-    "actor": "urn:ame:json-schema-services-section",
-    "operations": [
-      "create-json-schema",
-      "validate-json-schema-instance",
-      "project-json-schema-assertions",
-      "read-a-schema",
-      "write-a-schema",
-      "search-path-for-schema",
-      "census-json-schema-corpus"
-    ],
-    "capabilities": [
-      {
-        "capability": "json-schema",
-        "faces": [
-          "Node",
-          "CLI"
-        ]
-      }
-    ],
-    "package": "@red-cup-engineering/json-schema-services-section"
   }
 }

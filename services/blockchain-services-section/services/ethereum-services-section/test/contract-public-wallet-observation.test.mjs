@@ -10,7 +10,6 @@ import { startWitnessJournalProviderProcess } from "@lenticule-science/witness-j
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 
 import { observePublicWallet, run } from "../src/contract-public-wallet-observation.mjs";
-import { PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT } from "../src/public-wallet-observation-law.mjs";
 
 const AT = "2026-07-21T18:00:00.000Z";
 const CUSTOMER = "urn:ame:agrodao";
@@ -125,18 +124,18 @@ test("dispatches a bounded multi-account ledger scope with index claims verified
   assert.equal(observation.signerMaterialAccepted, false);
 });
 
-test("performs an exact-law offer and invocation without transaction authority", async (t) => {
+test("performs an exact offer and invocation without transaction authority", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "ethereum-public-observation-")); t.after(() => rmSync(root, { recursive: true, force: true }));
   const witnessJournal = await startWitnessJournalProviderProcess(); t.after(async () => witnessJournal.close());
   const env = { ETHEREUM_OBSERVATION_DATA_ROOT: root, WITNESS_JOURNAL_RDF_AGENT: witnessJournal.agentCardUrl };
   const evidence = networkEvidence();
   const observer = (request, at) => observePublicWallet(request, at, { fetchJson: fixtureFetch() });
   const solicitation = identify({ "@context": CONTEXT, type: "Offer", actor: CUSTOMER, target: PROVIDER,
-    law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, object: { type: "ServiceSolicitation", contract: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, request: REQUEST }, published: AT });
+    object: { type: "ServiceSolicitation", request: REQUEST }, published: AT });
   const offer = await run(solicitation, "solicit-service", AT, env, observer, evidence);
   assert.equal(offer.type, "Offer");
   const acceptance = identify({ "@context": CONTEXT, type: "Accept", actor: CUSTOMER, target: PROVIDER,
-    law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, object: { type: "ServiceContract", law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT,
+    object: { type: "ServiceContract",
       offer, termsAcceptance: { termDigest: offer.object.termsDigest, acceptedBy: CUSTOMER }, capability: { type: "Capability",
         holder: PROVIDER, invocationTarget: PROVIDER, parentOffer: offer.id, attenuation: { sourceObservationDigest: offer.object.sourceObservationDigest },
         capTP: { target: PROVIDER, method: "invoke-service" }, allowedActions: ["invoke-service", "public-network-read", "provider-local-witness-journal-evidence"] } }, published: AT });
@@ -154,7 +153,7 @@ test("refuses any request shape that carries signer material", async (t) => {
   const evidence = networkEvidence();
   const request = { ...REQUEST, privateKey: "forbidden" };
   const solicitation = identify({ "@context": CONTEXT, type: "Offer", actor: CUSTOMER, target: PROVIDER,
-    law: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, object: { type: "ServiceSolicitation", contract: PUBLIC_EVM_WALLET_OBSERVATION_CONTRACT, request }, published: AT });
+    object: { type: "ServiceSolicitation", request }, published: AT });
   const result = await run(solicitation, "solicit-service", AT, env, async () => { throw new Error("must not observe"); }, evidence);
   assert.equal(result.type, "Reject");
   assert.match(result.object.reason, /contain only/);

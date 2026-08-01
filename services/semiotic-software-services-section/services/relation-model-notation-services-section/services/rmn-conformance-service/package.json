@@ -14,7 +14,6 @@
     "./hierarchical-circuit": "./src/hierarchical-circuit.mjs",
     "./circuit-residue": "./src/circuit-residue.mjs",
     "./carrier-refinement": "./src/carrier-refinement.mjs",
-    "./law": "./src/law.mjs",
     "./relational-value": "./src/relational-value.mjs",
     "./test-provider": "./src/test-provider.mjs",
     "./src/hierarchical-circuit.mjs": "./src/hierarchical-circuit.mjs"

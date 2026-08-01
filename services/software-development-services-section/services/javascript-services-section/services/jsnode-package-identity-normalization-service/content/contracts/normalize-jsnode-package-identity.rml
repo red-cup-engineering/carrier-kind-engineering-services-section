@@ -1,9 +1,0 @@
-#lang rmn/v2
-(map
-  ("type" "HoareProgram")
-  ("operation" "normalize-jsnode-package-identity")
-  ("domain" "one admitted npm package name and one explicit npm owner")
-  ("codomain" "one deterministic scoped npm package identity normalization")
-  ("precondition" "packageName and owner are explicit non-empty values; owner is not inferred from filesystem position")
-  ("postcondition" "the result preserves the prior name, exposes its normalized leaf and owner, and names exactly @owner/leaf without effects")
-  ("effects" ()))
