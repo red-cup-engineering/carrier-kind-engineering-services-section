@@ -1,0 +1,22 @@
+{
+  "name": "@red-cup-engineering/relation-model-notation-typing",
+  "version": "1.0.0",
+  "description": "RMN type checking and structural term analysis over the Relation Model Notation grammar: tyEqual/inferTy/checkTy/hasTy (bidirectional CHL-core typing) and termSize/termUses/isClosed (structural term analysis).",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/relation-model-notation": "1.0.0"
+  }
+}
