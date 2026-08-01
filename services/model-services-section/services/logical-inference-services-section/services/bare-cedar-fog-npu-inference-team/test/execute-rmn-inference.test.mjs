@@ -4,19 +4,29 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import test, { after, before } from "node:test";
 import { serveContractedAgent } from "@red-cup-engineering/a2a-contracted-agent-service";
 import { ephemeralAgentCardSigning } from "@red-cup-engineering/a2a-agent-card-key-service/testing";
-import { assay, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { assay, semanticBytes, semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
 import { ACCOUNT, LAW, OPERATION_TYPE, acquireNpuCapacity, executeMessage, releaseNpuCapacity } from "../src/execute-rmn-inference.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { rawNiUri } from "@red-cup-engineering/relation-model-notation-runtime/canonical-cbor";
 
 const CUSTOMER_ACCOUNT = "eip155:31337:0x3333333333333333333333333333333333333333";
 
 const id = rawNiUri;
-const RMN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../relational-model-services-section/services/relational-model-notation-services-section/services/rmn-conformance-service");
-const WITNESS_JOURNAL_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../../../../lenticule-science/services/obsmetrological-services-section/services/witness-journal-rdf-projection-service");
-const WIT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../../../../lenticule-science/services/obsmetrological-services-section/services/wit-transition-assay");
+const require = createRequire(import.meta.url);
+// Locate each contracted service's package root through node module
+// resolution (its exported face's package.json), never by relative
+// traversal across a package boundary.
+const packageRoot = (specifier) => dirname(require.resolve(`${specifier}/package.json`));
+// The runtime library (value/codec primitives) and the contracted A2A
+// conformance service (agent card + task executor) are separate
+// packages post-split; resolve each by its own name.
+const RMN_ROOT = packageRoot("@red-cup-engineering/relation-model-notation-runtime");
+const RMN_AGENT_ROOT = packageRoot("@red-cup-engineering/relation-model-notation-conformance");
+const WITNESS_JOURNAL_ROOT = packageRoot("@red-cup-engineering/witness-journal-rdf-projection-service");
+const WIT_ROOT = packageRoot("@lenticule-science/wit-transition-assay");
 const { startWitTransitionAssayProcess } = await import(`${WIT_ROOT}/src/test-provider.mjs`);
 let rmnServer, witnessJournalServer, witServer;
 
@@ -30,8 +40,8 @@ before(async () => {
   const port = socket.address().port; await new Promise((accept) => socket.close(accept));
   const baseUrl = `http://127.0.0.1:${port}`;
   rmnServer = await serveContractedAgent({ port, host: "127.0.0.1", baseUrl,
-    agentCard: resolve(RMN_ROOT, "content/agent-cards/rmn-semantic-conformance.json"),
-    executor: process.execPath, executorArgs: [resolve(RMN_ROOT, "bin/execute-a2a-task.mjs")], timeoutMs: 10_000,
+    agentCard: resolve(RMN_AGENT_ROOT, "content/agent-cards/rmn-semantic-conformance.json"),
+    executor: process.execPath, executorArgs: [resolve(RMN_AGENT_ROOT, "scripts/execute-a2a-task.mjs")], timeoutMs: 10_000,
     ...ephemeralAgentCardSigning(baseUrl, "npu-rmn-test") });
   process.env.RMN_CONFORMANCE_AGENT = `${baseUrl}/.well-known/agent-card.json`;
   const witnessJournalSocket = createServer(); await new Promise((accept) => witnessJournalSocket.listen(0, "127.0.0.1", accept));
@@ -39,7 +49,7 @@ before(async () => {
   const witnessJournalBase = `http://127.0.0.1:${witnessJournalPort}`;
   witnessJournalServer = await serveContractedAgent({ port: witnessJournalPort, host: "127.0.0.1", baseUrl: witnessJournalBase,
     agentCard: resolve(WITNESS_JOURNAL_ROOT, "content/agent-cards/witness-journal-rdf.json"),
-    executor: process.execPath, executorArgs: [resolve(WITNESS_JOURNAL_ROOT, "bin/execute-a2a-task.mjs")], timeoutMs: 10_000,
+    executor: process.execPath, executorArgs: [resolve(WITNESS_JOURNAL_ROOT, "scripts/execute-a2a-task.mjs")], timeoutMs: 10_000,
     ...ephemeralAgentCardSigning(witnessJournalBase, "npu-witness-journal-test") });
   process.env.WITNESS_JOURNAL_RDF_AGENT = `${witnessJournalBase}/.well-known/agent-card.json`;
   witServer = await startWitTransitionAssayProcess({ witnessJournalAgentUrl: process.env.WITNESS_JOURNAL_RDF_AGENT });

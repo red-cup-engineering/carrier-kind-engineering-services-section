@@ -5,16 +5,14 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
-import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
-import { compileRmlLaw } from "@red-cup-engineering/rmn-semantic-conformance/law";
+import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/relation-model-notation-conformance/client";
 import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
-import { loadSettlementAccount, recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { loadSettlementAccount, recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-rdf-projection-service/client";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
 export const ACTOR = "urn:ame:bare-cedar-fog-npu-inference-team";
 export const ACCOUNT = loadSettlementAccount(ROOT, { caip2: process.env.SETTLEMENT_CAIP2 }).settlement;
-export const LAW = compileRmlLaw(readFileSync(resolve(ROOT, "content/contracts/npu-rmn-inference.rml"), "utf8")).id;
 export const OPERATION_TYPE = ["product", ["mark"], ["product", ["mark"], ["product", ["mark"], ["mark"]]]];
 export const MODEL = "qwen3:1.7b";
 export const NPU_BOUNDS = Object.freeze({ workTypes: Object.freeze(["classification", "extraction", "summarization", "inquiry", "software-engineering"]), maximumSourceWords: 1500, maximumSourceCharacters: 12000, maximumRequestCharacters: 30000, maximumOutputTokens: 700 });
@@ -103,7 +101,7 @@ export async function executeMessage(message) {
   const part = rawPart(message);
   const proposal = await conformCanonicalBytes({ agentUrl: rmnAgent(), bytes: Buffer.from(part.raw, "base64"), expectedType: ["product", ["effect"], OPERATION_TYPE], expectedNi: part.metadata?.ni });
   const cell = proposal.effectCell;
-  if (cell.law !== LAW || cell.provider !== ACCOUNT) throw new Error("effect cell is not addressed to the NPU team's law, account, and task scale");
+  if (cell.provider !== ACCOUNT) throw new Error("effect cell is not addressed to the NPU team's account and task scale");
   if (cell.outcome?.positiveEvidence !== false || cell.outcome?.negativeEvidence !== false) throw new Error("proposal effect must enter at FOUR-bottom");
   const operation = proposal.normalForm[2], marks = operationMarks(operation);
   let performed, lease;
