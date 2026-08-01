@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import {
   canonical,
   isJsonRecord,
@@ -55,7 +56,7 @@ const instancePointer = (parts: readonly (string | number)[]): string =>
 
 function hash(bytes: string): { hex: string; ni: string } {
   const hex = createHash("sha256").update(bytes, "utf8").digest("hex");
-  const ni = `ni:///sha-256;${createHash("sha256").update(bytes, "utf8").digest("base64url")}`;
+  const ni = rawNiUri(bytes);
   return { hex, ni };
 }
 

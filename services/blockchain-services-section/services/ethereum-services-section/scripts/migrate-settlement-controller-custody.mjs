@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { encryptSettlementPrivateKey, ensureSettlementPassword } from "../src/settlement-key-custody.mjs";
 
 const HERE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -64,20 +64,20 @@ export async function migrateSettlementControllerCustody({ workspace, credential
     const encrypted = await encryptSettlementPrivateKey({ path: keystorePath, passwordFile, privateKey });
     if (encrypted.signer !== expectedSigner) throw new Error(`legacy controller does not match binding: ${relative(workspace, controllerPath)}`);
 
-    const digest = createHash("sha256").update(legacyBytes).digest("base64url");
+    const retiredDigestUri = rawNiUri(legacyBytes);
     legacyBytes.fill(0);
     const provenance = join(settlement, "data", "provenance", "2026", "07", "19", "2026-07-19-controller-custody-cutover.nq");
     mkdirSync(dirname(provenance), { recursive: true });
     const graph = `${urn}:controller-custody-cutover:eip155-${chainId}`;
     writeFileSync(provenance, [
-      `<${urn}> <urn:emsenn:evm:retired-controller-artifact> <ni:///sha-256;${digest}> <${graph}> .`,
-      `<ni:///sha-256;${digest}> <urn:emsenn:evm:retired-path> ${nqString(relative(settlement, controllerPath))} <${graph}> .`,
+      `<${urn}> <urn:emsenn:evm:retired-controller-artifact> <${retiredDigestUri}> <${graph}> .`,
+      `<${retiredDigestUri}> <urn:emsenn:evm:retired-path> ${nqString(relative(settlement, controllerPath))} <${graph}> .`,
       `<${urn}> <urn:emsenn:evm:controller-keystore-format> ${nqString("Ethereum Secret Storage v3")} <${graph}> .`,
       `<${urn}> <urn:emsenn:evm:controller-chain> <eip155:${chainId}> <${graph}> .`,
       "",
     ].join("\n"), { encoding: "utf8", flag: "wx", mode: 0o600 });
     unlinkSync(controllerPath);
-    migrated.push({ settlement: relative(workspace, settlement), chain: `eip155:${chainId}`, signer: expectedSigner, retiredDigest: `ni:///sha-256;${digest}`, keystore: relative(settlement, keystorePath) });
+    migrated.push({ settlement: relative(workspace, settlement), chain: `eip155:${chainId}`, signer: expectedSigner, retiredDigest: retiredDigestUri, keystore: relative(settlement, keystorePath) });
   }
   return Object.freeze({ type: "SettlementControllerCustodyMigration", migrated: migrated.length, settlements: migrated });
 }
