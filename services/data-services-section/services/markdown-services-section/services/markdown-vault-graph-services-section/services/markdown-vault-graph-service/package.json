@@ -7,10 +7,10 @@
   "license": "MIT",
   "exports": "./src/vault-graph.mjs",
   "bin": {
-    "render-markdown-vault-graph": "./bin/render-vault-graph.mjs"
+    "render-markdown-vault-graph": "./scripts/render-vault-graph.mjs"
   },
   "scripts": {
-    "check": "node --check src/vault-graph.mjs && node --check bin/render-vault-graph.mjs",
+    "check": "node --check src/vault-graph.mjs && node --check scripts/render-vault-graph.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

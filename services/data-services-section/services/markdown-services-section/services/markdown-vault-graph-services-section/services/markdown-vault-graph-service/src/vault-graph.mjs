@@ -18,7 +18,6 @@ const FRONTMATTER_REFERENCE_KEYS = [
   "instantiates",
   "component-of",
   "explores",
-  "in-service-of",
 ];
 
 function toPosixPath(path) {
