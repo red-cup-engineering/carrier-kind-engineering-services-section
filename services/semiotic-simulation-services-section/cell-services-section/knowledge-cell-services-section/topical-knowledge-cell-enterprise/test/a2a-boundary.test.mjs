@@ -3,7 +3,7 @@ import test from "node:test";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
-import { executeA2aMessage } from "../bin/execute-a2a-task.mjs";
+import { executeA2aMessage } from "../scripts/execute-a2a-task.mjs";
 import { cellEnterpriseProtocol as protocol } from "../src/protocol.mjs";
 function message(operation) { const request = protocol.encodeRequest(operation, {}); return Message.toJSON({ messageId: "one", contextId: "", taskId: "", role: Role.ROLE_USER, parts: [rmnPart(semanticBytes(request.term))], metadata: {}, extensions: [], referenceTaskIds: [] }); }
 function response(output) { return protocol.decodeResponse(decodeSemantic(extractRmnPart(Message.fromJSON(output).parts).bytes)); }
