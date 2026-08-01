@@ -44,10 +44,10 @@ import {
   RECEIVER_ACTOR,
   registerImmutableEvidenceObject,
 } from "../src/immutable-induction-evidence.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const ROOT = resolve(import.meta.dirname, "..");
-const ni = (bytes) =>
-  `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
+const ni = rawNiUri;
 
 async function listen(server) {
   await new Promise((accept, reject) => {

@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 import { decideWorkRoute } from "./work-route-decision.mjs";
 
@@ -60,8 +60,7 @@ function deepFreeze(value) {
 }
 
 export function pulseContentAddress(value) {
-  const digest = createHash("sha256").update(JSON.stringify(stable(value))).digest("base64url");
-  return `ni:///sha-256;${digest}`;
+  return rawNiUri(JSON.stringify(stable(value)));
 }
 
 function exactAmount(value, label) {

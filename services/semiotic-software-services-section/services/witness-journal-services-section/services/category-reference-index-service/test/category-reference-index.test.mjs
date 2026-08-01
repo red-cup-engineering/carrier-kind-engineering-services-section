@@ -2,8 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { createCategoryReferenceIndex } from "../src/category-reference-index.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
-function niFor(bytes) { return `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`; }
+const niFor = rawNiUri;
 
 function fakeR2() {
   const store = new Map();

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createHash, createPublicKey, verify } from "node:crypto";
+import { createPublicKey, verify } from "node:crypto";
 import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -8,6 +8,7 @@ import {
   createPolicyBoundPrivyAuthorizationSignFn,
   createPrivyAuthorizationKeyKeystore,
 } from "../src/privy-authorization-key-custody.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const NOW = 1_782_000_000_000;
 const WALLET_ID = "wallet_yanagi_operator";
@@ -107,7 +108,7 @@ test("binds Base, sender, signing contract, call data, and callback signature ce
   const { path, passwordFile } = fixture();
   createPrivyAuthorizationKeyKeystore({ path, passwordFile });
   const callData = "0x1234";
-  const digest = `ni:///sha-256;${createHash("sha256").update(Buffer.from(callData.slice(2), "hex")).digest("base64url")}`;
+  const digest = rawNiUri(Buffer.from(callData.slice(2), "hex"));
   const signFn = createPolicyBoundPrivyAuthorizationSignFn({
     path,
     passwordFile,

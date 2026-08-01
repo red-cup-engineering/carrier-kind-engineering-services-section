@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -25,9 +24,9 @@ import {
   readImmutableInductionEvidence,
   registerImmutableEvidenceObject,
 } from "../src/immutable-induction-evidence.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
-const ni = (bytes) =>
-  `ni:///sha-256;${createHash("sha256").update(bytes).digest("base64url")}`;
+const ni = rawNiUri;
 
 test("signed immutable evidence read is one-effect and byte-identical on replay", async (t) => {
   const root = mkdtempSync(join(tmpdir(), "immutable-evidence-"));

@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import {
   mkdtempSync,
   mkdirSync,
@@ -18,6 +17,7 @@ import {
   migrateAcceptanceAssayCarrierObstructions,
   migrateAcceptancePulseProofPore,
 } from "../src/migrate-acceptance-pulse-proof-pore.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const run = "11111111-1111-4111-8111-111111111111";
 
@@ -30,9 +30,7 @@ function legacyEvent(sequence, body, prior) {
     ...body,
   };
   return {
-    id: `ni:///sha-256;${createHash("sha256")
-      .update(JSON.stringify(eventBody))
-      .digest("base64url")}`,
+    id: rawNiUri(JSON.stringify(eventBody)),
     ...eventBody,
   };
 }

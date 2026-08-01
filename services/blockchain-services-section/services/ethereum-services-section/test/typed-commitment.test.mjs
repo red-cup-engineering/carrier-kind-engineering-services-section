@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -7,12 +6,13 @@ import test from "node:test";
 
 import { AbiCoder, Interface, sha256 } from "ethers";
 import { projectTypedCommitment } from "../src/typed-commitment.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const account = `0x${"11".repeat(20)}`;
 const projection = `0x${"22".repeat(20)}`;
 const transactionHash = `0x${"33".repeat(32)}`;
 const blockHash = `0x${"44".repeat(32)}`;
-const ni = (value) => `ni:///sha-256;${createHash("sha256").update(value).digest("base64url")}`;
+const ni = rawNiUri;
 const projectionInterface = new Interface([
   "event TypedCommitment(bytes32 indexed rmnAct,address indexed accountableSettlement,bytes32 indexed predicate,bytes32 subject,bytes32 object,bytes32 evidenceRoot,bytes32 commitmentId)",
 ]);

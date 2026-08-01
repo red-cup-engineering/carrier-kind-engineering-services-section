@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createHash, generateKeyPairSync, randomUUID } from "node:crypto";
+import { generateKeyPairSync, randomUUID } from "node:crypto";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer as createNetServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -10,6 +10,7 @@ import test from "node:test";
 import { assay, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { circuitInterfaceFromAgentCard } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
 import { ACCOUNT, ACTOR, LAW, OPERATION_TYPE, createServer, executeSettledContract } from "../src/tollbooth.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PROVIDER_ROOT = resolve(ROOT, "../gemini-inference-team");
@@ -20,7 +21,7 @@ const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const PROVIDER_CARD = resolve(PROVIDER_ROOT, "content/agent-cards/gemini-inference-team.json");
 const PROVIDER_INTERFACE = circuitInterfaceFromAgentCard(JSON.parse(readFileSync(PROVIDER_CARD, "utf8")));
 const PROVIDER_OPERATION_TYPE = ["product", ["mark"], ["product", ["mark"], ["product", ["mark"], ["mark"]]]];
-const ni = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
+const ni = rawNiUri;
 const TEST_ENV = { X402_NETWORK: "eip155:84532", X402_PAY_TO: ACCOUNT.split(":").at(-1), X402_FACILITATOR: "https://facilitator.invalid", X402_PRICE: "$0.001", WITNESS_JOURNAL_RDF_AGENT: "http://127.0.0.1:1/.well-known/agent-card.json", PORT: "0" };
 
 async function freePort() { const server = createNetServer(); await new Promise((ok) => server.listen(0, "127.0.0.1", ok)); const port = server.address().port; await new Promise((ok) => server.close(ok)); return port; }

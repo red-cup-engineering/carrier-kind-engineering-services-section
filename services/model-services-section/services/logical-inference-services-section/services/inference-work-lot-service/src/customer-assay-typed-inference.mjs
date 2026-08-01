@@ -1,11 +1,11 @@
-import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { createInferenceSettlementStore } from "./witness-journal-settlement-store.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const ni = (value) => `ni:///sha-256;${createHash("sha256").update(typeof value === "string" ? value : JSON.stringify(value)).digest("base64url")}`;
+const ni = (value) => rawNiUri(typeof value === "string" ? value : JSON.stringify(value));
 function candidateText(procurement) { return procurement?.settlement?.candidate; }
 
 function parsedJsonCandidates(text) {

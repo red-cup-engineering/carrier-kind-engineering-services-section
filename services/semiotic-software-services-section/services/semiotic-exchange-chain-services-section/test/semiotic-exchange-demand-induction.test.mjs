@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
 import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
 import {
@@ -7,8 +6,9 @@ import {
   inducePrivateLiveMudDemand,
   PRIVATE_LIVE_MUD_REQUIREMENTS,
 } from "../src/semiotic-exchange-demand-induction.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
-const ni = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
+const ni = rawNiUri;
 const observation = (requirement, positive = [], negative = []) => ({ requirement, positive: positive.map(ni), negative: negative.map(ni) });
 
 test("induces the private live MUD as canonical raiseDemand material through the actual four-stage descent", () => {

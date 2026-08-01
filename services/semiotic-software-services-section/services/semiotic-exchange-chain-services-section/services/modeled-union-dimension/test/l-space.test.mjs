@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
 import { createCarrierAdmissionReceipt, createModeledUnionDimension, createNotebookLmLibraryQueryActuator, NOTEBOOK_PROVIDER } from "../src/index.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
-const ni = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
+const ni = rawNiUri;
 const identify = (value) => { const encoded = encodeRelationalValue(value); return semanticId(["ascribe", encoded.type, encoded.term]); };
 const notebookRefNi = ni("private-provider-notebook-locator"), sourceSetNi = ni("notebook-source-set"), sourceA = ni("source-receipt-a"), sourceB = ni("source-receipt-b");
 const catalogBody = Object.freeze({

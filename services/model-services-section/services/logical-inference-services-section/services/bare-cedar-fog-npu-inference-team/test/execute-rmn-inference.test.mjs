@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -10,10 +9,11 @@ import { serveContractedAgent } from "@red-cup-engineering/a2a-contracted-agent-
 import { ephemeralAgentCardSigning } from "@red-cup-engineering/a2a-agent-card-key-service/testing";
 import { assay, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { ACCOUNT, LAW, OPERATION_TYPE, acquireNpuCapacity, executeMessage, releaseNpuCapacity } from "../src/execute-rmn-inference.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const CUSTOMER_ACCOUNT = "eip155:31337:0x3333333333333333333333333333333333333333";
 
-const id = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
+const id = rawNiUri;
 const RMN_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../relational-model-services-section/services/relational-model-notation-services-section/services/rmn-conformance-service");
 const WITNESS_JOURNAL_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../../../../lenticule-science/services/obsmetrological-services-section/services/witness-journal-rdf-projection-service");
 const WIT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../../../../lenticule-science/services/obsmetrological-services-section/services/wit-transition-assay");

@@ -3,8 +3,9 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 import { createCarrierAdmissionReceipt, createModeledUnionDimension } from "../src/index.mjs";
 import { induceCapabilityRepairDemand } from "../../../src/semiotic-exchange-demand-induction.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
-const ni = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
+const ni = rawNiUri;
 const sha = (label) => `sha256:${createHash("sha256").update(label).digest("hex")}`;
 const base = {
   type: "CodexToolInvocationObservationReceipt", version: 1, disposition: "observed",

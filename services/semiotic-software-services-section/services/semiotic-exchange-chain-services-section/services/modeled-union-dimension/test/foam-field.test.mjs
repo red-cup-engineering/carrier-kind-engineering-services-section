@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
 import { createCarrierAdmissionReceipt, createModeledUnionDimension, projectTerritoryFoam } from "../src/index.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
-const ni = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
+const ni = rawNiUri;
 const packageName = "@red-cup-engineering/example-cell";
 const locus = `package:${packageName}`;
 const territory = Object.freeze({

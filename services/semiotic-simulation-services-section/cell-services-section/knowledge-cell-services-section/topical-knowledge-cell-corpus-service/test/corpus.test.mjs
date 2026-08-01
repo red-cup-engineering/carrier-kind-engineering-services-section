@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { FORBIDDEN_EFFECTS, formCorpusReconciliationIntent } from "../lib/corpus.mjs";
 
 function stable(value) { if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`; if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stable(value[key])}`).join(",")}}`; return JSON.stringify(value); }
-function identity(value) { return { id: `ni:///sha-256;${createHash("sha256").update(stable(value)).digest("base64url")}`, evidence: "urn:test:rmn-provider-receipt" }; }
+function identity(value) { return { id: rawNiUri(stable(value)), evidence: "urn:test:rmn-provider-receipt" }; }
 function harness() {
   const records = new Map(); return { records, providers: {
     identify: async (value) => identity(value), lookupRequest: async (id) => records.get(id) ?? null,

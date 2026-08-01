@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
 import { assayReceiptFinalityPolicy, chainReceiptKey, mergeChainReceiptViews, reorganizationCorrection } from "../src/finality-merge.mjs";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
-const ni = (value) => `ni:///sha-256;${createHash("sha256").update(value).digest("base64url")}`;
+const ni = rawNiUri;
 const receipt = { chainId: "eip155:1", blockHash: `0x${"11".repeat(32)}`, transactionHash: `0x${"22".repeat(32)}`, logIndex: 3, rmnAct: ni("act"), evidenceRoot: ni("evidence") };
 const charge = (positiveEvidence, negativeEvidence) => ({ predicate: ni("predicate"), subject: ni("subject"), object: ni("object"), positiveEvidence, negativeEvidence });
 

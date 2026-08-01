@@ -35,6 +35,7 @@
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
     "@red-cup-engineering/a2a-sovereign-operation-boundary-service": "1.0.1",
     "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
+    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1",
     "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3"
   }
 }
