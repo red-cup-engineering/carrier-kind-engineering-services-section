@@ -1,4 +1,4 @@
-import { requestInferenceWorkLot } from "@harmonious-union/inference-work-lot-service/client";
+import { requestInferenceWorkLot } from "@red-cup-engineering/inference-work-lot-service/client";
 
 const ACTOR = "urn:ame:semantic-candidate-review-service";
 

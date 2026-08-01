@@ -14,7 +14,7 @@
     "@lenticule-science/english-language-algebra": "0.1.1"
   },
   "optionalDependencies": {
-    "@harmonious-union/inference-work-lot-service": "4.0.1"
+    "@red-cup-engineering/inference-work-lot-service": "4.0.1"
   },
   "files": [
     "src",

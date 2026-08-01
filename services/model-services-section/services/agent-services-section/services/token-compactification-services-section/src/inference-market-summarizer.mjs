@@ -20,7 +20,7 @@ export const DEFAULT_OBJECTIVE =
 export function marketSummarizer({ workType = "summarization", objective = DEFAULT_OBJECTIVE, contract } = {}) {
   return async (prompt) => {
     const contractFn =
-      contract ?? (await import("@harmonious-union/inference-work-lot-service/codex-inference-market")).contractCodexInferenceWork;
+      contract ?? (await import("@red-cup-engineering/inference-work-lot-service/codex-inference-market")).contractCodexInferenceWork;
     const result = await contractFn({ objective, context: String(prompt), workType });
     if (result?.outcome !== MARKET_ACCEPTED) {
       throw new Error(`inference market did not admit: ${result?.outcome ?? "no-outcome"}${result?.reason ? ` (${result.reason})` : ""}`);

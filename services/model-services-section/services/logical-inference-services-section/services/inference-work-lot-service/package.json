@@ -1,0 +1,59 @@
+{
+  "name": "@red-cup-engineering/inference-work-lot-service",
+  "version": "4.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Customer-side direct inference contracting with bounded provider capabilities, plural barter consideration, explicit compacts, A2A 1.0 work settlement, and hired WitnessJournal recording.",
+  "exports": {
+    ".": "./src/typed-rmn-inference-procurement.mjs",
+    "./typed-rmn-inference-procurement": "./src/typed-rmn-inference-procurement.mjs",
+    "./codex-inference-market": "./src/codex-inference-market.mjs",
+    "./work-route-decision": "./src/work-route-decision.mjs",
+    "./client": {
+      "types": "./types/client.d.ts",
+      "import": "./src/client.mjs"
+    },
+    "./provider-admission": "./src/provider-admission.mjs",
+    "./consideration": "./src/consideration.mjs",
+    "./consideration-close": "./src/consideration-close.mjs",
+    "./expected-resolution-pricing-client": "./src/expected-resolution-pricing-client.mjs",
+    "./customer-assay-typed-inference": "./src/customer-assay-typed-inference.mjs",
+    "./p10-digestion": "./src/p10-digestion.mjs",
+    "./src/client.mjs": "./src/client.mjs",
+    "./src/consideration.mjs": "./src/consideration.mjs"
+  },
+  "bin": {
+    "exercise-npu-procurement": "./scripts/exercise-npu-procurement.mjs",
+    "check-codex-inference-market": "./scripts/check-codex-market.mjs",
+    "smoke-codex-inference-mcp": "./scripts/smoke-codex-mcp.mjs",
+    "serve-codex-inference-market": "./scripts/serve-codex-mcp.mjs",
+    "serve-expected-resolution-pricing": "./scripts/serve-expected-resolution-pricing.mjs",
+    "serve-inference-work-lot-a2a": "./scripts/server.mjs",
+    "close-pending-consideration": "./scripts/close-pending-consideration.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/client.mjs && node --check src/p10-digestion.mjs && node --check src/exact-amount.mjs && node --check src/context-packet-demand.mjs && node --check src/consideration.mjs && node --check src/consideration-close.mjs && node --check src/typed-rmn-inference-procurement.mjs && node --check src/work-route-decision.mjs && node --check src/customer-assay-typed-inference.mjs && node --check src/provider-admission.mjs && node --check src/codex-demand-classification.mjs && node --check src/codex-inference-market.mjs && node --check src/codex-mcp-contract.mjs && node --check src/user-swarm.mjs && node --check src/expected-resolution-pricing.mjs && node --check src/expected-resolution-pricing-client.mjs && node --check scripts/exercise-npu-procurement.mjs && node --check scripts/check-codex-market.mjs && node --check scripts/smoke-codex-mcp.mjs && node --check scripts/close-pending-consideration.mjs && node --check scripts/serve-codex-mcp.mjs && node --check scripts/serve-user-swarm.mjs && node --check scripts/serve-expected-resolution-pricing.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs && node --check test/work-route-decision.test.mjs && node --check test/rmn-provider-signing.test.mjs && node --check test/consideration.test.mjs && node --check test/consideration-close.test.mjs && node --check test/typed-rmn-inference-procurement.test.mjs && node --check test/customer-assay-typed-inference.test.mjs && node --check test/provider-admission.test.mjs && node --check test/context-packet-demand.test.mjs && node --check test/p10-digestion.test.mjs && node --check test/codex-inference-market.test.mjs && node --check test/expected-resolution-pricing.test.mjs && node --check test/a2a-market.test.mjs && node --check test/user-swarm.test.mjs",
+    "test": "node --test test/work-route-decision.test.mjs test/rmn-provider-signing.test.mjs test/consideration.test.mjs test/consideration-close.test.mjs test/typed-rmn-inference-procurement.test.mjs test/customer-assay-typed-inference.test.mjs test/provider-admission.test.mjs test/p10-digestion.test.mjs test/codex-inference-market.test.mjs test/expected-resolution-pricing.test.mjs test/a2a-market.test.mjs test/client.test.mjs test/user-swarm.test.mjs",
+    "close:consideration": "node scripts/close-pending-consideration.mjs",
+    "smoke:mcp": "node scripts/smoke-codex-mcp.mjs",
+    "verify": "npm run check && npm test && npm run smoke:mcp"
+  },
+  "dependencies": {
+    "@harmonious-union/forming-a-context-packet": "1.0.0",
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.1",
+    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.1",
+    "@red-cup-engineering/a2a-contracted-agent-service": "2.0.5",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.1",
+    "@red-cup-engineering/immutable-content-custody-service": "1.0.1",
+    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
+    "@red-cup-engineering/category-reference-index-service": "1.0.2",
+    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1",
+    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
+    "@lenticule-science/wit-transition-assay": "1.0.1",
+    "ajv": "8.20.0",
+    "zod": "4.3.6"
+  },
+  "license": "UNLICENSED"
+}

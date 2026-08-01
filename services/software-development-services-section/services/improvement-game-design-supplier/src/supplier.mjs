@@ -1,6 +1,6 @@
 import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { contractInferenceWork as defaultContractInferenceWork } from "@harmonious-union/inference-work-lot-service/codex-inference-market";
+import { contractInferenceWork as defaultContractInferenceWork } from "@red-cup-engineering/inference-work-lot-service/codex-inference-market";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
 export const ACTOR = "urn:ame:red-cup-engineering:improvement-game-design-supplier";

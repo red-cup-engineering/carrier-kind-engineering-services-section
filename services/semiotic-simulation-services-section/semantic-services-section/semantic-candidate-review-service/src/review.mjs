@@ -1,4 +1,4 @@
-import { resolutionCreditPolicy } from "@harmonious-union/inference-work-lot-service/consideration";
+import { resolutionCreditPolicy } from "@red-cup-engineering/inference-work-lot-service/consideration";
 import { dispatchReviewLots as defaultDispatch } from "./market-dispatch.mjs";
 
 function reviewSchema(testVectorIds) {

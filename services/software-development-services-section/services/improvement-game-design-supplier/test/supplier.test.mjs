@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { resolutionCreditPolicy } from "@harmonious-union/inference-work-lot-service/consideration";
+import { resolutionCreditPolicy } from "@red-cup-engineering/inference-work-lot-service/consideration";
 import { ACTOR, CONTEXT, bidForGameOffer, fulfillGameAward, record } from "../src/supplier.mjs";
 import { operatePulse, memoryLedger } from "../src/service.mjs";
 import { formRecordImprovementOpportunity } from "../../../../../../../../board-of-directors/services/executive-office/services/working-services-section/services/sovereign-improvement-board-service/src/record-opportunity.mjs";
