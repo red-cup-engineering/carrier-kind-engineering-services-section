@@ -1,12 +1,11 @@
 // Pure placement-independent RMN die material.
-import { canonicalEqual } from "./canonical-cbor.mjs";
+import { canonicalEqual, NI_URI as NI } from "./canonical-cbor.mjs";
 import { validateFour } from "./four.mjs";
 import { normalizeCircuitAssembly, normalizeHierarchicalCircuit, verifyCircuitAssembly } from "./hierarchical-circuit.mjs";
 import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "./relational-value.mjs";
 
 export const CIRCUIT_TRACE_PROFILE = "org.emsenn.rmn.hierarchical-circuit-trace.v6";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const CAIP10 = /^[-a-z0-9]{3,8}:[-_a-zA-Z0-9]{1,32}:[-.%a-zA-Z0-9]{1,128}$/u;
 const CAIP2 = /^[-a-z0-9]{3,8}:[-_a-zA-Z0-9]{1,32}$/u;
 const RECEIPT_KEYS = ["chain", "chu", "connection", "contract", "economicCurrentAffinity", "orientation", "originatingSettlement", "priceErasure", "receiptDigest", "receiptId"];

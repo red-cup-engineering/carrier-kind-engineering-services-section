@@ -1,5 +1,5 @@
 // Pure placement-independent RMN die material.
-import { canonicalEqual } from "./canonical-cbor.mjs";
+import { canonicalEqual, NI_URI as NI } from "./canonical-cbor.mjs";
 import { validateFour } from "./four.mjs";
 import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "./relational-value.mjs";
 import { semanticId } from "./rmn-core.mjs";
@@ -9,7 +9,6 @@ export const CIRCUIT_ASSEMBLY_PROFILE = "org.emsenn.rmn.circuit-assembly.v1";
 export const SOVEREIGN_CIRCUIT_INTERFACE_PROFILE = "org.emsenn.rmn.sovereign-circuit-interface.v1";
 export const SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION = "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const CAIP10 = /^[-a-z0-9]{3,8}:[-_a-zA-Z0-9]{1,32}:[-.%a-zA-Z0-9]{1,128}$/u;
 const CAIP2 = /^[-a-z0-9]{3,8}:[-_a-zA-Z0-9]{1,32}$/u;
 const DIRECTIONS = new Set(["input", "output"]);

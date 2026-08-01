@@ -3,6 +3,12 @@ import { createHash } from "node:crypto";
 
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
 
+// The single admitted shape of an RFC 6920 SHA-256 content address. Every seat
+// that mints one through niUri/rawNiUri validates against this same regex.
+export const NI_URI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+
+export function isNiUri(value) { return typeof value === "string" && NI_URI.test(value); }
+
 function fail(message) {
   const error = new Error(message);
   error.code = "non-canonical-rmn";

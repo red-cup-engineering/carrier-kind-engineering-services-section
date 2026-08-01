@@ -1,8 +1,8 @@
 // Pure placement-independent RMN die material.
+import { NI_URI as NI } from "./canonical-cbor.mjs";
 import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "./relational-value.mjs";
 
 export const CARRIER_REFINEMENT_PROFILE = "org.emsenn.infomaterial.carrier-refinement.v1";
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const CAIP10 = /^eip155:[1-9][0-9]*:0x[0-9a-f]{40}$/u;
 
 function fail(message) { const error = new Error(message); error.code = "malformed-refinement"; throw error; }

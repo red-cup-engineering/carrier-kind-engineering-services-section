@@ -1,5 +1,5 @@
 // Pure placement-independent RMN die material.
-import { canonicalEqual, decodeCanonical, encodeCanonical, niUri } from "./canonical-cbor.mjs";
+import { canonicalEqual, decodeCanonical, encodeCanonical, niUri, NI_URI as NI } from "./canonical-cbor.mjs";
 import { validateFour, witnessBit } from "./four.mjs";
 
 export { FOUR, four, isKnowledgeCover, joinKnowledge, validateFour, witnessBit } from "./four.mjs";
@@ -7,7 +7,6 @@ export { FOUR, four, isKnowledgeCover, joinKnowledge, validateFour, witnessBit }
 export const PROFILE = "org.emsenn.rmn.core.v3";
 export const RML_LANGUAGE = "rmn/v2";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const CAIP10 = /^[-a-z0-9]{3,8}:[-_a-zA-Z0-9]{1,32}:[-.%a-zA-Z0-9]{1,128}$/u;
 const DECIMAL = /^(0|[1-9][0-9]*)(\.[0-9]+)?$/u;
 const EFFECT_KEYS = ["caller", "evidenceRoot", "law", "measures", "operation", "outcome", "parent", "postcondition", "precondition", "provider", "refusal"];
