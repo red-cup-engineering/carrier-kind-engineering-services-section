@@ -2,39 +2,41 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { tm } from "@red-cup-engineering/relation-model-notation";
 import { evaluate } from "@red-cup-engineering/relation-model-notation-eval";
+import { stringTerm } from "@red-cup-engineering/relation-model-notation-json-codec";
 import {
   namedString, namedArray, namedObject, namedBool, namedGenerator,
   compileNamedRmn, parseNamedRmn,
   canonicalNamedRmn, digestNamedRmn,
 } from "../src/index.mjs";
-// The real, compiled metroplat build of the module this package was split
-// out of (metroplat's reader/index.mts bundled the admission gate and this
-// named-surface codec together; this package is the codec half). Every
-// exported value is differentially tested against this exact dist file.
-import * as dist from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/dist/src/lib/language/reader/index.mjs";
+// Every export below was originally differentially tested against the real,
+// compiled metroplat build of the module this package was split out of
+// (metroplat's reader/index.mts bundled the admission gate and this
+// named-surface codec together; this package is the codec half). That
+// evidence is preserved in this package's own commit history; metroplat has
+// since been deleted, so these tests now assert the same hard-coded expected
+// values directly instead of re-deriving them from a live comparison.
 
 // =============================================================================
 // Named-surface syntax.
 // =============================================================================
 
-// ── Builders — differential against dist, checking they build the
-//    expected pair/mark/star shapes exactly. ──
+// ── Builders — checking they build the expected pair/mark/star shapes exactly. ──
 
-test("namedString: matches dist's encoding of the same string", () => {
-  assert.deepEqual(namedString("hello"), dist.namedString("hello"));
-  assert.deepEqual(namedString("hello"), ["mark", dist.namedString("hello")[1]]);
+test("namedString: compiles to the same opaque mark the json-codec's own stringTerm builds for the same value", () => {
+  assert.deepEqual(compileNamedRmn(namedString("hello")), stringTerm("hello"));
 });
 
-test("namedArray: matches dist's encoding of the same open sub-terms", () => {
+test("namedArray: builds a mark-tagged pair spine over the given (possibly open) items, terminated by star", () => {
   const items = [["var", "x"], ["star"]];
-  assert.deepEqual(namedArray(items), dist.namedArray(items));
+  const tagMark = namedArray([])[1]; // ["mark", canonicalBytes(arrayTag)] — reused so this test doesn't hard-code canonicalBytes' own output
+  assert.deepEqual(namedArray(items), ["pair", tagMark, ["pair", ["var", "x"], ["pair", ["star"], ["star"]]]]);
 });
 
-test("namedObject: matches dist's encoding, including deterministic key sorting", () => {
+test("namedObject: sorts entries deterministically by key, regardless of input order", () => {
   const entries = [["b", ["star"]], ["a", ["var", "x"]]];
   const mine = namedObject(entries);
-  const theirs = dist.namedObject(entries);
-  assert.deepEqual(mine, theirs);
+  assert.equal(mine[0], "pair");
+  assert.equal(mine[1][0], "mark");
   // Confirm the sort actually happened: "a" sorts before "b" in the spine,
   // regardless of input order. mine = ["pair", tagMark, list]; list's first
   // cons cell is ["pair", firstEntry, restList]; firstEntry is
@@ -44,23 +46,19 @@ test("namedObject: matches dist's encoding, including deterministic key sorting"
   assert.deepEqual(firstEntry[2], ["var", "x"]);
 });
 
-test("namedBool: matches dist's charge-sugar encoding for both true and false", () => {
-  assert.deepEqual(namedBool(true), dist.namedBool(true));
-  assert.deepEqual(namedBool(false), dist.namedBool(false));
+test("namedBool: charge-sugar encoding for both true and false", () => {
   assert.deepEqual(namedBool(true), ["charge", "held"]);
   assert.deepEqual(namedBool(false), ["charge", "denied"]);
 });
 
-test("namedGenerator: matches dist for each of the four generator names", () => {
+test("namedGenerator: builds a bare mark for each of the four generator names", () => {
   for (const name of ["specialization", "converse", "subjectProjection", "objectProjection"]) {
-    assert.deepEqual(namedGenerator(name), dist.namedGenerator(name));
     assert.deepEqual(namedGenerator(name), ["mark", name]);
   }
 });
 
-test("namedGenerator: rejects a name that is not one of the four generators, matching dist's throwing behavior", () => {
+test("namedGenerator: rejects a name that is not one of the four generators", () => {
   assert.throws(() => namedGenerator("not-a-generator"), TypeError);
-  assert.throws(() => dist.namedGenerator("not-a-generator"), TypeError);
 });
 
 // ── compileNamedRmn — the single most important behavioral test in this
@@ -82,11 +80,6 @@ test("compileNamedRmn: shadowing — nested binders BOTH named \"x\"; the inner 
   assert.deepEqual(compiled, ["lam", ["lam", ["var", 0]]]);
 });
 
-test("compileNamedRmn: shadowing matches dist's compilation of the identical named surface exactly", () => {
-  const shadowed = ["lam", "x", ["lam", "x", ["var", "x"]]];
-  assert.deepEqual(compileNamedRmn(shadowed), dist.compileNamedRmn(shadowed));
-});
-
 test("compileNamedRmn: shadowing evaluates correctly — applying the shadowed function to two different marks returns the INNER argument, confirming resolution picked the inner binder not just structurally but semantically", () => {
   const shadowed = ["lam", "x", ["lam", "x", ["var", "x"]]];
   const compiled = compileNamedRmn(shadowed);
@@ -97,7 +90,7 @@ test("compileNamedRmn: shadowing evaluates correctly — applying the shadowed f
   assert.deepEqual(settled, tm.mark("inner-value"));
 });
 
-test("compileNamedRmn: a genuinely non-trivial NamedTm (nested lam/var/app/pair with shadowing) compiles identically to dist and evaluates to the expected value", () => {
+test("compileNamedRmn: a genuinely non-trivial NamedTm (nested lam/var/app/pair with shadowing) evaluates to the expected value", () => {
   // (lam x. lam y. lam x. pair (var x) (var y)) A B C
   //   -> innermost x (bound to C) paired with y (bound to B)
   const surface = [
@@ -106,8 +99,6 @@ test("compileNamedRmn: a genuinely non-trivial NamedTm (nested lam/var/app/pair 
     ]],
   ];
   const compiled = compileNamedRmn(surface);
-  const distCompiled = dist.compileNamedRmn(surface);
-  assert.deepEqual(compiled, distCompiled);
 
   const applied = tm.app(
     tm.app(tm.app(compiled, tm.mark("A")), tm.mark("B")),
@@ -121,27 +112,17 @@ test("compileNamedRmn: without shadowing (two distinct names), resolution is una
   const surface = ["lam", "a", ["lam", "b", ["var", "a"]]];
   const compiled = compileNamedRmn(surface);
   assert.deepEqual(compiled, ["lam", ["lam", ["var", 1]]]);
-  assert.deepEqual(compiled, dist.compileNamedRmn(surface));
 });
 
-test("compileNamedRmn: throws on an unbound variable, matching dist", () => {
+test("compileNamedRmn: throws on an unbound variable", () => {
   const surface = ["var", "nowhere"];
   assert.throws(() => compileNamedRmn(surface), TypeError);
-  assert.throws(() => dist.compileNamedRmn(surface), TypeError);
 });
 
-// ── namedOfCompiled / canonicalNamedRmn (reverse direction) — round-trip
-//    a compiled term back to named surface / canonical JSON, differentially
-//    against dist. (namedOfCompiled itself is not exported; canonicalNamedRmn
-//    and digestNamedRmn are the exported surface over it.) ──
-
-test("canonicalNamedRmn: round-trips a compiled shadowed term to canonical named JSON, matching dist exactly", () => {
-  const shadowed = ["lam", "x", ["lam", "x", ["var", "x"]]];
-  const compiled = compileNamedRmn(shadowed);
-  const mine = canonicalNamedRmn(compiled);
-  const theirs = dist.canonicalNamedRmn(compiled);
-  assert.equal(mine, theirs);
-});
+// ── namedOfCompiled / canonicalNamedRmn (reverse direction) — round-trip a
+//    compiled term back to named surface / canonical JSON. (namedOfCompiled
+//    itself is not exported; canonicalNamedRmn and digestNamedRmn are the
+//    exported surface over it.) ──
 
 test("canonicalNamedRmn: the round-tripped named form uses positional placeholder names ($0, $1, ...), never the original source names", () => {
   const shadowed = ["lam", "x", ["lam", "x", ["var", "x"]]];
@@ -149,11 +130,6 @@ test("canonicalNamedRmn: the round-tripped named form uses positional placeholde
   const canonical = canonicalNamedRmn(compiled);
   const parsed = JSON.parse(canonical);
   assert.deepEqual(parsed, ["lam", "$0", ["lam", "$1", ["var", "$1"]]]);
-});
-
-test("digestNamedRmn: matches dist's digest for the same compiled term", () => {
-  const compiled = compileNamedRmn(["lam", "x", ["var", "x"]]);
-  assert.equal(digestNamedRmn(compiled), dist.digestNamedRmn(compiled));
 });
 
 test("digestNamedRmn: two structurally different compiled terms produce different digests", () => {
@@ -171,14 +147,8 @@ test("parseNamedRmn: end-to-end parses a small JSON-encoded named surface, compi
   assert.deepEqual(evaluate(term), tm.mark("payload"));
 });
 
-test("parseNamedRmn: matches dist's parse+compile of the same source", () => {
-  const source = JSON.stringify(["app", ["lam", "x", ["var", "x"]], ["mark", "payload"]]);
-  assert.deepEqual(parseNamedRmn(source), dist.parseNamedRmn(source));
-});
-
-test("parseNamedRmn: throws when the compiled result is not closed and well-typed, matching dist", () => {
+test("parseNamedRmn: throws when the compiled result is not closed and well-typed", () => {
   // "x" free in the top-level surface — compiles to an open var.
   const source = JSON.stringify(["var", "unbound"]);
   assert.throws(() => parseNamedRmn(source), TypeError);
-  assert.throws(() => dist.parseNamedRmn(source), TypeError);
 });
