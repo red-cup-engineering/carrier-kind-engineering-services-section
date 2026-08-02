@@ -24,29 +24,26 @@
  * kernel's only binder (`fold`'s combining function is itself a curried
  * `lam`/`lam` term, not a binder site of its own).
  *
- * Resolving a name is not an invented symbol-table lookup: each open binder is
- * admitted as a `{subject: binderId, predicate: name}` incidence cell, and the
- * candidate set of binders sharing a name is a real `extentOfIntentTerm`
- * evaluation (`core/language/stdlib/connecting/formal-concept.mts`) — the derivation
- * closure `Obsmetrologia/Calculus/Logic/FCALambekCircle.lean`'s edge (1) proves
- * is the same extensive/monotone/idempotent shape as this package's own
- * settling closure (`fca_closure_laws`; "computing formal concepts is
- * computing closures"). Ordinary lexical shadowing (innermost binder wins)
- * then picks among however many candidates FCA returns — the closure gives
- * the candidate set, nesting order picks the winner, exactly as far as the
- * mathematics goes and no further.
+ * Resolving a name is an ordinary reverse scan of the open-binder scope:
+ * lexical shadowing means the innermost (last-appended) binder bearing the
+ * name wins, and `scope` is append-only and ordered outermost-first, so a
+ * scan from the end finds exactly that binder by construction. (An earlier
+ * version of this package routed name resolution through an RMN-term-encoded
+ * FCA extent evaluation over `{subject: binderId, predicate: name}`
+ * incidence cells; that machinery never exercised any lattice structure —
+ * single-attribute incidence immediately reduced to a max() — so it added a
+ * cross-package dependency and an evaluator round-trip for what a five-line
+ * scan does identically. See `resolveByFca`'s own doc comment.)
  *
  * Transcribed from metroplat's `src/lib/language/reader/index.mts`, behavior
  * preserved exactly (TypeScript type annotations dropped; JSDoc typedefs
- * substituted). `evaluate`/`evaluateRunTerm` now come from
+ * substituted). `evaluate` now comes from
  * `@red-cup-engineering/relation-model-notation-eval` in place of the relative
  * `../eval/index.mts`; `inferTy`/`isClosed` now come from
  * `@red-cup-engineering/relation-model-notation-typing` in place of the
  * relative `../check/index.mts`; `tm` and the `Tm`/`ChargeValueName`/
  * `GeneratorName` types now come from `@red-cup-engineering/relation-model-notation`
- * in place of the relative `../ast/index.mts`; `extentOfIntentTerm` now comes
- * from `@red-cup-engineering/relation-model-notation-formal-concept` in place
- * of the relative `../stdlib/connecting/formal-concept.mts`; `arrayTag`/
+ * in place of the relative `../ast/index.mts`; `arrayTag`/
  * `objectTag` now come from `@red-cup-engineering/relation-model-notation-projecting`
  * in place of the relative `./projecting/index.mts`.
  *
@@ -60,14 +57,13 @@
  * `digest` in particular has not been needed by any sibling package ported
  * so far; it is used here exactly once, by `digestNamedRmn`.
  */
-import { evaluate, evaluateRunTerm } from "@red-cup-engineering/relation-model-notation-eval";
+import { evaluate } from "@red-cup-engineering/relation-model-notation-eval";
 import { canonicalBytes, digest } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/identity/index.mts";
 import { inferTy, isClosed } from "@red-cup-engineering/relation-model-notation-typing";
 import { tm } from "@red-cup-engineering/relation-model-notation";
 import { chargeValueNames } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts";
 import { parse as parseJson } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts";
 
-import { extentOfIntentTerm } from "@red-cup-engineering/relation-model-notation-formal-concept";
 import { arrayTag, objectTag } from "@red-cup-engineering/relation-model-notation-projecting";
 
 /**
@@ -286,26 +282,29 @@ export function namedGenerator(name) {
   return ["mark", requireOneOf(name, GENERATOR_NAMES, "GeneratorName")];
 }
 
-/** One open binder: its position in `scope` doubles as its FCA subject id.
+/** One open binder: its position in `scope` doubles as its append-order id.
  * @typedef {{ readonly id: number, readonly name: string }} OpenBinder
  */
 
-/** Resolve `name` to a de-Bruijn index against `scope` (outermost-first). The
- *  candidate set of binders bearing `name` is a real `extentOfIntentTerm`
- *  evaluation over `{subject: binderId, predicate: name}` cells; the innermost
- *  (highest id) candidate wins, ordinary lexical shadowing.
+/** Resolve `name` to a de-Bruijn index against `scope` (outermost-first,
+ *  append-only). Ordinary lexical shadowing: the innermost (last-appended)
+ *  binder bearing `name` wins. Since `scope` is append-only and ordered
+ *  outermost-first, "highest id" and "last match scanning from the end" are
+ *  the same binder by construction — a direct reverse scan, no lattice
+ *  needed. (Previously routed through an RMN-term-encoded FCA extent
+ *  evaluation over `{subject: binderId, predicate: name}` cells; that was
+ *  single-attribute incidence dressed as formal-concept analysis — no
+ *  lattice structure was ever exercised, so it added a cross-package
+ *  dependency and an evaluator round-trip for what this is.)
  * @param {readonly OpenBinder[]} scope
  * @param {string} name
  * @returns {number}
  */
 function resolveByFca(scope, name) {
-  if (scope.length === 0) throw new TypeError(`compileNamedRmn: unbound variable "${name}"`);
-  const cells = scope.map((binder) => ({ subject: binder.id, predicate: binder.name }));
-  const matches = evaluateRunTerm(extentOfIntentTerm, { cells, intent: [name] });
-  if (matches.length === 0) throw new TypeError(`compileNamedRmn: unbound variable "${name}"`);
-  const innermostId = Math.max(...matches);
-  const position = scope.findIndex((binder) => binder.id === innermostId);
-  return scope.length - 1 - position;
+  for (let index = scope.length - 1; index >= 0; index -= 1) {
+    if (scope[index].name === name) return scope.length - 1 - index;
+  }
+  throw new TypeError(`compileNamedRmn: unbound variable "${name}"`);
 }
 
 function requireOneOf(value, allowed, label) {
