@@ -25,13 +25,13 @@ import {
 // decodeSemantic wrapper functions this package also extracts. Every
 // representative input below is run through BOTH this package's exports and
 // the real runtime-service source, and the outputs must match exactly.
-import * as sourceCbor from "../../relation-model-notation-runtime-service/src/canonical-cbor.mjs";
+import * as sourceCbor from "../../../../relation-model-notation-runtime-service/src/canonical-cbor.mjs";
 import {
   normalizeCarrier as sourceNormalizeCarrier,
   semanticBytes as sourceSemanticBytes,
   semanticId as sourceSemanticId,
   decodeSemantic as sourceDecodeSemantic,
-} from "../../relation-model-notation-runtime-service/src/rmn-core.mjs";
+} from "../../../../relation-model-notation-runtime-service/src/rmn-core.mjs";
 
 // ── representative values ───────────────────────────────────────────────────
 
