@@ -19,5 +19,8 @@
   "dependencies": {
     "@red-cup-engineering/relation-model-notation": "0.0.1",
     "@red-cup-engineering/relation-model-notation-json-codec": "0.0.1"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/json-file-codec-service": "0.1.2"
   }
 }

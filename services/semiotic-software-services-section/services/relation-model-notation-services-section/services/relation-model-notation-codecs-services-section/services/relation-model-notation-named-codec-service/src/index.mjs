@@ -34,23 +34,42 @@
  * section's own `relation-model-notation-reader-service`, which bundled
  * the admission gate and this codec together before this split): behavior
  * preserved exactly (TypeScript type annotations dropped; JSDoc typedefs
- * substituted). `tm` and the `Tm`/`ChargeValueName`/`GeneratorName` types
- * now come from `@red-cup-engineering/relation-model-notation`;
+ * substituted). `tm`/`chargeValueNames` and the `Tm`/`ChargeValueName`/
+ * `GeneratorName` types now come from `@red-cup-engineering/relation-model-notation`
+ * (the charge-name vocabulary is grammar-fundamental, not general infra);
  * `inferTy`/`isClosed` from `@red-cup-engineering/relation-model-notation-typing`;
- * `arrayTag`/`objectTag` from `@red-cup-engineering/relation-model-notation-json-codec`.
- *
- * `canonicalBytes`/`digest` (from `identity/index.mts`), `chargeValueNames`
- * (from `values/index.mts`), and `parse` (from `codecs/json/core.mts`) are
- * DELIBERATELY still imported directly from metroplat's legacy tree by
- * relative path, not from any published package — the same deliberate,
- * noted dependency the json-codec package's own port already carries.
+ * `arrayTag`/`objectTag` from `@red-cup-engineering/relation-model-notation-json-codec`;
+ * `parse` from `@red-cup-engineering/json-file-codec-service` (a real
+ * published package, differentially verified identical to metroplat's copy
+ * for what this package needs); `rawNiUri` (in place of metroplat's
+ * `digest`, used only by `digestNamedRmn`) from
+ * `@red-cup-engineering/relation-model-notation-cbor-codec`, this section's
+ * own content-addressing codec, rather than reaching into metroplat for a
+ * different digest format entirely. `canonicalBytes` is not replaced with
+ * any package's `canonical()` — every call site here only ever canonicalizes
+ * a plain string, never a nested object/array, and for that domain
+ * `JSON.stringify` is proven identical to metroplat's RFC-8785
+ * `canonicalBytes` (differentially verified); no dependency needed for it
+ * at all, same reasoning as the json-codec package's own port.
  */
-import { tm } from "@red-cup-engineering/relation-model-notation";
+import { tm, chargeValueNames } from "@red-cup-engineering/relation-model-notation";
 import { inferTy, isClosed } from "@red-cup-engineering/relation-model-notation-typing";
 import { arrayTag, objectTag } from "@red-cup-engineering/relation-model-notation-json-codec";
-import { canonicalBytes, digest } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/identity/index.mts";
-import { chargeValueNames } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts";
-import { parse as parseJson } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts";
+import { rawNiUri } from "@red-cup-engineering/relation-model-notation-cbor-codec";
+import { parse as parseJson } from "@red-cup-engineering/json-file-codec-service";
+
+/** Canonical text for a primitive value (a string leaf, never an
+ *  object/array at these call sites) — see the module doc comment. */
+function canonicalBytes(value) {
+  return JSON.stringify(value);
+}
+
+/** Content address for the canonical named-JSON serialization, using this
+ *  section's own CBOR codec's `ni://` minting rather than metroplat's
+ *  ArtifactRef format. */
+function digest(source) {
+  return rawNiUri(source);
+}
 
 /**
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm

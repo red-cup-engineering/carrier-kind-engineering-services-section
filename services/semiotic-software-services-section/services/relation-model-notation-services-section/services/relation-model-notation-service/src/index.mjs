@@ -66,6 +66,16 @@ const chargeBits = {
 };
 const chargeNames = Object.keys(chargeBits);
 
+/** The finite FOUR charge-name vocabulary, in the same order `chargeCase`
+ *  dispatches over. The grammar's own vocabulary, not general infra — this
+ *  is the correct home for it, not a reach into some other package. */
+export const chargeValueNames = Object.freeze([...chargeNames]);
+
+/** Whether a raw string is one of the four charge names. */
+export function isChargeValueName(value) {
+  return chargeNames.includes(value);
+}
+
 const nameOfBits = (truth, falsity) =>
   chargeNames.find((name) => chargeBits[name][0] === truth && chargeBits[name][1] === falsity);
 

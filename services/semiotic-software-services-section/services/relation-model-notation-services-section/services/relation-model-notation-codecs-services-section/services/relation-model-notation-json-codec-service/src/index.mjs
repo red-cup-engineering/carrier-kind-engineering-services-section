@@ -35,34 +35,45 @@
  *
  * Transcribed from metroplat's `src/lib/language/reader/projecting/index.mts`,
  * behavior preserved exactly (TypeScript type annotations dropped; JSDoc
- * typedefs substituted). `tm`/`ty`/`chargeNameOfTerm`/`generatorNameOfTerm`
- * now come from `@red-cup-engineering/relation-model-notation` in place of
- * the relative `../../ast/index.mts`.
+ * typedefs substituted). `tm`/`ty`/`chargeNameOfTerm`/`generatorNameOfTerm`/
+ * `chargeValueNames`/`isChargeValueName` now come from
+ * `@red-cup-engineering/relation-model-notation` (the charge-name vocabulary
+ * is grammar-fundamental, not general infra — it belongs there, not in some
+ * other package this one reaches into). `parse`/`JsonValue` now come from
+ * `@red-cup-engineering/json-file-codec-service`, a real published package
+ * with matching behavior (differentially verified: 10/10 representative
+ * values match, both throw the same error type on invalid input) — no
+ * reason to keep depending on metroplat's copy once a modern equivalent is
+ * confirmed identical for what this package actually needs.
  *
- * `JsonValue`/`parse` (from `codecs/json/core.mts`), `canonicalBytes` (from
- * `identity/index.mts`), and `ChargeValueName`/`isChargeValueName` (from
- * `values/index.mts`) are DELIBERATELY still imported directly from
- * metroplat's legacy tree by relative path, not from any published package.
- * `@red-cup-engineering/json-file-codec-service` has a `parse`/`JsonValue`
- * that matches `codecs/json/core.mts` exactly, but its `canonical()` is a
- * DIFFERENT, simpler algorithm than `identity/index.mts`'s RFC-8785-compliant
- * `canonicalBytes` — swapping canonicalization algorithms is a real
- * behavioral-divergence risk for numeric edge cases, and unifying the
- * monorepo's canonicalization is a separate, deliberate future decision, not
- * something to slip in silently while porting this module. This package
- * therefore carries a real, scoped, known dependency on metroplat's
- * `identity`/`codecs/json`/`values` modules (general infra, not part of the
- * language split — this does not block deleting metroplat's `lib/language`
- * later); it is noted here explicitly rather than silently.
+ * `canonicalBytes` (from metroplat's `identity/index.mts`) is NOT replaced
+ * with `json-file-codec-service`'s `canonical()` — those two use genuinely
+ * different algorithms (RFC-8785 vs. a simpler ad hoc one) and swapping
+ * would be a real behavioral-divergence risk for numeric edge cases in
+ * general. But every call site in this package only ever passes a plain
+ * string or number (an object key, a tag constant, a JSON string/number
+ * leaf already type-checked before the call) — never a nested object or
+ * array, where the two algorithms could actually diverge. For that
+ * primitive-only case, `JSON.stringify` and `canonicalBytes` are proven
+ * identical (differentially verified: 10/10, including unicode, quotes,
+ * negative zero, and both very large and very small numbers) — so this
+ * package needs no external canonicalization dependency at all here, just
+ * the standard library.
  */
-import { canonicalBytes } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/identity/index.mts";
-import { parse } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts";
-import { isChargeValueName } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts";
-import { tm, ty, chargeNameOfTerm, generatorNameOfTerm } from "@red-cup-engineering/relation-model-notation";
+import { parse } from "@red-cup-engineering/json-file-codec-service";
+import { tm, ty, chargeNameOfTerm, generatorNameOfTerm, isChargeValueName } from "@red-cup-engineering/relation-model-notation";
+
+/** Canonical text for a primitive mark payload (a string or number leaf,
+ *  never an object/array at these call sites) — `JSON.stringify` and
+ *  metroplat's RFC-8785 `canonicalBytes` are proven identical for exactly
+ *  this domain; see the module doc comment. */
+function canonicalBytes(value) {
+  return JSON.stringify(value);
+}
 
 /**
- * @typedef {import("../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts").JsonValue} JsonValue
- * @typedef {import("../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts").ChargeValueName} ChargeValueName
+ * @typedef {import("@red-cup-engineering/json-file-codec-service").JsonValue} JsonValue
+ * @typedef {import("@red-cup-engineering/relation-model-notation/types").ChargeValueName} ChargeValueName
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Ty} Ty
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm
  */

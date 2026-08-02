@@ -42,20 +42,18 @@
  * `@red-cup-engineering/relation-model-notation-typing` in place of the
  * relative `../check/index.mts`.
  *
- * `parse` (from `codecs/json/core.mts`) is DELIBERATELY still imported directly
- * from metroplat's legacy tree by relative path, not from any published
- * package — the same deliberate, noted dependency the json-codec package's own
- * port already carries on `identity`/`codecs/json`/`values` (general infra, not
- * part of the language split — this does not block deleting metroplat's
- * `lib/language` later).
+ * `parse` now comes from `@red-cup-engineering/json-file-codec-service`, a
+ * real published package, differentially verified identical to metroplat's
+ * copy for what this package needs — no remaining dependency on metroplat
+ * anywhere in this package.
  */
 import { evaluate } from "@red-cup-engineering/relation-model-notation-eval";
 import { inferTy, isClosed } from "@red-cup-engineering/relation-model-notation-typing";
-import { parse as parseJson } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts";
+import { parse as parseJson } from "@red-cup-engineering/json-file-codec-service";
 
 /**
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm
- * @typedef {import("../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts").JsonValue} JsonValue
+ * @typedef {import("@red-cup-engineering/json-file-codec-service").JsonValue} JsonValue
  */
 
 /** The IANA-style media type for an RMN body. */

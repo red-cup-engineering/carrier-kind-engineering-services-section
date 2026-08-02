@@ -50,10 +50,9 @@
  * now come from `@red-cup-engineering/relation-model-notation-json-codec` in
  * place of the relative `../reader/projecting/index.mts`.
  *
- * `JsonValue` (type only, from `codecs/json/core.mts`) is DELIBERATELY still
- * imported directly from metroplat's legacy tree by relative path, not from
- * any published package — the same deliberate, scoped, noted dependency the
- * projecting package already carries for the same type.
+ * `JsonValue` (type only) now comes from
+ * `@red-cup-engineering/json-file-codec-service` — no remaining dependency
+ * on metroplat anywhere in this package.
  */
 import { tm, inst, boolOfTerm } from "@red-cup-engineering/relation-model-notation";
 import {
@@ -64,7 +63,7 @@ import {
 } from "@red-cup-engineering/relation-model-notation-json-codec";
 
 /**
- * @typedef {import("../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts").JsonValue} JsonValue
+ * @typedef {import("@red-cup-engineering/json-file-codec-service").JsonValue} JsonValue
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm
  */
 
