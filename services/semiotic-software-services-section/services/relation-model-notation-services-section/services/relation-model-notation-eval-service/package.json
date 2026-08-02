@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/relation-model-notation-eval",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "The Relation Model Notation reduction engine: step (one-step reducts), dev (Takahashi complete development), normalize/evaluate (reduction to normal form), and evaluateRunTerm (apply a run-term to admitted JSON, evaluate, decode back to JSON) over the RMN term grammar.",
   "private": true,
   "type": "module",
@@ -17,7 +17,7 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/relation-model-notation": "1.0.0",
-    "@red-cup-engineering/relation-model-notation-json-codec": "1.0.0"
+    "@red-cup-engineering/relation-model-notation": "0.0.1",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.0.1"
   }
 }

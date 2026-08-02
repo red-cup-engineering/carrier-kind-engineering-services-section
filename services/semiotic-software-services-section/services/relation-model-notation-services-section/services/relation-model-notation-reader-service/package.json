@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/relation-model-notation-reader",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "RMN's admission gate: isRelationalTerm/parseRmn/settleRmn are the closed-well-typed-term admission gate, composing the typer and the reducer; extractRelationalScripts/htmlIsRelational/settleRelationalHtml and sessionIsRelational/settleRelationalSession extend that gate to <script type=\"application/rmn+json\"> HTML documents and message-stream sessions. The named-variable surface syntax has moved to @red-cup-engineering/relation-model-notation-named-codec.",
   "private": true,
   "type": "module",
@@ -17,10 +17,10 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/relation-model-notation-typing": "1.0.0",
-    "@red-cup-engineering/relation-model-notation-eval": "1.0.0"
+    "@red-cup-engineering/relation-model-notation-typing": "0.0.1",
+    "@red-cup-engineering/relation-model-notation-eval": "0.0.1"
   },
   "devDependencies": {
-    "@red-cup-engineering/relation-model-notation": "1.0.0"
+    "@red-cup-engineering/relation-model-notation": "0.0.1"
   }
 }

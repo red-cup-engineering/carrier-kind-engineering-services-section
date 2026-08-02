@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/relation-model-notation-named-codec",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "The named-variable surface syntax for Relation Model Notation: compileNamedRmn/parseNamedRmn and namedString/namedArray/namedObject/namedBool/namedGenerator admit a named surface (var/lam carry a name instead of a de-Bruijn index; resolved by ordinary lexical shadowing, innermost binder wins) and compile it to the closed de-Bruijn kernel, with namedOfCompiled/canonicalNamedRmn/digestNamedRmn as the reverse direction. Split out of relation-model-notation-reader-service, which was the admission gate AND this codec bundled together -- a codec and a gate are two different functions.",
   "private": true,
   "type": "module",
@@ -17,11 +17,11 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/relation-model-notation": "1.0.0",
-    "@red-cup-engineering/relation-model-notation-typing": "1.0.0",
-    "@red-cup-engineering/relation-model-notation-json-codec": "1.0.0"
+    "@red-cup-engineering/relation-model-notation": "0.0.1",
+    "@red-cup-engineering/relation-model-notation-typing": "0.0.1",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.0.1"
   },
   "devDependencies": {
-    "@red-cup-engineering/relation-model-notation-eval": "1.0.0"
+    "@red-cup-engineering/relation-model-notation-eval": "0.0.1"
   }
 }

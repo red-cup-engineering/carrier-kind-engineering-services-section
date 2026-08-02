@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/relation-model-notation-typing",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "RMN type checking and structural term analysis over the Relation Model Notation grammar: tyEqual/inferTy/checkTy/hasTy (bidirectional CHL-core typing) and termSize/termUses/isClosed (structural term analysis).",
   "private": true,
   "type": "module",
@@ -17,6 +17,6 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/relation-model-notation": "1.0.0"
+    "@red-cup-engineering/relation-model-notation": "0.0.1"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@red-cup-engineering/relation-model-notation-cbor-codec",
-  "version": "1.0.0",
-  "description": "Generic RFC 8949 canonical (core deterministic) CBOR codec and RFC 6920 ni:// content-addressing: encodeCanonical/decodeCanonical, canonicalEqual, sha256Bytes/niUri/sha256Hex, rawSha256Bytes/rawNiUri, and the normalizeCarrier/semanticBytes/semanticId/decodeSemantic semantic layer. Generic over any JSON-shaped value (booleans, null, safe-integer numbers, bigints, strings, Buffer/Uint8Array, arrays, plain objects) — no dependency on any particular term grammar's shape, including the RMN grammar itself.",
+  "version": "0.0.1",
+  "description": "Generic RFC 8949 canonical (core deterministic) CBOR codec and RFC 6920 ni:// content-addressing: encodeCanonical/decodeCanonical, canonicalEqual, sha256Bytes/niUri/sha256Hex, rawSha256Bytes/rawNiUri, and the normalizeCarrier/semanticBytes/semanticId/decodeSemantic semantic layer. Generic over any JSON-shaped value (booleans, null, safe-integer numbers, bigints, strings, Buffer/Uint8Array, arrays, plain objects) \u2014 no dependency on any particular term grammar's shape, including the RMN grammar itself.",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
@@ -17,6 +17,6 @@
     "node": ">=22"
   },
   "devDependencies": {
-    "@red-cup-engineering/relation-model-notation": "1.0.0"
+    "@red-cup-engineering/relation-model-notation": "0.0.1"
   }
 }
