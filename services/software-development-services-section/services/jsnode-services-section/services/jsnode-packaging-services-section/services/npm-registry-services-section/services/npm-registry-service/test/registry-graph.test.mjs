@@ -23,28 +23,28 @@ function registryFetch(registryDirectory) {
 async function writeFixtureRegistry(root, { danglingPin = false } = {}) {
   await mkdir(join(root, "metadata"), { recursive: true });
   const manifests = {
-    "@union/leaf": {
-      name: "@union/leaf",
+    "@example/leaf": {
+      name: "@example/leaf",
       "dist-tags": { latest: "1.0.0" },
       versions: {
         "1.0.0": {
-          name: "@union/leaf",
+          name: "@example/leaf",
           version: "1.0.0",
-          "x-semiotic-voxel": { actor: "urn:ame:union-leaf", owner: "union", kind: "actor" },
+          "x-semiotic-voxel": { actor: "urn:ame:example-leaf", owner: "example", kind: "actor" },
           "x-agentic-metro-enterprise": { "node-id": "leaf-node" },
           dist: { shasum: "leaf-sha", integrity: "sha512-leaf" },
         },
       },
     },
-    "@union/stem": {
-      name: "@union/stem",
+    "@example/stem": {
+      name: "@example/stem",
       versions: {
         "2.0.0": {
-          name: "@union/stem",
+          name: "@example/stem",
           version: "2.0.0",
-          dependencies: { "@union/leaf": danglingPin ? "9.9.9" : "1.0.0" },
+          dependencies: { "@example/leaf": danglingPin ? "9.9.9" : "1.0.0" },
           devDependencies: { typescript: "^5.8.0" },
-          "x-semiotic-voxel": { actor: "urn:ame:union-stem", owner: "union", kind: "actor" },
+          "x-semiotic-voxel": { actor: "urn:ame:example-stem", owner: "example", kind: "actor" },
           dist: { shasum: "stem-sha", integrity: "sha512-stem" },
         },
       },
@@ -56,33 +56,33 @@ async function writeFixtureRegistry(root, { danglingPin = false } = {}) {
   await writeFile(join(root, "registry-receipt.json"), `${JSON.stringify({
     type: "SemioticVoxelPackageRegistryReceipt",
     version: 2,
-    registry: "http://registry.union.test/",
+    registry: "http://registry.example.test/",
     predecessor: null,
     reaction: null,
-    scopes: ["union"],
-    compute: { provider: "union-test", parallelism: 1 },
+    scopes: ["example"],
+    compute: { provider: "example-test", parallelism: 1 },
     packages: [
-      { name: "@union/stem", version: "2.0.0", artifact: "tarballs/union/stem/-/stem-2.0.0.tgz", bytes: 2, shasum: "stem-sha", integrity: "sha512-stem" },
-      { name: "@union/leaf", version: "1.0.0", artifact: "tarballs/union/leaf/-/leaf-1.0.0.tgz", bytes: 1, shasum: "leaf-sha", integrity: "sha512-leaf" },
+      { name: "@example/stem", version: "2.0.0", artifact: "tarballs/example/stem/-/stem-2.0.0.tgz", bytes: 2, shasum: "stem-sha", integrity: "sha512-stem" },
+      { name: "@example/leaf", version: "1.0.0", artifact: "tarballs/example/leaf/-/leaf-1.0.0.tgz", bytes: 1, shasum: "leaf-sha", integrity: "sha512-leaf" },
     ],
   })}\n`);
 }
 
 test("derives a tiered registry graph with two-leg node addresses", async () => {
-  const root = await mkdtemp(join(tmpdir(), "union-registry-graph-"));
+  const root = await mkdtemp(join(tmpdir(), "registry-graph-"));
   try {
     await writeFixtureRegistry(root);
     const graph = await deriveRegistryGraph({ registryRoot: root });
 
     assert.equal(graph.type, "NpmRegistryGraph");
-    assert.deepEqual(graph.nodes.map((node) => node.address.packageSurface), ["@union/leaf@1.0.0", "@union/stem@2.0.0"]);
+    assert.deepEqual(graph.nodes.map((node) => node.address.packageSurface), ["@example/leaf@1.0.0", "@example/stem@2.0.0"]);
     assert.equal(graph.nodes[0].address.contentIntegrity, "sha512-leaf");
     assert.match(graph.receiptSha256, /^sha256:[0-9a-f]{64}$/u);
 
     const internal = graph.tiers.dependency.edges.find((edge) => edge.resolution === "registry");
     assert.deepEqual(internal, {
-      from: "@union/stem@2.0.0",
-      to: "@union/leaf@1.0.0",
+      from: "@example/stem@2.0.0",
+      to: "@example/leaf@1.0.0",
       constraint: "1.0.0",
       relation: "dependencies",
       resolution: "registry",
@@ -91,11 +91,11 @@ test("derives a tiered registry graph with two-leg node addresses", async () => 
     assert.equal(external.to, "typescript");
     assert.equal(external.relation, "devDependencies");
 
-    assert.deepEqual(graph.tiers.actor.edges.filter((edge) => edge.from === "@union/leaf@1.0.0").map((edge) => [edge.relation, edge.to]), [
-      ["owned-by", "union"],
+    assert.deepEqual(graph.tiers.actor.edges.filter((edge) => edge.from === "@example/leaf@1.0.0").map((edge) => [edge.relation, edge.to]), [
+      ["owned-by", "example"],
     ]);
     assert.deepEqual(graph.tiers.history, { predecessor: null, reaction: null, receiptVersion: 2 });
-    assert.equal(graph.tiers.witness.compute.provider, "union-test");
+    assert.equal(graph.tiers.witness.compute.provider, "example-test");
     assert.equal(graph.tiers.witness.artifacts.length, 2);
     assert.equal(graph.defects.length, 0);
   } finally {
@@ -104,39 +104,39 @@ test("derives a tiered registry graph with two-leg node addresses", async () => 
 });
 
 test("reports an unresolved internal pin as a defect, not an edge", async () => {
-  const root = await mkdtemp(join(tmpdir(), "union-registry-graph-"));
+  const root = await mkdtemp(join(tmpdir(), "registry-graph-"));
   try {
     await writeFixtureRegistry(root, { danglingPin: true });
     const graph = await deriveRegistryGraph({ registryRoot: root });
     assert.deepEqual(graph.defects, [{
       kind: "unresolved-internal-dependency",
-      from: "@union/stem@2.0.0",
-      to: "@union/leaf@9.9.9",
+      from: "@example/stem@2.0.0",
+      to: "@example/leaf@9.9.9",
       relation: "dependencies",
     }]);
-    assert.equal(graph.tiers.dependency.edges.some((edge) => edge.to === "@union/leaf@9.9.9"), false);
+    assert.equal(graph.tiers.dependency.edges.some((edge) => edge.to === "@example/leaf@9.9.9"), false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
 });
 
 test("derives the same graph over the registry HTTP face as from disk", async () => {
-  const root = await mkdtemp(join(tmpdir(), "union-registry-graph-"));
+  const root = await mkdtemp(join(tmpdir(), "registry-graph-"));
   try {
     await writeFixtureRegistry(root);
     const overHttp = await deriveRegistryGraph({
-      registryUrl: "http://registry.union.test",
+      registryUrl: "http://registry.example.test",
       fetchImplementation: registryFetch(root),
     });
     const fromDisk = await deriveRegistryGraph({ registryRoot: root });
     assert.deepEqual(JSON.parse(JSON.stringify(overHttp)), JSON.parse(JSON.stringify(fromDisk)));
     await assert.rejects(
-      deriveRegistryGraph({ registryRoot: root, registryUrl: "http://registry.union.test" }),
+      deriveRegistryGraph({ registryRoot: root, registryUrl: "http://registry.example.test" }),
       /exactly one of registryRoot/u,
     );
     await assert.rejects(deriveRegistryGraph({}), /exactly one of registryRoot/u);
     await assert.rejects(
-      deriveRegistryGraph({ registryUrl: "http://registry.union.test/absent/", fetchImplementation: registryFetch(root) }),
+      deriveRegistryGraph({ registryUrl: "http://registry.example.test/absent/", fetchImplementation: registryFetch(root) }),
       /does not publish registry-receipt\.json/u,
     );
   } finally {
@@ -145,37 +145,37 @@ test("derives the same graph over the registry HTTP face as from disk", async ()
 });
 
 test("derives a graph from an explicit package list, no receipt needed", async () => {
-  const root = await mkdtemp(join(tmpdir(), "union-registry-graph-"));
+  const root = await mkdtemp(join(tmpdir(), "registry-graph-"));
   try {
     await writeFixtureRegistry(root);
     await rm(join(root, "registry-receipt.json"));
 
     const graph = await deriveRegistryGraph({
-      registryUrl: "http://registry.union.test",
+      registryUrl: "http://registry.example.test",
       fetchImplementation: registryFetch(root),
-      packages: ["@union/stem@2.0.0", "@union/leaf"],
-      internalScopes: ["union"],
+      packages: ["@example/stem@2.0.0", "@example/leaf"],
+      internalScopes: ["example"],
     });
-    assert.deepEqual(graph.nodes.map((node) => node.address.packageSurface), ["@union/leaf@1.0.0", "@union/stem@2.0.0"]);
+    assert.deepEqual(graph.nodes.map((node) => node.address.packageSurface), ["@example/leaf@1.0.0", "@example/stem@2.0.0"]);
     assert.equal(graph.receiptSha256, null);
     assert.deepEqual(graph.tiers.history, { predecessor: null, reaction: null, receiptVersion: null });
-    assert.equal(graph.tiers.dependency.edges.find((edge) => edge.resolution === "registry").to, "@union/leaf@1.0.0");
+    assert.equal(graph.tiers.dependency.edges.find((edge) => edge.resolution === "registry").to, "@example/leaf@1.0.0");
     assert.equal(graph.defects.length, 0);
 
     const external = await deriveRegistryGraph({
-      registryUrl: "http://registry.union.test",
+      registryUrl: "http://registry.example.test",
       fetchImplementation: registryFetch(root),
-      packages: [{ name: "@union/stem", version: "2.0.0" }],
+      packages: [{ name: "@example/stem", version: "2.0.0" }],
     });
     assert.equal(external.tiers.dependency.edges.every((edge) => edge.resolution === "external"), true);
     assert.equal(external.defects.length, 0);
 
     await assert.rejects(
-      deriveRegistryGraph({ registryUrl: "http://registry.union.test", fetchImplementation: registryFetch(root), packages: ["@union/stem@9.9.9"] }),
-      /registry has no @union\/stem@9\.9\.9/u,
+      deriveRegistryGraph({ registryUrl: "http://registry.example.test", fetchImplementation: registryFetch(root), packages: ["@example/stem@9.9.9"] }),
+      /registry has no @example\/stem@9\.9\.9/u,
     );
     await assert.rejects(
-      deriveRegistryGraph({ registryUrl: "http://registry.union.test", fetchImplementation: registryFetch(root), packages: [] }),
+      deriveRegistryGraph({ registryUrl: "http://registry.example.test", fetchImplementation: registryFetch(root), packages: [] }),
       /non-empty array/u,
     );
   } finally {
@@ -184,15 +184,15 @@ test("derives a graph from an explicit package list, no receipt needed", async (
 });
 
 test("renders dependency and actor tiers as Graphviz DOT", async () => {
-  const root = await mkdtemp(join(tmpdir(), "union-registry-graph-"));
+  const root = await mkdtemp(join(tmpdir(), "registry-graph-"));
   try {
     await writeFixtureRegistry(root);
     const graph = await deriveRegistryGraph({ registryRoot: root });
     const dependencyDot = renderRegistryGraphDot(graph, { tier: "dependency" });
-    assert.match(dependencyDot, /"@union\/stem@2\.0\.0" -> "@union\/leaf@1\.0\.0" \[label="dependencies"\];/u);
+    assert.match(dependencyDot, /"@example\/stem@2\.0\.0" -> "@example\/leaf@1\.0\.0" \[label="dependencies"\];/u);
     assert.match(dependencyDot, /"typescript" \[shape=box, style=dashed\];/u);
     const actorDot = renderRegistryGraphDot(graph, { tier: "actor" });
-    assert.match(actorDot, /"@union\/leaf@1\.0\.0" -> "union" \[label="owned-by"\];/u);
+    assert.match(actorDot, /"@example\/leaf@1\.0\.0" -> "example" \[label="owned-by"\];/u);
     assert.throws(() => renderRegistryGraphDot(graph, { tier: "settlement" }), /unknown registry graph tier/u);
   } finally {
     await rm(root, { recursive: true, force: true });

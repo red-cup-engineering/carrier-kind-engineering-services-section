@@ -132,7 +132,7 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
       });
     }
   }
-  const unionScopes = new Set(internalScopes ?? receipt?.scopes ?? []);
+  const ownedScopes = new Set(internalScopes ?? receipt?.scopes ?? []);
 
   entries.sort((a, b) =>
     packageSurface(a.name, a.version).localeCompare(packageSurface(b.name, b.version)),
@@ -166,7 +166,7 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
       if (declared === null || typeof declared !== "object" || Array.isArray(declared)) continue;
       for (const [depName, pin] of Object.entries(declared).sort(([a], [b]) => a.localeCompare(b))) {
         const scope = packageScope(depName);
-        const internal = scope !== null && unionScopes.has(scope);
+        const internal = scope !== null && ownedScopes.has(scope);
         if (!internal) {
           dependencyEdges.push(Object.freeze({
             from: node.address.packageSurface,
@@ -211,7 +211,7 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
     type: GRAPH_TYPE,
     registry: receipt?.registry ?? (registryUrl !== undefined ? registryFace(registryUrl) : resolve(registryRoot)),
     receiptSha256,
-    scopes: Object.freeze([...unionScopes].sort()),
+    scopes: Object.freeze([...ownedScopes].sort()),
     nodes: Object.freeze(nodes.map((node) => Object.freeze({
       address: node.address,
       name: node.name,

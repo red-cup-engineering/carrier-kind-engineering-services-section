@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/semiotic-html-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Canonical serialization boundary for reusable HTML carriers, packets, and safe document assembly."
+}

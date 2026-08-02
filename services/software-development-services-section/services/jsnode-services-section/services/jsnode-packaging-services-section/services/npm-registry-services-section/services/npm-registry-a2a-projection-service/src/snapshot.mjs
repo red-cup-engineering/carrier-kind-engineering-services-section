@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
-const SNAPSHOT_DEMAND = "UnionPackageRegistrySnapshotDemand";
+const SNAPSHOT_DEMAND = "PackageRegistrySnapshotDemand";
 
 function registryOrigin(value) {
   const url = new URL(value);
@@ -58,14 +58,14 @@ async function declaredOperationGraph(entry, registryRoot, receiptSha256) {
 }
 
 export async function obtainRegistrySnapshot(demand, { registryRoot, registryUrl }) {
-  if (demand?.type !== SNAPSHOT_DEMAND) throw new TypeError("one UnionPackageRegistrySnapshotDemand is required");
+  if (demand?.type !== SNAPSHOT_DEMAND) throw new TypeError("one PackageRegistrySnapshotDemand is required");
   if (typeof demand.requestId !== "string" || demand.requestId.trim() === "") throw new TypeError("snapshot demand requires requestId");
   const registry = registryOrigin(registryUrl);
   if (demand.registry !== registry) throw new Error("snapshot demand must name this exact private registry face");
   const root = resolve(registryRoot);
   const receiptBytes = await readFile(join(root, "registry-receipt.json"));
   const receipt = JSON.parse(receiptBytes.toString("utf8"));
-  if (receipt?.type !== "SemioticVoxelPackageRegistryReceipt" || !Array.isArray(receipt.packages) || !Array.isArray(receipt.scopes)) {
+  if (receipt?.type !== "PackageRegistryReceipt" || !Array.isArray(receipt.packages) || !Array.isArray(receipt.scopes)) {
     throw new Error("registry has no recognized snapshot receipt");
   }
   if (receipt.version !== undefined && receipt.version !== 1 && receipt.version !== 2) {
@@ -88,7 +88,7 @@ export async function obtainRegistrySnapshot(demand, { registryRoot, registryUrl
     });
   }));
   return Object.freeze({
-    type: "UnionPackageRegistrySnapshot",
+    type: "PackageRegistrySnapshot",
     requestId: demand.requestId,
     registry,
     receiptSha256,

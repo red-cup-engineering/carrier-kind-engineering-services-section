@@ -3,7 +3,7 @@
     "crv": "Ed25519",
     "x": "w1zemDuLDImVVadzr-7LRs8yBjupcnflXs8P4YN3c_4",
     "kty": "OKP",
-    "kid": "union-private-package-registry-ed25519",
+    "kid": "private-package-registry-ed25519",
     "alg": "EdDSA",
     "use": "sig"
   }]

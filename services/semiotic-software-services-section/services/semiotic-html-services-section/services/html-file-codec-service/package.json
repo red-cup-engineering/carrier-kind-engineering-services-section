@@ -1,0 +1,44 @@
+{
+  "name": "@red-cup-engineering/html-file-codec-service",
+  "version": "0.1.2",
+  "private": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/html/index.d.mts",
+      "import": "./dist/html/index.mjs"
+    },
+    "./document-nodes": {
+      "types": "./dist/html/document-nodes.d.mts",
+      "import": "./dist/html/document-nodes.mjs"
+    },
+    "./string-rendering": {
+      "types": "./dist/html/string-rendering.d.mts",
+      "import": "./dist/html/string-rendering.mjs"
+    },
+    "./scan": {
+      "types": "./dist/html/scan.d.mts",
+      "import": "./dist/html/scan.mjs"
+    },
+    "./shp-profile": {
+      "types": "./dist/html/shp-profile.d.mts",
+      "import": "./dist/html/shp-profile.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@lenticule-science/articulating": "0.1.1",
+    "@red-cup-engineering/css-style-resolution-service": "0.0.1",
+    "@red-cup-engineering/file-projection-kernel-service": "0.1.1",
+    "@red-cup-engineering/html-document-render-service": "0.0.1",
+    "@red-cup-engineering/json-file-codec-service": "0.1.2",
+    "@red-cup-engineering/xml-file-codec-service": "0.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}

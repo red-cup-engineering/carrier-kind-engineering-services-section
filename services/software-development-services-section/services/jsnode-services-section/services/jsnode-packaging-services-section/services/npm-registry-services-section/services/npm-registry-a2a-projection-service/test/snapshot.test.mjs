@@ -11,23 +11,23 @@ import { registrySnapshotProtocol } from "../src/protocol.mjs";
 import { obtainRegistrySnapshot } from "../src/snapshot.mjs";
 
 test("supplies a current snapshot only at its exact private registry face", async () => {
-  const root = await mkdtemp(join(tmpdir(), "union-package-registry-"));
+  const root = await mkdtemp(join(tmpdir(), "package-registry-"));
   try {
     await mkdir(root, { recursive: true });
     await mkdir(join(root, "metadata"));
-    await writeFile(join(root, "metadata", `${encodeURIComponent("@union/example")}.json`), `${JSON.stringify({
-      name: "@union/example",
+    await writeFile(join(root, "metadata", `${encodeURIComponent("@example/example")}.json`), `${JSON.stringify({
+      name: "@example/example",
       versions: {
         "1.0.0": {
-          name: "@union/example",
+          name: "@example/example",
           version: "1.0.0",
           "x-semiotic-voxel": {
-            actor: "urn:ame:union-example",
+            actor: "urn:ame:example",
             operations: ["transform-example"],
-            capabilities: [{ capability: "union-example", faces: ["transform-example"] }],
+            capabilities: [{ capability: "example", faces: ["transform-example"] }],
           },
           "x-agentic-metro-enterprise": {
-            "node-id": "union-example",
+            "node-id": "example",
             "operation-catalog": { "transform-example": { accepts: "input", returns: "output" } },
           },
           dist: { shasum: "one", integrity: "sha512-one" },
@@ -35,31 +35,31 @@ test("supplies a current snapshot only at its exact private registry face", asyn
       },
     })}\n`);
     await writeFile(join(root, "registry-receipt.json"), `${JSON.stringify({
-      type: "SemioticVoxelPackageRegistryReceipt",
+      type: "PackageRegistryReceipt",
       version: 1,
-      scopes: ["union"],
+      scopes: ["example"],
       packages: [{
-        name: "@union/example",
+        name: "@example/example",
         version: "1.0.0",
-        artifact: "tarballs/union/example/-/example-1.0.0.tgz",
+        artifact: "tarballs/example/example/-/example-1.0.0.tgz",
         bytes: 1,
         shasum: "one",
         integrity: "sha512-one",
       }],
     })}\n`);
-    const snapshot = await obtainRegistrySnapshot({ type: "UnionPackageRegistrySnapshotDemand", requestId: "urn:demand:one", registry: "http://registry.union.test/" }, { registryRoot: root, registryUrl: "http://registry.union.test/" });
-    assert.equal(snapshot.packages[0].tarball, "http://registry.union.test/tarballs/union/example/-/example-1.0.0.tgz");
-    assert.equal(snapshot.packages[0]["x-semiotic-voxel"].actor, "urn:ame:union-example");
+    const snapshot = await obtainRegistrySnapshot({ type: "PackageRegistrySnapshotDemand", requestId: "urn:demand:one", registry: "http://registry.example.test/" }, { registryRoot: root, registryUrl: "http://registry.example.test/" });
+    assert.equal(snapshot.packages[0].tarball, "http://registry.example.test/tarballs/example/example/-/example-1.0.0.tgz");
+    assert.equal(snapshot.packages[0]["x-semiotic-voxel"].actor, "urn:ame:example");
     assert.deepEqual(snapshot.packages[0]["x-semiotic-voxel"].operations, ["transform-example"]);
     assert.deepEqual(Object.keys(snapshot.packages[0]["x-agentic-metro-enterprise"]["operation-catalog"]), ["transform-example"]);
     assert.equal(snapshot.packages[0].declarationEvidence.source, "npm-version-metadata");
     assert.match(snapshot.packages[0].declarationEvidence.sha256, /^sha256:[0-9a-f]{64}$/u);
-    assert.match(snapshot.npmrc, /@union:registry=http:\/\/registry\.union\.test\//u);
+    assert.match(snapshot.npmrc, /@example:registry=http:\/\/registry.example.test\//u);
 
-    const request = registrySnapshotProtocol.encodeRequest("obtain-union-package-registry-snapshot", {
-      type: "UnionPackageRegistrySnapshotDemand",
+    const request = registrySnapshotProtocol.encodeRequest("obtain-package-registry-snapshot", {
+      type: "PackageRegistrySnapshotDemand",
       requestId: "urn:demand:a2a",
-      registry: "http://registry.union.test/",
+      registry: "http://registry.example.test/",
     });
     const responseMessage = await executeA2aMessage(Message.toJSON({
       messageId: "urn:message:a2a",
@@ -71,8 +71,8 @@ test("supplies a current snapshot only at its exact private registry face", asyn
       extensions: [],
       referenceTaskIds: [],
     }), {
-      UNION_PACKAGE_REGISTRY_ROOT: root,
-      UNION_PACKAGE_REGISTRY_URL: "http://registry.union.test/",
+      REGISTRY_ROOT: root,
+      REGISTRY_URL: "http://registry.example.test/",
     });
     const response = registrySnapshotProtocol.decodeResponse(decodeSemantic(extractRmnPart(Message.fromJSON(responseMessage).parts).bytes));
     assert.equal(response.disposition, "accepted");
@@ -80,12 +80,12 @@ test("supplies a current snapshot only at its exact private registry face", asyn
     assert.deepEqual(response.result.packages[0]["x-agentic-metro-enterprise"], snapshot.packages[0]["x-agentic-metro-enterprise"]);
 
     const receiptBound = {
-      type: "SemioticVoxelPackageRegistryReceipt",
-      scopes: ["union"],
+      type: "PackageRegistryReceipt",
+      scopes: ["example"],
       packages: [{
-        name: "@union/example",
+        name: "@example/example",
         version: "1.0.0",
-        artifact: "tarballs/union/example/-/example-1.0.0.tgz",
+        artifact: "tarballs/example/example/-/example-1.0.0.tgz",
         bytes: 1,
         shasum: "one",
         integrity: "sha512-one",
@@ -94,7 +94,7 @@ test("supplies a current snapshot only at its exact private registry face", asyn
       }],
     };
     await writeFile(join(root, "registry-receipt.json"), `${JSON.stringify(receiptBound)}\n`);
-    const receiptSnapshot = await obtainRegistrySnapshot({ type: "UnionPackageRegistrySnapshotDemand", requestId: "urn:demand:receipt", registry: "http://registry.union.test/" }, { registryRoot: root, registryUrl: "http://registry.union.test/" });
+    const receiptSnapshot = await obtainRegistrySnapshot({ type: "PackageRegistrySnapshotDemand", requestId: "urn:demand:receipt", registry: "http://registry.example.test/" }, { registryRoot: root, registryUrl: "http://registry.example.test/" });
     assert.deepEqual(receiptSnapshot.packages[0]["x-semiotic-voxel"], receiptBound.packages[0]["x-semiotic-voxel"]);
     assert.deepEqual(receiptSnapshot.packages[0]["x-agentic-metro-enterprise"], receiptBound.packages[0]["x-agentic-metro-enterprise"]);
     assert.equal(receiptSnapshot.packages[0].declarationEvidence.source, "registry-receipt");
@@ -102,21 +102,21 @@ test("supplies a current snapshot only at its exact private registry face", asyn
 
     delete receiptBound.packages[0]["x-agentic-metro-enterprise"];
     await writeFile(join(root, "registry-receipt.json"), `${JSON.stringify(receiptBound)}\n`);
-    const partialReceiptSnapshot = await obtainRegistrySnapshot({ type: "UnionPackageRegistrySnapshotDemand", requestId: "urn:demand:partial-receipt", registry: "http://registry.union.test/" }, { registryRoot: root, registryUrl: "http://registry.union.test/" });
+    const partialReceiptSnapshot = await obtainRegistrySnapshot({ type: "PackageRegistrySnapshotDemand", requestId: "urn:demand:partial-receipt", registry: "http://registry.example.test/" }, { registryRoot: root, registryUrl: "http://registry.example.test/" });
     assert.deepEqual(partialReceiptSnapshot.packages[0]["x-semiotic-voxel"], receiptBound.packages[0]["x-semiotic-voxel"]);
     assert.equal(partialReceiptSnapshot.packages[0]["x-agentic-metro-enterprise"], undefined);
     assert.equal(partialReceiptSnapshot.packages[0].declarationEvidence.source, "registry-receipt");
 
     delete receiptBound.packages[0]["x-semiotic-voxel"];
     await writeFile(join(root, "registry-receipt.json"), `${JSON.stringify(receiptBound)}\n`);
-    const metadataPath = join(root, "metadata", `${encodeURIComponent("@union/example")}.json`);
+    const metadataPath = join(root, "metadata", `${encodeURIComponent("@example/example")}.json`);
     const mismatchedMetadata = JSON.parse(await readFile(metadataPath, "utf8"));
     mismatchedMetadata.versions["1.0.0"].dist.integrity = "sha512-other";
     await writeFile(metadataPath, `${JSON.stringify(mismatchedMetadata)}\n`);
     await assert.rejects(
-      () => obtainRegistrySnapshot({ type: "UnionPackageRegistrySnapshotDemand", requestId: "urn:demand:mismatch", registry: "http://registry.union.test/" }, { registryRoot: root, registryUrl: "http://registry.union.test/" }),
+      () => obtainRegistrySnapshot({ type: "PackageRegistrySnapshotDemand", requestId: "urn:demand:mismatch", registry: "http://registry.example.test/" }, { registryRoot: root, registryUrl: "http://registry.example.test/" }),
       /metadata artifact does not match registry receipt/u,
     );
-    await assert.rejects(() => obtainRegistrySnapshot({ type: "UnionPackageRegistrySnapshotDemand", requestId: "urn:demand:two", registry: "http://foreign.example/" }, { registryRoot: root, registryUrl: "http://registry.union.test/" }), /exact private registry face/u);
+    await assert.rejects(() => obtainRegistrySnapshot({ type: "PackageRegistrySnapshotDemand", requestId: "urn:demand:two", registry: "http://foreign.example/" }, { registryRoot: root, registryUrl: "http://registry.example.test/" }), /exact private registry face/u);
   } finally { await rm(root, { recursive: true, force: true }); }
 });

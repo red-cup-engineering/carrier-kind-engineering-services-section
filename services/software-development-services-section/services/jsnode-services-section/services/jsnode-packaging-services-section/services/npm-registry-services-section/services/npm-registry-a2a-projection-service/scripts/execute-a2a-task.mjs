@@ -1,23 +1,24 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { executeRelationalOperationMessage } from "@red-cup-engineering/a2a-sovereign-operation-boundary-service";
 import { registrySnapshotProtocol } from "../src/protocol.mjs";
 import { obtainRegistrySnapshot } from "../src/snapshot.mjs";
 
-const operations = Object.freeze({ "obtain-union-package-registry-snapshot": obtainRegistrySnapshot });
+const operations = Object.freeze({ "obtain-package-registry-snapshot": obtainRegistrySnapshot });
 
+// This package translates messages; it does not know where a registry lives
+// or how one is served. Whoever runs an A2A face for a registry supplies both.
 export function executeA2aMessage(source, environment = process.env) {
+  const registryRoot = environment.REGISTRY_ROOT;
+  const registryUrl = environment.REGISTRY_URL;
+  if (!registryRoot || !registryUrl) throw new Error("REGISTRY_ROOT and REGISTRY_URL are required");
   return executeRelationalOperationMessage(source, {
     protocol: registrySnapshotProtocol,
     operations,
-    runtimeLoader: async () => Object.freeze({
-      registryRoot: environment.UNION_PACKAGE_REGISTRY_ROOT ?? resolve("data/package-registry"),
-      registryUrl: environment.UNION_PACKAGE_REGISTRY_URL ?? "http://bare-cedar-fog.tail61b391.ts.net:4874/",
-    }),
-    responseFilename: "union-package-registry-snapshot.rmn.cbor",
-    unknownOperationMessage: "unknown Union package registry operation",
+    runtimeLoader: async () => Object.freeze({ registryRoot, registryUrl }),
+    responseFilename: "package-registry-snapshot.rmn.cbor",
+    unknownOperationMessage: "unknown package registry operation",
   });
 }
 

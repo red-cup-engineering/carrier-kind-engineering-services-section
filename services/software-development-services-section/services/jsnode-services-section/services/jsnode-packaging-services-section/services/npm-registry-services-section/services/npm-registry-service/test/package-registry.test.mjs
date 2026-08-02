@@ -35,7 +35,7 @@ test("packs and serves a package, stripping custom x- fields from what it publis
       type: "module",
       exports: "./index.mjs",
       "x-semiotic-voxel": {
-        profile: "org.harmonious-union.semiotic-voxel.v1",
+        profile: "org.example.legacy-profile.v1",
         owner: "customer",
         kind: "capability-cell",
         actor: "urn:ame:customer-example",
@@ -115,8 +115,8 @@ test("refuses generic package ownership", async () => {
 test("rewrites metadata tarballs to the requesting private registry face", () => {
   const metadata = rewriteMetadataTarballOrigins({
     versions: { "1.0.0": { dist: { tarball: "http://127.0.0.1:4873/tarballs/customer/example/-/example-1.0.0.tgz" } } },
-  }, "https://registry.union.test");
-  assert.equal(metadata.versions["1.0.0"].dist.tarball, "https://registry.union.test/tarballs/customer/example/-/example-1.0.0.tgz");
+  }, "https://registry.example.test");
+  assert.equal(metadata.versions["1.0.0"].dist.tarball, "https://registry.example.test/tarballs/customer/example/-/example-1.0.0.tgz");
 });
 
 test("extends a base registry without discarding its published packages", async () => {
