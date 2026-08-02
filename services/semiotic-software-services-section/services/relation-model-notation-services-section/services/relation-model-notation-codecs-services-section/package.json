@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/relation-model-notation-codecs-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Holds the codec services for Relation Model Notation: bidirectional translations between some carrier shape and RMN terms. A named surface syntax, a wire format, a serialization convention -- each is a specific codec, not a separate notation. The grammar and the reducer live one level up; nothing that translates INTO or OUT OF a term belongs anywhere but here."
+}
