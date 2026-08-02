@@ -38,6 +38,14 @@ import {
 const identity = tm.lam(tm.var(0));
 const sampleTerm = tm.app(tm.lam(tm.var(0)), tm.mark("x"));
 
+// Explicit \u escapes, not visually-similar literals: two byte-distinct
+// encodings of "the same word", one NFC-composed (single codepoint U+00E9
+// LATIN SMALL LETTER E WITH ACUTE), one NFD-decomposed ("e" U+0065 followed
+// by COMBINING ACUTE ACCENT U+0301). Written this way so the two are
+// guaranteed genuinely different JS strings, not two copies of one literal.
+const CAFE_NFC = "café";
+const CAFE_NFD = "café";
+
 const representativeValues = [
   true,
   false,
@@ -49,8 +57,8 @@ const representativeValues = [
   -Number.MAX_SAFE_INTEGER,
   "",
   "plain ascii",
-  "café", // NFC-composed already
-  "café", // "cafe" + combining acute accent (NFD form of "café")
+  CAFE_NFC,
+  CAFE_NFD,
   Buffer.from([0x00, 0x01, 0xff]),
   [],
   [1, 2, 3],
@@ -87,15 +95,13 @@ test("encodeCanonical: negative integers and MAX_SAFE_INTEGER round-trip exactly
 });
 
 test("encodeCanonical: non-ASCII strings encode as UTF-8 text and round-trip byte-for-byte as given (no implicit normalization at this layer)", () => {
-  const nfc = "café";
-  const nfd = "café";
-  assert.notEqual(nfc, nfd); // distinct JS strings pre-normalization
-  assert.equal(decodeCanonical(encodeCanonical(nfc)), nfc);
-  assert.equal(decodeCanonical(encodeCanonical(nfd)), nfd);
+  assert.notEqual(CAFE_NFC, CAFE_NFD); // distinct JS strings pre-normalization
+  assert.equal(decodeCanonical(encodeCanonical(CAFE_NFC)), CAFE_NFC);
+  assert.equal(decodeCanonical(encodeCanonical(CAFE_NFD)), CAFE_NFD);
   // encodeCanonical itself does NOT normalize -- the two distinct strings
   // produce two distinct encodings, confirming NFC normalization is strictly
   // normalizeCarrier's job, not the codec's.
-  assert.notEqual(encodeCanonical(nfc).toString("hex"), encodeCanonical(nfd).toString("hex"));
+  assert.notEqual(encodeCanonical(CAFE_NFC).toString("hex"), encodeCanonical(CAFE_NFD).toString("hex"));
 });
 
 test("encodeCanonical: nested arrays round-trip structurally", () => {
@@ -226,20 +232,24 @@ test("differential / semanticBytes, semanticId, decodeSemantic: match the runtim
 // ── 5. normalizeCarrier specifics ───────────────────────────────────────────
 
 test("normalizeCarrier: NFC-normalizes strings and object keys, matching the runtime-service source", () => {
-  const nfd = "café"; // decomposed form
-  const nfc = "café"; // composed form
-  assert.equal(normalizeCarrier(nfd), nfc);
-  assert.equal(normalizeCarrier(nfd), sourceNormalizeCarrier(nfd));
+  assert.equal(normalizeCarrier(CAFE_NFD), CAFE_NFC);
+  assert.equal(normalizeCarrier(CAFE_NFD), sourceNormalizeCarrier(CAFE_NFD));
 
-  const withDecomposedKey = { [nfd]: 1 };
+  const withDecomposedKey = { [CAFE_NFD]: 1 };
   const normalized = normalizeCarrier(withDecomposedKey);
-  assert.deepEqual(Object.keys(normalized), [nfc]);
+  assert.deepEqual(Object.keys(normalized), [CAFE_NFC]);
   assert.deepEqual(normalized, sourceNormalizeCarrier(withDecomposedKey));
 });
 
 test("normalizeCarrier: rejects post-normalization object-key collisions", () => {
-  // Two distinct pre-normalization keys that both normalize to "café".
-  const collidingKeys = { "café": 1, "café": 2 };
+  // Two source keys, byte-distinct (NFC vs NFD), that normalize to the same
+  // string -- built via computed-property assignment so both keys actually
+  // land in the object (a literal with two identical-looking keys would just
+  // silently keep the last one, which is not what this test needs).
+  const collidingKeys = {};
+  collidingKeys[CAFE_NFC] = 1;
+  collidingKeys[CAFE_NFD] = 2;
+  assert.equal(Object.keys(collidingKeys).length, 2); // confirm the setup: two distinct keys
   assert.throws(() => normalizeCarrier(collidingKeys), /collide/);
   assert.throws(() => sourceNormalizeCarrier(collidingKeys), /collide/);
 });
@@ -260,6 +270,6 @@ test("normalizeCarrier: accepts safe integers and non-string/array/object scalar
 });
 
 test("normalizeCarrier: recurses into arrays and plain objects, matching the runtime-service source, including a Tm value", () => {
-  const nested = { z: [1, { a: "café" }, 2], a: sampleTerm };
+  const nested = { z: [1, { a: CAFE_NFD }, 2], a: sampleTerm };
   assert.deepEqual(normalizeCarrier(nested), sourceNormalizeCarrier(nested));
 });
