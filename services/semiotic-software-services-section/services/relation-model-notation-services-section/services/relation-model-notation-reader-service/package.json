@@ -1,0 +1,26 @@
+{
+  "name": "@red-cup-engineering/relation-model-notation-reader",
+  "version": "1.0.0",
+  "description": "RMN's JSON boundary codec and named-variable surface syntax: isRelationalTerm/parseRmn/settleRmn are the closed-well-typed-term admission gate; extractRelationalScripts/htmlIsRelational/settleRelationalHtml and sessionIsRelational/settleRelationalSession extend that gate to <script type=\"application/rmn+json\"> HTML documents and message-stream sessions; compileNamedRmn/parseNamedRmn and namedString/namedArray/namedObject/namedBool/namedGenerator admit a named-variable surface (resolved to de-Bruijn indices via FCA-based scope resolution, innermost binder wins) and compile it to the closed kernel, with namedOfCompiled/canonicalNamedRmn/digestNamedRmn as the reverse direction.",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/relation-model-notation": "1.0.0",
+    "@red-cup-engineering/relation-model-notation-typing": "1.0.0",
+    "@red-cup-engineering/relation-model-notation-projecting": "1.0.0",
+    "@red-cup-engineering/relation-model-notation-eval": "1.0.0",
+    "@red-cup-engineering/relation-model-notation-formal-concept": "1.0.0"
+  }
+}
