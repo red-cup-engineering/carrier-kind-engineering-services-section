@@ -1,5 +1,5 @@
 {
-  "name": "@red-cup-engineering/relation-model-notation-projecting",
+  "name": "@red-cup-engineering/relation-model-notation-json-codec",
   "version": "1.0.0",
   "description": "The JSON<->Term bridge for Relation Model Notation: jsonToTerm/termToJson admit/decode JSON values against the RMN grammar, plus the fixed-shape builder API (objectTerm/arrayTerm/stringTerm/projectField/objectTy/arrayTy) for terms and types authored directly, without a runtime field search.",
   "private": true,

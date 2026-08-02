@@ -47,7 +47,7 @@
  * substituted). `tm`/`inst`/`boolOfTerm` now come from
  * `@red-cup-engineering/relation-model-notation` in place of the relative
  * `../ast/index.mts`; `isValueTerm`/`arrayHeadTail`/`jsonToTerm`/`termToJson`
- * now come from `@red-cup-engineering/relation-model-notation-projecting` in
+ * now come from `@red-cup-engineering/relation-model-notation-json-codec` in
  * place of the relative `../reader/projecting/index.mts`.
  *
  * `JsonValue` (type only, from `codecs/json/core.mts`) is DELIBERATELY still
@@ -61,7 +61,7 @@ import {
   arrayHeadTail,
   jsonToTerm,
   termToJson,
-} from "@red-cup-engineering/relation-model-notation-projecting";
+} from "@red-cup-engineering/relation-model-notation-json-codec";
 
 /**
  * @typedef {import("../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts").JsonValue} JsonValue

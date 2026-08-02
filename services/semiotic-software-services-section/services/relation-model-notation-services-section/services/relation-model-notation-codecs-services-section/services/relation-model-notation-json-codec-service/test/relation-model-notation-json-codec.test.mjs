@@ -13,7 +13,7 @@ import {
 // exported function is differentially tested against this exact dist file —
 // this is the load-bearing evidence that the port is behaviorally identical,
 // not merely structurally similar.
-import * as dist from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/dist/src/lib/language/reader/projecting/index.mjs";
+import * as dist from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/dist/src/lib/language/reader/projecting/index.mjs";
 
 // ── 1. jsonToTerm / termToJson — differential battery against the metroplat dist build ──
 

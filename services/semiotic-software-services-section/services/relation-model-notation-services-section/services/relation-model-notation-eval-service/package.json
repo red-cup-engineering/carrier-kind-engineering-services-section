@@ -18,6 +18,6 @@
   },
   "dependencies": {
     "@red-cup-engineering/relation-model-notation": "1.0.0",
-    "@red-cup-engineering/relation-model-notation-projecting": "1.0.0"
+    "@red-cup-engineering/relation-model-notation-json-codec": "1.0.0"
   }
 }

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { tm } from "@red-cup-engineering/relation-model-notation";
-import { arrayTerm, jsonToTerm, termToJson } from "@red-cup-engineering/relation-model-notation-projecting";
+import { arrayTerm, jsonToTerm, termToJson } from "@red-cup-engineering/relation-model-notation-json-codec";
 import { step, dev, normalize, evaluate, evaluateRunTerm } from "../src/index.mjs";
 // The real, compiled metroplat build of the module this package ports. Track
 // A differentially tests every export against this exact dist file — this is

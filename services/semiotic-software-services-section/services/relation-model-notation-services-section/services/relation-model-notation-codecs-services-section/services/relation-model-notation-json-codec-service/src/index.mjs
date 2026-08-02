@@ -1,7 +1,7 @@
 /**
  * @packageDocumentation
  *
- * `@red-cup-engineering/relation-model-notation-projecting` is the bridge between JSON values
+ * `@red-cup-engineering/relation-model-notation-json-codec` is the bridge between JSON values
  * and RMN terms.
  *
  * `jsonToTerm` admits a JSON value into the term layer; `termToJson`
@@ -55,14 +55,14 @@
  * language split — this does not block deleting metroplat's `lib/language`
  * later); it is noted here explicitly rather than silently.
  */
-import { canonicalBytes } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/identity/index.mts";
-import { parse } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts";
-import { isChargeValueName } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts";
+import { canonicalBytes } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/identity/index.mts";
+import { parse } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts";
+import { isChargeValueName } from "../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts";
 import { tm, ty, chargeNameOfTerm, generatorNameOfTerm } from "@red-cup-engineering/relation-model-notation";
 
 /**
- * @typedef {import("../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts").JsonValue} JsonValue
- * @typedef {import("../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts").ChargeValueName} ChargeValueName
+ * @typedef {import("../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts").JsonValue} JsonValue
+ * @typedef {import("../../../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts").ChargeValueName} ChargeValueName
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Ty} Ty
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm
  */

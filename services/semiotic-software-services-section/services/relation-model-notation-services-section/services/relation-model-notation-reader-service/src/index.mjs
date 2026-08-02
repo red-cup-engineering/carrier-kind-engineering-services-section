@@ -44,7 +44,7 @@
  * relative `../check/index.mts`; `tm` and the `Tm`/`ChargeValueName`/
  * `GeneratorName` types now come from `@red-cup-engineering/relation-model-notation`
  * in place of the relative `../ast/index.mts`; `arrayTag`/
- * `objectTag` now come from `@red-cup-engineering/relation-model-notation-projecting`
+ * `objectTag` now come from `@red-cup-engineering/relation-model-notation-json-codec`
  * in place of the relative `./projecting/index.mts`.
  *
  * `canonicalBytes`/`digest` (from `identity/index.mts`), `chargeValueNames`
@@ -64,7 +64,7 @@ import { tm } from "@red-cup-engineering/relation-model-notation";
 import { chargeValueNames } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/values/index.mts";
 import { parse as parseJson } from "../../../../../../software-development-services-section/services/javascript-services-section/lib/legacy/metroplat/src/lib/codecs/json/core.mts";
 
-import { arrayTag, objectTag } from "@red-cup-engineering/relation-model-notation-projecting";
+import { arrayTag, objectTag } from "@red-cup-engineering/relation-model-notation-json-codec";
 
 /**
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm
