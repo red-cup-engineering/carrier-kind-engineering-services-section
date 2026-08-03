@@ -5,11 +5,13 @@
   "type": "module",
   "description": "Runs git on a shared machine through one serialized write lane, with machine-specific policy, identity, and credentials in per-machine config files. Use when people and agents share one tree and concurrent git writes would corrupt work or overload the disk.",
   "bin": {
-    "git-services": "./scripts/git-services"
+    "git-services": "./scripts/git-services",
+    "archive-discovery": "./scripts/archive-discovery",
+    "archive-worktree-map": "./scripts/archive-worktree-map"
   },
   "scripts": {
-    "check": "sh -n scripts/git-services && node --check src/collect-colony-activity.mjs && node --check src/settle-filesystem-receipt.mjs",
-    "test": "node --test test/managed-git-policy.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
+    "check": "sh -n scripts/git-services && node --check scripts/archive-discovery && node --check scripts/archive-worktree-map && node --check scripts/relocate-a-directory.mjs && node --check scripts/relocate-a-git-repository.mjs && node --check scripts/retire-a-git-repository-to-legacy.mjs && node --check src/collect-colony-activity.mjs && node --check src/discover-archives.mjs && node --check src/map-archive-worktrees.mjs && node --check src/settle-filesystem-receipt.mjs",
+    "test": "node --test test/archive-discovery.test.mjs test/archive-worktree-map.test.mjs test/relocation-cli.test.mjs test/managed-git-policy.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
     "verify": "npm run check && npm test"
   },
   "engines": {
@@ -19,6 +21,8 @@
     "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3"
   },
   "exports": {
-    "./src/collect-colony-activity.mjs": "./src/collect-colony-activity.mjs"
+    "./src/collect-colony-activity.mjs": "./src/collect-colony-activity.mjs",
+    "./src/discover-archives.mjs": "./src/discover-archives.mjs",
+    "./src/map-archive-worktrees.mjs": "./src/map-archive-worktrees.mjs"
   }
 }
