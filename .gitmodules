@@ -1,0 +1,3 @@
+[submodule "services/web-services-section"]
+	path = services/web-services-section
+	url = https://github.com/red-cup-engineering/web-services-section.git
