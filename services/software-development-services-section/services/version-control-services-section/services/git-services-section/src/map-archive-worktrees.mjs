@@ -15,15 +15,26 @@ export async function mapArchiveWorktrees(root) {
     const location = path.resolve(report.root, archive.path);
     const worktree = await nearestWorktree(location, report.root);
     if (worktree === null) return Object.freeze({ ...archive, worktree: null, legacyState: "no-worktree" });
-    const legacyRoot = path.join(worktree, "lib", "legacy");
-    const toLegacy = path.relative(legacyRoot, location);
+    const legacyRoot = nearestLegacyRoot(location, report.root);
+    const toLegacy = legacyRoot === null ? null : path.relative(legacyRoot, location);
     return Object.freeze({
       ...archive,
       worktree,
-      legacyState: toLegacy === "" || (!toLegacy.startsWith(`..${path.sep}`) && toLegacy !== "..") ? "inside-legacy" : "outside-legacy"
+      legacyState: toLegacy !== null && (toLegacy === "" || (!toLegacy.startsWith(`..${path.sep}`) && toLegacy !== "..")) ? "inside-legacy" : "outside-legacy"
     });
   }));
   return Object.freeze({ kind: "archive-worktree-map/v1", root: report.root, archives: Object.freeze(entries) });
+}
+
+function nearestLegacyRoot(location, scanRoot) {
+  let candidate = location;
+  for (;;) {
+    if (path.basename(candidate) === "legacy" && path.basename(path.dirname(candidate)) === "lib") return candidate;
+    if (candidate === scanRoot) return null;
+    const parent = path.dirname(candidate);
+    if (parent === candidate) return null;
+    candidate = parent;
+  }
 }
 
 async function nearestWorktree(location, scanRoot) {
