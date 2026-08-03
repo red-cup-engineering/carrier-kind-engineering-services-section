@@ -7,3 +7,48 @@
 [submodule "services/blockchain-services-section/services/settlement-triggered-activity-publication-cell"]
 	path = services/blockchain-services-section/services/settlement-triggered-activity-publication-cell
 	url = https://github.com/red-cup-engineering/settlement-triggered-activity-publication-cell.git
+[submodule "services/inference-services-section/services/gemini-services-section"]
+	path = services/inference-services-section/services/gemini-services-section
+	url = https://github.com/red-cup-engineering/gemini-inference-team.git
+[submodule "services/inference-services-section/services/github-models-inference-team"]
+	path = services/inference-services-section/services/github-models-inference-team
+	url = https://github.com/red-cup-engineering/github-models-inference-team.git
+[submodule "services/inference-services-section/services/groq-inference-team"]
+	path = services/inference-services-section/services/groq-inference-team
+	url = https://github.com/red-cup-engineering/groq-inference-team.git
+[submodule "services/inference-services-section/services/llm-services-section/services/anthropic-services-section/services/claude-services-section/services/claude-code-services-section/lib/legacy"]
+	path = services/inference-services-section/services/llm-services-section/services/anthropic-services-section/services/claude-services-section/services/claude-code-services-section/lib/legacy
+	url = https://github.com/red-cup-engineering/claude-code-services-section-legacy.git
+[submodule "services/inference-services-section/services/llm-services-section/services/llm-cost-optimization-services-section"]
+	path = services/inference-services-section/services/llm-services-section/services/llm-cost-optimization-services-section
+	url = https://github.com/red-cup-engineering/llm-cost-optimization-services-section.git
+[submodule "services/inference-services-section/services/openrouter-inference-team"]
+	path = services/inference-services-section/services/openrouter-inference-team
+	url = https://github.com/red-cup-engineering/openrouter-inference-team.git
+[submodule "services/interface-services-section/services/emacs-services-section"]
+	path = services/interface-services-section/services/emacs-services-section
+	url = https://github.com/red-cup-engineering/emacs-services-section.git
+[submodule "services/resource-brokerage-service-section"]
+	path = services/resource-brokerage-service-section
+	url = https://github.com/red-cup-engineering/resource-brokerage-service-section.git
+[submodule "services/semiotic-simulation-services-section/services/capability-services-section/capability-pricing-service"]
+	path = services/semiotic-simulation-services-section/services/capability-services-section/capability-pricing-service
+	url = https://github.com/red-cup-engineering/capability-pricing-service.git
+[submodule "services/semiotic-software-services-section/services/capability-cell-fabrication-services-section/services/cell-identity-verification-service"]
+	path = services/semiotic-software-services-section/services/capability-cell-fabrication-services-section/services/cell-identity-verification-service
+	url = https://github.com/red-cup-engineering/cell-identity-verification-service.git
+[submodule "services/semiotic-software-services-section/services/semantic-content-identify-service"]
+	path = services/semiotic-software-services-section/services/semantic-content-identify-service
+	url = https://github.com/red-cup-engineering/semantic-content-identify-service.git
+[submodule "services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service"]
+	path = services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service
+	url = https://github.com/red-cup-engineering/capability-cell-fabrication-run-monitor-service.git
+[submodule "services/software-development-services-section/services/consumer-dependency-closure-installation-service"]
+	path = services/software-development-services-section/services/consumer-dependency-closure-installation-service
+	url = https://github.com/red-cup-engineering/consumer-dependency-closure-installation-service.git
+[submodule "services/software-development-services-section/services/deterministic-intent-admission-service"]
+	path = services/software-development-services-section/services/deterministic-intent-admission-service
+	url = https://github.com/red-cup-engineering/deterministic-intent-admission-service.git
+[submodule "services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat"]
+	path = services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat
+	url = https://github.com/emsenn/metroplat.git
