@@ -44,6 +44,11 @@ scripts/retire-a-git-repository-to-legacy.mjs \
   --source-repository /active-parent --source-path services/retired \
   --legacy-repository /existing/legacy-repository --date 2026-08-03 --name retired \
   --apply
+
+# Adopt an already-clean worktree as a submodule without changing its pin.
+# Omit --apply to inspect the exact URL and commit first.
+scripts/register-existing-git-repository.mjs \
+  --parent /parent/worktree --path services/existing-child --apply
 ```
 
 The Git relocation command refuses dirty parent worktrees, a source that is

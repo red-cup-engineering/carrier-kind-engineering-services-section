@@ -8,10 +8,11 @@
     "git-services": "./scripts/git-services",
     "archive-discovery": "./scripts/archive-discovery",
     "archive-worktree-map": "./scripts/archive-worktree-map",
-    "audit-git-submodule-graph": "./scripts/audit-git-submodule-graph.mjs"
+    "audit-git-submodule-graph": "./scripts/audit-git-submodule-graph.mjs",
+    "register-existing-git-repository": "./scripts/register-existing-git-repository.mjs"
   },
   "scripts": {
-    "check": "sh -n scripts/git-services && node --check scripts/archive-discovery && node --check scripts/archive-worktree-map && node --check scripts/audit-git-submodule-graph.mjs && node --check scripts/relocate-a-directory.mjs && node --check scripts/relocate-a-git-repository.mjs && node --check scripts/retire-a-git-repository-to-legacy.mjs && node --check src/collect-colony-activity.mjs && node --check src/discover-archives.mjs && node --check src/map-archive-worktrees.mjs && node --check src/settle-filesystem-receipt.mjs",
+    "check": "sh -n scripts/git-services && node --check scripts/archive-discovery && node --check scripts/archive-worktree-map && node --check scripts/audit-git-submodule-graph.mjs && node --check scripts/register-existing-git-repository.mjs && node --check scripts/relocate-a-directory.mjs && node --check scripts/relocate-a-git-repository.mjs && node --check scripts/retire-a-git-repository-to-legacy.mjs && node --check src/collect-colony-activity.mjs && node --check src/discover-archives.mjs && node --check src/map-archive-worktrees.mjs && node --check src/settle-filesystem-receipt.mjs",
     "test": "node --test test/archive-discovery.test.mjs test/archive-worktree-map.test.mjs test/relocation-cli.test.mjs test/managed-git-policy.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
     "verify": "npm run check && npm test"
   },
