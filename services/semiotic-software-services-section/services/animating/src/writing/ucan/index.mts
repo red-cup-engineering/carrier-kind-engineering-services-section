@@ -1,7 +1,12 @@
 /** Standards-clean UCAN invocation admission using canonical ucanto DAG-CBOR/CID carriers. */
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-// @ts-expect-error The canonical RMN package is JavaScript and does not yet publish declarations.
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+// @ts-expect-error The package is JavaScript and does not yet publish declarations.
+import { jsonToTerm } from "@red-cup-engineering/relation-model-notation-json-codec";
+// @ts-expect-error The package is JavaScript and does not yet publish declarations.
+import { inferTy } from "@red-cup-engineering/relation-model-notation-typing";
+import {
+  EMPTY_WITNESS_ROOT,
+  identifyNormalizedSemanticContent,
+} from "@red-cup-engineering/semantic-content-identify-service";
 import type { API } from "@ucanto/core";
 import { Schema } from "@ucanto/core";
 import { ed25519 } from "@ucanto/principal";
@@ -47,7 +52,15 @@ const RESOURCE = /^did:pkh:eip155:[1-9][0-9]*:0x[0-9a-fA-F]{40}$/u;
 const ABILITY = /^[a-z][a-z0-9-]*(?:\/[a-zA-Z][a-zA-Z0-9-]*)+$/u;
 
 function identify(value: unknown): string {
-  return semanticId(relationalWitnessJournalDocument(value));
+  const term = jsonToTerm(value);
+  const semanticType = inferTy([], term);
+  if (semanticType === null) throw new TypeError("UCAN semantic material did not derive an RMN type");
+  return identifyNormalizedSemanticContent({
+    objectKind: "animating.ucan-semantic-material",
+    semanticType,
+    term,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
 }
 
 function exactCapability(value: UcanCapability): UcanCapability {

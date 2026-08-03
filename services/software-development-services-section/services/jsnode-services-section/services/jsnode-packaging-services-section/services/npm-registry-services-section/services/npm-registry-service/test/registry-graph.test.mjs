@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { resolvePackageRegistryRequest } from "../src/package-registry.mjs";
-import { deriveRegistryGraph, renderRegistryGraphDot } from "../src/registry-graph.mjs";
+import { deriveRegistryGraph, groupRegistryGraphDefects, renderRegistryGraphDot } from "../src/registry-graph.mjs";
 
 // The sandbox running these tests refuses TCP connections to listeners the
 // test itself opens, so the HTTP face is exercised through an injected fetch
@@ -44,6 +44,7 @@ async function writeFixtureRegistry(root, { danglingPin = false } = {}) {
           version: "2.0.0",
           dependencies: { "@example/leaf": danglingPin ? "9.9.9" : "1.0.0" },
           devDependencies: { typescript: "^5.8.0" },
+          redCupEngineering: { supersedes: { package: "@example/leaf", version: "1.0.0", reason: "fixture replacement" } },
           "x-semiotic-voxel": { actor: "urn:ame:example-stem", owner: "example", kind: "actor" },
           dist: { shasum: "stem-sha", integrity: "sha512-stem" },
         },
@@ -94,7 +95,12 @@ test("derives a tiered registry graph with two-leg node addresses", async () => 
     assert.deepEqual(graph.tiers.actor.edges.filter((edge) => edge.from === "@example/leaf@1.0.0").map((edge) => [edge.relation, edge.to]), [
       ["owned-by", "example"],
     ]);
-    assert.deepEqual(graph.tiers.history, { predecessor: null, reaction: null, receiptVersion: 2 });
+    assert.deepEqual(graph.tiers.history, {
+      predecessor: null,
+      reaction: null,
+      receiptVersion: 2,
+      edges: [{ from: "@example/stem@2.0.0", to: "@example/leaf@1.0.0", relation: "supersedes", resolution: "registry", reason: "fixture replacement" }],
+    });
     assert.equal(graph.tiers.witness.compute.provider, "example-test");
     assert.equal(graph.tiers.witness.artifacts.length, 2);
     assert.equal(graph.defects.length, 0);
@@ -118,6 +124,30 @@ test("reports an unresolved internal pin as a defect, not an edge", async () => 
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("groups repeated defects into a deterministic provider repair queue", () => {
+  const groups = groupRegistryGraphDefects([
+    { kind: "unresolved-internal-dependency", from: "@example/z@1.0.0", to: "@example/runtime@7.0.0", relation: "dependencies" },
+    { kind: "unresolved-internal-dependency", from: "@example/a@1.0.0", to: "@example/runtime@7.0.0", relation: "dependencies" },
+    { kind: "unresolved-internal-dependency", from: "@example/b@1.0.0", to: "@example/witness@1.0.0", relation: "dependencies" },
+  ]);
+  assert.deepEqual(groups, [
+    {
+      kind: "unresolved-internal-dependency",
+      target: "@example/runtime@7.0.0",
+      relation: "dependencies",
+      count: 2,
+      consumers: ["@example/a@1.0.0", "@example/z@1.0.0"],
+    },
+    {
+      kind: "unresolved-internal-dependency",
+      target: "@example/witness@1.0.0",
+      relation: "dependencies",
+      count: 1,
+      consumers: ["@example/b@1.0.0"],
+    },
+  ]);
 });
 
 test("derives the same graph over the registry HTTP face as from disk", async () => {
@@ -158,7 +188,12 @@ test("derives a graph from an explicit package list, no receipt needed", async (
     });
     assert.deepEqual(graph.nodes.map((node) => node.address.packageSurface), ["@example/leaf@1.0.0", "@example/stem@2.0.0"]);
     assert.equal(graph.receiptSha256, null);
-    assert.deepEqual(graph.tiers.history, { predecessor: null, reaction: null, receiptVersion: null });
+    assert.deepEqual(graph.tiers.history, {
+      predecessor: null,
+      reaction: null,
+      receiptVersion: null,
+      edges: [{ from: "@example/stem@2.0.0", to: "@example/leaf@1.0.0", relation: "supersedes", resolution: "registry", reason: "fixture replacement" }],
+    });
     assert.equal(graph.tiers.dependency.edges.find((edge) => edge.resolution === "registry").to, "@example/leaf@1.0.0");
     assert.equal(graph.defects.length, 0);
 
@@ -193,6 +228,8 @@ test("renders dependency and actor tiers as Graphviz DOT", async () => {
     assert.match(dependencyDot, /"typescript" \[shape=box, style=dashed\];/u);
     const actorDot = renderRegistryGraphDot(graph, { tier: "actor" });
     assert.match(actorDot, /"@example\/leaf@1\.0\.0" -> "example" \[label="owned-by"\];/u);
+    const historyDot = renderRegistryGraphDot(graph, { tier: "history" });
+    assert.match(historyDot, /"@example\/stem@2\.0\.0" -> "@example\/leaf@1\.0\.0" \[label="supersedes"\];/u);
     assert.throws(() => renderRegistryGraphDot(graph, { tier: "settlement" }), /unknown registry graph tier/u);
   } finally {
     await rm(root, { recursive: true, force: true });

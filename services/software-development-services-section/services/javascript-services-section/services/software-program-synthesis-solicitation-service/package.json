@@ -1,19 +1,25 @@
 {
   "name": "@red-cup-engineering/software-program-synthesis-solicitation-service",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "private": true,
   "type": "module",
   "description": "Deterministic software-program-synthesis offer and contract-validation actuator.",
   "exports": {
     ".": "./src/solicitation.mjs",
+    "./design-inputs": "./src/design-inputs.mjs",
     "./src/solicitation.mjs": "./src/solicitation.mjs"
   },
   "scripts": {
-    "check": "node --check src/solicitation.mjs",
+    "check": "node --check src/semantic-content.mjs && node --check src/design-inputs.mjs && node --check src/solicitation.mjs",
     "test": "node --test test/solicitation.test.mjs",
     "verify": "npm run check && npm test"
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
+    "@red-cup-engineering/witness-journal-entry-service": "0.1.4",
+    "@red-cup-engineering/witness-journal-log-service": "0.1.4"
   }
 }

@@ -2,8 +2,11 @@ import {
   admitPublicHttpsUrl,
 } from "@red-cup-engineering/public-https-url-admission-service";
 import {
-  identifySemanticContent,
+  EMPTY_WITNESS_ROOT,
+  identifyNormalizedSemanticContent,
 } from "@red-cup-engineering/semantic-content-identify-service";
+import { jsonToTerm } from "@red-cup-engineering/relation-model-notation-json-codec";
+import { inferTy } from "@red-cup-engineering/relation-model-notation-typing";
 
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
 const MAX_TOOL_PAGES = 128;
@@ -141,6 +144,16 @@ export async function observeMcpTool(input, options = {}) {
     tool: matches[0],
     ...(callResult === undefined ? {} : { callResult }),
   };
-  const identity = identifySemanticContent(body);
+  const term = jsonToTerm(body);
+  const semanticType = inferTy([], term);
+  if (semanticType === null) {
+    throw new McpToolObservationRefusal("MCP observation does not derive an RMN semantic type", body);
+  }
+  const identity = identifyNormalizedSemanticContent({
+    objectKind: "mcp.tool-observation",
+    semanticType,
+    term,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  });
   return Object.freeze({ id: identity.id, ...body });
 }

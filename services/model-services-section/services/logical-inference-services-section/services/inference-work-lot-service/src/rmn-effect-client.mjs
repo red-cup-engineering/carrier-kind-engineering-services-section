@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
-import { conformTerm as requestConformance } from "@red-cup-engineering/rmn-semantic-conformance/client";
-import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
+import { conformTerm as requestConformance } from "./rmn-conformance-client.mjs";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
-export const rawNi = (await import("@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor")).rawNiUri;
-export function textNi(value) { return rawNi(Buffer.from(value, "utf8")); }
+export function textNi(value) {
+  return identifyJsonSemanticContent({ objectKind: "inference-work-lot.effect-coordinate", value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+}
 
 function agentUrl() {
   if (!process.env.RMN_CONFORMANCE_AGENT) throw new Error("RMN_CONFORMANCE_AGENT must name the hired RMN provider's A2A 1.0 Agent Card");
@@ -17,11 +18,12 @@ export async function conformTerm(_actor, term, expectedType, _now) {
 }
 
 export async function proposeEffect(actor, cell, now) {
-  const response = await conformTerm(actor, ["effect", cell], ["effect"], now);
+  const response = await conformTerm(actor, ["mark", JSON.stringify(cell)], ["base"], now);
   return { cell, semanticId: response.term, evidence: cell.evidenceRoot, conformance: response.conformance };
 }
 
 export async function completeEffect(_actor, proposalCell, completionCell, evidence, _now) {
+  const { assayWitTransition } = await import("@lenticule-science/wit-transition-assay/client");
   const response = await assayWitTransition({ agentUrl: witAgentUrl(), proposalCell, completionCell, evidence });
   return { proposal: response.proposal, completion: response.completion, witness: response.witness, outcome: response.outcome, conformance: response.exchange.outputNi };
 }

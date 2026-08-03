@@ -1,7 +1,7 @@
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
 
 function ni(value, label) {
-  if (typeof value !== "string" || !NI.test(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
+  if (!isCanonicalSha256NiUri(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
   return value;
 }
 

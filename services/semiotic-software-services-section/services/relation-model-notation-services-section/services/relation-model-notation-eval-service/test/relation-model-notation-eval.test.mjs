@@ -143,12 +143,10 @@ test("Track A / fold via tm.field/tm.append (fold compositions built in the gram
 
 test("Track A / evaluateRunTerm: an identity runTerm round-trips JSON input", () => {
   const runTerm = tm.lam(tm.var(0));
-  // `true`/`false` are a known bridge quirk (already pinned in the projecting
-  // package's own tests): they encode as the truth-axis charge marks and
-  // decode back out as "held"/"denied", not as JS booleans. Every other input
-  // here round-trips as a strict identity.
   const inputs = [
     null,
+    true,
+    false,
     42,
     "hello",
     [1, 2, 3],
@@ -158,8 +156,6 @@ test("Track A / evaluateRunTerm: an identity runTerm round-trips JSON input", ()
     const mine = evaluateRunTerm(runTerm, input);
     assert.deepEqual(mine, input);
   }
-  assert.equal(evaluateRunTerm(runTerm, true), "held");
-  assert.equal(evaluateRunTerm(runTerm, false), "denied");
 });
 
 test("Track A / evaluateRunTerm: a field-projecting runTerm returns the projected field", () => {

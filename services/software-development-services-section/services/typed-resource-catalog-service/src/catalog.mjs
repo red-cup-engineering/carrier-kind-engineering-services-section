@@ -1,4 +1,5 @@
-import { classify, define, restrict, writing } from "@red-cup-engineering/relating";
+import { classify, define, restrict } from "@red-cup-engineering/file-projection-kernel-service";
+import * as writing from "@red-cup-engineering/relating/writing";
 import { canonicalJson, immutable, semanticId } from "./canonical.mjs";
 import { recognize, validateRecognition } from "./recognition.mjs";
 

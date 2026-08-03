@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/semiotic-exchange-chain-services-section",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "private": true,
   "type": "module",
   "description": "RCE's Semiotic Exchange Chain Services Section: specifies the fusion of public standard protocols -- EAVT/Datom, EVM settlement, ActivityPub/WMAP, A2A, x402, UCAN -- into one exchange chain in which the chain is the only durable home, actuators are ephemeral, and the Semiotic Voxel exists only actively. This section specifies; it does not itself operate a chain.",
@@ -10,7 +10,7 @@
     "src"
   ],
   "scripts": {
-    "check": "node --check lib/law.mjs && node --check src/semiotic-exchange-demand-induction.mjs",
+    "check": "node --check src/semiotic-exchange-demand-induction.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
@@ -27,8 +27,8 @@
     "./semiotic-exchange-demand-induction": "./src/semiotic-exchange-demand-induction.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1",
-    "@lenticule-science/articulating": "0.1.1",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2"
+    "@lenticule-science/articulating": "0.2.0",
+    "@red-cup-engineering/ni-uri-services-section": "0.1.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2"
   }
 }

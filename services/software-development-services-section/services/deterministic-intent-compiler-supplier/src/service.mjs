@@ -3,17 +3,17 @@ import { resolve } from "node:path";
 import { deliverFromEnvironment } from "@red-cup-engineering/activitypub-services-section/deliver";
 import { projectRmnActivity } from "@red-cup-engineering/activitypub-services-section/rmn-activity";
 import { listAddressedRmnOutbox } from "@red-cup-engineering/activitypub-services-section/rmn-outbox-client";
-import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
-import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
 import { createSettlementStore, querySettlementRecords } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { requestSoftwareChangeProposalAssay } from "@lenticule-science/software-change-proposal-assay/client";
 import { ACTOR, CONTEXT, bidForOffer, fulfillAward } from "./supplier.mjs";
+import { bytesOf, jsonFromBytes } from "./semantic-content.mjs";
 
 export const ROOT = new URL("..", import.meta.url).pathname;
 const CATEGORY = "deterministic-intent-compiler-supplier.foraging";
 const PUBLIC = "https://www.w3.org/ns/activitystreams#Public";
-const activityBytes = (activity) => semanticBytes(relationalWitnessJournalDocument(activity));
-function activityFromBytes(bytes) { const term = decodeSemantic(bytes); if (term?.[0] !== "ascribe" || term.length !== 3) throw new Error("ActivityPub RMN object is not one typed relational document"); return decodeRelationalValue(term[1], term[2]); }
+const ACTIVITY_KIND = "deterministic-intent-compiler-supplier.activitypub-activity";
+const activityBytes = (activity) => bytesOf(activity, ACTIVITY_KIND);
+function activityFromBytes(bytes) { return jsonFromBytes(bytes, ACTIVITY_KIND); }
 function requiredEnvironment(name) { const value = process.env[name]; if (typeof value !== "string" || !value) throw new Error(`${name} is required`); return value; }
 function validatePolicy(policy) {
   if (!policy?.proposalAssay?.agentCard || !Array.isArray(policy.boards) || policy.boards.some((board) => ["packageRoot", "nodeId", "contract"].some((field) => Object.hasOwn(board, field)) || !board.activityPubActor || !board.activityPubOutbox || !board.activityPubInbox || !board.a2aAgentCard || !board.supplierActivityPubActor)) throw new Error("supplier policy requires standard ActivityPub boards and one A2A proposal assay without package imports");

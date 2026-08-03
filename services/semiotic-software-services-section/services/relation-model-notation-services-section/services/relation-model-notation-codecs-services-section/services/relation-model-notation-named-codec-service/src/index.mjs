@@ -55,8 +55,8 @@
 import { tm, chargeValueNames } from "@red-cup-engineering/relation-model-notation";
 import { inferTy, isClosed } from "@red-cup-engineering/relation-model-notation-typing";
 import { arrayTag, objectTag } from "@red-cup-engineering/relation-model-notation-json-codec";
-import { rawNiUri } from "@red-cup-engineering/relation-model-notation-cbor-codec";
 import { parse as parseJson } from "@red-cup-engineering/json-file-codec-service";
+import { EMPTY_WITNESS_ROOT, identifyNormalizedSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
 /** Canonical text for a primitive value (a string leaf, never an
  *  object/array at these call sites) — see the module doc comment. */
@@ -67,9 +67,6 @@ function canonicalBytes(value) {
 /** Content address for the canonical named-JSON serialization, using this
  *  section's own CBOR codec's `ni://` minting rather than metroplat's
  *  ArtifactRef format. */
-function digest(source) {
-  return rawNiUri(source);
-}
 
 /**
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm
@@ -310,5 +307,7 @@ export function canonicalNamedRmn(term) {
  * @returns {string}
  */
 export function digestNamedRmn(term) {
-  return digest(canonicalNamedRmn(term));
+  const semanticType = inferTy([], term);
+  if (semanticType === null) throw new TypeError("named RMN term did not earn a closed semantic type");
+  return identifyNormalizedSemanticContent({ objectKind: "relation-model-notation.named-term", semanticType, term, witnessRoot: EMPTY_WITNESS_ROOT }).token;
 }

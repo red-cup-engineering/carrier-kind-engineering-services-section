@@ -2,9 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { createCategoryReferenceIndex } from "../src/category-reference-index.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri } from "@red-cup-engineering/ni-uri-services-section";
 
-const niFor = rawNiUri;
+const niFor = makeNiUri;
 
 function fakeR2() {
   const store = new Map();
@@ -39,4 +39,14 @@ test("query is scoped to its category", async () => {
   await index.add({ category: "semiotic-foam", ni: niFor(Buffer.from("a")) });
   const result = await index.query("game-foam");
   assert.equal(result.references.length, 0);
+});
+
+test("refuses a noncanonical SHA-256 NI URI final sextet", async () => {
+  const index = createCategoryReferenceIndex({ r2: fakeR2() });
+  const canonical = niFor(Buffer.from("semiotic foam"));
+  const noncanonical = `${canonical.slice(0, -1)}B`;
+  await assert.rejects(
+    index.add({ category: "semiotic-foam", ni: noncanonical }),
+    /canonical SHA-256 ni URI/u,
+  );
 });

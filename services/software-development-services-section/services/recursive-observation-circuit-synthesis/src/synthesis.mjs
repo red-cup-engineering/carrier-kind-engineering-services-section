@@ -1,14 +1,19 @@
-import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { circuitAssemblyId, hierarchicalCircuitId, normalizeCircuitAssembly, normalizeCircuitProfile, normalizeHierarchicalCircuit, verifyCircuitAssembly } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
-import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { semanticBytes } from "@red-cup-engineering/relation-model-notation-runtime";
+import { circuitAssemblyId, hierarchicalCircuitId, normalizeCircuitAssembly, normalizeCircuitProfile, normalizeHierarchicalCircuit, verifyCircuitAssembly } from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
+import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "@red-cup-engineering/relation-model-notation-runtime/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { buildFabricationCircuitFamily } from "./circuit-family.mjs";
 
 export const SYNTHESIS_PROFILE = "org.emsenn.infomaterial.recursive-observation-circuit-synthesis.v1";
 export const PROVIDER_ACCOUNT = "eip155:31337:0x92397c097ffce54cf7d424b99c31f91f761e1f6b";
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u;
 function fail(code, message) { const error = new Error(message); error.code = code; throw error; }
 function exactKeys(value, keys) { return value && Object.getPrototypeOf(value) === Object.prototype && Object.keys(value).sort().join("\0") === [...keys].sort().join("\0"); }
-function typed(value) { const encoded = encodeRelationalValue(value), term = ["ascribe", encoded.type, encoded.term]; return { id: semanticId(term), bytes: semanticBytes(term) }; }
+function typed(value) {
+  const encoded = encodeRelationalValue(value), term = ["ascribe", encoded.type, encoded.term];
+  const identity = identifyJsonSemanticContent({ objectKind: "recursive-observation-circuit.synthesis-receipt", value, witnessRoot: EMPTY_WITNESS_ROOT });
+  return { id: identity.token, bytes: semanticBytes(term) };
+}
 function ni(value, field) { if (typeof value !== "string" || !NI.test(value)) fail("malformed-synthesis", `${field} must be a SHA-256 ni URI`); return value; }
 
 export function normalizeSynthesisRequest(source) {

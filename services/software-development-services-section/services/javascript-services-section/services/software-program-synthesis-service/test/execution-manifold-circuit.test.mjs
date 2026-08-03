@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { circuitAssemblyId, verifyCircuitAssembly } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+import { semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
+import { circuitAssemblyId, verifyCircuitAssembly } from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
 import {
   assayExecutionGeometryCircuit,
   measureExecutionEconomy,

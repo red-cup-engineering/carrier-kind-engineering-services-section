@@ -3,8 +3,7 @@ import articulatingArtifact from "@lenticule-science/articulating/evm/Articulati
 import markArtifact from "@lenticule-science/articulating/evm/Mark.json" with { type: "json" };
 import utteranceArtifact from "@lenticule-science/articulating/evm/Utterance.json" with { type: "json" };
 import { decodeCanonicalArticulatingRmn } from "@lenticule-science/articulating-language-cone-service/rmn";
-import { semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { loadVerifiedDeploymentManifest } from "./versioned-deployment-manifest.mjs";
 import {
   encodeAbiParameters,
@@ -45,8 +44,7 @@ function addressByStandard(manifest, standard) {
 }
 
 function canonicalMarkSurface(value) {
-  const encoded = encodeRelationalValue(value);
-  const bytes = semanticBytes(["ascribe", encoded.type, encoded.term]);
+  const { bytes } = identifyJsonSemanticContent({ objectKind: "ethereum.articulating-mark-surface", value, witnessRoot: EMPTY_WITNESS_ROOT });
   const carrier = toHex(bytes);
   return Object.freeze({ bytes, carrier, mark: sha256(carrier) });
 }

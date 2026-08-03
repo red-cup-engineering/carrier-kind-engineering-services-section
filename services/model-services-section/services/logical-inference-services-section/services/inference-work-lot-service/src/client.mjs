@@ -2,18 +2,17 @@ import { randomUUID } from "node:crypto";
 import { Message, Role } from "@a2a-js/sdk";
 import { a2aResultMetadata, a2aResultParts, resumeRmnTask, sendRmnTask, submitRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import {
   SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION,
   circuitInterfaceFromAgentCard,
-} from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
-import { decodeRelationalValue, encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+} from "./sovereign-provider-interface.mjs";
+import { decodeJsonValue, identifyJsonValue, jsonValueId } from "./modern-rmn-carrier.mjs";
+import { admitInferenceWorkOutput, admitInferenceWorkRequest } from "./inference-work-carriers.mjs";
 
 const resultParts = a2aResultParts;
 
 function requestBytes(value) {
-  const encoded = encodeRelationalValue(value);
-  return semanticBytes(["ascribe", encoded.type, encoded.term]);
+  return identifyJsonValue(admitInferenceWorkRequest(value)).bytes;
 }
 
 function requestMessage(request) {
@@ -30,14 +29,13 @@ function requestMessage(request) {
 
 function settleInferenceExchange(exchange) {
   const output = extractRmnPart(resultParts(exchange.result));
-  const term = decodeSemantic(output.bytes);
-  if (!semanticBytes(term).equals(output.bytes) || term?.[0] !== "ascribe" || term.length !== 3) throw new Error("inference-work market returned noncanonical RMN");
-  const result = decodeRelationalValue(term[1], term[2]);
+  const decoded = decodeJsonValue(output.bytes);
+  const result = admitInferenceWorkOutput(decoded.value);
   const provider = circuitInterfaceFromAgentCard(exchange.agentCard);
   const metadata = a2aResultMetadata(exchange.result);
   if (metadata.requestNi !== exchange.inputNi || metadata.resultNi !== exchange.outputNi) throw new Error("inference-work market did not bind the exact request and result");
   if (typeof result?.outcome !== "string" || result.integrationAccepted !== false) throw new Error("inference-work result must remain a bounded product or explicit residue without receiver integration authority");
-  return Object.freeze({ result, resultNi: semanticId(term), provider, exchange });
+  return Object.freeze({ result, resultNi: decoded.token, provider, exchange });
 }
 
 export async function submitInferenceWorkLot({ agentUrl, request, signal, submit = submitRmnTask }) {
@@ -93,7 +91,7 @@ function objectiveFor(job) {
 function stableLotId(prefix, value) {
   if (typeof value !== "string" || value.length === 0) throw new Error("inference job requires one stable id");
   if (value.startsWith("urn:")) return value;
-  return `urn:work-lot:${prefix}:${semanticId(["mark", value]).split(";")[1]}`;
+  return `urn:work-lot:${prefix}:${jsonValueId(value).split(";")[1]}`;
 }
 
 export function inferenceBatchRequest(job, { customer, purpose, desiredUse, workLotPrefix }) {

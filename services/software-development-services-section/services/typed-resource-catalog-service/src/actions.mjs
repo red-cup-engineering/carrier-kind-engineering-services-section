@@ -1,7 +1,9 @@
-import { action, induceBins, jsonResource, literalResource } from "@red-cup-engineering/relating";
+import { jsonResource } from "@red-cup-engineering/relating/codecs";
+import { action, induceBins, literalResource } from "@red-cup-engineering/relating/running";
 import { auditCatalog, classifyResource, compileCatalog } from "./catalog.mjs";
 import { checkLanguageCone } from "./language-cone.mjs";
 import { catalogNodeWorkspaceSources } from "./node-workspace-source-catalog.mjs";
+import { catalogWorkspaceContentGraph } from "@red-cup-engineering/workspace-content-graph-service";
 import { scanTemporalFailureMarks } from "./temporal-failure-normalization.mjs";
 import { receiptRmn } from "./rmn.mjs";
 
@@ -49,13 +51,19 @@ export const catalogNodeWorkspaceSourcesAction = action({
   run: (input) => catalogNodeWorkspaceSources(record(input, "catalog-node-workspace-sources")),
 });
 
+export const catalogWorkspaceContentGraphAction = action({
+  verb: "catalog-workspace-content-graph", inputFormat: "json", outputFormat: "json",
+  summary: "GROW addressed package actors, JSON Schemas, Markdown, and witnessed oriented relations in one workspace content graph.",
+  run: (input) => catalogWorkspaceContentGraph(record(input, "catalog-workspace-content-graph")),
+});
+
 export const scanTemporalFailureMarksAction = action({
   verb: "scan-temporal-failure-marks", inputFormat: "json", outputFormat: "json",
   summary: "Scan an admitted code territory for temporal-failure marks and project addressed normalization demands.",
   run: (input) => scanTemporalFailureMarks(record(input, "scan-temporal-failure-marks")),
 });
 
-export const actions = Object.freeze([classifyTypedResourceAction, auditTypedResourceCatalogAction, checkLanguageConeAction, projectReceiptRmnAction, catalogNodeWorkspaceSourcesAction, scanTemporalFailureMarksAction]);
+export const actions = Object.freeze([classifyTypedResourceAction, auditTypedResourceCatalogAction, checkLanguageConeAction, projectReceiptRmnAction, catalogNodeWorkspaceSourcesAction, catalogWorkspaceContentGraphAction, scanTemporalFailureMarksAction]);
 export const trcApex = induceBins(actions, {
   packageName: "@red-cup-engineering/typed-resource-catalog",
   basePath: "/typed-resource-catalog",

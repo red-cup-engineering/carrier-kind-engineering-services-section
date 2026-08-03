@@ -3,7 +3,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri as rawNiUri } from "@red-cup-engineering/ni-uri-services-section";
 import { encryptSettlementPrivateKey, ensureSettlementPassword } from "../src/settlement-key-custody.mjs";
 
 const HERE = resolve(dirname(fileURLToPath(import.meta.url)), "..");

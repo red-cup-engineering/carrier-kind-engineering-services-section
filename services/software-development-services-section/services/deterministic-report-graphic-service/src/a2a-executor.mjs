@@ -1,17 +1,16 @@
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { createSettlementStore, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { renderDeterministicReportGraphic } from "./deterministic-report-graphic.mjs";
+import { OPERATION_KIND, admit, identify } from "./semantic-content.mjs";
 
 export const ACTOR = "urn:ame:deterministic-report-graphic-service";
 const ROOT = new URL("..", import.meta.url).pathname;
-const id = (value) => semanticId(relationalWitnessJournalDocument(value));
+const id = (value) => identify(value, OPERATION_KIND).id;
 const record = (body) => Object.freeze({ id: id(body), ...body });
 const exact = (value) => value?.id === id(Object.fromEntries(Object.entries(value ?? {}).filter(([key]) => key !== "id")));
-export const operationBytes = (value) => semanticBytes(relationalWitnessJournalDocument(value));
-export function operationFromBytes(bytes) { const term = decodeSemantic(bytes); if (term?.[0] !== "ascribe" || term.length !== 3) throw new Error("graphic operation is not one typed relational RMN document"); return decodeRelationalValue(term[1], term[2]); }
+export const operationBytes = (value) => identify(value, OPERATION_KIND).bytes;
+export function operationFromBytes(bytes) { return admit(bytes, OPERATION_KIND); }
 async function recordResult(value, recordedAt) {
   const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: process.env.WITNESS_JOURNAL_RDF_AGENT });
   return store.record({ category: "rendering-outcomes", recordedAt, record: value });

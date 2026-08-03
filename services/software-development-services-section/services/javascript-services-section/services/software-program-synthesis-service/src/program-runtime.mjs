@@ -1,5 +1,4 @@
 import { createHash, randomUUID } from "node:crypto";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -10,7 +9,7 @@ import { hireOfficerContextCompilation } from "@union-officer-academy/officer-co
 import { executeSoftwareMission as defaultExecuteSoftwareMission } from "@red-cup-engineering/software-mission-execution-service/client";
 import { normalizeCausalWitnessJournal } from "@lenticule-science/witness-journal-rdf-projection-service/causal";
 import { createSettlementStore, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { runTestsCommand } from "@red-cup-engineering/sandbox-command-execution-service";
 import {
   assayExecutionGeometryCircuit as defaultAssayExecutionGeometryCircuit,
@@ -24,7 +23,11 @@ const ACADEMY = resolve(process.env.UNION_OFFICER_ACADEMY_ROOT
 const REPERTOIRE = join(ACADEMY, "lib/professional-repertoire/skills");
 const OFFICES = join(ACADEMY, "content/professional-repertoire/offices");
 const CHARACTER = join(ACADEMY, "content/characters/codex-interactive-session/character.json");
-const NI_PATTERN = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+const NI_PATTERN = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u;
+
+function semanticDocumentId(objectKind, value) {
+  return identifyJsonSemanticContent({ objectKind, value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+}
 
 const ENGINEERING_STAGES = Object.freeze([
   { role: "prior-art-synthesis", office: "configuration-manager", skill: "writing-a-note-about-research/SKILL.md" },
@@ -170,9 +173,14 @@ export function validatePlan(plan, { acceptanceKeys, requiredFocusPaths = [], re
 
 function bytesSource(path, extra = {}) {
   const bytes = readFileSync(path);
+  const identified = identifyJsonSemanticContent({
+    objectKind: "software-program-synthesis.source-artifact",
+    value: { mediaType: "application/octet-stream", contentBase64: bytes.toString("base64") },
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  });
   return {
     identity: path,
-    semanticId: rawNiUri(bytes),
+    semanticId: identified.token,
     bytesBase64: bytes.toString("base64"),
     ...extra,
   };
@@ -180,9 +188,14 @@ function bytesSource(path, extra = {}) {
 
 function valueSource(identity, value, extra = {}) {
   const bytes = Buffer.from(typeof value === "string" ? value : JSON.stringify(value, null, 2));
+  const identified = identifyJsonSemanticContent({
+    objectKind: "software-program-synthesis.generated-value",
+    value,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  });
   return {
     identity,
-    semanticId: rawNiUri(bytes),
+    semanticId: identified.token,
     bytesBase64: bytes.toString("base64"),
     ...extra,
   };
@@ -489,12 +502,12 @@ export async function runProgram(input, {
         executionProvider: result?.executionProvider ?? null,
         executionInput: receipt?.inputNi ?? null,
         executionOutput: receipt?.outputNi ?? null,
-        executionAgentCard: receipt?.agentCard ? semanticId(relationalWitnessJournalDocument(receipt.agentCard)) : null,
+        executionAgentCard: receipt?.agentCard ? semanticDocumentId("software-program-synthesis.execution-agent-card", receipt.agentCard) : null,
         executionAuthentication: receipt?.authentication ?? null,
         integrated: result?.outcome?.integrated === true,
         reason,
       };
-      const event = { id: semanticId(relationalWitnessJournalDocument(body)), ...body };
+      const event = { id: semanticDocumentId("software-program-synthesis.mission-event", body), ...body };
       normalizeCausalWitnessJournal([...executionEvents, event]);
       const projection = await appendExecutionEvent({
         category: "software-program.mission-settlement",

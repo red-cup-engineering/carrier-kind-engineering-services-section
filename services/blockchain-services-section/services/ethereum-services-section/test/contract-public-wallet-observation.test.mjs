@@ -5,9 +5,8 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { Interface } from "ethers";
-import { querySettlementRecords, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { querySettlementRecords } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { startWitnessJournalProviderProcess } from "@lenticule-science/witness-journal-rdf-projection-service/test-provider";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 
 import { observePublicWallet, run } from "../src/contract-public-wallet-observation.mjs";
 
@@ -20,7 +19,7 @@ const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const BASE_ACCOUNT = "0x224C08A8526751887a83e2711B167f890c6D078d";
 const BASE_TOKEN = "0x4200000000000000000000000000000000000006";
 
-function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+import { digest } from "../src/contract-public-wallet-observation.mjs";
 function identify(body) { return { id: digest(body), ...body }; }
 function networkEvidence() {
   const objects = new Map(), memberships = new Map();

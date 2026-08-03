@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/punctuated-name-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Groups the firm's Three Dots and a Dash services: reading a punctuated name (dot/colon/dash, with underscore as escape) as the finite path it denotes in the category of kind expressions, and checking a derived path against a caller-supplied admissibility table. Use when adding or finding software that executes the firm's naming law rather than merely formatting a string."
-}

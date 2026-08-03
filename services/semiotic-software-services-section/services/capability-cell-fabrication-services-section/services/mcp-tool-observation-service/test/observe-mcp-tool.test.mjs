@@ -50,7 +50,7 @@ test("initializes, exhausts tools/list, invokes one exact tool, and identifies t
     arguments: { text: "hello" },
   }, { fetchImpl });
 
-  assert.match(observed.id, /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
+  assert.match(observed.id, /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u);
   assert.equal(observed.tool.name, "echo");
   assert.deepEqual(observed.callResult.structuredContent, { echoed: "hello" });
   assert.deepEqual(requests.map(({ request }) => request.method), [

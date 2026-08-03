@@ -1,10 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { Message, Role } from "@a2a-js/sdk";
-import { a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
+import { a2aResultParts, circuitInterfaceFromAgentCard, sendRmnTask, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/a2a-rmn-task-client-service";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION, circuitInterfaceFromAgentCard } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
-import { decodeReviewReceipt, encodeReviewRequest } from "./protocol.mjs";
+import { admitNormalizedSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { decodeReviewReceipt, encodeReviewRequest, identifyReviewValue, REVIEW_RECEIPT_KIND, REVIEW_REQUEST_KIND } from "./protocol.mjs";
 
 const parts = a2aResultParts;
 
@@ -14,13 +13,13 @@ export async function requestSemanticCandidateReview({ agentUrl, manifest, candi
     candidate: { ...candidate, providers: candidate.providers ?? [], actions: candidate.actions ?? [], changes: candidate.changes.map((change) => ({ ...change, after: Buffer.from(change.after).toString("utf8") })) },
     minimumReviews, maximumReviews,
   });
-  const term = ["ascribe", request.type, request.term], requestNi = semanticId(term);
-  const message = Message.toJSON({ messageId: randomUUID(), contextId: "", taskId: "", role: Role.ROLE_USER, parts: [rmnPart(semanticBytes(term), "semantic-candidate-review-request.rmn.cbor")], metadata: {}, extensions: [], referenceTaskIds: [] });
+  const requestIdentity = identifyReviewValue(request.value, REVIEW_REQUEST_KIND), requestNi = requestIdentity.id;
+  const message = Message.toJSON({ messageId: randomUUID(), contextId: "", taskId: "", role: Role.ROLE_USER, parts: [rmnPart(requestIdentity.bytes, "semantic-candidate-review-request.rmn.cbor")], metadata: {}, extensions: [], referenceTaskIds: [] });
   const exchange = await send({ agentUrl, extensions: [SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION], requireSignature: true, message, ...(signal ? { signal } : {}) });
-  const output = extractRmnPart(parts(exchange.result)), response = decodeSemantic(output.bytes);
-  if (!semanticBytes(response).equals(output.bytes) || response?.[0] !== "ascribe" || response.length !== 3) throw new Error("semantic reviewer returned noncanonical RMN");
-  const receipt = decodeReviewReceipt(response[1], response[2]), provider = circuitInterfaceFromAgentCard(exchange.agentCard);
+  const output = extractRmnPart(parts(exchange.result)), response = admitNormalizedSemanticContent(output.bytes);
+  if (response.envelope.objectKind !== REVIEW_RECEIPT_KIND) throw new Error("semantic reviewer returned the wrong semantic object kind");
+  const receipt = decodeReviewReceipt(response.envelope.semanticType, response.envelope.settledBody), provider = circuitInterfaceFromAgentCard(exchange.agentCard);
   if (receipt.provider !== provider.account) throw new Error("semantic review receipt does not belong to the signed contracted face");
   if (receipt.subject !== requestNi) throw new Error("semantic review receipt does not bind the exact review subject");
-  return { receipt, review: receipt.review, receiptNi: semanticId(response), exchange };
+  return { receipt, review: receipt.review, receiptNi: response.token, exchange };
 }

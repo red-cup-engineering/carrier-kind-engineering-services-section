@@ -1,0 +1,52 @@
+{
+  "name": "@red-cup-engineering/software-inventory-service",
+  "version": "0.0.4",
+  "description": "Inventories a bounded software territory as addressed filesystem, package, Git, deployment, and systemd observations.",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/software-inventory.mjs"
+    }
+  },
+  "bin": {
+    "inventory-software": "./scripts/inventory-software.mjs"
+  },
+  "files": [
+    "scripts/",
+    "schemas/",
+    "src/",
+    "types/",
+    "MIGRATION.md"
+  ],
+  "scripts": {
+    "inventory": "node scripts/inventory-software.mjs",
+    "check": "node --check src/software-inventory.mjs && node --check scripts/inventory-software.mjs && node --check test/software-inventory.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "dependencies": {
+    "@red-cup-engineering/disk-package-observation-app": "1.0.0",
+    "@red-cup-engineering/gitmodules-file-codec-service": "1.0.0",
+    "@red-cup-engineering/json-schema-services-section": "0.1.2",
+    "@red-cup-engineering/ni-uri-services-section": "0.1.1",
+    "@red-cup-engineering/npm-package-tree-discovery-service": "1.0.0",
+    "@red-cup-engineering/path-walking-service": "1.0.0",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.0.2",
+    "@red-cup-engineering/relation-model-notation-typing": "0.0.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
+    "@red-cup-engineering/systemd-unit-inventory-observation-service": "0.1.0"
+  },
+  "redCupEngineering": {
+    "supersedes": {
+      "package": "@red-cup-engineering/software-estate-circuit-service",
+      "version": "0.0.1",
+      "reason": "The prior name described derived outputs instead of the ordinary software inventory product."
+    }
+  }
+}

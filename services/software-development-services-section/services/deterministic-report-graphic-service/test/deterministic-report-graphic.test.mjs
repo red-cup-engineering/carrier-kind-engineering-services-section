@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
 import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { ACTOR, executeA2aMessage, operationBytes, operationFromBytes } from "../src/a2a-executor.mjs";
 import { MECHANICAL_CLASSIFICATIONS, renderDeterministicReportGraphic } from "../src/deterministic-report-graphic.mjs";

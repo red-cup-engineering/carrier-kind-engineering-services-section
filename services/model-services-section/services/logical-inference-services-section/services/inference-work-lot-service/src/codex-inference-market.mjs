@@ -8,11 +8,11 @@ import { considerationPolicyIsSubpolicy, migrateConsiderationPolicy, resolutionC
 import { recordAssayedInferenceConsiderationClose } from "./consideration-close.mjs";
 import { observeInferenceOutcome, observeInferenceRefusal, registerInferenceDelivery } from "./expected-resolution-pricing-client.mjs";
 import { BOUNDED_CODEX_ROUTING_PROFILE, classifyCodexDemand } from "./codex-demand-classification.mjs";
-import { resolveSettlementAccount } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { canonicalJson, formContextPacket } from "@harmonious-union/forming-a-context-packet";
+import { jsonValueId } from "./modern-rmn-carrier.mjs";
+import { canonicalJson, formContextPacket } from "./context-packet.mjs";
 import { admitInferenceContext } from "./context-packet-demand.mjs";
+import { admitInferenceWorkRefusal, admitInferenceWorkRequest, admitInferenceWorkResult } from "./inference-work-carriers.mjs";
+import { resolveLocalSettlementAccount } from "./witness-journal-settlement-store.mjs";
 
 export { BOUNDED_CODEX_ROUTING_PROFILE, classifyCodexDemand } from "./codex-demand-classification.mjs";
 
@@ -23,11 +23,11 @@ const CUSTOMER = "urn:ame:inference-work-lot-service";
 export const CODEX_CUSTOMER = "urn:ame:bare-cedar-fog-codex";
 
 async function settlementAccount() {
-  return (await resolveSettlementAccount(ROOT, { caip2: process.env.SETTLEMENT_CAIP2 })).settlement;
+  return resolveLocalSettlementAccount(ROOT, { actor: CUSTOMER, caip2: process.env.SETTLEMENT_CAIP2 }).settlement;
 }
-const PROVIDER_ADMISSIONS = resolve(ROOT, "content/provider-admissions/codex-inference-providers.nq");
-const SERVICE_ADMISSIONS = resolve(ROOT, "content/provider-admissions/semantic-services.nq");
-const CUSTOMER_ADMISSIONS = resolve(ROOT, "content/customer-admissions/admitted-customers.nq");
+const PROVIDER_ADMISSIONS = resolve(ROOT, "content/provider-admissions/codex-inference-providers.json");
+const SERVICE_ADMISSIONS = resolve(ROOT, "content/provider-admissions/semantic-services.json");
+const CUSTOMER_ADMISSIONS = resolve(ROOT, "content/customer-admissions/admitted-customers.json");
 export const ADMITTED_CUSTOMERS = loadCustomerAdmissions(CUSTOMER_ADMISSIONS, { market: "urn:ame:inference-work-lot-service" });
 
 export const DEFAULT_CODEX_CONSIDERATION_POLICY = resolutionCreditPolicy();
@@ -57,8 +57,9 @@ function supplier(provider, signal) {
 }
 
 function validateInput(input) {
+  admitInferenceWorkRequest(input);
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("one inference work-lot object is required");
-  if (input.customer !== undefined && !ADMITTED_CUSTOMERS.has(input.customer)) throw new Error(`inference work lots admit only customers on the admission plate (content/customer-admissions/admitted-customers.nq); ${input.customer} is not admitted`);
+  if (input.customer !== undefined && !ADMITTED_CUSTOMERS.has(input.customer)) throw new Error(`inference work lots admit only customers on the addressed admission carrier; ${input.customer} is not admitted`);
   if (typeof input.objective !== "string" || input.objective.trim().length === 0) throw new Error("objective must contain text");
   const admittedContext = admitInferenceContext(input, { formContextPacket, canonicalJson });
   if (input.outputSchema !== undefined && (typeof input.outputSchema !== "object" || Array.isArray(input.outputSchema))) throw new Error("outputSchema must be an object when supplied");
@@ -88,7 +89,7 @@ function marketResidue(procurement) {
   const selected = procurement.selection?.disposition === "provider-selected"
     ? procurement.selection.selected
     : null;
-  return {
+  return admitInferenceWorkRefusal({
     outcome: "market-residue",
     disposition: procurement.disposition,
     provider: selected?.provider?.actor ?? null,
@@ -108,7 +109,7 @@ function marketResidue(procurement) {
     })),
     settlementResidues: procurement.settlementResidues ?? [],
     integrationAccepted: false,
-  };
+  });
 }
 
 function considerationCloseProjection(procurement) {
@@ -124,8 +125,7 @@ function considerationCloseProjection(procurement) {
 function stableWorkLotId(input) {
   if (input.workLotId) return input.workLotId;
   const demand = Object.fromEntries(Object.entries(input).filter(([field]) => field !== "workLotId"));
-  const encoded = encodeRelationalValue(demand);
-  return `urn:work-lot:inference:${semanticId(["ascribe", encoded.type, encoded.term]).split(";")[1]}`;
+  return `urn:work-lot:inference:${jsonValueId(demand).split(";")[1]}`;
 }
 
 export async function contractInferenceWork(input, { procure = procureTypedInference, assay = assayTypedInferenceCandidate, close = recordAssayedInferenceConsiderationClose, registerDelivery = registerInferenceDelivery, observeRefusal = observeInferenceRefusal, signal, pricingService = process.env.EXPECTED_RESOLUTION_PRICE_URL, account } = {}) {
@@ -200,18 +200,17 @@ export async function contractInferenceWork(input, { procure = procureTypedInfer
     if (pricingService && procurement.disposition === "selected-provider-refused" && selectedProvider) {
       const selectedOffer = procurement.selection.selected?.offer?.id;
       const refusal = procurement.settlementResidues?.find((item) => item.provider === selectedProvider && item.offer === selectedOffer) ?? procurement.settlementResidues?.[0];
-      const encodedEvidence = encodeRelationalValue({ workLot, selectedProvider, selectedOffer, refusal });
       await observeRefusal(pricingService, {
         workLot, provider: selectedProvider, taskClass, selectedOffer,
         disposition: refusal?.disposition ?? "provider-refusal",
-        evidence: semanticId(["ascribe", encodedEvidence.type, encodedEvidence.term]),
+        evidence: jsonValueId({ workLot, selectedProvider, selectedOffer, refusal }),
       });
     }
     return marketResidue(procurement);
   }
   const schemaAssay = await assay(procurement, { customer: CUSTOMER, customerServices: CODEX_CUSTOMER_SERVICES, settlementRoot: ROOT, dataRoot: DATA_ROOT });
   const considerationClose = await close(considerationCloseProjection(procurement), schemaAssay, { customerServices: CODEX_CUSTOMER_SERVICES, settlementRoot: ROOT, dataRoot: DATA_ROOT, at: schemaAssay.assayedAt ?? new Date().toISOString() });
-  if (!schemaAssay.accepted) return {
+  if (!schemaAssay.accepted) return admitInferenceWorkRefusal({
     outcome: "candidate-refused-by-schema-assay",
     provider: procurement.selection.selected.provider.actor,
     problems: schemaAssay.problems,
@@ -219,11 +218,11 @@ export async function contractInferenceWork(input, { procure = procureTypedInfer
     considerationClose: considerationClose.id,
     considerationDisposition: considerationClose.disposition,
     integrationAccepted: false,
-  };
+  });
   const selected = procurement.selection.selected;
   const receiver = customer;
   if (pricingService) await registerDelivery(pricingService, { workLot, provider: selected.provider.actor, taskClass, selectedOffer: selected.offer.id, receipt: procurement.receipt.id, receiver });
-  return {
+  return admitInferenceWorkResult({
     outcome: "candidate-pending-customer-acceptance",
     workLot,
     provider: selected.provider.actor,
@@ -251,7 +250,7 @@ export async function contractInferenceWork(input, { procure = procureTypedInfer
     acceptanceScope: "delivery-to-customer-office-only",
     receiverAcceptanceRequired: true,
     nextAct: "Route the product to executable behavioral assay and the receiving settlement's authorized induction decision boundary; provider identity is provenance, not proof.",
-  };
+  });
 }
 
 export async function recordCodexInferenceOutcome(input, { observe = observeInferenceOutcome, pricingService = process.env.EXPECTED_RESOLUTION_PRICE_URL } = {}) {
@@ -269,11 +268,11 @@ export async function recordCodexInferenceOutcome(input, { observe = observeInfe
 export async function contractCodexInferenceWork(input, options = {}) {
   const result = await contractInferenceWork(input, options);
   if (result.outcome !== "candidate-pending-customer-acceptance") return result;
-  return {
+  return admitInferenceWorkResult({
     ...result,
     outcome: "candidate-pending-codex-acceptance",
     acceptanceScope: "delivery-to-codex-customer-office-only",
     receiverAcceptanceRequired: true,
     nextAct: "Codex may decide its own routine purchase and delivery outcome after an executable assay without Leader approval; only a later effect on another Actor crosses into that Actor's induction boundary.",
-  };
+  });
 }

@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/software-program-synthesis-service",
-  "version": "2.0.1",
+  "version": "2.0.3",
   "private": true,
   "type": "module",
   "description": "One-effect A2A cell that executes a contracted bounded software mission circuit; the inherited runProgram aggregate remains a separate recovery defect.",
@@ -30,13 +30,13 @@
     "@red-cup-engineering/coding-context-projection-service": "1.0.0",
     "@lenticule-science/hierarchical-circuit-equivalence-assay": "1.0.1",
     "@red-cup-engineering/inference-work-lot-service": "4.0.1",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
+    "@red-cup-engineering/relation-model-notation-runtime": "8.0.0",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
     "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
     "@red-cup-engineering/sandbox-command-execution-service": "1.0.0",
     "@red-cup-engineering/software-mission-execution-service": "1.0.1",
     "@red-cup-engineering/planned-transition-admission-service": "0.1.2",
-    "@red-cup-engineering/software-program-synthesis-solicitation-service": "1.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
+    "@red-cup-engineering/software-program-synthesis-solicitation-service": "1.0.0"
   },
   "engines": {
     "node": ">=22"

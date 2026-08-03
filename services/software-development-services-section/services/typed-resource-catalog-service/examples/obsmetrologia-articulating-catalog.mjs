@@ -32,7 +32,7 @@ export const articulatingCatalogDeclaration = {
       { op: "content-includes", value: "ARTICULATE_OPERATION" },
     ] } },
     { type: "articulating-mcp-reading", parent: "articulating-reading", corner: "assertion", rung: "identity", recognize: { op: "all", clauses: [
-      { op: "content-includes", value: "actionMcpHandleAsync" },
+      { op: "content-includes", value: "handleArticulatingMcp" },
       { op: "content-includes", value: "articulatingApex" },
     ] } },
   ],

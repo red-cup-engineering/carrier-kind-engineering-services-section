@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri as rawNiUri } from "@red-cup-engineering/ni-uri-services-section";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve, sep } from "node:path";
@@ -17,7 +17,7 @@ const value = JSON.parse(observed.stdout);
 if (value.type !== "EnterpriseAccountProvisioned" || value.binding?.enterprise?.nodeId !== nodeId || value.binding?.chain?.caip2 !== "eip155:5615611" || value.receipt?.funding?.minimumWei !== "10000000000000000") throw new Error("provisioning receipt does not match the canonical canary binding");
 const carrier = { ...value, cloudRunExecution: execution, economicChoice: { type: "PrivateChainCanaryFundingFloor", minimumWei: "10000000000000000", productionEconomics: false } };
 const body = `${JSON.stringify(carrier, null, 2)}\n`;
-const ni = rawNiUri(body);
+const ni = rawNiUri(Buffer.from(body, "utf8"));
 function writeExact(path, content) { mkdirSync(dirname(path), { recursive: true }); if (existsSync(path)) { if (readFileSync(path, "utf8") !== content) throw new Error(`different record occupies ${path}`); } else writeFileSync(path, content, { flag: "wx", mode: 0o644 }); }
 const bindingPath = resolve(settlement, "content/evm/accounts/eip155-5615611.json");
 const receiptPath = resolve(settlement, "data/receipts/2026/07/30/eip155-5615611-enterprise-account.json");

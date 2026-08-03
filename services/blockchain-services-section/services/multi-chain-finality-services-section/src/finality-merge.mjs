@@ -3,7 +3,7 @@ import { chargeSideName, chargeValue, joinKnowledgeValue } from "@lenticule-scie
 const HASH = /^0x[0-9a-fA-F]{64}$/u;
 const ACCOUNT = /^eip155:[1-9][0-9]*:0x[0-9a-fA-F]{40}$/u;
 const CHAIN = /^eip155:[1-9][0-9]*$/u;
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u;
 
 function hexQuantity(value, label) {
   try { const parsed = BigInt(value); if (parsed < 0n) throw new Error(); return parsed; }

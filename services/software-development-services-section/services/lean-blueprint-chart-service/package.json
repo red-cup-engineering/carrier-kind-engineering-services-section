@@ -1,0 +1,20 @@
+{
+  "name": "@red-cup-engineering/lean-blueprint-chart-service",
+  "version": "0.0.2",
+  "description": "Reads Lean declarations and Blueprint claim graphs for deterministic cross-surface charts.",
+  "type": "module",
+  "license": "LicenseRef-561Group-1.0",
+  "exports": "./src/lean-blueprint-chart.mjs",
+  "files": [
+    "src/",
+    "README.md"
+  ],
+  "scripts": {
+    "check": "node --check src/lean-blueprint-chart.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run --ignore-scripts --loglevel=error"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -2,13 +2,13 @@
 
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import { rawNiUri } from "@red-cup-engineering/relation-model-notation-runtime/canonical-cbor";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import express from "express";
 import { a2aResultMetadata, a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
 import { conformCanonicalBytes, conformTerm } from "@red-cup-engineering/relation-model-notation-conformance/client";
 import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { assayWitTransition } from "@lenticule-science/wit-transition-assay/client";
 import { recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-rdf-projection-service/client";
 import {
@@ -136,7 +136,11 @@ async function appendSettlementWitnessJournal(context, agentUrl) {
   if (activityResult?.object?.type !== "RmnMeteredInferenceSettlement") return;
   const at = new Date().toISOString();
   const transaction = context.result.transaction;
-  const graph = rawNiUri(`${context.result.network}\0${transaction}`);
+  const graph = identifyJsonSemanticContent({
+    objectKind: "metered-inference-tollbooth.x402-settlement-transaction",
+    value: { network: context.result.network, transaction },
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
   const assertions = [
     ["urn:rmn:proposal", activityResult.object.proposal],
     ["urn:rmn:completion", activityResult.object.completion],

@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
+import { makeNiUri, verifyNiUri } from "@red-cup-engineering/ni-uri-services-section";
 import {
   induceCapabilityRepairDemand,
   inducePrivateLiveMudDemand,
   PRIVATE_LIVE_MUD_REQUIREMENTS,
 } from "../src/semiotic-exchange-demand-induction.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
-
-const ni = rawNiUri;
+const ni = (value) => makeNiUri(Buffer.from(value, "utf8"));
 const observation = (requirement, positive = [], negative = []) => ({ requirement, positive: positive.map(ni), negative: negative.map(ni) });
 
 test("induces the private live MUD as canonical raiseDemand material through the actual four-stage descent", () => {
@@ -20,12 +18,14 @@ test("induces the private live MUD as canonical raiseDemand material through the
 
   assert.equal(result.type, "SemioticExchangeDemandInductionReceipt");
   assert.match(result.id, /^ni:\/\/\/sha-256;/u);
-  assert.deepEqual(semanticBytes(decodeSemantic(result.receiptBytes)), result.receiptBytes);
+  assert.equal(verifyNiUri(result.receiptBytes, result.id), true);
   assert.match(result.demandNi, /^ni:\/\/\/sha-256;/u);
   assert.match(result.demandBytes32, /^0x[0-9a-f]{64}$/u);
   assert.match(result.groundingDigest, /^0x[0-9a-f]{64}$/u);
   assert.match(result.wantedLawDigest, /^0x[0-9a-f]{64}$/u);
-  assert.deepEqual(semanticBytes(decodeSemantic(result.demandBytes)), result.demandBytes);
+  assert.equal(verifyNiUri(result.demandBytes, result.demandNi), true);
+  assert.equal(verifyNiUri(result.groundingBytes, result.groundingNi), true);
+  assert.equal(verifyNiUri(result.wantedLawBytes, result.wantedLawNi), true);
   assert.deepEqual(result.raiseDemand.args, [`0x${result.demandBytes.toString("hex")}`, result.groundingDigest, result.wantedLawDigest]);
   assert.equal(result.descentEvidence.length, PRIVATE_LIVE_MUD_REQUIREMENTS.length);
   for (const evidence of result.descentEvidence) {
@@ -52,6 +52,17 @@ test("retains positive and negative evidence as Lakota-named FOUR charges withou
   assert.equal(node.support, "stable");
   assert.equal(node.satisfied, false);
   assert.ok(result.restrictedArena.some(({ prerequisite }) => prerequisite === "machine-only-admission"));
+});
+
+test("preserves exact observed evidence in both posit and settlement presentations", () => {
+  const left = PRIVATE_LIVE_MUD_REQUIREMENTS.map(({ id }) => observation(id, [`${id}:left`], [`${id}:against`]));
+  const right = PRIVATE_LIVE_MUD_REQUIREMENTS.map(({ id }) => observation(id, [`${id}:right`], [`${id}:against`]));
+  const leftResult = inducePrivateLiveMudDemand({ observations: left });
+  const rightResult = inducePrivateLiveMudDemand({ observations: right });
+
+  assert.equal(leftResult.descentEvidence[0].positing.observedCharge, "stable");
+  assert.notEqual(leftResult.descentEvidence[0].positing.presentation, rightResult.descentEvidence[0].positing.presentation);
+  assert.notEqual(leftResult.descentEvidence[0].settlement.presentation, rightResult.descentEvidence[0].settlement.presentation);
 });
 
 test("uses the exact FOUR support map: neither absurd, true-only potential, false-only active, both stable", () => {
@@ -91,7 +102,7 @@ test("conserves a witnessed refusal as canonical raiseDemand material rather tha
   assert.match(result.residueNi, /^ni:\/\/\/sha-256;/u);
   assert.equal(result.market.discovery, "federated-capability-offer-discovery");
   assert.deepEqual(result.raiseDemand.args, [`0x${result.demandBytes.toString("hex")}`, result.groundingDigest, result.wantedLawDigest]);
-  assert.deepEqual(semanticBytes(decodeSemantic(result.receiptBytes)), result.receiptBytes);
+  assert.equal(verifyNiUri(result.receiptBytes, result.id), true);
   assert.throws(() => induceCapabilityRepairDemand({
     raiser: "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B", locus: "https://gui.561.group/l-space/obsmetrologia",
     operation: "normalize-obsmetrologia-carrier", objective: "normalize one real carrier", refusalCode: "normalizer-actuator-unavailable",

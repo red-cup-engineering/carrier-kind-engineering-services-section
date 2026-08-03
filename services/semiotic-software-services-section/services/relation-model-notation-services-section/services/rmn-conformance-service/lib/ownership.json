@@ -1,8 +1,0 @@
-{
-  "kind": "ownership-law",
-  "node": "rmn-semantic-conformance",
-  "owners": ["obsmetrological-services-section"],
-  "territory": ["restricted RMN profile publication", "deterministic type checking", "deterministic reduction", "conformance receipts and typed refusals"],
-  "excluded": ["customer writes", "host effects", "EVM compilation", "wallet operation", "chain deployment", "claims that non-core RMN extensions are Lean-proved"]
-}
-

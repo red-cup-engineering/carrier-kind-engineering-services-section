@@ -1,13 +1,12 @@
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readFileSync } from "node:fs";
 import { isAbsolute, relative, resolve, sep } from "node:path";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { idOf } from "./semantic-content.mjs";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
 export const ACTOR = "urn:ame:red-cup-engineering:deterministic-intent-compiler-supplier";
 export const TARGET = "src/generated-resolvers/bounded-inference-intent-compiler.mjs";
-export function record(body) { return Object.freeze({ id: semanticId(relationalWitnessJournalDocument(body)), ...body }); }
+export function record(body) { return Object.freeze({ id: idOf(body, "deterministic-intent-compiler-supplier.record"), ...body }); }
 const sha = (bytes) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 const inside = (root, path) => { const rel = relative(root, path); return rel === "" || (rel !== ".." && !rel.startsWith(`..${sep}`) && !isAbsolute(rel)); };
 

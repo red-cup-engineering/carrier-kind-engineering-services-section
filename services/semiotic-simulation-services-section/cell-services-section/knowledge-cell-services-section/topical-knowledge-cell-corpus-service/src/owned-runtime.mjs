@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { agentCardSignatureEvidence, discoverSignedAgentCard } from "@red-cup-engineering/a2a-agent-card-discovery-service";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { EMPTY_WITNESS_ROOT, identifyNormalizedSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
 import {
   querySettlementRecords,
@@ -13,6 +13,11 @@ const NODE_ID = "topical-knowledge-cell-corpus-service";
 const ACCOUNT = "eip155:31337:0x1456c08d43f4f9a1f549259babc5c126536edd65";
 const CATEGORY = "topical-corpus-reconciliation-receipts";
 
+function identifyWitnessDocument(document, objectKind) {
+  if (document?.[0] !== "ascribe" || document.length !== 3) throw new TypeError("witness journal document must be explicitly typed RMN");
+  return identifyNormalizedSemanticContent({ objectKind, semanticType: document[1], term: document[2], witnessRoot: EMPTY_WITNESS_ROOT });
+}
+
 async function verified(binding, role) {
   if (!binding?.agentUrl || !binding.agentCardIdentity || !binding.agentCardSignature) throw new Error(`corpus runtime requires an exact ${role} binding`);
   const evidence = agentCardSignatureEvidence(await discoverSignedAgentCard({ agentUrl: binding.agentUrl }));
@@ -21,7 +26,7 @@ async function verified(binding, role) {
 }
 
 export async function createTopicalKnowledgeCellCorpusRuntime({ boundary, root }) {
-  const bindingReceipt = semanticId(relationalWitnessJournalDocument(boundary.providerBindings));
+  const bindingReceipt = identifyWitnessDocument(relationalWitnessJournalDocument(boundary.providerBindings), "topical-knowledge-cell.provider-bindings").token;
   let rmnAgentUrl = boundary.providerBindings?.rmnSemanticConformance?.agentUrl;
   let witnessJournalAgentUrl = boundary.providerBindings?.witnessJournalRdf?.agentUrl;
   if (process.env.TOPICAL_CORPUS_PROVIDER_BINDING_RECEIPT !== bindingReceipt) {
@@ -38,7 +43,7 @@ export async function createTopicalKnowledgeCellCorpusRuntime({ boundary, root }
       expectedType: document[1],
     });
     return {
-      id: semanticId(document),
+      id: identifyWitnessDocument(document, "topical-knowledge-cell.corpus-record").token,
       evidence: {
         provider: rmnAgentUrl,
         request: evidence.requestNi,

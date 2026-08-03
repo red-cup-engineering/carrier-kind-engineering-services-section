@@ -5,7 +5,7 @@ import { decodeProtectedHeader, flattenedVerify, importJWK, importPKCS8, Flatten
 import { createPublicClient, hashTypedData, http } from "viem";
 import { normalizeAuthenticatedCardEvidence } from "./bound-git-induction-card-evidence.js";
 
-const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{43})$/u;
+const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{42}[AEIMQUYcgkosw048])$/u;
 const GIT_ACTOR = "urn:ame:git-services-section";
 const TYPES = Object.freeze({ GitCustomerGrant: Object.freeze([
   { name: "actorId", type: "bytes32" }, { name: "actorCardId", type: "bytes32" },

@@ -7,7 +7,12 @@ import { generateKeyPairSync } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import {
+  EMPTY_WITNESS_ROOT,
+  identifyNormalizedSemanticContent,
+} from "@red-cup-engineering/semantic-content-identify-service";
+import { jsonToTerm } from "@red-cup-engineering/relation-model-notation-json-codec";
+import { inferTy } from "@red-cup-engineering/relation-model-notation-typing";
 
 export class SovereignMembraneAdmissionError extends Error {
   constructor(message) {
@@ -18,7 +23,15 @@ export class SovereignMembraneAdmissionError extends Error {
 }
 
 function identity(label) {
-  return semanticId(["constant", ["base", "Text"], label]);
+  const term = jsonToTerm(label);
+  const semanticType = inferTy([], term);
+  if (semanticType === null) throw new SovereignMembraneAdmissionError("membrane label did not derive an RMN type");
+  return identifyNormalizedSemanticContent({
+    objectKind: "sovereign-membrane.label",
+    semanticType,
+    term,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
 }
 
 function readNodeId(settlementPath) {

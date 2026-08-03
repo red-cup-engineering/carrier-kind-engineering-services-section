@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { makeNiUri } from "@red-cup-engineering/ni-uri-services-section";
 import { CONSIDERATION_CLOSE_CATEGORY, closeAssayedInferenceConsideration, recordAssayedInferenceConsiderationClose } from "../src/consideration-close.mjs";
 import { DIRECT_WITNESS_ADAPTER, RESOLUTION_CREDIT_ASSET, RESOLUTION_CREDIT_UNIT, createExchangeCompact, createExchangeReceipt } from "../src/consideration.mjs";
 
@@ -15,8 +16,7 @@ function fixture(accepted = true) {
   });
   const settlement = "ni:///sha-256;CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC";
   const receipt = createExchangeReceipt(compact, { disposition: "completion", completion: settlement });
-  const assay = { id: `ni:///sha-256;${accepted ? "D" : "E".repeat(43)}`, type: "CustomerTypedInferenceAssay", customer: compact.customer.actor, provider: compact.provider.actor, procurement: settlement, accepted, problems: accepted ? [] : ["$:required:missing"] };
-  if (accepted) assay.id = `ni:///sha-256;${"D".repeat(43)}`;
+  const assay = { id: makeNiUri(Buffer.from(`assay:${accepted}`, "utf8")), type: "CustomerTypedInferenceAssay", customer: compact.customer.actor, provider: compact.provider.actor, procurement: settlement, accepted, problems: accepted ? [] : ["$:required:missing"] };
   return { procurement: { type: "TypedRmnInferenceProcurement", disposition: "candidate-pending-customer-assay", compact, receipt, settlement }, assay };
 }
 

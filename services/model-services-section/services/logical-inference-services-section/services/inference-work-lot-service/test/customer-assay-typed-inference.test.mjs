@@ -2,19 +2,15 @@ import assert from "node:assert/strict";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
-import test, { after, before } from "node:test";
-import { startWitnessJournalProviderProcess } from "@lenticule-science/witness-journal-rdf-projection-service/test-provider";
+import test from "node:test";
 import { assayTypedInferenceCandidate, projectTypedInferenceCandidate } from "../src/customer-assay-typed-inference.mjs";
 
 function procurement(text) { return { type: "TypedRmnInferenceProcurement", disposition: "candidate-pending-customer-assay", demand: { outputContract: { schema: { type: "object", required: ["class", "basis"], properties: { class: { type: "string" }, basis: { type: "string" } }, additionalProperties: false } } }, selection: { selected: { provider: { actor: "urn:ame:provider" } } }, settlement: { protocol: "A2A", protocolVersion: "1.0", completion: "ni:///sha-256;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", disposition: "completion", candidate: text } }; }
 const ROOT = resolve(import.meta.dirname, "..");
-let witnessJournal;
-before(async () => { witnessJournal = await startWitnessJournalProviderProcess(); });
-after(async () => { await witnessJournal.close(); });
 function options(dataRoot) {
   return {
     customer: "urn:ame:inference-work-lot-service",
-    customerServices: { witnessJournal: { actor: "urn:ame:test-witness-journal", agentCard: witnessJournal.agentCardUrl } },
+    customerServices: { witnessJournal: { actor: "urn:ame:test-witness-journal", agentCard: "https://witness-journal.invalid/.well-known/agent-card.json" } },
     settlementRoot: ROOT,
     dataRoot,
     store: {

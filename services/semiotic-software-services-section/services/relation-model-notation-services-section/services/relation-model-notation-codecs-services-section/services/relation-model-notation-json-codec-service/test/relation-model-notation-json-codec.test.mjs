@@ -67,12 +67,9 @@ const sampleJsonValues = [
   },
 ];
 
-// The two known quirks of the bridge, applied recursively: true/false collapse
-// through the charge encoding to "held"/"denied" (not JS booleans), and -0
-// canonicalizes to 0 — wherever either occurs, at any depth in an array/object.
+// JSON numbers canonicalize -0 to 0; every other admitted distinction is
+// retained at any depth.
 function expectedRoundTrip(value) {
-  if (value === true) return "held";
-  if (value === false) return "denied";
   if (Object.is(value, -0)) return 0;
   if (Array.isArray(value)) return value.map(expectedRoundTrip);
   if (value !== null && typeof value === "object") {
@@ -81,7 +78,7 @@ function expectedRoundTrip(value) {
   return value;
 }
 
-test("jsonToTerm / termToJson: round-trips every value in the representative JSON battery back to itself (except the known true/false-to-charge and -0-to-0 quirks, at any depth)", () => {
+test("jsonToTerm / termToJson retains admitted JSON distinctions at any depth", () => {
   for (const value of sampleJsonValues) {
     const decoded = termToJson(jsonToTerm(value));
     assert.deepEqual(decoded, expectedRoundTrip(value), `round-trip mismatch for ${JSON.stringify(value)}`);
@@ -95,9 +92,11 @@ test("jsonToTerm: a string equal to a charge-value-name decodes back to that str
   }
 });
 
-test("jsonToTerm: true/false collapse through the charge encoding (decode as \"held\"/\"denied\", not JS booleans — a real quirk of the bridge, not a bug introduced by the port)", () => {
-  assert.equal(termToJson(jsonToTerm(true)), "held");
-  assert.equal(termToJson(jsonToTerm(false)), "denied");
+test("JSON booleans remain distinct from FOUR charge-name strings", () => {
+  assert.equal(termToJson(jsonToTerm(true)), true);
+  assert.equal(termToJson(jsonToTerm(false)), false);
+  assert.notDeepEqual(jsonToTerm(true), jsonToTerm("held"));
+  assert.notDeepEqual(jsonToTerm(false), jsonToTerm("denied"));
 });
 
 // ── 2. listTerm / termList ───────────────────────────────────────────────
@@ -183,7 +182,7 @@ test("arrayTerm: round-trips through termToJson for empty and multi-item spines"
   assert.deepEqual(termToJson(arrayTerm(items)), [1, 2, null]);
 });
 
-test("stringTerm: builds an opaque mark that round-trips through termToJson exactly, even for a charge-name-shaped string (unlike jsonToTerm's charge special-case)", () => {
+test("stringTerm builds the same tagged string carrier as jsonToTerm", () => {
   for (const value of ["", "hello", "held", "with \"quotes\" and \\backslashes\\"]) {
     assert.equal(termToJson(stringTerm(value)), value, `stringTerm round-trip mismatch for ${JSON.stringify(value)}`);
   }

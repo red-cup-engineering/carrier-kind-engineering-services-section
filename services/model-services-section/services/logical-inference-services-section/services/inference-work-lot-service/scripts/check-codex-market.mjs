@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { discoverSignedAgentCard } from "@red-cup-engineering/a2a-agent-card-discovery-service";
+import { discoverSignedAgentCard } from "../src/agent-card-discovery.mjs";
 import { CODEX_CUSTOMER_SERVICES, CODEX_INFERENCE_PROVIDERS } from "../src/codex-inference-market.mjs";
 
 function errorMessage(error) {

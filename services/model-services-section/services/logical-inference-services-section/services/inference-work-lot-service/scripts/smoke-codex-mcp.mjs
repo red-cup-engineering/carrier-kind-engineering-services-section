@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { CODEX_MCP_SERVER_INFO } from "../src/codex-mcp-contract.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const child = spawn(process.execPath, [resolve(root, "bin/serve-codex-mcp.mjs")], { cwd: root, stdio: ["pipe", "pipe", "inherit"] });
+const child = spawn(process.execPath, [resolve(root, "scripts/serve-codex-mcp.mjs")], { cwd: root, stdio: ["pipe", "pipe", "inherit"] });
 const lines = createInterface({ input: child.stdout, crlfDelay: Infinity });
 let nextId = 1;
 const pending = new Map();

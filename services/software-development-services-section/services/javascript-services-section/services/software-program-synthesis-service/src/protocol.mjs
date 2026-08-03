@@ -1,5 +1,6 @@
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
+import { decodeSemantic, semanticBytes } from "@red-cup-engineering/relation-model-notation-runtime";
 import { decodeRelationalValue } from "@red-cup-engineering/relation-model-notation-runtime/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-rdf-projection-service/client";
 
 export const ACTOR = "urn:ame:software-program-synthesis-service";
@@ -9,7 +10,13 @@ export const SYNTHESIS_EFFECTS = Object.freeze([
   "contracted-mission-provider-egress",
 ]);
 
-function rmnId(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+function rmnId(value) {
+  return identifyJsonSemanticContent({
+    objectKind: "software-program-synthesis.witness-journal-record",
+    value,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
+}
 export function record(body) { return Object.freeze({ id: rmnId(body), ...body }); }
 export function operationBytes(value) { return semanticBytes(relationalWitnessJournalDocument(value)); }
 export function operationFromBytes(bytes) {

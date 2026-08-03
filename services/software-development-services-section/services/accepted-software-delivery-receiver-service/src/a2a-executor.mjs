@@ -1,14 +1,14 @@
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { readFileSync } from "node:fs";
 import {
   EVIDENCE_OPERATION,
   readImmutableInductionEvidence,
   signEvidenceRefusal,
+  evidenceRequestFromBytes,
+  evidenceResultIdentity,
 } from "./immutable-induction-evidence.mjs";
+import { admit, identify } from "./semantic-content.mjs";
 import {
   ACTOR,
   ADMIT_OPERATION,
@@ -40,14 +40,11 @@ function requiredEnvironment(name) {
   return value;
 }
 
-function rmnId(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+const OPERATION_KIND = "accepted-software-delivery-receiver.operation";
+function rmnId(value) { return identify(value, "accepted-software-delivery-receiver.record-body").id; }
 export function record(body) { return Object.freeze({ id: rmnId(body), ...body }); }
-export function operationBytes(value) { return semanticBytes(relationalWitnessJournalDocument(value)); }
-export function operationFromBytes(bytes) {
-  const term = decodeSemantic(bytes);
-  if (term?.[0] !== "ascribe" || term.length !== 3) throw new Error("receiver operation is not one typed relational RMN document");
-  return decodeRelationalValue(term[1], term[2]);
-}
+export function operationBytes(value) { return identify(value, OPERATION_KIND).bytes; }
+export function operationFromBytes(bytes) { return admit(bytes, OPERATION_KIND); }
 function exact(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const body = Object.fromEntries(Object.entries(value).filter(([key]) => key !== "id"));
@@ -119,8 +116,9 @@ export async function executeA2aMessage(source, options = {}) {
   const message = Message.fromJSON(source);
   if (message.role !== Role.ROLE_USER) throw new Error("accepted-delivery receiver requires an A2A user Message");
   const input = extractRmnPart(message.parts);
-  const decoded = decodeSemantic(input.bytes);
-  if (decoded?.type === "ImmutableInductionEvidenceReadRequest") {
+  let evidenceRequest;
+  try { evidenceRequest = evidenceRequestFromBytes(input.bytes); } catch {}
+  if (evidenceRequest?.type === "ImmutableInductionEvidenceReadRequest") {
     const identityPath = options.evidenceIdentity ??
       requiredEnvironment("IMMUTABLE_EVIDENCE_RECEIVER_IDENTITY");
     const identity = typeof identityPath === "string"
@@ -169,7 +167,7 @@ export async function executeA2aMessage(source, options = {}) {
       parts: [rmnPart(signed.bytes)],
       metadata: {
         inputNi: input.ni,
-        outputNi: semanticId(signed.result),
+        outputNi: evidenceResultIdentity(signed.result),
         provider: ACTOR,
         operation: EVIDENCE_OPERATION,
         jws: signed.jws,

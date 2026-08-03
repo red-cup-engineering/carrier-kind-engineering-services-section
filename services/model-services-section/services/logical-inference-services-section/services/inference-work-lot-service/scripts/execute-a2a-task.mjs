@@ -6,22 +6,17 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeRelationalValue, encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { decodeJsonValue, identifyJsonValue } from "../src/modern-rmn-carrier.mjs";
+import { admitInferenceWorkOutput, admitInferenceWorkRequest } from "../src/inference-work-carriers.mjs";
 import { contractInferenceWork } from "../src/codex-inference-market.mjs";
 
 function decodeRequest(bytes) {
-  const term = decodeSemantic(bytes);
-  if (!Array.isArray(term) || term.length !== 3 || term[0] !== "ascribe") {
-    throw new Error("inference work lot must be one typed relational RMN ascription");
-  }
-  return decodeRelationalValue(term[1], term[2]);
+  return admitInferenceWorkRequest(decodeJsonValue(bytes).value);
 }
 
 function encodeResult(value) {
-  const encoded = encodeRelationalValue(value);
-  const term = ["ascribe", encoded.type, encoded.term];
-  return { bytes: semanticBytes(term), id: semanticId(term) };
+  const identified = identifyJsonValue(admitInferenceWorkOutput(value));
+  return { bytes: identified.bytes, id: identified.token };
 }
 
 function suspensionFromResult(result) {

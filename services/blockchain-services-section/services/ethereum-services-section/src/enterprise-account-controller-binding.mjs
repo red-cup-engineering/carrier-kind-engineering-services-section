@@ -1,6 +1,5 @@
 import { Interface, TypedDataEncoder, keccak256, toUtf8Bytes } from "ethers";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
 const PROFILE = "org.emsenn.evm.enterprise-account-controller-binding.v1";
 const MAGIC = "0x1626ba7e";
@@ -52,7 +51,9 @@ function uint(value, name, maximum = (1n << 256n) - 1n) {
 }
 function lowerAddress(value, name) { return text(value, ADDRESS, name).toLowerCase(); }
 function hashText(value) { return keccak256(toUtf8Bytes(value)); }
-function identify(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+function identify(value) {
+  return identifyJsonSemanticContent({ objectKind: "ethereum.enterprise-account-controller-binding", value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+}
 function blockTag(value) { return `0x${value.toString(16)}`; }
 
 function normalizeInput(raw) {

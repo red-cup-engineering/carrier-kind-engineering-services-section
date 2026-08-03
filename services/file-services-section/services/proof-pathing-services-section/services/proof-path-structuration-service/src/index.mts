@@ -67,7 +67,7 @@ export interface SettlementTerm {
 
 export type RmnProofTerm = ArticulationTerm | PredicationTerm | PositingTerm | GeneratorWitnessTerm | SettlementTerm;
 
-/** Canonical, immutable resource identity.  It contains no locator or hash. */
+/** Settled proof coordinate. It is semantic material, not by itself an identity. */
 export interface ProofCoordinate {
   readonly type: "rmn-proof-coordinate";
   readonly version: 1;
@@ -233,7 +233,7 @@ function canonicalValue(value: unknown, ancestors = new Set<object>()): Addressa
   return out;
 }
 
-/** Collision-free structural identity. Prefixes keep strings distinct from serialized compound terms. */
+/** Collision-free local comparison key. This is not a content identity or external name. */
 export function termKey(term: AddressableTerm): string {
   const value = canonicalValue(term);
   if (value === null) return "n:null";
@@ -330,8 +330,8 @@ function canonicalJson(value: unknown): string {
 }
 
 /**
- * Settle a bounded, typed RMN coordinate.  This is the semantic identity
- * operation: hashes and paths may carry its result, but cannot replace it.
+ * Settle a bounded proof coordinate. Identity is earned only after translating
+ * this result into the canonical RMN term domain below.
  */
 export function settleProofCoordinate(input: {
   readonly resourceType: string;
@@ -379,7 +379,10 @@ export function encodeProofCoordinate(coordinate: ProofCoordinate): string {
   return canonicalJson(checked.coordinate);
 }
 
-/** Compact textual rendering for model context. It is not a POSIX pathname. */
+/**
+ * Historical compact JSON rendering retained for compatibility. It is neither
+ * SRN nor a content identity; identity consumers use the parent section adapter.
+ */
 export function renderProofCoordinate(coordinate: ProofCoordinate): string {
   return `rmn1:${sanitizeSegment(encodeProofCoordinate(coordinate))}`;
 }

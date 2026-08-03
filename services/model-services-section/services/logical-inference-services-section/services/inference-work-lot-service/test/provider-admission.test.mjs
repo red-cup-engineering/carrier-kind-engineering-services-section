@@ -3,13 +3,13 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
-import { HIERARCHICAL_CIRCUIT_PROFILE, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION, SOVEREIGN_CIRCUIT_INTERFACE_PROFILE } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+import { HIERARCHICAL_CIRCUIT_PROFILE, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION, SOVEREIGN_CIRCUIT_INTERFACE_PROFILE } from "../src/sovereign-provider-interface.mjs";
 import { INFERENCE_MARKET_OFFER_EXTENSION, loadCustomerServiceAdmissions, loadProviderAdmissions, standingOfferFromAgentCard } from "../src/provider-admission.mjs";
 import { DIRECT_WITNESS_ADAPTER } from "../src/consideration.mjs";
 
 const actor = "urn:ame:local-inference";
 const cardUrl = "http://127.0.0.1:8795/.well-known/agent-card.json";
-const digest = (character) => `ni:///sha-256;${character.repeat(43)}`;
+const digest = (character) => `ni:///sha-256;${character.repeat(42)}A`;
 
 function sovereignInterface() {
   return {

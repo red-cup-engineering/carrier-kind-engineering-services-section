@@ -1,13 +1,13 @@
 /* Dedicated A2A placement for the receiver-owned evidence-read die. */
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 import { readFileSync } from "node:fs";
 import {
   EVIDENCE_OPERATION,
   immutableEvidenceRefusalAddress,
   readImmutableInductionEvidence,
   signEvidenceRefusal,
+  evidenceResultIdentity,
 } from "./immutable-induction-evidence.mjs";
 
 function required(name) {
@@ -59,7 +59,7 @@ export async function executeImmutableInductionEvidenceA2aMessage(source, option
   return Message.toJSON({
     messageId: "", contextId: message.contextId ?? "", taskId: message.taskId ?? "",
     role: Role.ROLE_AGENT, parts: [rmnPart(signed.bytes)],
-    metadata: { inputNi: input.ni, outputNi: semanticId(signed.result), provider: "urn:ame:accepted-software-delivery-receiver-service", operation: EVIDENCE_OPERATION, jws: signed.jws },
+    metadata: { inputNi: input.ni, outputNi: evidenceResultIdentity(signed.result), provider: "urn:ame:accepted-software-delivery-receiver-service", operation: EVIDENCE_OPERATION, jws: signed.jws },
     extensions: [], referenceTaskIds: [],
   });
 }

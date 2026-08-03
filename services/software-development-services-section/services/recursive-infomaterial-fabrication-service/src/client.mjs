@@ -13,7 +13,7 @@ import { FABRICATION_PINOUT } from "@red-cup-engineering/recursive-observation-c
 import { RECURSIVE_FABRICATION_CIRCUIT_PROFILE } from "./own-circuit-profile.mjs";
 import { encodeFabricationRequest } from "./request.mjs";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u;
 
 const responseParts = a2aResultParts;
 

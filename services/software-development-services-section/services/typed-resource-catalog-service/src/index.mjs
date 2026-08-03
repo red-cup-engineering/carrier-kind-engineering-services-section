@@ -6,4 +6,5 @@ export * from "./rmn.mjs";
 export * from "./actions.mjs";
 export * from "./node-package-source-catalog.mjs";
 export * from "./node-workspace-source-catalog.mjs";
+export { catalogWorkspaceContentGraph } from "@red-cup-engineering/workspace-content-graph-service";
 export * from "./temporal-failure-normalization.mjs";

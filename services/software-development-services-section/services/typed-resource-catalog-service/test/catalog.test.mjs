@@ -69,7 +69,7 @@ test("closed mode refuses unresolved schema references", () => {
 test("classification receipt has a reversible typed RMN Mark face", () => {
   const receipt = classifyResource(compileCatalog(catalog), { path: "/x", content: "nothing" });
   const projected = receiptRmn(receipt);
-  assert.equal(projected.mediaType, "application/rmn+json");
+  assert.equal(projected.mediaType, "application/rmn+cbor");
   assert.deepEqual(decodeReceiptRmn(projected.bytes), receipt);
 });
 

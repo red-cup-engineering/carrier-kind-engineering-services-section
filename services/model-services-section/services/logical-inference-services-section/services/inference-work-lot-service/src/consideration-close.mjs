@@ -1,5 +1,4 @@
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { jsonValueId } from "./modern-rmn-carrier.mjs";
 import { createInferenceSettlementStore } from "./witness-journal-settlement-store.mjs";
 import {
   DIRECT_WITNESS_SETTLEMENT_CAPABILITY,
@@ -11,10 +10,9 @@ import {
 export const CONSIDERATION_CLOSE_CATEGORY = "typed-inference.consideration-close";
 export const CONSIDERATION_CLOSE_PROFILE = "org.emsenn.inference-consideration-close.v1";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u;
 const identify = (value) => {
-  const encoded = encodeRelationalValue(value);
-  return semanticId(["ascribe", encoded.type, encoded.term]);
+  return jsonValueId(value);
 };
 function object(value, label) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label} must be one object`);
@@ -113,9 +111,9 @@ export async function recordAssayedInferenceConsiderationClose(procurement, assa
   at = new Date().toISOString(),
 } = {}) {
   const witnessJournal = customerServices?.witnessJournal;
-  if (!witnessJournal?.actor || typeof witnessJournal.agentCard !== "string") throw new Error("consideration close requires one explicitly admitted WitnessJournal service");
-  const store = suppliedStore ?? await createInferenceSettlementStore({ settlementRoot, agentUrl: witnessJournal.agentCard, caip2: process.env.SETTLEMENT_CAIP2 });
+  if (!witnessJournal?.actor) throw new Error("consideration close requires one explicitly admitted semantic record journal");
   const { compact, receipt } = closureContext(procurement, assay);
+  const store = suppliedStore ?? await createInferenceSettlementStore({ settlementRoot, actor: compact.customer.actor, settlement: compact.customer.account, caip2: process.env.SETTLEMENT_CAIP2 });
   if (store.actor !== compact.customer.actor || store.settlement.toLowerCase() !== compact.customer.account.toLowerCase()) throw new Error("consideration debtor differs from the settlement-owned WitnessJournal plate");
   const existing = (await store.records(CONSIDERATION_CLOSE_CATEGORY)).filter((record) => record?.initialReceipt === receipt.id);
   if (existing.length > 1) throw new Error("multiple consideration closes claim the same initial receipt");

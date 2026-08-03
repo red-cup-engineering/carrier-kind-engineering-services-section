@@ -4,8 +4,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Interface } from "ethers";
 
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalWitnessJournalDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 const execFileAsync = promisify(execFile);
 const NODE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -28,7 +28,9 @@ const DEFINITIONS = Object.freeze({
     vault: "0xdee327bf6b0182a1727caec9c6344a0d27d6da99", lpToken: "0x456c166e63634d75a4b49edec86cb51424d4c926" }),
 });
 
-function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+function digest(value) {
+  return identifyJsonSemanticContent({ objectKind: "ethereum.fixed-fork-beefy-vault-exit-observation", value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+}
 function assertNoNumericOrTransactionMaterial(value, path = "input") {
   if (typeof value === "number" || typeof value === "bigint") {
     throw new TypeError(`${path} must encode integers as decimal text`);

@@ -227,7 +227,7 @@ test("A2A sources replay task, coordination, and all six public exchange moves w
   const history = kinds.map((kind, index) => ({
     kind,
     chainPosition: { blockNumber: BigInt(index + 1), blockHash: `0x${"11".repeat(32)}`, transactionHash: `0x${String(index + 1).padStart(2, "0").repeat(32)}`, logIndex: 0 },
-    ...(index < records.length ? { carrier: encode(records[index]), carrierHex: "0x01", carrierNi: `ni:///sha-256;${"a".repeat(43)}` } : {}),
+    ...(index < records.length ? { carrier: encode(records[index]), carrierHex: "0x01", carrierNi: `ni:///sha-256;${"a".repeat(42)}A` } : {}),
     ...(kind === "CellSeated" ? { cell: `0x${"01".repeat(32)}`, controller: "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B", law: `0x${"02".repeat(32)}` } : {}),
     ...(kind === "CellRetired" ? { cell: `0x${"01".repeat(32)}`, controller: "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B" } : {}),
     ...(kind === "DemandRaised" ? { demand: `0x${"03".repeat(32)}`, raiser: "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B", wantedLaw: `0x${"02".repeat(32)}`, grounding: `0x${"04".repeat(32)}` } : {}),

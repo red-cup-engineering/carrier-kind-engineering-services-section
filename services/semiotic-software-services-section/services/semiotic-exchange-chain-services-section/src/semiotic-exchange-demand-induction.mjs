@@ -4,19 +4,23 @@ import {
   charge,
   chargeValue,
   chargeValueName,
-  composeFibers,
   joinKnowledgeValue,
-  meme,
   posit,
-  presheafFromValuation,
   presentPositPresheaf,
+  valuationOfCharge,
   valueOf,
 } from "@lenticule-science/articulating/predicating/positing";
-import { settle } from "@lenticule-science/articulating/predicating/positing/settling";
-import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import {
+  presentSettlementFiltration,
+  settleKnowledge,
+  settlementClosureProfile,
+} from "@lenticule-science/articulating/predicating/positing/settling";
+import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
+import {
+  EMPTY_WITNESS_ROOT,
+  identifyJsonSemanticContent,
+} from "@red-cup-engineering/semantic-content-identify-service";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const LOCUS = "https://gui.561.group/";
 const REQUIREMENTS = Object.freeze([
   Object.freeze({ id: "canonical-carrier-admission", claim: "every world-state carrier is canonically decoded, re-encoded, and admitted with its protocol-verification receipt", dependsOn: Object.freeze([]) }),
@@ -30,12 +34,13 @@ const REQUIREMENTS = Object.freeze([
 ]);
 
 function typed(value) {
-  // Obsmetrologia's runtime carriers use frozen classes. RMN's boundary admits
-  // their presentation, not the in-memory prototypes or derived methods.
   const presentation = JSON.parse(JSON.stringify(value));
-  const encoded = encodeRelationalValue(presentation);
-  const term = ["ascribe", encoded.type, encoded.term];
-  return Object.freeze({ term, bytes: semanticBytes(term), ni: semanticId(term) });
+  const identified = identifyJsonSemanticContent({
+    objectKind: `semiotic-exchange.${presentation.type ?? "material"}`,
+    value: presentation,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  });
+  return Object.freeze({ term: identified.envelope.settledBody, bytes: identified.bytes, ni: identified.token });
 }
 
 function bytes32(bytes) {
@@ -43,7 +48,7 @@ function bytes32(bytes) {
 }
 
 function exactEvidence(values, label) {
-  if (!Array.isArray(values) || values.some((value) => typeof value !== "string" || !NI.test(value))) {
+  if (!Array.isArray(values) || values.some((value) => !isCanonicalSha256NiUri(value))) {
     throw new TypeError(`${label} must be an array of canonical SHA-256 ni evidence identifiers`);
   }
   return Object.freeze([...new Set(values)].sort());
@@ -67,26 +72,16 @@ function descent(requirement, support) {
   const articulation = articulate(admitted);
   const predication = predicating.predicate(articulation);
   const predicationGenerators = predicating.presentPredicationSite(predication);
-  // `posit` supplies the freely generated predication carrier. Observed
-  // evidence then charges those exact cells; no second semantic topology is
-  // introduced. Settlement consequently closes the observed FOUR valuation,
-  // rather than the structural potential seed alone.
-  const structuralPositing = posit(predication);
   const observedCharge = charge(chargeValue(support.value), [support.positive.map(mark), support.negative.map(mark)]);
-  const positing = presheafFromValuation(composeFibers(
-    predication.cells.cells.map((cell) => meme(cell, observedCharge)),
-    predication.base,
-  ));
-  const positGenerators = presentPositPresheaf(structuralPositing);
-  const settlement = settle(positing);
+  const positing = posit(predication, valuationOfCharge(predication, observedCharge));
+  const positGenerators = presentPositPresheaf(positing);
+  const closureProfile = settlementClosureProfile("knowledge");
+  const settlement = settleKnowledge(positing);
+  const settlementGenerators = presentSettlementFiltration(positing, closureProfile);
   const articulationPresentation = typed(admitted);
   const predicationPresentation = typed(predicationGenerators);
   const positPresentation = typed({ generators: positGenerators, observedSupport: support });
-  const settlementPresentation = typed({
-    kind: settlement.kind,
-    cells: predicationGenerators.cells,
-    specializations: predicationGenerators.specializations,
-  });
+  const settlementPresentation = typed(settlementGenerators);
   return Object.freeze({
     requirement: requirement.id,
     articulation: Object.freeze({ kind: articulation.kind, presentation: articulationPresentation.ni }),
@@ -223,7 +218,7 @@ export function induceCapabilityRepairDemand({ raiser, locus, operation, objecti
   const witnesses = exactEvidence(refusalWitnessNis, "refusalWitnessNis");
   if (witnesses.length === 0) throw new TypeError("at least one refusal witness is required");
   if (typeof requiredStandard !== "string" || requiredStandard.length === 0) throw new TypeError("requiredStandard must be nonempty text");
-  if (!NI.test(inputNi ?? "")) throw new TypeError("inputNi must be a canonical SHA-256 ni identifier");
+  if (!isCanonicalSha256NiUri(inputNi)) throw new TypeError("inputNi must be a canonical SHA-256 ni identifier");
 
   const residue = typed({
     type: "CapabilityRefusalResidue",

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import {
   canonical,
   isJsonRecord,
@@ -56,7 +56,7 @@ const instancePointer = (parts: readonly (string | number)[]): string =>
 
 function hash(bytes: string): { hex: string; ni: string } {
   const hex = createHash("sha256").update(bytes, "utf8").digest("hex");
-  const ni = rawNiUri(bytes);
+  const ni = identifyJsonSemanticContent({ objectKind: "json-schema.canonical-value", value: JSON.parse(bytes), witnessRoot: EMPTY_WITNESS_ROOT }).token;
   return { hex, ni };
 }
 

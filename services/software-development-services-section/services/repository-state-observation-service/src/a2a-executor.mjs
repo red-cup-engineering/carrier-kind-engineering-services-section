@@ -1,19 +1,13 @@
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { decodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { ACTOR, observeRepositoryState } from "./observer.mjs";
+import { OPERATION_KIND, identifyJson, jsonFromBytes } from "./semantic-content.mjs";
 
-const id = (value) => semanticId(relationalWitnessJournalDocument(value));
+const id = (value) => identifyJson(value, OPERATION_KIND).id;
 const record = (body) => Object.freeze({ id: id(body), ...body });
 const exact = (value) => value?.id === id(Object.fromEntries(Object.entries(value ?? {}).filter(([key]) => key !== "id")));
-export const operationBytes = (value) => semanticBytes(relationalWitnessJournalDocument(value));
-export function operationFromBytes(bytes) {
-  const term = decodeSemantic(bytes);
-  if (term?.[0] !== "ascribe" || term.length !== 3) throw new Error("repository observation is not one typed relational RMN document");
-  return decodeRelationalValue(term[1], term[2]);
-}
+export const operationBytes = (value) => identifyJson(value, OPERATION_KIND).bytes;
+export function operationFromBytes(bytes) { return jsonFromBytes(bytes, OPERATION_KIND); }
 export async function executeOperation(request, options = {}) {
   if (!exact(request) || request.type !== "RepositoryStateObservationOperation" || request.provider !== ACTOR) throw new Error("exact provider-addressed canonical RMN repository observation is required");
   const result = await (options.observeRepositoryState ?? observeRepositoryState)(request.request, options.observation ?? {});

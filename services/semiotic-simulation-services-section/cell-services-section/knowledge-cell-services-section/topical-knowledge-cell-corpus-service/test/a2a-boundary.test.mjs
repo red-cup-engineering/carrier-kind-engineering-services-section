@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
+import { decodeSemantic, semanticBytes } from "@red-cup-engineering/relation-model-notation-cbor-codec";
 import { executeA2aMessage } from "../scripts/execute-a2a-task.mjs";
 import { corpusServiceProtocol } from "../src/protocol.mjs";
 

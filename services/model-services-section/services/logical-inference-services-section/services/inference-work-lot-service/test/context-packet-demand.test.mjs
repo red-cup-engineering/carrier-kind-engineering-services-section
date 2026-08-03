@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canonicalJson, formContextPacket, ni } from "@harmonious-union/forming-a-context-packet";
+import { canonicalJson, formContextPacket, ni } from "../src/context-packet.mjs";
 import { admitInferenceContext } from "../src/context-packet-demand.mjs";
 
 const objective = "Return one source-grounded distinction.";

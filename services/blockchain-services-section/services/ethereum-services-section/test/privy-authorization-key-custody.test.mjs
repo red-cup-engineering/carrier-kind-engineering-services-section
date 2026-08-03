@@ -8,7 +8,7 @@ import {
   createPolicyBoundPrivyAuthorizationSignFn,
   createPrivyAuthorizationKeyKeystore,
 } from "../src/privy-authorization-key-custody.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { semanticIdentity } from "../src/semantic-content.mjs";
 
 const NOW = 1_782_000_000_000;
 const WALLET_ID = "wallet_yanagi_operator";
@@ -108,7 +108,7 @@ test("binds Base, sender, signing contract, call data, and callback signature ce
   const { path, passwordFile } = fixture();
   createPrivyAuthorizationKeyKeystore({ path, passwordFile });
   const callData = "0x1234";
-  const digest = rawNiUri(Buffer.from(callData.slice(2), "hex"));
+  const digest = semanticIdentity("ethereum.evm-call-data", { encoding: "hex", data: callData });
   const signFn = createPolicyBoundPrivyAuthorizationSignFn({
     path,
     passwordFile,
@@ -160,7 +160,7 @@ test("refuses a keystore whose public-key identity was altered", () => {
   const { path, passwordFile } = fixture();
   createPrivyAuthorizationKeyKeystore({ path, passwordFile });
   const stored = JSON.parse(readFileSync(path, "utf8"));
-  stored.keyId = `ni:///sha-256;${"a".repeat(43)}`;
+  stored.keyId = `ni:///sha-256;${"a".repeat(42)}A`;
   writeFileSync(path, `${JSON.stringify(stored)}\n`, { mode: 0o600 });
   assert.throws(() => createPolicyBoundPrivyAuthorizationSignFn({ path, passwordFile, policy: policy() }), /does not match its public key/u);
 });

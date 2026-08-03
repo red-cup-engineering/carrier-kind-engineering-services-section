@@ -2,8 +2,12 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import {
-  identifySemanticContent,
+  admitNormalizedSemanticContent,
+  EMPTY_WITNESS_ROOT,
+  identifyNormalizedSemanticContent,
 } from "@red-cup-engineering/semantic-content-identify-service";
+import { jsonToTerm } from "@red-cup-engineering/relation-model-notation-json-codec";
+import { inferTy } from "@red-cup-engineering/relation-model-notation-typing";
 
 export const CAPCELL_PROFILE = "org.red-cup-engineering.capcell.v1";
 
@@ -57,7 +61,7 @@ export class CapCellIndependentConformanceRequiredError extends Error {
 }
 
 function assertSemanticIdentity(candidate) {
-  const expected = identifySemanticContent(candidate.value);
+  const expected = admitNormalizedSemanticContent(candidate.bytes, candidate.token ?? candidate.id);
   if (
     candidate.id !== expected.id
     || candidate.algorithm !== expected.algorithm
@@ -66,6 +70,20 @@ function assertSemanticIdentity(candidate) {
   ) {
     throw new CapCellSpecificationError("semantic identity does not match its canonical RMN value");
   }
+}
+
+function identifyJson(objectKind, value) {
+  const term = jsonToTerm(value);
+  const semanticType = inferTy([], term);
+  if (semanticType === null) {
+    throw new CapCellSpecificationError(`${objectKind} does not derive an RMN semantic type`);
+  }
+  return identifyNormalizedSemanticContent({
+    objectKind,
+    semanticType,
+    term,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  });
 }
 
 function nonempty(value, field) {
@@ -85,7 +103,7 @@ function exactKeys(value, allowed, field) {
 
 function ni(value, field) {
   const result = nonempty(value, field);
-  if (!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(result)) {
+  if (!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u.test(result)) {
     throw new CapCellSpecificationError(`${field} must be an RFC 6920 SHA-256 ni URI`);
   }
   return result;
@@ -223,7 +241,7 @@ export function fabricateLocalCapCell(source, evidence = {}) {
     .filter(([, binding], index, entries) => entries.findIndex(([, other]) => other.cell === binding.cell) !== index)
     .map(([capability]) => `provider:${capability}:shared-cell`);
   const missing = [...missingBody, ...missingProviders, ...duplicateProviderCells];
-  const specificationIdentity = identifySemanticContent(specification);
+  const specificationIdentity = identifyJson("capcell.specification", specification);
   const manifestBody = {
     profile: CAPCELL_PROFILE,
     state: missing.length === 0 ? "realized" : "unrealized",
@@ -236,7 +254,7 @@ export function fabricateLocalCapCell(source, evidence = {}) {
     providers: supplied.providers,
     missing,
   };
-  const manifestIdentity = identifySemanticContent(manifestBody);
+  const manifestIdentity = identifyJson("capcell.manifest", manifestBody);
   return Object.freeze({
     specification,
     specificationIdentity,

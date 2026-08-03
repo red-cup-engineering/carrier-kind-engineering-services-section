@@ -1,5 +1,4 @@
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { jsonValueId } from "./modern-rmn-carrier.mjs";
 import { exactAmount } from "./exact-amount.mjs";
 export { exactAmount } from "./exact-amount.mjs";
 
@@ -15,8 +14,7 @@ export const RESOLUTION_CREDIT_UNIT = "relative-resolution-milliquanta-v1";
 
 const kinds = new Set(CONSIDERATION_KINDS);
 const identify = (value) => {
-  const encoded = encodeRelationalValue(value);
-  return semanticId(["ascribe", encoded.type, encoded.term]);
+  return jsonValueId(value);
 };
 const object = (value, label) => {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label} must be one object`);

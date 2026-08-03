@@ -4,10 +4,10 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
 import { compileProgram, deriveExecutionGeometry, runProgram, validatePlan } from "../src/program-runtime.mjs";
 
-const ni = (character) => `ni:///sha-256;${character.repeat(43)}`;
+const ni = (character) => `ni:///sha-256;${character.repeat(42)}A`;
 const missionResult = () => ({
   semanticId: ni("A"),
   executionProvider: "urn:test:mission-provider",

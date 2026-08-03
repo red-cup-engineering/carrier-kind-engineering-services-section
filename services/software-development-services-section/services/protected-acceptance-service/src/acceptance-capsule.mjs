@@ -2,10 +2,8 @@ import { createHash } from "node:crypto";
 import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { runTestsCommand } from "@red-cup-engineering/sandbox-command-execution-service";
-import { requestAcceptanceOracleAssay } from "@red-cup-engineering/acceptance-oracle-assay-service/client";
 
 const CAPSULE_TYPE = "ProtectedAcceptanceCapsule";
 const CAPSULE_VERSION = 1;
@@ -101,7 +99,7 @@ function materializeArtifacts(workspace, artifacts) {
 
 export function acceptanceCapsuleDigest(capsule) {
   const { digest: _digest, ...body } = capsule;
-  return semanticId(relationalWitnessJournalDocument(body));
+  return identifyJsonSemanticContent({ objectKind: "protected-acceptance.capsule-record", value: body, witnessRoot: EMPTY_WITNESS_ROOT }).id;
 }
 
 export function validateAcceptanceCapsule(capsule, { territory } = {}) {
@@ -113,7 +111,10 @@ export function validateAcceptanceCapsule(capsule, { territory } = {}) {
     if (!existsSync(path) || sha256(readFileSync(path)) !== evidence.digest) throw new Error(`protected acceptance capsule source is stale: ${evidence.path}`);
   }
   for (const artifact of capsule.artifacts || []) if (sha256(artifact.text) !== artifact.digest) throw new Error(`protected acceptance artifact digest mismatch: ${artifact.path}`);
-  if (capsule.oracleAssay?.accepted !== true || capsule.redWitness?.passed !== false) throw new Error("protected acceptance capsule lacks recognized red and oracle-assay witnesses");
+  if (capsule.oracleAssay?.charge?.support !== true || capsule.oracleAssay.charge.refutation !== false
+      || capsule.redWitness?.charge?.support !== false || capsule.redWitness.charge.refutation !== true) {
+    throw new Error("protected acceptance capsule lacks independent red and oracle-assay evidence axes");
+  }
   return capsule;
 }
 
@@ -139,14 +140,11 @@ export function executeAcceptanceCapsule(territory, capsule, {
 }
 
 export async function prepareAcceptanceCapsule(input, {
-  assayOracle = ({ manifest, oracle }) => requestAcceptanceOracleAssay({
-    agentUrl: process.env.ACCEPTANCE_ORACLE_ASSAY_AGENT_CARD_URL,
-    manifest,
-    oracle,
-  }).then(({ assay }) => assay),
+  assayOracle,
   runAcceptance = runTestsCommand,
   now = () => new Date().toISOString(),
 } = {}) {
+  if (typeof assayOracle !== "function") throw new Error("protected acceptance preparation requires an explicit receiver-authorized oracle assay capability");
   const territory = resolve(input.territory), vectors = normalizeVectors(input.testVectors);
   const evidence = sourceEvidence(territory, input.focusPaths), artifacts = normalizeArtifacts(territory, input.artifacts);
   if (typeof input.command !== "string" || !/^node\s+--test(?:\s+[^;&|`$]+)+$/u.test(input.command)) throw new Error("acceptance capsule command must be a bounded node --test command");
@@ -161,7 +159,7 @@ export async function prepareAcceptanceCapsule(input, {
     if (INFRASTRUCTURE_FAILURE.test(output) || !/(?:AssertionError|not ok|expected|actual)/iu.test(output)) throw new Error(`acceptance red witness is an infrastructure failure rather than a relevant assertion failure: ${output.slice(-3000)}`);
     const missingVectorIds = vectors.map((vector) => vector.id).filter((id) => !output.includes(id));
     if (missingVectorIds.length) throw new Error(`acceptance red witness did not execute every vector: ${missingVectorIds.join(", ")}`);
-    const redWitness = { passed: false, output, outputDigest: sha256(output), executedVectorIds: vectors.map((vector) => vector.id) };
+    const redWitness = { charge: { support: false, refutation: true }, output, outputDigest: sha256(output), executedVectorIds: vectors.map((vector) => vector.id) };
     const oracleAssay = await assayOracle({
       manifest: {
         id: `${input.id}:acceptance-assay`, objective: input.objective, constraints: input.constraints || [],
@@ -169,7 +167,7 @@ export async function prepareAcceptanceCapsule(input, {
       },
       oracle: { providers: input.supplierProviders || [], artifacts, redWitness },
     });
-    if (oracleAssay?.accepted !== true) {
+    if (oracleAssay?.charge?.support !== true || oracleAssay.charge.refutation !== false) {
       const error = new Error(`acceptance capsule failed deterministic oracle assay${oracleAssay?.failures?.length ? `: ${oracleAssay.failures.join("; ")}` : ""}`);
       error.oracleAssay = oracleAssay;
       throw error;

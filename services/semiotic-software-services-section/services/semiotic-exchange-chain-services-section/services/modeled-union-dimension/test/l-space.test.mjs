@@ -1,12 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { createCarrierAdmissionReceipt, createModeledUnionDimension, createNotebookLmLibraryQueryActuator, NOTEBOOK_PROVIDER } from "../src/index.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri } from "@red-cup-engineering/ni-uri-services-section";
 
-const ni = rawNiUri;
-const identify = (value) => { const encoded = encodeRelationalValue(value); return semanticId(["ascribe", encoded.type, encoded.term]); };
+const ni = (value) => makeNiUri(Buffer.from(value, "utf8"));
+const identify = (value) => identifyJsonSemanticContent({ objectKind: `modeled-union-dimension.${value?.type ?? "material"}`, value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
 const notebookRefNi = ni("private-provider-notebook-locator"), sourceSetNi = ni("notebook-source-set"), sourceA = ni("source-receipt-a"), sourceB = ni("source-receipt-b");
 const catalogBody = Object.freeze({
   type: "NotebookLMLibraryCatalogReceipt", version: 1, provider: NOTEBOOK_PROVIDER,

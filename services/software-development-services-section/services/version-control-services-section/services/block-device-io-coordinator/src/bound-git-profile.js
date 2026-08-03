@@ -548,7 +548,7 @@ function commonObservation(operation, head) {
 
 function providerAllocation(operation, descriptor, createdAt) {
   if (
-    !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(descriptor.descriptorId)
+    !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u.test(descriptor.descriptorId)
   ) {
     throw new Error("descriptor-identity-unavailable");
   }

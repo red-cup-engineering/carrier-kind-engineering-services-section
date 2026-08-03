@@ -1,4 +1,4 @@
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { semanticIdentity } from "./semantic-content.mjs";
 import {
   createHash,
   createPrivateKey,
@@ -115,7 +115,7 @@ function normalizeDigestSet(values, label) {
   if (values === undefined) return null;
   if (!Array.isArray(values) || values.length === 0) throw new Error(`${label} must be a nonempty array when present`);
   return new Set(values.map((value) => {
-    if (typeof value !== "string" || !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(value)) {
+    if (typeof value !== "string" || !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u.test(value)) {
       throw new Error(`${label} must contain SHA-256 ni URIs`);
     }
     return value;
@@ -267,10 +267,10 @@ function parseKeystore(path) {
   if (parsed.privateKey.format !== "pkcs8-encrypted" || parsed.privateKey.encoding !== "base64" || parsed.privateKey.cipher !== "aes-256-cbc") {
     throw new Error("Privy authorization private key format is invalid");
   }
-  if (!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(parsed.keyId)) throw new Error("Privy authorization keyId is invalid");
+  if (!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u.test(parsed.keyId)) throw new Error("Privy authorization keyId is invalid");
   const publicDer = decodeBase64(parsed.publicKey.data, "public key");
   try {
-    const actualKeyId = rawNiUri(publicDer);
+    const actualKeyId = semanticIdentity("ethereum.privy-p256-public-key", { encoding: "base64", data: publicDer.toString("base64") });
     if (actualKeyId !== parsed.keyId) throw new Error("Privy authorization keyId does not match its public key");
   } finally {
     publicDer.fill(0);
@@ -291,7 +291,7 @@ export function createPrivyAuthorizationKeyKeystore({ path, passwordFile }) {
       passphrase: password,
     });
     publicDer = publicKey.export({ format: "der", type: "spki" });
-    const keyId = rawNiUri(publicDer);
+    const keyId = semanticIdentity("ethereum.privy-p256-public-key", { encoding: "base64", data: publicDer.toString("base64") });
     const record = {
       type: TYPE,
       version: 1,

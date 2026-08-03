@@ -56,3 +56,18 @@ test("refuses a missing companion, unknown bytecode, or unverified evidence", ()
     /evidence/i,
   );
 });
+
+test("admits only canonical RFC 6920 spellings at the ni reference boundary", () => {
+  const named = manifest();
+  named.receipt = "ni:///sha-256;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+  assert.equal(loadVerifiedDeploymentManifest(named).receipt, named.receipt);
+
+  for (const malformed of [
+    "ni:///sha-256;short",
+    "ni:///sha-256;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
+  ]) {
+    const source = manifest();
+    source.receipt = malformed;
+    assert.throws(() => loadVerifiedDeploymentManifest(source), /invalid verified receipt/u);
+  }
+});

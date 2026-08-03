@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { agentCardSignatureEvidence, discoverSignedAgentCard } from "@red-cup-engineering/a2a-agent-card-discovery-service";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { EMPTY_WITNESS_ROOT, identifyNormalizedSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { conformTerm } from "@red-cup-engineering/rmn-semantic-conformance/client";
 import { querySettlementRecords, recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
@@ -8,6 +8,11 @@ const ACTOR = "urn:ame:topical-knowledge-cell-enterprise-carrier";
 const NODE_ID = "topical-knowledge-cell-enterprise";
 const ACCOUNT = "eip155:31337:0x81bd9590bb875abca3ec853d7cf8a83b8f38e311";
 const CATEGORY = "topical-knowledge-cell-instance-admission-receipts";
+
+function identifyWitnessDocument(document, objectKind) {
+  if (document?.[0] !== "ascribe" || document.length !== 3) throw new TypeError("witness journal document must be explicitly typed RMN");
+  return identifyNormalizedSemanticContent({ objectKind, semanticType: document[1], term: document[2], witnessRoot: EMPTY_WITNESS_ROOT });
+}
 
 async function verified(binding, role) {
   if (!binding?.agentUrl || !binding.agentCardIdentity || !binding.agentCardSignature) throw new Error(`topical-cell carrier requires an exact ${role} binding`);
@@ -17,7 +22,7 @@ async function verified(binding, role) {
 }
 
 export async function createTopicalKnowledgeCellEnterpriseRuntime({ boundary, root }) {
-  const bindingReceipt = semanticId(relationalWitnessJournalDocument(boundary.providerBindings));
+  const bindingReceipt = identifyWitnessDocument(relationalWitnessJournalDocument(boundary.providerBindings), "topical-knowledge-cell.provider-bindings").token;
   let rmnAgentUrl = boundary.providerBindings?.rmnSemanticConformance?.agentUrl;
   let witnessJournalAgentUrl = boundary.providerBindings?.witnessJournalRdf?.agentUrl;
   if (process.env.TOPICAL_CELL_PROVIDER_BINDING_RECEIPT !== bindingReceipt) {
@@ -29,7 +34,7 @@ export async function createTopicalKnowledgeCellEnterpriseRuntime({ boundary, ro
   async function identify(value) {
     const document = relationalWitnessJournalDocument(value);
     const evidence = await conformTerm({ agentUrl: rmnAgentUrl, term: document[2], expectedType: document[1] });
-    return { id: semanticId(document), evidence: { provider: rmnAgentUrl, request: evidence.requestNi, response: evidence.exchange.outputNi, normalForm: evidence.normalFormId } };
+    return { id: identifyWitnessDocument(document, "topical-knowledge-cell.enterprise-record").token, evidence: { provider: rmnAgentUrl, request: evidence.requestNi, response: evidence.exchange.outputNi, normalForm: evidence.normalFormId } };
   }
   return {
     providers: {

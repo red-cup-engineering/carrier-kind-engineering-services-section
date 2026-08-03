@@ -26,9 +26,9 @@ test("an assayed assertion-red artifact seals as a content-addressed protected c
     id: "urn:test:acceptance:addition", objective: "Protect the addition oracle.", territory,
     focusPaths: ["calc.mjs"], command: "node --test union-acceptance/addition.test.mjs",
     testVectors: [vector], artifacts: [{ path: "union-acceptance/addition.test.mjs", text: testText }],
-  }, { assayOracle: async () => ({ accepted: true, failures: [] }), now: () => "2026-07-19T00:00:00.000Z" });
+  }, { assayOracle: async () => ({ charge: { support: true, refutation: false }, failures: [] }), now: () => "2026-07-19T00:00:00.000Z" });
 
-  assert.equal(capsule.redWitness.passed, false);
+  assert.deepEqual(capsule.redWitness.charge, { support: false, refutation: true });
   assert.match(capsule.redWitness.output, /addition-vector/);
   assert.match(capsule.digest, /^ni:\/\/\/sha-256;/);
   assert.equal(existsSync(join(territory, "union-acceptance/addition.test.mjs")), false);
@@ -44,7 +44,7 @@ test("capsule preparation refuses network, environment, and clock-dependent orac
       id: "urn:test:acceptance:denied", objective: "deny authority", territory, focusPaths: ["calc.mjs"],
       command: "node --test union-acceptance/denied.test.mjs", testVectors: [vector],
       artifacts: [{ path: "union-acceptance/denied.test.mjs", text: denied }],
-    }, { assayOracle: async () => ({ accepted: true }) }), /denied nondeterministic or authority-bearing capability/);
+    }, { assayOracle: async () => ({ charge: { support: true, refutation: false } }) }), /denied nondeterministic or authority-bearing capability/);
   }
 });
 
@@ -55,7 +55,7 @@ test("the assay receives exact deterministic carrier fields", async () => {
     id: "urn:test:acceptance:exact-assay-carrier", objective: "carry exact deterministic assay material", territory,
     focusPaths: ["calc.mjs"], command: "node --test union-acceptance/addition.test.mjs",
     testVectors: [vector], artifacts: [{ path: "union-acceptance/addition.test.mjs", text: testText }],
-  }, { assayOracle: async ({ manifest }) => { assayedManifest = manifest; return { accepted: true, failures: [] }; } });
+  }, { assayOracle: async ({ manifest }) => { assayedManifest = manifest; return { charge: { support: true, refutation: false }, failures: [] }; } });
   assert.deepEqual(Object.keys(assayedManifest).sort(), ["constraints", "id", "objective", "sourceEvidence", "testVectors"]);
   assert.ok(assayedManifest.sourceEvidence.every(({ path, digest, bytes }) => path && digest && Number.isSafeInteger(bytes)));
 });
@@ -66,7 +66,7 @@ test("capsule validation refuses stale source evidence", async () => {
     id: "urn:test:acceptance:stale", objective: "detect stale source", territory, focusPaths: ["calc.mjs"],
     command: "node --test union-acceptance/addition.test.mjs", testVectors: [vector],
     artifacts: [{ path: "union-acceptance/addition.test.mjs", text: testText }],
-  }, { assayOracle: async () => ({ accepted: true }) });
+  }, { assayOracle: async () => ({ charge: { support: true, refutation: false } }) });
   writeFileSync(join(territory, "calc.mjs"), "export const add = (a, b) => a + b;\n");
   assert.throws(() => validateAcceptanceCapsule(capsule, { territory }), /source is stale/);
 });
@@ -77,7 +77,7 @@ test("capsule loader admits the procurement settlement envelope without a lossy 
     id: "urn:test:acceptance:settlement", objective: "load the settled protected oracle", territory, focusPaths: ["calc.mjs"],
     command: "node --test union-acceptance/addition.test.mjs", testVectors: [vector],
     artifacts: [{ path: "union-acceptance/addition.test.mjs", text: testText }],
-  }, { assayOracle: async () => ({ accepted: true }) });
+  }, { assayOracle: async () => ({ charge: { support: true, refutation: false } }) });
   const settlementPath = join(territory, "acceptance-settlement.json");
   writeFileSync(settlementPath, JSON.stringify({ type: "AcceptanceProcurementSettlement", id: capsule.id, capsule }));
 

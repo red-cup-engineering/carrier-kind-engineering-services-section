@@ -1,16 +1,29 @@
-import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { jsonToTerm, termToJson } from "@red-cup-engineering/relation-model-notation-json-codec";
+import { inferTy } from "@red-cup-engineering/relation-model-notation-typing";
+import { EMPTY_WITNESS_ROOT, identifyNormalizedSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { reviewCandidate } from "./review.mjs";
 
 export const REVIEW_PROFILE = "org.emsenn.software.semantic-candidate-review.v1";
 export const PROVIDER_ACCOUNT = "eip155:31337:0x993312a9d1f14ffb56c609c9a799ac3c7a3c2145";
+export const REVIEW_REQUEST_KIND = "semantic-candidate-review.request";
+export const REVIEW_RECEIPT_KIND = "semantic-candidate-review.receipt";
 
 function exactKeys(value, keys) { return value && Object.getPrototypeOf(value) === Object.prototype && Object.keys(value).sort().join("\0") === [...keys].sort().join("\0"); }
 function fail(message) { throw new Error(message); }
-function typed(value) { const encoded = encodeRelationalValue(value), term = ["ascribe", encoded.type, encoded.term]; return { bytes: semanticBytes(term), id: semanticId(term) }; }
+export function identifyReviewValue(value, objectKind) {
+  const term = jsonToTerm(value), type = inferTy([], term);
+  if (type === null) fail("review value did not earn an RMN type");
+  const identity = identifyNormalizedSemanticContent({ objectKind, semanticType: type, term, witnessRoot: EMPTY_WITNESS_ROOT });
+  return { type, term, bytes: Buffer.from(identity.bytes), id: identity.token };
+}
+
+function decodeReviewValue(type, term) {
+  if (JSON.stringify(inferTy([], term)) !== JSON.stringify(type)) fail("review value does not inhabit its declared RMN type");
+  return termToJson(term);
+}
 
 export function normalizeReviewRequest(source) {
-  if (!exactKeys(source, ["candidate", "kind", "manifest", "maximumReviews", "minimumReviews"]) || source.kind !== "SemanticCandidateReviewRequest") fail("review request has an unknown, absent, or legacy field");
+  if (!exactKeys(source, ["candidate", "kind", "manifest", "maximumReviews", "minimumReviews"]) || source.kind !== "SemanticCandidateReviewRequest") fail("review request has an unknown or absent field");
   if (!source.manifest || Object.getPrototypeOf(source.manifest) !== Object.prototype || !source.candidate || Object.getPrototypeOf(source.candidate) !== Object.prototype) fail("review request requires exact manifest and candidate maps");
   if (!Number.isInteger(source.minimumReviews) || !Number.isInteger(source.maximumReviews) || source.minimumReviews < 1 || source.maximumReviews < source.minimumReviews || source.maximumReviews > 8) fail("review quorum bounds are invalid");
   const changes = source.candidate.changes;
@@ -20,20 +33,19 @@ export function normalizeReviewRequest(source) {
   return source;
 }
 
-export function encodeReviewRequest(source) { const value = normalizeReviewRequest(source), encoded = encodeRelationalValue(value); return { value, type: encoded.type, term: encoded.term }; }
-export function decodeReviewRequest(type, term) { if (JSON.stringify(type) !== JSON.stringify(RELATIONAL_VALUE_TYPE)) fail("review request must use relational RMN"); return normalizeReviewRequest(decodeRelationalValue(type, term)); }
+export function encodeReviewRequest(source) { const value = normalizeReviewRequest(source), encoded = identifyReviewValue(value, REVIEW_REQUEST_KIND); return { value, type: encoded.type, term: encoded.term }; }
+export function decodeReviewRequest(type, term) { return normalizeReviewRequest(decodeReviewValue(type, term)); }
 
 export async function performReview(source, options = {}) {
   const request = normalizeReviewRequest(source);
   const review = await reviewCandidate({ manifest: request.manifest, candidate: { ...request.candidate, changes: request.candidate.changes.map((change) => ({ ...change, after: Buffer.from(change.after) })) } }, { minimumReviews: request.minimumReviews, maximumReviews: request.maximumReviews, ...options });
-  const receipt = { kind: "SemanticCandidateReviewReceipt", profile: REVIEW_PROFILE, provider: PROVIDER_ACCOUNT, subject: typed(request).id, review };
-  const document = typed(receipt);
+  const receipt = { kind: "SemanticCandidateReviewReceipt", profile: REVIEW_PROFILE, provider: PROVIDER_ACCOUNT, subject: identifyReviewValue(request, REVIEW_REQUEST_KIND).id, review };
+  const document = identifyReviewValue(receipt, REVIEW_RECEIPT_KIND);
   return { receipt, semanticId: document.id, canonicalBytes: document.bytes };
 }
 
 export function decodeReviewReceipt(type, term) {
-  if (JSON.stringify(type) !== JSON.stringify(RELATIONAL_VALUE_TYPE)) fail("review receipt must use relational RMN");
-  const value = decodeRelationalValue(type, term);
+  const value = decodeReviewValue(type, term);
   if (!exactKeys(value, ["kind", "profile", "provider", "review", "subject"]) || value.kind !== "SemanticCandidateReviewReceipt" || value.profile !== REVIEW_PROFILE || value.provider !== PROVIDER_ACCOUNT || typeof value.review?.accepted !== "boolean") fail("review receipt is malformed or foreign");
   return value;
 }

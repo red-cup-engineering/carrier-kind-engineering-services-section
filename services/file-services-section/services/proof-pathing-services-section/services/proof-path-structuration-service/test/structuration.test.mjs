@@ -9,12 +9,9 @@ import {
   catalogProofPaths,
   chartProofPathCatalog,
   checkProofPathAst,
-  encodeProofCoordinate,
   envelopeProofCoordinate,
   parseProofPath,
-  parseProofCoordinate,
   proofPathOfCoordinate,
-  renderProofCoordinate,
   renderProofPathAst,
   routeOf,
   sanitizeSegment,
@@ -201,7 +198,7 @@ test("catalogs and charts are deterministic projections of earned proof paths", 
   assert.equal(chart.edges.every(({ from, to }) => chart.nodes.includes(from) && chart.nodes.includes(to)), true);
 });
 
-test("RMN-C001: settled proof coordinates are canonical identities, with POSIX only a projection", () => {
+test("RMN-C001: settled proof coordinates are canonical semantic material, with POSIX only a projection", () => {
   const witnesses = [
     { domain: "root", generator: "specialization", codomain: "middle" },
     { domain: "middle", generator: "object-projection", codomain: "target" },
@@ -210,12 +207,8 @@ test("RMN-C001: settled proof coordinates are canonical identities, with POSIX o
   assert.equal(settled.ok, true);
   const reordered = settleProofCoordinate({ resourceType: "semiotic-atom", root: "root", target: "target", witnesses: [...witnesses].reverse() });
   assert.equal(reordered.ok, true);
-  assert.equal(encodeProofCoordinate(settled.coordinate), encodeProofCoordinate(reordered.coordinate));
-  assert.equal(renderProofCoordinate(settled.coordinate).startsWith("rmn1:"), true);
-  assert.notEqual(renderProofCoordinate(settled.coordinate), renderProofPathAst(proofPathOfCoordinate(settled.coordinate)));
-  const parsed = parseProofCoordinate(renderProofCoordinate(settled.coordinate));
-  assert.equal(parsed.ok, true);
-  assert.equal(encodeProofCoordinate(parsed.coordinate), encodeProofCoordinate(settled.coordinate));
+  assert.deepEqual(settled.coordinate, reordered.coordinate);
+  assert.equal(renderProofPathAst(proofPathOfCoordinate(settled.coordinate)).includes("specialization/library"), true);
 });
 
 test("RMN-C002: malformed, incomplete, and unearned coordinates refuse without a path", () => {
@@ -227,7 +220,6 @@ test("RMN-C002: malformed, incomplete, and unearned coordinates refuse without a
     settleProofCoordinate({ resourceType: "", root: "root", target: "target", witnesses: [] }),
     { ok: false, reason: "invalid-resource-type" },
   );
-  assert.deepEqual(parseProofCoordinate("rmn1:not-a-canonical-segment"), { ok: false, reason: "malformed-coordinate" });
 });
 
 test("RMN-C003: cryptographic witnesses are ordered carriers, never coordinate substitutes", () => {
@@ -245,23 +237,4 @@ test("RMN-C003: cryptographic witnesses are ordered carriers, never coordinate s
   assert.strictEqual(envelope.coordinate, settled.coordinate);
   assert.deepEqual(envelope.witnesses.map(({ type }) => type), ["signature", "commitment"]);
   assert.throws(() => envelopeProofCoordinate(settled.coordinate, [{ type: "commitment", algorithm: "", value: "digest" }]));
-});
-
-test("RMN-C004: the language-neutral vector corpus settles and refuses deterministically", () => {
-  const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-  const corpus = JSON.parse(readFileSync(join(root, "content/rmn-proof-coordinate/vectors.json"), "utf8"));
-  assert.equal(corpus.profile, "org.harmonious-union.rmn-proof-coordinate.v1");
-  for (const vector of corpus.cases) {
-    const result = settleProofCoordinate(vector.input);
-    assert.equal(result.ok, vector.expect.ok, vector.id);
-    if (!result.ok) {
-      assert.equal(result.reason, vector.expect.reason, vector.id);
-      continue;
-    }
-    assert.deepEqual(result.route.steps.map(({ generator }) => generator), vector.expect.stepGenerators, vector.id);
-    assert.equal(result.coordinate.settlement.witnesses.length, vector.expect.witnessCount, vector.id);
-    const parsed = parseProofCoordinate(renderProofCoordinate(result.coordinate));
-    assert.equal(parsed.ok, true, vector.id);
-    assert.equal(encodeProofCoordinate(parsed.coordinate), encodeProofCoordinate(result.coordinate), vector.id);
-  }
 });

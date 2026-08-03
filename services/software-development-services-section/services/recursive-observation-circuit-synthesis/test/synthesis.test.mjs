@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { HIERARCHICAL_CIRCUIT_PROFILE, readCircuitContext, verifyCircuitAssembly } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+import { semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
+import { HIERARCHICAL_CIRCUIT_PROFILE, readCircuitContext, verifyCircuitAssembly } from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
 import { FABRICATION_PINOUT } from "../src/circuit-family.mjs";
 import { decodeSynthesisReceipt, synthesizeRecursiveObservationCircuit } from "../src/synthesis.mjs";
-import { decodeSemantic } from "@red-cup-engineering/rmn-semantic-conformance";
+import { decodeSemantic } from "@red-cup-engineering/relation-model-notation-runtime";
 
 const FOUR = [{ positiveEvidence: false, negativeEvidence: false }, { positiveEvidence: true, negativeEvidence: false }, { positiveEvidence: false, negativeEvidence: true }, { positiveEvidence: true, negativeEvidence: true }];
 const id = (label) => semanticId(["constant", ["base", "Text"], label]);

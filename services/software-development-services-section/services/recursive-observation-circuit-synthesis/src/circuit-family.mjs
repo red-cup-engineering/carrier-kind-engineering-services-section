@@ -1,6 +1,6 @@
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
 // Pure synthesis die: no provider discovery, material access, execution, or attestation.
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { encodeRelationalValue } from "@red-cup-engineering/relation-model-notation-runtime/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import {
   CIRCUIT_ASSEMBLY_PROFILE,
   HIERARCHICAL_CIRCUIT_PROFILE,
@@ -8,7 +8,7 @@ import {
   normalizeCircuitProfile,
   normalizeHierarchicalCircuit,
   verifyCircuitAssembly,
-} from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+} from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
 
 export const FABRICATION_CIRCUIT_PROFILE = "org.emsenn.infomaterial.fabrication-circuit.v2";
 
@@ -21,8 +21,11 @@ const FOUR = Object.freeze([
 const TRUE = Object.freeze({ positiveEvidence: true, negativeEvidence: false });
 
 function ni(label) {
-  const encoded = encodeRelationalValue({ register: "recursive-infomaterial-fabrication", label });
-  return semanticId(["ascribe", encoded.type, encoded.term]);
+  return identifyJsonSemanticContent({
+    objectKind: "recursive-observation-circuit.fabrication-pinout",
+    value: { register: "recursive-infomaterial-fabrication", label },
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
 }
 
 export const FABRICATION_PINOUT = Object.freeze({

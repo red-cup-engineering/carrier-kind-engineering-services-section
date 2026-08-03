@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { createCarrierAdmissionReceipt, createModeledUnionDimension, induceTemporalFailureRepairMoves } from "../src/index.mjs";
 import {
   inducePrivateLiveMudDemand,
@@ -9,13 +8,13 @@ import {
 } from "../../../src/semiotic-exchange-demand-induction.mjs";
 import { induceCapabilityRepairDemand } from "../../../src/semiotic-exchange-demand-induction.mjs";
 import { scanTemporalFailureMarks } from "../../../../../../software-development-services-section/services/typed-resource-catalog-service/src/temporal-failure-normalization.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri } from "@red-cup-engineering/ni-uri-services-section";
 
 const exchange = "0x98bBC65824962b61dF876A47B5779C4EcBBD4939";
 const controller = "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B";
 const id = (byte) => `0x${byte.repeat(64)}`;
-const ni = rawNiUri;
-const canonical = (value) => { const encoded = encodeRelationalValue(value), term = ["ascribe", encoded.type, encoded.term]; return { ni: semanticId(term), bytes: semanticBytes(term) }; };
+const ni = (value) => makeNiUri(Buffer.from(value, "utf8"));
+const canonical = (value) => { const identified = identifyJsonSemanticContent({ objectKind: `modeled-union-dimension.${value?.type ?? "material"}`, value, witnessRoot: EMPTY_WITNESS_ROOT }); return { ni: identified.token, bytes: identified.bytes }; };
 const position = (logIndex) => Object.freeze({ blockNumber: 5619n, blockHash: id("a"), transactionHash: id(String(logIndex + 1)), logIndex });
 const event = (kind, logIndex, fields) => Object.freeze({ kind, chainPosition: position(logIndex), ...fields });
 const cell = id("1"), law = id("2"), demand = id("3"), offer = id("4"), result = id("5");
@@ -40,6 +39,81 @@ test("replays monotone live contract history into earned loci and causal relatio
   assert.deepEqual(presentation.loci.map(({ type }) => type), ["SemioticCellLocus", "SemioticDemandLocus", "SemioticOfferLocus"]);
   assert.ok(presentation.relations.some((edge) => edge.type === "purchaseMove" && edge.from === `demand:${demand}` && edge.to === `cell:${cell}`));
   assert.equal(presentation.relations.filter(({ type }) => type === "causallyFollows").length, history.length - 1);
+});
+
+test("WorkspaceContentGraph v3 relations remain carriers rather than becoming inferred evidence", () => {
+  const relationCarrier = {
+    kind: "workspace.oriented-relation.carrier",
+    version: 1,
+    subject: "urn:package:example",
+    predicate: "urn:semiotic:contains",
+    object: ni("resource-semantic"),
+    witnessIdentifiers: [ni("source-witness")],
+  };
+  const sourceRelationNi = identifyJsonSemanticContent({ objectKind: "workspace.oriented-relation", value: relationCarrier, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+  const graphBody = {
+    type: "WorkspaceContentGraph",
+    version: 3,
+    packages: [{ id: ni("package-apex"), actor: "urn:package:example", name: "example", release: "0.0.1", contract: { operation: "example" } }],
+    resources: [{ semanticNi: ni("resource-semantic"), kind: "source", path: "src/example.mjs", source: { ni: ni("resource-artifact") } }],
+    relations: [{ id: sourceRelationNi, ...relationCarrier }],
+    glossaryUtteranceReadouts: [{
+      id: ni("predication-locus"),
+      termNi: ni("term"),
+      articulationReceiptNi: ni("articulation-receipt"),
+      predicationGeneratorsNi: ni("predication-generators"),
+      predicationGenerators: [{ subject: "Mark", predicate: "articulates", object: "utterance" }],
+      correspondence: { status: "unresolved", residuals: ["local-chart-only"] },
+    }],
+    glossaryRefusals: [],
+    glossaryOverlaps: [],
+  };
+  const graph = {
+    id: identifyJsonSemanticContent({ objectKind: "typed-resource-catalog.workspace-content-graph", value: graphBody, witnessRoot: EMPTY_WITNESS_ROOT }).token,
+    ...graphBody,
+  };
+  const admission = createCarrierAdmissionReceipt({
+    carrier: { type: "WorkspaceContentGraph", value: graph },
+    protocolVerificationReceiptNis: [ni("workspace-graph-protocol")],
+  });
+  const foam = createModeledUnionDimension({ events: [], chainId: "eip155:5615610", exchange, carrierAdmissions: [admission] }).contentFoam();
+  assert.equal(foam.version, 3);
+  const relation = foam.relations[0];
+  assert.equal(relation.type, "WorkspaceContentRelationProjection");
+  assert.equal(relation.id, sourceRelationNi);
+  assert.deepEqual(relation.retainedCarrierData, { witnessIdentifiers: [ni("source-witness")] });
+  for (const inferred of ["evidenceNi", "witnessRoot", "positive", "negative", "reading"]) assert.equal(Object.hasOwn(relation, inferred), false);
+  assert.equal(foam.loci.find(({ type }) => type === "MiaotangPackageActorLocus").phase, "observed");
+  assert.equal(foam.predicationLoci[0].predicationGeneratorsNi, graphBody.glossaryUtteranceReadouts[0].predicationGeneratorsNi);
+  assert.deepEqual(foam.predicationLoci[0].correspondence, graphBody.glossaryUtteranceReadouts[0].correspondence);
+});
+
+test("WorkspaceContentGraph refuses relation overlays that infer evidence or FOUR from carrier fields", () => {
+  const relationCarrier = {
+    kind: "workspace.oriented-relation.carrier",
+    version: 1,
+    subject: "urn:package:example",
+    predicate: "urn:semiotic:contains",
+    object: ni("resource-semantic"),
+    witnessIdentifiers: [ni("source-witness")],
+  };
+  const graphBody = {
+    type: "WorkspaceContentGraph",
+    version: 3,
+    packages: [], resources: [], glossaryUtteranceReadouts: [], glossaryRefusals: [], glossaryOverlaps: [],
+    relations: [{
+      id: identifyJsonSemanticContent({ objectKind: "workspace.oriented-relation", value: relationCarrier, witnessRoot: EMPTY_WITNESS_ROOT }).token,
+      ...relationCarrier,
+      negativeWitnesses: [ni("shortcut")],
+      reading: "denied",
+    }],
+  };
+  const graph = { id: identifyJsonSemanticContent({ objectKind: "typed-resource-catalog.workspace-content-graph", value: graphBody, witnessRoot: EMPTY_WITNESS_ROOT }).token, ...graphBody };
+  const admission = createCarrierAdmissionReceipt({ carrier: { type: "WorkspaceContentGraph", value: graph }, protocolVerificationReceiptNis: [ni("workspace-graph-protocol")] });
+  assert.throws(
+    () => createModeledUnionDimension({ events: [], chainId: "eip155:5615610", exchange, carrierAdmissions: [admission] }),
+    /forbidden inferred semantics/u,
+  );
 });
 
 test("FOUR charge consumes only exact top-level admitted federation standings", () => {

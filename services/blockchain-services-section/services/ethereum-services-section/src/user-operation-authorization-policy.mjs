@@ -1,4 +1,4 @@
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { semanticIdentity } from "./semantic-content.mjs";
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/u;
 const BYTES = /^0x(?:[0-9a-fA-F]{2})*$/u;
@@ -34,7 +34,7 @@ export function createUserOperationAuthorizationPolicy(input) {
   if (!Array.isArray(input.contracts) || input.contracts.length === 0) throw new TypeError("authorization policy contracts must be nonempty");
   const contracts = new Set(input.contracts.map((value) => address(value, "authorization contract")));
   const callDataDigests = input.callDataDigests === undefined ? null : new Set(input.callDataDigests);
-  if (callDataDigests && [...callDataDigests].some((value) => !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(value))) throw new TypeError("authorization policy callDataDigests must be SHA-256 ni URIs");
+  if (callDataDigests && [...callDataDigests].some((value) => !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u.test(value))) throw new TypeError("authorization policy callDataDigests must be SHA-256 ni URIs");
   if (input.maxSignatures !== undefined && (!Number.isSafeInteger(input.maxSignatures) || input.maxSignatures < 1)) throw new TypeError("authorization policy maxSignatures is invalid");
   let signatures = 0;
   return Object.freeze({
@@ -51,7 +51,7 @@ export function createUserOperationAuthorizationPolicy(input) {
       if (userOperation.paymaster !== "0x") address(userOperation.paymaster, "user operation paymaster");
       bytes(userOperation.paymaster_data, "user operation paymaster_data");
       for (const field of optional) if (userOperation[field] !== undefined) quantity(userOperation[field], `user operation ${field}`);
-      const digest = rawNiUri(Buffer.from(callData.slice(2), "hex"));
+      const digest = semanticIdentity("ethereum.evm-call-data", { encoding: "hex", data: callData });
       if (callDataDigests && !callDataDigests.has(digest)) throw new Error("authorization policy refuses the user operation call data");
       if (input.maxSignatures !== undefined && signatures >= input.maxSignatures) throw new Error("authorization policy signature limit is exhausted");
       signatures += 1;

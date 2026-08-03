@@ -1,4 +1,4 @@
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri as rawNiUri } from "@red-cup-engineering/ni-uri-services-section";
 import {
   closeSync,
   existsSync,
@@ -13,12 +13,6 @@ import {
 } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import {
-  decodeSemantic,
-  normalizeCarrier,
-  semanticBytes,
-  semanticId,
-} from "@red-cup-engineering/rmn-semantic-conformance";
-import {
   agentCardSignatureEvidence,
   discoverSignedAgentCard,
 } from "@red-cup-engineering/a2a-agent-card-discovery-service";
@@ -29,11 +23,12 @@ import {
   importJWK,
   importPKCS8,
 } from "jose";
+import { admit, identify } from "./semantic-content.mjs";
 
 export const EVIDENCE_OPERATION = "read-immutable-induction-evidence-object";
 export const RECEIVER_ACTOR =
   "urn:ame:accepted-software-delivery-receiver-service";
-const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{43})$/u;
+const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{42}[AEIMQUYcgkosw048])$/u;
 const TIME = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/u;
 const PURPOSES = new Set(["sealed-candidate", "publication-phase", "private-index-release"]);
 const BASE = [
@@ -46,6 +41,18 @@ const EXTRA = {
   "publication-phase": ["journalId", "phase"],
   "private-index-release": ["allocationId", "privateIndexId", "journalId"],
 };
+const KINDS = Object.freeze({
+  request: "immutable-induction-evidence.read-request",
+  grant: "immutable-induction-evidence.read-grant",
+  result: "immutable-induction-evidence.object-result",
+  refusal: "immutable-induction-evidence.read-refusal",
+  reservation: "immutable-induction-evidence.consumption-reservation",
+  intent: "immutable-induction-evidence.consumption-intent",
+  outcome: "immutable-induction-evidence.consumption-outcome",
+  consumption: "immutable-induction-evidence.consumption",
+  observedState: "immutable-induction-evidence.observed-state",
+});
+const material = (value, kind) => identify(value, kind);
 
 function fail(code) {
   const error = new Error(code);
@@ -56,7 +63,7 @@ function exact(value, keys) {
   return value && Object.getPrototypeOf(value) === Object.prototype &&
     Object.keys(value).sort().join("\0") === [...keys].sort().join("\0");
 }
-const rawNi = rawNiUri;
+const rawNi = (bytes) => rawNiUri(Buffer.from(bytes));
 async function signOutput({ bytes, privateKeyPem, signingKid, signingJwks }) {
   const key = await importPKCS8(privateKeyPem, "EdDSA");
   return new FlattenedSign(bytes)
@@ -64,10 +71,7 @@ async function signOutput({ bytes, privateKeyPem, signingKid, signingJwks }) {
     .sign(key);
 }
 function canonical(family, bytes) {
-  const value = normalizeCarrier(decodeSemantic(bytes));
-  if (!Buffer.from(semanticBytes(value)).equals(Buffer.from(bytes))) {
-    fail("noncanonical-evidence-carrier");
-  }
+  const value = admit(bytes, KINDS[family]);
   const purpose = value?.purpose;
   if (!PURPOSES.has(purpose)) fail("invalid-evidence-purpose");
   const keys = family === "request"
@@ -86,6 +90,8 @@ function canonical(family, bytes) {
   if (value.type !== expectedType || value.version !== 1) fail("invalid-evidence-type");
   return Object.freeze(value);
 }
+export function evidenceRequestFromBytes(bytes) { return canonical("request", bytes); }
+export function evidenceResultIdentity(value) { return material(value, value?.type === "ImmutableInductionEvidenceReadRefusal" ? KINDS.refusal : KINDS.result).id; }
 function directoryFsync(path) {
   const fd = openSync(path, "r");
   try { fsyncSync(fd); } finally { closeSync(fd); }
@@ -210,7 +216,7 @@ async function verifyReceiverGrant({
       !Object.hasOwn(key, "d"),
   ) ?? [];
   if (matches.length !== 1) fail("actor-route-drift");
-  const bytes = semanticBytes(grant);
+  const bytes = material(grant, KINDS.grant).bytes;
   const verified = await flattenedVerify(
     { ...grantJws, payload: grantJws.payload ?? Buffer.from(bytes).toString("base64url") },
     await importJWK(matches[0], header.alg),
@@ -264,7 +270,7 @@ export async function readImmutableInductionEvidence({
   crash = () => {},
 }) {
   const request = canonical("request", requestBytes);
-  const normalizedGrant = canonical("grant", semanticBytes(grant));
+  const normalizedGrant = canonical("grant", material(grant, KINDS.grant).bytes);
   await verifyReceiverIdentity({
     receiverAgentUrl,
     receiverCard,
@@ -283,7 +289,7 @@ export async function readImmutableInductionEvidence({
       normalizedGrant.receiverActor !== normalizedGrant.issuerActor ||
       normalizedGrant.recipientActor !== request.providerActor ||
       request.receiverActor !== RECEIVER_ACTOR ||
-      request.grantId !== semanticId(normalizedGrant) ||
+      request.grantId !== material(normalizedGrant, KINDS.grant).id ||
       normalizedGrant.uses !== 1) fail("binding-mismatch");
   for (const key of [
     "purpose", "objectId", "sha256", "length", "evidenceRootId", "taskId",
@@ -307,49 +313,49 @@ export async function readImmutableInductionEvidence({
   const resultPath = join(consumptionRoot, "result.cbor");
   const reservationPath = join(consumptionRoot, "reservation.cbor");
   const priorOutcome = () => {
-    const prior = decodeSemantic(readFileSync(resultPath));
-    if (prior.requestId !== semanticId(request)) fail("grant-replay");
+    const prior = admit(readFileSync(resultPath), KINDS.outcome);
+    if (prior.requestId !== material(request, KINDS.request).id) fail("grant-replay");
     return Object.freeze({
       bytes: Buffer.from(prior.output),
       jws: prior.jws,
-      result: Object.freeze(decodeSemantic(prior.output)),
+      result: Object.freeze(admit(prior.output, KINDS.result)),
     });
   };
   if (existsSync(resultPath)) {
     return priorOutcome();
   }
-  const consumptionId = semanticId({
+  const consumptionId = material({
     type: "ImmutableInductionEvidenceConsumption",
     grantId: request.grantId,
-    requestId: semanticId(request),
+    requestId: material(request, KINDS.request).id,
     objectId: request.objectId,
-  });
+  }, KINDS.consumption).id;
   let reservation;
   if (existsSync(reservationPath)) {
-    reservation = decodeSemantic(readFileSync(reservationPath));
+    reservation = admit(readFileSync(reservationPath), KINDS.reservation);
   } else {
     const candidate = {
       type: "ImmutableInductionEvidenceConsumptionReservation",
       version: 1,
       consumptionId,
       grantId: request.grantId,
-      requestId: semanticId(request),
+      requestId: material(request, KINDS.request).id,
       objectId: request.objectId,
       timestamp: now.toISOString(),
     };
     try {
-      immutableWrite(reservationPath, semanticBytes(candidate));
+      immutableWrite(reservationPath, material(candidate, KINDS.reservation).bytes);
       reservation = candidate;
     } catch (error) {
       if (
         error.code !== "EEXIST" &&
         error.message !== "immutable-object-conflict"
       ) throw error;
-      reservation = decodeSemantic(readFileSync(reservationPath));
+      reservation = admit(readFileSync(reservationPath), KINDS.reservation);
     }
   }
   if (
-    reservation.requestId !== semanticId(request) ||
+    reservation.requestId !== material(request, KINDS.request).id ||
     reservation.grantId !== request.grantId ||
     reservation.objectId !== request.objectId ||
     reservation.consumptionId !== consumptionId
@@ -357,7 +363,7 @@ export async function readImmutableInductionEvidence({
   crash("consumption-reserved");
   let intent;
   if (existsSync(intentPath)) {
-    intent = decodeSemantic(readFileSync(intentPath));
+    intent = admit(readFileSync(intentPath), KINDS.intent);
   } else {
     let stat;
     try { stat = lstatSync(objectPath); } catch { fail("evidence-object-drift"); }
@@ -370,24 +376,24 @@ export async function readImmutableInductionEvidence({
       version: 1,
       consumptionId,
       grantId: request.grantId,
-      requestId: semanticId(request),
+      requestId: material(request, KINDS.request).id,
       objectId: request.objectId,
       bytes: object,
       timestamp: reservation.timestamp,
     };
     try {
-      immutableWrite(intentPath, semanticBytes(candidate));
+      immutableWrite(intentPath, material(candidate, KINDS.intent).bytes);
       intent = candidate;
     } catch (error) {
       if (
         error.code !== "EEXIST" &&
         error.message !== "immutable-object-conflict"
       ) throw error;
-      intent = decodeSemantic(readFileSync(intentPath));
+      intent = admit(readFileSync(intentPath), KINDS.intent);
     }
   }
   if (
-    intent.requestId !== semanticId(request) ||
+    intent.requestId !== material(request, KINDS.request).id ||
     intent.grantId !== request.grantId ||
     intent.objectId !== request.objectId ||
     intent.consumptionId !== consumptionId ||
@@ -400,7 +406,7 @@ export async function readImmutableInductionEvidence({
     type: "ImmutableInductionEvidenceObjectResult",
     version: 1,
     purpose: request.purpose,
-    requestId: semanticId(request),
+    requestId: material(request, KINDS.request).id,
     grantId: request.grantId,
     receiverActor: RECEIVER_ACTOR,
     providerActor: request.providerActor,
@@ -421,16 +427,16 @@ export async function readImmutableInductionEvidence({
     timestamp: intent.timestamp,
   };
   for (const key of EXTRA[request.purpose]) result[key] = request[key];
-  const output = semanticBytes(normalizeCarrier(result));
+  const output = material(result, KINDS.result).bytes;
   const jws = await signOutput({ bytes: output, privateKeyPem, signingKid, signingJwks });
   try {
-    immutableWrite(resultPath, semanticBytes({
+    immutableWrite(resultPath, material({
       consumptionId,
       grantId: request.grantId,
-      requestId: semanticId(request),
+      requestId: material(request, KINDS.request).id,
       output,
       jws,
-    }));
+    }, KINDS.outcome).bytes);
   } catch (error) {
     if (
       error.code !== "EEXIST" &&
@@ -470,13 +476,13 @@ export async function signEvidenceRefusal({
     receiverJwks: receiverCard.jwks,
     reason: allowed.has(reason) ? reason : "pre-effect",
     state: reason === "unresolved" ? "unresolved" : "pre-effect",
-    observedStateId: semanticId({
+    observedStateId: material({
       requestId: rawNi(requestBytes),
       reason: allowed.has(reason) ? reason : "pre-effect",
-    }),
+    }, KINDS.observedState).id,
     timestamp: now.toISOString(),
   };
-  const bytes = semanticBytes(normalizeCarrier(refusal));
+  const bytes = material(refusal, KINDS.refusal).bytes;
   const jws = await signOutput({ bytes, privateKeyPem, signingKid, signingJwks });
   return Object.freeze({ bytes, jws, result: Object.freeze(refusal) });
 }
@@ -484,7 +490,7 @@ export async function signEvidenceRefusal({
 export function immutableEvidenceRefusalAddress({ requestBytes, grant }) {
   let requestAddress;
   try {
-    const request = decodeSemantic(requestBytes);
+    const request = admit(requestBytes, KINDS.request);
     if (PURPOSES.has(request?.purpose) && NI.test(request?.grantId)) {
       requestAddress = Object.freeze({
         purpose: request.purpose,
@@ -494,10 +500,10 @@ export function immutableEvidenceRefusalAddress({ requestBytes, grant }) {
   } catch {}
   let grantAddress;
   try {
-    const normalizedGrant = canonical("grant", semanticBytes(grant));
+    const normalizedGrant = canonical("grant", material(grant, KINDS.grant).bytes);
     grantAddress = Object.freeze({
       purpose: normalizedGrant.purpose,
-      grantId: semanticId(normalizedGrant),
+      grantId: material(normalizedGrant, KINDS.grant).id,
     });
   } catch {}
   if (

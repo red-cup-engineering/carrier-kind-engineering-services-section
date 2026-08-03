@@ -15,9 +15,9 @@ const catalog = {
 const input = { catalog, resource: { path: "repo://spore/mark.rmn", content: "mark" } };
 
 test("one action apex projects matching discovery, CLI, and MCP faces", () => {
-  assert.equal(trcApex.discovery.bins.length, 6);
+  assert.equal(trcApex.discovery.bins.length, 7);
   assert.deepEqual(trcApex.discovery.bins.map((bin) => bin.name).sort(), [
-    "audit-typed-resource-catalog", "catalog-node-workspace-sources", "check-language-cone", "classify-typed-resource", "project-trc-receipt-rmn", "scan-temporal-failure-marks",
+    "audit-typed-resource-catalog", "catalog-node-workspace-sources", "catalog-workspace-content-graph", "check-language-cone", "classify-typed-resource", "project-trc-receipt-rmn", "scan-temporal-failure-marks",
   ]);
 
   const mcpTools = actionMcpHandle(trcApex, { jsonrpc: "2.0", id: 1, method: "tools/list" }, {});

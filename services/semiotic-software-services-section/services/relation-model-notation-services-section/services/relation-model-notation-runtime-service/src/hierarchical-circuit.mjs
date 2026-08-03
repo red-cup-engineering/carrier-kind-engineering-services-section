@@ -160,7 +160,7 @@ function normalizeCircuitMembrane(source) {
 }
 
 export function circuitInterfaceFromAgentCard(card) {
-  const matches = card?.capabilities?.extensions ?? [];
+  const matches = card?.capabilities?.extensions?.filter(({ uri }) => uri === SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION) ?? [];
   if (matches.length !== 1) fail("malformed-circuit", "Agent Card must declare exactly one sovereign circuit interface extension");
   const params = matches[0].params;
   if (!exactKeys(params, ["account", "authority", "component", "custody", "profile", "territory"]) || params.profile !== SOVEREIGN_CIRCUIT_INTERFACE_PROFILE) fail("malformed-circuit", "Agent Card sovereign circuit interface params are invalid");

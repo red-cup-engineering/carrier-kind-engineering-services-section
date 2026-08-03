@@ -6,7 +6,8 @@ import { readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
+import { EMPTY_WITNESS_ROOT, identifyNormalizedSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { inferTy } from "@red-cup-engineering/relation-model-notation-typing";
 import { recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
@@ -56,7 +57,11 @@ export const UPSTREAM_DEMANDS = Object.freeze([
   }),
 ]);
 
-function identified(body) { return Object.freeze({ id: semanticId(relationalWitnessJournalDocument(body)), ...body }); }
+function identified(body) {
+  const term = relationalWitnessJournalDocument(body);
+  const id = identifyNormalizedSemanticContent({ objectKind: "ethereum.enterprise-account-provisioning-record", semanticType: inferTy([], term), term, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+  return Object.freeze({ id, ...body });
+}
 function argument(flag) { const at = process.argv.indexOf(flag); return at < 0 ? undefined : process.argv[at + 1]; }
 function atNow() { return argument("--now") ?? new Date().toISOString(); }
 function dataRoot(env = process.env) { return resolve(env.ENTERPRISE_ACCOUNT_PROVISIONING_DATA_ROOT ?? `${HERE}/data`); }

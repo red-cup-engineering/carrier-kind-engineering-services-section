@@ -2,8 +2,9 @@ import { randomUUID } from "node:crypto";
 import { Message, Role } from "@a2a-js/sdk";
 import { a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { checkTerm, decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+import { checkTerm, decodeSemantic, semanticBytes } from "@red-cup-engineering/relation-model-notation-runtime";
+import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { decodeSynthesisReceipt, encodeSynthesisRequest } from "./synthesis.mjs";
 const parts = a2aResultParts;
 export async function requestRecursiveObservationCircuitSynthesis({ agentUrl, root, plate, cover, tally, observers, signal, send = sendRmnTask }) {
@@ -14,5 +15,6 @@ export async function requestRecursiveObservationCircuitSynthesis({ agentUrl, ro
   if (!semanticBytes(response).equals(output.bytes) || response?.[0] !== "ascribe" || response.length !== 3) throw new Error("synthesis provider returned noncanonical RMN");
   checkTerm(response[2], response[1]); const receipt = decodeSynthesisReceipt(response[1], response[2]), provider = circuitInterfaceFromAgentCard(exchange.agentCard);
   if (receipt.provider !== provider.account) throw new Error("synthesis receipt provider does not own the signed Agent Card");
-  return { receipt, receiptNi: semanticId(response), response, exchange };
+  const identity = identifyJsonSemanticContent({ objectKind: "recursive-observation-circuit.synthesis-receipt", value: receipt, witnessRoot: EMPTY_WITNESS_ROOT });
+  return { receipt, receiptNi: identity.token, response, exchange };
 }

@@ -2,10 +2,9 @@ import { randomUUID } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { A2aTaskPendingError, a2aResultMetadata, a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
-import { conformTerm as requestConformance } from "@red-cup-engineering/rmn-semantic-conformance/client";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+import { conformTerm as requestConformance } from "./rmn-conformance-client.mjs";
+import { jsonValueId, rmnCarrierId } from "./modern-rmn-carrier.mjs";
+import { SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "./sovereign-provider-interface.mjs";
 import { createInferenceSettlementStore } from "./witness-journal-settlement-store.mjs";
 import { INFERENCE_MARKET_OFFER_EXTENSION } from "./provider-admission.mjs";
 import { chooseConsideration, createExchangeCompact, createExchangeReceipt, migrateConsiderationAlternative, migrateConsiderationPolicy, validateConsiderationAlternative, validateConsiderationPolicy } from "./consideration.mjs";
@@ -13,14 +12,11 @@ import { rankInferenceCandidates } from "./expected-resolution-pricing-client.mj
 import { textNi } from "./rmn-effect-client.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-export const CHILD_OPERATION_TYPE = ["product", ["mark"], ["product", ["mark"], ["product", ["mark"], ["mark"]]]];
+export const CHILD_OPERATION_TYPE = ["prod", ["base"], ["prod", ["base"], ["prod", ["base"], ["base"]]]];
 const CONTEXT = "https://www.w3.org/ns/activitystreams";
 const ACTOR = "urn:ame:inference-work-lot-service";
 const ROOT = resolve(HERE, "..");
-const ni = (value) => {
-  const encoded = encodeRelationalValue(value);
-  return semanticId(["ascribe", encoded.type, encoded.term]);
-};
+const ni = jsonValueId;
 export const demandCommitment = ni;
 const caip10 = (value) => /^eip155:[1-9][0-9]*:0x[0-9a-fA-F]{40}$/u.test(value ?? "");
 function pendingDependency(error) {
@@ -72,7 +68,7 @@ function validateOffer(provider, source, offer, demand) {
   if (offer?.["@context"] !== CONTEXT || offer.type !== "Offer" || offer.actor !== provider.actor || offer.target !== ACTOR || offer.inReplyTo !== source.id || object?.type !== "TypedRmnInferenceServiceOffer") return "not-an-exact-provider-authored-offer";
   if (!caip10(object.providerAccount) || !/^ni:\/\/\/sha-256;/u.test(object.contract ?? "") || typeof object.agentCard !== "string" || !/^https?:\/\//u.test(object.agentCard)) return "provider-boundary-fields-invalid";
   if (object.requestCommitment !== ni(demand)) return "request-commitment-drift";
-  if (semanticId(object.operationType) !== semanticId(CHILD_OPERATION_TYPE)) return "operation-type-incompatible";
+  if (rmnCarrierId(object.operationType) !== rmnCarrierId(CHILD_OPERATION_TYPE)) return "operation-type-incompatible";
   if (!Array.isArray(object.capabilities) || demand.requiredCapabilities.some((capability) => !object.capabilities.includes(capability))) return "missing-required-capability";
   if (!Array.isArray(object.workTypes) || !object.workTypes.includes(demand.workType)) return "unsupported-work-type";
   if (!Number.isSafeInteger(object.maximumOutputTokens) || object.maximumOutputTokens < 1) return "provider-output-capacity-invalid";
@@ -140,17 +136,17 @@ function effect({ law, caller, provider, operation, precondition, postcondition,
   return { law, caller, provider, operation, precondition, postcondition, refusal, evidenceRoot, outcome: { positiveEvidence: false, negativeEvidence: false }, measures, parent };
 }
 
-function admittedService(customerServices, role) {
+function admittedService(customerServices, role, { endpoint = false } = {}) {
   const admission = customerServices?.[role];
-  if (!admission?.actor || typeof admission.agentCard !== "string") throw new Error(`customer must admit exactly one contracted ${role} service`);
+  if (!admission?.actor || (endpoint && typeof admission.agentCard !== "string")) throw new Error(`customer must admit exactly one contracted ${role} service`);
   return admission;
 }
 
-async function conformCustomerTerm(customerServices, term, expectedType) {
-  const admission = admittedService(customerServices, "rmn");
+async function conformCustomerTerm(customerServices, term, expectedType, conform = requestConformance) {
+  const admission = admittedService(customerServices, "rmn", { endpoint: true });
   let result;
   try {
-    result = await requestConformance({ agentUrl: admission.agentCard, term, expectedType });
+    result = await conform({ agentUrl: admission.agentCard, term, expectedType });
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     throw new Error(`customer RMN service ${admission.actor} at ${admission.agentCard} failed: ${reason}`, { cause: error });
@@ -158,7 +154,7 @@ async function conformCustomerTerm(customerServices, term, expectedType) {
   return Object.freeze({ term: result.term, canonicalBytesBase64: result.canonicalBytesBase64, conformance: result.exchange.outputNi, provider: admission.actor });
 }
 
-export async function compileSelectedInferenceContract(selection, demand, caller, customerServices, now = new Date().toISOString()) {
+export async function compileSelectedInferenceContract(selection, demand, caller, customerServices, now = new Date().toISOString(), { conform } = {}) {
   if (selection?.disposition !== "provider-selected") throw new Error("one selected provider offer is required");
   if (!caller?.actor || !caip10(caller.account)) throw new Error("customer actor and sovereign CAIP-10 account are required");
   const terms = selection.selected.offer.object;
@@ -179,14 +175,14 @@ export async function compileSelectedInferenceContract(selection, demand, caller
     outputBoundSource: demand.maximumOutputTokens == null ? "selected-provider-offer" : "customer-limit",
   };
   const operation = ["pair", ["mark", demand.instruction], ["pair", ["mark", JSON.stringify(selectedInput)], ["pair", ["mark", terms.model], ["mark", terms.mode]]]];
-  const operationReceipt = await conformCustomerTerm(customerServices, operation, CHILD_OPERATION_TYPE);
+  const operationReceipt = await conformCustomerTerm(customerServices, operation, CHILD_OPERATION_TYPE, conform);
   const measures = compact.consideration.obligations.map((obligation) => ({
     dimension: obligation.asset,
     quantity: obligation.amount.numerator,
     unit: `${obligation.kind}:${obligation.unit};exact-denominator=${obligation.amount.denominator}`,
   }));
   const proposalCell = effect({ law: terms.contract, caller: caller.account, provider: terms.providerAccount, operation: operationReceipt.term, precondition: compact.id, postcondition: textNi("WitnessedInferenceCandidate"), refusal: textNi("WitnessedInferenceRefusal"), evidenceRoot: textNi("FOUR-bottom"), measures });
-  const proposal = await conformCustomerTerm(customerServices, ["pair", ["effect", proposalCell], operation], ["product", ["effect"], CHILD_OPERATION_TYPE]);
+  const proposal = await conformCustomerTerm(customerServices, ["pair", ["mark", JSON.stringify(proposalCell)], operation], ["prod", ["base"], CHILD_OPERATION_TYPE], conform);
   const message = {
     messageId: randomUUID(), role: "ROLE_USER",
     parts: [{ raw: proposal.canonicalBytesBase64, metadata: { ni: proposal.term }, filename: "proposal.rmn.cbor", mediaType: "application/rmn+cbor" }],
@@ -229,7 +225,7 @@ export async function recordTypedInferenceProcurement(result, { caller, customer
   if (!result?.demand || typeof result.disposition !== "string") throw new Error("a typed inference procurement outcome is required");
   if (!caller?.actor || !caip10(caller.account)) throw new Error("recording requires the sovereign customer actor and account");
   const witnessJournal = admittedService(customerServices, "witnessJournal");
-  const store = suppliedStore ?? await createInferenceSettlementStore({ settlementRoot, agentUrl: witnessJournal.agentCard, caip2: process.env.SETTLEMENT_CAIP2 });
+  const store = suppliedStore ?? await createInferenceSettlementStore({ settlementRoot, actor: caller.actor, settlement: caller.account, caip2: process.env.SETTLEMENT_CAIP2 });
   if (store.actor !== caller.actor || store.settlement.toLowerCase() !== caller.account.toLowerCase()) throw new Error("customer account differs from its settlement-owned WitnessJournal plate");
   const selected = result.selection?.disposition === "provider-selected" ? result.selection.selected : null;
   const settlement = result.settlement ?? null;
@@ -257,7 +253,7 @@ export async function recordTypedInferenceProcurement(result, { caller, customer
   return Object.freeze({ type: "TypedInferenceProcurementWitnessJournalProjection", graph: projection.documentNi, projection: projection.digest, networkReference: projection.reference });
 }
 
-export async function procureTypedInference({ residue, request, suppliers, caller, customerServices, settlementRoot, invokeProvider, now, record = true, dataRoot, signal, pricingService }) {
+export async function procureTypedInference({ residue, request, suppliers, caller, customerServices, settlementRoot, invokeProvider, now, record = true, dataRoot, signal, pricingService, conform }) {
   const demand = typedInferenceDemand(residue, request);
   const market = await solicitTypedInferenceOffers(demand, suppliers);
   const selection = pricingService
@@ -269,7 +265,7 @@ export async function procureTypedInference({ residue, request, suppliers, calle
     return Object.freeze(result);
   }
   try {
-    const result = await settleSelectedTypedInference({ demand, market, selection, caller, customerServices, settlementRoot, invokeProvider, now, record, dataRoot, signal });
+    const result = await settleSelectedTypedInference({ demand, market, selection, caller, customerServices, settlementRoot, invokeProvider, now, record, dataRoot, signal, conform });
     if (result.disposition === "candidate-pending-customer-assay") return Object.freeze({ ...result, providerSettlementAttempts: 1, settlementResidues: Object.freeze([]) });
     return Object.freeze({ ...result, providerSettlementAttempts: 1, settlementResidues: Object.freeze([{ provider: selection.selected.provider.actor, offer: selection.selected.offer.id, disposition: result.disposition, settlement: result.settlement?.completion ?? null }]) });
   } catch (error) {
@@ -292,9 +288,9 @@ export async function procureTypedInference({ residue, request, suppliers, calle
   }
 }
 
-export async function settleSelectedTypedInference({ demand, market, selection, caller, customerServices, settlementRoot, invokeProvider, now, record = true, dataRoot, signal }) {
+export async function settleSelectedTypedInference({ demand, market, selection, caller, customerServices, settlementRoot, invokeProvider, now, record = true, dataRoot, signal, conform }) {
   if (selection?.disposition !== "provider-selected" || !market?.admitted?.includes(selection.selected)) throw new Error("settlement requires one provider offer selected from the supplied solicited market");
-  const contract = await compileSelectedInferenceContract(selection, demand, caller, customerServices, now);
+  const contract = await compileSelectedInferenceContract(selection, demand, caller, customerServices, now, { conform });
   const settlement = invokeProvider ? await invokeProvider(contract.message, selection.selected, signal) : await defaultProviderInvoke(contract.message, selection.selected.offer.object.agentCard, signal);
   const disposition = settlement?.disposition === "completion"
     ? "candidate-pending-customer-assay"

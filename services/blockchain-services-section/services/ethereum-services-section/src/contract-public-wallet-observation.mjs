@@ -5,8 +5,8 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { getAddress } from "ethers";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { queryWitnessJournalDocumentsByCategory, recordSettlementRecord, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { queryWitnessJournalDocumentsByCategory, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 
 import { PUBLIC_EVM_LEDGER_PROFILE, observePublicEvmLedger } from "./public-evm-ledger.mjs";
 
@@ -30,7 +30,9 @@ const TRUSTED_CONTRACTS = new Map(Object.entries({
 
 const SOURCE_IDS = ["gmx-positions", "gmx-orders", "gmx-staking-power", "gmx-oracle", "gmx-glp-compensation", "arbitrum-blockscout"];
 
-export function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+export function digest(value) {
+  return identifyJsonSemanticContent({ objectKind: "ethereum.contract-public-wallet-observation", value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+}
 function identify(body) { return { id: digest(body), ...body }; }
 function contentValid(value) { const { id: _id, ...body } = value ?? {}; return value?.id === digest(body); }
 function arg(flag) { const index = process.argv.indexOf(flag); return index < 0 ? undefined : process.argv[index + 1]; }

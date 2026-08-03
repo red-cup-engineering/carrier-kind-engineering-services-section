@@ -3,8 +3,8 @@ import {
   chargeValueName,
   joinKnowledgeValue,
 } from "@lenticule-science/articulating/predicating/positing";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { decodeRelationalValue, relationalValueId } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
+import { EMPTY_WITNESS_ROOT, admitJsonSemanticContent, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { projectTerritoryFoam } from "./foam-field.mjs";
 import { projectLSpace } from "./l-space.mjs";
 import { projectWorkCirculation } from "./work-circulation.mjs";
@@ -13,7 +13,6 @@ import { induceUnboundCodexToolBindingDemands, projectCodexToolObservations } fr
 export const ACTOR = "urn:ame:modeled-union-dimension";
 
 const KINDS = Object.freeze(["CellSeated", "CellRetired", "DemandRaised", "DemandOffered", "PurchaseMoved", "DemandSettled"]);
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const OPERATION_ABILITY = Object.freeze({
   raiseDemand: "semiotic-exchange/raise-demand",
   retireCell: "semiotic-exchange/retire-cell",
@@ -27,7 +26,7 @@ function required(value, label) {
   return value;
 }
 function exactNi(value, label) {
-  if (typeof value !== "string" || !NI.test(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
+  if (!isCanonicalSha256NiUri(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
   return value;
 }
 function same(left, right) { return String(left).toLowerCase() === String(right).toLowerCase(); }
@@ -43,7 +42,8 @@ function freeze(value) {
   for (const child of Object.values(value)) freeze(child);
   return Object.freeze(value);
 }
-function identify(value) { return relationalValueId(value); }
+function identify(value) { return identifyJsonSemanticContent({ objectKind: `modeled-union-dimension.${value?.type ?? "material"}`, value, witnessRoot: EMPTY_WITNESS_ROOT }).token; }
+function identifyCarrier(carrier) { return identifyJsonSemanticContent({ objectKind: `semiotic-exchange.${carrier.type}`, value: carrier, witnessRoot: EMPTY_WITNESS_ROOT }).token; }
 
 /** The single carrier boundary consumed by this MUD. */
 export function createCarrierAdmissionReceipt({ carrier, protocolVerificationReceiptNis }) {
@@ -52,7 +52,7 @@ export function createCarrierAdmissionReceipt({ carrier, protocolVerificationRec
   if (!("value" in carrier)) throw new TypeError("carrier.value is required");
   if (!Array.isArray(protocolVerificationReceiptNis) || protocolVerificationReceiptNis.length === 0) throw new TypeError("at least one protocol verification receipt ni is required");
   const receipts = Object.freeze([...new Set(protocolVerificationReceiptNis.map((ni, index) => exactNi(ni, `protocolVerificationReceiptNis[${index}]`)))].sort());
-  const contentNi = identify(carrier);
+  const contentNi = identifyCarrier(carrier);
   const body = freeze({ type: "CarrierAdmissionReceipt", version: 1, disposition: "admitted", contentNi,
     carrier: { type: carrier.type, value: structuredClone(carrier.value) }, protocolVerificationReceiptNis: receipts });
   return freeze({ id: identify(body), ...body });
@@ -118,9 +118,7 @@ function demandInductions(values, demands) {
     exactNi(receipt.id, `demandInductionReceipts[${index}].id`); exactNi(receipt.demandNi, `demandInductionReceipts[${index}].demandNi`);
     if (!(receipt.receiptBytes instanceof Uint8Array)) throw new TypeError(`demandInductionReceipts[${index}].receiptBytes must be canonical RMN bytes`);
     // The fabricator's receipt bytes are the canonical coordinate. Never trust a parallel projection whose id differs.
-    const decoded = decodeSemantic(receipt.receiptBytes), reencoded = semanticBytes(decoded);
-    if (reencoded.length !== receipt.receiptBytes.length || reencoded.some((byte, offset) => byte !== receipt.receiptBytes[offset]) || semanticId(decoded) !== receipt.id) throw new Error("demand induction receipt bytes do not match their canonical identity");
-    const canonicalReceipt = decodeRelationalValue(decoded[1], decoded[2]);
+    const canonicalReceipt = admitJsonSemanticContent({ bytes: receipt.receiptBytes, token: receipt.id, objectKind: "semiotic-exchange.SemioticExchangeDemandInductionReceipt" }).value;
     for (const field of ["type", "version", "demandNi", "demandBytes32", "groundingDigest", "wantedLawDigest", "causalGraph", "restrictedArena"]) {
       if (identify(canonicalReceipt[field]) !== identify(receipt[field])) throw new Error(`demand induction ${field} differs from its canonical receipt bytes`);
     }
@@ -141,9 +139,7 @@ function capabilityRepairInductions(values) {
     for (const field of ["id", "demandNi", "groundingNi", "wantedLawNi", "residueNi", "inputNi"]) exactNi(receipt[field], `capabilityDemandInductionReceipts[${index}].${field}`);
     if (!/^0x[0-9a-fA-F]{64}$/u.test(receipt.demandBytes32 ?? "") || !/^0x[0-9a-fA-F]{64}$/u.test(receipt.groundingDigest ?? "") || !/^0x[0-9a-fA-F]{64}$/u.test(receipt.wantedLawDigest ?? "")) throw new TypeError(`capabilityDemandInductionReceipts[${index}] lacks exact SXC coordinates`);
     if (!(receipt.receiptBytes instanceof Uint8Array)) throw new TypeError(`capabilityDemandInductionReceipts[${index}].receiptBytes must be canonical RMN bytes`);
-    const decoded = decodeSemantic(receipt.receiptBytes), reencoded = semanticBytes(decoded);
-    if (reencoded.length !== receipt.receiptBytes.length || reencoded.some((byte, offset) => byte !== receipt.receiptBytes[offset]) || semanticId(decoded) !== receipt.id) throw new Error("capability repair induction receipt bytes do not match their canonical identity");
-    const canonical = decodeRelationalValue(decoded[1], decoded[2]);
+    const canonical = admitJsonSemanticContent({ bytes: receipt.receiptBytes, token: receipt.id, objectKind: "semiotic-exchange.CapabilityRepairDemandInductionReceipt" }).value;
     for (const field of ["type", "version", "raiser", "demandNi", "demandBytes32", "groundingNi", "groundingDigest", "wantedLawNi", "wantedLawDigest", "residueNi", "inputNi", "refusalWitnessNis", "market", "raiseDemand"]) if (identify(canonical[field]) !== identify(receipt[field])) throw new Error(`capability repair induction ${field} differs from its canonical receipt bytes`);
     if (byDemand.has(receipt.demandBytes32.toLowerCase())) throw new Error("capability repair demand was inducted twice");
     byDemand.set(receipt.demandBytes32.toLowerCase(), freeze(receipt));
@@ -181,22 +177,83 @@ function authorityPair(action, authorityReceipts) {
   if (!Array.isArray(ucans) || !Array.isArray(bindings)) throw new TypeError("authorityReceipts must contain ucan and controllerBindings arrays");
   const ability = OPERATION_ABILITY[action.operation];
   const ucan = ucans.find((receipt) => receipt?.type === "UcanInvocationVerificationReceipt" && receipt.version === 1
-    && receipt.disposition === "authorized" && receipt.revocationStatus === "active" && receipt.capability?.can === ability && NI.test(receipt.id ?? ""));
+    && receipt.disposition === "authorized" && receipt.revocationStatus === "active" && receipt.capability?.can === ability && isCanonicalSha256NiUri(receipt.id));
   if (!ucan) return null;
   const binding = bindings.find((receipt) => receipt?.type === "EnterpriseAccountControllerBindingReceipt" && receipt.version === 1
-    && receipt.disposition === "bound" && receipt.protocol === "ERC-1271" && NI.test(receipt.id ?? "")
+    && receipt.disposition === "bound" && receipt.protocol === "ERC-1271" && isCanonicalSha256NiUri(receipt.id)
     && receipt.controller === ucan.controller && receipt.actor === ucan.actor && receipt.invocationCid === ucan.invocationCid
     && receipt.delegationCid === ucan.delegationCid && receipt.capabilityNi === ucan.capabilityNi
-    && NI.test(ucan.capabilityNi ?? "") && same(receipt.resource, ucan.capability?.with));
+    && isCanonicalSha256NiUri(ucan.capabilityNi) && same(receipt.resource, ucan.capability?.with));
   return binding ? freeze({ ucanInvocationVerificationReceiptNi: ucan.id, enterpriseAccountControllerBindingReceiptNi: binding.id }) : null;
 }
 
 function admitMissionLaw(value) {
   if (value === null) return null;
-  if (value?.type !== "ModeledUnionMissionLawLocus" || value.locus !== "law:semiotic-foam-one-machine" || value.language !== "rmn/v2" || !NI.test(value.carrierNi ?? "")) {
+  if (value?.type !== "ModeledUnionMissionLawLocus" || value.locus !== "law:semiotic-foam-one-machine" || value.language !== "rmn/v2" || !isCanonicalSha256NiUri(value.carrierNi)) {
     throw new TypeError("missionLaw must be the canonical RMN v2 Semiotic Foam One Machine law locus");
   }
   return freeze({ type: value.type, locus: value.locus, carrierNi: value.carrierNi, language: value.language });
+}
+
+function projectWorkspaceContentFoam(admissions) {
+  const values = [...admissions.values()].filter(({ carrier }) => carrier.type === "WorkspaceContentGraph");
+  if (values.length === 0) return null;
+  if (values.length > 1) throw new Error("more than one workspace content graph was admitted");
+  const admission = values[0], graph = admission.carrier.value;
+  if (graph?.type !== "WorkspaceContentGraph" || graph.version !== 3
+    || !Array.isArray(graph.packages) || !Array.isArray(graph.resources) || !Array.isArray(graph.relations)
+    || !Array.isArray(graph.glossaryUtteranceReadouts) || !Array.isArray(graph.glossaryRefusals) || !Array.isArray(graph.glossaryOverlaps)) {
+    throw new TypeError("WorkspaceContentGraph v3 admission is malformed");
+  }
+  const { id, ...body } = graph;
+  const canonical = identifyJsonSemanticContent({ objectKind: "typed-resource-catalog.workspace-content-graph", value: body, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+  if (canonical !== id) throw new Error("WorkspaceContentGraph differs from its addressed semantic body");
+  const relations = graph.relations.map((edge, index) => {
+    const sourceRelationNi = exactNi(edge.id, `WorkspaceContentGraph.relations[${index}].id`);
+    const subject = required(edge.subject, `WorkspaceContentGraph.relations[${index}].subject`);
+    const predicate = required(edge.predicate, `WorkspaceContentGraph.relations[${index}].predicate`);
+    const object = required(edge.object, `WorkspaceContentGraph.relations[${index}].object`);
+    if (edge.kind !== "workspace.oriented-relation.carrier" || edge.version !== 1 || !Array.isArray(edge.witnessIdentifiers)) {
+      throw new TypeError(`WorkspaceContentGraph.relations[${index}] is not an oriented relation carrier v1`);
+    }
+    for (const forbidden of ["positiveWitnesses", "negativeWitnesses", "positive", "negative", "coordinates", "reading", "witnessRoot"]) {
+      if (Object.hasOwn(edge, forbidden)) {
+        throw new TypeError(`WorkspaceContentGraph.relations[${index}] carries forbidden inferred semantics ${forbidden}`);
+      }
+    }
+    const addressedCarrier = freeze({
+      kind: edge.kind,
+      version: 1,
+      subject,
+      predicate,
+      object,
+      witnessIdentifiers: structuredClone(edge.witnessIdentifiers),
+    });
+    const canonical = identifyJsonSemanticContent({
+      objectKind: "workspace.oriented-relation",
+      value: addressedCarrier,
+      witnessRoot: EMPTY_WITNESS_ROOT,
+    }).token;
+    if (canonical !== sourceRelationNi) throw new Error(`WorkspaceContentGraph.relations[${index}] differs from its addressed carrier`);
+    const retainedCarrierData = { witnessIdentifiers: structuredClone(edge.witnessIdentifiers) };
+    return freeze({ type: "WorkspaceContentRelationProjection", id: sourceRelationNi, from: subject, predicate, to: object, retainedCarrierData });
+  });
+  const packageLoci = graph.packages.map((pkg) => {
+    exactNi(pkg.id, `${pkg.name}.apex`);
+    const packageRelations = relations.filter(({ from }) => from === pkg.actor);
+    return freeze({ type: "MiaotangPackageActorLocus", id: pkg.actor, apexNi: pkg.id, release: pkg.release, operation: pkg.contract?.operation ?? null, phase: "observed", relations: freeze(packageRelations) });
+  });
+  const resourceLoci = graph.resources.map((resource) => freeze({ type: "SemioticContentLocus", id: exactNi(resource.semanticNi, `${resource.path}.semanticNi`), contentKind: resource.kind, path: resource.path, artifactNi: exactNi(resource.source.ni, `${resource.path}.artifactNi`) }));
+  const predicationLoci = graph.glossaryUtteranceReadouts.map((readout, index) => freeze({
+    type: "WorkspacePredicationGeneratorLocus",
+    id: exactNi(readout.id, `WorkspaceContentGraph.glossaryUtteranceReadouts[${index}].id`),
+    termNi: exactNi(readout.termNi, `WorkspaceContentGraph.glossaryUtteranceReadouts[${index}].termNi`),
+    articulationReceiptNi: exactNi(readout.articulationReceiptNi, `WorkspaceContentGraph.glossaryUtteranceReadouts[${index}].articulationReceiptNi`),
+    predicationGeneratorsNi: exactNi(readout.predicationGeneratorsNi, `WorkspaceContentGraph.glossaryUtteranceReadouts[${index}].predicationGeneratorsNi`),
+    predicationGenerators: structuredClone(readout.predicationGenerators),
+    correspondence: structuredClone(readout.correspondence),
+  }));
+  return freeze({ type: "WorkspaceContentFoam", version: 3, graphNi: graph.id, admissionReceiptNi: admission.id, loci: freeze([...packageLoci, ...resourceLoci, ...predicationLoci]), predicationLoci: freeze(predicationLoci), relations: freeze(relations) });
 }
 
 /** Reconstruct one MUD from monotone SemioticExchange history plus admitted evidence. */
@@ -208,6 +265,7 @@ export function createModeledUnionDimension({ witnessed, events = witnessed, cha
   if (territoryAdmissions.length > 1) throw new Error("more than one canonical codebase territory was admitted");
   if (observerFamily !== null && territoryAdmissions.length !== 1) throw new Error("observerFamily requires exactly one admitted NodeWorkspaceSourceCatalogReceipt");
   const territoryFoam = observerFamily === null ? null : projectTerritoryFoam({ territoryAdmission: territoryAdmissions[0], observerFamily });
+  const contentFoam = projectWorkspaceContentFoam(admissions);
   const admittedMissionLaw = admitMissionLaw(missionLaw);
   const notebookCatalogAdmissions = [...admissions.values()].filter(({ carrier }) => carrier.type === "NotebookLMLibraryCatalogReceipt");
   const lSpace = notebookCatalogAdmissions.length === 0 ? null : projectLSpace({ catalogAdmissions: notebookCatalogAdmissions, queryReceipts: notebookQueryReceipts, queryActuator: notebookQueryActuator, queryAvailability: notebookQueryAvailability });
@@ -319,17 +377,18 @@ export function createModeledUnionDimension({ witnessed, events = witnessed, cha
   const projectedLoci = freeze([
     ...loci,
     ...(territoryFoam === null ? [] : territoryFoam.sections.map((section) => ({ ...section, type: "CodebaseTerritoryActorLocus", id: section.locus, sectionNi: section.id }))),
+    ...(contentFoam === null ? [] : contentFoam.loci),
     ...capabilityDemands,
     ...workCirculation.loci,
     ...codexToolObservations,
     ...workCirculation.loci.flatMap((locus) => locus.cultivation),
     ...(lSpace === null ? [] : lSpace.presentation.loci),
   ]);
-  const projectedRelations = freeze(territoryFoam === null ? [...relations, ...eventRelations, ...workCirculation.relations] : [...relations, ...eventRelations, ...workCirculation.relations, ...territoryFoam.relations]);
+  const projectedRelations = freeze([...relations, ...eventRelations, ...workCirculation.relations, ...(territoryFoam?.relations ?? []), ...(contentFoam?.relations ?? [])]);
   return freeze({ actor: ACTOR, restrictedArena, restrictedWorkArena, actuate,
     restrictedLSpaceArena: (actor, request) => lSpace === null ? freeze({ type: "RestrictedLSpaceArena", actor, actions: [] }) : lSpace.restrictedArena(actor, request),
     queryLSpace: async (request) => { if (lSpace === null) throw Object.assign(new Error("no witnessed L-space catalog is admitted"), { code: "MUD_LSPACE_UNAVAILABLE", status: 409 }); return lSpace.query(request); },
     induceUnboundCodexToolBindingDemands: ({ raiser, induceDemand }) => induceUnboundCodexToolBindingDemands({ raiser, observationLoci: codexToolObservations, induceDemand }),
-    presentation: () => freeze({ type: "ModeledUnionDimensionPresentation", version: 5, ledger: { chainId, exchange }, missionLaw: admittedMissionLaw, events: ordered, loci: projectedLoci, relations: projectedRelations, territoryFoam, lSpace: lSpace?.presentation ?? null, workCirculation: { loci: workCirculation.loci, operation: "project-work-circulation" }, capabilityDemandMetabolism: capabilityDemands, carrierAdmissionReceiptNis: freeze([...admissions.values()].map(({ id }) => id)), federationCarrierAdmissionReceiptNis: freeze(admittedFederationHistory.flatMap(({ witnesses }) => witnesses)), demandInductionReceiptNis: freeze([...inductions.values()].map(({ id }) => id)), capabilityDemandInductionReceiptNis: freeze([...capabilityInductions.values()].map(({ id }) => id)), x402SettlementEvidence: settlementEvidence(admittedFederationHistory) }),
-    loci: () => projectedLoci, relations: () => projectedRelations, territoryFoam: () => territoryFoam, lSpace: () => lSpace?.presentation ?? null, codexToolObservations: () => freeze({ type: "CodexToolObservationPresentation", version: 1, providerCell: "urn:ame:codex-session-activity-provider:tool-observation", loci: codexToolObservations, authority: { observation: true, execution: false, restrictedMove: false, actuatorBinding: false, outcomeAssertion: false } }), workCirculation: () => freeze({ type: "WorkCirculationPresentation", version: 1, loci: workCirculation.loci, relations: workCirculation.relations }) });
+    presentation: () => freeze({ type: "ModeledUnionDimensionPresentation", version: 7, ledger: { chainId, exchange }, missionLaw: admittedMissionLaw, events: ordered, loci: projectedLoci, relations: projectedRelations, territoryFoam, contentFoam, lSpace: lSpace?.presentation ?? null, workCirculation: { loci: workCirculation.loci, operation: "project-work-circulation" }, capabilityDemandMetabolism: capabilityDemands, carrierAdmissionReceiptNis: freeze([...admissions.values()].map(({ id }) => id)), federationCarrierAdmissionReceiptNis: freeze(admittedFederationHistory.flatMap(({ witnesses }) => witnesses)), demandInductionReceiptNis: freeze([...inductions.values()].map(({ id }) => id)), capabilityDemandInductionReceiptNis: freeze([...capabilityInductions.values()].map(({ id }) => id)), x402SettlementEvidence: settlementEvidence(admittedFederationHistory) }),
+    loci: () => projectedLoci, relations: () => projectedRelations, territoryFoam: () => territoryFoam, contentFoam: () => contentFoam, lSpace: () => lSpace?.presentation ?? null, codexToolObservations: () => freeze({ type: "CodexToolObservationPresentation", version: 1, providerCell: "urn:ame:codex-session-activity-provider:tool-observation", loci: codexToolObservations, authority: { observation: true, execution: false, restrictedMove: false, actuatorBinding: false, outcomeAssertion: false } }), workCirculation: () => freeze({ type: "WorkCirculationPresentation", version: 1, loci: workCirculation.loci, relations: workCirculation.relations }) });
 }

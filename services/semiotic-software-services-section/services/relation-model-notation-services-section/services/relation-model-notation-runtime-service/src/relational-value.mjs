@@ -1,5 +1,5 @@
 // Pure placement-independent RMN die material.
-import { niUri, rawNiUri } from "./canonical-cbor.mjs";
+import { decodeCanonical, niUri, rawNiUri } from "./canonical-cbor.mjs";
 import { checkTerm, normalizeCarrier, semanticBytes } from "./rmn-core.mjs";
 
 const UNIT = ["unit"];
@@ -48,6 +48,7 @@ export const RELATIONAL_VALUE_TYPE = ["product", ENTITY, ["product", ["vector", 
 
 function normalizeValue(source) {
   if (typeof source === "string") return source.normalize("NFC");
+  if (Buffer.isBuffer(source) || source instanceof Uint8Array) return Buffer.from(source);
   if (typeof source === "number" && !Number.isSafeInteger(source)) {
     canonicalDecimal(source);
     return source;
@@ -75,8 +76,8 @@ function scalar(value) {
 }
 
 export function encodeRelationalValue(source) {
-  const value = normalizeValue(source), seed = rawNiUri(semanticBytes(["mark", rawNiUri(semanticBytes(["mark", String(source?.constructor?.name ?? typeof source)]))]));
-  const carrierSeed = rawNiUri(Buffer.concat([Buffer.from(seed), semanticBytes(["mark", structuralLexeme(value)])]));
+  const value = normalizeValue(source), seed = rawNiUri(semanticBytes(["mark", rawNiUri(semanticBytes(["mark", String(value?.constructor?.name ?? typeof value)]))]));
+  const carrierSeed = rawNiUri(Buffer.concat([Buffer.from(seed, "utf8"), semanticBytes(["mark", structuralLexeme(value)])]));
   const nodes = [], edges = [];
   function visit(member, path) {
     const id = rawNiUri(Buffer.from(`${carrierSeed}\0${path}`, "utf8"));
@@ -170,4 +171,79 @@ export function decodeRelationalValue(type, term) {
   const value = build(root);
   if (visited.size !== nodes.size) fail("relational value contains unreachable nodes");
   return value;
+}
+
+function deepFreeze(value) {
+  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value;
+  for (const member of Object.values(value)) deepFreeze(member);
+  return Object.freeze(value);
+}
+
+function canonicalClaim(type, term) {
+  return deepFreeze({ semanticType: type, term });
+}
+
+function ascriptionFromClaim(claim) {
+  if (
+    claim === null
+    || typeof claim !== "object"
+    || Array.isArray(claim)
+    || !Object.hasOwn(claim, "semanticType")
+    || !Object.hasOwn(claim, "term")
+  ) fail("relational value claim must expose semanticType and term");
+  return ["ascribe", claim.semanticType, claim.term];
+}
+
+function decodeRelationalAscription(bytes) {
+  const ascription = decodeCanonical(bytes);
+  if (!Array.isArray(ascription) || ascription.length !== 3 || ascription[0] !== "ascribe") {
+    fail("relational value bytes must contain one typed RMN ascription");
+  }
+  const value = decodeRelationalValue(ascription[1], ascription[2]);
+  const canonical = encodeRelationalValue(value);
+  const canonicalBytes = semanticBytes(["ascribe", canonical.type, canonical.term]);
+  if (!canonicalBytes.equals(bytes)) fail("relational value graph carrier is not canonical");
+  return { canonical, canonicalBytes };
+}
+
+/**
+ * Construct the canonical transported form of one relational value.
+ * `token` commits to the exact canonical CBOR bytes; `claim` is the visible
+ * typed RMN calculus and is not recovered by decoding the token.
+ */
+export function identifyRelationalValuePayload(source) {
+  const encoded = encodeRelationalValue(source);
+  const bytes = semanticBytes(["ascribe", encoded.type, encoded.term]);
+  return Object.freeze({
+    bytes,
+    token: rawNiUri(bytes),
+    claim: canonicalClaim(encoded.type, encoded.term),
+  });
+}
+
+/**
+ * Admit transported bytes only when their NI token matches and their decoded
+ * graph is exactly the carrier the existing relational-value encoder emits.
+ */
+export function admitRelationalValuePayload({ bytes, token } = {}) {
+  if (!(bytes instanceof Uint8Array)) fail("relational value payload bytes must be a Uint8Array");
+  const transportedBytes = Buffer.from(bytes);
+  if (rawNiUri(transportedBytes) !== token) fail("relational value payload token does not match its bytes");
+  const { canonical, canonicalBytes } = decodeRelationalAscription(transportedBytes);
+  return Object.freeze({
+    bytes: canonicalBytes,
+    token,
+    claim: canonicalClaim(canonical.type, canonical.term),
+  });
+}
+
+/** Verify a visible typed claim against an opaque NI token. */
+export function verifyRelationalValuePayload({ token, claim } = {}) {
+  try {
+    const bytes = semanticBytes(ascriptionFromClaim(claim));
+    admitRelationalValuePayload({ bytes, token });
+    return true;
+  } catch {
+    return false;
+  }
 }

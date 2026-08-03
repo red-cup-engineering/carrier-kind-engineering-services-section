@@ -31,7 +31,7 @@
       "required": ["operation", "law", "kernel", "inputSchema", "outputSchema", "refusalSchema"],
       "properties": {
         "operation": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
-        "law": {"type": "string", "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"},
+        "law": {"type": "string", "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$"},
         "kernel": {"type": "string", "pattern": "^\\./(?!.*\\.\\.)"},
         "inputSchema": {"type": "string", "pattern": "^\\./(?!.*\\.\\.)"},
         "outputSchema": {"type": "string", "pattern": "^\\./(?!.*\\.\\.)"},
@@ -46,7 +46,7 @@
         "required": ["package", "semanticId", "authority"],
         "properties": {
           "package": {"type": "string", "minLength": 1},
-          "semanticId": {"type": "string", "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"},
+          "semanticId": {"type": "string", "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$"},
           "authority": {"const": "none"}
         }
       }

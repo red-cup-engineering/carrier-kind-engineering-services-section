@@ -21,11 +21,17 @@ the atom, deterministically chooses a shortest witnessed route, and returns a
 typed `unearned-path` refusal when no route exists. An atom alone is not a
 proof and therefore cannot earn a path.
 
-The local specification arena records the requirements baseline, architecture,
-high- and low-level designs, V&V cases, and evidence trace. Its executable law
-checks exact allocation and coverage before this section's implementation tests
-run. Source-package analysis is deliberately absent: it is one possible future
-diagnostic client, not this section's assignment.
+The section-level identity adapter translates an earned coordinate into a closed
+RMN term and submits it to the sole normalized semantic-content v2 envelope. The
+envelope explicitly commits the `proof-path-addressing.settled-coordinate`
+object kind, the RMN 0.0.1 normalization profile, identity settlement, and the
+shared empty-witness root before deterministic CBOR and NI naming. The returned
+opaque `token` commits to that envelope; the settled body remains the visible
+coordinate material. No raw-term identity is an alternate identity law. The
+dependency-free structuration leaf therefore remains a pure projection, while
+the parent section supplies content identity without maintaining a second
+canonicalizer. Source-package analysis remains a possible future diagnostic
+client, not this section's assignment.
 
 ## Grounding and maturity
 

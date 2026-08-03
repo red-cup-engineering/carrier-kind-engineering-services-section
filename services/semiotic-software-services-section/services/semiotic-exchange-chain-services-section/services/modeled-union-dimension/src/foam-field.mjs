@@ -6,15 +6,15 @@ import {
   joinKnowledgeValue,
   knowledgeJoinClosure,
 } from "@lenticule-science/articulating/predicating/positing";
-import { relationalValueId } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const PHASE = Object.freeze({ absurd: "void", potential: "positive-bulk", active: "negative-bulk", stable: "interface" });
 const frozenProjectionCache = new Map();
 const closureEvidenceCache = new Map();
 
-function identify(value) {
-  return relationalValueId(value);
+function identify(value, objectKind = `modeled-union-dimension.${value?.type ?? "material"}`) {
+  return identifyJsonSemanticContent({ objectKind, value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
 }
 function freeze(value) {
   if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value;
@@ -27,7 +27,7 @@ function required(value, label) {
   return value;
 }
 function exactNi(value, label) {
-  if (typeof value !== "string" || !NI.test(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
+  if (!isCanonicalSha256NiUri(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
   return value;
 }
 
@@ -38,7 +38,7 @@ function admitTerritory(receipt) {
   if (!("value" in receipt.carrier)) throw new TypeError("territoryAdmission.carrier.value is required");
   if (!Array.isArray(receipt.protocolVerificationReceiptNis) || receipt.protocolVerificationReceiptNis.length === 0) throw new TypeError("territoryAdmission must retain protocol verification receipts");
   const protocolVerificationReceiptNis = [...new Set(receipt.protocolVerificationReceiptNis.map((ni, index) => exactNi(ni, `territoryAdmission.protocolVerificationReceiptNis[${index}]`)))].sort();
-  const contentNi = identify(receipt.carrier);
+  const contentNi = identify(receipt.carrier, `semiotic-exchange.${receipt.carrier.type}`);
   const body = freeze({ type: "CarrierAdmissionReceipt", version: 1, disposition: "admitted", contentNi, carrier: { type: receipt.carrier.type, value: structuredClone(receipt.carrier.value) }, protocolVerificationReceiptNis });
   const canonical = freeze({ id: identify(body), ...body });
   if (canonical.id !== receipt.id || canonical.contentNi !== receipt.contentNi) throw new Error("territoryAdmission does not match its canonical identity");

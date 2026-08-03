@@ -2,8 +2,9 @@
  * @packageDocumentation
  *
  * `@red-cup-engineering/relation-model-notation-cbor-codec` is a generic RFC
- * 8949 canonical (core deterministic) CBOR codec plus RFC 6920 `ni://`
- * content-addressing. It is generic over ANY JSON-shaped value — booleans,
+ * 8949 canonical (core deterministic) CBOR codec. Its compatibility RFC 6920
+ * exports delegate byte naming and URI validation to the dedicated NI service.
+ * It is generic over ANY JSON-shaped value — booleans,
  * `null`, safe-integer numbers, bigints, strings, `Buffer`/`Uint8Array`
  * byte strings, arrays, and plain (`Object.prototype`) objects with
  * text-string keys — and carries no dependency on any particular term
@@ -33,39 +34,30 @@
  * with `encodeCanonical` is the identity on its domain and `encodeCanonical`
  * composed with `decodeCanonical` is the identity on canonical byte strings.
  *
- * `semanticBytes : value -> Buffer` is one level up: its domain is any
- * admitted value, its transformation is normalize-then-encode
+ * `normalizedCarrierBytes : value -> Buffer` is one level up: its domain is any
+ * supported carrier value, its transformation is normalize-then-encode
  * (`encodeCanonical(normalizeCarrier(value))`), its codomain is the same
- * canonical CBOR byte strings `encodeCanonical` produces — the crossing a
- * caller actually wants when the input may carry non-NFC text. `semanticId :
- * value -> ni://... string` shares `semanticBytes`'s domain and
- * normalization, but its transformation hashes (SHA-256) and mints an RFC
- * 6920 content-address URI instead of returning raw bytes — the same value
- * always yields the same `ni://` URI, and different values (after
- * normalization) essentially never collide. `decodeSemantic : Buffer ->
- * value` is `semanticId`/`semanticBytes`'s inverse direction: canonical CBOR
- * bytes in, the decoded-and-normalized value out.
+ * canonical CBOR byte strings `encodeCanonical` produces.
+ * `normalizedCarrierNiUri : value -> ni://... string` shares
+ * `normalizedCarrierBytes`'s domain and
+ * normalization, but its transformation delegates those bytes to the NI
+ * service, which hashes (SHA-256) and mints an RFC 6920 content-address URI.
+ * The same value always yields the same `ni://` URI, and different values
+ * (after normalization) essentially never collide. `decodeNormalizedCarrier :
+ * Buffer -> value` is `normalizedCarrierBytes`'s inverse direction: canonical
+ * CBOR bytes in, the decoded-and-normalized value out.
  *
- * Extracted from `relation-model-notation-runtime-service`'s
- * `src/canonical-cbor.mjs` (the full codec: `NI_URI`/`isNiUri`,
- * `encodeCanonical`/`decodeCanonical`/`canonicalEqual`,
- * `sha256Bytes`/`niUri`/`sha256Hex`, and the `raw*` byte-string variants)
- * plus the `normalizeCarrier`/`semanticBytes`/`semanticId`/`decodeSemantic`
- * functions of that same package's `src/rmn-core.mjs`. Everything else in
- * `rmn-core.mjs` — its own term/type grammar, `validateTerm`/`inferTerm`/
- * `checkTerm`/`evaluate`, and all effect/witness/circuit material — is
- * deliberately NOT carried over. This package is scoped to the codec only.
+ * These generic carrier operations do not admit semantic content or establish
+ * that a value inhabits a semantic type. The semantic-content-identify service
+ * exclusively owns that typed-envelope boundary.
+ *
+ * This package owns the codec implementation and fixed interoperability
+ * vectors. Term/type grammar, evaluation, effects, witnesses, and circuits
+ * remain outside this codec's scope.
  */
 import { createHash } from "node:crypto";
 
 const MAX_SAFE = BigInt(Number.MAX_SAFE_INTEGER);
-
-// The single admitted shape of an RFC 6920 SHA-256 content address. Every
-// caller that mints one through niUri/rawNiUri validates against this same
-// regex.
-export const NI_URI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
-
-export function isNiUri(value) { return typeof value === "string" && NI_URI.test(value); }
 
 function fail(code, message) {
   const error = new Error(message);
@@ -208,19 +200,13 @@ export function canonicalEqual(left, right) { return encode(left).equals(encode(
 /** SHA-256 over `value`'s canonical CBOR encoding. */
 export function sha256Bytes(value) { return createHash("sha256").update(encode(value)).digest(); }
 
-/** Mint the RFC 6920 `ni:///sha-256;<base64url>` content address for `value`
- *  (SHA-256 over its canonical CBOR encoding). */
-export function niUri(value) { return `ni:///sha-256;${sha256Bytes(value).toString("base64url")}`; }
+/** Delegate `value`'s canonical CBOR bytes to the NI service for naming. */
 
 /** Hex-encoded SHA-256 over `value`'s canonical CBOR encoding. */
 export function sha256Hex(value) { return sha256Bytes(value).toString("hex"); }
 
 /** SHA-256 directly over a raw byte string, no CBOR encoding step. */
 export function rawSha256Bytes(source) { return createHash("sha256").update(source).digest(); }
-
-/** Mint the RFC 6920 `ni:///sha-256;<base64url>` content address for a raw
- *  byte string, no CBOR encoding step. */
-export function rawNiUri(source) { return `ni:///sha-256;${rawSha256Bytes(source).toString("base64url")}`; }
 
 // ── semantic (normalize + codec) layer ──────────────────────────────────────
 
@@ -257,16 +243,15 @@ export function normalizeCarrier(value) {
  * @param {*} value
  * @returns {Buffer}
  */
-export function semanticBytes(value) { return encodeCanonical(normalizeCarrier(value)); }
+export function normalizedCarrierBytes(value) { return encodeCanonical(normalizeCarrier(value)); }
 
 /** Normalize then mint the RFC 6920 content address. `value -> ni://... string`.
  * @param {*} value
  * @returns {string}
  */
-export function semanticId(value) { return niUri(normalizeCarrier(value)); }
 
 /** Decode canonical CBOR bytes, then normalize the result. `Buffer -> value`.
  * @param {Buffer | Uint8Array} bytes
  * @returns {*}
  */
-export function decodeSemantic(bytes) { return normalizeCarrier(decodeCanonical(bytes)); }
+export function decodeNormalizedCarrier(bytes) { return normalizeCarrier(decodeCanonical(bytes)); }

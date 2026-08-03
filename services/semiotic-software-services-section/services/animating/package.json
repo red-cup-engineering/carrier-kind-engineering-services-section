@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/animating",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
@@ -35,12 +35,12 @@
   "dependencies": {
     "@red-cup-engineering/json-file-codec-service": "0.1.2",
     "@lenticule-science/articulating": "0.1.1",
-    "@lenticule-science/witness-journal-rdf-projection-service": "1.0.3",
     "@red-cup-engineering/communicating": "0.0.1",
     "@red-cup-engineering/knowing": "0.0.1",
     "@red-cup-engineering/playing": "0.0.2",
     "@red-cup-engineering/relating": "0.0.0",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.0.2",
+    "@red-cup-engineering/relation-model-notation-typing": "0.0.1",
     "@ucanto/core": "10.4.6",
     "@ucanto/principal": "9.0.3",
     "@ucanto/validator": "10.0.1"

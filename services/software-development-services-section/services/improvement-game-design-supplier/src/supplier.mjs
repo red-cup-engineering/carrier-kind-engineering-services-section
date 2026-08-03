@@ -1,11 +1,10 @@
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { idOf } from "./semantic-content.mjs";
 import { contractInferenceWork as defaultContractInferenceWork } from "@red-cup-engineering/inference-work-lot-service/codex-inference-market";
 
 export const CONTEXT = "https://www.w3.org/ns/activitystreams";
 export const ACTOR = "urn:ame:red-cup-engineering:improvement-game-design-supplier";
 
-export function record(body) { return Object.freeze({ id: semanticId(relationalWitnessJournalDocument(body)), ...body }); }
+export function record(body) { return Object.freeze({ id: idOf(body, "improvement-game-design-supplier.record"), ...body }); }
 function refusal(award, bid, code, reason, resources = { inferenceAttempts: 0, usefulCompletions: 0 }) {
   return record({ "@context": CONTEXT, type: "Reject", actor: ACTOR, target: award.actor, inReplyTo: award.id, object: { type: "ImprovementGameDesignRefusal", lot: award.object.lot, award: award.id, bid: bid.id, code, reason, resources, customerMutation: false, implementationAuthorized: false, oracleAuthorshipAuthorized: false, strongerModelRequested: false } });
 }

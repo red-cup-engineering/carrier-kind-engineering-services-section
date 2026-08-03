@@ -6,7 +6,7 @@ const PROJECTION_ABI = new Interface([
   "function commit(bytes32 rmnAct, bytes32 predicate, bytes32 subject, bytes32 object, bytes32 evidenceRoot) returns (bytes32)",
   "event TypedCommitment(bytes32 indexed rmnAct,address indexed accountableSettlement,bytes32 indexed predicate,bytes32 subject,bytes32 object,bytes32 evidenceRoot,bytes32 commitmentId)"
 ]);
-const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{43})$/u;
+const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{42}[AEIMQUYcgkosw048])$/u;
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/u;
 
 function niBytes32(value, label) {

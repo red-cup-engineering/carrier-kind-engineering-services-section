@@ -17,7 +17,7 @@ import {
 
 export const SYNTHESIS_PROFILE = "org.emsenn.infomaterial.tensor-circuit-board-synthesis.v1";
 export const PROVIDER_ACCOUNT = "eip155:31337:0x5580c2b186327d787704860a6b4449f5beede78b";
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
+const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u;
 
 function fail(code, message) {
   const error = new Error(message);

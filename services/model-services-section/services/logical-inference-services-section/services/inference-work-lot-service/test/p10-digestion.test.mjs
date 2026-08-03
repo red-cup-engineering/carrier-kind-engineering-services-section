@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canonicalJson } from "@harmonious-union/forming-a-context-packet";
+import { canonicalJson } from "../src/context-packet.mjs";
 import { inferenceBatchRequest } from "../src/client.mjs";
 import { admitP10Digest, formP10WorkLot } from "../src/p10-digestion.mjs";
 
@@ -37,8 +37,8 @@ test("an ordinary typed carrier becomes a standard playable inference work lot",
 test("a receipt without an authored id receives its canonical content identity", () => {
   const carrier = { type: "ModeledUnionActionReceipt", sequence: 0, action: "inspect:bamboo-court" };
   const job = formP10WorkLot({ carrier, createdBy: "urn:ame:modeled-union-dimension" });
-  assert.match(job.id, /^p10:[A-Za-z0-9_-]{43}$/u);
-  assert.match(job.contextPacket.segments[0].source, /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
+  assert.match(job.id, /^p10:[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u);
+  assert.match(job.contextPacket.segments[0].source, /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u);
   assert.equal(job.contextPacket.segments[0].content, canonicalJson(carrier));
 });
 

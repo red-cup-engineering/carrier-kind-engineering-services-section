@@ -1,5 +1,9 @@
-import { semanticId as identifySemanticTerm } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { isDeepStrictEqual } from "node:util";
+import { jsonToTerm, termToJson } from "@red-cup-engineering/relation-model-notation-json-codec";
+import {
+  EMPTY_WITNESS_ROOT,
+  identifyJsonSemanticContent,
+} from "@red-cup-engineering/semantic-content-identify-service";
 
 function canonicalValue(value, context = "value") {
   if (value === null || typeof value === "string" || typeof value === "boolean") return value;
@@ -21,13 +25,26 @@ export function canonicalJson(value) {
 }
 
 export function semanticId(value) {
-  return identifySemanticTerm(semanticTerm(value));
+  return identifyJsonSemanticContent({
+    objectKind: "typed-resource-catalog.resource",
+    value: JSON.parse(canonicalJson(value)),
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
 }
 
 /** The one RMN coordinate used for identity and every downstream projection. */
 export function semanticTerm(value) {
-  const encoded = encodeRelationalValue(JSON.parse(canonicalJson(value)));
-  return Object.freeze(["ascribe", encoded.type, encoded.term]);
+  return jsonToTerm(JSON.parse(canonicalJson(value)));
+}
+
+export function encodeJsonTerm(value) {
+  return jsonToTerm(JSON.parse(canonicalJson(value)));
+}
+
+export function decodeJsonTerm(term) {
+  const value = termToJson(term);
+  if (!isDeepStrictEqual(jsonToTerm(value), term)) throw new TypeError("term is not the injective JSON-to-RMN representation");
+  return value;
 }
 
 export function immutable(value) {

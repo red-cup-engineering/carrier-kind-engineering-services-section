@@ -1,11 +1,11 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 import { createInferenceSettlementStore } from "./witness-journal-settlement-store.mjs";
+import { jsonValueId } from "./modern-rmn-carrier.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const ni = (value) => rawNiUri(typeof value === "string" ? value : JSON.stringify(value));
+const ni = (value) => jsonValueId(value);
 function candidateText(procurement) { return procurement?.settlement?.candidate; }
 
 function parsedJsonCandidates(text) {
@@ -256,8 +256,8 @@ export async function assayTypedInferenceCandidate(procurement, { customer = "ur
   };
   const assay = { id: ni(core), ...core };
   const witnessJournal = customerServices?.witnessJournal;
-  if (!witnessJournal?.actor || typeof witnessJournal.agentCard !== "string") throw new Error("customer assay requires one explicitly admitted WitnessJournal service");
-  const store = suppliedStore ?? await createInferenceSettlementStore({ settlementRoot, agentUrl: witnessJournal.agentCard, caip2: process.env.SETTLEMENT_CAIP2 });
+  if (!witnessJournal?.actor) throw new Error("customer assay requires one explicitly admitted semantic record journal");
+  const store = suppliedStore ?? await createInferenceSettlementStore({ settlementRoot, actor: customer, caip2: process.env.SETTLEMENT_CAIP2 });
   if (store.actor !== customer) throw new Error("customer assay actor differs from the settlement-owned WitnessJournal plate");
   const projection = await store.record({ category: "typed-inference.customer-assay", recordedAt: at, record: { ...assay, witnessJournalProvider: witnessJournal.actor } });
   assay.projection = { graph: projection.documentNi, projection: projection.digest, networkReference: projection.reference };

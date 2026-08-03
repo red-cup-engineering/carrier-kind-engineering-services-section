@@ -1,17 +1,16 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { semanticBytes, semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { createCarrierAdmissionReceipt, createModeledUnionDimension, createWorkCarrier, deriveCultivationDemandCarrier } from "../src/index.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri } from "@red-cup-engineering/ni-uri-services-section";
 
-const ni = rawNiUri;
+const ni = (value) => makeNiUri(Buffer.from(value, "utf8"));
 const id = (byte) => `0x${byte.repeat(64)}`;
 const exchange = "0x98bBC65824962b61dF876A47B5779C4EcBBD4939";
 const worker = "0x08E4B3bc9ef76b403879C0eC372d1Fd146E3a07B";
 const other = "0x18E4B3bc9ef76b403879C0eC372d1Fd146E3a07B";
 const law = id("1"), cell = id("2"), demand = id("3"), offer = id("4"), result = id("5");
-const canonical = (value) => { const encoded = encodeRelationalValue(value), term = ["ascribe", encoded.type, encoded.term]; return { ni: semanticId(term), bytes: semanticBytes(term) }; };
+const canonical = (value) => { const identified = identifyJsonSemanticContent({ objectKind: `modeled-union-dimension.${value?.type ?? "material"}`, value, witnessRoot: EMPTY_WITNESS_ROOT }); return { ni: identified.token, bytes: identified.bytes }; };
 const standing = (object, support) => { const encoded = canonical(object); return Object.freeze({ type: "FederationHistoryStanding", objectNi: encoded.ni, objectBytes: encoded.bytes, object: Object.freeze(object), witnesses: Object.freeze([ni(`witness:${encoded.ni}`)]), support: Object.freeze(support) }); };
 const event = (kind, logIndex, fields) => Object.freeze({ kind, chainPosition: Object.freeze({ blockNumber: 5620n, blockHash: id("a"), transactionHash: id(String(logIndex + 1)), logIndex }), ...fields });
 

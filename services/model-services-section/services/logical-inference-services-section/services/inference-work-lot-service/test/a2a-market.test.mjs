@@ -2,20 +2,17 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { Message, Role } from "@a2a-js/sdk";
 import { extractRmnPart, rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
-import { decodeRelationalValue, encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-import { decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
+import { decodeJsonValue, identifyJsonValue } from "../src/modern-rmn-carrier.mjs";
 import { executeA2aMessage } from "../scripts/execute-a2a-task.mjs";
 import { requestInferenceWorkLot, resumeInferenceWorkLot, submitInferenceWorkLot } from "../src/client.mjs";
 import card from "../content/agent-cards/inference-work-lot-market.json" with { type: "json" };
 
 function relationalBytes(value) {
-  const encoded = encodeRelationalValue(value);
-  return semanticBytes(["ascribe", encoded.type, encoded.term]);
+  return identifyJsonValue(value).bytes;
 }
 
 function relationalValue(bytes) {
-  const term = decodeSemantic(bytes);
-  return decodeRelationalValue(term[1], term[2]);
+  return decodeJsonValue(bytes).value;
 }
 
 test("A2A is a canonical RMN projection of the same bounded market operation", async () => {
@@ -23,7 +20,6 @@ test("A2A is a canonical RMN projection of the same bounded market operation", a
     objective: "derive one bounded result",
     context: "finite exact context",
     difficulty: 0.2,
-    maxTokens: 256,
     outputSchema: { type: "object" },
   };
   const expected = { outcome: "market-residue", disposition: "no-admissible-offer", integrationAccepted: false };
@@ -44,7 +40,7 @@ test("market-executor cancellation reaches the contracted downstream task signal
   const controller = new AbortController();
   const source = Message.toJSON({
     messageId: "request-cancellation", contextId: "context-cancellation", role: Role.ROLE_USER,
-    parts: [rmnPart(relationalBytes({ objective: "derive one bounded result", context: "finite exact context", difficulty: 0.2, maxTokens: 256, outputSchema: { type: "object" } }), "work-lot.rmn.cbor")],
+    parts: [rmnPart(relationalBytes({ objective: "derive one bounded result", context: "finite exact context", difficulty: 0.2, outputSchema: { type: "object" } }), "work-lot.rmn.cbor")],
     metadata: {}, extensions: [], referenceTaskIds: [],
   });
   let downstreamCancellation;
@@ -61,7 +57,7 @@ test("market-executor cancellation reaches the contracted downstream task signal
 });
 
 test("the public client binds one signed market face and receives no receiver authority", async () => {
-  const request = { objective: "derive one bounded result", context: "finite exact context", difficulty: 0.2, maxTokens: 256, outputSchema: { type: "object" } };
+  const request = { objective: "derive one bounded result", context: "finite exact context", difficulty: 0.2, outputSchema: { type: "object" } };
   const result = { outcome: "candidate-pending-codex-acceptance", candidate: { answer: 1 }, integrationAccepted: false };
   const sent = async ({ message }) => {
     const response = await executeA2aMessage(message, { contract: async (observed) => { assert.deepEqual(observed, request); return result; } });
@@ -75,7 +71,7 @@ test("the public client binds one signed market face and receives no receiver au
 });
 
 test("a market lot returns an opaque durable task identity and later resumes the exact RMN demand", async () => {
-  const request = { objective: "derive one durable bounded result", context: "finite exact context", difficulty: 0.2, maxTokens: 256, outputSchema: { type: "object" } };
+  const request = { objective: "derive one durable bounded result", context: "finite exact context", difficulty: 0.2, outputSchema: { type: "object" } };
   const result = { outcome: "candidate-pending-codex-acceptance", candidate: { answer: 1 }, integrationAccepted: false };
   let submittedMessage;
   const submission = await submitInferenceWorkLot({

@@ -1,6 +1,6 @@
 import { keccak256 } from "ethers";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { relationalWitnessJournalDocument, recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { recordSettlementRecord } from "@lenticule-science/witness-journal-rdf-projection-service/client";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -43,7 +43,9 @@ function serializable(value) {
   if (value != null && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, serializable(item)]));
   return value;
 }
-function digest(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+function digest(value) {
+  return identifyJsonSemanticContent({ objectKind: "ethereum.fixed-block-contract-identity-observation", value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+}
 function codeIdentity(code) { return { semanticDigest: digest({ type: "EvmRuntimeBytecode", code: code.toLowerCase() }), keccak256: keccak256(code) }; }
 function wordAddress(word) {
   if (!HASH.test(word ?? "") || word.toLowerCase() === ZERO_WORD) return null;

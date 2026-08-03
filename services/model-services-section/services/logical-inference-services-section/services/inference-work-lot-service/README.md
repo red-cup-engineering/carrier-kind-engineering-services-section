@@ -29,6 +29,18 @@ authoritative. Within one exact asset bundle, a component-wise cheaper offer
 may Pareto-dominate another. Cross-asset or mixed-bundle ambiguity becomes
 `customer-consideration-choice-required` residue.
 
+The request, result, and refusal boundaries are Draft 2020-12 schemas exported
+from `./carriers`. Their wire projection is a canonical typed RMN CBOR
+ascription built from the 0.0.1 split RMN grammar, CBOR codec, JSON bridge, and
+typing services. The carrier preserves ordinary JSON booleans and charge-like
+strings losslessly. Its operation metadata references compatible Relating
+0.0.1/0.0.2 semantics; it does not copy Relating's implementation or registry.
+
+WitnessJournal projection, custody, category indexing, and WIT transition are
+optional settlement providers. Core request/refusal/result contracting imports
+without that older provider cohort; a settlement operation fails explicitly if
+its provider packages have not yet been cut over and installed.
+
 The x402 v2 adapter URN is valid only on a `currency` obligation. The separately
 hireable x402 Services Section turns an exact matching x402 transaction into
 obligation evidence. Reciprocal service, resources, and credit do not pass
@@ -42,14 +54,14 @@ For a read-only live check of the customer-admitted RMN and WitnessJournal servi
 all admitted inference-provider Agent Cards, run:
 
 ```sh
-node bin/check-codex-market.mjs
+node scripts/check-codex-market.mjs
 ```
 
 The check succeeds when both customer services and at least one inference
 provider present signed Agent Cards. Offline providers remain explicit in the
 report; they do not make another sovereign provider's offer disappear.
 
-`node bin/smoke-codex-mcp.mjs` starts a fresh stdio server and verifies the MCP
+`node scripts/smoke-codex-mcp.mjs` starts a fresh stdio server and verifies the MCP
 handshake, package-derived server version, tool registration, and published
 numeric/URN bounds without buying inference. Add `--live` to contract one tiny
 schema-bound lot through that fresh MCP process.

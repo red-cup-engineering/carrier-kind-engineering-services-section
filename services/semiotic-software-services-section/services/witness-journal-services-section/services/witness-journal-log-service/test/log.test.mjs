@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import { parse as parseEavt } from "@red-cup-engineering/json-file-codec-service/jsonl/eavt";
-import { entry } from "@red-cup-engineering/witness-journal-entry-service";
+import { entry, seavt } from "@red-cup-engineering/witness-journal-entry-service";
 import {
   logPathFor,
   appendEntries,
@@ -14,6 +14,10 @@ import {
   readJsonLinesAtPath,
   writeEntriesAtomicAtPath,
   streamEntries,
+  appendSeavt,
+  readSeavt,
+  readSeavtAtPath,
+  streamSeavt,
 } from "../src/index.mjs";
 
 function withTempRoot(fn) {
@@ -148,5 +152,34 @@ test("writeEntriesAtomicAtPath fully replaces a journal file (used for settlemen
     writeEntriesAtomicAtPath(filePath, kept);
     const after = readEntriesAtPath(filePath);
     assert.deepEqual(after, kept);
+  });
+});
+
+test("strict SEAVT custody deduplicates source rows and derives trace without storing it", () => {
+  withTempRoot((root) => {
+    const at = "2026-08-02T00:00:00.000Z";
+    const rows = [
+      seavt("order.payment", "payment:receipt", "receipt-delay", at),
+      seavt("order.payment", "receipt:accepted", "accepted.notice", at),
+    ];
+
+    assert.deepEqual(appendSeavt(root, "semiotic", rows, at), { appended: 2 });
+    assert.deepEqual(appendSeavt(root, "semiotic", rows, at), { appended: 0 });
+    assert.deepEqual(readSeavtAtPath(logPathFor(root, "semiotic", at)), rows);
+    const traced = readSeavt(root, "semiotic", at);
+    assert.deepEqual(traced.map(({ trace }) => trace), [1, 2]);
+    assert.deepEqual([...streamSeavt(root, "semiotic", at)], traced);
+    for (const row of readSeavtAtPath(logPathFor(root, "semiotic", at))) {
+      assert.equal("trace" in row, false);
+      assert.equal("charge" in row, false);
+    }
+  });
+});
+
+test("strict SEAVT custody refuses generic EAVT and underscore escapes", () => {
+  withTempRoot((root) => {
+    const at = "2026-08-02T00:00:00.000Z";
+    assert.throws(() => appendSeavt(root, "semiotic", [entry("subject", { arbitrary: true }, 4, at)], at), /SEAVT row/);
+    assert.throws(() => appendSeavt(root, "semiotic", [{ e: "order_payment", a: "payment:receipt", v: "receipt-delay", t: at }], at), /SEAVT row/);
   });
 });

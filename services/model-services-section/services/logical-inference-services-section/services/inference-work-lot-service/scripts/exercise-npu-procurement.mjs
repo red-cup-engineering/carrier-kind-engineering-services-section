@@ -3,7 +3,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { discoverSignedAgentCard } from "@red-cup-engineering/a2a-agent-card-discovery-service";
+import { discoverSignedAgentCard } from "../src/agent-card-discovery.mjs";
 import { assayTypedInferenceCandidate } from "../src/customer-assay-typed-inference.mjs";
 import { DEFAULT_CODEX_CONSIDERATION_POLICY } from "../src/codex-inference-market.mjs";
 import { loadCustomerServiceAdmissions, loadProviderAdmissions, standingOfferFromAgentCard } from "../src/provider-admission.mjs";
@@ -12,8 +12,8 @@ import { demandCommitment, procureTypedInference } from "../src/typed-rmn-infere
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
 const PROVIDER = "urn:ame:bare-cedar-fog-npu-inference-team";
-const ADMISSIONS = resolve(ROOT, "content/provider-admissions/codex-inference-providers.nq");
-const SERVICES = loadCustomerServiceAdmissions(resolve(ROOT, "content/provider-admissions/semantic-services.nq"), { admissionGraph: "urn:ame:inference-work-lot-service:service-admissions" });
+const ADMISSIONS = resolve(ROOT, "content/provider-admissions/codex-inference-providers.json");
+const SERVICES = loadCustomerServiceAdmissions(resolve(ROOT, "content/provider-admissions/semantic-services.json"), { admissionGraph: "urn:ame:inference-work-lot-service:service-admissions" });
 function option(name, fallback) { const at = process.argv.indexOf(name); return at === -1 ? fallback : process.argv[at + 1]; }
 const mode = option("--mode", "live");
 const admission = loadProviderAdmissions(ADMISSIONS).find(({ actor }) => actor === PROVIDER);

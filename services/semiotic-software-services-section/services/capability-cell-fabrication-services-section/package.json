@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/capability-cell-fabrication-services-section",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "A process design kit for fabricating content-addressed capability cells.",
   "type": "module",
   "license": "MIT",
@@ -33,7 +33,9 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/semantic-content-identify-service": "0.1.8"
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.0.2",
+    "@red-cup-engineering/relation-model-notation-typing": "0.0.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2"
   },
   "repository": {
     "type": "git",

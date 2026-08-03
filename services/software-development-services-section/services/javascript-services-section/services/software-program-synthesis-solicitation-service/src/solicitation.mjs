@@ -1,3 +1,5 @@
+import { projectSoftwareDesignInputs } from "./design-inputs.mjs";
+
 function hasExactKeys(value, keys) {
   return Object.keys(value).sort().join("\n") === [...keys].sort().join("\n");
 }
@@ -85,7 +87,9 @@ export function createSoftwareProgramSynthesisSolicitation({ actor, effects, exa
       || !effects.every((effect) => granted.has(effect))) {
       throw new Error("resource grant does not cover the offered synthesis effects");
     }
-    return { offer, request: contract.request, grant };
+    const request = contract.request;
+    const designInputs = projectSoftwareDesignInputs({ actor, contract, effects, grant, offer, request });
+    return { offer, request, grant, designInputs };
   }
 
   return Object.freeze({ intentSignature, solicitSoftwareProgramSynthesis, validateContractedSoftwareProgramSynthesis });

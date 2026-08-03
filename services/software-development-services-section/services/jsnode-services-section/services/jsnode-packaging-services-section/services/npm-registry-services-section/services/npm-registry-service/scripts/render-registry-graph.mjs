@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { deriveRegistryGraph, renderRegistryGraphDot } from "../src/registry-graph.mjs";
+import { deriveRegistryGraph, groupRegistryGraphDefects, renderRegistryGraphDot } from "../src/registry-graph.mjs";
 
 function option(name, { required = true } = {}) {
   const index = process.argv.indexOf(name);
@@ -23,6 +23,8 @@ const graph = await deriveRegistryGraph({
   ...(internalScopes.length > 0 ? { internalScopes } : {}),
 });
 const format = option("--format", { required: false }) ?? "summary";
+const allowDefects = process.argv.includes("--allow-defects");
+const defectGroups = groupRegistryGraphDefects(graph.defects);
 if (format === "json") {
   process.stdout.write(`${JSON.stringify(graph, null, 2)}\n`);
 } else if (format === "dot") {
@@ -42,13 +44,14 @@ if (format === "json") {
     actorEdges: graph.tiers.actor.edges.length,
     history: graph.tiers.history,
     defects: graph.defects.length,
+    defectGroups: defectGroups.map(({ consumers: _consumers, ...group }) => group),
   }, null, 2)}\n`);
 } else {
   throw new Error(`unknown --format: ${format}`);
 }
-if (graph.defects.length > 0) {
-  for (const defect of graph.defects) {
-    process.stderr.write(`registry graph defect: ${defect.kind} ${defect.from} -> ${defect.to} (${defect.relation})\n`);
+if (graph.defects.length > 0 && !allowDefects) {
+  for (const group of defectGroups) {
+    process.stderr.write(`registry graph defect group: ${group.kind} -> ${group.target} (${group.relation}); ${group.count} consumer(s)\n`);
   }
   process.exitCode = 1;
 }

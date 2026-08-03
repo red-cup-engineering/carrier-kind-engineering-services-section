@@ -12,6 +12,6 @@ serveContractedAgent({
   baseUrl: process.env.BASE_URL,
   agentCard: resolve(ROOT, "content/agent-cards/inference-work-lot-market.json"),
   executor: process.execPath,
-  executorArgs: [resolve(ROOT, "bin/execute-a2a-task.mjs")],
+  executorArgs: [resolve(ROOT, "scripts/execute-a2a-task.mjs")],
 }).then(({ baseUrl }) => process.stdout.write(`${baseUrl}\n`))
   .catch((error) => { process.stderr.write(`${error.stack ?? error.message}\n`); process.exitCode = 1; });

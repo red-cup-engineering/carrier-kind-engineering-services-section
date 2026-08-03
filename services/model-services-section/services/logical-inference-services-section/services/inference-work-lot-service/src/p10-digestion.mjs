@@ -1,5 +1,5 @@
 import { Buffer } from "node:buffer";
-import { canonicalJson, formContextPacket, ni } from "@harmonious-union/forming-a-context-packet";
+import { canonicalJson, formContextPacket, ni } from "./context-packet.mjs";
 
 const MAX_CARRIER_BYTES = 1_048_576;
 

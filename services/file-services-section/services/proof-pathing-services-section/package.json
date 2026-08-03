@@ -1,20 +1,27 @@
 {
   "name": "@red-cup-engineering/proof-pathing-services-section",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "type": "module",
   "description": "Owns canonical file-leg admission, normalization, and readout for Proof-Path Addressing.",
+  "exports": {
+    ".": "./lib/identity.mjs",
+    "./identity": "./lib/identity.mjs"
+  },
   "files": [
     "content",
     "lib",
     "services"
   ],
   "scripts": {
-    "check": "node --check lib/law.mjs && npm run check --prefix services/proof-path-structuration-service",
+    "check": "node --check lib/identity.mjs && npm run check --prefix services/proof-path-structuration-service",
     "test": "node --test test/*.test.mjs && npm test --prefix services/proof-path-structuration-service",
     "verify": "npm run check && npm test"
   },
   "dependencies": {
-    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
+    "@red-cup-engineering/proof-path-structuration-service": "0.1.0",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.0.2",
+    "@red-cup-engineering/relation-model-notation-typing": "0.0.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2"
   }
 }

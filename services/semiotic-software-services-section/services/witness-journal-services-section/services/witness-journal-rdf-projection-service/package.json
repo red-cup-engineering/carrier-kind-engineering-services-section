@@ -1,0 +1,37 @@
+{
+  "name": "@lenticule-science/witness-journal-rdf-projection-service",
+  "version": "2.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Projects strict SEAVT source rows into canonical RDFC-1.0 named graphs and returns the derived graph bytes' opaque NI commitment. It does not own journal custody, trace, charge, or settlement.",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.mts",
+      "import": "./src/witness-journal-rdf.mjs"
+    },
+    "./http-handler": {
+      "types": "./types/http-handler.d.mts",
+      "import": "./src/http-handler.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "types"
+  ],
+  "scripts": {
+    "check": "node --check src/witness-journal-rdf.mjs && node --check src/http-handler.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/json-file-codec-service": "0.1.2",
+    "@red-cup-engineering/ni-uri-services-section": "0.1.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
+    "@red-cup-engineering/witness-journal-entry-service": "0.1.1",
+    "rdf-canonize": "5.0.0"
+  }
+}

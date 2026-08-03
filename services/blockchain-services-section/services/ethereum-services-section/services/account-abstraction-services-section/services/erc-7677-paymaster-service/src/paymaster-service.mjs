@@ -4,7 +4,7 @@ import { toPackedUserOperation } from "viem/account-abstraction";
 
 export const PAYMASTER_SERVICE_PROFILE = "org.emsenn.evm.enterprise-provisioning-sponsorship.v1";
 const CAIP10 = /^eip155:([0-9]+):(0x[0-9a-fA-F]{40})$/u;
-const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{43})$/u;
+const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{42}[AEIMQUYcgkosw048])$/u;
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/u;
 const QUANTITY = /^0x(?:0|[1-9a-fA-F][0-9a-fA-F]*)$/u;
 const PAYMASTER_VALIDATION_GAS = 200_000n;

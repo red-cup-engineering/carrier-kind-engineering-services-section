@@ -1,6 +1,6 @@
-import { relationalValueId } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const IDENTIFIER = /^[a-z0-9]+(?:[-.:/][a-z0-9]+)*$/u;
 
 function required(value, label) {
@@ -13,7 +13,7 @@ function identifier(value, label) {
   return value;
 }
 function exactNi(value, label) {
-  if (typeof value !== "string" || !NI.test(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
+  if (!isCanonicalSha256NiUri(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`);
   return value;
 }
 function same(left, right) { return String(left).toLowerCase() === String(right).toLowerCase(); }
@@ -22,6 +22,9 @@ function freeze(value) {
   if (ArrayBuffer.isView(value) || value instanceof ArrayBuffer) return value;
   for (const child of Object.values(value)) freeze(child);
   return Object.freeze(value);
+}
+function identify(value, objectKind = `modeled-union-dimension.${value?.type ?? "material"}`) {
+  return identifyJsonSemanticContent({ objectKind, value, witnessRoot: EMPTY_WITNESS_ROOT }).token;
 }
 function uniqueIdentifiers(values, label) {
   if (!Array.isArray(values)) throw new TypeError(`${label} must be an array`);
@@ -59,7 +62,7 @@ export function createWorkCarrier({ endeavor, project, milestone, duty, qualific
 function admitWorkCarrier(admission) {
   if (admission?.carrier?.type !== "UnionWorkCarrier") return null;
   const carrier = createWorkCarrier(admission.carrier.value);
-  if (relationalValueId(carrier) !== admission.contentNi) throw new Error("UnionWorkCarrier admission does not match its canonical identity");
+  if (identify(carrier, `semiotic-exchange.${carrier.type}`) !== admission.contentNi) throw new Error("UnionWorkCarrier admission does not match its canonical identity");
   return freeze({ carrierNi: admission.contentNi, admissionReceiptNi: admission.id, work: carrier.value });
 }
 
@@ -151,7 +154,7 @@ export function projectWorkCirculation({ admissions, demands, offers, federation
       phase: completed ? "settled" : demand.purchase ? "engaged" : "open",
       grayDegree: completed ? "stable" : refusals.length > 0 ? "active" : "absurd",
       attempts,
-      cultivation: freeze(refusals.map((refusal) => freeze({ type: "UnionCultivationDemandLocus", id: relationalValueId(deriveCultivationDemandCarrier({ workLocus: { type: "UnionWorkLocus", id: demand.id, endeavor: work.endeavor, project: work.project, milestone: work.milestone, duty: work.duty, qualification: work.qualification }, refusal })), sourceAttemptNi: refusal.evidenceNi, phase: "ready-to-raise", carrier: deriveCultivationDemandCarrier({ workLocus: { type: "UnionWorkLocus", id: demand.id, endeavor: work.endeavor, project: work.project, milestone: work.milestone, duty: work.duty, qualification: work.qualification }, refusal }) }))),
+      cultivation: freeze(refusals.map((refusal) => freeze({ type: "UnionCultivationDemandLocus", id: identify(deriveCultivationDemandCarrier({ workLocus: { type: "UnionWorkLocus", id: demand.id, endeavor: work.endeavor, project: work.project, milestone: work.milestone, duty: work.duty, qualification: work.qualification }, refusal })), sourceAttemptNi: refusal.evidenceNi, phase: "ready-to-raise", carrier: deriveCultivationDemandCarrier({ workLocus: { type: "UnionWorkLocus", id: demand.id, endeavor: work.endeavor, project: work.project, milestone: work.milestone, duty: work.duty, qualification: work.qualification }, refusal }) }))),
     });
     loci.push(locus);
     relations.push(freeze({ type: "realizesEndeavor", from: `work:${demand.id}`, to: `endeavor:${work.endeavor.id}` }));

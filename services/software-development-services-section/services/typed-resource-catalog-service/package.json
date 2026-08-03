@@ -1,9 +1,9 @@
 {
   "name": "@red-cup-engineering/typed-resource-catalog",
-  "version": "0.1.2",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
-  "description": "Typed resource identity, proof-path classification, and checked language-cone readings over the Red Cup relating substrate.",
+  "description": "Actor-readable package apexes, typed content discovery, proof-path classification, and witnessed predication over one addressed substrate.",
   "license": "Apache-2.0",
   "exports": {
     ".": "./src/index.mjs",
@@ -30,7 +30,10 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/relating": "0.0.1",
-    "@red-cup-engineering/rmn-semantic-conformance": "6.0.2"
+    "@red-cup-engineering/file-projection-kernel-service": "0.1.1",
+    "@red-cup-engineering/relating": "0.1.1",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.0.3",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
+    "@red-cup-engineering/workspace-content-graph-service": "0.5.0"
   }
 }

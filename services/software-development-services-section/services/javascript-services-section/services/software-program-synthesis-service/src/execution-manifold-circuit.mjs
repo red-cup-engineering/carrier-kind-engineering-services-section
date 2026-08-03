@@ -2,8 +2,8 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { requestHierarchicalCircuitEquivalence } from "@lenticule-science/hierarchical-circuit-equivalence-assay/client";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { encodeRelationalValue } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { encodeRelationalValue } from "@red-cup-engineering/relation-model-notation-runtime/relational-value";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import {
   CIRCUIT_ASSEMBLY_PROFILE,
   HIERARCHICAL_CIRCUIT_PROFILE,
@@ -11,7 +11,7 @@ import {
   hierarchicalCircuitId,
   normalizeHierarchicalCircuit,
   verifyCircuitAssembly,
-} from "@red-cup-engineering/rmn-semantic-conformance/hierarchical-circuit";
+} from "@red-cup-engineering/relation-model-notation-runtime/hierarchical-circuit";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
@@ -28,8 +28,11 @@ const CARRIER = identityOf({ register: "software-program-synthesis", label: "FOU
 
 function fail(message) { throw new Error(`execution manifold circuit refusal: ${message}`); }
 function identityOf(value) {
-  const encoded = encodeRelationalValue(value);
-  return semanticId(["ascribe", encoded.type, encoded.term]);
+  return identifyJsonSemanticContent({
+    objectKind: "software-program-synthesis.execution-manifold-coordinate",
+    value,
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
 }
 function exactKeys(value, keys) {
   return value && Object.getPrototypeOf(value) === Object.prototype

@@ -9,9 +9,10 @@
  * entry point for running an operation body: admit the input, apply the term,
  * evaluate, decode.
  *
- * Arrays and objects encode as tagged-pair spines with sentinel marks; the
- * encoding is deterministic (object keys sorted), so the same JSON value
- * always produces the same term. The internal bridge helpers (objectFieldOf,
+ * Every JSON kind has a distinct tag. In particular, JSON booleans are not
+ * FOUR charges and strings such as `"held"` remain strings. Arrays and objects
+ * encode as tagged-pair spines with sorted keys, so the bridge is injective
+ * over its admitted JSON domain. The internal bridge helpers (objectFieldOf,
  * arrayConcatOf, etc.) are exported for the evaluators engine, which needs
  * them to reduce field/append/coincide/fold over bridge-encoded data.
  *
@@ -32,54 +33,27 @@
  * plus a term rather than a bare `Tm`, its codomain still a `Tm`. Reading the
  * module this way — domain and codomain first, transformation second — is
  * exactly how each function below is meant to be read.
- *
- * Transcribed from metroplat's `src/lib/language/reader/projecting/index.mts`,
- * behavior preserved exactly (TypeScript type annotations dropped; JSDoc
- * typedefs substituted). `tm`/`ty`/`chargeNameOfTerm`/`generatorNameOfTerm`/
- * `chargeValueNames`/`isChargeValueName` now come from
- * `@red-cup-engineering/relation-model-notation` (the charge-name vocabulary
- * is grammar-fundamental, not general infra — it belongs there, not in some
- * other package this one reaches into). `parse`/`JsonValue` now come from
- * `@red-cup-engineering/json-file-codec-service`, a real published package
- * with matching behavior (differentially verified: 10/10 representative
- * values match, both throw the same error type on invalid input) — no
- * reason to keep depending on metroplat's copy once a modern equivalent is
- * confirmed identical for what this package actually needs.
- *
- * `canonicalBytes` (from metroplat's `identity/index.mts`) is NOT replaced
- * with `json-file-codec-service`'s `canonical()` — those two use genuinely
- * different algorithms (RFC-8785 vs. a simpler ad hoc one) and swapping
- * would be a real behavioral-divergence risk for numeric edge cases in
- * general. But every call site in this package only ever passes a plain
- * string or number (an object key, a tag constant, a JSON string/number
- * leaf already type-checked before the call) — never a nested object or
- * array, where the two algorithms could actually diverge. For that
- * primitive-only case, `JSON.stringify` and `canonicalBytes` are proven
- * identical (differentially verified: 10/10, including unicode, quotes,
- * negative zero, and both very large and very small numbers) — so this
- * package needs no external canonicalization dependency at all here, just
- * the standard library.
  */
 import { parse } from "@red-cup-engineering/json-file-codec-service";
-import { tm, ty, chargeNameOfTerm, generatorNameOfTerm, isChargeValueName } from "@red-cup-engineering/relation-model-notation";
+import { tm, ty } from "@red-cup-engineering/relation-model-notation";
 
-/** Canonical text for a primitive mark payload (a string or number leaf,
- *  never an object/array at these call sites) — `JSON.stringify` and
- *  metroplat's RFC-8785 `canonicalBytes` are proven identical for exactly
- *  this domain; see the module doc comment. */
+/** Canonical text for one admitted primitive mark payload. */
 function canonicalBytes(value) {
   return JSON.stringify(value);
 }
 
 /**
  * @typedef {import("@red-cup-engineering/json-file-codec-service").JsonValue} JsonValue
- * @typedef {import("@red-cup-engineering/relation-model-notation/types").ChargeValueName} ChargeValueName
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Ty} Ty
  * @typedef {import("@red-cup-engineering/relation-model-notation/types").Tm} Tm
  */
 
-export const arrayTag = "metroplat.term.array";
-export const objectTag = "metroplat.term.object";
+export const arrayTag = "rmn.json.array";
+export const objectTag = "rmn.json.object";
+export const nullTag = "rmn.json.null";
+export const booleanTag = "rmn.json.boolean";
+export const stringTag = "rmn.json.string";
+export const numberTag = "rmn.json.number";
 
 /**
  * @param {readonly Tm[]} items
@@ -174,7 +148,7 @@ export function arrayTerm(items) {
  * @returns {Tm}
  */
 export function stringTerm(value) {
-  return tm.mark(canonicalBytes(value));
+  return tm.pair(tm.mark(canonicalBytes(stringTag)), tm.mark(canonicalBytes(value)));
 }
 
 /**
@@ -255,10 +229,10 @@ export function arrayTy(itemTypes) {
  * @returns {Tm}
  */
 export function jsonToTerm(value) {
-  if (value === null) return tm.star();
-  if (typeof value === "boolean") return tm.bool(value);
-  if (typeof value === "string" && isChargeValueName(value)) return tm.charge(value);
-  if (typeof value === "string" || typeof value === "number") return tm.mark(canonicalBytes(value));
+  if (value === null) return tm.pair(tm.mark(canonicalBytes(nullTag)), tm.star());
+  if (typeof value === "boolean") return tm.pair(tm.mark(canonicalBytes(booleanTag)), tm.mark(value ? "true" : "false"));
+  if (typeof value === "string") return tm.pair(tm.mark(canonicalBytes(stringTag)), tm.mark(canonicalBytes(value)));
+  if (typeof value === "number") return tm.pair(tm.mark(canonicalBytes(numberTag)), tm.mark(canonicalBytes(value)));
   if (Array.isArray(value)) {
     return tm.pair(tm.mark(canonicalBytes(arrayTag)), listTerm(value.map((item) => jsonToTerm(item))));
   }
@@ -273,14 +247,19 @@ export function jsonToTerm(value) {
  * @returns {JsonValue}
  */
 export function termToJson(term) {
-  const chargeName = chargeNameOfTerm(term);
-  if (chargeName !== undefined) return chargeName;
-  const generatorName = generatorNameOfTerm(term);
-  if (generatorName !== undefined) return generatorName;
   if (term[0] === "mark") return parse(term[1]);
-  if (term[0] === "star") return null;
   if (term[0] === "pair") {
     const tag = markString(term[1]);
+    if (tag === nullTag && term[2][0] === "star") return null;
+    if (tag === booleanTag && term[2][0] === "mark" && (term[2][1] === "true" || term[2][1] === "false")) return term[2][1] === "true";
+    if (tag === stringTag && term[2][0] === "mark") {
+      const value = parse(term[2][1]);
+      if (typeof value === "string") return value;
+    }
+    if (tag === numberTag && term[2][0] === "mark") {
+      const value = parse(term[2][1]);
+      if (typeof value === "number") return value;
+    }
     if (tag === arrayTag) return termList(term[2]).map((item) => termToJson(item));
     if (tag === objectTag) {
       const out = {};

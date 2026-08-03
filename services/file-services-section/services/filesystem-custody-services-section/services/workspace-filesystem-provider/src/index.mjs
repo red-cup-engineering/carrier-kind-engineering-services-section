@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { EMPTY_WITNESS_ROOT, identifyBytesSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { appendFile, lstat, mkdir, open, readFile, readdir, realpath, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -72,7 +72,7 @@ async function assertUnlinkedDescent(root, target, { permitAbsentLeaf = false } 
   }
 }
 
-const resourceIdentity = rawNiUri;
+const resourceIdentity = (bytes) => identifyBytesSemanticContent({ objectKind: "workspace-filesystem.resource-tree", bytes, witnessRoot: EMPTY_WITNESS_ROOT }).token;
 
 async function resourceTree(target, { maxBytes = MAX_RESOURCE_BYTES, maxEntries = MAX_RESOURCE_ENTRIES } = {}) {
   const records = [];
@@ -111,7 +111,7 @@ export async function observeWorkspaceResource({ root, path: relativePath, resou
 }
 
 export async function moveWorkspaceResource({ root, from, to, expectedContentDigest, resource = null, outbox }) {
-  if (typeof expectedContentDigest !== "string" || !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(expectedContentDigest)) fail("invalid-expected", "expectedContentDigest must be an RFC 6920 SHA-256 identity");
+  if (typeof expectedContentDigest !== "string" || !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u.test(expectedContentDigest)) fail("invalid-expected", "expectedContentDigest must be an RFC 6920 SHA-256 identity");
   if (typeof outbox !== "string" || outbox.length === 0) fail("invalid-outbox", "outbox path is required");
   const resolvedRoot = await custodyRoot(root);
   const source = relativeTarget(resolvedRoot, from);

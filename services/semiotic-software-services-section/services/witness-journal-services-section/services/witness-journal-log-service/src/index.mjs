@@ -9,9 +9,10 @@
 //
 // Two laws this module carries that the entry service deliberately does not:
 //
-//   - identity dedup: appending an entry already present by content identity
-//     costs nothing — it is not written again, and the log's row count does
-//     not grow. Reappending the same witness is free, by construction.
+//   - strict semantic dedup: an admitted SEAVT witness already present under
+//     the same explicit feed/day custody costs nothing. Generic JSON EAVT is
+//     only compared by canonical carrier equality and never receives a
+//     semantic identity here.
 //   - trace: an entry's trace is its ordinal position in the journal, i.e.
 //     its 1-based index in append order. Trace is never stored in the entry
 //     or in the file; it is computed fresh every time the journal is read,
@@ -23,11 +24,13 @@ import path from "node:path";
 
 import { canonical } from "@red-cup-engineering/json-file-codec-service";
 import { parse, serialize } from "@red-cup-engineering/json-file-codec-service/jsonl/eavt";
-import { asEntry, entryId } from "@red-cup-engineering/witness-journal-entry-service";
+import { asEntry, asSeavt, identifySeavtSemanticContent } from "@red-cup-engineering/witness-journal-entry-service";
 
 /**
  * @typedef {import("@red-cup-engineering/witness-journal-entry-service").WitnessJournalEntry} WitnessJournalEntry
+ * @typedef {import("@red-cup-engineering/witness-journal-entry-service").Seavt} Seavt
  * @typedef {{ readonly entry: WitnessJournalEntry, readonly trace: number }} TracedEntry
+ * @typedef {{ readonly entry: Seavt, readonly trace: number }} TracedSeavt
  */
 
 /** The UTC date (YYYY-MM-DD) named by a witness time; a safe fallback bucket
@@ -69,6 +72,17 @@ export function readEntriesAtPath(filePath) {
     return [];
   }
   return /** @type {WitnessJournalEntry[]} */ (parse(content));
+}
+
+/**
+ * Read one journal file as strict SEAVT source rows. A present generic EAVT
+ * row is refused rather than silently promoted into the semiotic source law.
+ *
+ * @param {string} filePath
+ * @returns {Seavt[]}
+ */
+export function readSeavtAtPath(filePath) {
+  return readEntriesAtPath(filePath).map((row) => asSeavt(row));
 }
 
 /**
@@ -125,8 +139,9 @@ export function writeEntriesAtomicAtPath(filePath, entries) {
 }
 
 /**
- * Append only entries not already present in the journal by content
- * identity. Rows are normalized to canonical entries before writing.
+ * Append only generic JSON entries not already present by canonical carrier
+ * equality. This compatibility lane deliberately does not mint semantic
+ * identity.
  * Reappending an already-witnessed entry is free: it is skipped, and the
  * returned `appended` count — the journal's growth signal — is 0 when
  * nothing was genuinely new.
@@ -137,16 +152,62 @@ export function writeEntriesAtomicAtPath(filePath, entries) {
  * @param {import("@red-cup-engineering/json-file-codec-service").JsonValue} at
  * @returns {{ readonly appended: number }}
  */
-export function appendEntries(root, feed, rows, at) {
+function appendGenericEntries(root, feed, rows, at) {
   if (rows.length === 0) return { appended: 0 };
   const filePath = logPathFor(root, feed, at);
-  const present = new Set(readEntriesAtPath(filePath).map((row) => entryId(row)));
+  const present = new Set(readEntriesAtPath(filePath).map((row) => canonical(row)));
   const fresh = [];
   for (const row of rows) {
     const normalized = asEntry(row);
-    const id = entryId(normalized);
-    if (present.has(id)) continue;
-    present.add(id);
+    const key = canonical(normalized);
+    if (present.has(key)) continue;
+    present.add(key);
+    fresh.push(normalized);
+  }
+  if (fresh.length === 0) return { appended: 0 };
+  mkdirSync(path.dirname(filePath), { recursive: true });
+  appendFileSync(filePath, serialize(/** @type {any} */ (fresh)), "utf8");
+  return { appended: fresh.length };
+}
+
+
+export function appendEntries(root, feed, rows, at) {
+  return appendGenericEntries(root, feed, rows, at);
+}
+
+function custodyWitness(feed, at) {
+  if (typeof feed !== "string" || feed.length === 0) {
+    throw new TypeError("SEAVT custody: feed must be a nonempty string");
+  }
+  return Object.freeze({
+    kind: "witness-journal.log.custody",
+    feed,
+    partition: dateOf(at),
+  });
+}
+
+/**
+ * Append strict SEAVT rows under the v2 semantic-content law;
+ * `appendEntries` remains the explicitly non-semantic JSON compatibility lane.
+ *
+ * @param {string} root
+ * @param {string} feed
+ * @param {readonly unknown[]} rows
+ * @param {import("@red-cup-engineering/json-file-codec-service").JsonValue} at
+ * @returns {{ readonly appended: number }}
+ */
+export function appendSeavt(root, feed, rows, at) {
+  if (rows.length === 0) return { appended: 0 };
+  const filePath = logPathFor(root, feed, at);
+  const custody = custodyWitness(feed, at);
+  const present = new Set(readSeavtAtPath(filePath).map((row) =>
+    identifySeavtSemanticContent(row, custody).token));
+  const fresh = [];
+  for (const row of rows) {
+    const normalized = asSeavt(row);
+    const token = identifySeavtSemanticContent(normalized, custody).token;
+    if (present.has(token)) continue;
+    present.add(token);
     fresh.push(normalized);
   }
   if (fresh.length === 0) return { appended: 0 };
@@ -170,6 +231,12 @@ export function readEntries(root, feed, at) {
   return Object.freeze(rows.map((row, index) => Object.freeze({ entry: row, trace: index + 1 })));
 }
 
+/** Read one dated SEAVT journal with derived 1-based trace. */
+export function readSeavt(root, feed, at) {
+  const rows = readSeavtAtPath(logPathFor(root, feed, at));
+  return Object.freeze(rows.map((row, index) => Object.freeze({ entry: row, trace: index + 1 })));
+}
+
 /**
  * The same ordered, traced reading as `readEntries`, offered as a generator
  * — the "stream" half of "ordered read/stream". The current implementation
@@ -183,4 +250,9 @@ export function readEntries(root, feed, at) {
  */
 export function* streamEntries(root, feed, at) {
   for (const traced of readEntries(root, feed, at)) yield traced;
+}
+
+/** Stream the same strict, ordered SEAVT reading returned by `readSeavt`. */
+export function* streamSeavt(root, feed, at) {
+  for (const traced of readSeavt(root, feed, at)) yield traced;
 }

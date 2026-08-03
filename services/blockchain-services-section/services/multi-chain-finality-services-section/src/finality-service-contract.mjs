@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { semanticId } from "@red-cup-engineering/relation-model-notation-runtime";
+import { EMPTY_WITNESS_ROOT, identifyNormalizedSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { inferTy } from "@red-cup-engineering/relation-model-notation-typing";
 import { recordSettlementRecord, relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-rdf-projection-service/client";
 import { assayReceiptFinalityPolicy, chainReceiptKey } from "./finality-merge.mjs";
 
@@ -15,7 +16,9 @@ export const EFFECTS = Object.freeze(["provider-local-witness-journal-evidence"]
 const INTENT_SIGNATURE = "assay-one-chain-qualified-receipt-against-one-finality-policy/v1";
 
 function identified(body) {
-  return Object.freeze({ id: semanticId(relationalWitnessJournalDocument(body)), ...body });
+  const term = relationalWitnessJournalDocument(body);
+  const id = identifyNormalizedSemanticContent({ objectKind: "multi-chain-finality.activity-record", semanticType: inferTy([], term), term, witnessRoot: EMPTY_WITNESS_ROOT }).token;
+  return Object.freeze({ id, ...body });
 }
 function response(type, source, object, recordedAt) {
   return identified({

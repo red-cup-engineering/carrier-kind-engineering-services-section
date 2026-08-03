@@ -1,20 +1,14 @@
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
-import { semanticId } from "@red-cup-engineering/rmn-semantic-conformance";
-import { createSettlementStore, querySettlementRecords, relationalWitnessJournalDocument } from "@lenticule-science/witness-journal-rdf-projection-service/client";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
+import { createSemanticRecordJournal } from "@red-cup-engineering/semantic-record-journal-service";
 
 export const TRAJECTORY_MEMORY_ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const DEFAULT_TRAJECTORY_MEMORY_DATA_ROOT = fileURLToPath(new URL("../data", import.meta.url));
 export const TRAJECTORY_CATEGORY = "software-trajectory-memory.transition";
 export const MISSION_EXECUTION_ACTOR = "urn:ame:software-mission-execution-service";
-const AGENT_CARD = JSON.parse(readFileSync(new URL("../content/agent-cards/software-trajectory-memory-service.json", import.meta.url), "utf8"));
-const ADVERTISED_ACCOUNT = AGENT_CARD.capabilities?.extensions?.find(({ params }) => typeof params?.account === "string")?.params?.account;
-export const TRAJECTORY_MEMORY_SETTLEMENT_CAIP2 = typeof ADVERTISED_ACCOUNT === "string"
-  ? ADVERTISED_ACCOUNT.split(":").slice(0, 2).join(":")
-  : "";
-if (!/^eip155:[0-9]+$/u.test(TRAJECTORY_MEMORY_SETTLEMENT_CAIP2)) throw new Error("trajectory-memory Agent Card must advertise one EIP-155 settlement account");
+const RECORD_KIND = "software-trajectory-memory.record";
 
-function rmnId(value) { return semanticId(relationalWitnessJournalDocument(value)); }
+function rmnId(value) { return identifyJsonSemanticContent({ objectKind: RECORD_KIND, value, witnessRoot: EMPTY_WITNESS_ROOT }).id; }
 function typedRecord(body) { return Object.freeze({ id: rmnId(body), ...body }); }
 
 function tokens(text) {
@@ -38,8 +32,9 @@ function compareFractions(left, right) {
   return lhs < rhs ? -1 : lhs > rhs ? 1 : 0;
 }
 
-async function allRows({ custody, categoryIndex } = {}) {
-  return await querySettlementRecords(TRAJECTORY_CATEGORY, { custody, categoryIndex });
+async function allRows({ dataRoot = DEFAULT_TRAJECTORY_MEMORY_DATA_ROOT, journal } = {}) {
+  const records = (journal ?? createSemanticRecordJournal({ root: dataRoot, objectKind: RECORD_KIND })).query({ category: TRAJECTORY_CATEGORY });
+  return records.map(({ record }) => record);
 }
 function projectedRecord(record) {
   if (record?.type === "SoftwareMissionCheckpoint") return record;
@@ -264,40 +259,38 @@ export async function latestMissionCheckpoint(missionId, sourceIdentity, { rows:
     })[0] ?? null;
 }
 
-export async function appendTrajectory(record, {
-  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
-  settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
-  signal,
-  custody,
-  categoryIndex,
-} = {}) {
-  return appendTrajectoryRecord(record, record.finishedAt, { witnessJournalAgentUrl, settlementCaip2, signal, custody, categoryIndex });
+export async function appendTrajectory(record, options = {}) {
+  return appendTrajectoryRecord(record, record.finishedAt, options);
 }
 
 export async function appendTrajectoryRecord(record, recordedAt, {
-  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
-  settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
-  signal,
-  custody,
-  categoryIndex,
+  dataRoot = DEFAULT_TRAJECTORY_MEMORY_DATA_ROOT,
+  journal,
 } = {}) {
-  const store = createSettlementStore({ settlementRoot: TRAJECTORY_MEMORY_ROOT, agentUrl: witnessJournalAgentUrl, caip2: settlementCaip2, custody, categoryIndex });
-  const receipt = await store.record({ category: TRAJECTORY_CATEGORY, recordedAt, record, signal });
-  return receipt;
+  const verified = record?.type !== "SoftwareMissionTrajectory" || record.outcome?.verified === true;
+  const receipt = (journal ?? createSemanticRecordJournal({ root: dataRoot, objectKind: RECORD_KIND })).record({
+    category: TRAJECTORY_CATEGORY,
+    recordedAt,
+    record,
+    charge: { support: verified, refutation: !verified },
+    relation: {
+      subject: record?.missionId ?? record?.id ?? MISSION_EXECUTION_ACTOR,
+      predicate: record?.type ?? "records",
+      object: MISSION_EXECUTION_ACTOR,
+    },
+  });
+  return Object.freeze({ ...receipt, documentNi: receipt.id, reference: null });
 }
 
 export async function admitCustomerTrajectoryFoldback(activity, {
   expectedCustomer,
   expectedSupplier,
-  witnessJournalAgentUrl = process.env.WITNESS_JOURNAL_RDF_AGENT,
-  settlementCaip2 = process.env.SETTLEMENT_CAIP2 ?? TRAJECTORY_MEMORY_SETTLEMENT_CAIP2,
-  signal,
   rows: suppliedRows,
-  custody,
-  categoryIndex,
-  append = (value, at) => appendTrajectoryRecord(value, at, { witnessJournalAgentUrl, settlementCaip2, signal, custody, categoryIndex }),
+  dataRoot = DEFAULT_TRAJECTORY_MEMORY_DATA_ROOT,
+  journal,
+  append = (value, at) => appendTrajectoryRecord(value, at, { dataRoot, journal }),
 } = {}) {
-  const rows = suppliedRows ?? await projectedRows({ custody, categoryIndex });
+  const rows = suppliedRows ?? await projectedRows({ dataRoot, journal });
   const decision = activity?.object, foldback = decision?.foldbackSnapshot;
   const exact = (value) => value?.id === rmnId(Object.fromEntries(Object.entries(value ?? {}).filter(([key]) => key !== "id")));
   if (typeof expectedSupplier !== "string" || !expectedSupplier || activity?.["@context"] !== "https://www.w3.org/ns/activitystreams" || activity.type !== "Accept" || activity.actor !== expectedCustomer || activity.target !== expectedSupplier || !exact(decision) || decision.type !== "ImprovementCustomerDecision" || decision.accepted !== true || decision.customer !== expectedCustomer || decision.supplier !== expectedSupplier) throw new Error("exact customer-authored accepted improvement decision is required");

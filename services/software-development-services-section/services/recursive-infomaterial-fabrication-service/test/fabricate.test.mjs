@@ -3,7 +3,7 @@ import { observeDirectoryPlate } from "@lenticule-science/infomaterial-directory
 import { fixtureDiscovery, localCircuitAssay, localCircuitSynthesis } from "./circuit-fixture.mjs";
 async function carrier(result, key) { return { ...result[key], semanticId: result.semanticId, canonicalBytesBase64: result.canonicalBytes.toString("base64") }; }
 async function fixture() { const root = await mkdtemp(join(tmpdir(), "fabrication-board-")); await writeFile(join(root, "a"), "alpha"); await mkdir(join(root, "b")); await writeFile(join(root, "b", "c"), "charlie"); return root; }
-function seam(label) { return { inputNi: `ni:///sha-256;${label.repeat(43).slice(0,43)}`, outputNi: `ni:///sha-256;${label.toUpperCase().repeat(43).slice(0,43)}` }; }
+function seam(label) { return { inputNi: `ni:///sha-256;${label.repeat(42).slice(0,42)}A`, outputNi: `ni:///sha-256;${label.toUpperCase().repeat(42).slice(0,42)}A` }; }
 test("the conductor fans out every mount and fans canonical receipts into the cover provider", async () => {
   const root = await fixture(), calls = [];
   const plate = async () => { calls.push("plate"); const result = await observeDirectoryPlate(root); return { receipt: await carrier(result, "observation"), exchange: seam("a") }; };

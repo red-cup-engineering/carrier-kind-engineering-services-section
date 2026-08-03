@@ -5,6 +5,7 @@ import { semanticId } from "../src/rmn-core.mjs";
 import {
   CIRCUIT_ASSEMBLY_PROFILE,
   HIERARCHICAL_CIRCUIT_PROFILE,
+  SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION,
   SOVEREIGN_CIRCUIT_INTERFACE_PROFILE,
   circuitInterfaceFromAgentCard,
   circuitAssemblyId,
@@ -69,12 +70,13 @@ test("hierarchical circuits have one deterministic typed RMN identity", () => {
   const source = leaf(), normalized = normalizeHierarchicalCircuit(source), term = encodeHierarchicalCircuit(source);
   assert.deepEqual(decodeHierarchicalCircuit(term), normalized);
   assert.equal(hierarchicalCircuitId(source), hierarchicalCircuitId({ ...source, ports: [...source.ports].reverse(), behavior: { factors: [{ ...source.behavior.factors[0], rows: [...source.behavior.factors[0].rows].reverse() }] } }));
-  assert.match(hierarchicalCircuitId(source), /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
+  assert.match(hierarchicalCircuitId(source), /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u);
 });
 
 test("an A2A Agent Card interface exposes one sovereign black-box die without its interior", () => {
   const source = { component: leaf(), ...membrane("7", "card") };
   const card = { capabilities: { extensions: [{
+    uri: SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION,
     description: "fixture", required: false,
     params: { profile: SOVEREIGN_CIRCUIT_INTERFACE_PROFILE, ...source },
   }] } };

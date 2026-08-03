@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { createR2SigV4Client, r2Configuration } from "@red-cup-engineering/resource-brokerage-service-section/r2-sigv4";
+import { isCanonicalSha256NiUri, sha256DigestFromNiUri } from "@red-cup-engineering/semantic-content-identify-service";
 
-const NI = /^ni:\/\/\/sha-256;([A-Za-z0-9_-]{43})$/u;
 const PROFILE = "org.red-cup-engineering.category-reference.v1";
 const hash = (value, encoding) => createHash("sha256").update(value).digest(encoding);
 function categoryPrefix(category, predicate) {
@@ -10,12 +10,12 @@ function categoryPrefix(category, predicate) {
   return `indexes/category-reference/sha-256/${hash(`${predicate}\n${category}`, "base64url")}/`;
 }
 function bodyFor(category, predicate, ni) {
-  if (!NI.test(ni ?? "")) throw new TypeError("category member must be one SHA-256 ni URI");
+  if (!isCanonicalSha256NiUri(ni)) throw new TypeError("category member must be one canonical SHA-256 ni URI");
   return Buffer.from(`${JSON.stringify({ profile: PROFILE, predicate, category, ni })}\n`);
 }
 export function createCategoryReferenceIndex({ r2 = createR2SigV4Client(r2Configuration()) } = {}) {
   async function add({ category, predicate = "urn:emsenn:witness-journal:category", ni }) {
-    const body = bodyFor(category, predicate, ni), suffix = NI.exec(ni)[1], key = `${categoryPrefix(category, predicate)}${suffix}.json`;
+    const body = bodyFor(category, predicate, ni), suffix = sha256DigestFromNiUri(ni), key = `${categoryPrefix(category, predicate)}${suffix}.json`;
     // This body is a pure function of its content-addressed key; write it
     // directly so an initial missing-key GET cannot poison the read-back.
     await r2.putCurrent(key, { body, byteLength: body.length, sha256: hash(body, "hex"), mediaType: "application/json" });
@@ -29,7 +29,7 @@ export function createCategoryReferenceIndex({ r2 = createR2SigV4Client(r2Config
     for (const key of page.keys) {
       const object = await r2.get(key); if (!object) throw new Error("category index listed a missing reference");
       const value = JSON.parse(object.body.toString("utf8"));
-      if (value.profile !== PROFILE || value.predicate !== predicate || value.category !== category || !NI.test(value.ni ?? "")) throw new Error("category index returned a foreign reference");
+      if (value.profile !== PROFILE || value.predicate !== predicate || value.category !== category || !isCanonicalSha256NiUri(value.ni)) throw new Error("category index returned a foreign reference");
       references.push(Object.freeze({ profile: PROFILE, predicate, category, ni: value.ni, key }));
     }
     return Object.freeze({ references: Object.freeze(references), continuationToken: page.continuationToken });

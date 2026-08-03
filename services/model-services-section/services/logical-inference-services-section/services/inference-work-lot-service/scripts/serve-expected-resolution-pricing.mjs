@@ -9,7 +9,7 @@
 // server's baseUrl to make cost-aware, reliability-weighted provider selection
 // real instead of theoretical.
 //
-// Usage: node bin/serve-expected-resolution-pricing.mjs [--port 8799] [--data-root <dir>]
+// Usage: node scripts/serve-expected-resolution-pricing.mjs [--port 8799] [--data-root <dir>]
 
 import { createServer } from "node:http";
 import { resolve } from "node:path";

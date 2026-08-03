@@ -1,4 +1,4 @@
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
 import { decideWorkRoute } from "./work-route-decision.mjs";
 
@@ -6,7 +6,7 @@ export const GLASS_SPONGE_CHAIN = "eip155:5615611";
 
 const ADDRESS = /^0x[0-9a-fA-F]{40}$/u;
 const BYTES32 = /^0x[0-9a-fA-F]{64}$/u;
-const IMMUTABLE_REFERENCE = /^(?:ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}|urn:sha256:[0-9a-f]{64})$/u;
+const IMMUTABLE_REFERENCE = /^(?:ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]|urn:sha256:[0-9a-f]{64})$/u;
 const DECIMAL = /^(?:0|[1-9][0-9]*)$/u;
 
 function object(value, label) {
@@ -60,7 +60,11 @@ function deepFreeze(value) {
 }
 
 export function pulseContentAddress(value) {
-  return rawNiUri(JSON.stringify(stable(value)));
+  return identifyJsonSemanticContent({
+    objectKind: `inference-work-lot.${value?.type ?? "autonomic-pulse-material"}`,
+    value: stable(value),
+    witnessRoot: EMPTY_WITNESS_ROOT,
+  }).token;
 }
 
 function exactAmount(value, label) {

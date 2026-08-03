@@ -1,18 +1,19 @@
-import { relationalValueId } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const SHA = /^sha256:[a-f0-9]{64}$/u;
 const PROVIDER = "urn:ame:codex-session-activity-provider:tool-observation";
 
 function freeze(value) { if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value; for (const child of Object.values(value)) freeze(child); return Object.freeze(value); }
-function exactNi(value, label) { if (typeof value !== "string" || !NI.test(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`); return value; }
+function identify(value, objectKind = `modeled-union-dimension.${value?.type ?? "material"}`) { return identifyJsonSemanticContent({ objectKind, value, witnessRoot: EMPTY_WITNESS_ROOT }).token; }
+function exactNi(value, label) { if (!isCanonicalSha256NiUri(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`); return value; }
 function timestamp(value, label) { if (!Number.isFinite(Date.parse(value))) throw new TypeError(`${label} must be an exact timestamp`); return value; }
 
 function admit(admission, index) {
   if (admission?.carrier?.type !== "CodexToolInvocationObservationReceipt") return null;
   const receipt = admission.carrier.value;
   if (receipt?.type !== "CodexToolInvocationObservationReceipt" || receipt.version !== 1 || receipt.disposition !== "observed" || receipt.providerCell !== PROVIDER || receipt.operation !== "observe-codex-tool-invocations") throw new TypeError(`Codex tool observation admission ${index} is malformed`);
-  if (relationalValueId({ type: admission.carrier.type, value: receipt }) !== admission.contentNi) throw new Error(`Codex tool observation admission ${index} differs from its canonical carrier identity`);
+  if (identify({ type: admission.carrier.type, value: receipt }, `semiotic-exchange.${admission.carrier.type}`) !== admission.contentNi) throw new Error(`Codex tool observation admission ${index} differs from its canonical carrier identity`);
   if (receipt.authority?.observation !== true || receipt.authority?.execution !== false || receipt.authority?.restrictedMove !== false || receipt.authority?.actuatorBinding !== false || receipt.authority?.outcomeAssertion !== false) throw new Error(`Codex tool observation admission ${index} crosses its observation boundary`);
   timestamp(receipt.recordedAt, `Codex tool observation admission ${index}.recordedAt`);
   if (!Array.isArray(receipt.observations) || !Array.isArray(receipt.evidence)) throw new TypeError(`Codex tool observation admission ${index} must carry arrays`);
@@ -22,7 +23,7 @@ function admit(admission, index) {
     if (!SHA.test(value.sessionDigest ?? "") || typeof value.requestedTool?.name !== "string" || !["custom_tool_call", "function_call"].includes(value.requestedTool?.transport)) throw new TypeError(`Codex tool observation ${ordinal} lacks a safe tool coordinate`);
     if (value.actuator?.status !== "not-bound-by-transcript-observation" || value.actuator?.reason?.length === 0) throw new Error(`Codex tool observation ${ordinal} falsely binds an actuator`);
     if (value.disclosure?.transcriptText !== false || value.disclosure?.reasoning !== false || value.disclosure?.toolArguments !== false || value.disclosure?.toolOutput !== false || value.disclosure?.fileContents !== false) throw new Error(`Codex tool observation ${ordinal} discloses protected transcript matter`);
-    return freeze({ type: "InferenceToolRequestLocus", id: relationalValueId(value), occurredAt: value.occurredAt, inferenceProcess: value.inferenceProcess, providerCell: value.providerCell, requestedTool: value.requestedTool, invocation: value.invocation, actuator: value.actuator, observationReceiptNi: admission.contentNi, carrierAdmissionReceiptNi: admission.id });
+    return freeze({ type: "InferenceToolRequestLocus", id: identify(value), occurredAt: value.occurredAt, inferenceProcess: value.inferenceProcess, providerCell: value.providerCell, requestedTool: value.requestedTool, invocation: value.invocation, actuator: value.actuator, observationReceiptNi: admission.contentNi, carrierAdmissionReceiptNi: admission.id });
   });
   return freeze(observations);
 }

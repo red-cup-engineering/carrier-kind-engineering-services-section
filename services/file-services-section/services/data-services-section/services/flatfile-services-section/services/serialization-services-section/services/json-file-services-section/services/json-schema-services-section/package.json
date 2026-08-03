@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/json-schema-services-section",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "private": false,
   "type": "module",
   "description": "Canonical Red Cup JSON Schema semantics and path-addressed reading, writing, searching, validation, resolution, projection, and census services.",
@@ -20,9 +20,18 @@
     "write-a-schema": "./services/writing-a-schema/src/write-a-schema.js",
     "search-path-for-schema": "./services/search-path-for-schema/scripts/search-path-for-schema.mjs"
   },
+  "files": [
+    "dist/",
+    "scripts/json-schema-census.mjs",
+    "scripts/read-a-schema.mjs",
+    "services/search-path-for-schema/scripts/search-path-for-schema.mjs",
+    "services/search-path-for-schema/src/search-path-for-schema.mjs",
+    "services/writing-a-schema/src/write-a-schema.js"
+  ],
   "dependencies": {
-    "@red-cup-engineering/json-file-codec-service": "0.1.2",
-    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
+    "@red-cup-engineering/json-file-codec-service": "0.1.3",
+    "@red-cup-engineering/ni-uri-services-section": "0.1.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -31,9 +40,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "check": "node --check src/route-a-service.js && node --check scripts/json-schema-census.mjs && node --check scripts/read-a-schema.mjs && node --check services/writing-a-schema/src/write-a-schema.js && node --check services/search-path-for-schema/src/search-path-for-schema.mjs && node --check services/search-path-for-schema/scripts/search-path-for-schema.mjs",
-    "test": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs --test test/*.test.mjs services/search-path-for-schema/test/*.test.mjs",
-    "census": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json",
-    "census:verify": "node --experimental-strip-types --experimental-loader ./scripts/workspace-loader.mjs scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json --verify",
+    "test": "node --test test/*.test.mjs services/search-path-for-schema/test/*.test.mjs",
+    "census": "node scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json",
+    "census:verify": "node scripts/json-schema-census.mjs --root /home/emsenn/info --out /home/emsenn/info/lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/file-services-section/services/data-services-section/services/flatfile-services-section/services/serialization-services-section/services/json-file-services-section/services/json-schema-services-section/data/recovery/json-schema-census.json --verify",
     "verify": "npm run build && npm run check && npm test"
   }
 }

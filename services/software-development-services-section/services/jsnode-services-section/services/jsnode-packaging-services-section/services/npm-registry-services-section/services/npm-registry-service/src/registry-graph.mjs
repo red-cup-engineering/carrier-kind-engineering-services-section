@@ -207,6 +207,52 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
     }
   }
 
+  // Package replacement is history, not dependency. A renamed or consolidated
+  // package may identify the exact release it replaces without making either
+  // package install the other. Keeping this edge in the registry graph makes
+  // duplicate implementations and completed migrations mechanically visible.
+  const supersessionEdges = [];
+  for (const node of nodes) {
+    const declaration = node.manifest.redCupEngineering?.supersedes;
+    const declarations = declaration === undefined ? [] : Array.isArray(declaration) ? declaration : [declaration];
+    for (const replaced of declarations) {
+      if (replaced === null || typeof replaced !== "object" || typeof replaced.package !== "string" || typeof replaced.version !== "string") {
+        defects.push(Object.freeze({
+          kind: "invalid-supersession-declaration",
+          from: node.address.packageSurface,
+        }));
+        continue;
+      }
+      const target = packageSurface(replaced.package, replaced.version);
+      if (!nodesBySurface.has(target)) {
+        const scope = packageScope(replaced.package);
+        if (scope !== null && ownedScopes.has(scope)) {
+          defects.push(Object.freeze({
+            kind: "unresolved-superseded-release",
+            from: node.address.packageSurface,
+            to: target,
+          }));
+          continue;
+        }
+        supersessionEdges.push(Object.freeze({
+          from: node.address.packageSurface,
+          to: target,
+          relation: "supersedes",
+          resolution: "external",
+          ...(typeof replaced.reason === "string" && replaced.reason !== "" ? { reason: replaced.reason } : {}),
+        }));
+        continue;
+      }
+      supersessionEdges.push(Object.freeze({
+        from: node.address.packageSurface,
+        to: target,
+        relation: "supersedes",
+        resolution: "registry",
+        ...(typeof replaced.reason === "string" && replaced.reason !== "" ? { reason: replaced.reason } : {}),
+      }));
+    }
+  }
+
   return Object.freeze({
     type: GRAPH_TYPE,
     registry: receipt?.registry ?? (registryUrl !== undefined ? registryFace(registryUrl) : resolve(registryRoot)),
@@ -226,6 +272,7 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
         predecessor: receipt?.predecessor ?? null,
         reaction: receipt?.reaction ?? null,
         receiptVersion: receipt === null ? null : receipt.version ?? 1,
+        edges: Object.freeze(supersessionEdges),
       }),
       witness: Object.freeze({
         receiptSha256,
@@ -241,6 +288,34 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
     }),
     defects: Object.freeze(defects),
   });
+}
+
+export function groupRegistryGraphDefects(defects) {
+  if (!Array.isArray(defects)) throw new TypeError("registry graph defects must be an array");
+  const groups = new Map();
+  for (const defect of defects) {
+    const key = JSON.stringify([defect.kind, defect.to ?? null, defect.relation ?? null]);
+    const group = groups.get(key) ?? {
+      kind: defect.kind,
+      target: defect.to ?? null,
+      relation: defect.relation ?? null,
+      count: 0,
+      consumers: [],
+    };
+    group.count += 1;
+    if (typeof defect.from === "string") group.consumers.push(defect.from);
+    groups.set(key, group);
+  }
+  return Object.freeze([...groups.values()]
+    .map((group) => Object.freeze({
+      ...group,
+      consumers: Object.freeze([...new Set(group.consumers)].sort()),
+    }))
+    .sort((left, right) =>
+      right.count - left.count
+      || String(left.target).localeCompare(String(right.target))
+      || String(left.kind).localeCompare(String(right.kind))
+      || String(left.relation).localeCompare(String(right.relation))));
 }
 
 function dotIdentifier(value) {
@@ -272,6 +347,11 @@ export function renderRegistryGraphDot(graph, { tier = "dependency" } = {}) {
         targets.add(edge.to);
         lines.push(`  ${dotIdentifier(edge.to)} [shape=ellipse];`);
       }
+      lines.push(`  ${dotIdentifier(edge.from)} -> ${dotIdentifier(edge.to)} [label=${dotIdentifier(edge.relation)}];`);
+    }
+  } else if (tier === "history") {
+    for (const node of graph.nodes) lines.push(`  ${dotIdentifier(node.address.packageSurface)} [shape=box];`);
+    for (const edge of graph.tiers.history.edges ?? []) {
       lines.push(`  ${dotIdentifier(edge.from)} -> ${dotIdentifier(edge.to)} [label=${dotIdentifier(edge.relation)}];`);
     }
   } else {

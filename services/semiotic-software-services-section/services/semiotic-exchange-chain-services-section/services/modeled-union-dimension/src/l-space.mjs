@@ -1,15 +1,15 @@
 import { createHash } from "node:crypto";
 import { chargeValue, chargeValueName, joinKnowledgeValue } from "@lenticule-science/articulating/predicating/positing";
-import { relationalValueId } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
+import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 
-const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const SHA = /^sha256:[a-f0-9]{64}$/u;
 export const NOTEBOOK_PROVIDER = "urn:ame:notebooklm-inference-team";
 
-function identify(value) { return relationalValueId(value); }
+function identify(value) { return identifyJsonSemanticContent({ objectKind: `modeled-union-dimension.${value?.type ?? "material"}`, value, witnessRoot: EMPTY_WITNESS_ROOT }).token; }
 function digest(value) { return `sha256:${createHash("sha256").update(value).digest("hex")}`; }
 function required(value, label) { if (typeof value !== "string" || value.length === 0) throw new TypeError(`${label} must be a non-empty string`); return value; }
-function exactNi(value, label) { if (typeof value !== "string" || !NI.test(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`); return value; }
+function exactNi(value, label) { if (!isCanonicalSha256NiUri(value)) throw new TypeError(`${label} must be a canonical SHA-256 ni identifier`); return value; }
 function freeze(value) { if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value; for (const child of Object.values(value)) freeze(child); return Object.freeze(value); }
 function canonicalBody(value) { const { id: _id, ...body } = value; return body; }
 

@@ -28,15 +28,18 @@ and morphism witnesses.
 
 `settleProofCoordinate` exposes the bounded RMN adapter. A coordinate is a
 versioned, type-labelled settlement term with its root, target, and normalized
-generator witnesses. It is the immutable identity; `rmn1:` and canonical JSON
-are checked transport renderings. An unearned or malformed coordinate refuses.
+generator witnesses. It is semantic material, not by itself an identity. An
+unearned or malformed coordinate refuses. The parent proof-pathing section's
+identity adapter translates an earned coordinate into a closed RMN term and
+commits its normalized semantic-content v2 envelope before canonical CBOR and
+NI naming.
 
 `proofPathOfCoordinate` derives the existing POSIX AST from a settled
 coordinate, so a filesystem path is never the coordinate itself. Dynamic names
 are represented separately by `ProofSelector`, which declares its resolver.
 `ProofEnvelope` retains the coordinate while carrying optional commitment,
 Merkle, signature, and 5615611 anchor witnesses; the witnesses are boundary
-evidence, not replacement identities.
+evidence, not replacement coordinates or identities.
 
 ## Provenance
 

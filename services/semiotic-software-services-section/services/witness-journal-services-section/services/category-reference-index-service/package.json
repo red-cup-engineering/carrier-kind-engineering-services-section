@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/category-reference-index-service",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -18,7 +18,8 @@
     "verify": "node --check src/category-reference-index.mjs && node --test test/*.test.mjs"
   },
   "dependencies": {
+    "@red-cup-engineering/ni-uri-services-section": "0.1.1",
     "@red-cup-engineering/resource-brokerage-service-section": "2.0.3",
-    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2"
   }
 }

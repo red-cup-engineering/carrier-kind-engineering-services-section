@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createCarrierAdmissionReceipt, createModeledUnionDimension, projectTerritoryFoam } from "../src/index.mjs";
-import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
+import { makeNiUri } from "@red-cup-engineering/ni-uri-services-section";
 
-const ni = rawNiUri;
+const ni = (value) => makeNiUri(Buffer.from(value, "utf8"));
 const packageName = "@red-cup-engineering/example-cell";
 const locus = `package:${packageName}`;
 const territory = Object.freeze({
@@ -55,7 +55,7 @@ test("the MUD core appends admitted territory sections to its canonical loci pre
     events: [], chainId: "eip155:5615610", exchange: "0x98bBC65824962b61dF876A47B5779C4EcBBD4939",
     carrierAdmissions: [admission], observerFamily,
   }).presentation();
-  assert.equal(presentation.version, 5);
+  assert.equal(presentation.version, 7);
   assert.equal(presentation.loci[0].type, "CodebaseTerritoryActorLocus");
   assert.equal(presentation.loci[0].id, locus);
   assert.equal(presentation.loci[0].phase, "positive-bulk");

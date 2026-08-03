@@ -24,7 +24,7 @@ const INPUT = {
 };
 
 test("the MCP contract derives its version without publishing a customer-global extent ceiling", () => {
-  assert.equal(CODEX_MCP_SERVER_INFO.version, "4.0.0");
+  assert.equal(CODEX_MCP_SERVER_INFO.version, "4.2.0");
   assert.equal(CONTRACT_INFERENCE_WORK_INPUT_SCHEMA.difficulty.safeParse(0).success, true);
   assert.equal(CONTRACT_INFERENCE_WORK_INPUT_SCHEMA.difficulty.safeParse(1).success, true);
   assert.equal(CONTRACT_INFERENCE_WORK_INPUT_SCHEMA.difficulty.safeParse(1.1).success, false);
