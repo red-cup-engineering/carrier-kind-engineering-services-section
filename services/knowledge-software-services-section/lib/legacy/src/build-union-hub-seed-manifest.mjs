@@ -93,7 +93,7 @@ for (const preferred of ["core", "academy", "board", "lenticule", "rsc", "red_cu
 }
 if (picked.length < 269) throw new Error(`Only ${picked.length} admissible unique documents found`);
 picked.sort((a, b) => b.score - a.score || a.rel.localeCompare(b.rel));
-const teamData = path.join(root, "services/red-cup-engineering/services/software-services-section/services/model-services-section/services/logical-inference-services-section/services/notebooklm-inference-team/data/advisory-corpus");
+const teamData = path.join(root, "services/red-cup-engineering/services/software-services-section/services/inference-services-section/services/notebooklm-inference-team/data/advisory-corpus");
 const out = path.join(teamData, "union-self-conception-corpus-seed-269.json");
 const manifest = {
   schema_version: 1,
