@@ -18,6 +18,10 @@ and adds the nearest enclosing Git worktree plus a fact-only legacy state:
 `inside-legacy`, `outside-legacy`, `no-worktree`, or `git-metadata`. It does
 not guess which living service should receive a corpus.
 
+`scripts/audit-git-submodule-graph.mjs --repository PATH` compares the index's
+real `160000` gitlinks with `.gitmodules` declarations and reports both
+mismatch directions as JSON. It is read-only.
+
 ## Relocation
 
 All relocation commands use explicit paths, conventional exit status, JSON on
