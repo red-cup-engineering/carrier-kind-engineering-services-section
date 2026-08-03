@@ -1,4 +1,0 @@
-<urn:ame:git-ant-colony> <urn:emsenn:evm:retired-controller-artifact> <ni:///sha-256;m6tNMl_zBo7XBZH8AiJzMXh-bkCmmTszAfRzpGBNEEI> <urn:ame:git-ant-colony:controller-custody-cutover:eip155-31337> .
-<ni:///sha-256;m6tNMl_zBo7XBZH8AiJzMXh-bkCmmTszAfRzpGBNEEI> <urn:emsenn:evm:retired-path> "data/evm/controller-eip155-31337.env" <urn:ame:git-ant-colony:controller-custody-cutover:eip155-31337> .
-<urn:ame:git-ant-colony> <urn:emsenn:evm:controller-keystore-format> "Ethereum Secret Storage v3" <urn:ame:git-ant-colony:controller-custody-cutover:eip155-31337> .
-<urn:ame:git-ant-colony> <urn:emsenn:evm:controller-chain> <eip155:31337> <urn:ame:git-ant-colony:controller-custody-cutover:eip155-31337> .

@@ -1,4 +1,0 @@
-<urn:ame:state-report-infographic-service> <urn:emsenn:evm:retired-controller-artifact> <ni:///sha-256;0nL6VEixIoQmIx7Ok5dJIJ6EhROwHY5q4PIrPFpeTmQ> <urn:ame:state-report-infographic-service:controller-custody-cutover:eip155-31337> .
-<ni:///sha-256;0nL6VEixIoQmIx7Ok5dJIJ6EhROwHY5q4PIrPFpeTmQ> <urn:emsenn:evm:retired-path> "data/evm/controller-eip155-31337.env" <urn:ame:state-report-infographic-service:controller-custody-cutover:eip155-31337> .
-<urn:ame:state-report-infographic-service> <urn:emsenn:evm:controller-keystore-format> "Ethereum Secret Storage v3" <urn:ame:state-report-infographic-service:controller-custody-cutover:eip155-31337> .
-<urn:ame:state-report-infographic-service> <urn:emsenn:evm:controller-chain> <eip155:31337> <urn:ame:state-report-infographic-service:controller-custody-cutover:eip155-31337> .

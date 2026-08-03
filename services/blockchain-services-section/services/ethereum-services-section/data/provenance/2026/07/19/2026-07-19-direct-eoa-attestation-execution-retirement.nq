@@ -1,5 +1,0 @@
-<urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <urn:emsenn:DirectExecutionRetirement> <urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> .
-<urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> <urn:emsenn:displacedFragment> <ni:///sha-256;M4skT1XeN4NyH0l1idDPmdH4uwPqabyY_x8u3xs_lJk> <urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> .
-<urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> <urn:emsenn:sourceCarrier> "src/eas-token-claim-attestations.mjs" <urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> .
-<urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> <urn:emsenn:successorCarrier> <ni:///sha-256;vS3zoNbpqLZCCEyHmSChMX3YAn9OC0RCQUbcu3T3Nuc> <urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> .
-<urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> <urn:emsenn:reason> "The retired function executed an enterprise account directly with an EOA controller key. Settlement execution is admitted only as an ERC-4337 UserOperation through EntryPoint; the pure EAS request projection remains." <urn:uuid:ac6260e8-e437-4bd6-949b-bb1f8e3f67ce> .
