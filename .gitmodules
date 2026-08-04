@@ -58,3 +58,6 @@
 [submodule "services/semiotic-software-services-section/services/cell-services-section"]
 	path = services/semiotic-software-services-section/services/cell-services-section
 	url = https://github.com/red-cup-engineering/cell-services-section.git
+[submodule "services/semiotic-software-services-section/services/semiotic-software-development-services-section"]
+	path = services/semiotic-software-services-section/services/semiotic-software-development-services-section
+	url = https://github.com/red-cup-engineering/semantic-software-development-services-section.git
