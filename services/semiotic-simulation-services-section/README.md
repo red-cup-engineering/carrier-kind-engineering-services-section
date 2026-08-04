@@ -10,7 +10,7 @@ own exchange substrate.
 
 ## What's here
 
-- `services/witness-journal-services-section/` — witness-journal-facing capability cells (witness
+- `services/semiotic-software-services-section/services/witness-journal-services-section/` — witness-journal-facing capability cells (witness
   log indexing and reference services).
 - `services/semantic-content-identify-service/` — content-address/semantic
   identity service for the settlement's own semiotic content.
