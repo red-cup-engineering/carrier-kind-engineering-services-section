@@ -43,3 +43,6 @@
 [submodule "services/semiotic-software-services-section"]
 	path = services/semiotic-software-services-section
 	url = https://github.com/red-cup-engineering/semiotic-software-services-section.git
+[submodule "services/mud-services-section/lib/legacy"]
+	path = services/mud-services-section/lib/legacy
+	url = https://github.com/red-cup-engineering/mud-services-section-legacy.git
