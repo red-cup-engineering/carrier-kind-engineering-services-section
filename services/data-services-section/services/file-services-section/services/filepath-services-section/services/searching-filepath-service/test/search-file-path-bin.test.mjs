@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const BIN = join(HERE, "..", "scripts", "search-path.mjs");
+const BIN = join(HERE, "..", "scripts", "search-file-path.mjs");
 
 async function withRoot(fn) {
   const root = await mkdtemp(join(tmpdir(), "search-path-bin-"));

@@ -55,7 +55,7 @@ async function main() {
   }
 }
 
-// Same rationale as search-path's bin: a downstream reader that stops early
+// Same rationale as search-file-path's bin: a downstream reader that stops early
 // (`... | head -n 1`) closes its end of the pipe and Node delivers EPIPE on
 // the next write — exit cleanly instead of an uncaught-error stack trace.
 process.stdout.on("error", (error) => {

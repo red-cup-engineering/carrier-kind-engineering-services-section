@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { createDatedStateCustody } from "@red-cup-engineering/dated-state-writing-service";
 
-import { resolvePriorityPathsConfig, stagedTokenSearch } from "../src/search-path.mjs";
+import { resolvePriorityPathsConfig, stagedTokenSearch } from "../src/search-file-path.mjs";
 
 function usage() {
   return [
-    "usage: search-path <token> --root <path> [--config <path>]",
+    "usage: search-file-path <token> --root <path> [--config <path>]",
     "         [--exclude <name>]... [--case-sensitive] [--word-boundary]",
     "         [--record <state-root>]",
   ].join("\n");
@@ -63,7 +63,7 @@ async function main() {
     const line = `${JSON.stringify(match)}\n`;
     const canWriteMore = process.stdout.write(line);
     if (custody) {
-      await custody.put({ service: "search-path", type: "run", extension: "ndjson", recordedAt, bytes: line, append: true });
+      await custody.put({ service: "searching-filepath-service", type: "run", extension: "ndjson", recordedAt, bytes: line, append: true });
     }
     if (!canWriteMore) await new Promise((res) => process.stdout.once("drain", res));
   }

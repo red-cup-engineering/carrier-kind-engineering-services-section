@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
-import { resolvePriorityPathsConfig, stagedTokenSearch } from "../src/search-path.mjs";
+import { resolvePriorityPathsConfig, stagedTokenSearch } from "../src/search-file-path.mjs";
 
 async function withRoot(fn) {
   const root = await mkdtemp(join(tmpdir(), "search-path-"));

@@ -1,17 +1,17 @@
 import { spawnSync } from "node:child_process";
 import { relative, resolve } from "node:path";
 
-import { resolvePriorityPathsConfig } from "@red-cup-engineering/path-search-app";
+import { resolvePriorityPathsConfig } from "@red-cup-engineering/searching-filepath-service";
 
 // A renamed path (a bin, a service directory, a doc) leaves stale literal
 // references behind it — that is the whole reason this tool exists. Finding
-// them is a full-text content grep, exactly the sweep path-search-app's own
+// them is a full-text content grep, exactly the sweep searching-filepath-service's own
 // staged token search says up front it is *not* ("Use to find where to look
-// first before committing to a full-text sweep."). None of path-search-app's
+// first before committing to a full-text sweep."). None of searching-filepath-service's
 // composed services do plain literal content matching over arbitrary file
 // content (matchFilenameToken tests only the path string; matchMarkdownToken
 // tests only frontmatter/headings) so this module does not force that shape.
-// It reuses what path-search-app already has that *does* apply — the same
+// It reuses what searching-filepath-service already has that *does* apply — the same
 // vault-configured excludes (`resolvePriorityPathsConfig`, sourced the same
 // three ways: --config, <root>/etc/priority-paths.json, or the shipped
 // example) — and gets the actual line-by-line literal search from `rg`,
@@ -80,8 +80,8 @@ export function findStaleReferences({ old, root, excludes = [], options = {}, se
 
 /**
  * Convenience wrapper: resolve the same vault-configured excludes
- * `search-path` uses (--config, then `<root>/etc/priority-paths.json`, then
- * path-search-app's shipped example) and run `findStaleReferences` with
+ * `search-file-path` uses (--config, then `<root>/etc/priority-paths.json`, then
+ * searching-filepath-service's shipped example) and run `findStaleReferences` with
  * them, so the two tools agree on what counts as noise (node_modules, .git,
  * legacy, _archive, archive, package-registry*, .tmp by default) without
  * this app carrying a second copy of that list.
