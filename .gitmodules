@@ -25,9 +25,6 @@
 [submodule "services/interface-services-section/services/emacs-services-section"]
 	path = services/interface-services-section/services/emacs-services-section
 	url = https://github.com/red-cup-engineering/emacs-services-section.git
-[submodule "services/resource-brokerage-service-section"]
-	path = services/resource-brokerage-service-section
-	url = https://github.com/red-cup-engineering/resource-brokerage-service-section.git
 [submodule "services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service"]
 	path = services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service
 	url = https://github.com/red-cup-engineering/capability-cell-fabrication-run-monitor-service.git
