@@ -29,7 +29,7 @@
 	path = services/resource-brokerage-service-section
 	url = https://github.com/red-cup-engineering/resource-brokerage-service-section.git
 [submodule "services/semiotic-simulation-services-section/services/capability-services-section/capability-pricing-service"]
-	path = services/semiotic-simulation-services-section/services/capability-services-section/capability-pricing-service
+	path = services/semiotic-software-services-section/services/semiotic-agent-services-section/semiotic-capability-services-section/services/capability-pricing-service
 	url = https://github.com/red-cup-engineering/capability-pricing-service.git
 [submodule "services/semiotic-software-services-section/services/capability-cell-fabrication-services-section/services/cell-identity-verification-service"]
 	path = services/semiotic-software-services-section/services/capability-cell-fabrication-services-section/services/cell-identity-verification-service
