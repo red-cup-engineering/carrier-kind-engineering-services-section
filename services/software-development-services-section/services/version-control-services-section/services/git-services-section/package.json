@@ -9,11 +9,12 @@
     "archive-discovery": "./scripts/archive-discovery",
     "archive-worktree-map": "./scripts/archive-worktree-map",
     "audit-git-submodule-graph": "./scripts/audit-git-submodule-graph.mjs",
-    "register-existing-git-repository": "./scripts/register-existing-git-repository.mjs"
+    "register-existing-git-repository": "./scripts/register-existing-git-repository.mjs",
+    "inspect-reform-target": "./scripts/inspect-reform-target.mjs"
   },
   "scripts": {
-    "check": "sh -n scripts/git-services && node --check scripts/archive-discovery && node --check scripts/archive-worktree-map && node --check scripts/audit-git-submodule-graph.mjs && node --check scripts/register-existing-git-repository.mjs && node --check scripts/relocate-a-directory.mjs && node --check scripts/relocate-a-git-repository.mjs && node --check scripts/retire-a-git-repository-to-legacy.mjs && node --check src/collect-colony-activity.mjs && node --check src/discover-archives.mjs && node --check src/map-archive-worktrees.mjs && node --check src/settle-filesystem-receipt.mjs",
-    "test": "node --test test/archive-discovery.test.mjs test/archive-worktree-map.test.mjs test/relocation-cli.test.mjs test/managed-git-policy.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
+    "check": "sh -n scripts/git-services && node --check scripts/archive-discovery && node --check scripts/archive-worktree-map && node --check scripts/audit-git-submodule-graph.mjs && node --check scripts/register-existing-git-repository.mjs && node --check scripts/relocate-a-directory.mjs && node --check scripts/relocate-a-git-repository.mjs && node --check scripts/retire-a-git-repository-to-legacy.mjs && node --check scripts/inspect-reform-target.mjs && node --check src/collect-colony-activity.mjs && node --check src/discover-archives.mjs && node --check src/map-archive-worktrees.mjs && node --check src/settle-filesystem-receipt.mjs",
+    "test": "node --test test/archive-discovery.test.mjs test/archive-worktree-map.test.mjs test/relocation-cli.test.mjs test/inspect-reform-target.test.mjs test/managed-git-policy.test.js test/settle-filesystem-receipt.test.mjs test/serialized-mutation-lane.test.mjs",
     "verify": "npm run check && npm test"
   },
   "engines": {
@@ -25,6 +26,7 @@
   "exports": {
     "./src/collect-colony-activity.mjs": "./src/collect-colony-activity.mjs",
     "./src/discover-archives.mjs": "./src/discover-archives.mjs",
-    "./src/map-archive-worktrees.mjs": "./src/map-archive-worktrees.mjs"
+    "./src/map-archive-worktrees.mjs": "./src/map-archive-worktrees.mjs",
+    "./src/inspect-reform-target.mjs": "./src/inspect-reform-target.mjs"
   }
 }
