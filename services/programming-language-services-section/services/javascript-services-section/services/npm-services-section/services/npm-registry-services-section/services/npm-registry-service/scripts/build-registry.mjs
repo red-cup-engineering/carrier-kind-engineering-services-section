@@ -34,6 +34,5 @@ await mkdir(graphDirectory, { recursive: true });
 await Promise.all([
   writeFile(join(graphDirectory, "npm-registry-graph.json"), `${JSON.stringify(graph, null, 2)}\n`),
   writeFile(join(graphDirectory, "dependency-tier.dot"), renderRegistryGraphDot(graph, { tier: "dependency" })),
-  writeFile(join(graphDirectory, "actor-tier.dot"), renderRegistryGraphDot(graph, { tier: "actor" })),
 ]);
 process.stdout.write(`${JSON.stringify({ type: receipt.type, registry: receipt.registry, packages: receipt.packageCount, releases: receipt.packages.length, scopes: receipt.scopes.length, compute: receipt.compute }, null, 2)}\n`);

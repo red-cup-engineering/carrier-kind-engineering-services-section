@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/programming-language-services-section",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Groups services by the programming language interfaces they operate."
+}

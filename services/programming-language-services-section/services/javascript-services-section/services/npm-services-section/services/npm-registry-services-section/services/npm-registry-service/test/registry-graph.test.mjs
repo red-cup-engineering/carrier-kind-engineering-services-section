@@ -30,8 +30,6 @@ async function writeFixtureRegistry(root, { danglingPin = false } = {}) {
         "1.0.0": {
           name: "@example/leaf",
           version: "1.0.0",
-          "x-semiotic-voxel": { actor: "urn:ame:example-leaf", owner: "example", kind: "actor" },
-          "x-agentic-metro-enterprise": { "node-id": "leaf-node" },
           dist: { shasum: "leaf-sha", integrity: "sha512-leaf" },
         },
       },
@@ -45,7 +43,6 @@ async function writeFixtureRegistry(root, { danglingPin = false } = {}) {
           dependencies: { "@example/leaf": danglingPin ? "9.9.9" : "1.0.0" },
           devDependencies: { typescript: "^5.8.0" },
           redCupEngineering: { supersedes: { package: "@example/leaf", version: "1.0.0", reason: "fixture replacement" } },
-          "x-semiotic-voxel": { actor: "urn:ame:example-stem", owner: "example", kind: "actor" },
           dist: { shasum: "stem-sha", integrity: "sha512-stem" },
         },
       },
@@ -92,9 +89,6 @@ test("derives a tiered registry graph with two-leg node addresses", async () => 
     assert.equal(external.to, "typescript");
     assert.equal(external.relation, "devDependencies");
 
-    assert.deepEqual(graph.tiers.actor.edges.filter((edge) => edge.from === "@example/leaf@1.0.0").map((edge) => [edge.relation, edge.to]), [
-      ["owned-by", "example"],
-    ]);
     assert.deepEqual(graph.tiers.history, {
       predecessor: null,
       reaction: null,
@@ -218,7 +212,7 @@ test("derives a graph from an explicit package list, no receipt needed", async (
   }
 });
 
-test("renders dependency and actor tiers as Graphviz DOT", async () => {
+test("renders dependency and history tiers as Graphviz DOT", async () => {
   const root = await mkdtemp(join(tmpdir(), "registry-graph-"));
   try {
     await writeFixtureRegistry(root);
@@ -226,8 +220,6 @@ test("renders dependency and actor tiers as Graphviz DOT", async () => {
     const dependencyDot = renderRegistryGraphDot(graph, { tier: "dependency" });
     assert.match(dependencyDot, /"@example\/stem@2\.0\.0" -> "@example\/leaf@1\.0\.0" \[label="dependencies"\];/u);
     assert.match(dependencyDot, /"typescript" \[shape=box, style=dashed\];/u);
-    const actorDot = renderRegistryGraphDot(graph, { tier: "actor" });
-    assert.match(actorDot, /"@example\/leaf@1\.0\.0" -> "example" \[label="owned-by"\];/u);
     const historyDot = renderRegistryGraphDot(graph, { tier: "history" });
     assert.match(historyDot, /"@example\/stem@2\.0\.0" -> "@example\/leaf@1\.0\.0" \[label="supersedes"\];/u);
     assert.throws(() => renderRegistryGraphDot(graph, { tier: "settlement" }), /unknown registry graph tier/u);

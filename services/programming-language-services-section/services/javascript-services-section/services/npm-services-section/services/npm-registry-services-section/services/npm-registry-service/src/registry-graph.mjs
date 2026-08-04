@@ -4,8 +4,8 @@ import { join, resolve } from "node:path";
 
 // A registry graph is one chart in the firm's atlas, and its tiers are
 // independent dimensions that must not collapse into a single edge set:
-// dependency pins, actor/ownership declarations, snapshot lineage, and
-// build witness each keep their own namespace. A node's address keeps
+// dependency pins, snapshot lineage, and build witness each keep their own
+// namespace. A node's address keeps
 // two legs — the package surface (name@version) and the content-addressable
 // integrity digest — as separate coordinates, never merged.
 const GRAPH_TYPE = "NpmRegistryGraph";
@@ -198,15 +198,6 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
     }
   }
 
-  // Ownership in plain npm terms: the scope owns the package. No custom
-  // manifest fields are read.
-  const actorEdges = [];
-  for (const node of nodes) {
-    if (node.scope !== null) {
-      actorEdges.push(Object.freeze({ from: node.address.packageSurface, to: node.scope, relation: "owned-by" }));
-    }
-  }
-
   // Package replacement is history, not dependency. A renamed or consolidated
   // package may identify the exact release it replaces without making either
   // package install the other. Keeping this edge in the registry graph makes
@@ -267,7 +258,6 @@ export async function deriveRegistryGraph({ registryRoot, registryUrl, packages,
     }))),
     tiers: Object.freeze({
       dependency: Object.freeze({ edges: Object.freeze(dependencyEdges) }),
-      actor: Object.freeze({ edges: Object.freeze(actorEdges) }),
       history: Object.freeze({
         predecessor: receipt?.predecessor ?? null,
         reaction: receipt?.reaction ?? null,
@@ -338,16 +328,6 @@ export function renderRegistryGraphDot(graph, { tier = "dependency" } = {}) {
       } else {
         lines.push(`  ${dotIdentifier(edge.from)} -> ${dotIdentifier(edge.to)} [label=${dotIdentifier(edge.relation)}];`);
       }
-    }
-  } else if (tier === "actor") {
-    for (const node of graph.nodes) lines.push(`  ${dotIdentifier(node.address.packageSurface)} [shape=box];`);
-    const targets = new Set();
-    for (const edge of graph.tiers.actor.edges) {
-      if (!targets.has(edge.to)) {
-        targets.add(edge.to);
-        lines.push(`  ${dotIdentifier(edge.to)} [shape=ellipse];`);
-      }
-      lines.push(`  ${dotIdentifier(edge.from)} -> ${dotIdentifier(edge.to)} [label=${dotIdentifier(edge.relation)}];`);
     }
   } else if (tier === "history") {
     for (const node of graph.nodes) lines.push(`  ${dotIdentifier(node.address.packageSurface)} [shape=box];`);

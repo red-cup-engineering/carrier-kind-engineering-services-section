@@ -41,7 +41,6 @@ if (format === "json") {
     receiptSha256: graph.receiptSha256,
     nodes: graph.nodes.length,
     dependencyEdges: graph.tiers.dependency.edges.length,
-    actorEdges: graph.tiers.actor.edges.length,
     history: graph.tiers.history,
     defects: graph.defects.length,
     defectGroups: defectGroups.map(({ consumers: _consumers, ...group }) => group),

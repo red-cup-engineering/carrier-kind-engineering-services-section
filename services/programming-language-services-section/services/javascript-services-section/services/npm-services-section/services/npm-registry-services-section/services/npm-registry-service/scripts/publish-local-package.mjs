@@ -80,7 +80,6 @@ try {
   await Promise.all([
     writeFile(join(graphDirectory, "npm-registry-graph.json"), `${JSON.stringify(graph, null, 2)}\n`),
     writeFile(join(graphDirectory, "dependency-tier.dot"), renderRegistryGraphDot(graph, { tier: "dependency" })),
-    writeFile(join(graphDirectory, "actor-tier.dot"), renderRegistryGraphDot(graph, { tier: "actor" })),
   ]);
 
   await service("stop");
