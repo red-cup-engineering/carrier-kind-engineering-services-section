@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/relation-model-notation-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Holds the services for the relation model notation itself: its terms, syntax, normalization, and conformance. The notation is separate from its uses; mathematics services belong to Lenticule Science."
-}
