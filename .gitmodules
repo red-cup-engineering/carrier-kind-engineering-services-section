@@ -52,3 +52,6 @@
 [submodule "services/semiotic-software-services-section/services/semiotic-content-address-system"]
 	path = services/semiotic-software-services-section/services/semiotic-content-address-system
 	url = https://github.com/red-cup-engineering/semiotic-content-address-system.git
+[submodule "services/data-services-section"]
+	path = services/data-services-section
+	url = https://github.com/red-cup-engineering/data-services-section.git
