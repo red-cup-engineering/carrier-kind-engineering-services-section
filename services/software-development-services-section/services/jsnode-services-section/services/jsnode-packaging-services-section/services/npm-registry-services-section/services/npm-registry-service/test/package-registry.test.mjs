@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { gunzipSync } from "node:zlib";
 import test from "node:test";
 
-import { createPackageRegistryServer, buildPackageRegistry, resolvePackageRegistryRequest, rewriteMetadataTarballOrigins } from "../src/package-registry.mjs";
+import { createPackageRegistryServer, buildPackageRegistry, recoverPackageRegistryReceipt, resolvePackageRegistryRequest, rewriteMetadataTarballOrigins } from "../src/package-registry.mjs";
 
 function tarEntries(gzip) {
   const archive = gunzipSync(gzip), entries = [];
@@ -90,10 +90,11 @@ test("packs and serves a package, stripping custom x- fields from what it publis
 
 test("registers a real carrier when npm pack's piped JSON output is empty", async () => {
   const root = await mkdtemp(join(tmpdir(), "voxel-registry-real-carrier-"));
-  const actuator = fileURLToPath(new URL("../../../../../../../../../../resource-brokerage-service-section/services/authority-custody-actuator", import.meta.url));
-  try {
-    const receipt = await buildPackageRegistry({ packageDirectories: [actuator], outputDirectory: join(root, "registry"), registryUrl: "http://127.0.0.1:4873/" });
-    assert.deepEqual(receipt.packages.map(({ name, version }) => ({ name, version })), [{ name: "@red-cup-engineering/authority-custody-actuator", version: "1.0.0" }]);
+    const actuator = fileURLToPath(new URL("../../../../../../../../../../resource-brokerage-service-section/services/authority-custody-actuator", import.meta.url));
+    try {
+      const receipt = await buildPackageRegistry({ packageDirectories: [actuator], outputDirectory: join(root, "registry"), registryUrl: "http://127.0.0.1:4873/" });
+    const manifest = JSON.parse(await readFile(join(actuator, "package.json"), "utf8"));
+    assert.deepEqual(receipt.packages.map(({ name, version }) => ({ name, version })), [{ name: manifest.name, version: manifest.version }]);
     assert.equal("x-semiotic-voxel" in receipt.packages[0], false);
   } finally {
     await rm(root, { recursive: true, force: true });
@@ -134,6 +135,39 @@ test("extends a base registry without discarding its published packages", async 
     assert.ok(await resolvePackageRegistryRequest({ registryDirectory: next, requestPath: "/@customer%2Ffirst" }));
     assert.ok(await resolvePackageRegistryRequest({ registryDirectory: next, requestPath: "/@customer%2Fsecond" }));
   } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("recovers a missing receipt from the verified metadata and tarballs", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-recovery-"));
+  try {
+    const carrier = join(root, "carrier"), registry = join(root, "registry");
+    await mkdir(carrier);
+    await writeFile(join(carrier, "package.json"), `${JSON.stringify({ name: "@customer/recoverable", version: "1.2.3", "x-semiotic-voxel": { package: "@customer/recoverable" } })}\n`);
+    await buildPackageRegistry({ packageDirectories: [carrier], outputDirectory: registry, registryUrl: "http://127.0.0.1:4873/" });
+    await rm(join(registry, "registry-receipt.json"));
+    const receipt = await recoverPackageRegistryReceipt({ registryDirectory: registry, registryUrl: "http://127.0.0.1:4873/" });
+    assert.deepEqual(receipt.packages.map(({ name, version }) => ({ name, version })), [{ name: "@customer/recoverable", version: "1.2.3" }]);
+    assert.equal(receipt.packageCount, 1);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("exposes npm health semantics on its read-only registry face", async () => {
+  const root = await mkdtemp(join(tmpdir(), "voxel-registry-health-"));
+  const server = createPackageRegistryServer({ registryDirectory: root });
+  try {
+    await new Promise((resolveListen) => server.listen(4878, "127.0.0.1", resolveListen));
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    const ping = await fetch(`${origin}/-/ping`);
+    assert.equal(ping.status, 200);
+    assert.deepEqual(await ping.json(), {});
+    const whoami = await fetch(`${origin}/-/whoami`);
+    assert.equal(whoami.status, 401);
+  } finally {
+    await new Promise((resolveClose) => server.close(resolveClose));
     await rm(root, { recursive: true, force: true });
   }
 });

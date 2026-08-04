@@ -3,7 +3,7 @@ import { execFile } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { promisify } from "node:util";
-import { buildPackageRegistry } from "../src/package-registry.mjs";
+import { buildPackageRegistry, recoverPackageRegistryReceipt } from "../src/package-registry.mjs";
 import { deriveRegistryGraph, renderRegistryGraphDot } from "../src/registry-graph.mjs";
 
 const execute = promisify(execFile);
@@ -26,7 +26,15 @@ if (registryUrl.hostname !== "127.0.0.1" && registryUrl.hostname !== "localhost"
   throw new Error("local publication requires a loopback registry URL");
 }
 
-const currentReceipt = JSON.parse(await readFile(join(registryDirectory, "registry-receipt.json"), "utf8"));
+const receiptPath = join(registryDirectory, "registry-receipt.json");
+let currentReceipt;
+try {
+  currentReceipt = JSON.parse(await readFile(receiptPath, "utf8"));
+} catch (error) {
+  if (error?.code !== "ENOENT") throw error;
+  currentReceipt = await recoverPackageRegistryReceipt({ registryDirectory, registryUrl: registryUrl.href });
+  await writeFile(receiptPath, `${JSON.stringify(currentReceipt, null, 2)}\n`);
+}
 if (currentReceipt.registry !== registryUrl.href) {
   throw new Error(`active registry declares ${currentReceipt.registry}, not ${registryUrl.href}`);
 }

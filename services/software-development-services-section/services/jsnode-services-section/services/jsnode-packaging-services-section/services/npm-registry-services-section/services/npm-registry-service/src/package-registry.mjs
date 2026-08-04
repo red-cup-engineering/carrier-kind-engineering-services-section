@@ -36,6 +36,51 @@ async function digest(path) {
   };
 }
 
+// The served metadata and tarballs are sufficient to reconstruct the receipt.
+// Keep that recovery here because the receipt is an index, not an irreplaceable
+// second copy of the catalogue.  A missing receipt must not make an otherwise
+// intact registry permanently unpublishable.
+export async function recoverPackageRegistryReceipt({ registryDirectory, registryUrl }) {
+  const root = resolve(registryDirectory);
+  const base = new URL(registryUrl);
+  if (!/^https?:$/u.test(base.protocol)) throw new TypeError("registryUrl must be absolute HTTP(S)");
+  const metadataDirectory = join(root, "metadata");
+  const files = (await readdir(metadataDirectory)).filter((file) => file.endsWith(".json")).sort();
+  const packages = [];
+  for (const file of files) {
+    const metadata = JSON.parse(await readFile(join(metadataDirectory, file), "utf8"));
+    if (!PACKAGE_NAME.test(metadata.name ?? "")) throw new Error(`registry metadata has invalid package identity: ${file}`);
+    for (const [version, manifest] of Object.entries(metadata.versions ?? {})) {
+      if (!VERSION.test(version) || manifest?.name !== metadata.name || manifest?.version !== version) {
+        throw new Error(`registry metadata has invalid release: ${metadata.name}@${version}`);
+      }
+      let artifact;
+      try { artifact = decodeURIComponent(new URL(manifest.dist?.tarball).pathname).replace(/^\/+/, ""); } catch {
+        throw new Error(`registry metadata has invalid tarball URL: ${metadata.name}@${version}`);
+      }
+      if (!artifact.startsWith("tarballs/")) throw new Error(`registry metadata has non-catalog tarball: ${metadata.name}@${version}`);
+      const artifactPath = resolve(root, artifact);
+      if (!inside(root, artifactPath) || !(await exists(artifactPath))) throw new Error(`registry tarball is absent: ${metadata.name}@${version}`);
+      const measured = await digest(artifactPath);
+      if (manifest.dist.shasum !== measured.shasum || manifest.dist.integrity !== measured.integrity) {
+        throw new Error(`registry tarball digest mismatch: ${metadata.name}@${version}`);
+      }
+      packages.push({ name: metadata.name, version, tarball: new URL(artifact, base).href, artifact, ...measured });
+    }
+  }
+  packages.sort((left, right) => left.name.localeCompare(right.name) || versionOrder(left.version, right.version));
+  const scopes = [...new Set(packages.map(({ name }) => name.slice(1, name.indexOf("/"))))].sort();
+  return {
+    type: "SemioticVoxelPackageRegistryReceipt",
+    version: 2,
+    registry: base.href,
+    packages,
+    packageCount: new Set(packages.map(({ name }) => name)).size,
+    scopes,
+    compute: { provider: "urn:provider:catalog-recovery", parallelism: 1, settlement: { type: "RecoveredFromVerifiedCatalogArtifacts" } },
+  };
+}
+
 async function projectCarrier(source, target, manifest, rewriteManifest) {
   const instanceTerritories = [
     "/content/assets/legacy/",
@@ -360,6 +405,14 @@ export function createPackageRegistryServer({ registryDirectory }) {
         return;
       }
       const url = new URL(request.url ?? "/", "http://registry.invalid");
+      if (url.pathname === "/-/ping") {
+        response.writeHead(200, { "content-type": "application/json" }).end(request.method === "HEAD" ? undefined : "{}\n");
+        return;
+      }
+      if (url.pathname === "/-/whoami") {
+        response.writeHead(401, { "content-type": "application/json", "www-authenticate": "Bearer realm=private-npm-registry" }).end(request.method === "HEAD" ? undefined : '{"error":"unauthorized"}\n');
+        return;
+      }
       const target = await resolvePackageRegistryRequest({ registryDirectory: root, requestPath: url.pathname });
       if (!target) {
         response.writeHead(404, { "content-type": "application/json" }).end('{"error":"not_found"}\n');
