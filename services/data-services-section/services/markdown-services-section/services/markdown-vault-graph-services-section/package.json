@@ -1,5 +1,0 @@
-{
-  "name": "@red-cup-engineering/markdown-vault-graph-services-section",
-  "private": true,
-  "description": "Holds the markdown vault graph service, which derives a tiered link, frontmatter-reference, and external-URL graph over a directory of Markdown notes. Use when charting or querying how the notes in a Markdown vault reference, transclude, or depend on one another."
-}

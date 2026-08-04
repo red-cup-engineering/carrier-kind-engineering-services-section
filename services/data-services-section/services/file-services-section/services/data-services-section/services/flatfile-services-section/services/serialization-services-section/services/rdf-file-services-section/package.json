@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/rdf-file-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Proof-path section for RDF flatfile serializations."
-}

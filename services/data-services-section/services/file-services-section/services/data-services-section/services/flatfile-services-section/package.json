@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/flatfile-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Proof-path section for finite single-file data carriers."
-}

@@ -1,9 +1,6 @@
 [submodule "services/web-services-section"]
 	path = services/web-services-section
 	url = https://github.com/red-cup-engineering/web-services-section.git
-[submodule "services/data-services-section/services/file-services-section/services/filesystem-custody-services-section/lib/legacy"]
-	path = services/data-services-section/services/file-services-section/services/filesystem-custody-services-section/lib/legacy
-	url = https://github.com/red-cup-engineering/filesystem-custody-services-section-legacy.git
 [submodule "services/blockchain-services-section/services/settlement-triggered-activity-publication-cell"]
 	path = services/blockchain-services-section/services/settlement-triggered-activity-publication-cell
 	url = https://github.com/red-cup-engineering/settlement-triggered-activity-publication-cell.git

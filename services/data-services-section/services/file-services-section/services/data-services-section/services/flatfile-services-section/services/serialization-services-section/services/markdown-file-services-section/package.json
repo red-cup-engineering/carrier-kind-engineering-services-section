@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/markdown-file-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Section containing the independently callable Markdown file reading and writing services."
-}

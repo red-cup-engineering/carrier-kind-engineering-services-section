@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/filesystem-custody-services-section",
-  "private": true,
-  "type": "module",
-  "description": "Owns POSIX workspace access receipts; version control consumes those receipts downstream.",
-  "version": "0.1.0"
-}
