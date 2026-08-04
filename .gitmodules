@@ -46,3 +46,6 @@
 [submodule "services/mud-services-section/lib/legacy"]
 	path = services/mud-services-section/lib/legacy
 	url = https://github.com/red-cup-engineering/mud-services-section-legacy.git
+[submodule "services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service"]
+	path = services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service
+	url = https://github.com/red-cup-engineering/systemd-unit-inventory-observation-service.git

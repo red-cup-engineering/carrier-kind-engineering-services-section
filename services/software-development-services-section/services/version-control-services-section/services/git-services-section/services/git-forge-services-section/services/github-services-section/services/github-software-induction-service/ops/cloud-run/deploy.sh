@@ -1,4 +1,4 @@
-#!/usr/scripts/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 : "${GOOGLE_CLOUD_PROJECT:?set GOOGLE_CLOUD_PROJECT}"
@@ -31,11 +31,11 @@ NODE
 ) || { echo "ACTIVITYPUB_ORIGIN must be a stable canonical HTTPS origin, never .invalid" >&2; exit 64; }
 
 repository_root=$(git -C "$script_dir" rev-parse --show-toplevel)
-actuator_module="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/src/gcloud-cloud-run-actuator.mjs"
+actuator_module="$repository_root/services/web-services-section/services/cloud-services-section/services/gcloud-services-section/services/gcloud-cloud-run-actuator-service/src/gcloud-cloud-run-actuator.mjs"
 for command in gcloud node; do command -v "$command" >/dev/null || { echo "missing required command: $command" >&2; exit 69; }; done
 if [[ -n "${ACTUATOR_CLI:-}" ]]; then command -v "$ACTUATOR_CLI" >/dev/null || { echo "ACTUATOR_CLI bootstrap override is unavailable" >&2; exit 69; }
 else
-  actuator_bin="$repository_root/services/software-services-section/services/web-services-section/services/cloud-compute-services-section/gcloud-services-section/services/gcloud-cloud-run-actuator-service/scripts/gcloud-cloud-run-actuator.mjs"
+  actuator_bin="$repository_root/services/web-services-section/services/cloud-services-section/services/gcloud-services-section/services/gcloud-cloud-run-actuator-service/scripts/gcloud-cloud-run-actuator.mjs"
   [[ -f "$actuator_bin" ]] || { echo "checked-in Cloud Run actuator CLI is absent" >&2; exit 69; }
 fi
 tag=${BUILD_TAG:-$(git -C "$script_dir" rev-parse --verify HEAD)}
