@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/semiotic-resource-name-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Groups the firm's Semiotic Resource Name (SRN) services. Three Dots and a Dash is a readable SRN surface codec: it derives generation, witness, and obstruction path claims as typed RMN material and checks those derived relations against caller-supplied admissibility data. SRN names proof-path structure; it is not a second content-identity scheme."
-}

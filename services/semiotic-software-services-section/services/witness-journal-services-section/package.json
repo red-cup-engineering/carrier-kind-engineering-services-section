@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/witness-journal-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Holds the services for the witness journal: append-ordered EAVT rows over RMN claims, where Time is stored and the Trace is the entry's ordinal in its journal. Journals are logs under data/logs; readouts are state under data/state."
-}

@@ -28,15 +28,6 @@
 [submodule "services/resource-brokerage-service-section"]
 	path = services/resource-brokerage-service-section
 	url = https://github.com/red-cup-engineering/resource-brokerage-service-section.git
-[submodule "services/semiotic-simulation-services-section/services/capability-services-section/capability-pricing-service"]
-	path = services/semiotic-software-services-section/services/semiotic-agent-services-section/semiotic-capability-services-section/services/capability-pricing-service
-	url = https://github.com/red-cup-engineering/capability-pricing-service.git
-[submodule "services/semiotic-software-services-section/services/capability-cell-fabrication-services-section/services/cell-identity-verification-service"]
-	path = services/semiotic-software-services-section/services/capability-cell-fabrication-services-section/services/cell-identity-verification-service
-	url = https://github.com/red-cup-engineering/cell-identity-verification-service.git
-[submodule "services/semiotic-software-services-section/services/semantic-content-identify-service"]
-	path = services/semiotic-software-services-section/services/semantic-content-identify-service
-	url = https://github.com/red-cup-engineering/semantic-content-identify-service.git
 [submodule "services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service"]
 	path = services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service
 	url = https://github.com/red-cup-engineering/capability-cell-fabrication-run-monitor-service.git
@@ -49,18 +40,9 @@
 [submodule "services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat"]
 	path = services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat
 	url = https://github.com/emsenn/metroplat.git
-[submodule "services/semiotic-software-services-section/services/semiotic-content-address-system"]
-	path = services/semiotic-software-services-section/services/semiotic-content-address-system
-	url = https://github.com/red-cup-engineering/semiotic-content-address-system.git
 [submodule "services/data-services-section"]
 	path = services/data-services-section
 	url = https://github.com/red-cup-engineering/data-services-section.git
-[submodule "services/semiotic-software-services-section/services/cell-services-section"]
-	path = services/semiotic-software-services-section/services/cell-services-section
-	url = https://github.com/red-cup-engineering/cell-services-section.git
-[submodule "services/semiotic-software-services-section/services/semiotic-software-development-services-section"]
-	path = services/semiotic-software-services-section/services/semiotic-software-development-services-section
-	url = https://github.com/red-cup-engineering/semantic-software-development-services-section.git
-[submodule "services/semiotic-software-services-section/services/semiotic-data-services-section"]
-	path = services/semiotic-software-services-section/services/semiotic-data-services-section
-	url = https://github.com/red-cup-engineering/semiotic-data-services-section.git
+[submodule "services/semiotic-software-services-section"]
+	path = services/semiotic-software-services-section
+	url = https://github.com/red-cup-engineering/semiotic-software-services-section.git
