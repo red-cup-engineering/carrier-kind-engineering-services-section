@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-export const GIT_INGRESS = fileURLToPath(new URL("../../version-control-services-section/services/git-services-section/bin/git", import.meta.url));
+export const GIT_INGRESS = fileURLToPath(new URL("../../../../computer-protocol-services-section/services/version-control-services-section/services/git-services-section/scripts/git-services", import.meta.url));
 
 export function gitObservationEnvironment({ actor, account }) {
   return Object.freeze({

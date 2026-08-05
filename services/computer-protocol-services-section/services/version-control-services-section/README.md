@@ -4,7 +4,7 @@ This section owns this settlement's Git version-control capability.
 
 ## git-services-section
 
-The live piece, and the thing that actually runs, is `bin/git`: a plain
+The live piece, and the thing that actually runs, is `scripts/git-services`: a plain
 `/bin/sh` script that stands in for `git` on this shared machine. It reads
 per-machine policy from `etc/machine.conf` (repo root, home dir, lock
 paths, and the `read_commands`/`write_commands` lists) and per-machine
@@ -22,7 +22,7 @@ Two more small, live pieces sit next to it:
 - `src/settle-filesystem-receipt.mjs` — given a one-line JSON "filesystem
   write receipt" naming a path and its expected post-write SHA-256, proves
   the file on disk still matches that hash, then stages and commits exactly
-  that one path through `bin/git`. It refuses if anything is already staged
+  that one path through `scripts/git-services`. It refuses if anything is already staged
   — a pre-staged index looks the same as the ambient dirt this exists to
   rule out.
 - `src/collect-colony-activity.mjs` — reads this repository's
@@ -64,13 +64,14 @@ Today, nothing in this section calls it.
 
 ## Provenance
 
-Both dies were relocated here from
-`board-of-directors/services/executive-office/services/change-services-section/`,
-on Leader authorization, on 2026-07-25. Git version-control tooling's
-owning boundary faculty is software engineering, not change-management
-administration: a shared public-protocol implementation is a separately
-hireable provider under the boundary faculty that owns its protocol, and
-that faculty is this section's, not Executive Office's. The existing
+This section was relocated from
+`software-development-services-section/services/version-control-services-section/`
+to `computer-protocol-services-section/services/version-control-services-section/`
+on Leader direction on 2026-08-05. Git's receiver-facing boundary is a
+computer protocol, so the protocol faculty owns this section; software
+development remains a customer. Both dies had previously been relocated from
+`board-of-directors/services/executive-office/services/change-services-section/`
+on Leader authorization on 2026-07-25. The existing
 `repository-state-observation-service` (already seated under
 `software-development-services-section`) already consumed
 `git-services-section` purely over the `GIT_ANT_*` environment-variable wire
@@ -97,5 +98,5 @@ on-chain, smart-account-gated admission ceremony that used to sit in front
 of every Git operation, with its own ActivityStreams/RMN-task/bound-operation
 contract vocabulary — was retired on 2026-07-31 and moved to
 `git-services-section/lib/legacy/bound-git-induction/`. It never became
-the thing `bin/git` above actually is; it is preserved there only as a
+the thing `scripts/git-services` above actually is; it is preserved there only as a
 record of what was tried.

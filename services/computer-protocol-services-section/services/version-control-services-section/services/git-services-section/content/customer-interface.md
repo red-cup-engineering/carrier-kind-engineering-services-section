@@ -4,7 +4,7 @@ For Git operations on this machine, invoke this section's managed wrapper
 instead of raw `git`:
 
 ```
-lib/emsenn/services/561-group/services/red-cup-engineering/services/software-services-section/services/software-development-services-section/services/version-control-services-section/services/git-services-section/bin/git <args>
+lib/emsenn/services/561-group/services/engineering-services-section/services/computer-services-section/services/computer-protocol-services-section/services/version-control-services-section/services/git-services-section/scripts/git-services <args>
 ```
 
 `cd` into the repository first — the wrapper refuses `-C`, `--git-dir`,

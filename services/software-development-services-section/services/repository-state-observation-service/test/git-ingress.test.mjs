@@ -17,7 +17,7 @@ test("repository observation reaches Git only through the sanctioned ingress", (
     },
   );
   assert.equal(observed.command, GIT_INGRESS);
-  assert.match(observed.command, /\/git-services-section\/bin\/git$/u);
+  assert.match(observed.command, /\/git-services-section\/scripts\/git-services$/u);
   assert.deepEqual(observed.argv, ["status", "--porcelain=v1", "--ignore-submodules=all"]);
   assert.equal(observed.options.cwd, "/home/emsenn/info");
   assert.deepEqual(observed.options.env, gitObservationEnvironment({

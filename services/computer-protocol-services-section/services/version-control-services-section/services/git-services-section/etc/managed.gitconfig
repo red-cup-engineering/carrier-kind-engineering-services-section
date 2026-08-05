@@ -1,5 +1,5 @@
 # Per-machine git defaults applied to every wrapper invocation via
-# GIT_CONFIG_GLOBAL. Edit per machine; bin/git hardcodes none of this.
+# GIT_CONFIG_GLOBAL. Edit per machine; scripts/git-services hardcodes none of this.
 [user]
 	name = emsenn
 	email = morgan.sennhauser@gmail.com

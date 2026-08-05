@@ -1,7 +1,7 @@
 {
   "kind": "ownership-law-shadow",
   "node": "block-device-io-coordinator",
-  "owners": ["561-group", "red-cup-engineering", "software-development-services-section", "version-control-services-section"],
+  "owners": ["561-group", "red-cup-engineering", "computer-protocol-services-section", "version-control-services-section"],
   "effective-law": {
     "direct-contracting": true,
     "owner-gateway-required": false,
