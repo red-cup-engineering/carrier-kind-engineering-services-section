@@ -44,5 +44,5 @@
 	path = services/semiotic-software-services-section
 	url = https://github.com/red-cup-engineering/semiotic-software-services-section.git
 [submodule "services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service"]
-	path = services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service
+	path = services/computer-operating-system-services-section/services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service
 	url = https://github.com/red-cup-engineering/systemd-unit-inventory-observation-service.git
