@@ -1,20 +1,21 @@
 #!/usr/bin/env node
-// push-the-current-branch — publishes the active branch's commits to a
+// push-current-branch — publishes the active branch's commits to a
 // remote so the remote's matching branch advances to the local tip.
 //
 // Module: default-exports async ({ cwd?, remote?, branch?, setUpstream?, gitBin? })
 //         → { pushed: true, remote, branch, root }
-// CLI:    node push-the-current-branch.mjs
+// CLI:    push-current-branch
 //           [--cwd <dir>] [--remote <name>] [--branch <name>] [--set-upstream] [--git-bin <path>]
 //
-// See commit-the-working-tree.mjs for the git-binary resolution order
-// (option, --git-bin flag, MANAGED_GIT env var, then "git" on PATH).
+// The Git binary is resolved from the option, MANAGED_GIT, then PATH.
 
 import { spawnSync } from 'node:child_process';
 import { resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { resolveGitBin } from './commit-the-working-tree.mjs';
+function resolveGitBin(gitBin) {
+  return gitBin || process.env.MANAGED_GIT || 'git';
+}
 
 function runGit(gitBin, cwd, args, { capture = true } = {}) {
   const result = spawnSync(resolveGitBin(gitBin), ['-C', cwd, ...args], {
@@ -63,7 +64,7 @@ if (resolve(fileURLToPath(import.meta.url)) === resolve(process.argv[1] ?? '')) 
     const out = await pushTheCurrentBranch({ cwd, remote, branch, setUpstream, gitBin });
     process.stdout.write(JSON.stringify(out, null, 2) + '\n');
   } catch (err) {
-    process.stderr.write(`[push-the-current-branch] ${err.message}\n`);
+    process.stderr.write(`push-current-branch: ${err.message}\n`);
     process.exit(1);
   }
 }

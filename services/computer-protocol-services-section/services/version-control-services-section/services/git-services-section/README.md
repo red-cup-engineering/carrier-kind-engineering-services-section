@@ -1,5 +1,18 @@
 # Git services
 
+## Focused services
+
+- `services/observing-git-repository-service/scripts/observe-git-repository.mjs`
+  reports a repository's root, branch, HEAD, and status.
+- `services/finding-parent-git-repositories-service/scripts/find-parent-git-repositories.mjs`
+  verifies the containing repository and each parent submodule boundary.
+- `services/committing-git-paths-service/scripts/commit-git-paths.mjs` stages and
+  commits only explicitly named paths.
+- `services/gitmodules-file-codec-service/scripts/read-gitmodules.mjs` reads a
+  `.gitmodules` file as JSON.
+- `services/pushing-current-branch-service/scripts/push-current-branch.mjs`
+  publishes the current branch.
+
 ## Archive discovery
 
 `scripts/archive-discovery --root PATH` emits a JSON inventory of every real

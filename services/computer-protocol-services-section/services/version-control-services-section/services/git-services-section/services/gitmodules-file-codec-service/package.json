@@ -4,9 +4,12 @@
   "private": true,
   "type": "module",
   "description": "Parses a .gitmodules file into submodule entries and encodes entries back to .gitmodules text, and reads the two on-disk shapes that report submodule pin state (submodule status lines and raw gitlink lines). Use when code needs to read or rewrite .gitmodules, or interpret submodule status/gitlink output, without shelling out to git for the parsing itself.",
+  "bin": {
+    "read-gitmodules": "./scripts/read-gitmodules.mjs"
+  },
   "scripts": {
-    "check": "node --check src/gitmodules.mjs && node --check test/gitmodules.test.mjs",
-    "test": "node --test test/gitmodules.test.mjs",
+    "check": "node --check src/gitmodules.mjs && node --check scripts/read-gitmodules.mjs && node --check test/gitmodules.test.mjs && node --check test/read-gitmodules.test.mjs",
+    "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },
   "engines": {

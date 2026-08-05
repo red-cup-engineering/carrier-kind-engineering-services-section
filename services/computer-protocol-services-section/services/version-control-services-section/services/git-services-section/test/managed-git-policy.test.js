@@ -5,7 +5,7 @@
 // about the (now-retired) bound-git-induction gate.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -67,6 +67,14 @@ test("admitted init proceeds where no repository exists yet", () => {
   }
 });
 
+function removeIfEmpty(path) {
+  try {
+    rmdirSync(path);
+  } catch (error) {
+    if (error.code !== "ENOENT" && error.code !== "ENOTEMPTY") throw error;
+  }
+}
+
 test("launcher serializes local mutation inside a disposable repository", () => {
   const fixtures = resolve(root, "data/test-fixtures");
   mkdirSync(fixtures, { recursive: true });
@@ -82,5 +90,7 @@ test("launcher serializes local mutation inside a disposable repository", () => 
     assert.equal(status.stdout, "A  witness.txt\n");
   } finally {
     rmSync(scratch, { recursive: true, force: true });
+    removeIfEmpty(fixtures);
+    removeIfEmpty(resolve(root, "data"));
   }
 });
