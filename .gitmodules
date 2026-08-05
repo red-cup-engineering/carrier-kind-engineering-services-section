@@ -43,3 +43,6 @@
 [submodule "services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service"]
 	path = services/computer-operating-system-services-section/services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service
 	url = https://github.com/red-cup-engineering/systemd-unit-inventory-observation-service.git
+[submodule "services/inference-services-section/services/github-models-inference-team"]
+	path = services/inference-services-section/services/github-models-inference-team
+	url = https://github.com/red-cup-engineering/github-models-inference-team.git
