@@ -1,4 +1,4 @@
-import { isCanonicalSha256NiUri } from "@red-cup-engineering/semantic-content-identify-service";
+import { isNiUri } from "@red-cup-engineering/ni-uri-services-section";
 
 const MANIFEST_PROFILE = "org.emsenn.evm.verified-deployment-manifest.v1";
 const ACTIVE_CHAIN = "eip155:5615611";
@@ -15,7 +15,7 @@ function requiredString(value, name) {
 
 function evidenceId(value, name) {
   const id = requiredString(value, name);
-  if (!SHA256_URN.test(id) && !isCanonicalSha256NiUri(id)) throw new Error(`deployment manifest has invalid ${name}`);
+  if (!SHA256_URN.test(id) && !isNiUri(id)) throw new Error(`deployment manifest has invalid ${name}`);
   return id;
 }
 
