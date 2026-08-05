@@ -42,12 +42,10 @@ in each for exactly what's there and why it isn't wired up.
 `git-services-section/services/` holds sibling seats: a `.gitmodules`
 parser/encoder (`gitmodules-file-codec-service`), a recursive
 commit-and-push-through-submodules helper (`git-recursive-commit-service`),
-and a `git-forge-services-section` subtree that groups this section's
-git-hosting-forge integrations (its `github-software-induction-service` seat
-was being relocated there, concurrently with this cleanup, under a rename to
-`git-forge-services-section/services/github-services-section` — check that
-subtree directly for its current shape rather than trusting this sentence
-to stay current).
+and a `git-forge-services-section` subtree for Git-forge capabilities.
+GitHub's repository, Models, and Actions integrations are web-platform
+services at
+`web-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-software-platform-services-section/services/github-services-section/`.
 
 ## block-device-io-coordinator
 

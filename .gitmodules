@@ -7,9 +7,6 @@
 [submodule "services/inference-services-section/services/gemini-services-section"]
 	path = services/inference-services-section/services/gemini-services-section
 	url = https://github.com/red-cup-engineering/gemini-inference-team.git
-[submodule "services/inference-services-section/services/github-models-inference-team"]
-	path = services/inference-services-section/services/github-models-inference-team
-	url = https://github.com/red-cup-engineering/github-models-inference-team.git
 [submodule "services/inference-services-section/services/groq-inference-team"]
 	path = services/inference-services-section/services/groq-inference-team
 	url = https://github.com/red-cup-engineering/groq-inference-team.git
