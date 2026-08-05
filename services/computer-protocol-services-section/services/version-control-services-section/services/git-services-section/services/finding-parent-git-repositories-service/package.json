@@ -1,0 +1,19 @@
+{
+  "name": "@red-cup-engineering/finding-parent-git-repositories-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Finds Git repositories containing a path and verifies each nested submodule boundary.",
+  "bin": {
+    "find-parent-git-repositories": "./scripts/find-parent-git-repositories.mjs"
+  },
+  "exports": "./scripts/find-parent-git-repositories.mjs",
+  "scripts": {
+    "check": "node --check scripts/find-parent-git-repositories.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

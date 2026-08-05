@@ -1,0 +1,19 @@
+{
+  "name": "@red-cup-engineering/observing-git-repository-service",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reports a Git repository's root, branch, HEAD, and working-tree status.",
+  "bin": {
+    "observe-git-repository": "./scripts/observe-git-repository.mjs"
+  },
+  "exports": "./scripts/observe-git-repository.mjs",
+  "scripts": {
+    "check": "node --check scripts/observe-git-repository.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

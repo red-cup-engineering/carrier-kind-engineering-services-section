@@ -29,9 +29,6 @@ stdout, and diagnostics on stderr. They are dry-run by default; `--apply` is
 the only flag that mutates files. None of them commits or pushes.
 
 ```sh
-# A plain content tree. Destination must not exist; the command never merges.
-scripts/relocate-a-directory.mjs --source /tree/from --destination /tree/to --apply
-
 # A registered Git submodule. The exact source pin is retained at the target.
 scripts/relocate-a-git-repository.mjs \
   --source-repository /parent/with/source --source-path lib/the-repository \

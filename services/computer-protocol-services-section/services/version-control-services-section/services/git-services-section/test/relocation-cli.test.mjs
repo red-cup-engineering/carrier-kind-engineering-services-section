@@ -1,33 +1,15 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const relocateDirectory = resolve(root, "scripts/relocate-a-directory.mjs");
 const relocateRepository = resolve(root, "scripts/relocate-a-git-repository.mjs");
 const retireRepository = resolve(root, "scripts/retire-a-git-repository-to-legacy.mjs");
 const rawGitEnvironment = { ...process.env, GIT_SERVICES_BIN: "/usr/bin/git", GIT_ALLOW_PROTOCOL: "file" };
-
-test("relocate-a-directory plans first and preserves its source until apply", () => {
-  const scratch = mkdtempSync(resolve(tmpdir(), "relocate-directory-"));
-  try {
-    const source = resolve(scratch, "source");
-    const destination = resolve(scratch, "destination");
-    mkdirSync(source);
-    writeFileSync(resolve(source, "content.txt"), "preserve me\n");
-    const planned = command(relocateDirectory, ["--source", source, "--destination", destination]);
-    assert.equal(planned.status, 0, planned.stderr);
-    assert.equal(JSON.parse(planned.stdout).apply, false);
-    assert.equal(readFileSync(resolve(source, "content.txt"), "utf8"), "preserve me\n");
-    const applied = command(relocateDirectory, ["--source", source, "--destination", destination, "--apply"]);
-    assert.equal(applied.status, 0, applied.stderr);
-    assert.equal(readFileSync(resolve(destination, "content.txt"), "utf8"), "preserve me\n");
-  } finally { rmSync(scratch, { recursive: true, force: true }); }
-});
 
 test("relocate-a-git-repository moves a real pinned submodule between clean parents", () => {
   const scratch = mkdtempSync(resolve(tmpdir(), "relocate-submodule-"));
