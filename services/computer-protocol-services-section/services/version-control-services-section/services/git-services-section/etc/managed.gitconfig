@@ -6,7 +6,6 @@
 [core]
 	editor = true
 	fsmonitor = false
-	hooksPath = /dev/null
 [gc]
 	auto = 0
 [credential "https://github.com"]

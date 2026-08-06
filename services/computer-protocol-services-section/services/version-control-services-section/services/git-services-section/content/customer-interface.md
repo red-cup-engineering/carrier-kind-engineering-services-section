@@ -23,8 +23,9 @@ Two write shapes are refused even inside the write lane, because on a
 machine with several agents sharing one tree they silently absorb another
 agent's in-flight work:
 
-- `git add -A` / `git add .` / `git add *` — stage named paths instead
-  (`git add path/to/file`).
+- ambient `git add -A` / `git add .` / `git add *` — stage named paths instead.
+  The deletion-aware helper shape `git add -A -- path/to/file path/to/tree`
+  is admitted because the `--` pathspec boundary makes its custody explicit.
 - an unscoped `git commit` — scope it with `-- <paths>` or
   `--pathspec-from-file` (a commit that completes a merge/cherry-pick/revert
   is exempt, since git itself refuses path-limited commits in that state).
@@ -36,3 +37,28 @@ section's sibling die, exists and is well-tested, but nothing calls it yet
 — see the section README.) A refused command exits non-zero with a
 `managed git: denied: ...` or `managed git: deferred: ...` line on stderr
 naming the policy file and the exact reason.
+
+## Nested-repository custody procedure
+
+Every change begins by identifying the repository that owns the files and
+every parent gitlink between that repository and `/home/emsenn/info`. A root
+status alone is not evidence that nested work is safe.
+
+1. Inventory registered submodules recursively and any independent nested
+   `.git` worktrees. Record dirty state, branch or detached HEAD, configured
+   remote, and remote reachability before changing refs.
+2. Verify and commit the deepest changed repository first. Stage only named
+   paths, push with `--recurse-submodules=check`, and confirm the remote ref
+   resolves to the exact local commit.
+3. At each parent boundary, commit only the updated gitlink, push that parent,
+   and continue upward. Do not report a move complete until every affected
+   parent gitlink has been published.
+4. Before publishing the root, require an empty recursive registered-submodule
+   dirty scan, run the recursive submodule graph audit, and use
+   `git push --recurse-submodules=check`.
+5. Never force a divergent branch during routine custody. Fetch and reconcile
+   it, or publish the local tip to a new incident-recovery branch first.
+
+Hooks are defense in depth, not the procedure itself. A hook refusal must name
+the failing repository; bypassing a hook is reserved for a reviewed recovery
+ref whose recorded gitlinks have independently passed the recursive check.

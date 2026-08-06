@@ -94,3 +94,27 @@ test("launcher serializes local mutation inside a disposable repository", () => 
     removeIfEmpty(resolve(root, "data"));
   }
 });
+
+test("launcher admits deletion-aware staging only with named pathspecs", () => {
+  const fixtures = resolve(root, "data/test-fixtures");
+  mkdirSync(fixtures, { recursive: true });
+  const scratch = mkdtempSync(resolve(fixtures, "scoped-add-"));
+  try {
+    const initialized = spawnSync("/usr/bin/git", ["init", "-q", scratch], { encoding: "utf8" });
+    assert.equal(initialized.status, 0, initialized.stderr);
+    writeFileSync(resolve(scratch, "witness.txt"), "scoped\n");
+
+    const ambient = spawnSync(launcher, ["add", "-A"], { cwd: scratch, encoding: "utf8", env: process.env });
+    assert.equal(ambient.status, 126);
+    assert.match(ambient.stderr, /requires '--' followed by named paths/u);
+
+    const scoped = spawnSync(launcher, ["add", "-A", "--", "witness.txt"], { cwd: scratch, encoding: "utf8", env: process.env });
+    assert.equal(scoped.status, 0, scoped.stderr);
+    const status = spawnSync(launcher, ["status", "--porcelain=v1"], { cwd: scratch, encoding: "utf8", env: process.env });
+    assert.equal(status.stdout, "A  witness.txt\n");
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+    removeIfEmpty(fixtures);
+    removeIfEmpty(resolve(root, "data"));
+  }
+});

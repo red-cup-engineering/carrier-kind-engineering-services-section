@@ -52,11 +52,37 @@ word_in_list() {
 
 # Ambient staging sweeps other agents' worktree changes into your index.
 if [ "$command_name" = add ] && [ "${forbid_ambient_add:-true}" = true ]; then
+  separator_seen=false
+  named_path_seen=false
   for argument in "$@"; do
+    if [ "$separator_seen" = true ]; then
+      case "$argument" in
+        .|\*)
+          echo "managed git: denied: 'git add $argument' stages ambient work; add named paths (policy: $conf)" >&2
+          exit 126
+          ;;
+        *) named_path_seen=true ;;
+      esac
+      continue
+    fi
+    if [ "$argument" = -- ]; then
+      separator_seen=true
+      continue
+    fi
     case "$argument" in
-      -A|--all|.|\*)
+      .|\*)
         echo "managed git: denied: 'git add $argument' stages everything, including other agents' in-flight work; add named paths (policy: $conf)" >&2
         exit 126
+        ;;
+    esac
+  done
+  for argument in "$@"; do
+    case "$argument" in
+      -A|--all)
+        if [ "$named_path_seen" != true ]; then
+          echo "managed git: denied: 'git add $argument' requires '--' followed by named paths (policy: $conf)" >&2
+          exit 126
+        fi
         ;;
     esac
   done
