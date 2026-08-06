@@ -54,10 +54,19 @@ status alone is not evidence that nested work is safe.
    and continue upward. Do not report a move complete until every affected
    parent gitlink has been published.
 4. Before publishing the root, require an empty recursive registered-submodule
-   dirty scan, run the recursive submodule graph audit, and use
+   dirty scan, run `scripts/audit-git-custody.mjs`, and use
    `git push --recurse-submodules=check`.
 5. Never force a divergent branch during routine custody. Fetch and reconcile
    it, or publish the local tip to a new incident-recovery branch first.
+
+Repository extraction and retirement are not routine deletion. Preserve path
+history in a temporary clone, publish the populated leaf before replacing the
+parent directory, and record broad moves under `.git-custody/relocations/`.
+Retirement means a populated `lib/legacy/YYYY-MM-DD-name` submodule and a
+matching dated hosted repository name. It never means an empty head.
+
+The managed wrapper injects the tracked `hooks/pre-push` for every push. Do not
+install wrappers, hooks, symlinks, or Git config in the human user's account.
 
 Hooks are defense in depth, not the procedure itself. A hook refusal must name
 the failing repository; bypassing a hook is reserved for a reviewed recovery

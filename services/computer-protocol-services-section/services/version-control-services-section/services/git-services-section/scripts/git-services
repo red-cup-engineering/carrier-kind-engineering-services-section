@@ -13,6 +13,7 @@ set -eu
 self=$(readlink -f "$0")
 script_dir=${self%/*}
 etc_dir=${script_dir%/*}/etc
+hooks_dir=${script_dir%/*}/hooks
 conf=${MANAGED_GIT_CONF:-$etc_dir/machine.conf}
 if [ ! -f "$conf" ]; then
   echo "managed git: missing machine config $conf" >&2
@@ -159,6 +160,18 @@ if word_in_list "$command_name" $write_commands; then
     GIT_TERMINAL_PROMPT=0 \
     GIT_PAGER=cat \
     /usr/bin/git --no-optional-locks -C "$physical_pwd" "$@"; }
+  if [ "$command_name" = push ]; then
+    exec /usr/bin/env -i \
+      HOME="$home_dir" \
+      PATH=/usr/bin:/bin \
+      GH_CONFIG_DIR="$home_dir/.config/gh" \
+      GIT_CONFIG_NOSYSTEM=1 \
+      GIT_CONFIG_GLOBAL="$managed_gitconfig" \
+      GIT_CONFIG_SYSTEM=/dev/null \
+      GIT_TERMINAL_PROMPT=0 \
+      GIT_PAGER=cat \
+      /usr/bin/git --no-optional-locks -c core.hooksPath="$hooks_dir" -C "$physical_pwd" "$@"
+  fi
   exec_git "$@"
 fi
 

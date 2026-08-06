@@ -35,6 +35,18 @@ not guess which living service should receive a corpus.
 real `160000` gitlinks with `.gitmodules` declarations and reports both
 mismatch directions as JSON. It is read-only.
 
+`scripts/audit-git-custody.mjs --repository PATH` walks the complete registered
+submodule graph and the enclosing filesystem. It rejects dirty or uninitialized
+descendants, unreachable pins, `refs/replace`, graph mismatches, and
+unregistered nested worktrees; it reports duplicate origins, extra local
+branches, and empty payload heads. Managed pushes run the same tracked hook
+from `hooks/pre-push`, so a fresh clone does not depend on user Git config.
+
+In pre-push mode, a commit deleting at least 20 paths and half of its parent
+tree must carry a `Git-Custody-Relocation: path/to/receipt.json` trailer. The
+tracked JSON receipt identifies both repository/path/tree endpoints and the
+exact-tree or blob-set proof.
+
 ## Relocation
 
 All relocation commands use explicit paths, conventional exit status, JSON on
