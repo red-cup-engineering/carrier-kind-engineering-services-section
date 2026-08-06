@@ -1,9 +1,0 @@
-{
-  "type": "GitActivityPulseContract",
-  "id": "urn:ame:git-services-section:contract:bare-cedar-fog-colony-git-activity-pulse-v1",
-  "provider": "urn:ame:git-services-section:activity-pulse-provider",
-  "customer": "urn:ame:bare-cedar-fog-colony:colony-report-team",
-  "scope": "Read Git Services Section's own boundary event journal and report exact interval ingress, offers, completions, and refusals.",
-  "effects": ["read-provider-owned-journal", "return-colony-activity-pulse"],
-  "forbids": ["repository inspection", "git mutation", "device I/O mutation", "customer write"]
-}

@@ -49,3 +49,6 @@
 [submodule "services/software-development-services-section/services/deployment-services-section"]
 	path = services/software-development-services-section/services/deployment-services-section
 	url = https://github.com/red-cup-engineering/deployment-formation-contracts.git
+[submodule "services/computer-protocol-services-section/services/version-control-services-section/services/git-services-section"]
+	path = services/computer-protocol-services-section/services/version-control-services-section/services/git-services-section
+	url = https://github.com/red-cup-engineering/git-services-section.git
