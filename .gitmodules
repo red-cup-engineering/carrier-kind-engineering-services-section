@@ -52,3 +52,6 @@
 [submodule "services/computer-protocol-services-section/services/version-control-services-section/services/git-services-section"]
 	path = services/computer-protocol-services-section/services/version-control-services-section/services/git-services-section
 	url = https://github.com/red-cup-engineering/git-services-section.git
+[submodule "services/inference-services-section/services/inference-work-lot-service"]
+	path = services/inference-services-section/services/inference-work-lot-service
+	url = https://github.com/red-cup-engineering/inference-work-lot-service.git
