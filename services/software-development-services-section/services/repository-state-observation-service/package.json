@@ -3,7 +3,7 @@
   "version": "0.1.4",
   "private": true,
   "type": "module",
-  "description": "Sovereign repository-observation die conducted through canonical RMN/A2A and the device-scoped Git ingress.",
+  "description": "Repository observation service using standard Git commands.",
   "exports": {
     ".": "./src/client.mjs",
     "./client": "./src/client.mjs",
@@ -14,7 +14,7 @@
     "serve-repository-state-observation-a2a": "./scripts/serve-a2a.mjs"
   },
   "scripts": {
-    "check": "node --check src/git-ingress.mjs && node --check src/observer.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check scripts/execute-a2a-message.mjs && node --check scripts/serve-a2a.mjs",
+    "check": "node --check src/git-command.mjs && node --check src/observer.mjs && node --check src/a2a-executor.mjs && node --check src/client.mjs && node --check scripts/execute-a2a-message.mjs && node --check scripts/serve-a2a.mjs",
     "test": "node --test test/*.test.mjs",
     "verify": "npm run check && npm test"
   },

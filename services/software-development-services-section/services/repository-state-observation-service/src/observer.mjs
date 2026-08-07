@@ -1,13 +1,11 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
 import { makeNiUri as rawNi } from "@red-cup-engineering/ni-uri-services-section";
-import { runGitStatus as runContractedGitStatus } from "./git-ingress.mjs";
+import { runGit } from "./git-command.mjs";
 import { RECORD_KIND, identifyJson } from "./semantic-content.mjs";
 
 export const ACTOR = "urn:ame:repository-state-observation-service";
 export const FIXED_GIT_OPERATION = Object.freeze(["status", "--porcelain=v1", "--ignore-submodules=all"]);
 const ROOT = new URL("..", import.meta.url).pathname;
-export const ACCOUNT = JSON.parse(readFileSync(new URL("../content/evm/accounts/eip155-31337.json", import.meta.url), "utf8")).account.caip10;
 const id = (value) => identifyJson(value, RECORD_KIND).id;
 export const record = (body) => Object.freeze({ id: id(body), ...body });
 
@@ -24,7 +22,7 @@ export function validateRequest(request) {
 }
 
 function runGitStatus(request) {
-  return runContractedGitStatus(request, { actor: ACTOR, account: ACCOUNT, operation: FIXED_GIT_OPERATION });
+  return runGit(request, { operation: FIXED_GIT_OPERATION });
 }
 
 export async function observeRepositoryState(request, options = {}) {
@@ -42,7 +40,7 @@ export async function observeRepositoryState(request, options = {}) {
     recordedAt,
   });
   const run = await (options.runGitStatus ?? runGitStatus)(request);
-  if (!Number.isInteger(run?.exitCode) || typeof run.stdout !== "string" || typeof run.stderr !== "string") throw new Error("Git ingress returned a malformed observation");
+  if (!Number.isInteger(run?.exitCode) || typeof run.stdout !== "string" || typeof run.stderr !== "string") throw new Error("Git returned a malformed observation");
   const statusLines = run.stdout.split(/\r?\n/u).filter(Boolean);
   return record({
     type: "RepositoryStateObservationResult",

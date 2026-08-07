@@ -55,3 +55,6 @@
 [submodule "services/inference-services-section/services/inference-work-lot-service"]
 	path = services/inference-services-section/services/inference-work-lot-service
 	url = https://github.com/red-cup-engineering/inference-work-lot-service.git
+[submodule "services/computer-protocol-services-section/services/version-control-services-section/lib/legacy/2026-08-06-block-device-io-coordinator"]
+	path = services/computer-protocol-services-section/services/version-control-services-section/lib/legacy/2026-08-06-block-device-io-coordinator
+	url = https://github.com/red-cup-engineering/2026-08-06-block-device-io-coordinator.git
