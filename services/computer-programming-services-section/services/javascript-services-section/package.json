@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/programming-language-javascript-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Groups JavaScript language services outside software-development workflow tooling."
-}

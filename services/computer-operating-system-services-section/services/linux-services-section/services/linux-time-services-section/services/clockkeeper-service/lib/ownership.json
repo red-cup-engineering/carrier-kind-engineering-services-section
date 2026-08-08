@@ -1,9 +1,0 @@
-{
-  "type": "EnterpriseOwnership",
-  "nodeId": "clockkeeper-service",
-  "owners": [
-    "board-of-directors",
-    "executive-office",
-    "working-services-section"
-  ]
-}

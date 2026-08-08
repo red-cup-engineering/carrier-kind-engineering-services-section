@@ -19,9 +19,9 @@
 [submodule "services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat"]
 	path = services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat
 	url = https://github.com/emsenn/metroplat.git
-[submodule "services/data-services-section"]
-	path = services/data-services-section
-	url = https://github.com/red-cup-engineering/data-services-section.git
+[submodule "services/computer-data-services-section"]
+	path = services/computer-data-services-section
+	url = https://github.com/red-cup-engineering/computer-data-services-section.git
 [submodule "services/semiotic-software-services-section"]
 	path = services/semiotic-software-services-section
 	url = https://github.com/red-cup-engineering/semiotic-software-services-section.git
@@ -40,3 +40,11 @@
 [submodule "inference-services-section-root"]
 	path = services/inference-services-section
 	url = https://github.com/red-cup-engineering/inference-services-section.git
+[submodule "services/computer-operating-system-services-section/services/linux-services-section/services/linux-time-services-section/services/clockkeeper-service"]
+	path = services/computer-operating-system-services-section/services/linux-services-section/services/linux-time-services-section/services/clockkeeper-service
+	url = https://github.com/red-cup-engineering/clockkeeper-service.git
+	branch = main
+[submodule "services/computer-coding-services-section"]
+	path = services/computer-coding-services-section
+	url = https://github.com/red-cup-engineering/computer-coding-services-section.git
+	branch = main
