@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/channel.schema.json",
+  "title": "Channel",
+  "description": "A declared transport path between Actors. Transport may fail, duplicate, reorder, or replay; only the relational field's identity and merge rules establish semantic convergence.",
+  "type": "object",
+  "required": ["id", "protocol", "participants", "delivery"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "protocol": {"$ref": "protocol.schema.json"},
+    "participants": {"type": "array", "minItems": 2, "items": {"$ref": "https://561.group/schema/computer-data/actor#/$defs/address"}},
+    "delivery": {"enum": ["at-most-once", "at-least-once", "best-effort"]}
+  }
+}

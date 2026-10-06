@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/sen-term.schema.json",
+  "title": "SEN Term",
+  "description": "The sole portable code intermediate representation: a typed Relation Model Notation term. Host effects are not another programming language; they enter only as declared capability calls in an operation boundary.",
+  "$defs": {
+    "term": {
+      "oneOf": [
+        {"type": "object", "required": ["kind", "index"], "additionalProperties": false, "properties": {"kind": {"const": "variable"}, "index": {"type": "integer", "minimum": 0}}},
+        {"type": "object", "required": ["kind", "domain", "body"], "additionalProperties": false, "properties": {"kind": {"const": "lambda"}, "domain": {"type": "object"}, "body": {"$ref": "#/$defs/term"}}},
+        {"type": "object", "required": ["kind", "function", "argument"], "additionalProperties": false, "properties": {"kind": {"const": "application"}, "function": {"$ref": "#/$defs/term"}, "argument": {"$ref": "#/$defs/term"}}},
+        {"type": "object", "required": ["kind", "value", "type"], "additionalProperties": false, "properties": {"kind": {"const": "constant"}, "value": {}, "type": {"type": "object"}}}
+      ]
+    }
+  },
+  "$ref": "#/$defs/term"
+}

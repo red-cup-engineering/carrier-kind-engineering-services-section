@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/thing.schema.json",
+  "title": "Thing",
+  "description": "An immutable, typed, canonically-CBOR-addressed value. Its ni identity is content identity, never a mutable entity identity.",
+  "$defs": {
+    "ni": {"type": "string", "pattern": "^ni:///sha-256;[A-Za-z0-9_-]+$"},
+    "address": {"type": "string", "minLength": 1},
+    "json": {"$comment": "RFC 8259 JSON value"}
+  },
+  "type": "object",
+  "required": ["id", "type", "attributes"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"$ref": "#/$defs/ni"},
+    "type": {"$ref": "#/$defs/address"},
+    "attributes": {"type": "object"}
+  }
+}

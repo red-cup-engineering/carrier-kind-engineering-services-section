@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/operation.schema.json",
+  "title": "Operation",
+  "description": "A typed transformation expressed either as a portable RMN term or as one declared capability effect at the imperative boundary. Effect names identify effect declarations held in the relational field; neither host-language semantics nor an ambient effect is an operation format.",
+  "type": "object",
+  "required": ["specification", "version", "id", "domain", "codomain", "body", "effects"],
+  "additionalProperties": false,
+  "properties": {
+    "specification": {"const": "https://schemas.561.group/computer/computer-engineering.schema.json"},
+    "version": {"const": 1},
+    "id": {"type": "string", "minLength": 1},
+    "domain": {"type": "string", "minLength": 1},
+    "codomain": {"type": "string", "minLength": 1},
+    "body": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "term"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {"const": "rmn"},
+            "term": {"$ref": "rmn-term.schema.json"}
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "capability"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {"const": "capability-effect"},
+            "capability": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
+    "effects": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    }
+  }
+}

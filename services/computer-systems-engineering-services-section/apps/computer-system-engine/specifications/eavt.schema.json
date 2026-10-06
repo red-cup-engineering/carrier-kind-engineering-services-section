@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/eavt.schema.json",
+  "title": "EAVT Representation",
+  "description": "The durable row binding of a Statement: entity, attribute, value, and witness time. It is a projection of the relational field, not a second ontology or mutable source of truth.",
+  "type": "object",
+  "required": ["e", "a", "v", "t"],
+  "additionalProperties": false,
+  "properties": {"e": {"type": "object"}, "a": {"type": "string", "minLength": 1}, "v": {"type": "object"}, "t": {"$ref": "evidence.schema.json"}}
+}

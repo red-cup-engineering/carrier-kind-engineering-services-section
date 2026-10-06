@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/resource.schema.json",
+  "title": "Resource",
+  "description": "An addressable, classed, provenance-carrying resource. Resource observations, reservations, allocations, consumption, and release are relations over this one term.",
+  "type": "object",
+  "required": ["kind", "address", "resourceClass", "provenance"],
+  "additionalProperties": false,
+  "properties": {
+    "kind": {"const": "resource"},
+    "address": {"type": "string", "minLength": 1},
+    "resourceClass": {"type": "string", "minLength": 1},
+    "provenance": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  }
+}

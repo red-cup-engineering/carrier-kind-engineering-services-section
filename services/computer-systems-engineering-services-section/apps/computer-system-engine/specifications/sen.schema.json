@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/sen.schema.json",
+  "title": "Relation Model Notation",
+  "description": "The one canonical typed executable language and portable intermediate representation for computer computation. It has no dialect-specific semantic authority.",
+  "type": "object",
+  "required": ["language", "term"],
+  "additionalProperties": false,
+  "properties": {"language": {"const": "sen"}, "term": {"$ref": "sen-term.schema.json"}}
+}

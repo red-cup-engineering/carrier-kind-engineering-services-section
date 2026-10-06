@@ -1,0 +1,68 @@
+{
+  "name": "@red-cup-engineering/relating",
+  "version": "0.10.1",
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "Relating: one boundary system where actions project to CLI, HTTP, OpenAPI, MCP, and docs from one registry, and each carrier is one JSON-Schema literal interpreted by FromSchema and the runtime validator.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "dependencies": {
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/cbor-services-section": "workspace:*",
+    "@red-cup-engineering/code-websocket-frame-service": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
+    "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-web-server": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/css-services-section": "workspace:*",
+    "@red-cup-engineering/datom": "workspace:*",
+    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/html-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/html-structural-projection-service": "workspace:*",
+    "@red-cup-engineering/http-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/jsonl-services-section": "workspace:*",
+    "@red-cup-engineering/lean-system-services-section": "workspace:*",
+    "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/toml-services-section": "workspace:*",
+    "@red-cup-engineering/turtle-services-section": "workspace:*",
+    "@red-cup-engineering/xml-document-rendering-service": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/signchain": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./package.json": "./package.json",
+    "./carriers": "./src/carriers/index.mjs",
+    "./actions": "./src/actions/index.mjs",
+    "./typing": "./src/writing/print.mjs",
+    "./evaluating/measuring": "./src/evaluating/measuring/index.mjs",
+    "./evaluating/counting": "./src/evaluating/counting/index.mjs",
+    "./evaluating/connecting": "./src/evaluating/connecting/formal-concept.mjs",
+    "./running/session": "./src/running/session.mjs",
+    "./running/session-schema": "./src/running/session-schema.mjs",
+    "./evaluating/measuring/regime": "./src/evaluating/measuring/regime.mjs",
+    "./carriers/schema/conformance": "./src/carriers/schema/conformance.mjs",
+    "./carriers/schema": "./src/carriers/schema/index.mjs",
+    "./carriers/schema/kind": "./src/carriers/schema/kind.mjs",
+    "./operations/inducing": "./src/operations/inducing.mjs",
+    "./operations/positing": "./src/operations/positing.mjs",
+    "./operations/realization": "./src/operations/realization.mjs"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/signcraft": "workspace:*"
+  }
+}

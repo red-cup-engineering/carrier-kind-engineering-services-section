@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/content-addressed-replication.schema.json",
+  "title": "Content Addressed Replication",
+  "description": "Replication carries relational-field documents by canonical-CBOR ni identity. Receivers re-admit statements to the one catalog and merge by identity-deduplicated union; conflict is retained rather than hidden by arrival order.",
+  "type": "object",
+  "required": ["carrier", "identity", "merge", "conflict"],
+  "additionalProperties": false,
+  "properties": {"carrier": {"const": "relational-field"}, "identity": {"const": "rfc6920-ni-sha256"}, "merge": {"const": "identity-deduplicated-set-union"}, "conflict": {"const": "retained-for-declared-settlement"}}
+}

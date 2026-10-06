@@ -1,0 +1,198 @@
+{
+  "name": "Synthetic test inference provider",
+  "description": "Synthetic deterministic provider fixture for local metered inference tests. It represents no operational provider, wallet authority or customer.",
+  "supportedInterfaces": [
+    {
+      "url": "${BASE_URL}/a2a/jsonrpc",
+      "protocolBinding": "JSONRPC",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "${BASE_URL}/a2a/rest",
+      "protocolBinding": "HTTP+JSON",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "url": "https://example.invalid",
+    "organization": "Synthetic test fixture"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [
+      {
+        "uri": "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M",
+        "description": "Signed sovereign M1 black-box circuit interface inhabited by this endpoint.",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.sen.sovereign-circuit-interface.v1",
+          "account": "eip155:31337:0x0000000000000000000000000000000000000002",
+          "authority": "ni:///sha-256;Jqu-NIaSEZZKfrhBTXzM0cHZ49Ga1NoTZlDrKrslI-s",
+          "custody": "ni:///sha-256;kQUkyjuGT6qkVzSfOOhDbF7N1xXGO64AdJvdSwt9P8c",
+          "territory": "ni:///sha-256;mG0KlPG2F35wAlxrkfqLaFjZ4ZD65sn46w4Iw2gWsjU",
+          "component": {
+            "profile": "org.emsenn.sen.hierarchical-circuit.v3",
+            "law": "ni:///sha-256;0iRtsVjOcdPu2DVQvX1wythjfgazjIEMqLzxiw3u1cQ",
+            "ports": [
+              {
+                "name": "proposal",
+                "direction": "input",
+                "predicate": "ni:///sha-256;0iRtsVjOcdPu2DVQvX1wythjfgazjIEMqLzxiw3u1cQ",
+                "carrier": "ni:///sha-256;0iRtsVjOcdPu2DVQvX1wythjfgazjIEMqLzxiw3u1cQ",
+                "mode": "tensor"
+              },
+              {
+                "name": "completion",
+                "direction": "output",
+                "predicate": "ni:///sha-256;0iRtsVjOcdPu2DVQvX1wythjfgazjIEMqLzxiw3u1cQ",
+                "carrier": "ni:///sha-256;0iRtsVjOcdPu2DVQvX1wythjfgazjIEMqLzxiw3u1cQ",
+                "mode": "tensor"
+              }
+            ],
+            "instances": [],
+            "nets": [],
+            "behavior": {
+              "factors": [
+                {
+                  "inputs": [
+                    "proposal"
+                  ],
+                  "outputs": [
+                    "completion"
+                  ],
+                  "rows": [
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": false
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": false
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": false,
+                          "negativeEvidence": true
+                        }
+                      ]
+                    },
+                    {
+                      "input": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": true
+                        }
+                      ],
+                      "output": [
+                        {
+                          "positiveEvidence": true,
+                          "negativeEvidence": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "uri": "ni:///sha-256;hLCUM4R4uZnPEVaY9Cb6sDwruIVBtw2bjleYGbeATaQ",
+        "description": "Signed standing terms required for typed inference market admission.",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.inference.market-offer.v2",
+          "model": "llama-3.1-8b-instant",
+          "workTypes": "chat classification extraction summarization inquiry software-engineering code-review",
+          "capabilities": "chat classification extraction summarization inquiry software-engineering code-review json-output json-schema-output text-output accountable-prose editorial-judgment general-text",
+          "maximumDifficulty": "0.72",
+          "maximumSourceWords": "3750",
+          "maximumSourceCharacters": "15000",
+          "maximumRequestCharacters": "15000",
+          "maximumOutputTokens": "900",
+          "maximumConcurrentLots": "1",
+          "considerationAlternatives": [
+            {
+              "id": "resolution-credit",
+              "obligations": [
+                {
+                  "id": "resolution-credit",
+                  "kind": "credit",
+                  "asset": "urn:union:credit:relative-resolution-milliquanta-v1",
+                  "amount": 27,
+                  "unit": "relative-resolution-milliquanta-v1",
+                  "settlementAdapter": "urn:union:settlement-adapter:direct-witness-v1"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": [
+    "application/rmn+cbor"
+  ],
+  "defaultOutputModes": [
+    "application/rmn+cbor",
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "execute-typed-groq-inference",
+      "name": "Execute typed Groq inference",
+      "description": "Validates one RMN effect cell, hires this settlement's bounded Groq exchange harness, and returns a witnessed completion or refusal.",
+      "tags": [
+        "rmn",
+        "a2a",
+        "groq",
+        "free-tier",
+        "inference"
+      ],
+      "examples": [],
+      "inputModes": [
+        "application/rmn+cbor"
+      ],
+      "outputModes": [
+        "application/rmn+cbor",
+        "text/plain"
+      ],
+      "securityRequirements": []
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/computer-engineering.schema.json",
+  "title": "561 Group Universal Computer Engineering Specification",
+  "description": "The sole semantic contract for computer data, code, networking, and systems. A representation, executable, protocol, service, UI, MCP tool, or federation adapter may specialize this contract but may not introduce another meaning for one of its terms.",
+  "type": "object",
+  "required": ["version", "dataFormats", "codeMethods", "networkingProtocols", "systemArchitecture", "terms"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"const": 1},
+    "dataFormats": {"const": ["canonical-cbor", "ni", "thing", "relational-field", "eavt"]},
+    "codeMethods": {"const": ["rmn", "typed-functional-composition", "capability-effects"]},
+    "networkingProtocols": {"const": ["rmn-cbor-envelope", "content-addressed-replication"]},
+    "systemArchitecture": {"const": ["concurrent-game-system", "actor-resource-field", "explicit-effect-boundary"]},
+    "terms": {
+      "type": "object",
+      "required": ["term", "thing", "cell", "actor", "resource", "capability", "evidence", "statement", "relational-field", "eavt", "canonical-cbor", "ni", "founder-direction", "rule", "claim", "effect", "receipt", "refusal", "rmn", "rmn-term", "operation", "typed-functional-composition", "capability-effects", "message", "channel", "protocol", "rmn-cbor-envelope", "content-addressed-replication", "event", "strategy", "game", "concurrent-game-system", "actor-resource-field", "explicit-effect-boundary", "system"],
+      "additionalProperties": false,
+      "properties": {
+        "term": {"$ref": "term.schema.json"}, "thing": {"$ref": "term.schema.json"}, "cell": {"$ref": "term.schema.json"}, "actor": {"$ref": "term.schema.json"}, "resource": {"$ref": "term.schema.json"}, "capability": {"$ref": "term.schema.json"}, "evidence": {"$ref": "term.schema.json"}, "statement": {"$ref": "term.schema.json"}, "relational-field": {"$ref": "term.schema.json"}, "eavt": {"$ref": "term.schema.json"}, "canonical-cbor": {"$ref": "term.schema.json"}, "ni": {"$ref": "term.schema.json"}, "founder-direction": {"$ref": "term.schema.json"}, "rule": {"$ref": "term.schema.json"}, "claim": {"$ref": "term.schema.json"}, "effect": {"$ref": "term.schema.json"}, "receipt": {"$ref": "term.schema.json"}, "refusal": {"$ref": "term.schema.json"}, "rmn": {"$ref": "term.schema.json"}, "rmn-term": {"$ref": "term.schema.json"}, "operation": {"$ref": "term.schema.json"}, "typed-functional-composition": {"$ref": "term.schema.json"}, "capability-effects": {"$ref": "term.schema.json"}, "message": {"$ref": "term.schema.json"}, "channel": {"$ref": "term.schema.json"}, "protocol": {"$ref": "term.schema.json"}, "rmn-cbor-envelope": {"$ref": "term.schema.json"}, "content-addressed-replication": {"$ref": "term.schema.json"}, "event": {"$ref": "term.schema.json"}, "strategy": {"$ref": "term.schema.json"}, "game": {"$ref": "term.schema.json"}, "concurrent-game-system": {"$ref": "term.schema.json"}, "actor-resource-field": {"$ref": "term.schema.json"}, "explicit-effect-boundary": {"$ref": "term.schema.json"}, "system": {"$ref": "term.schema.json"}
+      }
+    }
+  }
+}
