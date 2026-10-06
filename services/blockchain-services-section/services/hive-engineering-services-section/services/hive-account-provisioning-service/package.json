@@ -17,8 +17,8 @@
     "scripts"
   ],
   "dependencies": {
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/hive-blockchain-client-service": "workspace:*"
+    "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-data-service": "0.1.0"
   },
   "scripts": {
     "check": "for f in src/*.mjs scripts/*.mjs test/*.mjs; do node --check \"$f\" || exit 1; done",

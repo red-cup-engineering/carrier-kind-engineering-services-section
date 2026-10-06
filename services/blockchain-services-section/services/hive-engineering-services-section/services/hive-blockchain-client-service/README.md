@@ -47,3 +47,5 @@ await trader.limitOrderCancel({ orderid: 1 });
 - The CLI reads keys from the environment (`HIVE_ACCOUNT`, `HIVE_POSTING_KEY`, `HIVE_ACTIVE_KEY`); it never writes them to disk.
 
 Exact balances, reward conversions and order-book quantities use the canonical exact-number data supplier, including its commodity-graded carrier. The client no longer depends on the machine-wide computer-data package. A source consumer demonstrated HIVE/VESTS conversion beyond binary floating-point precision without quantity loss. Crypto, transport, text and order-book supplier delivery still require closure; this does not claim a fully independent installation or live custody migration.
+
+Signing and hashing now use `@red-cup-engineering/cryptographic-data-service`; provisioning and signature verification use that same supplier, including its preserved sealing API. These consumers no longer depend on the crypto service-offer command package or its JSON/RDF dependencies. Protocol formatting and host admission remain separate responsibilities. This changes shared method delivery, not signing or asset authority.

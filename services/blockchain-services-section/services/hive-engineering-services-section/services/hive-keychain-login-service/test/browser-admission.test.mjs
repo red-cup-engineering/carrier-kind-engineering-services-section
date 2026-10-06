@@ -4,7 +4,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PrivateKey } from "@red-cup-engineering/hive-blockchain-client-service/keys.mjs";
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
 import { verifyHiveSignedMessage } from "@red-cup-engineering/verify-hive-signed-message-service";
 import { createHiveLoginApp } from "../src/index.mjs";
 import { readHiveLoginNonces } from "../src/nonce.mjs";
