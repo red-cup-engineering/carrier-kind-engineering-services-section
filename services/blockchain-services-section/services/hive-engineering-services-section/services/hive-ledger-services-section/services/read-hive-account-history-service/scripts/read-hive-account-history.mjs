@@ -6,6 +6,7 @@
  * optional [from, to) time range, and carrying every VESTS field alongside its HP
  * equivalent at the chain's vests-to-HP ratio.
  */
+import { isDeepStrictEqual } from "node:util";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import {
   divideDecimalStrings,
@@ -111,18 +112,17 @@ export function vestsHpFields(payload, ratio, ratioSource) {
 }
 
 /**
- * Whether two nodes' same-page results agree on every returned operation's identity
- * (index, transaction id, and operation kind).
- * @param {readonly [number, object][] | null} pageA
- * @param {readonly [number, object][] | null} pageB
- * @returns {boolean}
+ * Whether both nodes return the same indexed operations and complete record data.
+ * Transaction identity alone does not witness amounts, recipients or chain coordinates.
+ * Object property order is irrelevant; account-history sequence order is retained.
  */
 export function pagesAgree(pageA, pageB) {
-  if (!Array.isArray(pageA) || !Array.isArray(pageB)) return false;
-  if (pageA.length !== pageB.length) return false;
-  return pageA.every(([index, record], i) => {
-    const [otherIndex, otherRecord] = pageB[i];
-    return index === otherIndex && record.trx_id === otherRecord.trx_id && record.op[0] === otherRecord.op[0];
+  if (!Array.isArray(pageA) || !Array.isArray(pageB) || pageA.length !== pageB.length) return false;
+  return pageA.every((entry, i) => {
+    const other = pageB[i];
+    if (!Array.isArray(entry) || entry.length !== 2
+      || !Array.isArray(other) || other.length !== 2) return false;
+    return entry[0] === other[0] && isDeepStrictEqual(entry[1], other[1]);
   });
 }
 
