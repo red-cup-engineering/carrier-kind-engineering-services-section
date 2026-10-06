@@ -1,0 +1,36 @@
+{
+  "name": "@red-cup-engineering/a2a-services-section",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "Plain-Node A2A 1.0 compatibility package: JSON-RPC client/server, signed Agent Cards, durable stores and SEN parts.",
+  "exports": {
+    "./a2a-client": "./scripts/a2a-client.mjs",
+    "./a2a-server": "./scripts/a2a-server.mjs",
+    "./agent-card-signing": "./scripts/agent-card-signing.mjs",
+    "./sen-part": "./scripts/sen-part.mjs",
+    "./durable-task-store": "./scripts/durable-task-store.mjs",
+    "./durable-push-notifications": "./scripts/durable-push-notifications.mjs",
+    "./filesystem-state-sources": "./scripts/filesystem-state-sources.mjs",
+    "./circuit-interface": "./scripts/circuit-interface.mjs"
+  },
+  "files": [
+    "scripts"
+  ],
+  "scripts": {
+    "check": "for file in scripts/*.mjs test/*.mjs; do node --check \"$file\" || exit; done",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/http-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/uri-services-section": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*"
+  },
+  "license": "UNLICENSED"
+}
