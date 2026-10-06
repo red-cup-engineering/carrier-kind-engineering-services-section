@@ -5,38 +5,11 @@ import { join } from "node:path";
 import { test } from "node:test";
 import {
   custodyAccountsFor,
-  defaultLedgerRecordsPath,
   deriveLedgerForAccount,
   runBeanCheck,
   runFarolfiReport,
   runHiveAutoLedger,
 } from "../hive-auto-ledger-cli.mjs";
-
-test("defaultLedgerRecordsPath: lands under this section's own data/records/ with a dated name, never an invented data/logs/ledgers/ directory", () => {
-  const path = defaultLedgerRecordsPath("emsenn0", "2026-09-05");
-  assert.ok(path.endsWith("/data/records/2026-09-05-emsenn0-hive-account-ledger.beancount"), path);
-  assert.ok(path.includes("/hive-services-section/"), path);
-  assert.ok(!path.includes("/data/logs/"), path);
-});
-
-test("runHiveAutoLedger: when out is omitted, writes to defaultLedgerRecordsPath rather than an invented location", async () => {
-  const chainAccount = { name: "emsenn0", created: "2026-06-01T00:00:00", balance: "0.000 HIVE", hbd_balance: "0.000 HBD", vesting_shares: "0.000000 VESTS" };
-  let writtenPath = null;
-  const result = await runHiveAutoLedger(
-    { account: "emsenn0", rangeStart: "2026-06-01", rangeEnd: "2026-09-05" },
-    {
-      clientFactory: fakeClientFactory(chainAccount),
-      readHiveHistoryImpl: async () => ({ operations: [] }),
-      readHiveEngineHistoryImpl: async () => ({ entries: [], fills: [] }),
-      fetchHiveEngineBalancesImpl: async () => [],
-      writeFileTextImpl: async (path, text) => { writtenPath = path; return { path, bytes: Buffer.byteLength(text) }; },
-      runBeanCheckImpl: async () => ({ command: "stub", exitCode: 0, stdout: "", stderr: "" }),
-      runFarolfiReportImpl: async (command) => ({ command, exitCode: 0, text: "", stderr: "" }),
-    },
-  );
-  assert.equal(result.out, defaultLedgerRecordsPath("emsenn0", "2026-09-05"));
-  assert.equal(writtenPath, result.out);
-});
 
 test("custodyAccountsFor: capitalizes the account name into the house naming pattern", () => {
   const custody = custodyAccountsFor("michael561");

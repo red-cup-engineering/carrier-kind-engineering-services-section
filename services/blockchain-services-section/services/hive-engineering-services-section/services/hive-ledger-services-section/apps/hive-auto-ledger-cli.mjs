@@ -6,8 +6,6 @@
  * and valuation reports over it.
  */
 import { parseArgs } from "node:util";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { writeFileText } from "@red-cup-engineering/write-file-service";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { readHiveAccountHistory } from "@red-cup-engineering/read-hive-account-history-service";
@@ -21,26 +19,12 @@ import {
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { dispatch, parseCli } from "@red-cup-engineering/farolfi";
 
-/** This app's owning section root (apps/ -> hive-ledger-services-section -> services -> hive-services-section). */
-const SECTION_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const DEFAULT_HIVE_NODES = ["https://api.hive.blog", "https://api.openhive.network"];
 const DEFAULT_HE_NODES = ["https://accounts.hive-engine.com", "https://history.hive-engine.com"];
 const DEFAULT_HE_FILL_NODES = ["https://api.hive-engine.com/rpc", "https://api2.hive-engine.com/rpc"];
 
 function capitalized(name) {
   return name.charAt(0).toUpperCase() + name.slice(1);
-}
-
-/**
- * The lawful dated-records path for one derived Hive account ledger: a derived ledger is a
- * dated record (never a log), so it lands under this owning section's own `data/records/`,
- * never an invented `data/logs/ledgers/` directory.
- * @param {string} account
- * @param {string} dateStamp - YYYY-MM-DD, normally the derivation's rangeEnd.
- * @returns {string} absolute path
- */
-export function defaultLedgerRecordsPath(account, dateStamp) {
-  return join(SECTION_ROOT, "data", "records", `${dateStamp}-${account}-hive-account-ledger.beancount`);
 }
 
 /** The house per-persona custody account names this section's naming pattern already uses. */
@@ -199,16 +183,14 @@ export async function deriveLedgerForAccount(options, deps = {}) {
 /**
  * Compose the full lot: derive the ledger, write it, check it with farolfi, and run
  * farolfi's balance/valuation reports over it.
- * @param {{ account: string, rangeStart?: string, rangeEnd?: string, out?: string }} options - when
- *   `out` is omitted, the ledger lands at this section's own lawful dated-records path
- *   (`defaultLedgerRecordsPath`) rather than an invented location; pass `out` only to override
- *   for a test or an ad hoc one-off run.
+ * @param {{ account: string, rangeStart?: string, rangeEnd?: string, out: string }} options - explicit receiving destination; never inferred from installed source.
  * @param {object} [deps] see `deriveLedgerForAccount`
  * @returns {Promise<object>} includes `out`, the path actually written.
  */
 export async function runHiveAutoLedger(options, deps = {}) {
+  if (typeof options?.out !== "string" || !options.out.trim()) throw new TypeError("Hive ledger export requires an explicit out destination");
+  const out = options.out;
   const composed = await deriveLedgerForAccount(options, deps);
-  const out = options.out ?? defaultLedgerRecordsPath(composed.chainAccount.name, composed.rangeEnd);
   const { coverage, evidence } = composed;
   // Beancount comments preserve the observation carrier in the same delivered artifact;
   // they are evidence, not postings or an assertion that every resource was accounted for.
@@ -231,7 +213,7 @@ if (import.meta.main) {
     },
   });
   if (!values.account) {
-    process.stderr.write("usage: hive-auto-ledger-cli --account <name> [--range-start YYYY-MM-DD] [--range-end YYYY-MM-DD] [--out <path>]\n");
+    process.stderr.write("usage: hive-auto-ledger-cli --account <name> [--range-start YYYY-MM-DD] [--range-end YYYY-MM-DD] --out <path>\n");
     process.stderr.write("  --out defaults to this section's data/records/<rangeEnd>-<account>-hive-account-ledger.beancount\n");
     process.exit(2);
   }

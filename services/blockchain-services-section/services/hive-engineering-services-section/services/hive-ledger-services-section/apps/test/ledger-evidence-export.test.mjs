@@ -33,3 +33,10 @@ test("a balanced ledger carries unresolved history and exact observations in its
     assert.equal(evidence.hiveHistory.operations[0].payload.amount, "12345678901234567890.000001");
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
+
+test("ledger export refuses missing custody before network access or writing", async () => {
+  let touched = false;
+  await assert.rejects(runHiveAutoLedger({ account: "emsenn0" }, { clientFactory: () => { touched = true; throw Error("unexpected network"); } }), /explicit out destination/);
+  assert.equal(touched, false);
+});
+
