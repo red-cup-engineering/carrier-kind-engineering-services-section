@@ -171,7 +171,20 @@ export async function readHiveAccountHistory(input, { clientFactory } = {}) {
     const limit = start === -1 ? PAGE_LIMIT : Math.min(PAGE_LIMIT, start + 1);
     // eslint-disable-next-line no-await-in-loop
     const pageA = await primary.getAccountHistory(account, start, limit);
-    if (!Array.isArray(pageA) || pageA.length === 0) break;
+    if (!Array.isArray(pageA)) {
+      throw new TypeError("read-hive-account-history: primary history response must be an array");
+    }
+    const indicesSeen = new Set();
+    for (const entry of pageA) {
+      if (!Array.isArray(entry) || entry.length !== 2
+        || !Number.isSafeInteger(entry[0]) || entry[0] < 0
+        || (start !== -1 && entry[0] > start)
+        || indicesSeen.has(entry[0])
+        || !entry[1] || !Array.isArray(entry[1].op)) {
+        throw new TypeError("read-hive-account-history: malformed or non-progressing primary history page");
+      }
+      indicesSeen.add(entry[0]);
+    }
     pagesFetched += 1;
 
     let pageB = null;
@@ -190,6 +203,9 @@ export async function readHiveAccountHistory(input, { clientFactory } = {}) {
         error: witnessError ?? undefined,
       });
     }
+
+    // An empty primary page is still witnessed before accepting its stopping boundary.
+    if (pageA.length === 0) break;
 
     const ordered = [...pageA].sort((a, b) => b[0] - a[0]);
     for (const [index, record] of ordered) {
