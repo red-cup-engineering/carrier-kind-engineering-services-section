@@ -348,3 +348,11 @@ test("a real chain mismatch is reported as a non-matching balanceComparison row"
   assert.throws(() => plainDecimal("Infinity"), TypeError);
   assert.throws(() => plainDecimal("1e1000001"), RangeError);
 });
+
+test("small indexer quantities survive into actual ledger postings", () => {
+  const result = deriveHiveAccountLedger({ ...BASE_INPUT, hiveEngineEntries: [
+    { transactionId: "exact-small", timestamp: "2026-06-02T00:00:00.000Z", operation: "tokens_transfer", symbol: "VKBT", quantity: "1e-25", from: "someone", to: "michael561", account: "michael561" }
+  ] });
+  assert.ok(result.ledgerText.includes("0.0000000000000000000000001 VKBT"));
+  assert.equal(result.refusals.length, 0);
+});
