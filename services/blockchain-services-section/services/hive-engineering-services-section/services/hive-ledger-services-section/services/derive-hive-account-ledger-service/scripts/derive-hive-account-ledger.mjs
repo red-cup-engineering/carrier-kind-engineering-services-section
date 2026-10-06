@@ -17,6 +17,15 @@ import {
 } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
 import { deriveSetOfFillTransactions } from "@red-cup-engineering/farolfi/ledger/maintenance/venue-fills";
 
+import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { createTypedMark, admitTypedMark } from "@red-cup-engineering/signcell/typed-mark";
+import outputSchema from "../data/records/schema/derive-hive-account-ledger.output.schema.json" with { type: "json" };
+
+const declaration = defineType({ id: outputSchema.$id, name: outputSchema.title, description: "Derived Hive ledger with balance comparisons and explicit refusals; does not assert history completeness.", schema: outputSchema, parents: [] });
+if (!declaration.ok) throw new TypeError(declaration.refusal.message);
+export function markHiveAccountLedger(result) { return createTypedMark(declaration.value, result); }
+export function admitHiveAccountLedgerMark(mark) { return admitTypedMark(declaration.value, mark); }
+
 const ZERO = "0";
 
 function isZero(text) {

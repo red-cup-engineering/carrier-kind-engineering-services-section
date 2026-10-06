@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { admitHiveAccountLedgerMark } from "@red-cup-engineering/derive-hive-account-ledger-service";
 import { runHiveAutoLedger } from "../hive-auto-ledger-cli.mjs";
 
 test("a balanced ledger carries unresolved history and exact observations in its delivered file", async () => {
@@ -26,6 +27,9 @@ test("a balanced ledger carries unresolved history and exact observations in its
     assert.deepEqual(evidence.hiveHistory, hiveHistory);
     assert.deepEqual(evidence.hiveEngineHistory, heHistory);
     assert.deepEqual(evidence.coverage, result.coverage);
+    assert.equal(admitHiveAccountLedgerMark(evidence.ledgerDerivation).ok, true);
+    assert.deepEqual(evidence.ledgerDerivation.content, result.ledgerResult);
+    assert.equal(admitHiveAccountLedgerMark({ ...evidence.ledgerDerivation, content: { ...evidence.ledgerDerivation.content, account: "other" } }).ok, false);
     assert.equal(evidence.hiveHistory.operations[0].payload.amount, "12345678901234567890.000001");
   } finally { await rm(dir, { recursive: true, force: true }); }
 });

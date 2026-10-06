@@ -12,7 +12,7 @@ import { writeFileText } from "@red-cup-engineering/write-file-service";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { readHiveAccountHistory } from "@red-cup-engineering/read-hive-account-history-service";
 import { readHiveEngineAccountHistory } from "@red-cup-engineering/read-hive-engine-account-history-service";
-import { deriveHiveAccountLedger, plainDecimal } from "@red-cup-engineering/derive-hive-account-ledger-service";
+import { deriveHiveAccountLedger, plainDecimal, markHiveAccountLedger } from "@red-cup-engineering/derive-hive-account-ledger-service";
 import {
   addDecimalStrings,
   negateDecimalString,
@@ -182,12 +182,15 @@ export async function deriveLedgerForAccount(options, deps = {}) {
     ...composed.ledgerResult.balanceComparison.filter((row) => !row.match).map((detail) => ({ source: "balance-comparison", detail })),
   ];
   const coverage = { status: unresolved.length ? "unresolved" : "not-established", unresolved };
+  const ledgerMark = markHiveAccountLedger(composed.ledgerResult);
+  if (!ledgerMark.ok) throw new TypeError(`Hive ledger carrier refused: ${ledgerMark.refusal.message}`);
   const evidence = {
     type: "HiveAccountLedgerEvidence", version: 1,
     account: composed.chainAccount.name, rangeStart: composed.rangeStart, rangeEnd: composed.rangeEnd,
     coverage, hiveHistory: composed.hiveHistory, hiveEngineHistory: composed.heHistory,
     chainAccount: composed.chainAccount, chainClosingBalances: composed.chainClosingBalances,
     openingBalances: composed.openingBalances,
+    ledgerDerivation: ledgerMark.value,
   };
   return { ...composed, coverage, evidence };
 
