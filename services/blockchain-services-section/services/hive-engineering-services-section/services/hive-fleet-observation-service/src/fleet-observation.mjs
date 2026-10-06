@@ -9,7 +9,8 @@ function quantity(value, suffix) {
 }
 
 export function projectHiveFleetObservation(tick, tickDigest) {
-  const accounts = (tick.accounts ?? []).map((account) => ({
+  if (!Array.isArray(tick?.accounts)) throw new TypeError("Fleet observation requires an explicit source account scope");
+  const accounts = tick.accounts.map((account) => ({
     account: account.account,
     liquid: { hive: quantity(account.trading?.hive, "HIVE"), hbd: quantity(account.trading?.hbd, "HBD") },
     voting: { planned: account.voting?.votesPlanned ?? null, broadcast: account.voting?.votesBroadcast ?? null,
@@ -29,8 +30,8 @@ export function projectHiveFleetObservation(tick, tickDigest) {
     liquidityMovesExecuted: observedSum(totals.liquidityMovesExecuted, account.trading.liquidityExecuted),
   }), { votesBroadcast: 0, votesSkipped: 0, voteErrors: 0, tradesExecuted: 0, liquidityMovesExecuted: 0 });
   return { type: "HiveFleetCustodyObservation", sourceTick: { id: tickDigest, settledAt: tick.ts },
-    fleet: { running: tick.running === true, liveFlag: tick.live === true,
-      enabledLanes: tick.enabled ?? [], accountCount: accounts.length },
+    fleet: { running: tick.running ?? null, liveFlag: tick.live ?? null,
+      enabledLanes: tick.enabled ?? null, accountCount: accounts.length },
     aggregateLiquid: { hive: sum("hive"), hbd: sum("hbd") },
     accounts, execution,
     interpretationLimits: ["Hive-and-Hive-Engine-only", "not-a-cross-chain-position",
