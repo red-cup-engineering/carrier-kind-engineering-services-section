@@ -1,8 +1,8 @@
 // keys — WIF private keys and STM-prefixed public keys, per 01-crypto-signing-spec §1, §2, §3, §5.
 // PrivateKey wraps a 32-byte secret (decoded/encoded as WIF, double-SHA256 checksum). PublicKey
 // wraps the 33-byte compressed point (encoded as PREFIX + base58, RIPEMD-160 checksum).
-import { encode } from "@red-cup-engineering/computer-data-serialization-services-section/base58";
-import { decode } from "@red-cup-engineering/computer-data-serialization-services-section/base58";
+import { encode } from "@red-cup-engineering/base58-encoding-service";
+import { decode } from "@red-cup-engineering/base58-encoding-service";
 import { sha256, sha256d, ripemd160 } from "@red-cup-engineering/cryptographic-data-service/hash";
 import { N, getPublicKey } from "@red-cup-engineering/cryptographic-data-service/secp256k1";
 import { sign } from "@red-cup-engineering/cryptographic-data-service/secp256k1";

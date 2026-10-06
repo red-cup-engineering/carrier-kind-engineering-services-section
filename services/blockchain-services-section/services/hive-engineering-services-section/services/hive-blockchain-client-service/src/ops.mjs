@@ -2,7 +2,7 @@
 // a transaction's `operations` array. Pure: no network, no signing. Field shapes follow
 // docs/dev/notes/02-serialization-spec.md §7.
 
-import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
+import { slugify } from "@red-cup-engineering/text-slug-service";
 
 // A vote. weight is in basis points: 10000 = 100% up, -10000 = 100% down, 0 = unvote.
 export const vote = ({ voter, author, permlink, weight = 10000 }) => [
