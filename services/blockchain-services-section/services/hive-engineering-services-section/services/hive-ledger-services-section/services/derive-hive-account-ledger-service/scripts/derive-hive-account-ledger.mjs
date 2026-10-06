@@ -124,11 +124,19 @@ export function deriveHiveAccountLedger(input, { deriveFillsImpl = deriveSetOfFi
   if (typeof input.custodyAccount !== "string" || input.custodyAccount === "") {
     throw new TypeError("derive-hive-account-ledger: input.custodyAccount must be a non-empty string");
   }
+  for (const field of ["openingBalances", "chainClosingBalances"]) {
+    const balances = input[field];
+    for (const commodity of ["hive", "hbd", "vests"]) {
+      if (typeof balances?.[commodity] !== "string" || !/^-?[0-9]+(?:\.[0-9]+)?$/.test(balances[commodity])) {
+        throw new TypeError(`derive-hive-account-ledger: ${field}.${commodity} requires an explicit decimal balance`);
+      }
+    }
+  }
   const {
     account, rangeStart, rangeEnd, custodyAccount, hiveEngineCustodyAccount,
     hiveOperations = [], hiveEngineEntries = [], hiveEngineFills = [],
-    openingBalances = { hive: ZERO, hbd: ZERO, vests: ZERO, hiveEngine: {} },
-    chainClosingBalances = { hive: ZERO, hbd: ZERO, vests: ZERO, hiveEngine: {} },
+    openingBalances,
+    chainClosingBalances,
   } = input;
 
   const savingsAccount = `${custodyAccount}:Savings`;
