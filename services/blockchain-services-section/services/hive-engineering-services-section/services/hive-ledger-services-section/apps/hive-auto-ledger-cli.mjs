@@ -83,6 +83,7 @@ export async function deriveLedgerForAccount(options, deps = {}) {
     fetchHiveEngineBalancesImpl = (accounts) => new EngineClient().getBalances(accounts),
   } = deps;
 
+  const balanceReadStartedAt = new Date().toISOString();
   const waggle = clientFactory([hiveNodes[0]]);
   const [chainAccount] = await waggle.getAccounts([account]);
   if (!chainAccount) throw new Error(`hive-auto-ledger-cli: account not found on chain: ${account}`);
@@ -100,6 +101,7 @@ export async function deriveLedgerForAccount(options, deps = {}) {
     readHiveEngineHistoryImpl({ account, nodes: heNodes, fillNodes: heFillNodes, from, to }),
     fetchHiveEngineBalancesImpl([account]),
   ]);
+  const balanceReadCompletedAt = new Date().toISOString();
   // Liquid balance only: the custody account this service tracks holds the *liquid* position;
   // staked, pending-unstake, and delegated-out quantities move to their own sub-accounts
   // (derive-hive-account-ledger-service's :Staked/:Pending-Unstake/:Delegated-Out), so comparing
@@ -165,18 +167,31 @@ export async function deriveLedgerForAccount(options, deps = {}) {
     ...(composed.ledgerResult.refusals ?? []).map((detail) => ({ source: "ledger-derivation", detail })),
     ...composed.ledgerResult.balanceComparison.filter((row) => !row.match).map((detail) => ({ source: "balance-comparison", detail })),
   ];
-  const coverage = { status: unresolved.length ? "unresolved" : "not-established", unresolved };
+  // Live reads are not snapshots at the requested history cutoff. In a bounded
+  // window, back-derived opening quantities also cannot independently verify it.
+  const balanceEvidence = {
+    source: "live-account-and-liquid-token-reads",
+    readStartedAt: balanceReadStartedAt, readCompletedAt: balanceReadCompletedAt,
+    requestedHistoryUpperBoundary: to.time,
+    boundaryAlignment: "not-established",
+    openingBasis: isWholeHistory ? "assumed-zero-at-account-creation" : "derived-from-live-closing-minus-window-delta",
+    independentOpeningEvidence: "not-established",
+  };
+  unresolved.push({ source: "balance-boundary", detail: {
+    reason: "live-balances-not-established-at-history-cutoff", ...balanceEvidence,
+  } });
+  const coverage = { status: "unresolved", unresolved };
   const ledgerMark = markHiveAccountLedger(composed.ledgerResult);
   if (!ledgerMark.ok) throw new TypeError(`Hive ledger carrier refused: ${ledgerMark.refusal.message}`);
   const evidence = {
     type: "HiveAccountLedgerEvidence", version: 1,
     account: composed.chainAccount.name, rangeStart: composed.rangeStart, rangeEnd: composed.rangeEnd,
-    coverage, hiveHistory: composed.hiveHistory, hiveEngineHistory: composed.heHistory,
+    coverage, balanceEvidence, hiveHistory: composed.hiveHistory, hiveEngineHistory: composed.heHistory,
     chainAccount: composed.chainAccount, chainClosingBalances: composed.chainClosingBalances,
     openingBalances: composed.openingBalances,
     ledgerDerivation: ledgerMark.value,
   };
-  return { ...composed, coverage, evidence };
+  return { ...composed, coverage, balanceEvidence, evidence };
 
 }
 
@@ -235,7 +250,7 @@ if (import.meta.main) {
     }, null, 2)}\n`);
     process.stdout.write(`${result.balanceReport.text}\n`);
     process.stdout.write(`${result.valuationReport.text}\n`);
-    if (result.coverage.unresolved.length || !result.check.ok) process.exitCode = 1;
+    if (result.coverage.status !== "established" || !result.check.ok) process.exitCode = 1;
   } catch (error) {
     process.stderr.write(`${JSON.stringify({ error: error.message })}\n`);
     process.exit(2);
