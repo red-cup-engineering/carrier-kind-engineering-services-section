@@ -138,3 +138,18 @@ test("readHiveEngineAccountHistory: a from/to window excludes rows outside it", 
   assert.equal(result.entryCount, 1);
   assert.equal(result.entries[0].transactionId, "new");
 });
+
+test("rowsAgree: preserves recipients, occurrence counts and all operation data", () => {
+  const row = { transactionId: "t", operation: "tokens_transfer", symbol: "TOKEN",
+    quantity: "1", from: "sender", to: "recipient", timestamp: 1700000000,
+    details: { memo: "kept", flags: [1, 2] } };
+  assert.equal(rowsAgree([row], [{ ...row, to: "other" }]), false);
+  assert.equal(rowsAgree([row, row], [row]), false);
+  assert.equal(rowsAgree([row, row], [row, { ...row, from: "other" }]), false);
+  assert.equal(rowsAgree([row], [{ ...row, timestamp: 1700000001 }]), false);
+  assert.equal(rowsAgree([row], [{ ...row, details: { memo: "changed", flags: [1, 2] } }]), false);
+  assert.equal(rowsAgree([{ ...row, _id: "indexer-a" }],
+    [{ details: { flags: [1, 2], memo: "kept" }, ...row, _id: "indexer-b" }]), true);
+  assert.equal(rowsAgree([row, { ...row, quantity: "2" }],
+    [{ ...row, quantity: "2" }, row]), true);
+});
