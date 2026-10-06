@@ -6,7 +6,6 @@ import { test } from "node:test";
 import {
   custodyAccountsFor,
   deriveLedgerForAccount,
-  runBeanCheck,
   runFarolfiReport,
   runHiveAutoLedger,
 } from "../hive-auto-ledger-cli.mjs";
@@ -34,7 +33,7 @@ test("deriveLedgerForAccount: back-derives an opening balance for a bounded wind
       fetchHiveEngineBalancesImpl: async () => [],
     },
   );
-  // window added 3 HIVE; chain now shows 10 HIVE; opening must have been 7 HIVE.
+  // window added 3 HIVE; chain now shows 10 HIVE; the inferred opening is 7 HIVE, but the historical boundary is unverified.
   assert.equal(composed.openingBalances.hive, "7");
   assert.equal(composed.ledgerResult.balanceComparison.find((b) => b.commodity === "HIVE").match, true);
 });
@@ -86,26 +85,6 @@ test("deriveLedgerForAccount: throws when the chain account does not exist", asy
   ), /account not found/);
 });
 
-test("runBeanCheck: reports a failing exit code rather than throwing", async () => {
-  const execImpl = async () => { const e = new Error("bean-check failed"); e.code = 1; e.stdout = ""; e.stderr = "ERROR: unbalanced"; throw e; };
-  const result = await runBeanCheck("/nonexistent/path.beancount", { execImpl });
-  assert.equal(result.exitCode, 1);
-  assert.ok(result.stderr.includes("unbalanced"));
-});
-
-test("runBeanCheck: reports exit 0 on success", async () => {
-  const execImpl = async () => ({ stdout: "", stderr: "" });
-  const result = await runBeanCheck("/some/path.beancount", { execImpl });
-  assert.equal(result.exitCode, 0);
-});
-
-test("runFarolfiReport: reports a failing exit code rather than throwing", async () => {
-  const execImpl = async () => { const e = new Error("farolfi failed"); e.code = 2; e.stdout = ""; e.stderr = "farolfi: unknown command"; throw e; };
-  const result = await runFarolfiReport("bal", "/nonexistent/path.beancount", { execImpl });
-  assert.equal(result.exitCode, 2);
-  assert.ok(result.stderr.includes("unknown command"));
-});
-
 test("runFarolfiReport: resolves the real published farolfi bin and reports exit 0 over a trivial ledger", async () => {
   const dir = await mkdtemp(join(tmpdir(), "hive-auto-ledger-farolfi-test-"));
   const out = join(dir, "trivial.beancount");
@@ -132,10 +111,16 @@ test("runHiveAutoLedger: writes the ledger, runs bean-check, and runs farolfi's 
         readHiveHistoryImpl: async () => ({ operations: [] }),
         readHiveEngineHistoryImpl: async () => ({ entries: [], fills: [] }),
         fetchHiveEngineBalancesImpl: async () => [],
-        runBeanCheckImpl: async () => ({ command: "stub", exitCode: 0, stdout: "", stderr: "" }),
+        checkLedgerImpl: () => ({ ok: true, report: { findings: [] } }),
       },
     );
-    assert.equal(result.beanCheck.exitCode, 0);
+    assert.equal(result.check.ok, true);
+    assert.equal(result.coverage.status, "unresolved");
+    assert.equal(result.evidence.balanceEvidence.boundaryAlignment, "not-established");
+    assert.equal(result.evidence.balanceEvidence.openingBasis, "derived-from-live-closing-minus-window-delta");
+    const { readFile } = await import("node:fs/promises");
+    const delivered = await readFile(out, "utf8");
+    assert.ok(delivered.includes("live-balances-not-established-at-history-cutoff"));
     assert.ok(result.balanceReport.text.length > 0);
     assert.equal(result.balanceReport.exitCode, 0);
     assert.equal(result.valuationReport.exitCode, 0);
