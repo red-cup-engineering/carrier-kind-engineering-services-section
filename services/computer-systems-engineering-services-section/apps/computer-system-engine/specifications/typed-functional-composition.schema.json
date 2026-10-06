@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/computer/typed-functional-composition.schema.json",
+  "title": "Typed Functional Composition",
+  "description": "The code method: immutable values, explicit domain and codomain, a pure RMN term, and composition only where adjacent types match. Any non-pure transition is declared as an Effect.",
+  "type": "object",
+  "required": ["domain", "codomain", "term"],
+  "additionalProperties": false,
+  "properties": {"domain": {"type": "string", "minLength": 1}, "codomain": {"type": "string", "minLength": 1}, "term": {"$ref": "rmn-term.schema.json"}}
+}
