@@ -8,7 +8,7 @@
 import { parseArgs } from "node:util";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { writeFileText } from "@red-cup-engineering/write-file-service";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { readHiveAccountHistory } from "@red-cup-engineering/read-hive-account-history-service";
 import { readHiveEngineAccountHistory } from "@red-cup-engineering/read-hive-engine-account-history-service";

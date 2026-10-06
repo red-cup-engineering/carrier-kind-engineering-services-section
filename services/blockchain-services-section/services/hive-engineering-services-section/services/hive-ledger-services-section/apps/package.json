@@ -19,10 +19,10 @@
     "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/derive-hive-account-ledger-service": "workspace:*",
     "@red-cup-engineering/farolfi": "workspace:*",
-    "@red-cup-engineering/file-services": "workspace:*",
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
     "@red-cup-engineering/read-hive-account-history-service": "workspace:*",
-    "@red-cup-engineering/read-hive-engine-account-history-service": "workspace:*"
+    "@red-cup-engineering/read-hive-engine-account-history-service": "workspace:*",
+    "@red-cup-engineering/write-file-service": "git+https://github.com/red-cup-engineering/write-file-service.git#5fb9b37a67a64f15daca4b58ef9c944c59530329"
   },
   "devDependencies": {},
   "scripts": {
