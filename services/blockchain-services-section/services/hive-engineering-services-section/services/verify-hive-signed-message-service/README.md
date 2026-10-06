@@ -23,7 +23,7 @@ export async function verifyHiveSignedMessage(request, options = {})
 
 ### Returns
 
-Promise<{verified: true, account: string, publicKey: string, role: "posting"|"active"} | {verified: false, reason: string}>: 
+Promise<{verified: true, account: string, publicKey: string, role: "posting"|"active"} | {verified: false, reason: string}>:
 
 ## Command
 
