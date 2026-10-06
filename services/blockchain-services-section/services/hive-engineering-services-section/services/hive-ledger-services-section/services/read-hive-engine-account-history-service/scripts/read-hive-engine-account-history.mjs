@@ -6,6 +6,7 @@
  * shaped directly; market and pool-swap fills are resolved by transaction id through
  * @red-cup-engineering/read-hive-engine-fill-service rather than re-derived.
  */
+import { isDeepStrictEqual } from "node:util";
 import { readHiveEngineFill } from "@red-cup-engineering/read-hive-engine-fill-service";
 
 const DEFAULT_REST_NODES = ["https://accounts.hive-engine.com", "https://history.hive-engine.com"];
@@ -120,19 +121,37 @@ export async function fetchAllPages(node, account, fetchImpl, limit = PAGE_LIMIT
 }
 
 /**
- * Whether two indexers' rows for the same account agree, keyed by `transactionId` + `operation`
- * + `symbol` (Hive-Engine's own row `_id` is indexer-local and not compared).
- * @param {readonly object[]} rowsA
- * @param {readonly object[]} rowsB
- * @returns {boolean}
+ * Compare counted occurrences of complete operation data, independent of row order.
+ * Only the indexer-local top-level _id is excluded; recipients, timestamps, fill
+ * quantities and unknown operation fields remain part of the witnessed evidence.
  */
 export function rowsAgree(rowsA, rowsB) {
-  const key = (r) => `${r.transactionId}:${r.operation}:${r.symbol ?? ""}:${r.quantity ?? ""}`;
-  const setA = new Set(rowsA.map(key));
-  const setB = new Set(rowsB.map(key));
-  if (setA.size !== setB.size) return false;
-  for (const k of setA) if (!setB.has(k)) return false;
-  return true;
+  if (!Array.isArray(rowsA) || !Array.isArray(rowsB) || rowsA.length !== rowsB.length) return false;
+  const withoutLocalId = (row) => {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+    const { _id, ...operation } = row;
+    return operation;
+  };
+  const buckets = new Map();
+  for (const row of rowsB) {
+    const operation = withoutLocalId(row);
+    if (!operation) return false;
+    const key = JSON.stringify([operation.transactionId, operation.operation]);
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(operation);
+  }
+  for (const row of rowsA) {
+    const operation = withoutLocalId(row);
+    if (!operation) return false;
+    const key = JSON.stringify([operation.transactionId, operation.operation]);
+    const bucket = buckets.get(key);
+    if (!bucket) return false;
+    const index = bucket.findIndex((other) => isDeepStrictEqual(operation, other));
+    if (index === -1) return false;
+    bucket.splice(index, 1);
+    if (bucket.length === 0) buckets.delete(key);
+  }
+  return buckets.size === 0;
 }
 
 /**
