@@ -6,7 +6,7 @@
 // (3) a JSON-RPC `error` object on HTTP 200. We retry-next-node on all of them, plus on an
 // unparseable body. We do up to two full passes over the node list before giving up.
 
-import { createJsonRpcTransport, callJsonRpc } from "@red-cup-engineering/http-services-section/json-rpc";
+import { createJsonRpcTransport, callJsonRpc } from "@red-cup-engineering/json-rpc-transport-service";
 
 // spec §3 — curated public mainnet API node base URLs.
 export const DEFAULT_NODES = [

@@ -51,13 +51,12 @@
   },
   "private": false,
   "dependencies": {
-    "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/gaming": "workspace:*",
-    "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "0.1.0",
-    "@red-cup-engineering/cryptographic-data-service": "0.1.0"
+    "@red-cup-engineering/cryptographic-data-service": "0.1.0",
+    "@red-cup-engineering/json-rpc-transport-service": "0.1.0"
   },
   "repository": {
     "type": "git",
