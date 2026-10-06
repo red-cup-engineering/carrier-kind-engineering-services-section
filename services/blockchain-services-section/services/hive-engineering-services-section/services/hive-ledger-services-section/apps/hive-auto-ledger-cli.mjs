@@ -15,7 +15,7 @@ import {
   addDecimalStrings,
   negateDecimalString,
   stripUnitSuffix,
-} from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+} from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { dispatch, parseCli } from "@red-cup-engineering/farolfi";
 
