@@ -1,0 +1,134 @@
+{
+  "source": {
+    "repository": "emsenn/bare-cedar-fog",
+    "commit": "aeedb1e9e671c24986c1b4f5e1ddbe4e4f8fb6f6",
+    "root": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/a2a-services-section"
+  },
+  "originalFiles": [
+    {
+      "path": "scripts/a2a-client.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0c1d24a49df07a08a7fea23c64cbd6ec6d2b9d89",
+      "size": 5247,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/0c1d24a49df07a08a7fea23c64cbd6ec6d2b9d89"
+    },
+    {
+      "path": "scripts/a2a-server.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c60d0251bd23f7c796878770047379f8a49b277a",
+      "size": 13430,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/c60d0251bd23f7c796878770047379f8a49b277a"
+    },
+    {
+      "path": "scripts/agent-card-signing.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "07adfe59e105148486ae90c4fe612fdf3536ee76",
+      "size": 10255,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/07adfe59e105148486ae90c4fe612fdf3536ee76"
+    },
+    {
+      "path": "scripts/circuit-interface.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "2afa11d2768898cac31d8fe74c27ec07f678aa64",
+      "size": 2567,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/2afa11d2768898cac31d8fe74c27ec07f678aa64"
+    },
+    {
+      "path": "scripts/durable-push-notifications.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5507713d290735ad7293aea04d832bc2de5f11d8",
+      "size": 7586,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/5507713d290735ad7293aea04d832bc2de5f11d8"
+    },
+    {
+      "path": "scripts/durable-task-store.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e373ad505f003c974cbcc8a1524aec68264a1c56",
+      "size": 8094,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/e373ad505f003c974cbcc8a1524aec68264a1c56"
+    },
+    {
+      "path": "scripts/filesystem-state-sources.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "03424f2f70b4eb87bd636c8f54135482de104e03",
+      "size": 3889,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/03424f2f70b4eb87bd636c8f54135482de104e03"
+    },
+    {
+      "path": "scripts/sen-part.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8064e30da1a6667c6ad610d2fc80b5112f45f25f",
+      "size": 9861,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/8064e30da1a6667c6ad610d2fc80b5112f45f25f"
+    },
+    {
+      "path": "test/_test-helpers.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "20c437699ad9d94e26d24390af84ab1344d472d3",
+      "size": 857,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/20c437699ad9d94e26d24390af84ab1344d472d3"
+    },
+    {
+      "path": "test/a2a-protocol.test.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "12910cebb0079693d90e3011cbd9aa17b83bfb15",
+      "size": 4216,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/12910cebb0079693d90e3011cbd9aa17b83bfb15"
+    },
+    {
+      "path": "test/agent-card-signature-evidence.test.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "52d1981451f32b8bef5146a54dbe0997b2b0c97a",
+      "size": 2856,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/52d1981451f32b8bef5146a54dbe0997b2b0c97a"
+    },
+    {
+      "path": "test/agent-card-signing.test.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9772470f826a1cd3675b6b27fc656e67049fb813",
+      "size": 2476,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/9772470f826a1cd3675b6b27fc656e67049fb813"
+    },
+    {
+      "path": "test/sen-part.test.mjs",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "93df6e09f9f38c3b12360fc5759d8e2ff043a9b7",
+      "size": 2307,
+      "url": "https://api.github.com/repos/emsenn/bare-cedar-fog/git/blobs/93df6e09f9f38c3b12360fc5759d8e2ff043a9b7"
+    },
+    {
+      "path": "README.md",
+      "sha": "b6719afce659ad959644e1ac22701b670c31bb2c",
+      "mode": "100644",
+      "type": "blob",
+      "size": 1691
+    },
+    {
+      "path": "package.json",
+      "sha": "309edf91cb1f75ce4d610eaeae949ed5b4999a9e",
+      "mode": "100644",
+      "type": "blob",
+      "size": 1590
+    }
+  ],
+  "exclusions": [
+    "runtime journals",
+    "machine state",
+    "credentials",
+    "archived exchanges",
+    "unrelated content"
+  ]
+}
