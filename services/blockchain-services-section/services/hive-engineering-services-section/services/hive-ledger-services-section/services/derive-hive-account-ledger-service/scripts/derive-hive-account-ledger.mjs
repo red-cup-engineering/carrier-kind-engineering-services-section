@@ -33,11 +33,20 @@ function isZero(text) {
  */
 export function plainDecimal(text) {
   const raw = String(text);
-  if (/^-?\.\d/u.test(raw)) return raw.replace(/^(-?)\./u, "$10.");
-  if (!/e/iu.test(raw)) return raw;
-  const value = Number(raw);
-  if (!Number.isFinite(value)) throw new TypeError(`derive-hive-account-ledger: not a finite quantity: ${JSON.stringify(text)}`);
-  return value.toFixed(20).replace(/(\.\d*?)0+$/u, "$1").replace(/\.$/u, "");
+  const match = /^([+-]?)(?:(\d+)(?:\.(\d*))?|\.(\d+))(?:[eE]([+-]?\d+))?$/u.exec(raw);
+  if (!match) throw new TypeError(`derive-hive-account-ledger: invalid decimal quantity: ${JSON.stringify(text)}`);
+  if (!/[eE]/u.test(raw)) return raw.replace(/^\+/u, "").replace(/^(-?)\./u, "$10.");
+  const [, sign, whole = "0", fraction = "", leadingFraction, exponent = "0"] = match;
+  const digits = whole + (leadingFraction ?? fraction);
+  // Only the position is numeric. The coefficient never enters binary floating point.
+  const position = BigInt(whole.length) + BigInt(exponent);
+  if (position > 1000000n || position < -1000000n) throw new RangeError("derive-hive-account-ledger: expanded quantity exceeds decimal carrier limit");
+  const point = Number(position);
+  let expanded = point <= 0 ? "0." + "0".repeat(-point) + digits
+    : point >= digits.length ? digits + "0".repeat(point - digits.length)
+    : digits.slice(0, point) + "." + digits.slice(point);
+  expanded = expanded.replace(/^0+(?=\d)/u, "").replace(/(\.\d*?)0+$/u, "$1").replace(/\.$/u, "");
+  return (sign === "-" && !/^0(?:\.0*)?$/u.test(expanded) ? "-" : "") + expanded;
 }
 
 function splitAmount(text) {

@@ -339,3 +339,12 @@ test("a real chain mismatch is reported as a non-matching balanceComparison row"
   assert.equal(hiveRow.computedClosing, "10");
   assert.equal(hiveRow.chainClosing, "11");
 });
+
+ test("quantity normalization preserves exact coefficients beyond binary precision and small exponents", () => {
+  assert.equal(plainDecimal("9007199254740993.000001e0"), "9007199254740993.000001");
+  assert.equal(plainDecimal("1e-25"), "0.0000000000000000000000001");
+  assert.equal(plainDecimal("1e21"), "1000000000000000000000");
+  assert.equal(plainDecimal("-.25e2"), "-25");
+  assert.throws(() => plainDecimal("Infinity"), TypeError);
+  assert.throws(() => plainDecimal("1e1000001"), RangeError);
+});
