@@ -51,12 +51,12 @@
   },
   "private": false,
   "dependencies": {
-    "@red-cup-engineering/gaming": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "0.1.0",
     "@red-cup-engineering/cryptographic-data-service": "0.1.0",
     "@red-cup-engineering/json-rpc-transport-service": "0.1.0",
     "@red-cup-engineering/base58-encoding-service": "0.1.0",
-    "@red-cup-engineering/text-slug-service": "0.1.0"
+    "@red-cup-engineering/text-slug-service": "0.1.0",
+    "@red-cup-engineering/exact-order-book-service": "0.1.0"
   },
   "repository": {
     "type": "git",

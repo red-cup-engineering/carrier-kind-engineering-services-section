@@ -1,7 +1,7 @@
 // market — the chain's order books as exact amounts: the internal HIVE/HBD book (integer satoshi
 // rows) and a Hive-Engine token's buy/sell books (decimal rows) read as graded order books, which
 // the gaming market walks; a book report and an intent judgement over them.
-import { bestAsk, bestBid, marketBuyWalk, marketSellWalk, midpoint, spread } from "@red-cup-engineering/gaming/market";
+import { bestAsk, bestBid, marketBuyWalk, marketSellWalk, midpoint, spread } from "@red-cup-engineering/exact-order-book-service";
 import { ratSign, ratSubtract } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { decimalOfRational, decimalUnits, formatUnits, rationalOfDecimal, rationalUnits, terminatingPlaces } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { gradeOf, graded, gradedFromParts, gradedRatio, gradedSign, gradedToExactString, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
