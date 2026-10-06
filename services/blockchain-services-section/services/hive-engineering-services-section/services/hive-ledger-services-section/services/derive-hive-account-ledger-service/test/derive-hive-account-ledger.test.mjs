@@ -356,3 +356,28 @@ test("small indexer quantities survive into actual ledger postings", () => {
   assert.ok(result.ledgerText.includes("0.0000000000000000000000001 VKBT"));
   assert.equal(result.refusals.length, 0);
 });
+
+test("missing balance evidence is refused instead of becoming a zero position", () => {
+  for (const field of ["openingBalances", "chainClosingBalances"]) {
+    const input = structuredClone(BASE_INPUT);
+    delete input[field];
+    assert.throws(() => deriveHiveAccountLedger(input), /explicit decimal balance/);
+    input[field] = { hive: "0", hbd: "0" };
+    assert.throws(() => deriveHiveAccountLedger(input), /explicit decimal balance/);
+    input[field].vests = "1x2";
+    assert.throws(() => deriveHiveAccountLedger(input), /explicit decimal balance/);
+  }
+  assert.equal(deriveHiveAccountLedger(BASE_INPUT).balanceComparison.every(row => row.match), true);
+});
+
+test("opening and closing evidence accounts are opened even without transaction history", () => {
+  const result = deriveHiveAccountLedger({
+    ...BASE_INPUT,
+    openingBalances: { hive: "10", hbd: "0", vests: "0", hiveEngine: {} },
+    chainClosingBalances: { hive: "10", hbd: "0", vests: "0", hiveEngine: { TOKEN: "0" } }
+  });
+  for (const account of ["Equity:Opening-Balances", BASE_INPUT.custodyAccount, BASE_INPUT.hiveEngineCustodyAccount]) {
+    assert.ok(result.accountsOpened.includes(account));
+    assert.ok(result.ledgerText.includes(`${BASE_INPUT.rangeStart} open ${account}`));
+  }
+});
