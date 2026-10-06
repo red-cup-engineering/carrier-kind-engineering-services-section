@@ -32,31 +32,9 @@ function isZero(text) {
   return /^0(\.0+)?$/u.test(String(text ?? "0").replace(/^-/u, ""));
 }
 
-/**
- * Normalize a Hive-Engine indexer quantity to a plain decimal string Beancount can lex: the
- * indexer's JSON can render a tiny value in scientific notation (e.g. "1e-8", which decimal.mjs's
- * parser rejects) or drop the leading zero (e.g. ".25", which Beancount's own lexer rejects).
- * @param {string | number} text
- * @returns {string}
- * @throws {TypeError} if the text is not a finite quantity
- */
-export function plainDecimal(text) {
-  const raw = String(text);
-  const match = /^([+-]?)(?:(\d+)(?:\.(\d*))?|\.(\d+))(?:[eE]([+-]?\d+))?$/u.exec(raw);
-  if (!match) throw new TypeError(`derive-hive-account-ledger: invalid decimal quantity: ${JSON.stringify(text)}`);
-  if (!/[eE]/u.test(raw)) return raw.replace(/^\+/u, "").replace(/^(-?)\./u, "$10.");
-  const [, sign, whole = "0", fraction = "", leadingFraction, exponent = "0"] = match;
-  const digits = whole + (leadingFraction ?? fraction);
-  // Only the position is numeric. The coefficient never enters binary floating point.
-  const position = BigInt(whole.length) + BigInt(exponent);
-  if (position > 1000000n || position < -1000000n) throw new RangeError("derive-hive-account-ledger: expanded quantity exceeds decimal carrier limit");
-  const point = Number(position);
-  let expanded = point <= 0 ? "0." + "0".repeat(-point) + digits
-    : point >= digits.length ? digits + "0".repeat(point - digits.length)
-    : digits.slice(0, point) + "." + digits.slice(point);
-  expanded = expanded.replace(/^0+(?=\d)/u, "").replace(/(\.\d*?)0+$/u, "$1").replace(/\.$/u, "");
-  return (sign === "-" && !/^0(?:\.0*)?$/u.test(expanded) ? "-" : "") + expanded;
-}
+// Public Hive API retained; the numerical transformation is owned by the data supplier.
+import { expandDecimalNotation as plainDecimal } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+export { plainDecimal };
 
 function splitAmount(text) {
   const match = /^(-?\d+(?:\.\d+)?)\s+(\S+)$/u.exec(String(text).trim());
