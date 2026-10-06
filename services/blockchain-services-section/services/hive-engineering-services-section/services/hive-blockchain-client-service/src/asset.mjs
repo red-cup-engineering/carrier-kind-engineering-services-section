@@ -1,6 +1,6 @@
 // asset — the chain's legacy asset strings ("1.000 HIVE") as graded rationals, graded by the asset symbol.
-import { decimalOfRational } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { gradeOf, graded, gradedValue, parseDecimalAmount } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { decimalOfRational } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { gradeOf, graded, gradedValue, parseDecimalAmount } from "@red-cup-engineering/exact-number-data-service/graded";
 export const ASSET_PLACES = Object.freeze({ HIVE: 3, HBD: 3, VESTS: 6, TESTS: 3, TBD: 3 });
 export function parseLegacyAsset(text) {
   const match = /^(-?[\d.,]+)\s+([A-Z]+)$/.exec(String(text).trim());

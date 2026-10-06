@@ -2,9 +2,9 @@
 // mana (HF20 accounting), vote rshares and value under the linear HF25 curve, the reward pool
 // assembled from already-fetched chain state, and the HF25 curation windows. No network, no
 // floats in money paths: bigint rshares and exact rational amounts.
-import { divide, ratIsZero, ratMultiply, rationalOfBigInts } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { gradeOf, graded, gradedScale, gradedValue, gradedZero } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { divide, ratIsZero, ratMultiply, rationalOfBigInts } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { gradeOf, graded, gradedScale, gradedValue, gradedZero } from "@red-cup-engineering/exact-number-data-service/graded";
 import { expectCommodity, parseLegacyAsset } from "./asset.mjs";
 
 // --- vesting ---

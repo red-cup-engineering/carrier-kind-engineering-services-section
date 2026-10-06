@@ -45,3 +45,5 @@ await trader.limitOrderCancel({ orderid: 1 });
 - **Single-sig.** One key per role; multi-sig authorities are not assembled (the serializer supports `authority` structs, the high-level API does not yet drive them).
 - **Mainnet only.** The chain id and `STM` prefix are pinned to mainnet.
 - The CLI reads keys from the environment (`HIVE_ACCOUNT`, `HIVE_POSTING_KEY`, `HIVE_ACTIVE_KEY`); it never writes them to disk.
+
+Exact balances, reward conversions and order-book quantities use the canonical exact-number data supplier, including its commodity-graded carrier. The client no longer depends on the machine-wide computer-data package. A source consumer demonstrated HIVE/VESTS conversion beyond binary floating-point precision without quantity loss. Crypto, transport, text and order-book supplier delivery still require closure; this does not claim a fully independent installation or live custody migration.

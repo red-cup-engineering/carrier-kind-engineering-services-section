@@ -2,9 +2,9 @@
 // rows) and a Hive-Engine token's buy/sell books (decimal rows) read as graded order books, which
 // the gaming market walks; a book report and an intent judgement over them.
 import { bestAsk, bestBid, marketBuyWalk, marketSellWalk, midpoint, spread } from "@red-cup-engineering/gaming/market";
-import { ratSign, ratSubtract } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { decimalOfRational, decimalUnits, formatUnits, rationalOfDecimal, rationalUnits, terminatingPlaces } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { gradeOf, graded, gradedFromParts, gradedRatio, gradedSign, gradedToExactString, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { ratSign, ratSubtract } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { decimalOfRational, decimalUnits, formatUnits, rationalOfDecimal, rationalUnits, terminatingPlaces } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { gradeOf, graded, gradedFromParts, gradedRatio, gradedSign, gradedToExactString, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 
 function malformed(message) { throw new TypeError(`hive order book: ${message}`); }
 function outOfRange(message) { throw new RangeError(`hive order book: ${message}`); }

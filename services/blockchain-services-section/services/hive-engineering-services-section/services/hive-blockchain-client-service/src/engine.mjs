@@ -10,7 +10,7 @@
 // executed in order. Payloads follow github.com/hive-engine/hivesmartcontracts contracts/*.js.
 import { RpcClient } from "./rpc.mjs";
 import { customJson } from "./ops.mjs";
-import { formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 
 export const ENGINE_NODES = [
   "https://api.hive-engine.com/rpc",
