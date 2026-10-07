@@ -1,0 +1,55 @@
+{
+  "name": "@red-cup-engineering/computer-networking-engineering-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Groups services for networking between computer systems; its library module is SignGraph, the general graph carrier and relation-web organization.",
+  "dependencies": {
+    "@red-cup-engineering/a2a-services-section": "workspace:*",
+    "@red-cup-engineering/cbor-services-section": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/html-structural-projection-service": "workspace:*",
+    "@red-cup-engineering/http-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/relating": "workspace:*",
+    "@red-cup-engineering/uri-services-section": "workspace:*",
+    "@red-cup-engineering/xml-document-rendering-service": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./otlp": "./src/otlp.mjs",
+    "./otlp-schema": "./src/otlp-schema.mjs",
+    "./raft/consensus-log": "./src/raft/consensus-log.mjs",
+    "./lsp/codec": "./src/lsp/codec.mjs",
+    "./lsp/text.domain": "./src/lsp/text.domain.mjs",
+    "./lsp/markdown": "./src/lsp/markdown.mjs",
+    "./lsp/types": "./src/lsp/types.mjs",
+    "./boundary-utterance-site/schema": "./src/boundary-utterance-site/schema.mjs",
+    "./object-capability": "./src/object-capability/index.mjs",
+    "./object-capability/schemas": "./src/object-capability/schemas.mjs",
+    "./object-capability/captp": "./src/object-capability/captp/index.mjs",
+    "./object-capability/captp/schema": "./src/object-capability/captp/schema.mjs",
+    "./object-capability/macaroons": "./src/object-capability/macaroons.mjs",
+    "./object-capability/wasi": "./src/object-capability/wasi.mjs",
+    "./identity": "./src/identity/index.mjs",
+    "./identity/schema": "./src/identity/schema.mjs",
+    "./identity/webauthn": "./src/identity/webauthn.mjs",
+    "./telnet": "./src/telnet.mjs",
+    "./qwzspace/protocol": "./src/qwzspace/protocol.mjs"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "files": [
+    "src"
+  ]
+}

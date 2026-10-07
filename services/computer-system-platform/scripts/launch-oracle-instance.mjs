@@ -1,0 +1,118 @@
+#!/usr/bin/env node
+// launch-oracle-instance — launches one of the 561 Group's Oracle Cloud Always Free machines, named
+// and shaped by its arguments, into an existing VCN and subnet (--network, named <network>-vcn and
+// <network>-subnet), from the newest Ubuntu 24.04 image for that shape:
+//
+//   launch-oracle-instance --name blue-corn-creek --shape VM.Standard.A1.Flex --ocpus 2 --memory-gb 12 --boot-gb 100
+//   launch-oracle-instance --name shiny-grass-bow --shape VM.Standard.E2.1.Micro --boot-gb 50 --network blue-corn-creek
+//
+// Free capacity is often exhausted (A1 above all), so it can run on a timer: it tries every
+// availability domain once and exits 75 (EX_TEMPFAIL) when all refuse for capacity, 0 when the
+// instance exists or was launched, 1 on any other error. A LimitExceeded refusal counts as capacity
+// when the tenancy's limits still have room for the request in that domain: Oracle rations free A1
+// that way, and only a limit actually spent is a standing obstruction. It reads the tenancy from the
+// OCI config profile and signs with that profile's API key, so it needs no browser session.
+
+import { execFile } from "node:child_process";
+import { readFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
+
+const run = promisify(execFile);
+
+function option(name, fallback) {
+  const index = process.argv.indexOf(`--${name}`);
+  if (index === -1) { if (fallback === undefined) throw new TypeError(`--${name} is required`); return fallback; }
+  return process.argv[index + 1];
+}
+const NAME = option("name");
+const SHAPE = option("shape");
+const NETWORK = option("network", NAME);
+const SHAPE_CONFIG = SHAPE.endsWith(".Flex") ? JSON.stringify({ ocpus: Number(option("ocpus")), memoryInGBs: Number(option("memory-gb")) }) : undefined;
+const BOOT_VOLUME_GB = option("boot-gb", "50");
+const CAPACITY_REFUSAL = /out of host capacity|capacity|TooManyRequests|too many requests/iu;
+
+const oci = process.env.OCI_CLI ?? join(homedir(), ".local/bin/oci");
+const profile = process.env.OCI_PROFILE ?? "BLUE_CORN_CREEK_API_KEY";
+const configFile = process.env.OCI_CONFIG_FILE ?? join(homedir(), ".oci/config");
+const sshPublicKeyFile = process.env.SSH_PUBLIC_KEY_FILE ?? join(homedir(), ".ssh/id_ed25519.pub");
+
+async function ociJson(...args) {
+  const { stdout } = await run(oci, [...args, "--profile", profile, "--config-file", configFile, "--output", "json"], {
+    env: { ...process.env, OCI_CLI_AUTH: "api_key", SUPPRESS_LABEL_WARNING: "True" },
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  return stdout.trim() === "" ? { data: [] } : JSON.parse(stdout);
+}
+
+async function tenancyOf(profileName) {
+  const text = await readFile(configFile, "utf8");
+  let inProfile = false;
+  for (const line of text.split(/\r?\n/u)) {
+    const header = /^\[(.+)\]$/u.exec(line.trim());
+    if (header) inProfile = header[1] === profileName;
+    const tenancy = /^\s*tenancy\s*=\s*(\S+)/u.exec(line);
+    if (inProfile && tenancy) return tenancy[1];
+  }
+  throw new Error(`no tenancy in ${configFile} profile ${profileName}`);
+}
+
+const tenancy = await tenancyOf(profile);
+const existing = (await ociJson("compute", "instance", "list", "--compartment-id", tenancy, "--display-name", NAME, "--all"))
+  .data.find((instance) => instance["lifecycle-state"] !== "TERMINATED");
+if (existing) {
+  process.stdout.write(`${NAME} exists (${existing["lifecycle-state"]}): ${existing.id}\n`);
+  process.exit(0);
+}
+
+const vcn = (await ociJson("network", "vcn", "list", "--compartment-id", tenancy, "--display-name", `${NETWORK}-vcn`, "--all")).data[0];
+const subnet = (await ociJson("network", "subnet", "list", "--compartment-id", tenancy, "--vcn-id", vcn.id, "--display-name", `${NETWORK}-subnet`, "--all")).data[0];
+const image = (await ociJson(
+  "compute", "image", "list", "--compartment-id", tenancy, "--shape", SHAPE,
+  "--operating-system", "Canonical Ubuntu", "--operating-system-version", "24.04", "--sort-by", "TIMECREATED", "--all",
+)).data[0];
+const sshKey = (await readFile(sshPublicKeyFile, "utf8")).trim();
+const domains = (await ociJson("iam", "availability-domain", "list", "--compartment-id", tenancy)).data.map((domain) => domain.name);
+
+// The limits a LimitExceeded refusal names, each with the request's share of it; a refusal is
+// rationing, not a spent limit, when every named limit still has that much available.
+const requested = SHAPE_CONFIG === undefined ? undefined : JSON.parse(SHAPE_CONFIG);
+async function limitsHaveRoom(detail, domain) {
+  if (requested === undefined) return false;
+  const named = /service limits were exceeded: ([^"\n]+)/u.exec(detail)?.[1].split(/,\s*/u) ?? [];
+  if (named.length === 0) return false;
+  for (const limit of named) {
+    const need = limit.includes("memory") ? requested.memoryInGBs : requested.ocpus;
+    const scope = limit.includes("regional") ? [] : ["--availability-domain", domain];
+    const { data } = await ociJson("limits", "resource-availability", "get", "--service-name", "compute",
+      "--limit-name", limit.trim(), "--compartment-id", tenancy, ...scope);
+    if (!(data.available >= need)) return false;
+  }
+  return true;
+}
+
+for (const domain of domains) {
+  try {
+    const launched = await ociJson(
+      "compute", "instance", "launch", "--no-retry",
+      "--compartment-id", tenancy, "--availability-domain", domain, "--subnet-id", subnet.id,
+      "--display-name", NAME, "--hostname-label", NAME,
+      "--shape", SHAPE, ...(SHAPE_CONFIG === undefined ? [] : ["--shape-config", SHAPE_CONFIG]), "--image-id", image.id,
+      "--boot-volume-size-in-gbs", BOOT_VOLUME_GB, "--assign-public-ip", "true",
+      "--is-pv-encryption-in-transit-enabled", "true",
+      "--metadata", JSON.stringify({ ssh_authorized_keys: sshKey }),
+    );
+    process.stdout.write(`${NAME} launched in ${domain} from ${image["display-name"]}: ${launched.data.id}\n`);
+    process.exit(0);
+  } catch (error) {
+    const detail = `${error.stderr ?? ""}${error.message}`;
+    if (!CAPACITY_REFUSAL.test(detail) && !(/LimitExceeded/u.test(detail) && await limitsHaveRoom(detail, domain))) {
+      process.stderr.write(detail);
+      process.exit(1);
+    }
+  }
+}
+
+process.stderr.write(`All ${domains.length} availability domains refused ${SHAPE} capacity.\n`);
+process.exit(75);
