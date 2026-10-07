@@ -142,7 +142,7 @@ function baseUpstreams(metroplat, config) {
     client,
     principalMeta: "metroplat/subject",
     sessionMeta: "metroplat/session",
-    only: ["world-connect", "world-command", "harness-hook-event-admit"],
+    only: ["world-connect", "world-command", "harness-hook-event-admit", "operations"],
   }];
 }
 

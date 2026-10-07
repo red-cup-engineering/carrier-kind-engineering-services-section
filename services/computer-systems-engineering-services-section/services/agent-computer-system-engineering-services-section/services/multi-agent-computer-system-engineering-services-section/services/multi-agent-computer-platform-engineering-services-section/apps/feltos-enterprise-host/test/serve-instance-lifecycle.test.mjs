@@ -17,6 +17,7 @@ test("health answers while an optional companion is still starting", async (t) =
   const directory = await mkdtemp(join(tmpdir(), "feltos-host-lifecycle-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
   let finishCompanion;
+  let federationStarts = 0;
   const companion = new Promise((resolve) => { finishCompanion = resolve; });
   const federation = () => Object.freeze({
     clients: new Map(),
@@ -45,7 +46,16 @@ test("health answers while an optional companion is still starting", async (t) =
     environment: {},
     services: {
       openMetroplatMcp: async () => ({ handle: async () => undefined, close: async () => undefined }),
-      federateMcpServers: async () => federation(),
+      federateMcpServers: async (upstreams) => {
+        federationStarts += 1;
+        assert.equal(upstreams.length, 1);
+        const [upstream] = upstreams;
+        assert.deepEqual(upstream.only, ["world-connect", "world-command", "harness-hook-event-admit", "operations"]);
+        assert.equal(upstream.prefix, "metroplat");
+        assert.equal(upstream.principalMeta, "metroplat/subject");
+        assert.equal(upstream.sessionMeta, "metroplat/session");
+        return federation();
+      },
       createEnterpriseEntrance: () => ({ app: { resources: [] } }),
       startNativeApplication: async (app) => ({
         port: 0,
@@ -66,6 +76,7 @@ test("health answers while an optional companion is still starting", async (t) =
 
   finishCompanion({ close: async () => undefined });
   await until(() => platform.state() === "ready");
+  assert.equal(federationStarts, 2, "bootstrap and full federation preserve the same bounded catalog exposure");
   await platform.close();
 });
 
