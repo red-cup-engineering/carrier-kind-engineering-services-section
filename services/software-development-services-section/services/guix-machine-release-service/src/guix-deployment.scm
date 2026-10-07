@@ -6,6 +6,7 @@
   #:use-module (guix build-system trivial)
   #:use-module (gnu packages node)
   #:use-module (gnu packages bash)
+  #:use-module (gnu packages ssh)
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-1)
   #:export (enterprise-deployment))
@@ -15,7 +16,7 @@
 (define* (enterprise-deployment machine-name directory entry
                                #:key environment-file (environment '())
                                socket (heap 512) (restart-seconds 5)
-                               oom-score memory-high (auxiliary-units '()))
+                               oom-score memory-high (auxiliary-units '()) reverse-tunnel)
   (let ((admitted-source (getenv "GUIX_DEPLOYMENT_SOURCE")))
     (unless (and admitted-source (file-exists? admitted-source))
       (error "GUIX_DEPLOYMENT_SOURCE must name the admitted runtime closure"))
@@ -71,7 +72,8 @@
                   (format port "[Unit]~%Description=~a Guix enterprise deployment~%After=network-online.target~a~%Wants=network-online.target~a~%~%[Service]~%Type=simple~%WorkingDirectory=~a/~a~%ExecStart=~a~%EnvironmentFile=~a~%"
                           #$machine-name
                           (if #$socket (string-append " " #$socket) "")
-                          (if #$socket (string-append " " #$socket) "")
+                          (string-append (if #$socket (string-append " " #$socket) "")
+                            (if '#$reverse-tunnel (string-append " " #$machine-name "-ingress.service") ""))
                           out #$directory launcher #$environment-file)
                   (format port "EnvironmentFile=~a/environment~%" units)
                   (format port "Environment=\"PATH=~a/bin:/home/emsenn/.local/bin:/usr/local/bin:/usr/bin:/bin\"~%" out)
@@ -82,6 +84,12 @@
               (call-with-output-file (string-append units "/environment")
                 (lambda (port)
                   (for-each (lambda (pair) (format port "~a=~s~%" (car pair) (cdr pair))) env)))
+              (when '#$reverse-tunnel
+                (call-with-output-file (string-append units "/" #$machine-name "-ingress.service")
+                  (lambda (port)
+                    (format port "[Unit]~%Description=~a private ingress transport~%After=network-online.target~%[Service]~%Type=simple~%ExecStart=~a -NT -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -R ~a ~a~%Restart=always~%RestartSec=5~%UMask=0077~%"
+                      #$machine-name #$(file-append openssh "/bin/ssh")
+                      (cadr '#$reverse-tunnel) (car '#$reverse-tunnel)))))
               ;; Additional services belong to the same immutable generation
               ;; and are installed by the same release transaction.
               (for-each

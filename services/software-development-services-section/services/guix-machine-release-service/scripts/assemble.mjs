@@ -65,6 +65,7 @@ try {
 // Config declarations resolve the composed providers from the artifact root.
 await symlink('app/node_modules',join(closure,'node_modules'));
 await cp(join(snapshot,'deployment'),join(closure,'deployment'),{recursive:true});
+try {const ingress=JSON.parse(await readFile(join(snapshot,'deployment/ingress.json'),'utf8'));await writeFile(join(closure,'deployment/Caddyfile'),ingress.caddyConfiguration)} catch(error){if(error.code!=='ENOENT')throw error}
 await cp(join(snapshot,'deployments'),join(closure,'deployments'),{recursive:true});
 await writeFile(join(closure,'pnpm-workspace.yaml'),'packages: []\n');
 // Installation metadata names producer locations, and is not a runtime input.
