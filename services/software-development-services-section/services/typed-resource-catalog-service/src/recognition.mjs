@@ -10,15 +10,17 @@ function text(value, context) {
 
 function pointerParts(pointer) {
   const source = text(pointer, "json-pointer-equals.pointer");
-  if (!source.startsWith("/")) throw new TypeError("json-pointer-equals.pointer: expected an RFC 6901 absolute pointer");
+  if (!source.startsWith("/") || /~(?![01])/u.test(source)) throw new TypeError("json-pointer-equals.pointer: expected an RFC 6901 absolute pointer");
   return source.slice(1).split("/").map((part) => part.replaceAll("~1", "/").replaceAll("~0", "~"));
 }
 
 function jsonAt(content, pointer) {
+  const parts = pointerParts(pointer);
   let value;
   try { value = JSON.parse(content); } catch { return { found: false }; }
-  for (const part of pointerParts(pointer)) {
-    if (value === null || typeof value !== "object" || !(part in value)) return { found: false };
+  for (const part of parts) {
+    if (value === null || typeof value !== "object" || !Object.hasOwn(value, part)) return { found: false };
+    if (Array.isArray(value) && !/^(0|[1-9][0-9]*)$/u.test(part)) return { found: false };
     value = value[part];
   }
   return { found: true, value };
