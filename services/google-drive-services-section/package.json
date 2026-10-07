@@ -1,0 +1,22 @@
+{
+  "name": "@red-cup-engineering/google-drive-services-section",
+  "version": "0.1.0",
+  "description": "Publishes the house's content-addressed artifacts into Google Drive through the gdrive rclone remote.",
+  "type": "module",
+  "keywords": [
+    "engineering"
+  ],
+  "exports": {
+    "./publish-media": "./src/publish-media.mjs",
+    "./media": "./src/media.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "src"
+  ]
+}

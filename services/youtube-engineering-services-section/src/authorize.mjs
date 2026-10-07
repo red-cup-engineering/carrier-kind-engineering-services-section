@@ -40,6 +40,7 @@ if (typeof onToken !== 'function' || typeof onAuthorizationUrl !== 'function') t
 if(!clientId || !clientSecret) throw new Error('Missing shared YouTube OAuth client credentials');
 const request=consentRequest({clientId,port});
 const server=createServer(async(req,res)=>{
+  if(req.url==='/favicon.ico') {res.writeHead(204);res.end();return;}
   try {
     const code=returnedConsent(req.url,request);
     await onToken(await exchangeConsent({channelId,clientId,clientSecret,code,verifier:request.verifier,redirectUri:request.redirectUri,fetchImpl}));
