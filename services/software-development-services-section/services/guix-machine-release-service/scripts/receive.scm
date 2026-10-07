@@ -36,6 +36,26 @@
               (error "candidate is not ready"))))
       (lambda args (if (> left 1) (begin (sleep 3) (loop (- left 1))) (apply throw args))))))
 
+(define (retain-release-roots config store previous)
+  (let* ((root (field config "gcRoot"))
+         (script (string-append store "/.controller/scripts/register-candidate-root.scm")))
+    (run "guix" "repl" "--" script store root)
+    (when (and previous (string-prefix? "/gnu/store/" previous))
+      (run "guix" "repl" "--" script previous (string-append root "-previous")))
+    ;; Completed build/stage roots are superseded only under the writer lease.
+    ;; Current and previous have stable public roots before any root is retired.
+    (for-each
+      (lambda (name)
+        (let ((file (string-append (dirname root) "/" name)))
+          (when (and (string-prefix? (string-append (basename root) "-") name)
+                     (not (equal? name (string-append (basename root) "-previous")))
+                     (eq? (stat:type (lstat file)) 'symlink))
+            (delete-file file))))
+      (scandir (dirname root)))
+    ;; Guix deduplicates immutable files and collects only unrooted store items.
+    (system* "guix" "gc" "--optimize")
+    (system* "guix" "gc" "--free-space=2GB")))
+
 (define (receive config store failure-test? stage-only?)
   (let* ((name (field config "name")) (root (field config "releaseRoot"))
          (profile (string-append root "/current"))
@@ -73,6 +93,7 @@
                  (equal? (field config "stateCompatibility") "preserve-existing"))
       (error "candidate identity or state contract is not admitted"))
     (run "mkdir" "-p" receipts)
+    (retain-release-roots config store previous)
     (catch #t
       (lambda ()
         ;; The app's probe mode suppresses clocks, remote delivery and companions.
@@ -177,6 +198,9 @@
         (run "systemctl" "--user" "restart" unit)
         (set! stage "live-check")
         (health (field config "health") store)
+        ;; Stable roots retain both rollback targets; older profile generations
+        ;; no longer retain every historical build forever.
+        (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--delete-generations")
         (receipt receipts "success" `(("outcome" . "success") ("storePath" . ,store)
                                       ("previous" . ,previous) ("machine" . ,name)
                                       ("revision" . ,revision) ("repository" . ,repository)
