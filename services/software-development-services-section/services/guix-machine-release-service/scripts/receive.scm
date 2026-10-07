@@ -71,8 +71,11 @@
 (define (retain-release-roots config store current previous)
     (root-release-generations config store current previous)
     ;; Guix deduplicates immutable files and collects only unrooted store items.
-    (system* "guix" "gc" "--optimize")
-    (system* "guix" "gc" "--free-space=2GB"))
+    (let ((free (string->number (car (reverse (string-tokenize
+                  (capture "df" "--output=avail" "--block-size=1" "/gnu/store")))))))
+      (when (< free 2147483648)
+        (system* "guix" "gc" "--optimize")
+        (system* "guix" "gc" "--free-space=2GB"))))
 
 (define (receive config store failure-test? stage-only?)
   (let* ((name (field config "name")) (root (field config "releaseRoot"))
@@ -97,6 +100,8 @@
                     (string-append "https://github.com/" (getenv "GITHUB_REPOSITORY")
                                    "/actions/runs/" (getenv "GITHUB_RUN_ID"))))
          (stopped? #f)
+         (activated-units (vector->list (or (assoc-ref config "restartAuxiliaryUnits") #())))
+         (held-unit-actives (map (lambda (name) (cons name (zero? (system* "systemctl" "--user" "is-active" "--quiet" name)))) activated-units))
          (managed-files
            (append
              (map (lambda (name) (cons (string-append (getenv "HOME") "/.config/systemd/user/" name)
@@ -217,6 +222,7 @@
                     (rename-file (string-append (car file) ".next") (car file))) managed-files)
         (run "systemctl" "--user" "daemon-reload")
         (run "systemctl" "--user" "restart" unit)
+        (for-each (lambda (name) (run "systemctl" "--user" "restart" name)) activated-units)
         (configuration-commands config "reload" store)
         (set! stage "live-check")
         (health (field config "health") store)
@@ -234,6 +240,7 @@
         (system* "systemctl" "--user" "stop" probe)
         (when (file-exists? probe-env) (delete-file probe-env))
         (when managed-changed?
+          (for-each (lambda (name) (system* "systemctl" "--user" "stop" name)) activated-units)
           (for-each (lambda (saved)
                       (match saved
                         ((path backup exists? link)
@@ -252,6 +259,7 @@
                    (rename-file (string-append unit-file ".next") unit-file)))
           (system* "systemctl" "--user" "daemon-reload")
           (configuration-commands config "reload" store)
+          (for-each (lambda (held) (when (cdr held) (run "systemctl" "--user" "restart" (car held)))) held-unit-actives)
           (when was-running?
             (run "systemctl" "--user" "restart" unit)
             (health (field config "health"))))
