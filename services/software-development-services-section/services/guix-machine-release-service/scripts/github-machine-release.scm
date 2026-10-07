@@ -76,8 +76,8 @@
           (when (getenv "GITHUB_STEP_SUMMARY")
             (call-with-output-file (getenv "GITHUB_STEP_SUMMARY")
               (lambda (p) (format p "Guix candidate: `~a`~%~%NAR SHA256: `~a`~%" store (assoc-ref built "narSha256")))))
-          (if (equal? mode "build") (begin (scm->json built) (newline))
-              (apply run "guix" "repl" "--" (string-append service "/scripts/receive.scm")
+          (apply run "guix" "repl" "--" (string-append service "/scripts/receive.scm")
                      (string-append snapshot "/machine.json") store
-                     (if (equal? mode "check-failure") '("--check-failure") '()))))))))
+                     (cond ((equal? mode "check-failure") '("--check-failure"))
+                           ((equal? mode "build") '("--stage-only")) (else '()))))))))
  (_ (error "usage: github-machine-release.scm SNAPSHOT WORK build|deploy|check-failure")))

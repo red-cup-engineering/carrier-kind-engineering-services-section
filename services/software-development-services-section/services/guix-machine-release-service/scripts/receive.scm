@@ -36,7 +36,7 @@
               (error "candidate is not ready"))))
       (lambda args (if (> left 1) (begin (sleep 3) (loop (- left 1))) (apply throw args))))))
 
-(define (receive config store failure-test?)
+(define (receive config store failure-test? stage-only?)
   (let* ((name (field config "name")) (root (field config "releaseRoot"))
          (profile (string-append root "/current"))
          (unit (field config "unit")) (env-file (field config "environmentFile"))
@@ -102,6 +102,15 @@
              (string-append store "/bin/" name))
         (health "http://127.0.0.1:18819/healthz" store)
         (set! stage "pre-switch-check")
+        (when stage-only?
+          (run "systemctl" "--user" "stop" probe)
+          (delete-file probe-env)
+          (receipt receipts "staged" `(("outcome" . "staged") ("storePath" . ,store)
+                                      ("retained" . ,previous) ("machine" . ,name)
+                                      ("revision" . ,revision) ("repository" . ,repository)
+                                      ("run" . ,run-url) ("stage" . "pre-switch-check")
+                                      ("at" . ,(strftime "%FT%TZ" (gmtime (current-time))))))
+          (exit 0))
         (when failure-test? (error "deliberate pre-switch check failure"))
         (run "systemctl" "--user" "stop" probe)
         (delete-file probe-env)
@@ -164,7 +173,7 @@
      (unless (string-prefix? "/gnu/store/" store) (error "candidate must be a Guix store output"))
      (run "mkdir" "-p" (dirname lease))
      (if (equal? (getenv "GUIX_MACHINE_RELEASE_LOCKED") "1")
-         (begin (display (receive config store (member "--check-failure" options))) (newline))
+         (begin (display (receive config store (member "--check-failure" options) (member "--stage-only" options))) (newline))
          (begin
            (setenv "GUIX_MACHINE_RELEASE_LOCKED" "1")
            (apply run "flock" "--exclusive" "--wait" "900" lease "guix" "repl" "--"
