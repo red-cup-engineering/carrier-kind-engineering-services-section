@@ -21,6 +21,13 @@
          (workspace (string-append work "/workspace"))
          (prepared (string-append work "/prepare.json")))
     (run "mkdir" "-p" work)
+    (when (equal? mode "rollback")
+      (let* ((config (read-json (string-append snapshot "/machine.json")))
+             (previous (canonicalize-path (string-append (assoc-ref config "releaseRoot") "/previous"))))
+        (run "guix" "repl" "--" (string-append (dirname (car (command-line))) "/receive.scm")
+             (string-append snapshot "/machine.json") previous "--rollback")
+        (exit 0)))
+    (unless (member mode '("build" "deploy" "check-failure")) (error "unsupported release mode" mode))
     (let ((resolved
       (vector-map
        (lambda (index r)

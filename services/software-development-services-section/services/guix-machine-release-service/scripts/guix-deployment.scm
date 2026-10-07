@@ -48,7 +48,8 @@
             (store (last lines)))
        (unless (string-prefix? "/gnu/store/" store)
          (error "Guix returned no store output" lines))
-       `(("storePath" . ,store) ("root" . ,root))))
+       `(("storePath" . ,store) ("root" . ,root)
+         ("narSha256" . ,(last (guix channels "hash" "--serializer=nar" "--format=hex" store))))))
     (_ (error "usage: build CHANNELS LOAD-PATH DEFINITION SOURCE ROOT"))))
 
 (display (scm->json-string result))

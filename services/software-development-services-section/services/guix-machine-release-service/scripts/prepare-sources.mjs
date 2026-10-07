@@ -57,19 +57,20 @@ export function prepare({ repositories, entries, owners, dependencyPins = {}, ou
     const target = resolve(root, 'packages', name.replaceAll('/', '__'));
     mkdirSync(target, { recursive: true });
     const sourceRepository = repositories.find(r => r.repository === p.repository).directory;
-    const files = command('git', ['ls-tree', '-r', '--format=%(objectmode) %(path)', p.commit, '--', p.path], sourceRepository).split('\n');
-    for (const record of files) {
-      // npm package archives do not include symlinks or nested gitlinks.
-      if (!/^(100644|100755) /.test(record)) continue;
-      const file = record.slice(7);
-      const path = relative(p.directory, resolve(repositories.find(r => r.repository === p.repository).directory, file));
-      if (!path || path.split('/').some(x => ['node_modules', '.git', 'legacy'].includes(x))) continue;
-      const destination = resolve(target, path);
-      mkdirSync(dirname(destination), { recursive: true });
-      const blob = spawnSync('git', ['show', `${p.commit}:${file}`], { cwd: sourceRepository, maxBuffer: 64 * 1024 * 1024 });
-      if (blob.error || blob.status !== 0) throw blob.error ?? new Error(`cannot read pinned source blob: ${p.repository}:${file}`);
-      writeFileSync(destination, blob.stdout);
-      chmodSync(destination, record.startsWith('100755') ? 0o755 : 0o644);
+    const records = command('git', ['ls-tree', '-r', '--format=%(objectmode) %(objectname) %(path)', p.commit, '--', p.path], sourceRepository).split('\n');
+    const files=records.filter(record=>/^(100644|100755) /.test(record)).map(record=>({mode:record.slice(0,6),oid:record.slice(7,47),file:record.slice(48)})).filter(({file})=>!file.split('/').some(x=>['node_modules','.git','legacy'].includes(x)));
+    // Read the immutable object set in one batch rather than one process per file.
+    const batch=spawnSync('git',['cat-file','--batch'],{cwd:sourceRepository,input:files.map(f=>f.oid+'\n').join(''),maxBuffer:256*1024*1024});
+    if(batch.error||batch.status!==0)throw batch.error??new Error('cannot read source object batch');
+    let offset=0;
+    for(const {mode,oid,file} of files){
+      const end=batch.stdout.indexOf(10,offset),header=batch.stdout.subarray(offset,end).toString().split(' ');
+      if(header[0]!==oid||header[1]!=='blob')throw new Error(`invalid source blob: ${file}`);
+      const length=Number(header[2]),blob=batch.stdout.subarray(end+1,end+1+length);offset=end+2+length;
+      const path=relative(p.directory,resolve(sourceRepository,file));
+      if(!path||path.startsWith('..'))throw new Error('source path escapes package');
+      const destination=resolve(target,path);mkdirSync(dirname(destination),{recursive:true});
+      writeFileSync(destination,blob);chmodSync(destination,mode==='100755'?0o755:0o644);
     }
     const manifest = structuredClone(p.manifest);
     delete manifest.devDependencies;
