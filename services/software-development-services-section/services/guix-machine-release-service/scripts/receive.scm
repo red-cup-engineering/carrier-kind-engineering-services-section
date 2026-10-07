@@ -154,7 +154,7 @@
             (atomic-link (string-append profile ".before-guix") previous)))
         ;; Guix retains generations as GC roots; current/previous name the exact
         ;; application outputs, never a mutable machine checkout.
-        (run "guix" "package" (string-append "--profile=" root "/guix-profile") "--install" store)
+        (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" store)
         (atomic-link profile store)
         (copy-file (string-append store "/.guix-systemd/" unit) (string-append unit-file ".next"))
         (rename-file (string-append unit-file ".next") unit-file)
