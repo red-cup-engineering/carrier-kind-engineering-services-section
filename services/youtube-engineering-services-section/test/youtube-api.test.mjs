@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createYouTube } from '../src/youtube-api.mjs';
+import { createYouTube, nextYouTubeQuotaReset } from '../src/youtube-api.mjs';
 
 const channelId = 'UCabcdefghijklmnopqrstuv';
 const otherChannel = 'UCzyxwvutsrqponmlkjihgfe';
@@ -29,8 +29,43 @@ function fake({ identity = channelId, uploads = [], effect = () => { throw new E
   };
   return { calls, fetchImpl };
 }
-const make = fetchImpl => createYouTube({ channelId, refreshTokenEnv: 'CHANNEL_TOKEN', env, fetchImpl, authorize: async () => {} });
+const make = fetchImpl => createYouTube({ channelId, refreshTokenEnv: 'CHANNEL_TOKEN', env:{...env,YOUTUBE_OAUTH_CLIENT_ID:crypto.randomUUID()}, fetchImpl, authorize: async () => {} });
 const input = filePath => ({ filePath, marker: 'test-one', metadata: { title: 'Test title', description: 'Research sources' } });
+
+test('daily quota waits follow Pacific midnight through both daylight-saving transitions',()=>{
+ assert.equal(nextYouTubeQuotaReset(Date.parse('2026-10-07T18:00:00Z')),'2026-10-08T07:01:00.000Z');
+ assert.equal(nextYouTubeQuotaReset(Date.parse('2026-03-08T07:30:00Z')),'2026-03-08T08:01:00.000Z');
+ assert.equal(nextYouTubeQuotaReset(Date.parse('2026-11-01T07:30:00Z')),'2026-11-02T08:01:00.000Z');
+});
+
+test('a restarted worker makes no OAuth, read or write requests until the observed quota resets',async t=>{
+ const root=await mkdtemp(join(tmpdir(),'youtube-quota-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ let now=Date.parse('2026-10-07T18:00:00Z'),requests=0,exhausted=true;
+ const options={channelId,refreshTokenEnv:'CHANNEL_TOKEN',env:{...env,YOUTUBE_OAUTH_CLIENT_ID:'persisted-quota',YOUTUBE_API_STATE_ROOT:root},clock:()=>now,authorize:async()=>{},fetchImpl:async url=>{
+  requests++;return url.includes('oauth2')?json({access_token:'access'}):exhausted?json({error:{errors:[{reason:'quotaExceeded'}]}},403):json({items:[video]});
+ }};
+ await assert.rejects(createYouTube(options).getVideo(videoId),e=>e.reason==='quotaExceeded');
+ const {createYouTube:restarted}=await import('../src/youtube-api.mjs?restarted-worker');
+ const afterRefusal=requests,client=restarted(options);
+ await assert.rejects(client.getVideo(videoId),e=>e.retryAt==='2026-10-08T07:01:00.000Z');
+ await assert.rejects(client.setTitle({videoId,title:'Changed'}),e=>e.reason==='quotaExceeded');
+ assert.equal(requests,afterRefusal);
+ now=Date.parse('2026-10-08T07:01:01Z');exhausted=false;
+ assert.equal((await client.getVideo(videoId)).id,videoId);assert.equal(requests,afterRefusal+2);
+});
+
+test('owned inventory survives a worker restart, but edits and upload reconciliation observe Google again',async t=>{
+ const root=await mkdtemp(join(tmpdir(),'youtube-inventory-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ const saved={...structuredClone(video),snippet:{...video.snippet,title:'Original',categoryId:'27'}};
+ const mock=fake({uploads:[saved],effect(url,options){if(options.method==='PUT'&&url.includes('/videos?')){saved.snippet={...saved.snippet,...JSON.parse(options.body).snippet};return json(saved);}throw new Error('Unexpected write');}});
+ const options={channelId,refreshTokenEnv:'CHANNEL_TOKEN',env:{...env,YOUTUBE_API_STATE_ROOT:root},fetchImpl:mock.fetchImpl,authorize:async()=>{}};
+ const first=createYouTube(options);await first.listUploads();const count=mock.calls.length;
+ const second=createYouTube(options),cached=await second.listUploads();cached[0].snippet.title='Corrupted';
+ assert.equal(mock.calls.length,count);assert.equal((await second.listUploads())[0].snippet.title,'Original');
+ await second.setTitle({videoId,title:'Changed'});
+ assert.equal((await first.listUploads())[0].snippet.title,'Changed');
+ const beforeFresh=mock.calls.length;await first.listUploads({fresh:true});assert(mock.calls.length>beforeFresh);
+});
 
 test('quota exhaustion becomes one observed wait shared by the project channel clients',async()=>{
  let requests=0;

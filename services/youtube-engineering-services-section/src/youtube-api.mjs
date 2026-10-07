@@ -1,14 +1,27 @@
 import { open, stat } from 'node:fs/promises';
-import { createReadStream } from 'node:fs';
+import { createReadStream, existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 
 const API = 'https://www.googleapis.com/youtube/v3/';
 const UPLOAD = 'https://www.googleapis.com/upload/youtube/v3/';
 const CHUNK = 8 * 1024 * 1024; // A bounded multiple of Google's 256 KiB chunk unit.
-// Channel clients share one project's read/edit quota. Stop further attempts
-// in this turn after Google reports exhaustion; a later timer turn can observe
-// recovery. This applies to Data API calls, not independent provider budgets.
+// Retain Google's refusal across clients and worker restarts. Each daily quota
+// bucket waits for its actual reset, rather than probing every timer turn.
 const quotaWaits = new Map();
+const pacific = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Los_Angeles',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
+const wallTime=date=>{const p=Object.fromEntries(pacific.formatToParts(date).map(part=>[part.type,part.value]));return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second);};
+export function nextYouTubeQuotaReset(now=Date.now()) {
+  const local=wallTime(new Date(now)),target=new Date(local);target.setUTCHours(24,0,0,0);
+  let guess=target.getTime()+8*3600000;
+  for(let n=0;n<3;n++)guess+=target.getTime()-wallTime(new Date(guess));
+  return new Date(guess+60000).toISOString();
+}
+function privateJson(path,value) {
+  mkdirSync(dirname(path),{recursive:true,mode:0o700});
+  const temporary=path+'.'+process.pid+'.tmp';writeFileSync(temporary,JSON.stringify(value),{mode:0o600});renameSync(temporary,path);
+}
+function remove(path) {if(path)try{unlinkSync(path);}catch(error){if(error.code!=='ENOENT')throw error;}}
 
 function futureUtc(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z$/.test(value) || !Number.isFinite(Date.parse(value)) || Date.parse(value) <= Date.now()) {
@@ -50,7 +63,7 @@ async function responseJson(response, operation) {
 
 /** Direct Google APIs. Checkpoints contain a resumable URL and belong in private runtime state. */
 /** Low-level Google transport. Every auth, read and write request is admitted first. */
-export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, authorize } = {}) {
+export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, authorize, requestTimeoutMs=30_000, uploadTimeoutMs=120_000, clock=Date.now } = {}) {
   if (!/^UC[\w-]{22}$/.test(channelId ?? '')) throw new Error('An exact YouTube channelId is required');
   if (!env || typeof env !== 'object') throw new Error('YouTube requires an explicit environment');
   if (typeof fetchImpl !== 'function') throw new Error('YouTube requires an explicit fetch implementation');
@@ -58,6 +71,24 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   if (!refreshTokenEnv || !env[refreshTokenEnv]) throw new Error(`Missing channel credential: ${refreshTokenEnv || 'refreshTokenEnv'}`);
   for (const name of ['YOUTUBE_OAUTH_CLIENT_ID', 'YOUTUBE_OAUTH_CLIENT_SECRET']) if (!env[name]) throw new Error(`Missing credential: ${name}`);
   let token, expires = 0;
+  const root=env.YOUTUBE_API_STATE_ROOT??(env.HOME?join(env.HOME,'.local/state/561-group/youtube'):null);
+  const fingerprint=value=>createHash('sha256').update(value).digest('hex');
+  const project=fingerprint(env.YOUTUBE_OAUTH_CLIENT_ID);
+  const inventoryPath=root?join(root,'inventories',fingerprint(JSON.stringify([channelId,env.YOUTUBE_OAUTH_CLIENT_ID,env[refreshTokenEnv]]))+'.json'):null;
+  const inventoryTtl=3600000;
+  function quotaPath(bucket){return root?join(root,'quotas',project+'-'+bucket+'.json'):null;}
+  function waiting(bucket) {
+    const key=project+':'+bucket,path=quotaPath(bucket);
+    const retained=path&&existsSync(path)?JSON.parse(readFileSync(path,'utf8')):quotaWaits.get(key);
+    if(!retained)return;
+    if(!Number.isFinite(Date.parse(retained.retryAt)))throw new Error('Invalid retained YouTube quota reset');
+    if(clock()>=Date.parse(retained.retryAt)){quotaWaits.delete(key);remove(path);return;}
+    return Object.assign(new Error('YouTube quota exhausted; waiting until '+retained.retryAt),{name:'YouTubeApiError',reason:'quotaExceeded',code:'YOUTUBE_API_ERROR',status:403,retryable:false,retryAt:retained.retryAt});
+  }
+  function retainQuota(bucket) {
+    const reading={reason:'quotaExceeded',observedAt:new Date(clock()).toISOString(),retryAt:nextYouTubeQuotaReset(clock()),bucket};
+    quotaWaits.set(project+':'+bucket,reading);const path=quotaPath(bucket);if(path)privateJson(path,reading);
+  }
   // Reuse one owned inventory within a production turn. Individual video reads
   // still observe current state before every edit, and upload reconciliation
   // always bypasses this cache before deciding whether to create a session.
@@ -68,6 +99,9 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     return fetchImpl(url, options);
   }
   async function authorized(url, options = {}, operation = 'youtube.observe') {
+    const dataApi=url.startsWith(API)||url.startsWith(UPLOAD);
+    const bucket=url.startsWith(UPLOAD+'videos?')||url.includes('/upload/youtube/v3/videos?')?'uploads':'general';
+    if(dataApi){const wait=waiting(bucket);if(wait)throw wait;}
     if (!token || Date.now() >= expires) {
       const result = await responseJson(await request('youtube.auth', 'https://oauth2.googleapis.com/token', {
         method: 'POST', body: new URLSearchParams({ client_id: env.YOUTUBE_OAUTH_CLIENT_ID, client_secret: env.YOUTUBE_OAUTH_CLIENT_SECRET, refresh_token: env[refreshTokenEnv], grant_type: 'refresh_token' }),
@@ -78,15 +112,14 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     if (options.method && options.method !== 'GET' && (url.startsWith(API + 'videos?') || url.startsWith(UPLOAD))) {
       // Invalidate before attempting the write: a lost response is ambiguous.
       uploadObservation = undefined;
+      remove(inventoryPath);
     }
-    return request(operation, url, { ...options, redirect: 'manual', headers: { ...options.headers, Authorization: `Bearer ${token}` } });
+    const response=await request(operation, url, { ...options, redirect: 'manual', headers: { ...options.headers, Authorization: `Bearer ${token}` } });
+    if(dataApi&&response.status===403){const body=await response.clone().json().catch(()=>null);if(body?.error?.errors?.some(item=>item.reason==='quotaExceeded'))retainQuota(bucket);}
+    return response;
   }
   async function api(path, options) {
-    const key=env.YOUTUBE_OAUTH_CLIENT_ID,wait=quotaWaits.get(key);
-    if(wait&&Date.now()<wait.until)throw wait.error;
-    if(wait)quotaWaits.delete(key);
-    try {return await responseJson(await authorized(API + path, options));}
-    catch(error){if(error.reason==='quotaExceeded')quotaWaits.set(key,{error,until:Date.now()+5*60_000});throw error;}
+    return responseJson(await authorized(API + path, options));
   }
   async function verifyIdentity({ fresh = false } = {}) {
     if (fresh || (token && Date.now() >= expires) || Date.now() - identityObservedAt >= OBSERVATION_TTL) identityObservation = undefined;
@@ -135,10 +168,17 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     return videos;
   }
   async function listUploads({ fresh = false } = {}) {
+    if(!fresh&&inventoryPath&&existsSync(inventoryPath)) {
+      let saved;try{saved=JSON.parse(readFileSync(inventoryPath,'utf8'));}catch{remove(inventoryPath);}
+      if(saved?.channelId===channelId&&Array.isArray(saved.uploads)&&saved.uploads.every(v=>v.snippet?.channelId===channelId)&&clock()-Date.parse(saved.observedAt)<inventoryTtl&&clock()>=Date.parse(saved.observedAt))return structuredClone(saved.uploads);
+    }
+    // A write in another channel client/process removes the shared snapshot.
+    // Never resurrect it from this client's older in-memory observation.
+    if(inventoryPath)uploadObservation=undefined;
     if (fresh || (token && Date.now() >= expires) || Date.now() - uploadsObservedAt >= OBSERVATION_TTL) uploadObservation = undefined;
-    if (!uploadObservation) { uploadsObservedAt = Date.now(); uploadObservation = readUploads(); }
+    if (!uploadObservation) { uploadsObservedAt = clock(); uploadObservation = readUploads(); }
     const observed = uploadObservation;
-    try { return structuredClone(await observed); }
+    try {const uploads=await observed;if(inventoryPath)privateJson(inventoryPath,{channelId,observedAt:new Date(uploadsObservedAt).toISOString(),uploads});return structuredClone(uploads);}
     catch (error) { if (uploadObservation === observed) uploadObservation = undefined; throw error; }
   }
   async function upload({ filePath, metadata, publishAt, marker, onCheckpoint, checkpoint, language }) {

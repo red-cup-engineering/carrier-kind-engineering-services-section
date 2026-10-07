@@ -126,7 +126,8 @@
                                        (string-append store "/" (field check "program")))))))
           (vector->list (or (assoc-ref config "auxiliaryChecks") #())))
         (set! stage "pre-switch-check")
-        (when stage-only?
+        (if stage-only?
+          (begin
           (run "systemctl" "--user" "stop" probe)
           (delete-file probe-env)
           (receipt receipts "staged" `(("outcome" . "staged") ("storePath" . ,store)
@@ -134,7 +135,8 @@
                                       ("revision" . ,revision) ("repository" . ,repository)
                                       ("run" . ,run-url) ("stage" . "pre-switch-check")
                                       ("at" . ,(strftime "%FT%TZ" (gmtime (current-time))))))
-          (exit 0))
+          )
+          (begin
         (when failure-test? (error "deliberate pre-switch check failure"))
         (run "systemctl" "--user" "stop" probe)
         (delete-file probe-env)
@@ -179,7 +181,7 @@
                                       ("previous" . ,previous) ("machine" . ,name)
                                       ("revision" . ,revision) ("repository" . ,repository)
                                       ("run" . ,run-url) ("stage" . "live-check")
-                                      ("at" . ,(strftime "%FT%TZ" (gmtime (current-time)))))))
+                                      ("at" . ,(strftime "%FT%TZ" (gmtime (current-time)))))))))
       (lambda args
         (system* "systemctl" "--user" "stop" probe)
         (when (file-exists? probe-env) (delete-file probe-env))
