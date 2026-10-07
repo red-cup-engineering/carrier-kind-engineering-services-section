@@ -53,11 +53,7 @@ import { appendCreditReading, balanceEvidence, creditJournalPath, flowAllowance,
 
 const PROVIDER = 'urn:ame:google-flow';
 const EXTENSION = { 'video/mp4': 'mp4', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
-const POLL_MS = 10_000;
-const POLL_LIMIT_MS = 15 * 60_000;
-/** Waits before each new ask after Flow scored a token as automated. */
-const TOKEN_BACKOFF_MS = [30_000, 120_000, 300_000];
-const PACING = Object.freeze({ floorMs: 5_000, ceilingMs: 600_000, refused: 2, accepted: 0.85, halfLifeMs: 3_600_000 });
+const PACING = Object.freeze({ floorMs: 60_000, ceilingMs: 600_000, refused: 2, accepted: 0.98 });
 
 /**
  * The gap kept between generation calls: as the last run left it, halved for each hour since, so
@@ -125,29 +121,74 @@ async function keep({ flow, order, lot, url, mediaId, credits, account }) {
     resource: { model: order.kind, aspect: order.aspect, credits, path: stored.path, sha256: stored.sha256 },
   });
   journal({ ...completion, consumer: order.consumer });
-  return { consumer: order.consumer, mediaId, path: stored.path, bytes: bytes.length, mimeType };
+  // Retain the received artifact even if Drive is temporarily unavailable; the publisher
+  // can finish its transfer without regenerating or spending another provider request.
+  let drive, drivePending;
+  try { drive = await keepMediaInDrive(stored.path, { folder: `flow/${order.consumer}`, expectedSha256: stored.sha256 }); }
+  catch { drivePending = true; } // The retained completion lets the independent publisher retry custody.
+  if (drive) journal({ type: 'MediaDriveCustody', consumer: order.consumer, providerArtifactId: mediaId, sha256: stored.sha256, drive, recordedAt: new Date().toISOString() });
+  if (drive && process.env.GOOGLE_FLOW_EVICT_MEDIA === '1') await releaseMediaCache(drive, stored.path);
+  return { consumer: order.consumer, mediaId, path: stored.path, bytes: bytes.length, mimeType, ...(drive ? { drive } : {}), ...(drivePending ? { drivePending } : {}) };
 }
 
-async function generateImages({ flow, order, lot, projectId, account, price, ask }) {
-  const images = await ask(() => flow.generateImages({ ...order, projectId }));
-  const kept = [];
-  for (const image of images) if (image.imageUrl) kept.push(await keep({ flow, order, lot, url: image.imageUrl, mediaId: image.mediaId, credits: price / images.length, account }));
-  return kept;
+async function generateImages({ flow, order, lot, projectId, account, price, ask, onAttempt, onSpent, state }) {
+  const images = await ask(() => {onAttempt(order);return flow.generateImages({ ...order, projectId });});
+  if (!images.length || images.some(image=>!image.mediaId)) throw new Error('Flow image submission has no acknowledged media IDs; retain the attempted order for review');
+  const job={order,lot,projectId,account,price:price/images.length,mediaIds:images.map(image=>image.mediaId),images,acceptedAt:new Date().toISOString(),received:[],failed:[]};
+  const path=submissionPath(state,lot);writeJob(path,job);
+  onSpent(order);
+  return receiveSubmission(flow,job,path);
 }
 
-/** Ask after the clips until each is done or failed; answers their last rows. */
+/** Observe accepted clips once; durable submissions outlive this worker turn. */
 async function awaitClips(flow, mediaIds, projectId) {
-  const rows = new Map();
-  const started = Date.now();
-  while (Date.now() - started < POLL_LIMIT_MS) {
-    for (const row of await flow.videoStatus(mediaIds.filter((id) => !['done', 'failed'].includes(rows.get(id)?.status)), { projectId }).catch(() => [])) rows.set(row.mediaId, row);
-    if (mediaIds.every((id) => ['done', 'failed'].includes(rows.get(id)?.status))) break;
-    await pause(POLL_MS);
-  }
+  const rows = new Map((await flow.videoStatus(mediaIds,{projectId})).map(row=>[row.mediaId,row]));
   return mediaIds.map((id) => rows.get(id) ?? { mediaId: id, status: 'unfinished' });
 }
 
-async function generateVideos({ flow, order, lot, projectId, account, price, allowance, storePath, ask, onSpent }) {
+function writeJob(path,job){mkdirSync(dirname(path),{recursive:true,mode:0o700});const temp=path+'.'+process.pid+'.tmp';writeFileSync(temp,JSON.stringify(job),{mode:0o600});renameSync(temp,path);}
+function submissionPath(state,lot){return join(state,'in-flight',createHash('sha256').update(lot.id).digest('hex')+'.json');}
+
+async function receiveSubmission(flow,job,path) {
+  const kept=[];job.received??=[];job.failed??=[];
+  const pending=job.mediaIds.filter(id=>!job.received.includes(id)&&!job.failed.includes(id));
+  const observations=job.order.medium==='image'
+    ? pending.map(id=>({mediaId:id,status:'done',imageUrl:job.images?.find(image=>image.mediaId===id)?.imageUrl}))
+    : pending.length?await awaitClips(flow,pending,job.projectId):[];
+  for(const row of observations) {
+    if(row.status==='failed'){job.failed.push(row.mediaId);writeJob(path,job);kept.push({consumer:job.order.consumer,mediaId:row.mediaId,status:'failed'});continue;}
+    if(row.status!=='done'){kept.push({consumer:job.order.consumer,mediaId:row.mediaId,status:row.status});continue;}
+    const media=row.videoUrl||row.imageUrl?row:await flow.media(row.mediaId,{projectId:job.projectId});
+    const url=media.videoUrl??media.imageUrl;
+    if(!url)throw new Error('Acknowledged Flow media has no downloadable URL yet');
+    kept.push(await keep({flow,order:job.order,lot:job.lot,url,mediaId:row.mediaId,credits:job.price,account:job.account}));
+    job.received.push(row.mediaId);writeJob(path,job);
+  }
+  if(job.mediaIds.every(id=>job.received.includes(id)||job.failed.includes(id))) {
+    const dir=join(dirname(path),'done');mkdirSync(dir,{recursive:true,mode:0o700});renameSync(path,join(dir,path.split('/').pop()));
+  }
+  return kept;
+}
+
+/** Retrieve acknowledged media even while new generations are held. */
+export async function resumeFlowSubmissions({state=flowStateDir(),open=openGoogleFlow}={}) {
+  const dir=join(state,'in-flight');const files=existsSync(dir)?readdirSync(dir).filter(name=>name.endsWith('.json')):[];
+  if(!files.length)return [];
+  let flow;
+  try {flow=await open();} catch(error) {return [{status:'received-media-pending',code:error.code??'FLOW_SESSION_UNAVAILABLE'}];}
+  const results=[];
+  for(const name of files){
+    const path=join(dir,name);let job;
+    try {
+      job=JSON.parse(readFileSync(path,'utf8'));
+      if(!job.order?.consumer||!job.lot?.id||!job.projectId||!Array.isArray(job.mediaIds)||!job.mediaIds.length||job.mediaIds.some(id=>typeof id!=='string'||!id))throw new Error('Invalid retained Flow submission');
+      results.push({consumer:job.order.consumer,kept:await receiveSubmission(flow,job,path)});
+    }catch(error){results.push({consumer:job?.order?.consumer,status:'received-media-pending',code:error.code??'FLOW_RECEIPT_PENDING'});}
+  }
+  return results;
+}
+
+async function generateVideos({ flow, order, lot, projectId, account, price, allowance, storePath, ask, onSpent, onAttempt, state }) {
   const principal = `google-flow:${order.consumer}`;
   const held = holdAllowance(allowance, { id: randomUUID(), kind: order.kind, count: order.count, principal, reference: lot.id }, { storePath });
   if (held.disposition !== 'held') return { refused: held.reason };
@@ -155,21 +196,19 @@ async function generateVideos({ flow, order, lot, projectId, account, price, all
   if (attempt.disposition !== 'attempted') return { refused: attempt.reason };
   let submission;
   try {
-    submission = await ask(() => flow.generateVideos({ ...order, projectId }));
+    submission = await ask(() => {onAttempt(order);return flow.generateVideos({ ...order, projectId });});
   } catch (error) {
     settleAllowance(allowance, held.hold.id, { outcome: capacityRefusal(error) ? 'refused' : 'void', storePath });
     throw error;
   }
   const mediaIds = submission.clips.map(({ mediaId }) => mediaId);
-  settleAllowance(allowance, held.hold.id, { outcome: 'spent', source: `google-flow:media/${[...mediaIds].sort().join(',')}`, storePath });
+  if(!mediaIds.length||mediaIds.some(id=>!id))throw new Error('Flow video submission has no acknowledged media IDs; retain the attempted order for review');
+  const job={order,lot,projectId,account,price,mediaIds,acceptedAt:new Date().toISOString(),received:[],failed:[]};
+  const path=submissionPath(state,lot);writeJob(path,job);
   onSpent(order);
+  settleAllowance(allowance, held.hold.id, { outcome: 'spent', source: `google-flow:media/${[...mediaIds].sort().join(',')}`, storePath });
   if (Number.isFinite(submission.balance)) recordAllowanceEvidence(allowance, [balanceEvidence({ at: new Date().toISOString(), balance: submission.balance })], { storePath });
-  const kept = [];
-  for (const row of await awaitClips(flow, mediaIds, projectId)) {
-    if (row.status !== 'done') { kept.push({ consumer: order.consumer, mediaId: row.mediaId, status: row.status }); continue; }
-    const { videoUrl } = row.videoUrl ? row : await flow.media(row.mediaId, { projectId });
-    kept.push(await keep({ flow, order, lot, url: videoUrl, mediaId: row.mediaId, credits: price, account }));
-  }
+  const kept=await receiveSubmission(flow,job,path);
   return { kept, balance: submission.balance };
 }
 
@@ -178,7 +217,10 @@ async function generateVideos({ flow, order, lot, projectId, account, price, all
  * made in; `onSpent(line)` hears each line as Flow charges for it. Answers what was kept, refused
  * or failed per generation, and the balance after.
  */
-export async function runFlowOrder(order, { projectId, dryRun = false, config = loadFlowAllowanceConfig(), storePath = allowanceLedgerPath(), log = (line) => process.stderr.write(`${line}\n`), backoff = TOKEN_BACKOFF_MS, patienceMs = Infinity, onSpent = () => {} } = {}) {
+export async function runFlowOrder(order, { projectId, dryRun = false, config = loadFlowAllowanceConfig(), storePath = allowanceLedgerPath(), log = (line) => process.stderr.write(`${line}\n`), patienceMs = Infinity, onSpent = () => {}, onAttempt=()=>{}, state=flowStateDir() } = {}) {
+  const pacingPath=join(state, 'pacing.json');
+  let pacing = readPacing(pacingPath);
+  if (pacing.verificationRequired && !dryRun) return { verificationRequired: pacing.verificationRequired, results: order.map(line => ({ consumer: line.consumer, kind: line.kind, refused: 'withheld: Flow unusual-activity refusal needs review before resuming' })) };
   let minter = null;
   const flow = await openGoogleFlow({ mint: async (action) => {
     minter ??= await openRecaptchaMinter({ origin: flow.origin, siteKey: flow.siteKey, storageStatePath: storageStatePath() });
@@ -191,8 +233,8 @@ export async function runFlowOrder(order, { projectId, dryRun = false, config = 
   // the order is withheld for another day.
   let withheld = null;
   const paced = (refused) => {
-    pacing = { gapMs: nextGap(pacing.gapMs, refused), at: new Date().toISOString() };
-    if (!dryRun) writePacing(pacing);
+    pacing = { ...pacing, gapMs: nextGap(pacing.gapMs, refused), at: new Date().toISOString() };
+    if (!dryRun) writePacing(pacing,pacingPath);
   };
   /**
    * Make one generation call at the learned pace, asking again from a fresh minting page while
@@ -241,16 +283,16 @@ export async function runFlowOrder(order, { projectId, dryRun = false, config = 
       const lot = createMediaArtifactWorkLot({ workLot: `google-flow:${line.consumer}:${randomUUID()}`, principal: line.consumer, capability: line.medium === 'video' ? 'text-to-video' : 'text-to-image', prompt: line.prompt, sources: [], outputMimeType: line.medium === 'video' ? 'video/mp4' : 'image/*' });
       try {
         if (line.medium === 'image' && price === 0) {
-          const kept = await generateImages({ flow, order: line, lot, projectId, account: config.account, price, ask });
+          const kept = await generateImages({ flow, order: line, lot, projectId, account: config.account, price, ask, onAttempt, onSpent, state });
           results.push({ consumer: line.consumer, kind: line.kind, credits: 0, kept });
         } else if (line.medium === 'video') {
-          const outcome = await generateVideos({ flow, order: line, lot, projectId, account: config.account, price: prices[line.kind], allowance, storePath, ask, onSpent });
+          const outcome = await generateVideos({ flow, order: line, lot, projectId, account: config.account, price: prices[line.kind], allowance, storePath, ask, onSpent, onAttempt, state });
           results.push({ consumer: line.consumer, kind: line.kind, credits: outcome.refused ? 0 : price, ...outcome });
         } else {
           results.push({ consumer: line.consumer, kind: line.kind, refused: 'priced images are not held yet' });
         }
       } catch (error) {
-        results.push({ consumer: line.consumer, kind: line.kind, failed: error.message });
+        results.push({ consumer: line.consumer, kind: line.kind, failed: error.message, ...(error.code?{code:error.code}:{}) });
       }
       log(JSON.stringify(results.at(-1)));
     }
@@ -347,15 +389,22 @@ const oldest = (files) => [...files].sort()[0]?.replace(/(\.\d-(taken|left))*\.j
  * a cut-short run spends a line at most once; a spent line's media can be adopted.
  */
 function recoverClaim(claim, state) {
-  const own = readdirSync(claim).filter((file) => file.endsWith('.jsonl') && !['taken.jsonl', 'left.jsonl', 'spent.jsonl'].includes(file));
-  if (own.length) {
-    for (const file of own) renameSync(join(claim, file), join(ordersDir(state), 'pending', file));
+  const names=readdirSync(claim);
+  const meta=['taken.jsonl','left.jsonl','spent.jsonl','attempted.jsonl','refused.jsonl'];
+  const own=names.filter(file=>file.endsWith('.jsonl')&&!meta.includes(file));
+  const preparing=existsSync(join(claim,'claim.json'))&&!existsSync(join(claim,'committed'));
+  if (preparing || own.length) {
+    const originals=preparing?names.filter(file=>(file.endsWith('.jsonl')&&!meta.includes(file))||file.endsWith('.jsonl.claimed')):own;
+    for (const file of originals) renameSync(join(claim, file), join(ordersDir(state), 'pending', file.replace(/\.claimed$/u,'')));
   } else {
     const base = oldest(readdirSync(claim).filter((file) => file.endsWith('.jsonl.claimed')));
     if (existsSync(join(claim, 'left.jsonl'))) renameSync(join(claim, 'left.jsonl'), join(ordersDir(state), 'pending', `${base}.2-left.jsonl`));
     const spent = new Set(lines(join(claim, 'spent.jsonl')));
     const unspent = lines(join(claim, 'taken.jsonl')).filter((line) => !spent.has(line));
-    if (unspent.length) writeFileSync(join(ordersDir(state), 'pending', `${base}.1-taken.jsonl`), `${unspent.join('\n')}\n`);
+    const refused=new Set(lines(join(claim,'refused.jsonl'))),attempted=new Set(lines(join(claim,'attempted.jsonl')).filter(line=>!refused.has(line)));
+    const uncertain=unspent.filter(line=>attempted.has(line)),safe=unspent.filter(line=>!attempted.has(line));
+    if(safe.length)writeFileSync(join(ordersDir(state),'pending',`${base}.1-taken.jsonl`),safe.join('\n')+'\n',{mode:0o600});
+    if(uncertain.length){const review=join(ordersDir(state),'review');mkdirSync(review,{recursive:true,mode:0o700});writeFileSync(join(review,claim.split('/').pop()+'.jsonl'),uncertain.join('\n')+'\n',{mode:0o600});}
   }
   renameSync(claim, join(ordersDir(state), 'done', `cut-short-${claim.split('/').pop()}`));
 }
@@ -376,12 +425,18 @@ export async function runFlowQueue({ projectId, config = loadFlowAllowanceConfig
   const done = join(ordersDir(state), 'done');
   for (const dir of [pending, claims, done]) mkdirSync(dir, { recursive: true });
   for (const name of readdirSync(claims)) if (!alive(Number(name.split('-')[0]))) recoverClaim(join(claims, name), state);
+  const received=await resumeFlowSubmissions({state,open});
+  const held = readPacing(join(state, 'pacing.json')).verificationRequired;
+  if (held) return { verificationRequired: held, results: [], received, queued: readdirSync(pending).filter(name => name.endsWith('.jsonl')).flatMap(name => lines(join(pending, name))).length };
+  if(!readdirSync(pending).some(name=>name.endsWith('.jsonl')))return {results:[],received,queued:0};
   const claim = join(claims, `${process.pid}-${now.getTime()}`);
   mkdirSync(claim);
+  writeJob(join(claim,'claim.json'),{format:2});
   const files = [];
   for (const file of readdirSync(pending).filter((name) => name.endsWith('.jsonl')).sort()) {
     try { renameSync(join(pending, file), join(claim, file)); files.push(file); } catch (error) { if (error.code !== 'ENOENT') throw error; }
   }
+  if(!files.length){renameSync(claim,join(done,claim.split('/').pop()));return {results:[],received,queued:0};}
   const flow = await open();
   const { balance, renewsAt } = await flow.credits();
   const prices = Object.fromEntries((await flow.models(config.tier)).map(({ key, credits }) => [key, credits]));
@@ -389,7 +444,8 @@ export async function runFlowQueue({ projectId, config = loadFlowAllowanceConfig
   let budget = dailyPace({ balance, renewsAt, daily, now });
   const take = [], leave = [];
   for (const file of files) {
-    for (const line of admitOrder(readFileSync(join(claim, file), 'utf8'))) {
+    for (const [index,row] of admitOrder(readFileSync(join(claim, file), 'utf8')).entries()) {
+      const line={...row,orderId:row.orderId??createHash('sha256').update(file+':'+index).digest('hex')};
       // A line is divisible by its count: the clips that fit the pace run, the rest stay queued.
       const unit = prices[line.kind] ?? Infinity;
       const fits = unit > 0 ? Math.min(line.count, Math.floor(budget / unit)) : line.count;
@@ -404,14 +460,22 @@ export async function runFlowQueue({ projectId, config = loadFlowAllowanceConfig
   if (leave.length) writeFileSync(join(claim, 'left.jsonl'), jsonl(leave));
   // The commit: the claimed orders give way to what was taken and left.
   for (const file of files) renameSync(join(claim, file), join(claim, `${file}.claimed`));
+  writeFileSync(join(claim,'committed'),'committed\n',{mode:0o600});
   if (leave.length) renameSync(join(claim, 'left.jsonl'), join(pending, `${oldest(files)}.2-left.jsonl`));
   const onSpent = (line) => appendFileSync(join(claim, 'spent.jsonl'), jsonl([line]));
-  const outcome = take.length ? await run(take, { projectId, config, log, onSpent }) : { results: [] };
-  // What Flow turned away for its token or its capacity is asked again another day; any other failure is not.
-  const refused = outcome.results.flatMap((result, index) => (/UNUSUAL_ACTIVITY|credit|quota|RESOURCE_EXHAUSTED|rate.?limit|withheld/iu.test(`${result.failed ?? ''} ${result.refused ?? ''}`) ? [take[index]] : []));
+  const onAttempt=line=>appendFileSync(join(claim,'attempted.jsonl'),jsonl([line]),{mode:0o600});
+  const outcome = take.length ? await run(take, { projectId, config, log, onSpent, onAttempt, state }) : { results: [] };
+  writeJob(join(claim,'outcome.json'),outcome);
+  // Keep refused work pending. Account challenges hold it until explicit resume;
+  // capacity refusals remain eligible when the allowance returns.
+  const spent=new Set(lines(join(claim,'spent.jsonl')));
+  const refused = outcome.results.flatMap((result, index) => (!spent.has(jsonl([take[index]]).trim())&&/UNUSUAL_ACTIVITY|credit|quota|RESOURCE_EXHAUSTED|rate.?limit|withheld/iu.test(`${result.failed ?? ''} ${result.refused ?? ''}`) ? [take[index]] : []));
   if (refused.length) queueFlowOrder(refused.map(strip), { name: 'retry', state });
+  if(refused.length)writeFileSync(join(claim,'refused.jsonl'),jsonl(refused),{mode:0o600});
+  const unresolved=outcome.results.flatMap((result,index)=>result.failed&&!refused.includes(take[index])&&!spent.has(jsonl([take[index]]).trim())?[take[index]]:[]);
+  if(unresolved.length){const review=join(ordersDir(state),'review');mkdirSync(review,{recursive:true,mode:0o700});writeFileSync(join(review,claim.split('/').pop()+'.jsonl'),jsonl(unresolved),{mode:0o600});}
   renameSync(claim, join(done, claim.split('/').pop()));
-  return { balance, ...outcome, idle };
+  return { balance, ...outcome, received, idle, deferredForPacing };
 }
 
 /**
