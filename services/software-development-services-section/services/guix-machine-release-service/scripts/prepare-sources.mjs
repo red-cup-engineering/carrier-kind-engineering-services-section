@@ -57,7 +57,7 @@ export function prepare({ repositories, entries, owners, dependencyPins = {}, ou
     const target = resolve(root, 'packages', name.replaceAll('/', '__'));
     mkdirSync(target, { recursive: true });
     const sourceRepository = repositories.find(r => r.repository === p.repository).directory;
-    const records = command('git', ['ls-tree', '-r', '--format=%(objectmode) %(objectname) %(path)', p.commit, '--', p.path], sourceRepository).split('\n');
+    const records = command('git', ['ls-tree', '-rz', '--format=%(objectmode) %(objectname) %(path)', p.commit, '--', p.path], sourceRepository).split('\0').filter(Boolean);
     const files=records.filter(record=>/^(100644|100755) /.test(record)).map(record=>({mode:record.slice(0,6),oid:record.slice(7,47),file:record.slice(48)})).filter(({file})=>!file.split('/').some(x=>['node_modules','.git','legacy'].includes(x)));
     // Read the immutable object set in one batch rather than one process per file.
     const batch=spawnSync('git',['cat-file','--batch'],{cwd:sourceRepository,input:files.map(f=>f.oid+'\n').join(''),maxBuffer:256*1024*1024});
@@ -68,7 +68,7 @@ export function prepare({ repositories, entries, owners, dependencyPins = {}, ou
       if(header[0]!==oid||header[1]!=='blob')throw new Error(`invalid source blob: ${file}`);
       const length=Number(header[2]),blob=batch.stdout.subarray(end+1,end+1+length);offset=end+2+length;
       const path=relative(p.directory,resolve(sourceRepository,file));
-      if(!path||path.startsWith('..'))throw new Error('source path escapes package');
+      if(!path||path.startsWith('..'))throw new Error(`source path escapes package: ${p.repository}:${p.path} -> ${file}`);
       const destination=resolve(target,path);mkdirSync(dirname(destination),{recursive:true});
       writeFileSync(destination,blob);chmodSync(destination,mode==='100755'?0o755:0o644);
     }
