@@ -114,8 +114,21 @@ export function captureHistoryReads(operation) {
 }
 const frozen = (items) => Object.freeze([...items]);
 const meets = (pattern, at) => Object.entries(pattern).every(([role, term]) => coincides(at[role], term));
+// Changes are raw observations, whereas queries return projected cells. A concurrent
+// functional alternative supplies counterevidence to the other retained objects of
+// its subject/predicate, even when that alternative does not match the query object.
+const affects = (pattern, at, functional, history) => {
+  if (meets(pattern, at)) return true;
+  if (!Object.hasOwn(pattern, "object") || !functional.has(at.predicate)
+    || !Object.entries(pattern).every(([role, term]) => role === "object" || coincides(at[role], term))) return false;
+  // Removed matching objects are themselves changes. If the object remains, read
+  // its projected dependency without recording a new query. Another task's offer
+  // stays outside this body's load query, preserving the narrow incremental frame.
+  return sectionOf(history, at.subject).some((value) =>
+    coincides(value.predicate, at.predicate) && coincides(value.object, pattern.object));
+};
 /** What a derivation queried, keyed by the role a changed cell is looked up by: its subject when the
- * query named one, else its predicate. A changed cell meets a query when it matches the whole pattern. */
+ * query named one, else its predicate. Matching accounts for the query projection below. */
 function patternsOf(entry) {
   if (entry.patterns) return entry.patterns;
   const subjects = new Map(), predicates = new Map(), open = [];
@@ -145,14 +158,14 @@ function unheard(ask) {
   finally { reading = priorReading; depending = priorDepending; }
 }
 /** The frame rule: a reading holds of a later history when no changed cell meets anything it
- * queried and every inner derivation it used still gives the result it used. */
+ * queried through its evidence projection and every inner derivation it used still gives the result it used. */
 function carries(entry, changes, history) {
   if (changes === null) return false;
   if (changes.length === 0) return true;
-  const { subjects, predicates, open } = patternsOf(entry);
-  if (keyedChanges(changes).some(({ at, subject, predicate }) => (subjects.get(subject) ?? []).some((pattern) => meets(pattern, at))
-    || (predicates.get(predicate) ?? []).some((pattern) => meets(pattern, at))
-    || open.some((pattern) => meets(pattern, at)))) return false;
+  const { subjects, predicates, open } = patternsOf(entry), functional = new Set(history.functionalPredicates);
+  if (keyedChanges(changes).some(({ at, subject, predicate }) => (subjects.get(subject) ?? []).some((pattern) => affects(pattern, at, functional, history))
+    || (predicates.get(predicate) ?? []).some((pattern) => affects(pattern, at, functional, history))
+    || open.some((pattern) => affects(pattern, at, functional, history)))) return false;
   for (const [derivation, results] of entry.depends.nodes) {
     for (const [at, result] of results) if (unheard(() => derivation(history, at)) !== result) return false;
   }
