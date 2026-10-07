@@ -14,17 +14,8 @@ import {
   multiplyDecimalStrings,
   negateDecimalString,
   stripUnitSuffix,
-} from "@red-cup-engineering/exact-number-data-service/decimal-string";
+} from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
 import { deriveSetOfFillTransactions } from "@red-cup-engineering/farolfi/ledger/maintenance/venue-fills";
-
-import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
-import { createTypedMark, admitTypedMark } from "@red-cup-engineering/signcell/typed-mark";
-import outputSchema from "../data/records/schema/derive-hive-account-ledger.output.schema.json" with { type: "json" };
-
-const declaration = defineType({ id: outputSchema.$id, name: outputSchema.title, description: "Derived Hive ledger with balance comparisons and explicit refusals; does not assert history completeness.", schema: outputSchema, parents: [] });
-if (!declaration.ok) throw new TypeError(declaration.refusal.message);
-export function markHiveAccountLedger(result) { return createTypedMark(declaration.value, result); }
-export function admitHiveAccountLedgerMark(mark) { return admitTypedMark(declaration.value, mark); }
 
 const ZERO = "0";
 
@@ -32,9 +23,22 @@ function isZero(text) {
   return /^0(\.0+)?$/u.test(String(text ?? "0").replace(/^-/u, ""));
 }
 
-// Public Hive API retained; the numerical transformation is owned by the data supplier.
-import { expandDecimalNotation as plainDecimal } from "@red-cup-engineering/exact-number-data-service/decimal-string";
-export { plainDecimal };
+/**
+ * Normalize a Hive-Engine indexer quantity to a plain decimal string Beancount can lex: the
+ * indexer's JSON can render a tiny value in scientific notation (e.g. "1e-8", which decimal.mjs's
+ * parser rejects) or drop the leading zero (e.g. ".25", which Beancount's own lexer rejects).
+ * @param {string | number} text
+ * @returns {string}
+ * @throws {TypeError} if the text is not a finite quantity
+ */
+export function plainDecimal(text) {
+  const raw = String(text);
+  if (/^-?\.\d/u.test(raw)) return raw.replace(/^(-?)\./u, "$10.");
+  if (!/e/iu.test(raw)) return raw;
+  const value = Number(raw);
+  if (!Number.isFinite(value)) throw new TypeError(`derive-hive-account-ledger: not a finite quantity: ${JSON.stringify(text)}`);
+  return value.toFixed(20).replace(/(\.\d*?)0+$/u, "$1").replace(/\.$/u, "");
+}
 
 function splitAmount(text) {
   const match = /^(-?\d+(?:\.\d+)?)\s+(\S+)$/u.exec(String(text).trim());
@@ -124,19 +128,11 @@ export function deriveHiveAccountLedger(input, { deriveFillsImpl = deriveSetOfFi
   if (typeof input.custodyAccount !== "string" || input.custodyAccount === "") {
     throw new TypeError("derive-hive-account-ledger: input.custodyAccount must be a non-empty string");
   }
-  for (const field of ["openingBalances", "chainClosingBalances"]) {
-    const balances = input[field];
-    for (const commodity of ["hive", "hbd", "vests"]) {
-      if (typeof balances?.[commodity] !== "string" || !/^-?[0-9]+(?:\.[0-9]+)?$/.test(balances[commodity])) {
-        throw new TypeError(`derive-hive-account-ledger: ${field}.${commodity} requires an explicit decimal balance`);
-      }
-    }
-  }
   const {
     account, rangeStart, rangeEnd, custodyAccount, hiveEngineCustodyAccount,
     hiveOperations = [], hiveEngineEntries = [], hiveEngineFills = [],
-    openingBalances,
-    chainClosingBalances,
+    openingBalances = { hive: ZERO, hbd: ZERO, vests: ZERO, hiveEngine: {} },
+    chainClosingBalances = { hive: ZERO, hbd: ZERO, vests: ZERO, hiveEngine: {} },
   } = input;
 
   const savingsAccount = `${custodyAccount}:Savings`;
@@ -696,6 +692,7 @@ export function deriveHiveAccountLedger(input, { deriveFillsImpl = deriveSetOfFi
 
   transactions.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 
+  const openDirectives = [...accountsOpened].sort().map((a) => `${rangeStart} open ${a}`);
   const openingPostings = [];
   if (!isZero(openingBalances.hive)) openingPostings.push({ account: custodyAccount, amount: openingBalances.hive, commodity: "HIVE" });
   if (!isZero(openingBalances.hbd)) openingPostings.push({ account: custodyAccount, amount: openingBalances.hbd, commodity: "HBD" });
@@ -751,12 +748,10 @@ export function deriveHiveAccountLedger(input, { deriveFillsImpl = deriveSetOfFi
       const computed = computedClosing[hiveEngineCustodyAccount]?.[symbol] ?? ZERO;
       const match = compareDecimalStrings(computed, chainValue) === 0;
       balanceComparison.push({ account: hiveEngineCustodyAccount, commodity: symbol, computedClosing: computed, chainClosing: chainValue, match });
-      openAccount(hiveEngineCustodyAccount);
       closingBlock.push(renderBalanceDirective({ date: rangeEnd, account: hiveEngineCustodyAccount, amount: chainValue, commodity: symbol, metadata: { source: "chain-live-read" } }));
     }
   }
 
-  const openDirectives = [...accountsOpened].sort().map((a) => `${rangeStart} open ${a}`);
   const header = `; Hive account ledger for ${account}, range [${rangeStart}, ${rangeEnd}]. Generated by @red-cup-engineering/derive-hive-account-ledger-service. Do not hand-edit.`;
   const ledgerText = renderFile(header, [...openDirectives, ...openingBlock, ...transactions.map((t) => t.tx), ...closingBlock]);
 

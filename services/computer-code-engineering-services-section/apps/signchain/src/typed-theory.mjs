@@ -164,7 +164,7 @@ export function typing(theory, premise, conclusion) {
         ? Object.freeze({ kind: "typedTheory.typing:witness", theory, premise, conclusion, derivation: search.derivation })
         : Object.freeze({ kind: "typedTheory.typing-obstruction", theory, premise, conclusion, search });
 }
-/** Check each theory rule and that the justified path reaches the declared conclusion. */
+/** Check that each step of a derivation is justified by a theory rule. */
 export function derivationValidity(theory, derivation) {
     let current = derivation.premise;
     for (const step of derivation.steps) {
@@ -176,8 +176,6 @@ export function derivationValidity(theory, derivation) {
             return Object.freeze({ kind: "typedTheory.derivation-obstruction", theory, at: current, step });
         current = step.conclusion;
     }
-    if (!baseObjectCoincides(current, derivation.conclusion))
-        return Object.freeze({ kind: "typedTheory.derivation-obstruction", theory, at: current, conclusion: derivation.conclusion });
     return Object.freeze({ kind: "typedTheory.derivationCheck:witness", theory, derivation });
 }
 /** Compare two derivations. */

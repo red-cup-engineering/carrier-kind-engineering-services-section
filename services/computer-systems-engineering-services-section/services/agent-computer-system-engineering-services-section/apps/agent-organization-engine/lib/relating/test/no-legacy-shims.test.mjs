@@ -1,4 +1,12 @@
 import { fact, operation, isOperation, operationUtterances, operationIrAudit, nonportableOperations, programObject, compose, composes } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { composes } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { compose } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { programObject } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { nonportableOperations } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operationIrAudit } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operationUtterances } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { isOperation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { createMarkdownDocument } from "@red-cup-engineering/markdown-engineering-services-section/create-markdown-document";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";

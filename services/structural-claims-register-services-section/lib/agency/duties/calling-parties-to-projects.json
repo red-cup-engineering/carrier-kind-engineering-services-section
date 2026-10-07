@@ -1,0 +1,20 @@
+{
+  "id": "calling-parties-to-projects",
+  "name": "call the parties to projects",
+  "authority": "emsenn",
+  "work": "calling-parties-to-projects",
+  "from": "the call queue: holders of structural claims and callbacks due",
+  "to": "logged contacts and discovery calls set for the engagement lead",
+  "cost": "caller time and phone time",
+  "otherwise": "parties facing a project never hear what their claims are worth",
+  "claim": "founder",
+  "delegation": true,
+  "skills": [
+    "calling-parties-to-projects"
+  ],
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26",
+    "source": "561-group-services-section notes, 2026-09-05-note-on-collapse-aware-financial-enterprises.md, sections 5 and 8"
+  }
+}

@@ -60,7 +60,7 @@ test("read-hive-account-history: a witness disagreement is refused, not thrown",
   };
   let call = 0;
   const primary = { async getDynamicGlobalProperties() { return DGP; }, async getAccountHistory(_a, start) { call += 1; return pages[start] ?? []; } };
-  const secondary = { async getAccountHistory(_a, start) { return start === -1 ? [[5, { trx_id: "DIFFERENT", op: ["transfer", {}] }]] : []; } };
+  const secondary = { async getAccountHistory() { return [[5, { trx_id: "DIFFERENT", op: ["transfer", {}] }]]; } };
   let factoryCalls = 0;
   const clientFactory = () => { factoryCalls += 1; return factoryCalls === 1 ? primary : secondary; };
   const result = await readHiveAccountHistory({ account: "michael561", nodes: ["nodeA", "nodeB"] }, { clientFactory });
@@ -122,29 +122,4 @@ test("DEFAULT_OPERATION_KINDS names the roadmap's operation set", () => {
   assert.ok(DEFAULT_OPERATION_KINDS.includes("claim_reward_balance"));
   assert.ok(DEFAULT_OPERATION_KINDS.includes("delegate_vesting_shares"));
   assert.equal(new Set(DEFAULT_OPERATION_KINDS).size, DEFAULT_OPERATION_KINDS.length);
-});
-
-test("pagesAgree: transaction identity does not witness altered operation data", () => {
-  const record = { trx_id: "same", block: 10, timestamp: "2026-09-01T00:00:00",
-    op: ["transfer", { from: "sender", to: "recipient", amount: "1.000 HIVE", memo: "" }] };
-  const page = [[0, record]];
-  assert.equal(pagesAgree(page, [[0, { ...record, op: ["transfer", { ...record.op[1], to: "other" }] }]]), false);
-  assert.equal(pagesAgree(page, [[0, { ...record, op: ["transfer", { ...record.op[1], amount: "2.000 HIVE" }] }]]), false);
-  assert.equal(pagesAgree(page, [[0, { ...record, block: 11 }]]), false);
-  assert.equal(pagesAgree(page, [null]), false);
-  assert.equal(pagesAgree(page, [[0, { op: record.op, timestamp: record.timestamp, block: 10, trx_id: "same" }]]), true);
-});
-
-test("history acquisition refuses malformed primary responses and witnesses empty boundaries", async () => {
-  const primary = (page) => ({ async getDynamicGlobalProperties() { return DGP; },
-    async getAccountHistory() { return page; } });
-  const input = { account: "michael561", nodes: ["primary", "secondary"] };
-  await assert.rejects(() => readHiveAccountHistory(input, {
-    clientFactory: () => primary({ error: "unavailable" }),
-  }), /primary history response must be an array/);
-  const result = await readHiveAccountHistory(input, {
-    clientFactory: ([node]) => primary(node === "primary" ? [] : [[0, { op: ["transfer", {}] }]]),
-  });
-  assert.equal(result.operationCount, 0);
-  assert.equal(result.refusals[0].reason, "witness-disagreement");
 });

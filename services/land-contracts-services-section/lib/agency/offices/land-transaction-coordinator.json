@@ -1,0 +1,21 @@
+{
+  "id": "land-transaction-coordinator",
+  "name": "Land Transaction Coordinator",
+  "kind": "office",
+  "normative-structure": "The office answers for keeping every land deal's documents, deadlines, title status and parcel data current, and for refreshing each market's parcel snapshot as its county refreshes its layer.",
+  "deontic-profile": {
+    "coordinating-land-transactions": "duty"
+  },
+  "authority-scope": [
+    "./"
+  ],
+  "jurisdiction": "land-contracts",
+  "supersedes": [
+    "emsenn/services/561-group/services/public-services-section/services/public-economic-services-section/services/duluth-infill-land-services-section#land-transaction-coordinator"
+  ],
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26",
+    "source": "content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-land-contracts-business-plan.md"
+  }
+}

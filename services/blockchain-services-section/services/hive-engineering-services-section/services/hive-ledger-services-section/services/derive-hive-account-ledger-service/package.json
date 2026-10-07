@@ -18,9 +18,7 @@
   "dependencies": {
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/farolfi": "workspace:*",
-    "@red-cup-engineering/signcell": "0.1.0",
-    "@red-cup-engineering/exact-number-data-service": "workspace:*"
+    "@red-cup-engineering/farolfi": "workspace:*"
   },
   "devDependencies": {},
   "scripts": {
@@ -30,10 +28,5 @@
   },
   "engines": {
     "node": ">=24.2.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/computer-services-section.git",
-    "directory": "services/blockchain-services-section/services/hive-engineering-services-section/services/hive-ledger-services-section/services/derive-hive-account-ledger-service"
   }
 }

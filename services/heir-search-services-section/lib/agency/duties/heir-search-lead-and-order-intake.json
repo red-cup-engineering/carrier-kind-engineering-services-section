@@ -1,0 +1,15 @@
+{
+  "id": "heir-search-lead-and-order-intake",
+  "name": "find heir search's buyers and take in one priced order",
+  "authority": "emsenn",
+  "work": "heir-search-lead-and-order-intake",
+  "from": "the pulled federal-funder and nonprofit lead lists, the Duluth land business's estate-owned lots, and one buyer's agreement to order",
+  "to": "one logged contact per buyer worked and one priced order record, ready for the researcher's office",
+  "cost": "caller time, USAspending/ProPublica API calls",
+  "otherwise": "no order exists; the buyer relationship stays a logged contact",
+  "claim": "leader-account-and-capital-authority",
+  "delegation": false,
+  "skills": [
+    "heir-search-lead-intake"
+  ]
+}

@@ -1,0 +1,21 @@
+[profile.default]
+src = "src"
+test = "test"
+out = "out"
+cache_path = "cache"
+libs = ["node_modules"]
+remappings = [
+  "@account-abstraction/contracts/=node_modules/@account-abstraction/contracts/",
+  "@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/",
+  "@red-cup-engineering/semiotic-exchange-chain-services-section/=node_modules/@red-cup-engineering/semiotic-exchange-chain-services-section/",
+  "@red-cup-engineering/route-directed-yield-service/=node_modules/@red-cup-engineering/route-directed-yield-service/"
+]
+solc = "0.8.28"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true

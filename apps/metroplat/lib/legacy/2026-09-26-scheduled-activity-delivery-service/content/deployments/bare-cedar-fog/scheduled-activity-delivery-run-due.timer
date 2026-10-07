@@ -1,0 +1,12 @@
+[Unit]
+Description=Poll Bare Cedar Fog contracted schedules once per minute
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+AccuracySec=5s
+Persistent=true
+Unit=scheduled-activity-delivery-run-due.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,20 @@
+{
+  "id": "holding-fda-us-agent-roles",
+  "name": "hold clients' FDA US agent roles",
+  "authority": "emsenn",
+  "work": "holding-fda-us-agent-roles",
+  "from": "signed US agent agreements",
+  "to": "the Group named as US agent in each client's FDA registration, every FDA communication forwarded the same day, renewals kept",
+  "cost": "a staffed US phone and address, FDA account time",
+  "otherwise": "clients are unreachable to the FDA and their registrations lapse",
+  "claim": "founder",
+  "delegation": true,
+  "skills": [
+    "holding-fda-us-agent-roles"
+  ],
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26",
+    "source": "561-group-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-doing-business-with-chinese-businesses.md"
+  }
+}

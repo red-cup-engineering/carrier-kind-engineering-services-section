@@ -1,0 +1,264 @@
+{
+  "observedAt": "2026-08-30T00:00:00Z",
+  "method": "Filesystem search under lib/emsenn (excluding node_modules, lib/legacy, content/assets/legacy, _archive, apps/metroplat, and this section's own data/storage of published tarballs) for filenames matching *a2a-face*, *mcp-face*, *activitypub-face*, serve-activitypub*, activitypub-server*, activitypub-offer*, activitypub-runtime*, activitypub-network*, *agent-card*, serve-mcp*, *mcp-server*, *-mcp.mjs/.mts, mcp.mjs/.mts -- restricted to non-test source files. Each hit's nearest ancestor package.json gave its publishing package. Import statements in each hit were read to determine whether it composes a canonical a2a-services-section / activitypub-services-section package or reimplements protocol logic locally. a2a-services-section's own 14 services and their package.json exports were read first (see canonicalSection.services below) to serve as the comparison baseline. A broader, looser textual grep (agent-card, activitypub, AgentCard.fromJSON, tools/list, 'signed A2A', serveActivityPubProvider) across the same exclusions returned several hundred file references, but the great majority of those are legitimate consumers (clients fetching a well-known agent-card URL, tests, or correct composition of the canonical activitypub-services-section package) rather than embedded protocol-face implementations; that looser count is likely the source of the owner's 'hundreds' impression. The filename-based search above, restricted to files that plausibly *implement* a face, is the precise basis for this inventory's hits array.",
+  "canonicalSection": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-services-section/services/a2a-services-section",
+  "canonicalSection_services": [
+    { "package": "@red-cup-engineering/a2a-agent-card-discovery-service@1.0.14", "exports": { ".": "src/discover-agent-card.mjs (discoverAgentCard, discoverSignedAgentCard, discoverAgentCardExchange, agentCardSignatureEvidence, createAgentCardSigningConfiguration)", "./carriers": "src/carriers.mjs" } },
+    { "package": "@red-cup-engineering/a2a-agent-card-key-service@1.0.9", "exports": { "./testing": "src/testing.mjs (ephemeralAgentCardSigning)" }, "note": "bin provision-agent-card-key generates an on-disk signing keypair + jwks" },
+    { "package": "@red-cup-engineering/a2a-channel-portfolio-status-service@1.0.8", "exports": { ".": "src/channel-portfolio-status.mjs" } },
+    { "package": "@red-cup-engineering/a2a-contracted-agent-service@2.1.4", "exports": { ".": "src/serve-contracted-agent.mjs (serveContractedAgent: full subprocess-executor A2A HTTP server, localhost-only listener, task/coordination durability, push notifications)", "./signed-agent-card": "src/signed-agent-card.mjs (loadSignedAgentCard: file+env template loading and signing)", "./durable-task-store": "src/durable-task-store.mjs", "./durable-push-notifications": "src/durable-push-notifications.mjs", "./filesystem-state-sources": "src/filesystem-state-sources.mjs" } },
+    { "package": "@red-cup-engineering/a2a-coordination-state-custody-service@1.0.7", "exports": { ".": "src/a2a-coordination-state-custody.mjs" } },
+    { "package": "@red-cup-engineering/a2a-deployed-provider-observation-service@0.1.1", "exports": { ".": "src/observe-deployed-provider.mjs" } },
+    { "package": "@red-cup-engineering/a2a-effect-assay-services-section@1.0.1", "exports": { "./effect-assay": "src/effect-assay-client.mjs" } },
+    { "package": "@red-cup-engineering/a2a-rmn-part-service@1.0.6", "exports": { ".": "src/rmn-part.mjs (extractRmnPart, parseA2aMessage, rmnPart)" } },
+    { "package": "@red-cup-engineering/a2a-rmn-task-client-service@1.1.12", "exports": { ".": "src/send-rmn-task.mjs" } },
+    { "package": "@red-cup-engineering/a2a-rmn-task-submission-service@1.0.4", "exports": { ".": "src/submission.mjs", "./executor": "src/executor.mjs" } },
+    { "package": "@red-cup-engineering/a2a-semantic-json-part-service@0.1.2", "exports": { ".": "src/semantic-json-part.mjs" } },
+    { "package": "@red-cup-engineering/a2a-semantic-json-task-client-service@0.1.6", "exports": { ".": "src/send-semantic-json-task.mjs" } },
+    { "package": "@red-cup-engineering/a2a-sovereign-operation-boundary-service@1.0.7", "exports": { ".": "src/boundary.mjs (executeRelationalOperationMessage)" } },
+    { "package": "@red-cup-engineering/a2a-task-state-custody-service@1.0.8", "exports": { ".": "src/a2a-task-state-custody.mjs" } }
+  ],
+  "canonicalSection_note": "a2a-services-section has zero MCP coverage: no service in the section touches Model Context Protocol at all. ActivityPub is not owned by this section either; the sibling canonical package is @red-cup-engineering/activitypub-services-section (computer-networking-services-section/services/activitypub-services-section), which most hits below already import correctly.",
+  "hits": [
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/services/bare-cedar-fog-inference-services-section/services/bare-cedar-fog-codex-services-section/scripts/serve-activitypub.mjs",
+      "package": "@red-cup-engineering/bare-cedar-fog-codex-enterprise@0.5.0-dev.0",
+      "protocol": "activitypub",
+      "duplicates": "Composes canonical activitypub-services-section (serveActivityPubProvider, extractRmnActivity/projectRmnActivity from ./server and ./rmn-activity) plus a local ../src/a2a-executor.mjs. Structural duplication (its own embedded serve-activitypub.mjs script) rather than reimplemented wire-protocol logic."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/services/bare-cedar-fog-inference-services-section/services/bare-cedar-fog-codex-services-section/services/codex-union-actor-adapter/src/codex-mud-mcp.mjs",
+      "package": "@red-cup-engineering/codex-union-actor-adapter@0.2.2",
+      "protocol": "mcp",
+      "duplicates": "No a2a-services-section (or other canonical) import found; fully local MCP surface. a2a-services-section has no MCP capability to compare against."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/services/bare-cedar-fog-inference-services-section/services/bare-cedar-fog-codex-services-section/src/activitypub-network-mcp.mjs",
+      "package": "@red-cup-engineering/bare-cedar-fog-codex-enterprise@0.5.0-dev.0",
+      "protocol": "mcp+activitypub",
+      "duplicates": "Names itself as an MCP bridge over the ActivityPub network layer; no a2a-services-section import observed. No canonical section covers this cross-protocol bridging capability."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/services/bare-cedar-fog-inference-services-section/services/bare-cedar-fog-codex-services-section/src/mape-office-mcp.mjs",
+      "package": "@red-cup-engineering/bare-cedar-fog-codex-enterprise@0.5.0-dev.0",
+      "protocol": "mcp",
+      "duplicates": "Fully local MCP surface; no canonical home in a2a-services-section (out of section scope)."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/services/bare-cedar-fog-inference-services-section/services/bare-cedar-fog-codex-services-section/src/mcp-server.mjs",
+      "package": "@red-cup-engineering/bare-cedar-fog-codex-enterprise@0.5.0-dev.0",
+      "protocol": "mcp",
+      "duplicates": "Fully local MCP server; no canonical home in a2a-services-section (out of section scope)."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/services/bare-cedar-fog-markdown-vault-services-section/scripts/smoke-markdown-vault-mcp.mjs",
+      "package": "@red-cup-engineering/bare-cedar-fog-markdown-vault-services-section@0.1.0",
+      "protocol": "mcp",
+      "duplicates": "Smoke-test script for the sibling src/mcp-server.mjs; no canonical import."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/services/bare-cedar-fog-markdown-vault-services-section/src/mcp-server.mjs",
+      "package": "@red-cup-engineering/bare-cedar-fog-markdown-vault-services-section@0.1.0",
+      "protocol": "mcp",
+      "duplicates": "Imports @modelcontextprotocol/sdk directly and builds its own McpServer; no canonical a2a-services-section MCP package exists to compare against."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-services-section/services/javascript-services-section/services/javascript-node-services-section/services/jsnode-workspace-analysis-services-section/services/jsnode-server/src/mcp.mts",
+      "package": "@red-cup-engineering/jsnode-server@0.1.2",
+      "protocol": "mcp",
+      "duplicates": "Imports McpDispatch/McpTool types from its own sibling @red-cup-engineering/http-server package, not from a2a-services-section. No canonical MCP home exists to compare against."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-services-section/apps/drew/src/mcp.mjs",
+      "package": "@red-cup-engineering/drew@0.1.0",
+      "protocol": "mcp",
+      "duplicates": "No canonical import observed; fully local MCP surface for the 'drew' app."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-services-section/services/x402-services-section/services/x402-exact-purchase-service/scripts/activitypub-server.mjs",
+      "package": "@red-cup-engineering/x402-exact-purchase-service@0.1.2",
+      "protocol": "activitypub",
+      "duplicates": "Embedded ActivityPub-serving script; import composition not individually re-verified in this pass but the file follows the same 'scripts/activitypub-server.mjs' shape as five other hits that all correctly compose activitypub-services-section."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/settlement-triggered-activity-publication-cell/scripts/activitypub-server.mjs",
+      "package": "@red-cup-engineering/settlement-triggered-activity-publication-cell@0.1.2",
+      "protocol": "activitypub",
+      "duplicates": "Imports serveActivityPubProvider from @red-cup-engineering/activitypub-services-section/server. Structural duplication (its own embedded script) rather than reimplemented protocol logic."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/gemini-services-section/services/gemini-notebook-services-section/services/notebooklm-services-section/src/notebook-library-mcp.mjs",
+      "package": "@red-cup-engineering/notebooklm-services-section@0.3.10",
+      "protocol": "mcp",
+      "duplicates": "Fully local MCP surface; no canonical a2a-services-section MCP capability exists."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/gemini-services-section/services/gemini-notebook-services-section/services/notebooklm-services-section/src/serve-activitypub.mjs",
+      "package": "@red-cup-engineering/notebooklm-services-section@0.3.10",
+      "protocol": "activitypub+a2a",
+      "duplicates": "Imports AgentCard/generateAgentCardSignature directly from @a2a-js/sdk and signs its own Agent Card inline (does NOT use @red-cup-engineering/a2a-contracted-agent-service/signed-agent-card the way github-software-induction-service does), and defines its own ./activitypub-r2-custody.mjs instead of using activitypub-services-section's createActivityPubR2Custody. This is a clearer duplicate than the articulating-language-cone-service instance: a canonical home for the signing half already exists and is unused here (@red-cup-engineering/a2a-contracted-agent-service/signed-agent-card)."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/gemini-services-section/services/gemini-notebook-services-section/services/notebooklm-services-section/src/workspace-mcp.mjs",
+      "package": "@red-cup-engineering/notebooklm-services-section@0.3.10",
+      "protocol": "mcp",
+      "duplicates": "Fully local MCP surface; no canonical home."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/inference-work-lot-service/scripts/serve-codex-mcp.mjs",
+      "package": "@red-cup-engineering/inference-work-lot-service@4.2.13-dev.2",
+      "protocol": "mcp",
+      "duplicates": "Fully local MCP surface; no canonical home."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/inference-work-lot-service/scripts/smoke-codex-mcp.mjs",
+      "package": "@red-cup-engineering/inference-work-lot-service@4.2.13-dev.2",
+      "protocol": "mcp",
+      "duplicates": "Smoke test for the local codex-mcp-contract; no canonical home."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/inference-work-lot-service/src/agent-card-discovery.mjs",
+      "package": "@red-cup-engineering/inference-work-lot-service@4.2.13-dev.2",
+      "protocol": "a2a",
+      "duplicates": "VERBATIM STRUCTURAL DUPLICATE of a2a-services-section's a2a-agent-card-discovery-service/src/discover-agent-card.mjs: reimplements discoverAgentCard, discoverSignedAgentCard, the retry-fetch helper, and verifyCard line-for-line (same algorithm, same error strings, same signature-verification flow) instead of importing @red-cup-engineering/a2a-agent-card-discovery-service. This is the clearest, highest-confidence duplication found in this pass; a clean canonical home already exists and is simply not depended on."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/web-services-section/services/web-game-services-section/services/eve-online-services-section/src/mcp/mcp-server.mjs",
+      "package": "@red-cup-engineering/eve-online-services-section@0.1.0",
+      "protocol": "mcp",
+      "duplicates": "Fully local MCP surface; no canonical home."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/web-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-financial-brokerage-platform-services-section/services/alpaca-services-section/services/union-brokerage-products-market-border/src/activitypub-runtime.mjs",
+      "package": "@red-cup-engineering/union-brokerage-products-market-border@0.1.4",
+      "protocol": "activitypub",
+      "duplicates": "Imports materializeRmnActivity/extractRmnActivity/projectRmnActivity/serveActivityPubProvider/deliverActivity all from activitypub-services-section. Structural duplication only (own embedded runtime file), not reimplemented protocol logic."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/web-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-software-platform-services-section/services/github-services-section/services/github-software-induction-service/src/serve-activitypub.mjs",
+      "package": "@red-cup-engineering/github-software-induction-service@2.0.2",
+      "protocol": "activitypub+a2a",
+      "duplicates": "The cleanest precedent found: imports loadSignedAgentCard from @red-cup-engineering/a2a-contracted-agent-service/signed-agent-card, deliverActivity/createActivityPubR2Custody/serveActivityPubProvider/extractRmnActivity/projectRmnActivity from activitypub-services-section, and extractRmnPart/parseA2aMessage from a2a-rmn-part-service. Structural duplication only (each service still needs its own wiring script); this is the pattern the articulating-language-cone-service extraction was measured against."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/scripts/smoke-office-repertoire-mcp.mjs",
+      "package": "@coesite-operations/union-officer-academy@0.1.4",
+      "protocol": "mcp",
+      "duplicates": "Smoke test for the sibling src/serve-office-repertoire-mcp.mjs; no canonical home."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/serve-office-repertoire-mcp.mjs",
+      "package": "@coesite-operations/union-officer-academy@0.1.4",
+      "protocol": "mcp",
+      "duplicates": "Imports @modelcontextprotocol/sdk directly; no canonical a2a-services-section MCP capability exists."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/enterprise-services-section/services/enterprise-systems-services-section/services/enterprise-administration-services-section/services/enterprise-board-of-directors-services-section/services/enterprise-board-of-directors-executive-office-services-section/services/enterprise-board-of-directors-executive-office-context-compilation-service/scripts/activitypub-server.mjs",
+      "package": "@coesite-operations/enterprise-board-of-directors-executive-office-context-compilation-service@0.1.5",
+      "protocol": "activitypub",
+      "duplicates": "Imports serveActivityPubProvider from activitypub-services-section/server. Structural duplication only."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/enterprise-services-section/services/enterprise-systems-services-section/services/enterprise-administration-services-section/services/enterprise-board-of-directors-services-section/services/enterprise-board-of-directors-executive-office-services-section/services/enterprise-board-of-directors-executive-office-context-compilation-service/src/activitypub-offer.mjs",
+      "package": "@coesite-operations/enterprise-board-of-directors-executive-office-context-compilation-service@0.1.5",
+      "protocol": "activitypub",
+      "duplicates": "Imports materializeRmnActivity/ACTIVITYSTREAMS_PUBLIC from activitypub-services-section/rmn-activity. Structural duplication only."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/union-services-section/services/union-market-services-section/services/capability-market-services-section/services/federated-capability-offer-discovery-cell/scripts/activitypub-server.mjs",
+      "package": "@red-cup-engineering/federated-capability-offer-discovery-cell@0.4.0",
+      "protocol": "activitypub",
+      "duplicates": "Imports serveActivityPubProvider/deliverActivity/extractRmnActivity/projectRmnActivity from activitypub-services-section. Structural duplication only."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/union-services-section/services/union-market-services-section/services/capability-market-services-section/services/federated-capability-offer-discovery-cell/src/activitypub-offer.mjs",
+      "package": "@red-cup-engineering/federated-capability-offer-discovery-cell@0.4.0",
+      "protocol": "activitypub",
+      "duplicates": "Imports materializeRmnActivity/ACTIVITYSTREAMS_PUBLIC from activitypub-services-section/rmn-activity. Structural duplication only."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/semiotics-science-services-section/services/articulation-services-section/services/articulating-language-cone-service/src/a2a-face.mjs",
+      "package": "@lenticule-science/articulating-language-cone-service@0.1.5",
+      "protocol": "a2a",
+      "duplicates": "The known instance. executeArticulatingA2aMove delegates cleanly to canonical @red-cup-engineering/a2a-sovereign-operation-boundary-service; not duplicated. projectSignedArticulatingAgentCard builds an AgentCard object inline from hardcoded literal fields and signs it via an injected signing.agentCardSignatureGenerator/signing.agentCardJwks pair -- exactly the shape produced by createAgentCardSigningConfiguration (a2a-agent-card-discovery-service) and consumed via ephemeralAgentCardSigning (a2a-agent-card-key-service/testing) in this service's own tests, so the *signing* is already properly delegated to the canonical section. What is NOT delegated is the ~15-line 'freeze an unsigned card literal, call the injected generator, wrap into {path, card, jwksPath, jwks}' composition step -- no a2a-services-section export performs exactly that composition against an in-memory card object; the closest export, a2a-contracted-agent-service's loadSignedAgentCard, is file+env driven (reads a JSON template and PKCS8 key files from disk) and is signature-incompatible with the injectable, test-friendly signing this service (and its 'independently verifiable signed Agent Card' round-trip test) depends on. See blocked[0]."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/semiotics-science-services-section/services/articulation-services-section/services/articulating-language-cone-service/src/mcp-face.mjs",
+      "package": "@lenticule-science/articulating-language-cone-service@0.1.5",
+      "protocol": "mcp",
+      "duplicates": "The known instance. handleArticulatingMcp is a ~15-line hand-rolled JSON-RPC 2.0 tools/list + tools/call dispatcher over articulatingApex.actions. a2a-services-section has zero MCP coverage; no canonical package anywhere in the repo provides a generic 'project a business apex's actions as MCP tools' capability (the other MCP files found in this inventory are likewise all bespoke, one per package). See blocked[1]."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/semiotics-science-services-section/services/articulation-services-section/services/articulating-language-cone-service/src/serve-activitypub.mjs",
+      "package": "@lenticule-science/articulating-language-cone-service@0.1.5",
+      "protocol": "activitypub",
+      "duplicates": "The known instance. Correctly composes deliverActivity, createActivityPubR2Custody, extractRmnActivity/projectRmnActivity, and serveActivityPubProvider all from the canonical @red-cup-engineering/activitypub-services-section, plus extractRmnPart/parseA2aMessage from a2a-rmn-part-service -- the same tier of composition as github-software-induction-service, the cleanest precedent in this inventory. No reimplemented ActivityPub protocol logic found here; the duplication is structural (an embedded wiring file per package) rather than a reimplemented capability with an unused canonical replacement."
+    }
+  ],
+  "blocked": [
+    {
+      "capability": "Project a business apex's operations as an MCP (Model Context Protocol) tools/list + tools/call JSON-RPC surface.",
+      "affects": "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/semiotics-science-services-section/services/articulation-services-section/services/articulating-language-cone-service/src/mcp-face.mjs (handleArticulatingMcp), and by the same reasoning every other mcp-* hit in this inventory",
+      "reason": "a2a-services-section carries zero MCP capability -- it is an A2A-networking section, not an MCP one -- so there is no canonical package inside a2a-services-section to compare against or extract into. A repo-wide search for a shared, generic 'apex actions -> MCP tools' package also came up empty: every MCP file found in this inventory (14 across 8 other packages, plus this one) hand-rolls its own tools/list+tools/call dispatch, either directly on @modelcontextprotocol/sdk or by hand as here. This is the clearest match to the owner's complaint ('crammed into and duplicated across hundreds of packages') but fixing it requires building a genuinely new shared capability, which this task's constraints ('Do NOT invent a new package', 'No new vocabulary, no new packages') explicitly place out of scope. No extraction performed for this file.",
+      "candidateCanonicalHomes": []
+    }
+  ],
+  "counts": {
+    "totalPackageJsonInRepo_excludingLegacyAndNodeModules": 3401,
+    "hitFiles": 29,
+    "hitPackages": 15,
+    "hitsByProtocol": { "a2a": 2, "activitypub": 9, "mcp": 15, "activitypub+a2a": 2, "mcp+activitypub": 1 },
+    "hitsComposingCanonicalPackageCorrectly_structuralDuplicationOnly": 10,
+    "hitsReimplementingCanonicalLogic_trueDuplication": 2,
+    "hitsPartialCompositionNoCleanExtractionPoint": 1,
+    "hitsWithNoCanonicalHomeAvailable_mcpOrBridging": 16,
+    "looseTextualGrepAcrossSamePatterns_includingConsumersAndTests": "several hundred file references (a single 'well-known/agent-card' + AgentCard.fromJSON + tools/list + signed-A2A phrase + serveActivityPubProvider pass returned 245 lines of hits before exclusions); the large majority are legitimate consumers, tests, or correct canonical-package composition rather than embedded protocol-face implementations -- this is almost certainly the basis for the owner's 'hundreds' estimate",
+    "extractionsExecuted": 3,
+    "extractionsBlocked": 1
+  },
+  "paymentsExecuted": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/inference-work-lot-service/src/agent-card-discovery.mjs",
+      "date": "2026-08-30",
+      "package": "@red-cup-engineering/inference-work-lot-service",
+      "priorVersion": "4.2.13-dev.2",
+      "newVersion": "4.2.14-dev.2",
+      "removed": "The verbatim structural duplicate of discoverAgentCard/discoverSignedAgentCard (src/agent-card-discovery.mjs), deleted outright after confirming its only call sites (src/a2a-rmn-task-client.mjs, scripts/exercise-npu-procurement.mjs, scripts/check-codex-market.mjs, test/rmn-provider-signing.test.mjs) call the two functions only with { agentUrl, signal } -- never declaredAgentUrl, and never any of the three canonical-only exports (discoverAgentCardExchange, agentCardSignatureEvidence, createAgentCardSigningConfiguration) -- so the canonical superset is a safe drop-in for every real caller. The registry's published latest (1.0.13) was byte-for-byte diffed against the section's own unpublished 1.0.14 source and found identical.",
+      "nowComposes": "@red-cup-engineering/a2a-agent-card-discovery-service@1.0.13 (exact pin, added to dependencies), imported directly by all four former importers -- matching the precedent already established inside this same service (src/client.mjs, src/typed-rmn-inference-procurement.mjs, and src/codex-inference-market.mjs already import @red-cup-engineering/a2a-rmn-task-client-service directly with no local wrapper file), rather than reducing the deleted file to a re-export shim.",
+      "verification": "npm install succeeded; npm test (node --test, 17 files) passed 107/107, 0 failures, including the RMN provider signing/discovery tests exercised against the canonical package.",
+      "divergenceFound": "None blocking. The canonical implementation additionally accepts a declaredAgentUrl (defaulting to agentUrl) for signature verification and exposes three exports the copy lacked; neither is used by any caller in this service, so no behavior any caller depends on changed."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/gemini-services-section/services/gemini-notebook-services-section/services/notebooklm-services-section/src/serve-activitypub.mjs",
+      "date": "2026-08-30",
+      "package": "@red-cup-engineering/notebooklm-services-section",
+      "priorVersion": "0.3.10",
+      "newVersion": "0.3.11",
+      "removed": "Hand-signing of the Agent Card (direct @a2a-js/sdk AgentCard/generateAgentCardSignature + jose importPKCS8 calls, plus its own JWKS/template/key file reads) inside signedNotebookLmAgentCard. The exported signedNotebookLmAgentCard function name and options shape were preserved unchanged because src/serve-cloud-run.mjs imports it directly; only its internals now delegate to the canonical helper.",
+      "nowComposes": "@red-cup-engineering/a2a-contracted-agent-service/signed-agent-card (loadSignedAgentCard) for card signing, and @red-cup-engineering/activitypub-services-section/r2-custody (createActivityPubR2Custody) for kv+inbox custody -- both pinned at the registry's published latest (2.1.3 and 1.0.15 respectively, corrected down from this section's unpublished-ahead 2.1.4/1.0.18 pins already in package.json; both diffed byte-for-byte equivalent to the section's own local source). Matches the github-software-induction-service precedent's composition shape.",
+      "divergenceFound": "Real, load-bearing divergence found and NOT forced: activitypub-services-section's canonical createActivityPubR2Custody deliberately exports no message queue (R2 has no atomic dequeue; its own source comment says so), whereas notebooklm's local ./activitypub-r2-custody.mjs bundles a hand-rolled R2-polling queue that serveActivityPubProvider requires (it throws without one outside test mode) and that this same file's production CLI entrypoint (bin: serve-notebooklm-activitypub) depends on at boot. github's precedent instead injects an unrelated, already-provisioned GCP Cloud Tasks queue for that role, which has no notebooklm-infrastructure equivalent (notebooklm is Cloudflare R2-only) and would be a new package/new infrastructure choice, out of scope. Resolution: ./activitypub-r2-custody.mjs was kept (still used unmodified by src/serve-cloud-run.mjs) and given one additional named export, createNotebookLmActivityPubR2Queue, isolating the exact same pre-existing queue implementation so serve-activitypub.mjs can compose canonical kv+inbox with it explicitly rather than pulling all three from the local hand-rolled custody.",
+      "verification": "Full npm install failed on pre-existing, unrelated drift in this package.json (several @red-cup-engineering/* dependencies -- a2a-agent-card-key-service, a2a-rmn-part-service, a2a-rmn-task-client-service, cloudflare-r2-services-section, and a whole-major-version-ahead immutable-content-custody-service@3.0.0 vs registry's 2.0.2 -- pinned to versions never published to the local registry; this predates and is unrelated to this payment, so it was left untouched rather than force-fixed). The already-populated node_modules (which already satisfied every package this change touches, content-verified against the section's own source) was used instead: node --check passed for every src/*.mjs file, and npm test (node --test test/*.test.js test/*.test.mjs) passed 151/151, 0 failures, including test/serve-activitypub.test.mjs's signing round-trip and its explicit options.queue === custody.queue assertion."
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/semiotics-science-services-section/services/articulation-services-section/services/articulating-language-cone-service/src/a2a-face.mjs",
+      "date": "2026-08-30",
+      "package": "@lenticule-science/articulating-language-cone-service",
+      "priorVersion": "0.1.5",
+      "newVersion": "0.1.6",
+      "unblockedBy": {
+        "package": "@red-cup-engineering/a2a-contracted-agent-service",
+        "priorVersion": "2.1.4",
+        "publishedVersion": "2.1.5",
+        "addedExport": "createSignedAgentCard (src/signed-agent-card.mjs, exported from the existing \"./signed-agent-card\" subpath alongside loadSignedAgentCard -- no new exports-map entry needed)",
+        "addedExportShape": "createSignedAgentCard(card, { agentCardSignatureGenerator, agentCardJwks }) -> Promise<{ card, jwks }>, the injectable sibling of loadSignedAgentCard: normalizes the in-memory card through AgentCard.toJSON(AgentCard.fromJSON(card)), calls the injected agentCardSignatureGenerator, and freezes the {card, jwks} bundle -- no file or environment reads. Named createSignedAgentCard (verb 'create' + the module's existing 'SignedAgentCard' noun) to match the section's own idiom for pure/injected constructors over I/O-driven ones (createAgentCardSigningConfiguration and ephemeralAgentCardSigning both 'create' from injected material with no I/O, exactly as this export now does; 'load' was reserved for the file+env variant it already named).",
+        "refactor": "loadSignedAgentCard's body was reordered (its file/PKCS8/JWKS reads and generateAgentCardSignature construction happen first, unchanged) so its final step now reads `return createSignedAgentCard(card, { agentCardSignatureGenerator, agentCardJwks: jwks })` instead of inlining the normalize+sign+freeze steps; it performs the same JSON-template read, PKCS8 import, and JWKS-matching validation it always did and produces byte-identical output (verified by a new test that recomputes the same card+key through the pre-refactor algorithm inline and asserts deepEqual against loadSignedAgentCard's result).",
+        "testsAdded": "a2a-contracted-agent-service gained test/signed-agent-card.test.mjs (new -- signed-agent-card.mjs previously had no dedicated coverage in this package's own suite): 6 tests covering createSignedAgentCard's signing+discovery round-trip, its required-signing-configuration guard, loadSignedAgentCard's file+env signing+discovery round-trip, the byte-identical delegation check, loadSignedAgentCard's JWKS-matching refusal, and its required-origin refusal. Wired into package.json's check and test scripts alongside the two existing test files."
+      },
+      "removed": "The ~15-line local wrap-and-sign step in projectSignedArticulatingAgentCard (src/a2a-face.mjs): the AgentCard.toJSON(AgentCard.fromJSON(...)) normalization wrapped around the card literal, the direct `await signing.agentCardSignatureGenerator(unsigned)` call, and the second AgentCard.toJSON(AgentCard.fromJSON(signed)) re-normalization inside the returned bundle. The Agent Card literal itself (name, description, supportedInterfaces, provider, skills, etc. -- service content, not protocol plumbing) was kept verbatim, now as a plain object rather than pre-normalized through the SDK.",
+      "nowComposes": "@red-cup-engineering/a2a-contracted-agent-service/signed-agent-card (createSignedAgentCard), added as a new exact-pinned dependency (2.1.5). projectSignedArticulatingAgentCard now builds the same unsigned card literal and calls `const { card, jwks } = await createSignedAgentCard(unsigned, signing);`, passing its existing injected `signing` argument straight through (it already carried exactly the { agentCardSignatureGenerator, agentCardJwks } shape createSignedAgentCard expects, since it already came from createAgentCardSigningConfiguration/ephemeralAgentCardSigning). The service's own domain-specific precondition check (\"Agent Card projection requires an injected ephemeral signing configuration\") was kept as-is since it predates and is distinct from the wrap-and-sign step being replaced. The `AgentCard` import from @a2a-js/sdk became unused and was removed; no new dependency on @a2a-js/sdk types remains in this file.",
+      "diff": "4 hunks in src/a2a-face.mjs, 8 lines removed / 8 lines added net (import line swapped; unsigned-card-literal open/close unwrapped from AgentCard.toJSON(AgentCard.fromJSON(...)); the sign+wrap block replaced by one createSignedAgentCard call whose {card, jwks} are returned directly).",
+      "verification": "npm install (registry http://127.0.0.1:4873) resolved @red-cup-engineering/a2a-contracted-agent-service@2.1.5 cleanly. npm run check passed (node --check on every src/*.mjs). npm test (node --test test/*.test.mjs) passed 7/7, 0 failures, including 'A2A discovery projects one independently verifiable signed Agent Card' (the injectable-signing round-trip test this payment was blocked on preserving) and the ActivityPub round-trip test that also calls projectSignedArticulatingAgentCard.",
+      "divergenceFound": "None. createSignedAgentCard's { agentCardSignatureGenerator, agentCardJwks } input shape is exactly the `signing` shape this face already received and already validated before this payment; no caller-visible behavior changed."
+    }
+  ]
+}

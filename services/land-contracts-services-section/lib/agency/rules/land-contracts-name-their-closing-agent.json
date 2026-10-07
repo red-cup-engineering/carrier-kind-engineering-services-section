@@ -1,0 +1,10 @@
+{
+  "id": "land-contracts-name-their-closing-agent",
+  "statement": "A land deal recorded as contracted MUST name its closing agent and earnest money.",
+  "subject": ["*"],
+  "action": ["land-deal-record"],
+  "when": { "input.stage": "contracted" },
+  "require": { "input.closingAgent": { "exists": true }, "input.earnestMoney": { "gt": 0 } },
+  "because": "Earnest money goes to a title company named in the agreement; a contract with neither cannot close.",
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "content/books/contracts-for-resale/08-from-yes-to-contract.md" }
+}

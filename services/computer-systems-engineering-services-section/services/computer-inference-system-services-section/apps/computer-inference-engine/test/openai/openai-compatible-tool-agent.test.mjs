@@ -279,7 +279,7 @@ const toolCall = (name, args, id = "call") => ({ id, type: "function", function:
 const callsResponse = (calls) => response({ choices: [{ message: { role: "assistant", tool_calls: calls } }] })();
 
 test("child requests spend one shared tree budget and preserve the parent output contract", async () => {
-  const { createToolAgentBudget } = await import("../../src/openai/tool-agent.mjs");
+  const { createToolAgentBudget } = await import("../src/agents.mjs");
   const budget = createToolAgentBudget({ maximumRequests: 3, maximumToolCalls: 2, maximumOutputTokens: 30 });
   const format = { type: "json_schema", json_schema: { name: "answer", schema: { type: "string" } } };
   const children = [];
@@ -319,7 +319,7 @@ test("tool arguments and declared results are validated at the receiver boundary
 });
 
 test("shared reservations are atomic across competing callers", async () => {
-  const { createToolAgentBudget } = await import("../../src/openai/tool-agent.mjs");
+  const { createToolAgentBudget } = await import("../src/agents.mjs");
   const budget = createToolAgentBudget({ maximumRequests: 1, maximumToolCalls: 0, maximumOutputTokens: 10 });
   let requests = 0;
   const results = await Promise.all([1, 2].map(() => executeOpenAiCompatibleToolAgent({ ...BASE, budget, fetchImpl: async () => { requests += 1; return response({ choices: [{ message: { content: "done" } }] })(); } })));

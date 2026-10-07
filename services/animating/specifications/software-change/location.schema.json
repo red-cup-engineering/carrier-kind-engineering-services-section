@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe.software.location.v1",
+  "title": "aoe.software.location.v1",
+  "description": "A path at which a software artifact is observed or projected",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "path"
+  ],
+  "properties": {
+    "path": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "x-codegen": {
+    "exportName": "locationSchema",
+    "typeName": "Location",
+    "runtimeName": "locationType"
+  }
+}

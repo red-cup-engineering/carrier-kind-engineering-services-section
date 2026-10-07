@@ -1,0 +1,21 @@
+{
+  "id": "land-dispositions-lead",
+  "name": "Land Dispositions Lead",
+  "kind": "office",
+  "normative-structure": "The office answers for sending each contracted parcel to its matched buyers, agreeing the assignment price, and getting the assignment signed and its deposit paid.",
+  "deontic-profile": {
+    "assigning-land-contracts": "duty"
+  },
+  "authority-scope": [
+    "./"
+  ],
+  "jurisdiction": "land-contracts",
+  "supersedes": [
+    "emsenn/services/561-group/services/public-services-section/services/public-economic-services-section/services/duluth-infill-land-services-section#land-dispositions-lead"
+  ],
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26",
+    "source": "content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-land-contracts-business-plan.md"
+  }
+}
