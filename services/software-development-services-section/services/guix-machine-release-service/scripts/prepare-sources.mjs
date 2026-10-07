@@ -22,7 +22,7 @@ function prefetch(directory,commit,oids){
   if(!absentBlobs.has(key))absentBlobs.set(key,new Set(command('git',['rev-list','--objects','--missing=print','--no-object-names',commit],directory).split('\n').filter(x=>x.startsWith('?')).map(x=>x.slice(1))));
   const absent=absentBlobs.get(key),wanted=[...new Set(oids)].filter(oid=>absent.has(oid));
   if(!wanted.length)return;
-  const result=spawnSync('git',['fetch','--quiet','--no-tags','--no-write-fetch-head','--recurse-submodules=no','--filter=blob:none','origin','--stdin'],{cwd:directory,input:wanted.join('\n')+'\n',encoding:'utf8',maxBuffer:8*1024*1024});
+  const result=spawnSync('git',['-c','fetch.negotiationAlgorithm=noop','fetch','--quiet','--no-tags','--no-write-fetch-head','--recurse-submodules=no','--filter=blob:none','origin','--stdin'],{cwd:directory,input:wanted.join('\n')+'\n',encoding:'utf8',maxBuffer:8*1024*1024});
   if(result.error||result.status!==0)throw result.error??new Error(`immutable source prefetch failed: ${result.stderr.slice(-2000)}`);
   for(const oid of wanted)absent.delete(oid);
 }
