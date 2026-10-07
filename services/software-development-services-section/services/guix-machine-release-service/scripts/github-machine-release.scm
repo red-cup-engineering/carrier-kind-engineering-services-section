@@ -27,7 +27,7 @@
         (run "guix" "repl" "--" (string-append (dirname (car (command-line))) "/receive.scm")
              (string-append snapshot "/machine.json") previous "--rollback")
         (exit 0)))
-    (unless (member mode '("build" "deploy" "check-failure")) (error "unsupported release mode" mode))
+    (unless (member mode '("build" "deploy" "check-failure" "resolve")) (error "unsupported release mode" mode))
     (let ((resolved
       (vector-map
        (lambda (index r)
@@ -47,10 +47,17 @@
              (service (string-append (assoc-ref owner "directory") "/services/software-development-services-section/services/guix-machine-release-service"))
              (lock (string-append snapshot "/dependencies.lock.yaml")))
         (run "node" (string-append service "/scripts/prepare-sources.mjs") prepared)
-        (unless (file-exists? lock) (error "reviewed dependency lock is missing; resolve and commit it before deployment"))
-        (copy-file lock (string-append workspace "/pnpm-lock.yaml"))
-        (run "npm" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--dir" workspace
-             "install" "--frozen-lockfile" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))
+        (if (equal? mode "resolve")
+          (begin
+            (run "npm" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--dir" workspace
+                 "install" "--lockfile-only" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))
+            (copy-file (string-append workspace "/pnpm-lock.yaml") lock)
+            (exit 0))
+          (begin
+            (unless (file-exists? lock) (error "reviewed dependency lock is missing; resolve and commit it before deployment"))
+            (copy-file lock (string-append workspace "/pnpm-lock.yaml"))
+            (run "npm" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--dir" workspace
+                 "install" "--frozen-lockfile" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))))
         (let* ((assembled (json-string->scm (capture "node" (string-append service "/scripts/assemble.mjs") workspace snapshot (string-append work "/artifacts"))))
                (closure (assoc-ref assembled "closure"))
                (built (json-string->scm (capture "guix" "repl" "--" (string-append service "/scripts/guix-deployment.scm")

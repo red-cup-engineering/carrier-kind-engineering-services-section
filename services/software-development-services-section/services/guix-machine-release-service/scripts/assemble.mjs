@@ -1,42 +1,29 @@
-import {readFile,writeFile,mkdir,cp,rename,readdir} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,cp,rm,mkdtemp} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
-import {pathToFileURL} from 'node:url';
-
 const [workspaceArg,snapshotArg,outputArg]=process.argv.slice(2);
 const workspace=resolve(workspaceArg),snapshot=resolve(snapshotArg),output=resolve(outputArg);
 const sources=JSON.parse(await readFile(join(workspace,'sources.json'),'utf8'));
-const spec=JSON.parse(await readFile(join(snapshot,'sources.json'),'utf8'));
 const providers=Object.fromEntries(sources.packages.map(p=>[p.name,join(workspace,'packages',p.name.replaceAll('/','__'))]));
-const {catalogNodePackageSources}=await import(pathToFileURL(join(providers['@red-cup-engineering/typed-resource-catalog-service'],'src/node-package-source-catalog.mjs')));
-const {materializeNodeRuntimeRelease}=await import(pathToFileURL(join(providers['@red-cup-engineering/node-runtime-release-materialization-service'],'src/materialize-release.mjs')));
 const entry=providers['@red-cup-engineering/feltos-enterprise-host'];
-const manifest=JSON.parse(await readFile(join(entry,'package.json'),'utf8'));
-// The machine's declared dynamic providers are part of its runtime closure.
-for(const name of spec.entries.filter(n=>n!==manifest.name)){
- const p=sources.packages.find(p=>p.name===name);
- if(!p)throw new Error(`machine provider has no pinned source: ${name}`);
- manifest.dependencies[name]=p.version;
-}
-await writeFile(join(entry,'package.json'),JSON.stringify(manifest,null,2)+'\n');
-const metroplat=providers['@red-cup-engineering/metroplat'];
-const generation=spawnSync(process.execPath,[join(metroplat,'scripts/generate-operation-family-descriptors.mjs')],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot}});
-if(generation.error||generation.status!==0)throw generation.error??new Error('operation descriptor generation failed');
+const exec=(program,args,options={})=>{const r=spawnSync(program,args,{stdio:'inherit',...options});if(r.error||r.status!==0)throw r.error??new Error(`${program} build check failed (${r.status})`)};
+const environment={...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot};
+exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts/generate-operation-family-descriptors.mjs')],{env:environment});
 const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
-const test=spawnSync(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot}});
-if(test.error||test.status!==0)throw test.error??new Error('host work and lifecycle checks failed');
-const catalog=await catalogNodePackageSources({entryPackageDirectory:entry,providerSources:Object.fromEntries(Object.entries(providers).filter(([n])=>n!==manifest.name))});
-const runtime=await materializeNodeRuntimeRelease({entryPackageDirectory:entry,sourceCatalog:catalog,outputRoot:output});
-const closure=runtime.releaseDirectory;
+exec(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{env:environment});
+await mkdir(output,{recursive:true});
+const closure=await mkdtemp(join(output,'.closure-'));
+exec('npm',['exec','--yes','--package=pnpm@11.9.0','--','pnpm','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy',join(closure,'app')],{env:environment});
 await cp(join(snapshot,'deployment'),join(closure,'deployment'),{recursive:true});
-await writeFile(join(closure,'pnpm-workspace.yaml'),"packages: []\n");
+await writeFile(join(closure,'pnpm-workspace.yaml'),'packages: []\n');
+// Installation metadata names producer locations, and is not a runtime input.
+await rm(join(closure,'app/node_modules/.modules.yaml'),{force:true});
+await rm(join(closure,'app/node_modules/.pnpm-workspace-state-v1.json'),{force:true});
 const lock=await readFile(join(workspace,'pnpm-lock.yaml'));
 await mkdir(join(closure,'.metadata'),{recursive:true});
 await writeFile(join(closure,'.metadata','dependencies.lock.yaml'),lock);
 await writeFile(join(closure,'.metadata','sources.json'),JSON.stringify(sources,null,2)+'\n');
-await writeFile(join(closure,'.metadata','release.json'),JSON.stringify({machineCommit:process.env.GITHUB_SHA??null,machineRepository:process.env.GITHUB_REPOSITORY??null,dependencyLockSha256:createHash('sha256').update(lock).digest('hex'),runtimeDigest:runtime.artifactDigest},null,2)+'\n');
-// Producer paths are observations, not inputs to the immutable Guix artifact.
-const receipt={...runtime};delete receipt.releaseDirectory;
-await writeFile(join(closure,'release-receipt.json'),JSON.stringify(receipt,null,2)+'\n');
+const release={machineCommit:process.env.GITHUB_SHA??null,machineRepository:process.env.GITHUB_REPOSITORY??null,dependencyLockSha256:createHash('sha256').update(lock).digest('hex')};
+await writeFile(join(closure,'.metadata','release.json'),JSON.stringify(release,null,2)+'\n');
 process.stdout.write(JSON.stringify({closure})+'\n');

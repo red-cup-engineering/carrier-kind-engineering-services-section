@@ -83,6 +83,10 @@ export function prepare({ repositories, entries, buildEntries = [], owners, depe
         }
       }
     }
+    if (name === '@red-cup-engineering/feltos-enterprise-host') {
+      manifest.dependencies ??= {};
+      for (const provider of entries.filter(n => n !== name)) manifest.dependencies[provider] = 'workspace:*';
+    }
     writeFileSync(resolve(target, 'package.json'), JSON.stringify(manifest, null, 2) + '\n');
     sources.push({ name, version: manifest.version, repository: p.repository, commit: p.commit, path: p.path,
       sourceManifestSha256: createHash('sha256').update(JSON.stringify(p.manifest)).digest('hex') });
