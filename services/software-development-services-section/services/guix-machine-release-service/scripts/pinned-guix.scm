@@ -13,6 +13,11 @@
          (body (get-string-all port))
          (status (close-pipe port))
          (actual (if (zero? status) (vector->list (json-string->scm body)) '()))
+         (arguments (if (and (pair? arguments) (equal? (car arguments) "shell"))
+           (append (list "shell" "--rebuild-cache"
+                     (string-append "--root=/var/guix/profiles/per-user/" (passwd:name (getpwuid (getuid)))
+                       "/github-guix-environment-" (number->string (current-time)) "-" (number->string (getpid))))
+                   (cdr arguments)) arguments))
          (same? (and (zero? status) (= (length expected) (length actual))
            (every (lambda (channel)
              (let* ((found (find (lambda (r) (equal? (assoc-ref r "name") (symbol->string (channel-name channel)))) actual))
