@@ -4,7 +4,7 @@
 // existing verdict consumers can migrate without a second closure engine.
 
 import { makeContext, closeAttrs } from "@red-cup-engineering/metrologic/closure/formal-context";
-import { readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 import { makeValuation, withReading, settle, readingAt } from "./nuclei.mjs";
 import { makeComplex, withConductance, refusalNumber } from "./complex.mjs";
 import { address, cell, triple } from "@red-cup-engineering/signcell/cell";
@@ -59,6 +59,7 @@ function derivationOf(settlement, side) {
         attr: value.predicate,
         by: witness.rule ?? "given",
         premises: (witness.from ?? []).map((key) => attributeByAddress.get(key)),
+        ...(witness.ruleId === undefined ? {} : { ruleId: witness.ruleId }),
       });
     }
   }
@@ -80,7 +81,7 @@ export function witnessChain(derivation, attr) {
     const n = derivation.get(a);
     if (!n) return;
     for (const p of n.premises) walk(p);
-    chain.push({ attr: a, by: n.by, premises: n.premises });
+    chain.push({ attr: a, by: n.by, premises: n.premises, ...(n.ruleId === undefined ? {} : { ruleId: n.ruleId }) });
   })(attr);
   return chain;
 }

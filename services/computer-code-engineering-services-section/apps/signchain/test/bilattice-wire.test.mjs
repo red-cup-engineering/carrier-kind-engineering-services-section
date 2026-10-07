@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { FOUR, four, joinKnowledgeWire, isKnowledgeCover, validateFour, witnessBit, knowledgeLeqWire } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { FOUR, four, joinKnowledgeWire, isKnowledgeCover, validateFour, witnessBit, knowledgeLeqWire } from "@red-cup-engineering/computer-data-services-section/four";
 
 const values = Object.values(FOUR);
 // The complete Belnap knowledge diamond, in neither/true/false/both wire order.

@@ -32,7 +32,8 @@ import { phaseEvidence, strictFinitePhase } from "@red-cup-engineering/signchain
 export const designatedCells = (valuation) => Object.freeze(valuation.filter((value) => sidesOf(value)[0]).map(triple));
 
 /** The closure orbit of a seed valuation under a rule list, ending at its fixed point. */
-export function closureOrbit(rules, seed) {
+export function closureOrbit(rules, seed, derivationVersion = 2) {
+  if (derivationVersion !== 1 && derivationVersion !== 2) throw new TypeError("signcraft settle: unsupported derivation version");
   const initial = cellSet(seed);
   const orbit = [initial];
   const valuation = new Map(initial.map((at) => [address(at), at]));
@@ -51,7 +52,7 @@ export function closureOrbit(rules, seed) {
     const tellings = [];
     for (const index of pending) {
       if (fired.has(index)) continue;
-      const produced = fireRuleIn(rules[index], valuation);
+      const produced = fireRuleIn(rules[index], valuation, derivationVersion);
       if (produced.length > 0) {
         fired.add(index);
         tellings.push(...produced);
@@ -82,6 +83,7 @@ export function settle(presheaf, rules = []) {
   const settledAt = orbit.length - 1;
   return Object.freeze({
     kind: "signcraft.settlement",
+    derivationVersion: 2,
     site: presheaf.site,
     rules: Object.freeze([...rules]),
     stages,
@@ -97,7 +99,10 @@ export function settle(presheaf, rules = []) {
  * least fixed point above the seed, SClosed S v ⟺ T_S v = v). Replaying the closure orbit of the
  * settlement's rules from its seed (stage 0) must reproduce every stage's valuation by content address,
  * and the settled valuation must be that orbit's last stage — so the content is S-closed and least above
- * the seed. Returns a frozen `{ admitted, reason }`; the reason names the first failing stage.
+ * the seed. Unversioned historical records replay their original version-1 witnesses; their
+ * label/premise identity is weaker than version 2's complete rule identity. No historical witness
+ * is upgraded or rewritten. This admission checks the declared orbit, not issuer authenticity.
+ * Returns a frozen `{ admitted, reason }`; the reason names the first failing stage.
  */
 export function settlementAdmits(settlement) {
   const refuse = (reason) => Object.freeze({ admitted: false, reason });
@@ -105,7 +110,9 @@ export function settlementAdmits(settlement) {
   if (!Array.isArray(stages) || stages.length === 0 || !Array.isArray(settlement.rules)) return refuse("the settlement has no rules or no stages");
   let orbit;
   try {
-    orbit = closureOrbit(settlement.rules, stages[0].valuation);
+    const version = Object.hasOwn(settlement, "derivationVersion") ? settlement.derivationVersion : 1;
+    if (version !== 1 && version !== 2) return refuse("unsupported derivation version");
+    orbit = closureOrbit(settlement.rules, stages[0].valuation, version);
   } catch (error) {
     return refuse(`stage 0: the seed does not replay (${error.message})`);
   }
