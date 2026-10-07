@@ -1,0 +1,40 @@
+{
+  "name": "@red-cup-engineering/signchain",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Witnessed rules, evidence ordering and executable SignCell contracts.",
+  "files": [
+    "src"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    "./typed-theory": "./src/typed-theory.mjs",
+    "./contracts/admissibility-presentation": "./src/contracts/admissibility-presentation.mjs",
+    "./contracts/contract-operation": "./src/contracts/contract-operation.mjs",
+    "./contracts/contract-report": "./src/contracts/contract-report.mjs",
+    "./contracts/contract": "./src/contracts/contract.mjs",
+    "./contracts/energetics": "./src/contracts/energetics.mjs",
+    "./contracts/evidence-policy": "./src/contracts/evidence-policy.mjs",
+    "./contracts/instrument": "./src/contracts/instrument.mjs",
+    "./contracts/observation-lens": "./src/contracts/observation-lens.mjs",
+    "./contracts/phase": "./src/contracts/phase.mjs",
+    "./contracts/site-directory-grammar": "./src/contracts/site-directory-grammar.mjs",
+    "./contracts/verification": "./src/contracts/verification.mjs",
+    "./contracts/judgment": "./src/contracts/judgment.mjs",
+    "./contracts/judgment-schema": "./src/contracts/judgment-schema.mjs",
+    "./bilattice": "./src/bilattice.mjs",
+    "./rules": "./src/rules.mjs",
+    "./log": "./src/log.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/metrologic": "workspace:*"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\""
+  }
+}
