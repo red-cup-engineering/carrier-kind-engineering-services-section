@@ -38,6 +38,8 @@ test("health answers while an optional companion is still starting", async (t) =
       instance: { name: "test-metroplat", title: "Test MetroPlat" },
       stateDir: directory,
       metroplatDataRoot: directory,
+      agencyRoot: directory,
+      repositoryRoot: directory,
       host: "127.0.0.1",
       port: 0,
       upstreams: [],
