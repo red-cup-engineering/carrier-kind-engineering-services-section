@@ -59,24 +59,15 @@
                           (if #$socket (string-append " " #$socket) "")
                           (if #$socket (string-append " " #$socket) "")
                           out #$directory launcher #$environment-file)
-                  (for-each
-                   (lambda (pair)
-                     (format port "Environment=~s~%" (string-append (car pair) "=" (cdr pair))))
-                   env)
+                  (format port "EnvironmentFile=~a/environment~%" units)
                   (format port "Environment=\"PATH=~a/bin:/home/emsenn/.local/bin:/usr/local/bin:/usr/bin:/bin\"~%" out)
                   (format port "Environment=\"NODE_OPTIONS=--max-old-space-size=~a --disable-sigusr1\"~%" #$heap)
                   (when #$oom-score (format port "OOMScoreAdjust=~a~%" #$oom-score))
                   (when #$memory-high (format port "MemoryHigh=~a~%" #$memory-high))
                   (format port "Restart=on-failure~%RestartSec=~a~%TimeoutStartSec=600~%UMask=0077~%~%[Install]~%WantedBy=default.target~%" #$restart-seconds)))
-              ;; Every operational helper in the closure uses the same pinned Node.
-              ;; No service invocation falls back to an nvm or ~/.local runtime.
-              (for-each
-               (lambda (file)
-                 (substitute* file
-                   (("/home/emsenn/\\.local/bin/node") runtime)
-                   (("%h/\\.nvm/versions/node/v[0-9.]+/bin/node") runtime)))
-               (find-files (string-append out "/" #$directory "/deploy")
-                           "\\.service$"))
+              (call-with-output-file (string-append units "/environment")
+                (lambda (port)
+                  (for-each (lambda (pair) (format port "~a=~s~%" (car pair) (cdr pair))) env)))
               #t))))
       (home-page "https://561.group")
       (synopsis (string-append name " enterprise deployment"))

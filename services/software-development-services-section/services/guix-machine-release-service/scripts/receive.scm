@@ -1,5 +1,5 @@
 ;;; The only deployment writer. Run through the machine's pinned Guix.
-(use-modules (ice-9 match) (ice-9 popen) (ice-9 rdelim) (ice-9 ftw)
+(use-modules (ice-9 match) (ice-9 popen) (ice-9 rdelim) (ice-9 ftw) (ice-9 textual-ports)
              (ice-9 format) (json) (srfi srfi-1))
 (umask #o077)
 
@@ -41,6 +41,7 @@
          (unit-backup (string-append root "/.unit-before-guix"))
          (receipts (field config "receiptRoot"))
          (scratch (mkdtemp (string-append root "/.probe-XXXXXX")))
+         (probe-env (string-append scratch "/probe.env"))
          (probe (string-append name "-guix-probe"))
          (stopped? #f))
     (run "mkdir" "-p" receipts)
@@ -48,21 +49,38 @@
       (lambda ()
         ;; The app's probe mode suppresses clocks, remote delivery and companions.
         ;; It gets empty state and does not inherit the live data root.
+        ;; EnvironmentFile wins over systemd Environment settings. Append probe
+        ;; overrides to a private scratch file so the live roots cannot win.
+        (call-with-output-file probe-env
+          (lambda (p)
+            (display (call-with-input-file env-file get-string-all) p)
+            (newline p)
+            (for-each (lambda (pair) (format p "~a=~s~%" (car pair) (cdr pair)))
+              `(("METROPLAT_PROBE" . "1")
+                ("METROPLAT_PROBE_LISTEN" . "127.0.0.1:18819")
+                ("FELTOS_ENTERPRISE_HOST" . ,(string-append store "/deployment/host.json"))
+                ("METROPLAT_REPOSITORY_ROOT" . ,store)
+                ("METROPLAT_WEB_STATE_DIR" . ,(string-append scratch "/state"))
+                ("METROPLAT_WEB_DATA_DIR" . ,(string-append scratch "/data"))
+                ("METROPLAT_DATA_ROOT" . ,(string-append scratch "/settlement"))
+                ("ACTIVITYPUB_SQLITE_PATH" . ,(string-append scratch "/activitypub.sqlite"))
+                ("AGENCY_ACTS_LOG" . ,(string-append scratch "/acts.jsonl"))))))
         (run "systemd-run" "--user" "--collect" "--quiet" "--nice=10"
              (string-append "--unit=" probe)
-             (string-append "--property=EnvironmentFile=" env-file)
+             (string-append "--property=EnvironmentFile=" probe-env)
              "--property=CPUWeight=20" "--property=IOWeight=20"
+             "--property=MemoryMax=640M" "--property=OOMScoreAdjust=1000"
              "--setenv=METROPLAT_PROBE=1" "--setenv=METROPLAT_PROBE_LISTEN=127.0.0.1:18819"
              (string-append "--setenv=FELTOS_ENTERPRISE_HOST=" store "/deployment/host.json")
              (string-append "--setenv=METROPLAT_REPOSITORY_ROOT=" store)
              (string-append "--setenv=METROPLAT_WEB_STATE_DIR=" scratch "/state")
              (string-append "--setenv=METROPLAT_WEB_DATA_DIR=" scratch "/data")
              (string-append "--setenv=METROPLAT_DATA_ROOT=" scratch "/settlement")
-             (string-append "--setenv=METROPLAT_AGENCY_ROOT=" store "/knowledge/lib")
              (string-append store "/bin/" name))
         (health "http://127.0.0.1:18819/healthz")
         (when failure-test? (error "deliberate pre-switch check failure"))
         (run "systemctl" "--user" "stop" probe)
+        (delete-file probe-env)
         (copy-file unit-file unit-backup)
         (run "systemctl" "--user" "stop" unit)
         (set! stopped? #t)
@@ -83,6 +101,7 @@
                                       ("previous" . ,previous) ("machine" . ,name))))
       (lambda args
         (system* "systemctl" "--user" "stop" probe)
+        (when (file-exists? probe-env) (delete-file probe-env))
         (when (and previous stopped?)
           ;; A failed Guix command may already have changed its profile.
           ;; Always restore the exact held generation before restarting.
