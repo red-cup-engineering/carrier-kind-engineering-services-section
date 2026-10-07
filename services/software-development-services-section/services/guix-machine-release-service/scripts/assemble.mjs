@@ -29,7 +29,8 @@ function buildTypes(name){
 for(const name of Object.keys(providers))buildTypes(name);
 exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts/generate-operation-family-descriptors.mjs')],{env:environment});
 const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
-exec(process.execPath,['--test',fileURLToPath(new URL('../test/release-admission.test.mjs',import.meta.url)),...checks.map(f=>join(entry,'test',f)),join(providers['@red-cup-engineering/semantic-content-identify-service'],'test/semantic-content-identity.test.mjs')],{env:environment});
+const signchainChecks=['typed-theory.test.mjs','derivation-validity.test.mjs'];
+exec(process.execPath,['--test',fileURLToPath(new URL('../test/release-admission.test.mjs',import.meta.url)),...checks.map(f=>join(entry,'test',f)),...signchainChecks.map(f=>join(providers['@red-cup-engineering/signchain'],'test',f)),join(providers['@red-cup-engineering/semantic-content-identify-service'],'test/semantic-content-identity.test.mjs')],{env:environment});
 exec(process.execPath,['--test',join(providers['@red-cup-engineering/computer-inference-engine'],'test/zero-cash-account-admission.test.mjs')],{env:environment});
 const newsroom=providers['@causeway-services/koios-news'];
 exec(process.execPath,['--input-type=module','-e',"await import('./src/news-line.mjs')"],{env:environment,cwd:newsroom});
