@@ -84,8 +84,10 @@ export function prepare({ repositories, entries, owners, dependencyPins = {}, ou
     sources.push({ name, version: manifest.version, repository: p.repository, commit: p.commit, path: p.path,
       sourceManifestSha256: createHash('sha256').update(JSON.stringify(p.manifest)).digest('hex') });
   }
-  writeFileSync(resolve(root, 'package.json'), JSON.stringify({ private: true, packageManager: 'pnpm@11.19.0', scripts: {} }, null, 2) + '\n');
-  writeFileSync(resolve(root, 'pnpm-workspace.yaml'), "packages:\n  - 'packages/*'\nlinkWorkspacePackages: true\npreferWorkspacePackages: true\nignoreScripts: true\n");
+  // Source providers also bind transitive registry consumers to that same source.
+  // The lockfile records the resulting singleton dependency graph.
+  writeFileSync(resolve(root, 'package.json'), JSON.stringify({ private: true, packageManager: 'pnpm@11.19.0', scripts: {}, pnpm: { overrides: Object.fromEntries([...selected.keys()].map(name => [name, 'workspace:*'])) } }, null, 2) + '\n');
+  writeFileSync(resolve(root, 'pnpm-workspace.yaml'), "packages:\n  - 'packages/*'\nlinkWorkspacePackages: true\npreferWorkspacePackages: true\nautoInstallPeers: false\nignoreScripts: true\n");
   writeFileSync(resolve(root, 'sources.json'), JSON.stringify({ repositories: repositories.map(({ directory, ...r }) => r), packages: sources }, null, 2) + '\n');
   return { root, selected: sources.map(p => p.name) };
 }

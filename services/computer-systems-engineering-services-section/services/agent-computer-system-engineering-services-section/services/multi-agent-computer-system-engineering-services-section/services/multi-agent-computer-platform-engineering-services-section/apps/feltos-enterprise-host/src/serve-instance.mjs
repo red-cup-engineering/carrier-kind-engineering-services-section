@@ -270,6 +270,8 @@ export function createEnterpriseServicePlatform({
       return Response.json({
         ok,
         service: config.instance.name,
+        workPeerActor: config.workPeerActor ?? null,
+        release: environment.GUIX_MACHINE_RELEASE_ID ?? null,
         state: unloaded ? "unready" : report.state,
         phases: report.providers,
         ...(probe === undefined ? {} : { probe: true, families }),
