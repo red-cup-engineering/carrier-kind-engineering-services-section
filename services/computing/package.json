@@ -50,6 +50,7 @@
     "./js-mark": "./src/js-mark.mjs",
     "./encoding": "./src/encoding.mjs",
     "./decision": "./src/decision.mjs",
-    "./dap": "./src/dap.mjs"
+    "./dap": "./src/dap.mjs",
+    "./categorifying": "./src/categorifying.mjs"
   }
 }

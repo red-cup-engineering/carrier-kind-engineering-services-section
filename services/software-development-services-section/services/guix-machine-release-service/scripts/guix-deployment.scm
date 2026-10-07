@@ -15,7 +15,7 @@
     lines))
 
 (define (guix channels . arguments)
-  (apply run "guix" "time-machine" "-C" channels "--" arguments))
+  (apply run "guix" "repl" "--" (string-append (dirname (car (command-line))) "/pinned-guix.scm") channels arguments))
 
 ;; Runtime packages must be closed over their files. In particular, an
 ;; install seeded from another release must not retain links to that release.

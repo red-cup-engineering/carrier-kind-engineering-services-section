@@ -12,6 +12,7 @@ test('preparation uses committed blobs even when the checkout has later edits', 
     command('git', ['init', '-q'], repo);
     writeFileSync(resolve(repo, 'package.json'), JSON.stringify({ name: '@example/app', version: '1.0.0', type: 'module' }));
     writeFileSync(resolve(repo, 'index.mjs'), 'export const released = true;\n');
+    writeFileSync(resolve(repo, 'example-package.json'), JSON.stringify({name:'@example/app',version:'99.0.0'}));
     command('git', ['add', '.'], repo);
     command('git', ['-c', 'user.name=fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'fixture'], repo);
     const commit = command('git', ['rev-parse', 'HEAD'], repo);

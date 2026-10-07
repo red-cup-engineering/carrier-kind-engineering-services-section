@@ -26,10 +26,10 @@
       (build-system trivial-build-system)
       (arguments
        (list
-        #:modules '((guix build utils) (ice-9 format) (ice-9 regex) (srfi srfi-1))
+        #:modules '((guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1))
         #:builder
         #~(begin
-            (use-modules (guix build utils) (ice-9 format) (ice-9 regex) (srfi srfi-1))
+            (use-modules (guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1))
             (let* ((out #$output)
                    (runtime #$(file-append node "/bin/node"))
                    (bin (string-append out "/bin"))
@@ -44,7 +44,14 @@
                          (append '#$environment
                            (list (cons "NODE_OPTIONS" (format #f "--max-old-space-size=~a --disable-sigusr1" #$heap))
                                  (cons "PATH" (string-append out "/bin:/home/emsenn/.local/bin:/usr/local/bin:/usr/bin:/bin")))))))
-              (copy-recursively #$(local-file admitted-source "admitted-runtime" #:recursive? #t) out)
+              ;; The admitted tree is already an immutable Guix input. Retain it
+              ;; in the output's closure without copying the entire tree twice.
+              (mkdir-p out)
+              (let ((tree #$(local-file admitted-source "admitted-runtime" #:recursive? #t)))
+                (for-each (lambda (file)
+                            (unless (member file '("." ".."))
+                              (symlink (string-append tree "/" file) (string-append out "/" file))))
+                          (scandir tree)))
               (mkdir-p bin)
               (mkdir-p units)
               (symlink runtime (string-append bin "/node"))

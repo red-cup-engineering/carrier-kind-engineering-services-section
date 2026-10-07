@@ -1,0 +1,17 @@
+;;; Reuse an already installed, authenticated Guix only when all channel
+;;; identities equal the committed snapshot. Otherwise use time-machine.
+(use-modules (guix channels) (json) (ice-9 popen) (ice-9 textual-ports) (ice-9 match) (srfi srfi-1))
+(match (cdr (command-line))
+ ((channels . arguments)
+  (let* ((expected (load (canonicalize-path channels)))
+         (port (open-pipe* OPEN_READ "guix" "describe" "--format=json"))
+         (actual (vector->list (json-string->scm (get-string-all port))))
+         (status (close-pipe port))
+         (same? (and (zero? status) (= (length expected) (length actual))
+           (every (lambda (channel)
+             (let ((found (find (lambda (r) (equal? (assoc-ref r "name") (symbol->string (channel-name channel)))) actual)))
+               (and found (equal? (channel-commit channel) (assoc-ref found "commit"))
+                    (equal? (channel-url channel) (assoc-ref found "url"))))) expected))))
+    (unless (zero? (apply system* "guix" (if same? arguments (append (list "time-machine" "-C" channels "--") arguments))))
+      (error "pinned Guix invocation failed" arguments))))
+ (_ (error "usage: pinned-guix.scm CHANNELS ARGUMENTS...")))

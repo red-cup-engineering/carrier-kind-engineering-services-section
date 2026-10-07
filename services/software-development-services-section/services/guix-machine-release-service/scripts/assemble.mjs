@@ -27,7 +27,7 @@ function buildTypes(name){
 for(const name of Object.keys(providers))buildTypes(name);
 exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts/generate-operation-family-descriptors.mjs')],{env:environment});
 const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
-exec(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{env:environment});
+exec(process.execPath,['--test',...checks.map(f=>join(entry,'test',f)),join(providers['@red-cup-engineering/semantic-content-identify-service'],'test/semantic-content-identity.test.mjs')],{env:environment});
 await mkdir(output,{recursive:true});
 const closure=await mkdtemp(join(output,'.closure-'));
 exec('npm',['exec','--yes','--package=pnpm@11.9.0','--','pnpm','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy',join(closure,'app')],{env:{...environment,NODE_OPTIONS:'--max-old-space-size=1024'}});
