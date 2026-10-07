@@ -18,6 +18,7 @@
 import { PerceptionClockType, buildPerceptionFrame, createPerceptionFrameType } from "@red-cup-engineering/feltos/perception-frame";
 import { phaseAt, seasonAt, tideAt } from "@red-cup-engineering/feltos/calendar";
 import { packPlaceTree, terracedTreemap } from "@red-cup-engineering/qwzspace/place-tree";
+import { subjects, certainValue, values, exitsOf } from "@red-cup-engineering/feltos/world";
 
 const KINDS = Object.freeze(["office", "package", "skill", "book"]);
 /**
@@ -32,8 +33,6 @@ export const JURISDICTION_TINTS = Object.freeze({ house: "#cfc6b0", science: "#5
 
 /** The city's dimensions, in metres: the plaza's side and slab, one storey, and the margins. */
 export const CITY = Object.freeze({ side: 720, ground: [0, 2], storey: 3, margin: 0.06, gap: 0.04 });
-
-const kindOf = (id) => id.slice(0, id.indexOf(":"));
 
 export function jurisdictionOf(sectionPath) {
   let found = "house";
@@ -54,9 +53,9 @@ export const clockAt = (tick) => Object.freeze({ time: tick, phase: phaseAt(tick
 const FrameType = createPerceptionFrameType("metroplat.world", PerceptionClockType);
 
 /** What `actor` perceives, as FeltOS's perception frame: the one a client draws every tier from. */
-export function worldFrame(engine, actor) {
+export function worldFrame(engine, actor, situation) {
   return buildPerceptionFrame({
-    frameType: FrameType, kind: "metroplat.world", world: engine.world, actor, tick: engine.tick,
+    engine, situation, frameType: FrameType, kind: "metroplat.world", world: engine.world, actor, tick: engine.tick,
     clock: clockAt(engine.tick), affordancesFor: () => [],
   });
 }
@@ -65,25 +64,27 @@ export function worldFrame(engine, actor) {
 /** How the atlas tells the room tree: a room's id and path extend its holder's by these separators. */
 export const ATLAS_TAILS = Object.freeze({ id: ".", path: "/" });
 
-export function worldAtlas(game) {
-  const pathOf = new Map(game.assertions.filter((a) => a.predicate === "section-path").map((a) => [a.subject, a.object]));
-  const counts = new Map(Object.keys(game.rooms).map((id) => [id, {}]));
-  for (const [id, thing] of Object.entries(game.things)) {
-    const tally = counts.get(thing.location), kind = kindOf(id);
-    if (tally !== undefined && KINDS.includes(kind)) tally[kind] = (tally[kind] ?? 0) + 1;
-  }
-  const officeRoom = new Map(Object.entries(game.things).filter(([id]) => kindOf(id) === "office").map(([id, thing]) => [id, thing.location]));
+export function worldAtlas(game, world) {
+  const ids = subjects(world);
+  const roomIds = ids.filter(id => certainValue(world, id, "kind") === "room");
+  const pathOf = new Map(roomIds.map(id => [id, certainValue(world, id, "section-path")]));
+  const counts = new Map(roomIds.map(id => [id, {}]));
   const seated = new Map();
-  for (const a of game.assertions) {
-    if (a.predicate !== "seated" || !officeRoom.has(a.subject)) continue;
-    const room = officeRoom.get(a.subject);
-    seated.set(room, [...new Set([...(seated.get(room) ?? []), a.object])]);
+  for (const id of ids) {
+    const room = certainValue(world, id, "located-in"), tally = counts.get(room);
+    for (const kind of KINDS.filter(kind => values(world, id, "tag").includes(kind))) {
+      if (tally !== undefined) tally[kind] = (tally[kind] ?? 0) + 1;
+    }
+    if (tally !== undefined && values(world, id, "tag").includes("office")) {
+      const actors = values(world, id, "seated");
+      if (actors.length) seated.set(room, [...new Set([...(seated.get(room) ?? []), ...actors])]);
+    }
   }
   // The rooms in the world's order, which is the city's sibling order: whoever holds the atlas lays
   // the city out (cityLayout) and tints it (tints by jurisdiction) as the world did. Nothing derivable
   // travels: no footprint, no tint, no zero count, no id or path a holder already spells.
-  const rooms = Object.entries(game.rooms).map(([id, room]) => {
-    const told = { id, name: room.name, path: pathOf.get(id) ?? null, up: room.exits.up ?? null, jurisdiction: jurisdictionOf(pathOf.get(id)) };
+  const rooms = roomIds.map(id => {
+    const told = { id, name: certainValue(world, id, "name") ?? id, path: pathOf.get(id) ?? null, up: exitsOf(world, id).find(exit => exit.direction === "up")?.destination ?? null, jurisdiction: jurisdictionOf(pathOf.get(id)) };
     if (Object.keys(counts.get(id)).length > 0) told.things = counts.get(id);
     if (seated.has(id)) told.seated = seated.get(id);
     return told;

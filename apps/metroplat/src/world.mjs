@@ -40,7 +40,7 @@ import { defineGame } from "@red-cup-engineering/feltos/game";
 import { actorIdFor, createMudServer } from "@red-cup-engineering/feltos/mud-server";
 import { composeCapabilities, defineCapability } from "@red-cup-engineering/feltos/capabilities";
 import { message } from "@red-cup-engineering/feltos/engine";
-import { move, placeOf, values, witnessesOf } from "@red-cup-engineering/feltos/world";
+import { move, placeOf, values, witnessesOf, subjects, certainValue, contentsOf, exitsOf } from "@red-cup-engineering/feltos/world";
 import { canonicalPlayer, officeReading, resolve } from "@red-cup-engineering/organizing/agency";
 import { subjectOf } from "@red-cup-engineering/organizing/agency/cast";
 import { OPENING_MOVES, RESPONSE_MOVES, deliveriesToAssay, threadSummary } from "@red-cup-engineering/organizing/enterprise";
@@ -313,8 +313,8 @@ export function metroplatGame(agency, { root, sections = [], seats = new Map(), 
 }
 
 /** The offices (world things) an actor is seated in, and the verbs they grant it. */
-function standingIn(world, things, actor) {
-  const offices = Object.keys(things).filter((id) => values(world, id, "seated").includes(actor));
+function standingIn(world, actor) {
+  const offices = subjects(world).filter(id => values(world, id, "tag").includes("office") && values(world, id, "seated").includes(actor));
   return { offices, verbs: new Set(offices.flatMap((id) => values(world, id, "verb"))) };
 }
 
@@ -369,22 +369,28 @@ export function readSaidInput(argument, said, schema = {}) {
  * Everything a character can find in the world, as words: each section (its name, path and
  * description) and each thing in one (office, package, skill or book), with the room it stands in.
  */
-function findingsOf(game) {
-  const pathOf = new Map(game.assertions.filter((a) => a.predicate === "section-path").map((a) => [a.subject, a.object]));
-  const kindOf = (id) => id.slice(0, id.indexOf(":"));
-  const finding = (kind, id, name, description, room) => ({ kind, id, name, room, path: pathOf.get(room), text: `${name}\n${id}\n${pathOf.get(room) ?? ""}\n${description}`.toLowerCase() });
-  return Object.freeze([
-    ...Object.entries(game.rooms).filter(([id]) => pathOf.has(id)).map(([id, room]) => finding("section", id, room.name, room.description, id)),
-    ...Object.entries(game.things).map(([id, thing]) => finding(kindOf(id), id, thing.name, thing.description, thing.location)),
-  ]);
+function findingsOf(world) {
+  const ids = subjects(world);
+  const pathOf = room => certainValue(world, room, "section-path") ?? undefined;
+  const finding = (kind, id, room) => {
+    const name = certainValue(world, id, "name") ?? id, description = certainValue(world, id, "description") ?? "";
+    return { kind, id, name, room, path: pathOf(room), text: [name, id, pathOf(room) ?? "", description].join("\n").toLowerCase() };
+  };
+  return Object.freeze(ids.flatMap(id => {
+    const kind = certainValue(world, id, "kind");
+    if (kind === "room") return [finding("section", id, id)];
+    const room = certainValue(world, id, "located-in");
+    if (certainValue(world, room, "kind") !== "room") return [];
+    const tag = ["office", "package", "skill", "book"].find(tag => values(world, id, "tag").includes(tag));
+    return [finding(tag ?? kind ?? "thing", id, room)];
+  }));
 }
 
 /** FeltOS commands for navigation, conversation and discovery; catalog powers dispatch outside the world. */
-function worldCapability({ game, verbs, affordances = () => ({}), work }) {
-  let found;
-  const findings = () => (found ??= findingsOf(game));
-  const pathOf = (room) => findings().find((f) => f.kind === "section" && f.id === room)?.path;
-  const roomName = (room) => game.rooms[room]?.name ?? room;
+export function worldCapability({ verbs, affordances = () => ({}), work }) {
+  const findings = world => findingsOf(world);
+  const pathOf = (world, room) => certainValue(world, room, "section-path") ?? undefined;
+  const roomName = (world, room) => certainValue(world, room, "name") ?? room;
   const stamp = (at) => new Date(at).toISOString().slice(5, 16).replace("T", " ");
   const workCommands = work === undefined ? {} : {
     quests: (ctx) => {
@@ -398,7 +404,7 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
         if (total === 0) return { events: [ctx.message(ctx.actor, "No work stands unclaimed: every open thread is at home with a micro-enterprise.")] };
         return { events: [ctx.message(ctx.actor, [
           `Unclaimed work: ${plural(total, "thread")} at home nowhere, which no micro-enterprise is seated for, nearest first:`,
-          ...quests.map((quest) => questLine(quest, { nameOf: places.nameOf, roomName })),
+          ...quests.map((quest) => questLine(quest, { nameOf: places.nameOf, roomName: room => roomName(ctx.world, room) })),
           `${total > page * QUESTS ? `Type quests unclaimed ${page + 1} for more; ` : ""}type quest <handle> to read one.`,
         ].join("\n"))] };
       }
@@ -407,11 +413,11 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
       work.stash(ctx.actor, { name: "Work.Quests", data: { room, page, total, quests } });
       if (total === 0) return { events: [ctx.message(ctx.actor, room === PLAZA
         ? "Nothing on the work board is pressing now or soon. Go to a section and type quests for the work it holds."
-        : `No open work is placed at ${roomName(room)} or the rooms it encloses. Type up and quests, or travel plaza for the town's pressing work.`)] };
+        : `No open work is placed at ${roomName(ctx.world, room)} or the rooms it encloses. Type up and quests, or travel plaza for the town's pressing work.`)] };
       return { events: [ctx.message(ctx.actor, [
         room === PLAZA ? `The town's pressing work: ${plural(total, "thread")} whose horizon is now or soon, nearest first:`
-          : `Open work at ${roomName(room)} and the rooms it encloses: ${plural(total, "thread")}, nearest first:`,
-        ...quests.map((quest) => questLine(quest, { nameOf: places.nameOf, ...(quest.room === room ? {} : { roomName }) })),
+          : `Open work at ${roomName(ctx.world, room)} and the rooms it encloses: ${plural(total, "thread")}, nearest first:`,
+        ...quests.map((quest) => questLine(quest, { nameOf: places.nameOf, ...(quest.room === room ? {} : { roomName: room => roomName(ctx.world, room) }) })),
         `${total > page * QUESTS ? `Type quests ${page + 1} for more; ` : ""}type quest <handle> to read one.`,
       ].join("\n"))] };
     },
@@ -430,7 +436,7 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
       return { events: [ctx.message(ctx.actor, [
         `[${quest.handle}] ${[summary.move, summary.step ?? summary.standing, summary.horizon].filter(Boolean).join(" · ")}`,
         `“${summary.gist}”`,
-        `Opened by ${places.nameOf(summary.by)} on ${summary.at.slice(0, 10)}; its work is at ${roomName(quest.room)}${pathOf(quest.room) === undefined ? "" : ` (travel ${pathOf(quest.room)})`}.`,
+        `Opened by ${places.nameOf(summary.by)} on ${summary.at.slice(0, 10)}; its work is at ${roomName(ctx.world, quest.room)}${pathOf(ctx.world, quest.room) === undefined ? "" : ` (travel ${pathOf(ctx.world, quest.room)})`}.`,
         summary.home === undefined ? "" : `At home with ${places.nameOf(summary.home)}.`,
         takers === undefined ? "" : `Taken up by ${takers.map(places.nameOf).join(", ")}.`,
         summary.requirements === undefined ? "" : `Its contract: ${plural(summary.requirements, "requirement")}, ${plural(summary.conditions, "condition")}${summary.refined ? ", refined" : ", not yet refined"}${summary.uncovered?.length ? `; uncovered: ${summary.uncovered.join(", ")}` : ""}.`,
@@ -449,7 +455,7 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
       const { own, house, houses } = journal;
       const shown = (entries) => entries.slice(skip, skip + QUESTS);
       work.stash(ctx.actor, { name: "Work.Journal", data: work.journalPage(journal, { page, all }) });
-      const lines = (entries) => shown(entries).map((entry) => journalLine(entry, { nameOf: places.nameOf, roomName }));
+      const lines = (entries) => shown(entries).map((entry) => journalLine(entry, { nameOf: places.nameOf, roomName: room => roomName(ctx.world, room) }));
       const theirs = listOf(houses.map(places.nameOf));
       const more = Math.max(own.length, all ? house.length : 0) > skip + QUESTS;
       return { events: [ctx.message(ctx.actor, [
@@ -466,11 +472,11 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
       const places = work.places();
       const reading = tellingsReading(work.tellings(), { room, hears: places.hears, limit: 15 });
       work.stash(ctx.actor, { name: "Work.Tellings", data: reading });
-      const where = room === PLAZA ? "in the city" : `at ${roomName(room)}`;
+      const where = room === PLAZA ? "in the city" : `at ${roomName(ctx.world, room)}`;
       if (reading.tellings.length === 0) return { events: [ctx.message(ctx.actor, `Nothing has been told ${where} lately. Type tellings all for the whole city.`)] };
       return { events: [ctx.message(ctx.actor, [
         `Told ${where}, latest last:`,
-        ...reading.tellings.map((telling) => `  ${stamp(telling.at)} [${telling.handle}] ${telling.prose}${telling.room === room ? "" : ` (at ${roomName(telling.room)})`}`),
+        ...reading.tellings.map((telling) => `  ${stamp(telling.at)} [${telling.handle}] ${telling.prose}${telling.room === room ? "" : ` (at ${roomName(ctx.world, telling.room)})`}`),
         "Type quest <handle> to read a thread.",
       ].join("\n"))] };
     },
@@ -485,7 +491,7 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
       const terms = words.filter((w) => !wanted.includes(w));
       // A word matches from the start of a word, so "ice" finds ice but not service.
       const patterns = terms.map((w) => new RegExp(`(?:^|[^a-z0-9])${w.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}`, "u"));
-      const matched = findings().filter((f) => (wanted.length === 0 || wanted.some((w) => w.replace(/s$/u, "") === f.kind)) && patterns.every((pattern) => pattern.test(f.text)));
+      const matched = findings(ctx.world).filter((f) => (wanted.length === 0 || wanted.some((w) => w.replace(/s$/u, "") === f.kind)) && patterns.every((pattern) => pattern.test(f.text)));
       if (matched.length === 0) return { events: [ctx.message(ctx.actor, `Nothing here answers to ${words.join(" ")}. Try fewer or broader words.`)] };
       // Name matches first, then the shallower section: the nearest answer to what was asked.
       const rank = (f) => [patterns.every((pattern) => pattern.test(f.name.toLowerCase())) ? 0 : 1, (f.path ?? "").split("/").length];
@@ -500,29 +506,30 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
       const target = ctx.argument.trim().replace(/\/+$/u, "");
       if (target === "") return { events: [ctx.message(ctx.actor, "Travel where? Type travel <section path or name>, or travel plaza.")] };
       const lower = target.toLowerCase();
-      const sections = findings().filter((f) => f.kind === "section");
+      const sections = findings(ctx.world).filter((f) => f.kind === "section");
       const exact = lower === "plaza" || lower === PLAZA ? [{ id: PLAZA }] : sections.filter((f) => f.id === lower || f.path === target);
-      const candidates = exact.length > 0 ? exact : sections.filter((f) => f.path.endsWith(`/${target}`) || f.name.toLowerCase() === lower || slug(f.path.split("/").pop()) === slug(lower));
+      const candidates = exact.length > 0 ? exact : sections.filter((f) => f.path?.endsWith(`/${target}`) || f.name.toLowerCase() === lower || slug((f.path ?? f.id).split("/").pop()) === slug(lower));
       if (candidates.length === 0) return { events: [ctx.message(ctx.actor, `No section is at ${target}. Type locate ${target} to search for it.`)] };
       if (candidates.length > 1) return { events: [ctx.message(ctx.actor, [`Several sections answer to ${target}; travel to one by its path:`, ...candidates.slice(0, LOCATED).map((f) => `  ${f.path}`)].join("\n"))] };
       const room = candidates[0].id;
-      if (placeOf(ctx.world, ctx.actor) === room) return { events: [ctx.message(ctx.actor, `You are already at ${game.rooms[room].name}. Type look to see it.`)] };
-      const here = Object.entries(game.things).filter(([, thing]) => thing.location === room).map(([, thing]) => thing.name);
+      if (placeOf(ctx.world, ctx.actor) === room) return { events: [ctx.message(ctx.actor, `You are already at ${roomName(ctx.world, room)}. Type look to see it.`)] };
+      const here = contentsOf(ctx.world, room).map(id => certainValue(ctx.world, id, "name") ?? id);
       return {
         world: move(ctx.world, ctx.actor, room, { source: `${CAPABILITY}.travel` }),
         events: [ctx.message(ctx.actor, [
-          `You travel to ${game.rooms[room].name}.`, game.rooms[room].description,
+          `You travel to ${roomName(ctx.world, room)}.`, certainValue(ctx.world, room, "description"),
           here.length > 0 ? `Here: ${here.join("; ")}.` : "",
-          `Exits: ${Object.keys(game.rooms[room].exits).join(", ")}.`,
+          `Exits: ${exitsOf(ctx.world, room).map(exit => exit.direction).join(", ")}.`,
         ].filter(Boolean).join("\n"))],
       };
     },
     report: (ctx) => {
-      const { offices } = standingIn(ctx.world, game.things, ctx.actor);
+      const { offices } = standingIn(ctx.world, ctx.actor);
       if (offices.length === 0) return { events: [ctx.message(ctx.actor, "You hold no office here. Ask the office that seats others to admit you, or look around the plaza.")] };
-      const room = game.things[offices[0]].location;
-      if (placeOf(ctx.world, ctx.actor) === room) return { events: [ctx.message(ctx.actor, `You are already at ${game.rooms[room].name}.`)] };
-      return { world: move(ctx.world, ctx.actor, room, { source: `${CAPABILITY}.report` }), events: [ctx.message(ctx.actor, `You report to ${game.rooms[room].name}, where ${game.things[offices[0]].name} stands.`)] };
+      const room = certainValue(ctx.world, offices[0], "located-in");
+      if (certainValue(ctx.world, room, "kind") !== "room") return { events: [ctx.message(ctx.actor, "Your office has no settled room to report to.")] };
+      if (placeOf(ctx.world, ctx.actor) === room) return { events: [ctx.message(ctx.actor, `You are already at ${roomName(ctx.world, room)}.`)] };
+      return { world: move(ctx.world, ctx.actor, room, { source: `${CAPABILITY}.report` }), events: [ctx.message(ctx.actor, `You report to ${roomName(ctx.world, room)}, where ${roomName(ctx.world, offices[0])} stands.`)] };
     },
     read: (ctx) => {
       const [name, pageToken] = (() => {
@@ -532,36 +539,37 @@ function worldCapability({ game, verbs, affordances = () => ({}), work }) {
       if (name === "") return { events: [ctx.message(ctx.actor, "Read what? Type look to see what is here.")] };
       const room = placeOf(ctx.world, ctx.actor);
       const needle = name.toLowerCase();
-      const book = Object.keys(game.things).find((id) => game.things[id].location === room && values(ctx.world, id, "tag").includes("book")
-        && (needle === "book" || values(ctx.world, id, "slug").includes(needle) || game.things[id].name.toLowerCase() === needle || id.endsWith(`.${segment(needle)}`)));
+      const book = contentsOf(ctx.world, room).find((id) => values(ctx.world, id, "tag").includes("book")
+        && (needle === "book" || values(ctx.world, id, "slug").includes(needle) || roomName(ctx.world, id).toLowerCase() === needle || id.endsWith(`.${segment(needle)}`)));
       if (book === undefined) {
-        const skills = Object.keys(game.things).filter((id) => game.things[id].location === room && values(ctx.world, id, "tag").includes("skill")
-          && (values(ctx.world, id, "slug").includes(name) || values(ctx.world, id, "skill-key").includes(name) || game.things[id].name.toLowerCase() === needle));
+        const skills = contentsOf(ctx.world, room).filter((id) => values(ctx.world, id, "tag").includes("skill")
+          && (values(ctx.world, id, "slug").includes(name) || values(ctx.world, id, "skill-key").includes(name) || roomName(ctx.world, id).toLowerCase() === needle));
         if (skills.length === 0) return { events: [ctx.message(ctx.actor, `There is no ${name} to read here.`)] };
         if (skills.length > 1) return { events: [ctx.message(ctx.actor, `Several skills are named ${name}. Read one by its qualified name:\n${skills.flatMap((id) => values(ctx.world, id, "skill-key")).join("\n")}`)] };
-        const skill = skills[0], method = values(ctx.world, skill, "method")[0];
+        const skill = skills[0], method = certainValue(ctx.world, skill, "method");
+        if (method === null) return { events: [ctx.message(ctx.actor, "No settled method is recorded for this skill.")] };
         if (pageToken !== null) return { events: [ctx.message(ctx.actor, `A skill is a method, not a numbered chapter. Type read ${name}.`)] };
         return { events: [ctx.message(ctx.actor, [
-          game.things[skill].name, `Source: ${method.source}`,
+          roomName(ctx.world, skill), `Source: ${method.source}`,
           `Closure: ${method.closureKind ?? "not declared"}`,
-          `Requires: ${method.requires.join(", ") || "none declared"}`,
+          `Requires: ${(method.requires ?? []).join(", ") || "none declared"}`,
           "Reading this method grants no authority to execute it.",
           typeof method.text === "string" && method.text.trim() !== "" ? method.text.trim() : "No authored method is recorded.",
         ].join("\n\n"))] };
       }
       const pages = [...values(ctx.world, book, "page")].sort((a, b) => a.n - b.n);
       if (pageToken === null) {
-        return { events: [ctx.message(ctx.actor, [`${game.things[book].name}`, ...pages.map((p) => `  ${p.n}. ${p.title}`), `Type read ${name} <number> to read a chapter.`].join("\n"))] };
+        return { events: [ctx.message(ctx.actor, [`${roomName(ctx.world, book)}`, ...pages.map((p) => `  ${p.n}. ${p.title}`), `Type read ${name} <number> to read a chapter.`].join("\n"))] };
       }
       const page = pages.find((p) => p.n === pageToken);
-      return { events: [ctx.message(ctx.actor, page === undefined ? `${game.things[book].name} has no chapter ${pageToken}.` : chapterText(page.file))] };
+      return { events: [ctx.message(ctx.actor, page === undefined ? `${roomName(ctx.world, book)} has no chapter ${pageToken}.` : chapterText(page.file))] };
     },
     powers: (ctx) => {
-      const { offices, verbs: granted } = standingIn(ctx.world, game.things, ctx.actor);
+      const { offices, verbs: granted } = standingIn(ctx.world, ctx.actor);
       const projection = affordances(ctx.actor);
       const line = (entry) => `  ${entry.verb}${entry.summary ? ` — ${entry.summary}` : ""}${entry.scope ? ` [scope: ${entry.scope}]` : ""}`;
       return { events: [ctx.message(ctx.actor, [
-        offices.length === 0 ? "You hold no office here." : `Your offices: ${offices.map((id) => game.things[id].name).join("; ")}.`,
+        offices.length === 0 ? "You hold no office here." : `Your offices: ${offices.map((id) => roomName(ctx.world, id)).join("; ")}.`,
         ...operationAffordanceCategories.filter((category) => projection[category]?.length).flatMap((category) => [
           `${category[0].toUpperCase()}${category.slice(1)} operations (type a power, then its input as key=value pairs or JSON):`,
           ...projection[category].map(line),
@@ -624,13 +632,18 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
       const subject = [...actors].find(([, character]) => actorIdFor(character) === actor)?.[0] ?? actor;
       return projectOperationAffordances(operation === undefined ? [...catalog.values()] : [operation], readStanding(binding, subject), subject);
     };
-    const world = { agency, game, actors, root };
-    const server = createMudServer(game, { runtime: composeCapabilities([worldCapability({ game, verbs: catalog, affordances, work: workOf(world) })]) });
+    const world = { agency, game, actors, root, affordances };
+    const server = createMudServer(game, { runtime: composeCapabilities([worldCapability({ verbs: catalog, affordances, work: workOf(world) })]) });
     state = Object.assign(world, { server });
     return state;
   };
   // The section tree is read once per release; a world is built once and reused until the agency changes.
   const current = async () => state ?? (building ??= build().finally(() => { building = undefined; }));
+  const situationOf = (world, actor) => {
+    const place = world.server.situatedActions(actor), projection = world.affordances(actor);
+    const powers = operationAffordanceCategories.flatMap(category => (projection[category] ?? []).map(power => Object.freeze({ command: power.verb, description: power.summary ?? power.verb, ref: power.ref, ...(power.scope === undefined ? {} : { scope: power.scope }) })));
+    return Object.freeze({ ...place, actions: Object.freeze([...place.actions, ...powers]) });
+  };
   // The character an account enters as: its first settled mask, else itself.
   const characterOf = (account) => providersOfAccount(binding, account)[1] ?? account;
   let pulse, tellings, quests;
@@ -638,7 +651,7 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
   // board's quests read through it. What a command showed as data waits for its turn here.
   const stashed = new Map();
   const heardTo = new Map();
-  const placesOf = (world) => (world.places ??= worldPlaces({ game: world.game, agency: world.agency, plaza: PLAZA, characterName: (player) => characterNameIn(world.agency, player) }));
+  const placesOf = (world) => worldPlaces({ world: world.server.engine().world, agency: world.agency, plaza: PLAZA, characterName: (player) => characterNameIn(world.agency, player) });
   const workOf = (world) => Object.freeze({
     places: () => placesOf(world),
     tellings: () => (tellings ??= createTellings({ dataRoot: binding.dataRoot })).read(placesOf(world)),
@@ -696,7 +709,7 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
     const reading = tellingsReading(told, { since: since ?? 0, room, hears: placesOf(world).hears, limit: since === undefined ? 5 : Infinity });
     if (reading.tellings.length === 0) return { lines: [], packages: [] };
     const shown = reading.tellings.slice(-OVERHEARD);
-    const name = (at) => world.game.rooms[at]?.name ?? at;
+    const name = (at) => certainValue(world.server.engine().world, at, "name") ?? at;
     return {
       lines: [[since === undefined ? `Lately ${room === PLAZA ? "in the city" : "here"}:` : "Meanwhile:",
         ...shown.map((telling) => `  [${telling.handle}] ${telling.prose}${telling.room === room ? "" : ` (at ${name(telling.room)})`}`),
@@ -745,12 +758,12 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
 
   // Where the house's work happens in a built world: its rooms, offices and enterprises, and where
   // each connected character stands.
-  const sitesOf = (world) => (world.sites ??= pulseSites({ game: world.game, agency: world.agency, root: world.root, characterOf,
+  const sitesOf = (world) => pulseSites({ world: world.server.engine().world, agency: world.agency, root: world.root, characterOf,
     characterName: (character) => nameOfCharacter(world.agency, character),
     standing: (account) => {
       const character = world.actors.get(account);
       return character === undefined ? undefined : placeOf(world.server.engine().world, actorIdFor(character)) ?? undefined;
-    } }));
+    } });
 
   /** Invoke an installed catalog power from the account's current standing without a world turn. */
   async function directPower(account, line, parent) {
@@ -904,7 +917,7 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
       : await characterCommunication.tell({ account, recipient: target, text, at });
     return powerTurn(account, [`Submitted ${result.id} to ${result.recipient}; remote reading awaits evidence.`], [result]);
   }
-  const roomNameIn = (world, room) => world.game.rooms[room]?.name ?? room;
+  const roomNameIn = (world, room) => certainValue(world.server.engine().world, room, "name") ?? room;
 
   // A drawing client asks for the character's perception frame with its turn; a reading one does
   // not carry it.
@@ -919,7 +932,8 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
     return Object.freeze({ kind: "metroplat.world.turn", actor, character: actors.get(account),
       messages: Object.freeze([...events.map((e) => e.text), ...brief.lines, ...heard.lines]), results: Object.freeze([]),
       ...(packages.length === 0 ? {} : { packages: Object.freeze(packages) }),
-      ...(frame ? { frame: worldFrame(server.engine(), actor) } : {}) });
+      situation: situationOf(world, actor),
+      ...(frame ? { frame: worldFrame(server.engine(), actor, situationOf(world, actor)) } : {}) });
   }
 
   return Object.freeze({
@@ -951,8 +965,8 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
       const direct = await communicationTurn(account, line, parent) ?? await playedMove(account, line, parent) ?? await directPower(account, line, parent);
       if (direct !== undefined) {
         if (state?.actors.has(account)) seen(state, account, direct.actor);
-        if (!options.frame || state === undefined || !state.actors.has(account)) return direct;
-        return Object.freeze({ ...direct, frame: worldFrame(state.server.engine(), direct.actor) });
+        if (state === undefined || !state.actors.has(account)) return direct;
+        return Object.freeze({ ...direct, situation: situationOf(state, direct.actor), ...(options.frame ? { frame: worldFrame(state.server.engine(), direct.actor, situationOf(state, direct.actor)) } : {}) });
       }
       if (state && state.agency !== agencyAt(agencyRootOf(binding))) state = undefined;
       const world = await current();
@@ -975,7 +989,7 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
     /** The whole city as data, for a client to draw; the same for every account. */
     async atlas() {
       const world = await current();
-      return (world.atlas ??= worldAtlas(world.game));
+      return worldAtlas(world.game, world.server.engine().world);
     },
     /** The house at work: who is doing what where, and how warm each room is, since `since`. */
     async pulse(since = 0) {
@@ -987,7 +1001,7 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
     async tellings({ since = 0, room, thread, limit } = {}) {
       const world = await current();
       const places = placesOf(world);
-      const at = room === undefined ? undefined : world.game.rooms[room] !== undefined ? room : places.roomAt(room);
+      const at = room === undefined ? undefined : certainValue(world.server.engine().world, room, "kind") === "room" ? room : places.roomAt(room);
       if (room !== undefined && at === undefined) throw new TypeError(`world-tellings: no room is at ${room}`);
       return tellingsReading(workOf(world).tellings(), { since, room: at, thread, hears: places.hears, ...(limit === undefined ? {} : { limit }) });
     },
