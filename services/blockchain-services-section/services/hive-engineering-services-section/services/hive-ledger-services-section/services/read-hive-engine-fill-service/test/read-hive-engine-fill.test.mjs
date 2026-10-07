@@ -3,12 +3,13 @@ import test from "node:test";
 import { readHiveEngineFill } from "../scripts/read-hive-engine-fill.mjs";
 
 function jsonResponse(body) {
-  return { json: async () => body };
+  return new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
 }
 
 function fakeFetch(byNode) {
   return async (url) => {
-    const node = url.replace(/\/rpc\/blockchain$/u, "");
+    const node = url.replace(/\/blockchain$/u, "");
+    assert.ok(Object.hasOwn(byNode, node), `unexpected fixture endpoint: ${url}`);
     return jsonResponse(byNode[node]);
   };
 }
@@ -128,4 +129,33 @@ test("a multi-operation array result with no exact transactionId match refuses a
   });
   assert.equal(result.ok, false);
   assert.equal(result.refusal.reason, "ambiguous-result");
+});
+
+
+test("singleton records must still identify the requested transaction", async () => {
+  for (const operation of [SELL_RESULT, [SELL_RESULT], { ...SWAP_RESULT, transactionId: undefined }]) {
+    const fetchImpl = fakeFetch({
+      "https://node-a": { jsonrpc: "2.0", id: 1, result: operation },
+      "https://node-b": { jsonrpc: "2.0", id: 1, result: operation },
+    });
+    const result = await readHiveEngineFill({ transactionId: SWAP_TX, account: "michael561", date: "2026-09-05",
+      nodes: ["https://node-a", "https://node-b"], fetchImpl });
+    assert.equal(result.ok, false);
+    assert.equal(result.refusal.reason, "ambiguous-result");
+  }
+});
+
+test("missing hashes remain missing evidence rather than matching witnesses", async () => {
+  const withoutHash = { ...SWAP_RESULT };
+  delete withoutHash.databaseHash;
+  for (const first of [SWAP_RESULT, withoutHash]) {
+    const fetchImpl = fakeFetch({
+      "https://node-a": { jsonrpc: "2.0", id: 1, result: first },
+      "https://node-b": { jsonrpc: "2.0", id: 1, result: withoutHash },
+    });
+    const result = await readHiveEngineFill({ transactionId: SWAP_TX, account: "michael561", date: "2026-09-05",
+      nodes: ["https://node-a", "https://node-b"], fetchImpl });
+    assert.equal(result.ok, false);
+    assert.equal(result.refusal.reason, "missing-witness-hash");
+  }
 });

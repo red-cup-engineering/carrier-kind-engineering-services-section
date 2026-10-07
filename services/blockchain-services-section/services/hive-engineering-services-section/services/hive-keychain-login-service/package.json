@@ -10,6 +10,10 @@
   "dependencies": {
     "@red-cup-engineering/verify-hive-signed-message-service": "workspace:*"
   },
+  "devDependencies": {
+    "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-data-service": "0.1.0"
+  },
   "files": [
     "src",
     "package.json",

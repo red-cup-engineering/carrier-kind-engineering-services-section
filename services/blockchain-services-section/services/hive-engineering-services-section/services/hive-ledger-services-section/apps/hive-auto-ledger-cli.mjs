@@ -229,7 +229,7 @@ if (import.meta.main) {
   });
   if (!values.account) {
     process.stderr.write("usage: hive-auto-ledger-cli --account <name> [--range-start YYYY-MM-DD] [--range-end YYYY-MM-DD] --out <path>\n");
-    process.stderr.write("  --out defaults to this section's data/records/<rangeEnd>-<account>-hive-account-ledger.beancount\n");
+    process.stderr.write("  --out is required and names the receiving ledger path\n");
     process.exit(2);
   }
   try {

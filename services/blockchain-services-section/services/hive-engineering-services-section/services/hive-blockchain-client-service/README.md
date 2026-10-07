@@ -6,9 +6,9 @@ Hive transactions. Fleet operations and Hive computing use this client directly.
 - `src/client.mjs` exposes `HiveClient`: every read, and role-specific signing and submission for social, wallet, savings, conversion, delegation and market operations.
 - `src/ops.mjs` and `src/serialize.mjs` hold Hive operation fields and binary wire rules.
 - `src/keys.mjs` and `src/transaction.mjs` handle Hive key formats and transaction identity.
-- Cryptographic primitives come from `cryptographic-computer-data-engineering-services-section`.
-- Base58 comes from `computer-data-serialization-services-section/base58`.
-- Bounded HTTP exchanges come from `http-services-section/json-rpc`; `src/rpc.mjs`
+- Cryptographic primitives come from `@red-cup-engineering/cryptographic-data-service`.
+- Base58 comes from `@red-cup-engineering/base58-encoding-service`.
+- Bounded HTTP exchanges come from `@red-cup-engineering/json-rpc-transport-service`; `src/rpc.mjs`
   supplies the Hive endpoint rotation and failover policy.
 
 Run the offline crypto, serialization, RPC failover, and transaction proofs with
