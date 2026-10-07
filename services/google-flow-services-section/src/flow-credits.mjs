@@ -84,7 +84,7 @@ export function flowCreditReport({ config = loadFlowAllowanceConfig(), readings,
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.main) {
   const flow = await openGoogleFlow();
   const at = new Date().toISOString();
   const { balance, renewsAt } = await flow.credits();
@@ -96,6 +96,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const storePath = allowanceLedgerPath();
   recordAllowanceEvidence(allowance, readings.map(balanceEvidence), { storePath });
   const report = flowCreditReport({ config, readings, now: at });
-  const lapses = allowanceLedgerLapses(allowance, { storePath, since: readings[0].at, now: at });
+  const lapses = readings[0].at < at ? allowanceLedgerLapses(allowance, { storePath, since: readings[0].at, now: at }) : [];
   process.stdout.write(`${JSON.stringify({ ...report, lapses }, null, 2)}\n`);
 }

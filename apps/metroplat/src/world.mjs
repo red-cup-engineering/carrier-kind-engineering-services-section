@@ -618,13 +618,12 @@ export function createMetroplatWorld({ binding, operations, identity, characterC
   let state, building;
   const build = async () => {
     const root = agencyRootOf(binding);
-    const sections = await sectionSummariesAt(root);
     const agency = agencyAt(root);
     const seats = new Map();
     const holders = new Set([...readIncumbencyClaims(binding.dataRoot).map((c) => c.incumbent), ...readCharacterMasks(binding.dataRoot).map((m) => m.account)]);
     for (const holder of holders) seats.set(holder, officesOfAccount(binding, holder, agency).map((o) => o.office));
     const catalog = new Map(operations().filter((op) => !ENTRYPOINTS.has(op.verb)).map((op) => [op.verb, op]));
-    const game = metroplatGame(agency, { root, sections, seats, identity });
+    const game = metroplatGame(agency, { root, seats, identity });
     const actors = new Map();
     // Delegated powers change with the duty frontier, so they are read live, never seated.
     const affordances = (actor, operation) => {

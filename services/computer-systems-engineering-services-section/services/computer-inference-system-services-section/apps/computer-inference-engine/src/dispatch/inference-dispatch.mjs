@@ -233,7 +233,7 @@ async function attemptDirectEndpointLane({ input, workLot, taskClass, customer, 
   };
   if (!Array.isArray(descriptors) || descriptors.length === 0) return { delivered: null, refusals, timing: { routeDecisionMs: 0, executionMs: 0 } };
   const eligible = descriptors.filter((descriptor) => {
-    const reasons = directEndpointAdmissionReasons(descriptor);
+    const reasons = directEndpointAdmissionReasons(descriptor,{zeroCashOnly:input.zeroCashOnly === true});
     for (const reason of reasons) refusals.push({ provider: descriptor.provider, reason });
     return reasons.length === 0;
   });
@@ -245,7 +245,7 @@ async function attemptDirectEndpointLane({ input, workLot, taskClass, customer, 
   });
   let childSequence = 0;
   if (input.agentBounds && !input.chatCompletion) execution = { ...execution, delegation: async (child) => {
-    const result = await attemptDirectEndpointLane({ input: { ...input, objective: child.objective }, workLot: `${workLot}:child:${++childSequence}`, taskClass, customer, descriptors, invoke, tools: child.tools, toolHandlers: child.toolHandlers, execution: { ...child, pricingRoot, ...(execution.resourceReservations ? { resourceReservations: execution.resourceReservations } : {}) }, pricingRoot, registerDelivery });
+    const result = await attemptDirectEndpointLane({ input: { ...input, objective: child.objective }, workLot: `${workLot}:child:${++childSequence}`, taskClass, customer, descriptors, invoke, tools: child.tools, toolHandlers: child.toolHandlers, execution: { ...child, pricingRoot, zeroCashOnly: input.zeroCashOnly === true, ...(execution.resourceReservations ? { resourceReservations: execution.resourceReservations } : {}) }, pricingRoot, registerDelivery });
     return result.delivered ?? { type: "ReceiverToolRefusal", operation: "delegate_inference", reason: "child-route-exhausted", refusals: result.refusals, prohibitedEffectsPerformed: false };
   } };
   const schema = input.outputSchema ?? null;
@@ -755,6 +755,7 @@ async function performInferenceDispatch(input, {
   }
   const execution = {
     pricingRoot,
+    zeroCashOnly:input.zeroCashOnly === true,
     ...(input.chatCompletion ? { interaction: "assistant-turn" } : {}),
     budget: createToolAgentBudget({
       ...(limits.requests === undefined ? {} : { maximumRequests: limits.requests }),
@@ -777,8 +778,8 @@ async function performInferenceDispatch(input, {
   // consumption is measured exchange by exchange, fails closed before market contact.
   // Signed offers do not declare quality tiers. A tier-constrained lot may
   // use only direct offers whose declared tiers the placement law can inspect.
-  const suppliers = (resourceReservations || input.chatCompletion || input.agentBounds || input.workPlacement || input.requiredQualityTiers?.length > 0 || receiverTools.tools.length > 0 ? [] : providers).filter(({ actor, id }) => !excluded.has(actor) && !excluded.has(id)).map((provider) => supplier(provider, signal));
-  if (suppliers.length === 0 && admittedDirect.length === 0 && !input.agentBounds && !input.chatCompletion) throw new Error("the work lot excluded every advertised provider");
+  const suppliers = (resourceReservations || input.chatCompletion || input.agentBounds || input.zeroCashOnly || input.workPlacement || input.requiredQualityTiers?.length > 0 || receiverTools.tools.length > 0 ? [] : providers).filter(({ actor, id }) => !excluded.has(actor) && !excluded.has(id)).map((provider) => supplier(provider, signal));
+  if (!input.zeroCashOnly && suppliers.length === 0 && admittedDirect.length === 0 && !input.agentBounds && !input.chatCompletion) throw new Error("the work lot excluded every advertised provider");
   const workType = input.workType ?? "inquiry";
   const taskClass = input.taskClass?.trim() || workType;
   const requiredCapabilities = [...new Set([

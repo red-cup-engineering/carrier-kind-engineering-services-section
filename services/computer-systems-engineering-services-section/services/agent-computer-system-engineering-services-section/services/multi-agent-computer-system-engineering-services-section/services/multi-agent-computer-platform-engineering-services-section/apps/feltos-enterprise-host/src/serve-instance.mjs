@@ -315,6 +315,7 @@ export function createEnterpriseServicePlatform({
         workPeerActor: config.workPeerActor ?? null,
         release: environment.GUIX_MACHINE_RELEASE_ID ?? null,
         releasePipeline: environment.GUIX_MACHINE_ARTIFACT ? "github-guix" : null,
+        releaseProtocolVersion: environment.GUIX_MACHINE_ARTIFACT ? 1 : null,
         artifact: environment.GUIX_MACHINE_ARTIFACT ?? null,
         deployment: (() => {
           if (!environment.GUIX_MACHINE_DEPLOYMENT_STATUS) return null;

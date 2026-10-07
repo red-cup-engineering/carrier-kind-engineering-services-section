@@ -326,3 +326,36 @@ test('an unresponsive Google request is aborted so another channel can progress'
  await assert.rejects(stalled.verifyIdentity(),{name:'TimeoutError'});
  const healthy=make(fake().fetchImpl);assert.equal((await healthy.verifyIdentity()).id,channelId);
 });
+
+
+test('an invalidated owned observation remains planning evidence but cannot authorize a cached read or mutation',async t=>{
+ const root=await mkdtemp(join(tmpdir(),'youtube-last-observation-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ const owned={...structuredClone(video),snippet:{...video.snippet,title:'Original'}};
+ let quota=false,requests=0;
+ const mock=fake({uploads:[owned],effect(){return json({error:{errors:[{reason:'quotaExceeded'}]}},403);}});
+ const options={channelId,refreshTokenEnv:'CHANNEL_TOKEN',env:{...env,YOUTUBE_OAUTH_CLIENT_ID:'preserved-observation',YOUTUBE_API_STATE_ROOT:root},authorize:async()=>{},fetchImpl:async(url,opts)=>{
+  requests++;if(quota&&!url.includes('oauth2'))return json({error:{errors:[{reason:'quotaExceeded'}]}},403);
+  return mock.fetchImpl(url,opts);
+ }};
+ const client=createYouTube(options);await client.listUploads();
+ await assert.rejects(client.setTitle({videoId,title:'New title'}),e=>e.reason==='quotaExceeded');quota=true;
+ const restarted=createYouTube(options),before=requests,prior=restarted.lastObservedUploads();
+ assert.equal(prior.uploads[0].snippet.title,'Original');assert.ok(prior.invalidatedAt);
+ prior.uploads[0].snippet.title='Caller corruption';assert.equal(restarted.lastObservedUploads().uploads[0].snippet.title,'Original');
+ await assert.rejects(restarted.listUploads(),e=>e.reason==='quotaExceeded');
+ await assert.rejects(restarted.listUploads({fresh:true}),e=>e.reason==='quotaExceeded');
+ assert.equal(requests,before);
+ const wrongGrant=createYouTube({...options,env:{...options.env,CHANNEL_TOKEN:'different-owned-grant'}});assert.equal(wrongGrant.lastObservedUploads(),null);
+});
+
+test('Data API quota does not block channel-bound Analytics reports',async()=>{
+ const calls=[],client=createYouTube({channelId,refreshTokenEnv:'CHANNEL_TOKEN',env:{...env,YOUTUBE_OAUTH_CLIENT_ID:'independent-analytics'},authorize:async()=>{},fetchImpl:async url=>{
+  calls.push(url);
+  if(url.includes('oauth2'))return json({access_token:'access'});
+  if(url.startsWith('https://youtubeanalytics.googleapis.com/')){assert.equal(new URL(url).searchParams.get('ids'),'channel=='+channelId);return json({columnHeaders:[{name:'views'}],rows:[[10]]});}
+  return json({error:{errors:[{reason:'quotaExceeded'}]}},403);
+ }});
+ await assert.rejects(client.getVideo(videoId),e=>e.reason==='quotaExceeded');const before=calls.length;
+ const reports=await client.audienceReports();assert.equal(reports.videos.status,'observed');assert.equal(reports.traffic.rows[0].views,10);assert.equal(reports.questions.status,'unavailable');
+ assert.equal(calls.length-before,3);assert(calls.slice(before).every(url=>url.startsWith('https://youtubeanalytics.googleapis.com/')));
+});
