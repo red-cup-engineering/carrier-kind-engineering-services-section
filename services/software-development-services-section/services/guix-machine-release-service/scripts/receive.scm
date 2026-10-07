@@ -36,6 +36,18 @@
               (error "candidate is not ready"))))
       (lambda args (if (> left 1) (begin (sleep 3) (loop (- left 1))) (apply throw args))))))
 
+(define (configuration-commands config action store)
+  (for-each
+    (lambda (spec)
+      (let ((command (assoc-ref spec action)))
+        (when command
+          (apply run (map (lambda (word)
+            (let ((position (string-contains word "{release}")))
+              (if position (string-append (substring word 0 position) store
+                                          (substring word (+ position 9))) word)))
+                         (vector->list command))))))
+    (vector->list (or (assoc-ref config "configurationFiles") #()))))
+
 (define (root-release-generations config store current previous)
   (let* ((root (field config "gcRoot"))
          (script (string-append store "/.controller/scripts/register-candidate-root.scm")))
@@ -91,7 +103,9 @@
                                      (string-append store "/.guix-systemd/" name)))
                   (vector->list (or (assoc-ref config "auxiliaryUnits") #())))
              (map (lambda (spec) (cons (field spec "path") (string-append store "/bin/owning-repository-release-only")))
-                  (vector->list (or (assoc-ref config "retiredDeployers") #())))))
+                  (vector->list (or (assoc-ref config "retiredDeployers") #())))
+             (map (lambda (spec) (cons (field spec "path") (string-append store "/" (field spec "source"))))
+                  (vector->list (or (assoc-ref config "configurationFiles") #())))))
          (managed-backups '())
          (managed-changed? #f))
     (unless (and (equal? repository (field config "repository"))
@@ -152,6 +166,7 @@
                                  (list (string-append store "/bin/node")
                                        (string-append store "/" (field check "program")))))))
           (vector->list (or (assoc-ref config "auxiliaryChecks") #())))
+        (configuration-commands config "validate" store)
         (set! stage "pre-switch-check")
         (if stage-only?
           (begin
@@ -202,6 +217,7 @@
                     (rename-file (string-append (car file) ".next") (car file))) managed-files)
         (run "systemctl" "--user" "daemon-reload")
         (run "systemctl" "--user" "restart" unit)
+        (configuration-commands config "reload" store)
         (set! stage "live-check")
         (health (field config "health") store)
         ;; Stable roots retain both rollback targets; older profile generations
@@ -235,6 +251,7 @@
             (begin (copy-file unit-backup (string-append unit-file ".next"))
                    (rename-file (string-append unit-file ".next") unit-file)))
           (system* "systemctl" "--user" "daemon-reload")
+          (configuration-commands config "reload" store)
           (when was-running?
             (run "systemctl" "--user" "restart" unit)
             (health (field config "health"))))
