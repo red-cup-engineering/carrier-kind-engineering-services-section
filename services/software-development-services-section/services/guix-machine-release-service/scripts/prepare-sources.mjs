@@ -57,8 +57,8 @@ export function prepare({ repositories, entries, owners, dependencyPins = {}, ou
     const target = resolve(root, 'packages', name.replaceAll('/', '__'));
     mkdirSync(target, { recursive: true });
     const sourceRepository = repositories.find(r => r.repository === p.repository).directory;
-    const records = command('git', ['ls-tree', '-rz', '--format=%(objectmode) %(objectname) %(path)', p.commit, '--', p.path], sourceRepository).split('\0').filter(Boolean);
-    const files=records.filter(record=>/^(100644|100755) /.test(record)).map(record=>({mode:record.slice(0,6),oid:record.slice(7,47),file:record.slice(48)})).filter(({file})=>!file.split('/').some(x=>['node_modules','.git','legacy'].includes(x)));
+    const records = command('git', ['ls-tree','-rz',p.commit,'--',p.path], sourceRepository).split('\0').filter(Boolean);
+    const files=records.map(record=>{const tab=record.indexOf('\t');const [mode,type,oid]=record.slice(0,tab).split(' ');return {mode,type,oid,file:record.slice(tab+1)}}).filter(({mode,file})=>['100644','100755'].includes(mode)&&!file.split('/').some(x=>['node_modules','.git','legacy','vendor'].includes(x)));
     // Read the immutable object set in one batch rather than one process per file.
     const batch=spawnSync('git',['cat-file','--batch'],{cwd:sourceRepository,input:files.map(f=>f.oid+'\n').join(''),maxBuffer:256*1024*1024});
     if(batch.error||batch.status!==0)throw batch.error??new Error('cannot read source object batch');
