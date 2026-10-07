@@ -2,6 +2,7 @@ import { open, stat } from 'node:fs/promises';
 import { createReadStream, existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
+import { setTimeout as delay } from 'node:timers/promises';
 
 const API = 'https://www.googleapis.com/youtube/v3/';
 const UPLOAD = 'https://www.googleapis.com/upload/youtube/v3/';
@@ -22,6 +23,13 @@ function privateJson(path,value) {
   const temporary=path+'.'+process.pid+'.tmp';writeFileSync(temporary,JSON.stringify(value),{mode:0o600});renameSync(temporary,path);
 }
 function remove(path) {if(path)try{unlinkSync(path);}catch(error){if(error.code!=='ENOENT')throw error;}}
+
+// videos.update replaces mutable fields in its requested part. Preserve the
+// existing distribution and license settings when changing visibility.
+function publicationStatus(video, changes) {
+  const { license, embeddable, publicStatsViewable, selfDeclaredMadeForKids, containsSyntheticMedia } = video.status;
+  return { license, embeddable, publicStatsViewable, selfDeclaredMadeForKids, containsSyntheticMedia, ...changes };
+}
 
 function futureUtc(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z$/.test(value) || !Number.isFinite(Date.parse(value)) || Date.parse(value) <= Date.now()) {
@@ -70,6 +78,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   if (typeof authorize !== 'function') throw new Error('YouTube requires an effect authorization function');
   if (!refreshTokenEnv || !env[refreshTokenEnv]) throw new Error(`Missing channel credential: ${refreshTokenEnv || 'refreshTokenEnv'}`);
   for (const name of ['YOUTUBE_OAUTH_CLIENT_ID', 'YOUTUBE_OAUTH_CLIENT_SECRET']) if (!env[name]) throw new Error(`Missing credential: ${name}`);
+  if(!Number.isInteger(requestTimeoutMs)||requestTimeoutMs<1||!Number.isInteger(uploadTimeoutMs)||uploadTimeoutMs<1)throw new Error('YouTube transport deadlines must be positive integer milliseconds');
   let token, expires = 0;
   const root=env.YOUTUBE_API_STATE_ROOT??(env.HOME?join(env.HOME,'.local/state/561-group/youtube'):null);
   const fingerprint=value=>createHash('sha256').update(value).digest('hex');
@@ -89,6 +98,17 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     const reading={reason:'quotaExceeded',observedAt:new Date(clock()).toISOString(),retryAt:nextYouTubeQuotaReset(clock()),bucket};
     quotaWaits.set(project+':'+bucket,reading);const path=quotaPath(bucket);if(path)privateJson(path,reading);
   }
+  function lastObservedUploads() {
+    if(!inventoryPath||!existsSync(inventoryPath))return null;
+    let saved;try{saved=JSON.parse(readFileSync(inventoryPath,'utf8'));}catch{remove(inventoryPath);return null;}
+    if(saved?.channelId!==channelId||!Array.isArray(saved.uploads)||saved.uploads.some(v=>v.snippet?.channelId!==channelId)||!Number.isFinite(Date.parse(saved.observedAt))||Date.parse(saved.observedAt)>clock())return null;
+    return structuredClone(saved);
+  }
+  function invalidateUploads() {
+    uploadObservation=undefined;
+    const saved=lastObservedUploads();
+    if(saved)privateJson(inventoryPath,{...saved,invalidatedAt:new Date(clock()).toISOString()});
+  }
   // Reuse one owned inventory within a production turn. Individual video reads
   // still observe current state before every edit, and upload reconciliation
   // always bypasses this cache before deciding whether to create a session.
@@ -96,7 +116,8 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   let identityObservation, identityObservedAt = 0, uploadObservation, uploadsObservedAt = 0;
   async function request(operation, url, options) {
     await authorize(operation, {provider:'youtube',url:String(url),method:options?.method ?? 'GET'});
-    return fetchImpl(url, options);
+    const deadline=AbortSignal.timeout(operation==='youtube.upload'?uploadTimeoutMs:requestTimeoutMs);
+    return fetchImpl(url,{...options,signal:options?.signal?AbortSignal.any([options.signal,deadline]):deadline});
   }
   async function authorized(url, options = {}, operation = 'youtube.observe') {
     const dataApi=url.startsWith(API)||url.startsWith(UPLOAD);
@@ -111,8 +132,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     }
     if (options.method && options.method !== 'GET' && (url.startsWith(API + 'videos?') || url.startsWith(UPLOAD))) {
       // Invalidate before attempting the write: a lost response is ambiguous.
-      uploadObservation = undefined;
-      remove(inventoryPath);
+      invalidateUploads();
     }
     const response=await request(operation, url, { ...options, redirect: 'manual', headers: { ...options.headers, Authorization: `Bearer ${token}` } });
     if(dataApi&&response.status===403){const body=await response.clone().json().catch(()=>null);if(body?.error?.errors?.some(item=>item.reason==='quotaExceeded'))retainQuota(bucket);}
@@ -137,7 +157,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   }
   async function getVideo(videoId) {
     if (!/^[\w-]{11}$/.test(videoId ?? '')) throw new Error('Invalid YouTube video ID');
-    const result = await api(`videos?part=snippet,status,processingDetails&id=${encodeURIComponent(videoId)}`);
+    const result = await api(`videos?part=snippet,status,processingDetails,contentDetails,fileDetails,statistics&id=${encodeURIComponent(videoId)}`);
     return result.items?.[0] ?? null;
   }
   async function ownVideo(videoId) {
@@ -157,7 +177,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       const listing = await api(`playlistItems?part=contentDetails&maxResults=50&playlistId=${encodeURIComponent(playlist)}${page ? `&pageToken=${encodeURIComponent(page)}` : ''}`);
       const ids = (listing.items ?? []).map(item => item.contentDetails?.videoId).filter(Boolean);
       if (ids.length) {
-        const batch = await api(`videos?part=snippet,status,processingDetails&id=${ids.map(encodeURIComponent).join(',')}`);
+        const batch = await api(`videos?part=snippet,status,processingDetails,contentDetails,fileDetails,statistics&id=${ids.map(encodeURIComponent).join(',')}`);
         for (const video of batch.items ?? []) {
           if (video.snippet?.channelId !== channelId) throw new Error('Uploads playlist returned another channel video');
           videos.push(video);
@@ -168,11 +188,9 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     return videos;
   }
   async function listUploads({ fresh = false } = {}) {
-    if(!fresh&&inventoryPath&&existsSync(inventoryPath)) {
-      let saved;try{saved=JSON.parse(readFileSync(inventoryPath,'utf8'));}catch{remove(inventoryPath);}
-      if(saved?.channelId===channelId&&Array.isArray(saved.uploads)&&saved.uploads.every(v=>v.snippet?.channelId===channelId)&&clock()-Date.parse(saved.observedAt)<inventoryTtl&&clock()>=Date.parse(saved.observedAt))return structuredClone(saved.uploads);
-    }
-    // A write in another channel client/process removes the shared snapshot.
+    const saved=!fresh?lastObservedUploads():null;
+    if(saved&&!saved.invalidatedAt&&clock()-Date.parse(saved.observedAt)<inventoryTtl)return structuredClone(saved.uploads);
+    // A write invalidates the snapshot; its earlier observation remains planning evidence.
     // Never resurrect it from this client's older in-memory observation.
     if(inventoryPath)uploadObservation=undefined;
     if (fresh || (token && Date.now() >= expires) || Date.now() - uploadsObservedAt >= OBSERVATION_TTL) uploadObservation = undefined;
@@ -220,7 +238,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       if (metadata.tags !== undefined && (!Array.isArray(metadata.tags) || metadata.tags.some(tag => typeof tag !== 'string'))) throw new Error('Video tags must be strings');
       const response = await authorized(UPLOAD + 'videos?uploadType=resumable&part=snippet,status', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Upload-Content-Type': 'video/mp4', 'X-Upload-Content-Length': String(size) },
-        body: JSON.stringify({ snippet: { title: metadata.title, description, tags: metadata.tags ?? [], categoryId: '27' }, status: { privacyStatus: 'private', ...(when ? { publishAt: when } : {}), selfDeclaredMadeForKids: false, containsSyntheticMedia: true } }),
+        body: JSON.stringify({ snippet: { title: metadata.title, description, tags: metadata.tags ?? [], categoryId: '27', ...(language?{defaultLanguage:new Intl.Locale(language).toString(),defaultAudioLanguage:new Intl.Locale(language).toString()}:{}) }, status: { privacyStatus: 'private', ...(when ? { publishAt: when } : {}), selfDeclaredMadeForKids: false, containsSyntheticMedia: true } }),
       }, 'youtube.upload');
       if (!response.ok) await responseJson(response);
       await save({ phase: 'uploading', sessionUrl: sessionAddress(response.headers.get('location')), nextOffset: 0 });
@@ -336,7 +354,8 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     return saved;
   }
   async function audienceReports({now=new Date()}={}) {
-    await verifyIdentity();
+    // Analytics authorizes the explicit channel ID itself. Requiring a Data API
+    // identity request here made an unrelated quota stop every analytics report.
     const endDate=new Date(now.getTime()-86400000).toISOString().slice(0,10),startDate=new Date(now.getTime()-31*86400000).toISOString().slice(0,10);
     const queries=[
       ['videos',{dimensions:'video',metrics:'views,estimatedMinutesWatched,averageViewPercentage,subscribersGained',sort:'-views',maxResults:'100'}],
@@ -428,7 +447,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     if(videoIds.some((id,index)=>ordered[index]!==id))throw new Error('YouTube did not retain the curriculum order');
     return {playlistId:playlist.id,url:'https://www.youtube.com/playlist?list='+playlist.id,videoIds:ordered,verifiedAt:new Date().toISOString(),carrier:'youtube-playlist'};
   }
-  return { audienceReports, verifyIdentity, listUploads, upload, setThumbnail, getVideo, schedule, setTitle, setRelatedVideo, publish, unlist, ensureLearningPlaylist, setLearningLinks, ensureLearningCourse };
+  return { audienceReports, verifyIdentity, listUploads, lastObservedUploads, upload, setThumbnail, getVideo, schedule, setTitle, setRelatedVideo, publish, unlist, ensureLearningPlaylist, setLearningLinks, ensureLearningCourse };
 }
 
 function nextOffset(response, size) {
