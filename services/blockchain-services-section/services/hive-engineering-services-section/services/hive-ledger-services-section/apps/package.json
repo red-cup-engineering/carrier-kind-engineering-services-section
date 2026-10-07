@@ -22,7 +22,7 @@
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
     "@red-cup-engineering/read-hive-account-history-service": "workspace:*",
     "@red-cup-engineering/read-hive-engine-account-history-service": "workspace:*",
-    "@red-cup-engineering/write-file-service": "git+https://github.com/red-cup-engineering/write-file-service.git#5fb9b37a67a64f15daca4b58ef9c944c59530329",
+    "@red-cup-engineering/write-file-service": "git+https://github.com/red-cup-engineering/write-file-service.git#530a7a91c432c6d21095684bef96cdf915a36a03",
     "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "devDependencies": {},
