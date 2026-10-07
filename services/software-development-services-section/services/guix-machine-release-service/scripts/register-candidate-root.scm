@@ -1,0 +1,6 @@
+(use-modules (guix store) (guix scripts build) (ice-9 match))
+(match (cdr (command-line))
+  ((store root)
+   (unless (string-prefix? "/gnu/store/" store) (error "candidate is not a Guix store path"))
+   (with-store connection (register-root connection (list store) root)))
+  (_ (error "usage: register-candidate-root.scm STORE PUBLIC-GC-ROOT")))

@@ -219,10 +219,13 @@
   ((config-file store . options)
    (let* ((config (read-json config-file)) (root (field config "releaseRoot"))
           (lease (string-append root "/.release.lock/lease")))
-     (unless (string-prefix? "/gnu/store/" store) (error "candidate must be a Guix store output"))
+     (unless (or (equal? store "previous") (string-prefix? "/gnu/store/" store))
+       (error "candidate must be a Guix store output"))
      (run "mkdir" "-p" (dirname lease))
      (if (equal? (getenv "GUIX_MACHINE_RELEASE_LOCKED") "1")
-         (begin (display (receive config store (member "--check-failure" options) (member "--stage-only" options))) (newline))
+         (let ((candidate (if (equal? store "previous") (canonicalize-path (string-append root "/previous")) store)))
+           (unless (string-prefix? "/gnu/store/" candidate) (error "rollback requires a retained Guix generation"))
+           (display (receive config candidate (member "--check-failure" options) (member "--stage-only" options))) (newline))
          (begin
            (setenv "GUIX_MACHINE_RELEASE_LOCKED" "1")
            (apply run "flock" "--exclusive" "--wait" "900" lease "guix" "repl" "--"
