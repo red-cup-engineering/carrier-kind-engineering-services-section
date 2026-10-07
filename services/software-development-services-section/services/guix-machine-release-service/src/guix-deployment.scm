@@ -16,7 +16,7 @@
 (define* (enterprise-deployment machine-name directory entry
                                #:key environment-file (environment '())
                                socket (heap 512) (restart-seconds 5)
-                               oom-score memory-high (auxiliary-units '()) reverse-tunnel)
+                               oom-score memory-high (auxiliary-units '()) (commands '()) reverse-tunnel)
   (let ((admitted-source (getenv "GUIX_DEPLOYMENT_SOURCE")))
     (unless (and admitted-source (file-exists? admitted-source))
       (error "GUIX_DEPLOYMENT_SOURCE must name the admitted runtime closure"))
@@ -62,6 +62,17 @@
                           #$(file-append bash-minimal "/bin/sh")
                           runtime (string-append out "/" #$entry))))
               (chmod launcher #o555)
+              (for-each
+                (lambda (command)
+                  (let ((path (string-append bin "/" (assoc-ref command 'name)))
+                        (program (string-append out "/" (assoc-ref command 'program))))
+                    (unless (file-exists? program) (error "operator program missing" program))
+                    (call-with-output-file path
+                      (lambda (port)
+                        (format port "#!~a~%exec ~s ~s \"$@\"~%"
+                                #$(file-append bash-minimal "/bin/sh") runtime program)))
+                    (chmod path #o555)))
+                '#$commands)
               (call-with-output-file (string-append bin "/owning-repository-release-only")
                 (lambda (port)
                   (format port "#!~a~%echo 'Release through reviewed owning-repository merges and the GitHub Guix machine snapshot.' >&2~%exit 1~%"
