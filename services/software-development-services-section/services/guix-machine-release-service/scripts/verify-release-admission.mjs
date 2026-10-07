@@ -37,7 +37,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const api = path => JSON.parse(run('gh', ['api', path]));
   const revision = run('git', ['rev-parse', 'HEAD']);
   const repository = process.env.GITHUB_REPOSITORY;
-  const machinePulls = api(`repos/${repository}/commits/${revision}/pulls`);
+  const associated = api(`repos/${repository}/commits/${revision}/pulls`);
+  const machinePulls = associated.some(p => p.merged_at && p.merge_commit_sha === revision)
+    ? associated : api(`repos/${repository}/pulls?state=closed&base=main&sort=updated&direction=desc&per_page=100`);
   if (machinePulls.some(p => p.merged_at && p.base.ref === 'main' && p.merge_commit_sha === revision)) {
     console.log(`Admitted merged machine PR: ${repository}@${revision}`);
   } else {
@@ -46,7 +48,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       files: run('git', ['diff', '--name-only', 'HEAD^', 'HEAD']).split('\n').filter(Boolean),
       before: JSON.parse(run('git', ['show', 'HEAD^:sources.json'])),
       after: JSON.parse(readFileSync(join(snapshot, 'sources.json'), 'utf8')),
-      sourcePulls: source => api(`repos/${source.repository}/commits/${source.commit}/pulls`),
+      sourcePulls: source => {
+        const match = source.admission?.pullRequest?.match(new RegExp(`^https://github\\.com/${source.repository}/pull/([0-9]+)$`));
+        return match ? [api(`repos/${source.repository}/pulls/${match[1]}`)] : [];
+      },
     });
     console.log(`Admitted reviewed owning-source advancement: ${repository}@${revision}`);
   }
