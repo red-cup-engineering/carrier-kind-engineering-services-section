@@ -79,4 +79,3 @@ export function interactionReport(d1, d2) {
 export function meets(d1, d2) {
   return sharedAndUnionKeys(d1, d2).shared.length > 0;
 }
-

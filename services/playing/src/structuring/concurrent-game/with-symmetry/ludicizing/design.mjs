@@ -86,4 +86,3 @@ export function isDesign(value) {
   const candidate = value;
   return candidate.kind === "game.design" && Array.isArray(candidate.entries);
 }
-

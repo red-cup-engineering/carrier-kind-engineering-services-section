@@ -87,4 +87,3 @@ export function dualityIsNegation(p) {
     ? Object.freeze({ kind: "game.polarity.dualityIsNegation:witness", polarity: p, dualReading, negatedReading })
     : Object.freeze({ kind: "game.polarity.dualityIsNegation-obstruction", polarity: p, dualReading, negatedReading });
 }
-

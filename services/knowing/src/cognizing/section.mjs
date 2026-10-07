@@ -114,4 +114,3 @@ export function lookupStanding(state, m) {
   const held = heldMemesOf(state).find((h) => sameCell(h, m));
   return held === undefined ? "absurd" : standingOf(held);
 }
-

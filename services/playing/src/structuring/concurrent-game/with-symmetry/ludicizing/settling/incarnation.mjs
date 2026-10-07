@@ -178,4 +178,3 @@ export const isMaterial = (d        , set                   , universe          
 export function inIncarnation(d        , set                   , universe                   )          {
   return inSet(incarnation(set, universe), d);
 }
-
