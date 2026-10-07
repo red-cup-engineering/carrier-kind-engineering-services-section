@@ -103,6 +103,8 @@
                        "build" (string-append snapshot "/channels.scm") (string-append service "/src")
                        (string-append snapshot "/machine.scm") closure (string-append (assoc-ref config "gcRoot") "-" (or (getenv "GITHUB_RUN_ID") (number->string (getpid))) "-" (or (getenv "GITHUB_RUN_ATTEMPT") "1")))))
                (store (assoc-ref built "storePath")))
+          ;; Guix owns the sealed input now; mutable packaging scratch is not a release.
+          (run "rm" "-rf" closure)
           (write-json (string-append work "/candidate.json") built)
           (when (getenv "GITHUB_STEP_SUMMARY")
             (call-with-output-file (getenv "GITHUB_STEP_SUMMARY")
