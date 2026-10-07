@@ -1,4 +1,5 @@
 import { fetchWithPolicy } from "./fetch-policy.mjs";
+import { BodyReadError, collectBody } from "./body/body.mjs";
 
 export const DEFAULT_PUBLIC_JSON_TIMEOUT_MS = 10_000;
 export const DEFAULT_PUBLIC_JSON_MAX_BYTES = 1_048_576;
@@ -92,6 +93,7 @@ export async function observePublicJson(
 
   const length = Number(response.headers.get("content-length"));
   if (Number.isFinite(length) && length > maxBytes) {
+    void response.body?.cancel().catch(() => {});
     return unknown({
       requestedUrl: url,
       url: finalUrl,
@@ -104,25 +106,15 @@ export async function observePublicJson(
 
   let bytes;
   try {
-    bytes = new Uint8Array(await response.arrayBuffer());
+    bytes = await collectBody(response.body, maxBytes, "public JSON response", signal);
   } catch (error) {
     return unknown({
       requestedUrl: url,
       url: finalUrl,
       observedAt,
-      reason: "body-read-error",
+      reason: error instanceof BodyReadError && error.code === "body-too-large" ? "body-too-large" : "body-read-error",
       httpStatus: response.status,
       detail: String(error?.message ?? error),
-    });
-  }
-  if (bytes.byteLength > maxBytes) {
-    return unknown({
-      requestedUrl: url,
-      url: finalUrl,
-      observedAt,
-      reason: "body-too-large",
-      httpStatus: response.status,
-      detail: `body ${bytes.byteLength} bytes exceeds maxBytes ${maxBytes}`,
     });
   }
 
