@@ -30,7 +30,8 @@
       (copy-file path next) (rename-file next latest))
     path))
 (define* (health url #:optional expected-artifact)
-  (let loop ((left 40))
+  ;; Match the service startup deadline; constrained probes can start slowly.
+  (let loop ((left 200))
     (catch #t
       (lambda ()
         (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
