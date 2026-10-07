@@ -135,7 +135,20 @@ export function defineServiceLine({
 const journalOf = (line, dataRoot) => createSemanticRecordJournal({ root: dataRoot, objectKind: line.journalKind });
 
 export function serviceLineEvents(line, dataRoot, run) {
-  return journalOf(line, dataRoot).query({ category: "pipeline-event" }).map(({ record }) => record).filter((cell) => !run || cell.content.run === run);
+  const events = journalOf(line, dataRoot).query({ category: "pipeline-event" }).map(({ record }) => record).filter((cell) => !run || cell.content.run === run);
+  // Journal queries are evidence sets, not an execution-order guarantee.
+  // Replay by the signed prior-event chain, including turns sharing a timestamp.
+  const byId = new Map(events.map(event => [event.id,event])), depths = new Map();
+  const depth = (event, seen = new Set()) => {
+    if(depths.has(event.id)) return depths.get(event.id);
+    if(seen.has(event.id)) throw new Error('Cyclic service-line execution lineage');
+    seen.add(event.id);
+    const prior=byId.get(event.content.knowledge?.prior);
+    const value=prior ? depth(prior,seen)+1 : 0;
+    depths.set(event.id,value);return value;
+  };
+  for(const event of events)depth(event);
+  return events.sort((a,b)=>depths.get(a.id)-depths.get(b.id)||a.content.at.localeCompare(b.content.at)||a.id.localeCompare(b.id));
 }
 
 function latestByStage(events) { const map = new Map(); for (const event of events) map.set(event.content.stage, event); return map; }
@@ -171,9 +184,10 @@ function resultStatus(result) {
 }
 
 /** One bounded MAPE-K turn of a service line. */
-export async function runServiceLineTurn(line, { dataRoot, run = line.defaultRun, subject = null, now = () => new Date().toISOString(), handlers }) {
+export async function runServiceLineTurn(line, { dataRoot, run = line.defaultRun, subject = null, now = () => new Date().toISOString(), handlers, selectedStage }) {
   const { control, subjectField } = line;
-  const allPrior = serviceLineEvents(line, dataRoot, run), state = cycleState(line, allPrior), { cycle, stage } = state, prior = state.events;
+  if(selectedStage!==undefined&&!line.stages.includes(selectedStage))throw new Error('Selected work must be an admitted service-line stage');
+  const allPrior = serviceLineEvents(line, dataRoot, run), state = cycleState(line, allPrior), { cycle } = state, stage=selectedStage??state.stage, prior = state.events;
   const at = now(), monitor = { priorEvents: prior.length, cycle, stage, [subjectField]: subject }, handler = handlers?.[stage];
   const analyze = { ready: typeof handler === "function", blockers: typeof handler === "function" ? [] : [`missing-stage-handler:${stage}`] };
   const stagePlan = { action: `execute-${stage}`, boundedTurn: true };
@@ -190,11 +204,14 @@ export async function runServiceLineTurn(line, { dataRoot, run = line.defaultRun
   }
   const content = { type: line.eventTypeName, version: 1, run, cycle, [subjectField]: result[subjectField] ?? subject, stage, status: resultStatus(result), at, monitor, analyze, plan: stagePlan, execute: result, knowledge: { prior: allPrior.at(-1)?.id ?? null } };
   const admitted = createTypedMark(line.eventType, content); if (!admitted.ok) throw new TypeError(admitted.refusal.message);
-  const all = [...allPrior, admitted.value], projection = projectServiceLineKnowledge(line, all);
   const against = ["blocked", "needs-human"].includes(content.status);
   journalOf(line, dataRoot).record({ category: "pipeline-event", recordedAt: at, record: admitted.value, told: { for: !against, against }, relation: { subject: `${run}#${cycle}`, predicate: `stage:${stage}`, object: admitted.value.id } });
   line.afterTurn?.({ dataRoot, event: admitted.value, content, result, elapsedMs, humanBoundary, at });
-  return Object.freeze({ event: admitted.value, evidence: projection, status: serviceLineStatus(line, dataRoot, run) });
+  // Durable typed outcomes and their prior-event lineage are the execution
+  // carrier. Historical graph/valuation research is an explicit read through
+  // projectServiceLineKnowledge, not an unconsumed prerequisite to recording
+  // the new outcome or advancing this newsroom.
+  return Object.freeze({ event: admitted.value, status: serviceLineStatus(line, dataRoot, run) });
 }
 
 /** Every stage's last run in the current cycle, what runs next, and what blocks the line. */
