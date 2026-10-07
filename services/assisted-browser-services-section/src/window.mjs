@@ -117,3 +117,37 @@ export async function openHeadless({ storageState, viewport = WINDOW_VIEWPORT, .
   const context = await browser.newContext({ ...await sessionOptions(storageState), viewport, ...contextOptions });
   return { context, page: await context.newPage(), close: () => browser.close() };
 }
+
+/** Keep a portal's complete browser identity between visits, including device-bound state. */
+export async function openPersistentWindow({profile,storageState,endpoint,headless=true,viewport=WINDOW_VIEWPORT,...options}={},capabilities={}) {
+  if(endpoint) {
+    const address=new URL(endpoint);
+    if(address.protocol!=='http:'||address.hostname!=='127.0.0.1')throw new Error('Studio browser control must remain on the local host');
+    const {chromium}=await playwrightModule(capabilities);
+    const browser=await chromium.connectOverCDP(endpoint);
+    const context=browser.contexts()[0];
+    if(!context)throw new Error('The hosted browser has no persistent context');
+    const page=context.pages().find(page=>page.url().startsWith('https://studio.youtube.com/'))??context.pages()[0]??await context.newPage();
+    return {context,page,close:()=>browser.close()};
+  }
+  if(!profile)throw new Error('A private browser profile directory is required');
+  const {mkdir,writeFile,readFile}=await import('node:fs/promises');
+  const {join}=await import('node:path');
+  await mkdir(profile,{recursive:true,mode:0o700});
+  const {chromium}=await playwrightModule(capabilities);
+  const context=await chromium.launchPersistentContext(profile,{headless,viewport,...options});
+  try {
+    const seeded=join(profile,'.session-seeded');
+    if(!await exists(seeded)) {
+      if(storageState&&await exists(storageState)) {
+        const saved=JSON.parse(await readFile(storageState,'utf8'));
+        await context.addCookies(saved.cookies??[]);
+        await context.addInitScript(origins=>{
+          for(const item of origins)if(item.origin===location.origin)for(const entry of item.localStorage??[])localStorage.setItem(entry.name,entry.value);
+        },saved.origins??[]);
+      }
+      await writeFile(seeded,'seeded\n',{mode:0o600});
+    }
+    return {context,page:context.pages()[0]??await context.newPage(),close:()=>context.close()};
+  }catch(error){await context.close();throw error;}
+}
