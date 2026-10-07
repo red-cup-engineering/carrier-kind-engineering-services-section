@@ -1,0 +1,26 @@
+{
+  "name": "@red-cup-engineering/consolidated-screening-list-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "The US government's consolidated screening list (Treasury, Commerce and State restricted parties), downloaded whole from the International Trade Administration, and name screening against it.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs"
+  },
+  "exports": {
+    "./client": "./src/client.mjs",
+    "./screen": "./src/screen.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "package.json",
+    "src"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@red-cup-engineering/text-comparison-service": "workspace:*"
+  }
+}

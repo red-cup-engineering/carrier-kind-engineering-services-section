@@ -1,0 +1,6 @@
+name,model,perResearchYear,perHeirLocated,contingencyPercentLow,contingencyPercentHigh
+"HeirSearch","per-year-plus-per-heir","60","175","",""
+"Heir Pros","per-year-plus-per-heir","60","175","",""
+"Morse Genealogical","per-year-plus-per-heir","60","175","",""
+"Discovering Connections","contingency","","","20","30"
+"DavisDNA","contingency","","","20","30"

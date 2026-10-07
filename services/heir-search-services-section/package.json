@@ -1,0 +1,40 @@
+{
+  "name": "@red-cup-engineering/heir-search-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Heir search and heirs'-property title-clearing: pricing and producing the report deliverable, and finding the buyer side (federal funders, nonprofits, and the states whose partition-action law creates court-facing demand for it).",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs scripts/*.mjs",
+    "lead-lists": "node scripts/pull-lead-lists.mjs",
+    "duluth-estate-leads": "node scripts/cross-reference-duluth-estates.mjs"
+  },
+  "exports": {
+    "./leads": "./src/leads.mjs",
+    "./pricing": "./src/pricing.mjs",
+    "./report": "./src/report.mjs",
+    "./operations": "./src/operations.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "package.json",
+    "src",
+    "scripts",
+    "content",
+    "lib"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/csv-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/organizing": "workspace:*",
+    "@red-cup-engineering/propublica-nonprofit-explorer-services-section": "workspace:*",
+    "@red-cup-engineering/usaspending-services-section": "workspace:*"
+  },
+  "sideEffects": false
+}

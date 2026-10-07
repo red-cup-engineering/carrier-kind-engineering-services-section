@@ -1,0 +1,32 @@
+{
+  "name": "@red-cup-engineering/us-representation-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "US representation for foreign, mostly Chinese, companies: holding their FDA US agent roles, selling their lines to US buyers on commission, and standing for them at shows and on the phone; leads from the FDA's public registration data, counterparties screened against the US consolidated screening list.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs"
+  },
+  "exports": {
+    "./leads": "./src/leads.mjs",
+    "./operations": "./src/operations.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "package.json",
+    "src",
+    "content",
+    "lib"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/consolidated-screening-list-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/openfda-services-section": "workspace:*",
+    "@red-cup-engineering/organizing": "workspace:*"
+  },
+  "sideEffects": false
+}
