@@ -22,7 +22,13 @@
     "@red-cup-engineering/relating": "workspace:*",
     "@red-cup-engineering/uri-services-section": "workspace:*",
     "@red-cup-engineering/xml-document-rendering-service": "workspace:*",
-    "@red-cup-engineering/signcell": "workspace:*"
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/rdf-data-model-services-section": "workspace:*",
+    "@red-cup-engineering/signchain": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/turtle-services-section": "workspace:*"
   },
   "exports": {
     "./package.json": "./package.json",

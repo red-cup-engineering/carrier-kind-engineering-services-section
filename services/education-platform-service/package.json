@@ -21,7 +21,8 @@
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/web-page-tiling-engine": "workspace:*",
     "esbuild": "0.28.1",
-    "buffer": "6.0.3"
+    "buffer": "6.0.3",
+    "@red-cup-engineering/json-services-section": "workspace:*"
   },
   "scripts": {
     "test": "node --test \"src/*.test.mjs\" \"web/test/*.test.mjs\""

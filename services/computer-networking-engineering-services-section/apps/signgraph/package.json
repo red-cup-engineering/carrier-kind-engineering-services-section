@@ -40,7 +40,8 @@
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/xml-document-rendering-service": "workspace:*"
+    "@red-cup-engineering/xml-document-rendering-service": "workspace:*",
+    "@red-cup-engineering/relating": "workspace:*"
   },
   "scripts": {
     "test": "node --test \"test/**/*.test.mjs\""

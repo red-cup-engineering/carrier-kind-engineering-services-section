@@ -24,7 +24,14 @@
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/uri-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
-    "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
+    "@red-cup-engineering/immutable-content-custody-service": "workspace:*",
+    "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/html-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-computer": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
+    "@red-cup-engineering/rdf-data-model-services-section": "workspace:*",
+    "@red-cup-engineering/web-theming-service": "workspace:*"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs"
