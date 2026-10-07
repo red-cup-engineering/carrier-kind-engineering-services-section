@@ -9,7 +9,8 @@
  */
 import { dirname, resolve } from "node:path";
 import { parseArgs } from "node:util";
-import { readFlatfileText } from "@red-cup-engineering/flatfile";
+import { readFileSync } from "node:fs";
+const readFlatfileText = file => readFileSync(file,"utf8");
 import { add, format, parse } from "@red-cup-engineering/energy-bank/decimal";
 import { HBD, ledgerAccountPath, reconcilePoolBooks, migrateLegacyPoolMembership } from "../src/pool.mjs";
 import { resolveLedgerWitness } from "../src/ledger-witness.mjs";
