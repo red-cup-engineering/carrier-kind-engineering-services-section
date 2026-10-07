@@ -2,14 +2,15 @@ import {readFile,writeFile,mkdir,cp,rename,readdir} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
-import {catalogNodePackageSources} from '../../typed-resource-catalog-service/src/node-package-source-catalog.mjs';
-import {materializeNodeRuntimeRelease} from '../../node-runtime-release-materialization-service/src/materialize-release.mjs';
+import {pathToFileURL} from 'node:url';
 
 const [workspaceArg,snapshotArg,outputArg]=process.argv.slice(2);
 const workspace=resolve(workspaceArg),snapshot=resolve(snapshotArg),output=resolve(outputArg);
 const sources=JSON.parse(await readFile(join(workspace,'sources.json'),'utf8'));
 const spec=JSON.parse(await readFile(join(snapshot,'sources.json'),'utf8'));
 const providers=Object.fromEntries(sources.packages.map(p=>[p.name,join(workspace,'packages',p.name.replaceAll('/','__'))]));
+const {catalogNodePackageSources}=await import(pathToFileURL(join(providers['@red-cup-engineering/typed-resource-catalog-service'],'src/node-package-source-catalog.mjs')));
+const {materializeNodeRuntimeRelease}=await import(pathToFileURL(join(providers['@red-cup-engineering/node-runtime-release-materialization-service'],'src/materialize-release.mjs')));
 const entry=providers['@red-cup-engineering/feltos-enterprise-host'];
 const manifest=JSON.parse(await readFile(join(entry,'package.json'),'utf8'));
 // The machine's declared dynamic providers are part of its runtime closure.

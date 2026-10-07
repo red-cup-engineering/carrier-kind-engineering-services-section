@@ -48,8 +48,8 @@ export function selectedSources(packages, entries, dependencyPins = {}) {
   return selected;
 }
 
-export function prepare({ repositories, entries, owners, dependencyPins = {}, output }) {
-  const selected = selectedSources(packageSources(repositories, owners), entries, dependencyPins);
+export function prepare({ repositories, entries, buildEntries = [], owners, dependencyPins = {}, output }) {
+  const selected = selectedSources(packageSources(repositories, owners), [...entries,...buildEntries], dependencyPins);
   const root = resolve(output);
   mkdirSync(root, { recursive: true });
   const sources = [];
