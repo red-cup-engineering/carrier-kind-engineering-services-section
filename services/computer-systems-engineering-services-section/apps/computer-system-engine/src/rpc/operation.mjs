@@ -15,6 +15,7 @@
  * the callable process surface.
  */
 
+import { executeJavascriptProgram } from "@red-cup-engineering/javascript-node-services-section/module-closure";
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { mark, utterance } from "@red-cup-engineering/signcell/utterance";
 import { createOperationExecutor } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
@@ -31,7 +32,7 @@ import { isOperationHandlerResult } from "./execution-context.mjs";
 
 /** Schema contract object accepted by the operation half. */
 
-/** Serializable face of an operation; executable closures remain process-local. */
+/** Serializable programme selection; hosted declarations, SEN terms and admitted JSNode source have distinct bodies. */
 export const ProgramSchema = {
   $id: "metroplat/executing/program",
   type: "object",
@@ -60,10 +61,17 @@ export const ProgramSchema = {
         totality: { enum: ["schema-bounded", "partial", "unmeasured"] },
       },
     },
+    body: {
+      anyOf: [
+        { type: "object", required: ["kind", "declaration"], properties: { kind: { const: "host" }, declaration: { type: "string", minLength: 1 } }, additionalProperties: false },
+        { type: "object", required: ["kind", "term"], properties: { kind: { const: "sen" }, term: {} }, additionalProperties: false },
+        { type: "object", required: ["kind", "closure", "module", "export"], properties: { kind: { const: "jsnode" }, closure: { type: "string", pattern: "^ni:///sha-256;[A-Za-z0-9_-]{43}$" }, module: { type: "string", minLength: 1 }, export: { type: "string", minLength: 1 } }, additionalProperties: false },
+      ],
+    },
     runTerm: {},
   },
   title: "Program",
-  description: "A serializable executable operation with its boundary formats, schemas, and optional SEN body.",
+  description: "A serializable executable operation with its boundary formats, schemas and explicit body selection.",
   additionalProperties: false,
 };
 
@@ -190,10 +198,13 @@ function senBody(spec) {
 export function operation(spec) {
   if (!spec.verb || spec.verb.trim() === "") throw new TypeError("operation: verb is required");
   const record = spec;
+  const program = spec.program === undefined ? undefined : Object.freeze({ kind: spec.program.kind, closure: spec.program.closure, module: spec.program.module, export: spec.program.export });
+  if (program !== undefined && (program.kind !== "jsnode" || ![program.closure, program.module, program.export].every(value => typeof value === "string" && value.length > 0))) throw new TypeError("operation: invalid addressed JavaScript programme");
+  if (spec.program !== undefined && (spec.run !== undefined || spec.runTerm !== undefined)) throw new TypeError("operation: an addressed programme cannot substitute a host callback");
   if ("domainSchema" in record || "codomainSchema" in record) {
     throw new TypeError("operation: schema refs are projected from domain/codomain objects; pass SchemaContract objects");
   }
-  if (spec.run === undefined && spec.runTerm === undefined) throw new TypeError(`operation ${spec.verb}: run or runTerm is required`);
+  if (spec.run === undefined && spec.runTerm === undefined && spec.program === undefined) throw new TypeError(`operation ${spec.verb}: run or runTerm is required`);
   // `locus` names the input field that addresses the resource an invocation acts on (a duty's
   // scope, say): the invocation is authorized against that sub-resource of the program, so an
   // authority attenuated to it reaches this operation there and nowhere else.
@@ -216,13 +227,14 @@ export function operation(spec) {
     ...(spec.codomain === undefined ? {} : { codomain: spec.codomain.id }),
     ...(spec.relation === undefined ? {} : { relation: spec.relation }),
     ...(spec.locus === undefined ? {} : { locus: spec.locus }),
-    body: spec.runTerm === undefined
+    body: program ?? (spec.runTerm === undefined
       ? Object.freeze({ kind: "host", declaration: spec.verb })
-      : Object.freeze({ kind: "sen", term: spec.runTerm }),
+      : Object.freeze({ kind: "sen", term: spec.runTerm })),
   });
   const value = {
     kind: "metroplat.action",
     ref: artifactId(declaration),
+    body: declaration.body,
     verb: spec.verb,
     inputFormat: inName,
     outputFormat: outName,
@@ -243,7 +255,7 @@ export function operation(spec) {
     id: spec.verb,
     ...(spec.domain === undefined ? {} : { domain: spec.domain }),
     ...(spec.codomain === undefined ? {} : { codomain: spec.codomain }),
-    run: spec.run ?? senBody(spec),
+    run: spec.program === undefined ? (spec.run ?? senBody(spec)) : (input, args, context) => executeJavascriptProgram(program, input, args, context),
     projectOutput: (output, assertOutput) => isOperationHandlerResult(output)
       ? Object.freeze({ ...output, value: assertOutput(output.value) })
       : assertOutput(output),
@@ -285,6 +297,7 @@ function schemaDescriptor(contract) {
 export function operationDescriptor(operationValue) {
   return Object.freeze({
     ref: operationValue.ref,
+    body: operationValue.body,
     verb: operationValue.verb,
     inputFormat: operationValue.inputFormat,
     outputFormat: operationValue.outputFormat,
@@ -305,6 +318,15 @@ function contractFromDescriptor(descriptor) {
   if (descriptor === undefined) return undefined;
   return schemaFromGraph({ root: descriptor.id, schemas: [descriptor, ...descriptor.references]
     .map(({ id, schema }) => ({ id, schema })) });
+}
+
+/** Reconstitute an admitted executable descriptor without loading an ambient operation family. */
+export function operationFromDescriptor(descriptor) {
+  if (descriptor.body?.kind !== "jsnode") throw new TypeError("operation: descriptor has no admitted JavaScript programme");
+  const value = operation({ ...descriptor, program: descriptor.body,
+    domain: contractFromDescriptor(descriptor.domain), codomain: contractFromDescriptor(descriptor.codomain) });
+  if (value.ref !== descriptor.ref) throw new TypeError("operation: executable descriptor address mismatch");
+  return value;
 }
 
 /** Discover a closed declaration without loading its executable family. The family enters
@@ -342,8 +364,19 @@ export function lazyOperation(inputDescriptor, loadFamily) {
 
 /** The same operation offered under another verb (a FeltOS or MetroPlat name for it): formats,
  *  schemas, effects, SEN body and execution unchanged. */
-export const operationAs = (source, verb = source.verb) => verb === source.verb ? source : operation({
+function bindExecution(value, execute) {
+  const properties = Object.getOwnPropertyDescriptors(value);
+  properties.execute = { value: execute };
+  return Object.freeze(Object.create(Object.getPrototypeOf(value), properties));
+}
+
+export function operationAs(source, verb = source.verb) {
+  if (verb === source.verb) return source;
+  const alias = operation({
   verb,
+  ...(source.body?.kind === "jsnode" ? { program: source.body } : {}),
+  reads: source.reads,
+  writes: source.writes,
   inputFormat: source.inputFormat,
   outputFormat: source.outputFormat,
   options: source.options,
@@ -356,31 +389,18 @@ export const operationAs = (source, verb = source.verb) => verb === source.verb 
   ...(source.locus === undefined ? {} : { locus: source.locus }),
   ...(source.runTerm === undefined ? {} : { runTerm: source.runTerm }),
   ...(source.inputDescriptor === undefined ? {} : { inputDescriptor: source.inputDescriptor, outputDescriptor: source.outputDescriptor }),
-  run: (input, args, context) => source.execute(input, args, context),
-});
+  ...(source.body?.kind === "jsnode" ? {} : { run: (input, args, context) => source.execute(input, args, context) }),
+  });
+  return bindExecution(alias, (input, args, context) => source.execute(input, args, context));
+}
 
 /** Bind host argument defaults while preserving the operation declaration. */
 export function withOperationArguments(
   unbound,
   defaults,
+  hostContext,
 ) {
-  return operation({
-    verb: unbound.verb,
-    inputFormat: unbound.inputFormat,
-    outputFormat: unbound.outputFormat,
-    reads: unbound.reads,
-    writes: unbound.writes,
-    options: unbound.options,
-    effects: unbound.effects,
-    ...(unbound.summary === undefined ? {} : { summary: unbound.summary }),
-    ...(unbound.description === undefined ? {} : { description: unbound.description }),
-    ...(unbound.domain === undefined ? {} : { domain: unbound.domain }),
-    ...(unbound.codomain === undefined ? {} : { codomain: unbound.codomain }),
-    ...(unbound.relation === undefined ? {} : { relation: unbound.relation }),
-    ...(unbound.locus === undefined ? {} : { locus: unbound.locus }),
-    ...(unbound.runTerm === undefined ? {} : { runTerm: unbound.runTerm }),
-    run: (input, arguments_, context) => unbound.execute(input, { ...defaults, ...arguments_ }, context),
-  });
+  return bindExecution(unbound, (input, arguments_, context) => unbound.execute(input, { ...defaults, ...arguments_ }, hostContext === undefined ? context : { ...context, ...hostContext }));
 }
 
 /** Report whether `consumer ∘ producer` is an admissible operation composition. */
@@ -635,6 +655,7 @@ export function operationUtterances(act) {
   if (act.description !== undefined) facts.push(fact(term, "metroplat.action.description", act.description));
   if (act.domain !== undefined) facts.push(fact(term, "metroplat.action.domain", act.domain.id));
   if (act.codomain !== undefined) facts.push(fact(term, "metroplat.action.codomain", act.codomain.id));
+  if (act.body !== undefined) facts.push(fact(term, "metroplat.action.program-body", act.body));
   if (act.runTerm !== undefined) facts.push(fact(term, "metroplat.action.run-term", act.runTerm));
   return Object.freeze(facts);
 }
