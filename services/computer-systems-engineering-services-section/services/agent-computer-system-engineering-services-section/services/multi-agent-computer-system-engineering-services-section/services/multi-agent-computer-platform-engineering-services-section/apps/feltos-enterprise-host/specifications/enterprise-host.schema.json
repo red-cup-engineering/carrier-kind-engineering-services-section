@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "feltos.enterprise-host.v1",
+  "title": "FeltOS enterprise host declaration",
+  "description": "A host points to one MetroPlat instance declaration and owns the network and companion configuration. The instance itself carries no host process configuration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "hostKind",
+    "instance",
+    "web"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "hostKind": {
+      "const": "feltos.enterprise-host"
+    },
+    "instance": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path to the MetroPlat instance declaration, relative to this host declaration."
+    },
+    "web": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "instructions": {
+          "type": "string"
+        },
+        "cookiePrefix": {
+          "type": "string"
+        },
+        "defaultPaths": {
+          "type": "object"
+        },
+        "environmentAliases": {
+          "type": "object"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "networkSources": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "companions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

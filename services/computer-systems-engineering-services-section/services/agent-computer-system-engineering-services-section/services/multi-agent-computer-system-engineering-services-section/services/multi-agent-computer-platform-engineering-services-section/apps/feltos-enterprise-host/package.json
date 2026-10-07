@@ -1,0 +1,56 @@
+{
+  "name": "@red-cup-engineering/feltos-enterprise-host",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "LicenseRef-561Group-1.0",
+  "description": "FeltOS enterprise host composing MetroPlat ERP operations with web admission, federation, and system node services.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "specifications",
+    "package.json"
+  ],
+  "bin": {
+    "feltos-enterprise-serve": "scripts/feltos-enterprise-serve.mjs"
+  },
+  "exports": {
+    "./serve": "./src/serve-instance.mjs",
+    "./entrance": "./src/entrance.mjs",
+    "./instance-config": "./src/instance-config.mjs",
+    "./activitypub-node": "./src/activitypub-node.mjs",
+    "./installed-web": "./src/installed-web.mjs",
+    "./enterprise-loops": "./src/enterprise-loops.mjs",
+    "./work-replication": "./src/work-replication.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/a2a-services-section": "workspace:*",
+    "@red-cup-engineering/activitypub-services-section": "workspace:*",
+    "@red-cup-engineering/agent-harness-computer-system-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-inference-engine": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/computer-system-platform": "workspace:*",
+    "@red-cup-engineering/computer-web-server": "workspace:*",
+    "@red-cup-engineering/http-services-section": "workspace:*",
+    "@red-cup-engineering/feltos": "0.18.3",
+    "@red-cup-engineering/javascript-file-services-section": "workspace:*",
+    "@red-cup-engineering/key-management-services-section": "workspace:*",
+    "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/oauth-services-section": "workspace:*",
+    "@red-cup-engineering/node-process-services-section": "workspace:*",
+    "@red-cup-engineering/organizing": "workspace:*",
+    "@red-cup-engineering/metroplat": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
+    "@red-cup-engineering/npm-workspace-publication-service": "workspace:*"
+  },
+  "scripts": {
+    "check:activitypub-node": "node scripts/check-activitypub-node.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "softwareKind": "service"
+}
