@@ -75,4 +75,3 @@ export const step = (rules, valuation) => mergeCellSets(valuation, fire(rules, v
 
 /** The names of the rules whose antecedents hold. */
 export const firedRuleNames = (rules, valuation) => Object.freeze(rules.filter((r) => antecedentHolds(r, valuation)).map((r) => r.name));
-

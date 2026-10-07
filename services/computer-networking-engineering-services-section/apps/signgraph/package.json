@@ -49,4 +49,3 @@
     "test": "node --test \"test/**/*.test.mjs\""
   }
 }
-

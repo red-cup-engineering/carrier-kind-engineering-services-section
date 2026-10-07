@@ -176,4 +176,3 @@ export const aperiodicOrderPhase = phaseSignature({
   id: "metroplat.phase.aperiodic-order",
   closure: { scottContinuous: false, finiteBase: false, countableCofinality: false },
 });
-

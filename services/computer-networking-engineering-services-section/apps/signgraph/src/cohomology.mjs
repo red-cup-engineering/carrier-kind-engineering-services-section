@@ -221,4 +221,3 @@ export function linkGraphNerve(nodes, links) {
   const graph = cohomologyOfEdgeGraph([...byKey.values()], pairs);
   return coverNerve(graph.entities.length, graph.cells.length, graph.zeroCohomology.rank);
 }
-

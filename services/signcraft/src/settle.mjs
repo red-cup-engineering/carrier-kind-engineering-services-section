@@ -432,4 +432,3 @@ export function documentOf(settlement) {
     valuationSites: Object.freeze(cells.map((at) => Object.freeze({ kind: "signcraft.document.valuationSite", address: address(at), reading: readingOfSides("knowledge", ...sidesOf(at)), cell: at }))),
   });
 }
-
