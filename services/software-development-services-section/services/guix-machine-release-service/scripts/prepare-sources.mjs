@@ -19,7 +19,9 @@ export function packageSources(repositories, owners = {}) {
       if (!path.endsWith('package.json') || path.split('/').some(x => ['legacy', 'vendored', 'material', 'test', 'tests', 'examples', 'repository-bootstrap'].includes(x))) continue;
       const manifest = JSON.parse(command('git', ['show', `${commit}:${path}`], directory));
       if (!manifest.name || !manifest.version) continue;
-      if (owners[manifest.name] && owners[manifest.name] !== repository) continue;
+      const owner = owners[manifest.name];
+      if (typeof owner === 'string' && owner !== repository) continue;
+      if (owner && typeof owner === 'object' && (owner.repository !== repository || owner.path !== dirname(path))) continue;
       if (packages.has(manifest.name)) throw new Error(`ambiguous source owner for ${manifest.name}; pin its owning repository`);
       packages.set(manifest.name, { manifest, directory: resolve(directory, dirname(path)), repository, commit, path: dirname(path) });
     }
