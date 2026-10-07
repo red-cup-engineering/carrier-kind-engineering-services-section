@@ -19,6 +19,9 @@ for(const name of spec.entries.filter(n=>n!==manifest.name)){
  manifest.dependencies[name]=p.version;
 }
 await writeFile(join(entry,'package.json'),JSON.stringify(manifest,null,2)+'\n');
+const metroplat=providers['@red-cup-engineering/metroplat'];
+const generation=spawnSync(process.execPath,[join(metroplat,'scripts/generate-operation-family-descriptors.mjs')],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384'}});
+if(generation.error||generation.status!==0)throw generation.error??new Error('operation descriptor generation failed');
 const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','receiver-independence.test.mjs','serve-instance-lifecycle.test.mjs'];
 const test=spawnSync(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384'}});
 if(test.error||test.status!==0)throw test.error??new Error('host work and lifecycle checks failed');

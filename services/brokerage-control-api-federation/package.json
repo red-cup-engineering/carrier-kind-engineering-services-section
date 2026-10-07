@@ -20,7 +20,8 @@
     "@red-cup-engineering/uri-services-section": "workspace:*",
     "@red-cup-engineering/virtuals-brokerage-products-border": "workspace:*",
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
-    "@red-cup-engineering/strategy-program-synthesis-work-lot-service": "workspace:*"
+    "@red-cup-engineering/strategy-program-synthesis-work-lot-service": "workspace:*",
+    "@red-cup-engineering/strategy-evaluation-service": "workspace:*"
   },
   "description": "Scalable customer-wallet-funded market in metered brokerage-control APIs.",
   "devDependencies": {

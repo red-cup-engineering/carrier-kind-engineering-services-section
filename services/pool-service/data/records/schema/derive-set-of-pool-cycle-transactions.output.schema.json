@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pool-service/derive-set-of-pool-cycle-transactions-output",
+  "title": "deriveSetOfPoolCycleTransactionsOutput",
+  "description": "What was booked to the dated Beancount sidecar, or a refusal naming why the receipts do not reconcile with the persisted split.",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["booked", "path", "transactionCount", "receipt"],
+      "properties": {
+        "booked": { "const": true },
+        "path": { "type": "string", "minLength": 1 },
+        "transactionCount": { "type": "integer", "minimum": 1 },
+        "receipt": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["booked", "reason"],
+      "properties": {
+        "booked": { "const": false },
+        "reason": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

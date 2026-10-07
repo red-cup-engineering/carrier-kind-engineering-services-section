@@ -1,0 +1,21 @@
+{
+  "name": "@emsenn/youtube-engineering-services-section",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "YouTube identity, resumable uploads, thumbnails, scheduling and OAuth authorization",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*"
+  },
+  "exports": {
+    "./api": "./src/youtube-api.mjs",
+    "./authorize": "./src/authorize.mjs",
+    "./credentials": "./src/credentials.mjs"
+  }
+}

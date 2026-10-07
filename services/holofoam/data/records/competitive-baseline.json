@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "arena": "browser organism-field laboratory",
+  "incumbent": {
+    "name": "Fluoddity",
+    "role": "same-job artistic particle-simulation incumbent",
+    "live_url": "https://fluoddity.com/",
+    "source_url": "https://github.com/aphid91/Fluoddity-Web",
+    "source_revision": "e072983b7b8bda36d3259be669fa817a0b53f2fc",
+    "license": "MIT",
+    "observed_at": "2026-09-02T21:42:20Z"
+  },
+  "capabilities": [
+    {
+      "key": "gpu_particle_scale",
+      "fluoddity": { "value": "600000 entities and 30 substeps/frame", "evidence": "documented", "source": "README.md" },
+      "holofoam": { "value": "420 default organisms; CPU spatial ecology; WebGL2 presentation", "evidence": "assayed-local" },
+      "gap": "Holofoam does not meet Fluoddity simulation-scale capacity."
+    },
+    {
+      "key": "interactive_dynamics",
+      "fluoddity": { "value": "presets, parameter controls, mutation, artificial selection, shove, and painted barriers", "evidence": "documented", "source": "src/ui/settingsSpec.ts and src/ui/menuBar.ts" },
+      "holofoam": { "value": "presets, finite model-edge mutation, selection/adoption, shove, and barriers", "evidence": "tested" },
+      "gap": "Holofoam control breadth is not parity-assayed against every Fluoddity setting."
+    },
+    {
+      "key": "replay_and_provenance",
+      "fluoddity": { "value": "URL project links encode settings and current behavior", "evidence": "documented", "source": "src/config/shareLink.ts" },
+      "holofoam": { "value": "seed-history links are admitted before replay; current-state checkpoints are explicitly exported, restored, and refused as false replay links", "evidence": "tested-local" },
+      "gap": "Public browser receiver acceptance remains blocked by an observed host-specific TLS protocol failure."
+    },
+    {
+      "key": "presentation",
+      "fluoddity": { "value": "WebGPU trail field with bloom and tone curve", "evidence": "documented", "source": "README.md and src/assembler/assembler.ts" },
+      "holofoam": { "value": "WebGL2 rgba16f trails, bloom-style composite, tone mapping, and Canvas2D initial fallback", "evidence": "assayed-local" },
+      "gap": "Device-loss recovery remains unassayed; the deployed hostname GETs successfully but Chromium reports a host-specific TLS protocol failure."
+    },
+    {
+      "key": "mobile_and_failure_behavior",
+      "fluoddity": { "value": "coarse-pointer touch layout and explicit unavailable/device-loss overlays", "evidence": "documented", "source": "src/ui/touchBinding.ts and src/gpu/device.ts" },
+      "holofoam": { "value": "pointer cancellation clears an active drag", "evidence": "source-only" },
+      "gap": "Touch journey and renderer context-loss behavior require browser assay."
+    },
+    {
+      "key": "capture",
+      "fluoddity": { "value": "screenshots, QR-stamped sharing, and MP4 export", "evidence": "documented", "source": "src/share/shareImage.ts and src/recorder/recorder.ts" },
+      "holofoam": { "value": "PNG and five-second WebM controls; Chromium PNG capture was visually assayed with nonblack rendered pixels", "evidence": "assayed-local" },
+      "gap": "Decoded WebM-frame and public-browser capture acceptance remain outstanding; MP4 and QR remain gaps."
+    }
+  ],
+  "beat_hypothesis": {
+    "claim": "A shared Holofoam experiment can expose the finite local model, its admitted observations, causal interventions, and replay state beside the rendered field.",
+    "falsifier": "The deployed viewer cannot replay and inspect the same experiment, or Fluoddity exposes equivalent model provenance and causal evidence."
+  }
+}
