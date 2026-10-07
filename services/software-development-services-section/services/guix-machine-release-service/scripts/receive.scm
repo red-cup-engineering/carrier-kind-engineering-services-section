@@ -30,15 +30,19 @@
       (copy-file path next) (rename-file next latest))
     path))
 (define* (health url #:optional expected-artifact)
-  ;; Match the service startup deadline; constrained probes can start slowly.
-  (let loop ((left 200))
-    (catch #t
-      (lambda ()
-        (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
-          (if (and (assoc-ref value "ok") (equal? (assoc-ref value "state") "ready")
-                   (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))) #t
-              (error "candidate is not ready"))))
-      (lambda args (if (> left 1) (begin (sleep 3) (loop (- left 1))) (apply throw args))))))
+  ;; Bound elapsed time even when curl itself reaches its three-second timeout.
+  (let ((deadline (+ (get-internal-real-time) (* 600 internal-time-units-per-second))))
+    (let loop ()
+      (catch #t
+        (lambda ()
+          (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
+            (if (and (assoc-ref value "ok") (equal? (assoc-ref value "state") "ready")
+                     (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))) #t
+                (error "candidate is not ready"))))
+        (lambda args
+          (if (< (get-internal-real-time) deadline)
+              (begin (sleep 3) (loop))
+              (apply throw args)))))))
 
 (define (configuration-commands config action store)
   (for-each
@@ -261,7 +265,17 @@
           (for-each (lambda (held) (when (cdr held) (run "systemctl" "--user" "restart" (car held)))) held-unit-actives)
           (when was-running?
             (run "systemctl" "--user" "restart" unit)
-            (health (field config "health"))))
+            (catch #t
+              (lambda () (health (field config "health")))
+              (lambda recovery-args
+                (receipt receipts "recovery-failure"
+                  `(("outcome" . "recovery-failure") ("storePath" . ,store)
+                    ("retained" . ,previous) ("machine" . ,name)
+                    ("revision" . ,revision) ("repository" . ,repository)
+                    ("run" . ,run-url) ("stage" . "restore-live-check")
+                    ("at" . ,(strftime "%FT%TZ" (gmtime (current-time))))
+                    ("reason" . "Prior generation restored, but its live check failed; inspect the linked job and service log.")))
+                (apply throw recovery-args)))))
         (receipt receipts "failure" `(("outcome" . "failure") ("storePath" . ,store)
                                       ("retained" . ,previous) ("machine" . ,name)
                                       ("revision" . ,revision) ("repository" . ,repository)
