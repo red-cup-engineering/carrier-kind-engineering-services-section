@@ -16,7 +16,7 @@ export function packageSources(repositories, owners = {}) {
     if (command('git', ['rev-parse', 'HEAD'], directory) !== commit) throw new Error(`source commit differs: ${repository}`);
     const paths = command('git', ['ls-tree', '-r', '--name-only', commit], directory).split('\n');
     for (const path of paths) {
-      if (!path.endsWith('package.json') || path.split('/').some(x => ['legacy', 'vendored', 'material', 'test', 'tests', 'examples', 'repository-bootstrap'].includes(x))) continue;
+      if (!path.endsWith('package.json') || path.split('/').some(x => ['legacy', 'vendor', 'vendored', 'material', 'test', 'tests', 'examples', 'repository-bootstrap'].includes(x))) continue;
       const manifest = JSON.parse(command('git', ['show', `${commit}:${path}`], directory));
       if (!manifest.name || !manifest.version) continue;
       const owner = owners[manifest.name];
