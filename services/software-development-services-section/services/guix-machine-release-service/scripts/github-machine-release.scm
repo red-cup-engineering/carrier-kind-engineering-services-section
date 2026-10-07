@@ -55,7 +55,8 @@
                (run "git" "-C" directory "checkout" "--detach" commit)
                (begin
                  (run "git" "-C" directory "read-tree" "--empty")
-                 (run "git" "-C" directory "update-ref" "--no-deref" "HEAD" commit)))
+                 (run "git" "-C" directory "update-ref" "--no-deref" "HEAD" commit)
+                 (run "git" "-C" directory "clean" "-qfdx")))
            (acons "directory" directory r))) repositories)))
       (run "rm" "-rf" workspace)
       (write-json prepared (acons "output" workspace
