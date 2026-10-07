@@ -8,7 +8,7 @@ const api=path=>JSON.parse(run('gh',['api',path]));
 const spec=JSON.parse(await readFile(join(snapshot,'sources.json'),'utf8'));const updates=[];
 for(const source of spec.repositories){
  const ref=source.ref??'main';
- const head=api(`repos/${source.repository}/branches/${ref}`).commit.sha;
+ const head=api(`repos/${source.repository}/branches/${encodeURIComponent(ref)}`).commit.sha;
  if(head===source.commit)continue;
  const prs=api(`repos/${source.repository}/commits/${head}/pulls`);
  const pr=prs.find(pr=>pr.merged_at&&pr.base.ref===ref&&pr.merge_commit_sha===head);

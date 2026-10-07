@@ -1,4 +1,5 @@
 import {readFile,writeFile,mkdir,cp,rm,mkdtemp,symlink,realpath} from 'node:fs/promises';
+import {readFileSync as requireRead} from 'node:fs';
 import {resolve,join,relative,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
@@ -9,6 +10,21 @@ const providers=Object.fromEntries(sources.packages.map(p=>[p.name,join(workspac
 const entry=providers['@red-cup-engineering/feltos-enterprise-host'];
 const exec=(program,args,options={})=>{const r=spawnSync(program,args,{stdio:'inherit',...options});if(r.error||r.status!==0)throw r.error??new Error(`${program} build check failed (${r.status})`)};
 const environment={...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot};
+// Build the declared TypeScript runtime outputs in dependency order, with the
+// exact compiler and Node types recorded in the reviewed dependency lock.
+const compiled=new Set(),building=new Set();
+function buildTypes(name){
+  if(compiled.has(name))return;
+  if(building.has(name))throw new Error(`TypeScript build cycle: ${name}`);
+  const directory=providers[name];if(!directory)return;
+  const manifest=JSON.parse(requireRead(join(directory,'package.json')));
+  if(manifest.scripts?.build!=='tsc -p tsconfig.build.json')return;
+  building.add(name);
+  for(const dependency of Object.keys(manifest.dependencies??{}))buildTypes(dependency);
+  exec(process.execPath,[join(workspace,'node_modules/typescript/bin/tsc'),'-p',join(directory,'tsconfig.build.json')],{env:environment,cwd:directory});
+  building.delete(name);compiled.add(name);
+}
+for(const name of Object.keys(providers))buildTypes(name);
 exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts/generate-operation-family-descriptors.mjs')],{env:environment});
 const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
 exec(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{env:environment});
@@ -23,6 +39,8 @@ try {
     await rm(self);await symlink(relative(dirname(self),join(closure,'app')),self);
   }
 } catch(error){if(error.code!=='ENOENT')throw error}
+// Config declarations resolve the composed providers from the artifact root.
+await symlink('app/node_modules',join(closure,'node_modules'));
 await cp(join(snapshot,'deployment'),join(closure,'deployment'),{recursive:true});
 await cp(join(snapshot,'deployments'),join(closure,'deployments'),{recursive:true});
 await writeFile(join(closure,'pnpm-workspace.yaml'),'packages: []\n');
