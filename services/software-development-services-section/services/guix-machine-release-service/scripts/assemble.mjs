@@ -1,5 +1,5 @@
-import {readFile,writeFile,mkdir,cp,rm,mkdtemp} from 'node:fs/promises';
-import {resolve,join} from 'node:path';
+import {readFile,writeFile,mkdir,cp,rm,mkdtemp,symlink,realpath} from 'node:fs/promises';
+import {resolve,join,relative,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 const [workspaceArg,snapshotArg,outputArg]=process.argv.slice(2);
@@ -14,8 +14,17 @@ const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-
 exec(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{env:environment});
 await mkdir(output,{recursive:true});
 const closure=await mkdtemp(join(output,'.closure-'));
-exec('npm',['exec','--yes','--package=pnpm@11.9.0','--','pnpm','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy',join(closure,'app')],{env:environment});
+exec('npm',['exec','--yes','--package=pnpm@11.9.0','--','pnpm','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy',join(closure,'app')],{env:{...environment,NODE_OPTIONS:'--max-old-space-size=1024'}});
+// Legacy deploy leaves the cyclic entry package linked to its workspace.
+// Bind that self-reference to the identical deployed entry before sealing.
+const self=join(closure,'app/node_modules/.pnpm/node_modules/@red-cup-engineering/feltos-enterprise-host');
+try {
+  if(await realpath(self)===await realpath(entry)){
+    await rm(self);await symlink(relative(dirname(self),join(closure,'app')),self);
+  }
+} catch(error){if(error.code!=='ENOENT')throw error}
 await cp(join(snapshot,'deployment'),join(closure,'deployment'),{recursive:true});
+await cp(join(snapshot,'deployments'),join(closure,'deployments'),{recursive:true});
 await writeFile(join(closure,'pnpm-workspace.yaml'),'packages: []\n');
 // Installation metadata names producer locations, and is not a runtime input.
 await rm(join(closure,'app/node_modules/.modules.yaml'),{force:true});

@@ -21,7 +21,8 @@
   },
   "files": [
     "src",
-    "README.md"
+    "README.md",
+    "scripts"
   ],
   "exports": {
     "./semantic-content-identity": "./src/semantic-content-identity.mjs",

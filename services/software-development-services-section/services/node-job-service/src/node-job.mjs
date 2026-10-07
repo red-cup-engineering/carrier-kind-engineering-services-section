@@ -254,7 +254,7 @@ export async function runNodeJob({ deploymentRoot, job: id, workingTree, home = 
   if (HOLDING.has(shown.stdout.trim())) return Object.freeze({ kind: "node-job-run.v1", job: job.id, unit, state: "running", ...(last === undefined ? {} : { last }) });
   // The run keeps the release it started on, whatever the node promotes while it runs.
   const release = await realpath(resolve(home, declared.releaseRoot, "current"));
-  const commit = readJson(resolve(release, "release-receipt.json"))?.source?.commit ?? null;
+  const commit = readJson(resolve(release, ".metadata/release.json"))?.machineCommit ?? readJson(resolve(release, "release-receipt.json"))?.source?.commit ?? null;
   const startedAt = now().toISOString();
   mkdirSync(dirname(receipt), { recursive: true });
   // A run's demand is its own: what an earlier run said it left never stands for this one.

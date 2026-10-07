@@ -12,15 +12,15 @@
 
 ;; Units and launchers are built with their actual store paths. The host's
 ;; systemd remains responsible for sockets, cgroups and process supervision.
-(define* (enterprise-deployment name directory entry
+(define* (enterprise-deployment machine-name directory entry
                                #:key environment-file (environment '())
                                socket (heap 512) (restart-seconds 5)
                                oom-score memory-high)
-  (let ((source (getenv "GUIX_DEPLOYMENT_SOURCE")))
-    (unless (and source (file-exists? source))
+  (let ((admitted-source (getenv "GUIX_DEPLOYMENT_SOURCE")))
+    (unless (and admitted-source (file-exists? admitted-source))
       (error "GUIX_DEPLOYMENT_SOURCE must name the admitted runtime closure"))
     (package
-      (name (string-append name "-deployment"))
+      (name (string-append machine-name "-deployment"))
       (version "1")
       (source #f)
       (build-system trivial-build-system)
@@ -34,8 +34,8 @@
                    (runtime #$(file-append node "/bin/node"))
                    (bin (string-append out "/bin"))
                    (units (string-append out "/.guix-systemd"))
-                   (launcher (string-append bin "/" #$name))
-                   (unit (string-append units "/" #$name "-561-group.service"))
+                   (launcher (string-append bin "/" #$machine-name))
+                   (unit (string-append units "/" #$machine-name "-561-group.service"))
                    (env
                     (map (lambda (pair)
                            (cons (car pair)
@@ -44,7 +44,7 @@
                          (append '#$environment
                            (list (cons "NODE_OPTIONS" (format #f "--max-old-space-size=~a --disable-sigusr1" #$heap))
                                  (cons "PATH" (string-append out "/bin:/home/emsenn/.local/bin:/usr/local/bin:/usr/bin:/bin")))))))
-              (copy-recursively #$(local-file source "admitted-runtime" #:recursive? #t) out)
+              (copy-recursively #$(local-file admitted-source "admitted-runtime" #:recursive? #t) out)
               (mkdir-p bin)
               (mkdir-p units)
               (symlink runtime (string-append bin "/node"))
@@ -57,7 +57,7 @@
               (call-with-output-file unit
                 (lambda (port)
                   (format port "[Unit]~%Description=~a Guix enterprise deployment~%After=network-online.target~a~%Wants=network-online.target~a~%~%[Service]~%Type=simple~%WorkingDirectory=~a/~a~%ExecStart=~a~%EnvironmentFile=~a~%"
-                          #$name
+                          #$machine-name
                           (if #$socket (string-append " " #$socket) "")
                           (if #$socket (string-append " " #$socket) "")
                           out #$directory launcher #$environment-file)
@@ -72,7 +72,7 @@
                   (for-each (lambda (pair) (format port "~a=~s~%" (car pair) (cdr pair))) env)))
               #t))))
       (home-page "https://561.group")
-      (synopsis (string-append name " enterprise deployment"))
+      (synopsis (string-append machine-name " enterprise deployment"))
       (description
        "An admitted application closure, its Guix interpreter, launcher and service.
 Persistent state and credentials remain in the host's existing custody.")
