@@ -46,7 +46,16 @@
              (run "mkdir" "-p" (dirname directory))
              (run "gh" "repo" "clone" repo directory "--" "--filter=blob:none" "--no-checkout"))
            (run "git" "-C" directory "fetch" "--depth=1" "origin" commit)
-           (run "git" "-C" directory "checkout" "--detach" commit)
+           ;; Source extraction reads committed Git blobs, not a checkout. Keep
+           ;; only the release controller materialized to avoid a second full
+           ;; source tree on the machine's bounded disk.
+           (when (equal? repo "red-cup-engineering/computer-services-section")
+             (run "git" "-C" directory "sparse-checkout" "set" "services/software-development-services-section/services/guix-machine-release-service"))
+           (if (equal? repo "red-cup-engineering/computer-services-section")
+               (run "git" "-C" directory "checkout" "--detach" commit)
+               (begin
+                 (run "git" "-C" directory "read-tree" "--empty")
+                 (run "git" "-C" directory "update-ref" "--no-deref" "HEAD" commit)))
            (acons "directory" directory r))) repositories)))
       (run "rm" "-rf" workspace)
       (write-json prepared (acons "output" workspace
@@ -68,6 +77,7 @@
                  "install" "--frozen-lockfile" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))))
         (let* ((assembled (json-string->scm (capture "node" (string-append service "/scripts/assemble.mjs") workspace snapshot (string-append work "/artifacts"))))
                (closure (assoc-ref assembled "closure"))
+               (retired-workspace (begin (run "rm" "-rf" workspace) #t))
                (built (json-string->scm (capture "guix" "repl" "--" (string-append service "/scripts/guix-deployment.scm")
                        "build" (string-append snapshot "/channels.scm") (string-append service "/src")
                        (string-append snapshot "/machine.scm") closure (string-append work "/candidate"))))
