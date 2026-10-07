@@ -12,6 +12,7 @@ const providers=Object.fromEntries(sources.packages.map(p=>[p.name,join(workspac
 const entry=providers['@red-cup-engineering/feltos-enterprise-host'];
 const exec=(program,args,options={})=>{const r=spawnSync(program,args,{stdio:'inherit',...options});if(r.error||r.status!==0)throw r.error??new Error(`${program} build check failed (${r.status})`)};
 const environment={...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot};
+exec('guile',['--no-auto-compile',fileURLToPath(new URL('../test/health-reading.scm',import.meta.url))],{env:environment});
 // Build the declared TypeScript runtime outputs in dependency order, with the
 // exact compiler and Node types recorded in the reviewed dependency lock.
 const compiled=new Set(),building=new Set();
