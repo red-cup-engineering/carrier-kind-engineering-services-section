@@ -1,0 +1,25 @@
+{
+  "name": "@red-cup-engineering/business-research-system-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Business research as records: market-gap assays that read what buyers ask for against what the supply is witnessed to offer, by formal concept analysis over metrologic's formal context, with FOUR readings for the gap and for the demand.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "exports": {
+    "./market-gap": "./src/market-gap.mjs",
+    "./kindle-market": "./src/kindle-market.mjs"
+  },
+  "bin": {
+    "assay-market-gaps": "scripts/assay-market-gaps.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*"
+  }
+}

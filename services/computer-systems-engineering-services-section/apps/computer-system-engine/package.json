@@ -71,7 +71,8 @@
     "./rpc/invocation-feed": "./src/rpc/invocation-feed.mjs",
     "./rpc/apex": "./src/rpc/apex.mjs",
     "./rpc/mcp-operations": "./src/rpc/mcp-operations.mjs",
-    "./journal/exchange": "./src/journal/exchange.mjs"
+    "./journal/exchange": "./src/journal/exchange.mjs",
+    "./rpc/wire-dispatch": "./src/rpc/wire-dispatch.mjs"
   },
   "files": [
     "src",

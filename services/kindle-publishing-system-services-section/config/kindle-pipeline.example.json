@@ -1,0 +1,67 @@
+{
+  "dataRoot": "/var/lib/561-group",
+  "contentRoot": "/srv/561-group/books",
+  "customerActor": "did:key:replace-with-inference-customer",
+  "categories": [
+    {
+      "id": "replace-with-kindle-category",
+      "url": "https://www.amazon.com/replace-with-permitted-category-page"
+    }
+  ],
+  "marketPolicy": {
+    "termsBasis": "replace-with-reviewed-robots-and-terms-record",
+    "permission": "permitted",
+    "reviewedAt": "2026-09-29",
+    "minimumIntervalMs": 10000
+  },
+  "demands": [
+    {
+      "id": "replace-with-evidenced-reader-demand",
+      "wants": ["replace-with-kebab-case-quality"],
+      "evidence": { "for": [{ "source": "replace-with-content-address" }], "against": [] }
+    }
+  ],
+  "validationPrivateKey": "./kindle-validation-private.pem",
+  "validationKeyId": "kindle-validation-2026",
+  "kdpConfig": "./kdp.json",
+  "fixtureRoot": "/path/to/kindle-publishing-system-services-section/test/fixtures/kdp",
+  "reportFixtures": [],
+  "declarationsReceipt": null,
+  "launchPlan": null,
+  "channelCapacity": {
+    "type": "ChannelCapacity",
+    "version": 1,
+    "channel": "kdp",
+    "newTitlesPerFormatPerWeek": 2,
+    "observedAt": "2026-09-21",
+    "source": "https://kdp.amazon.com/en_US/help/topic/G201857950",
+    "policy": "scarce-downstream-capacity-not-a-production-limit",
+    "automationMethod": "expected-contribution-allocation"
+  },
+  "bylineAdopted": true,
+  "byline": {
+    "name": "Sigrid Song",
+    "adoptionAuthority": "founder, 2026-09-29",
+    "researchStatus": "adopted",
+    "disclosureSpecimen": "Sigrid Song is a fictional author-character created and performed using AI by the 561 Group.",
+    "source": "lib/emsenn/services/561-group/services/561-group-services-section/content/text/documents/articles/notes/2026/09/29/2026-09-29-note-on-adopting-sigrid-song-as-ice-out-byline.md"
+  },
+  "kdpAiGeneratedContentDisclosure": {
+    "text": { "answer": "AI-generated", "evidence": "replace-with-asset-provenance-record" },
+    "images": { "answer": "replace-with-audited-answer", "evidence": "replace-with-asset-provenance-record" },
+    "translations": { "answer": "replace-with-audited-answer", "evidence": "replace-with-asset-provenance-record" },
+    "source": "lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/law-science-services-section/content/text/documents/articles/notes/2026/09/29/2026-09-29-research-dossier-on-fictional-ai-authorship-evidence-and-release-questions.md"
+  },
+  "ownedAsins": [
+    {
+      "asin": "REPLACEASIN",
+      "id": "replace-with-book-slug",
+      "title": "Replace with exact report title",
+      "niche": "replace-with-scored-niche",
+      "rankUrl": "https://www.amazon.com/dp/REPLACEASIN"
+    }
+  ],
+  "priceCents": 399,
+  "dryRun": true,
+  "allowLiveKdp": false
+}

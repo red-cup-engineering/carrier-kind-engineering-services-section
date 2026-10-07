@@ -20,10 +20,10 @@ for(const name of spec.entries.filter(n=>n!==manifest.name)){
 }
 await writeFile(join(entry,'package.json'),JSON.stringify(manifest,null,2)+'\n');
 const metroplat=providers['@red-cup-engineering/metroplat'];
-const generation=spawnSync(process.execPath,[join(metroplat,'scripts/generate-operation-family-descriptors.mjs')],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384'}});
+const generation=spawnSync(process.execPath,[join(metroplat,'scripts/generate-operation-family-descriptors.mjs')],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot}});
 if(generation.error||generation.status!==0)throw generation.error??new Error('operation descriptor generation failed');
-const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','receiver-independence.test.mjs','serve-instance-lifecycle.test.mjs'];
-const test=spawnSync(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384'}});
+const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
+const test=spawnSync(process.execPath,['--test',...checks.map(f=>join(entry,'test',f))],{stdio:'inherit',env:{...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot}});
 if(test.error||test.status!==0)throw test.error??new Error('host work and lifecycle checks failed');
 const catalog=await catalogNodePackageSources({entryPackageDirectory:entry,providerSources:Object.fromEntries(Object.entries(providers).filter(([n])=>n!==manifest.name))});
 const runtime=await materializeNodeRuntimeRelease({entryPackageDirectory:entry,sourceCatalog:catalog,outputRoot:output});

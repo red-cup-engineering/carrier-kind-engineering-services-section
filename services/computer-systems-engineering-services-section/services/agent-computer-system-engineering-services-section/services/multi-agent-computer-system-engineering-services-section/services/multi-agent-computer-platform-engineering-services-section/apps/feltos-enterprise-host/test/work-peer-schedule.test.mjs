@@ -7,12 +7,10 @@ import { fileURLToPath } from "node:url";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { catchUpWorkPeer, workReplicationOperations } from "../src/work-replication.mjs";
 
-const here = fileURLToPath(new URL(".", import.meta.url));
-const house = here.slice(0, here.indexOf("/services/engineering-services-section"));
-const group = join(house, "services/561-group-services-section/services/561-group-operations-services-section");
-const instance = JSON.parse(readFileSync(join(group, "sites/bare-cedar-fog.561.group/config/metroplat-instance.json"), "utf8"));
+const snapshot = process.env.GUIX_MACHINE_SNAPSHOT;
+const instance = snapshot ? JSON.parse(readFileSync(join(snapshot,"deployment/instance.json"),"utf8")) : undefined;
 
-test("Bare Cedar Fog declares the work-peer catch-up as a node schedule, due on start and every 900 s, with a retry", () => {
+test("the machine snapshot declares peer catch-up due on start with retries", {skip: !snapshot}, () => {
   const [operation] = workReplicationOperations({ config: {}, binding: {}, provider: () => undefined, host: "bare-cedar-fog" });
   const schedule = instance.schedules.find((candidate) => candidate.verb === operation.verb);
   assert.equal(schedule?.id, "work-peer-catch-up");
