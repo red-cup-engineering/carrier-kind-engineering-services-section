@@ -10,13 +10,30 @@ export function command(program, args, cwd) {
   return r.stdout.trim();
 }
 
+const absentBlobs=new Map();
+function treeFiles(directory,commit,path){
+  return command('git',['ls-tree','-rz',commit,...(path?['--',path]:[])],directory).split('\0').filter(Boolean).map(record=>{
+    const tab=record.indexOf('\t');const [mode,type,oid]=record.slice(0,tab).split(' ');
+    return {mode,type,oid,file:record.slice(tab+1)};
+  });
+}
+function prefetch(directory,commit,oids){
+  const key=directory+'@'+commit;
+  if(!absentBlobs.has(key))absentBlobs.set(key,new Set(command('git',['rev-list','--objects','--missing=print','--no-object-names',commit],directory).split('\n').filter(x=>x.startsWith('?')).map(x=>x.slice(1))));
+  const absent=absentBlobs.get(key),wanted=[...new Set(oids)].filter(oid=>absent.has(oid));
+  if(!wanted.length)return;
+  const result=spawnSync('git',['fetch','--quiet','--no-tags','--no-write-fetch-head','--recurse-submodules=no','--filter=blob:none','origin','--stdin'],{cwd:directory,input:wanted.join('\n')+'\n',encoding:'utf8',maxBuffer:8*1024*1024});
+  if(result.error||result.status!==0)throw result.error??new Error(`immutable source prefetch failed: ${result.stderr.slice(-2000)}`);
+  for(const oid of wanted)absent.delete(oid);
+}
+
 export function packageSources(repositories, owners = {}) {
   const packages = new Map();
   for (const { directory, repository, commit } of repositories) {
     if (command('git', ['rev-parse', 'HEAD'], directory) !== commit) throw new Error(`source commit differs: ${repository}`);
-    const paths = command('git', ['ls-tree', '-r', '--name-only', commit], directory).split('\n');
-    for (const path of paths) {
-      if (path.split('/').at(-1)!=='package.json' || path.split('/').some(x => ['legacy', 'vendor', 'vendored', 'material', 'test', 'tests', 'examples', 'repository-bootstrap'].includes(x))) continue;
+    const manifests=treeFiles(directory,commit).filter(({file,type})=>type==='blob'&&file.split('/').at(-1)==='package.json'&&!file.split('/').some(x=>['legacy','vendor','vendored','material','test','tests','examples','repository-bootstrap'].includes(x)));
+    prefetch(directory,commit,manifests.map(f=>f.oid));
+    for (const {file:path} of manifests) {
       const manifest = JSON.parse(command('git', ['show', `${commit}:${path}`], directory));
       if (!manifest.name || !manifest.version) continue;
       const owner = owners[manifest.name];
@@ -53,12 +70,20 @@ export function prepare({ repositories, entries, buildEntries = [], owners, depe
   const root = resolve(output);
   mkdirSync(root, { recursive: true });
   const sources = [];
+  const selectedFiles=new Map(),requests=new Map();
+  for(const [name,p] of selected){
+    const repo=repositories.find(r=>r.repository===p.repository);
+    const files=treeFiles(repo.directory,p.commit,p.path).filter(({mode,file})=>['100644','100755'].includes(mode)&&!file.split('/').some(x=>['node_modules','.git','legacy','vendor'].includes(x)));
+    selectedFiles.set(name,files);
+    if(!requests.has(p.repository))requests.set(p.repository,{repo,oids:[]});
+    requests.get(p.repository).oids.push(...files.map(f=>f.oid));
+  }
+  for(const {repo,oids} of requests.values())prefetch(repo.directory,repo.commit,oids);
   for (const [name, p] of selected) {
     const target = resolve(root, 'packages', name.replaceAll('/', '__'));
     mkdirSync(target, { recursive: true });
     const sourceRepository = repositories.find(r => r.repository === p.repository).directory;
-    const records = command('git', ['ls-tree','-rz',p.commit,'--',p.path], sourceRepository).split('\0').filter(Boolean);
-    const files=records.map(record=>{const tab=record.indexOf('\t');const [mode,type,oid]=record.slice(0,tab).split(' ');return {mode,type,oid,file:record.slice(tab+1)}}).filter(({mode,file})=>['100644','100755'].includes(mode)&&!file.split('/').some(x=>['node_modules','.git','legacy','vendor'].includes(x)));
+    const files=selectedFiles.get(name);
     // Read the immutable object set in one batch rather than one process per file.
     const batch=spawnSync('git',['cat-file','--batch'],{cwd:sourceRepository,input:files.map(f=>f.oid+'\n').join(''),maxBuffer:256*1024*1024});
     if(batch.error||batch.status!==0)throw batch.error??new Error('cannot read source object batch');
