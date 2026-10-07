@@ -26,7 +26,7 @@ import { classifyRegime, closureRegimeData, cohomologyVanishesInRegime } from "@
 import { ofNat, regimeOfOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/ordinal-closure";
 import { closureRegimeName, omegaOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { certificateOf, regimeRank } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/certificate";
-import { record } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { record } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** When a settled value is attained, by regime (`unattained_settling_gate`): at a finite
  * stage; only as the directed join of approximants; at a limit stage no finite stage
@@ -176,3 +176,4 @@ export const aperiodicOrderPhase = phaseSignature({
   id: "metroplat.phase.aperiodic-order",
   closure: { scottContinuous: false, finiteBase: false, countableCofinality: false },
 });
+

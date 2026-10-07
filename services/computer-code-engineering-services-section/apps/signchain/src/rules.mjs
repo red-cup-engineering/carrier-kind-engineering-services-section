@@ -17,7 +17,7 @@
  * rules reaches its least fixed point above the seed.
  */
 import { address, cell, cellSet, knowledgeReading, mergeCellSets, triple } from "@red-cup-engineering/signcell/cell";
-import { isReading, sidesOfReading, knowledgeLeqReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isReading, sidesOfReading, knowledgeLeqReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 const cellAtTriple = (valuation, at) => valuation.find((told) => address(told) === address(at)) ?? cell(at.subject, at.predicate, at.object);
 const indexedCellAtTriple = (valuation, at) => valuation.get(address(at)) ?? cell(at.subject, at.predicate, at.object);
@@ -75,3 +75,4 @@ export const step = (rules, valuation) => mergeCellSets(valuation, fire(rules, v
 
 /** The names of the rules whose antecedents hold. */
 export const firedRuleNames = (rules, valuation) => Object.freeze(rules.filter((r) => antecedentHolds(r, valuation)).map((r) => r.name));
+

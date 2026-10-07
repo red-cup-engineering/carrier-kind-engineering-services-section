@@ -17,7 +17,7 @@
  * carry $\bot$.
  */
 import { locusKey, locusFromKey, root } from "./locus.mjs";
-import { samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { samePoint } from "@red-cup-engineering/computer-data-services-section/four";
 
 const ACT_TO_CHARGE = {
   proponent: "potential",
@@ -86,3 +86,4 @@ export function isDesign(value) {
   const candidate = value;
   return candidate.kind === "game.design" && Array.isArray(candidate.entries);
 }
+

@@ -22,7 +22,7 @@
  * has been told, the order evidence grows in.
  */
 import { cell, cellSet, evidence, evidenced, hasTriple, sameCell, valueOf } from "@red-cup-engineering/signcell/cell";
-import { conflateReading, knowledgeJoinAll, readingSchema, knowledgeJoinReading, knowledgeMeetReading, knowledgeTop, negateReading, readingOfSides, samePoint, sidesOfReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { conflateReading, knowledgeJoinAll, readingSchema, knowledgeJoinReading, knowledgeMeetReading, knowledgeTop, negateReading, readingOfSides, samePoint, sidesOfReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
 import { semanticBytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
 // — the bilattice on cells: values combined, evidence accumulated —
@@ -120,4 +120,5 @@ export function settleJudgments(judgments) {
     stableJudgments: Object.freeze(records.filter((judgment) => samePoint(judgment.value, knowledgeTop()))),
   });
 }
+
 

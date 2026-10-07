@@ -29,6 +29,7 @@
   "dependencies": {
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
@@ -38,3 +39,4 @@
     "test": "node --test \"test/**/*.test.mjs\""
   }
 }
+
