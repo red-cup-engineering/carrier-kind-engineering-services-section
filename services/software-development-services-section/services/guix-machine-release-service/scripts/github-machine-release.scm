@@ -84,6 +84,8 @@
       (let* ((owner (find (lambda (r) (equal? (assoc-ref r "repository") "red-cup-engineering/computer-services-section")) (vector->list resolved)))
              (service (string-append (assoc-ref owner "directory") "/services/software-development-services-section/services/guix-machine-release-service"))
              (lock (string-append snapshot "/dependencies.lock.yaml")))
+        (when (equal? mode "deploy")
+          (run "node" (string-append service "/scripts/verify-release-admission.mjs") snapshot))
         (run "node" (string-append service "/scripts/prepare-sources.mjs") prepared)
         (if (equal? mode "resolve")
           (begin

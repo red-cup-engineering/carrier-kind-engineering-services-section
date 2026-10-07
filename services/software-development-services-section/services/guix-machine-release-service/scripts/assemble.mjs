@@ -4,6 +4,7 @@ import {resolve,join,relative,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 const [workspaceArg,snapshotArg,outputArg]=process.argv.slice(2);
 const workspace=resolve(workspaceArg),snapshot=resolve(snapshotArg),output=resolve(outputArg);
 const sources=JSON.parse(await readFile(join(workspace,'sources.json'),'utf8'));
@@ -28,7 +29,7 @@ function buildTypes(name){
 for(const name of Object.keys(providers))buildTypes(name);
 exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts/generate-operation-family-descriptors.mjs')],{env:environment});
 const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
-exec(process.execPath,['--test',...checks.map(f=>join(entry,'test',f)),join(providers['@red-cup-engineering/semantic-content-identify-service'],'test/semantic-content-identity.test.mjs')],{env:environment});
+exec(process.execPath,['--test',fileURLToPath(new URL('../test/release-admission.test.mjs',import.meta.url)),...checks.map(f=>join(entry,'test',f)),join(providers['@red-cup-engineering/semantic-content-identify-service'],'test/semantic-content-identity.test.mjs')],{env:environment});
 await mkdir(output,{recursive:true});
 const closure=await mkdtemp(join(output,'.closure-'));
 exec('npm',['exec','--yes','--package=pnpm@11.9.0','--','pnpm','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy',join(closure,'app')],{env:{...environment,NODE_OPTIONS:'--max-old-space-size=1024'}});
