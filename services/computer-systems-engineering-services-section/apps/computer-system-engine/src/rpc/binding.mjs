@@ -47,6 +47,9 @@ export function defaultFilesystemBinding(
     readFile,
     writeFile,
     dataRoot: resolvedRoot,
+    // Preserve the host owner's admitted source transport; never manufacture
+    // an executor or derive new source custody from the filesystem defaults.
+    ...(options.sourceReadResource === undefined ? {} : { sourceReadResource: options.sourceReadResource }),
     ...(options.repositoryRoot === undefined ? {} : { repositoryRoot: path.resolve(options.repositoryRoot) }),
     ...(options.clockStateRoot === undefined ? {} : { clockStateRoot: path.resolve(options.clockStateRoot) }),
     claudeSessionRoot: options.claudeSessionRoot ?? path.join(homedir(), ".claude", "projects", resolvedRoot.split(path.sep).join("-")),
