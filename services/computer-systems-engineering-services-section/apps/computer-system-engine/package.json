@@ -72,7 +72,8 @@
     "./rpc/apex": "./src/rpc/apex.mjs",
     "./rpc/mcp-operations": "./src/rpc/mcp-operations.mjs",
     "./journal/exchange": "./src/journal/exchange.mjs",
-    "./rpc/wire-dispatch": "./src/rpc/wire-dispatch.mjs"
+    "./rpc/wire-dispatch": "./src/rpc/wire-dispatch.mjs",
+    "./rpc/node": "./src/rpc/node.mjs"
   },
   "files": [
     "src",
