@@ -1,0 +1,10 @@
+{
+  "id": "claims-caller",
+  "name": "Claims Caller",
+  "kind": "office",
+  "normative-structure": "The office answers for reaching the tribal councils, county boards, community groups and developers on the register, logging every contact, and setting discovery calls for the engagement lead; it is paid a share of each engagement it originates.",
+  "deontic-profile": { "calling-parties-to-projects": "duty" },
+  "authority-scope": ["./"],
+  "jurisdiction": "structural-claims-register",
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "561-group-services-section notes, 2026-09-05-note-on-collapse-aware-financial-enterprises.md, sections 5 and 8" }
+}

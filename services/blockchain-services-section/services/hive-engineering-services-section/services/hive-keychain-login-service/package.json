@@ -10,24 +10,11 @@
   "dependencies": {
     "@red-cup-engineering/verify-hive-signed-message-service": "workspace:*"
   },
-  "devDependencies": {
-    "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "0.1.0"
-  },
   "files": [
     "src",
-    "package.json",
-    "README.md"
+    "package.json"
   ],
   "engines": {
     "node": ">=24"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/red-cup-engineering/computer-services-section.git",
-    "directory": "services/blockchain-services-section/services/hive-engineering-services-section/services/hive-keychain-login-service"
-  },
-  "scripts": {
-    "test": "node --test test/*.test.mjs"
   }
 }

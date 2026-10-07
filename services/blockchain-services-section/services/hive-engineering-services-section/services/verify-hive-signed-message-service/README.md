@@ -23,7 +23,7 @@ export async function verifyHiveSignedMessage(request, options = {})
 
 ### Returns
 
-Promise<{verified: true, account: string, publicKey: string, role: "posting"|"active"} | {verified: false, reason: string}>:
+Promise<{verified: true, account: string, publicKey: string, role: "posting"|"active"} | {verified: false, reason: string}>: 
 
 ## Command
 
@@ -71,7 +71,3 @@ Output:
   "reason": "account must be a non-empty string"
 }
 ~~~
-
-## Scope and source
-
-Recovered from Bare Cedar Fog c677e9999ea05bf577f9355660687e56dffd3da9. The command uses the declared JavaScript Node operation export rather than the laptop source layout. Verification proves signature and live account-key membership, not a general weighted/delegated authority evaluation, canonical Actor association or hiring permission. Consumers must preserve these distinctions.

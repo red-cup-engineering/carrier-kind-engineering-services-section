@@ -1,0 +1,26 @@
+{
+  "name": "@red-cup-engineering/ssrs-report-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "SQL Server Reporting Services: exporting a public ReportViewer report as CSV or another data format through its report session.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "exports": {
+    "./client": "./src/client.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "package.json",
+    "src"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*"
+  },
+  "sideEffects": false
+}

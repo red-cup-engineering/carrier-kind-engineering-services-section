@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "holofoam",
+  "compatibility_date": "2026-09-02",
+  "workers_dev": true,
+  "assets": { "directory": "./dist" },
+  "routes": [{ "pattern": "holofoam.561.group", "custom_domain": true }]
+}

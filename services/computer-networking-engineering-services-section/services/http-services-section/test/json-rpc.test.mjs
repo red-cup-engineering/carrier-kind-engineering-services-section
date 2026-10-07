@@ -7,7 +7,7 @@ test("exchange retains URL, envelope, timeout and decoded result", async () => {
     assert.equal(url, "https://example.test/rpc?token=fixture");
     assert.deepEqual(JSON.parse(init.body), envelope);
     assert.ok(init.signal instanceof AbortSignal);
-    return new Response(JSON.stringify({ jsonrpc: "2.0", id: envelope.id, result: { ok: true } }));
+    return new Response(JSON.stringify({ result: { ok: true } }));
   }});
   assert.deepEqual(await callJsonRpc(transport, "https://example.test/rpc?token=fixture", envelope), { ok: true });
 });
@@ -24,7 +24,7 @@ test("HTTP, malformed JSON, non-object and RPC failures reject", async () => {
     await assert.rejects(callJsonRpc(async () => response, "fixture", envelope));
   }
   const error = { code: -1, message: "behind" };
-  await assert.rejects(callJsonRpc(async () => ({ status: 200, body: JSON.stringify({ jsonrpc: "2.0", id: envelope.id, error }) }), "fixture", envelope), e => e.rpcError.code === -1);
+  await assert.rejects(callJsonRpc(async () => ({ status: 200, body: JSON.stringify({ error }) }), "fixture", envelope), e => e.rpcError.code === -1);
 });
 test("timeout covers a stalled response body", async () => {
   const transport = createJsonRpcTransport({ timeout: 10, fetchImpl: async () => new Response(new ReadableStream()) });

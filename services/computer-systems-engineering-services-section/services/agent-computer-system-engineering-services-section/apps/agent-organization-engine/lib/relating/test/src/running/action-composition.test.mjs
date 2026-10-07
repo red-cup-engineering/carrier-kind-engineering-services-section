@@ -1,4 +1,6 @@
 import { compose, operation, programObject } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { programObject } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";

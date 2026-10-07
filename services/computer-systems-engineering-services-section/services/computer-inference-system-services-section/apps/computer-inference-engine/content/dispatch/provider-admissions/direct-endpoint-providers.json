@@ -1,0 +1,439 @@
+{
+  "kind": "inference-dispatch.direct-endpoint-provider-admissions",
+  "version": 3,
+  "note": "Provider endpoint and credential facts derive from the shared chat-completion catalog. This file supplies market identities, model pins, capabilities, resource bounds and consideration. Missing credentials or endpoint variables skip a descriptor. What a call consumed is measured from its exchange. Historical provider assays remain in data/records.",
+  "providers": [
+    {
+      "providerId": "ollama-local",
+      "actor": "urn:ame:bare-cedar-fog-npu-inference-team",
+      "auth": {
+        "mode": "none"
+      },
+      "model": "llama3.2:3b",
+      "capabilities": [
+        "chat",
+        "tool-calling",
+        "classification",
+        "extraction",
+        "summarization",
+        "inquiry",
+        "json-output",
+        "json-schema-output",
+        "text-output"
+      ],
+      "qualityTiers": [
+        "local"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 1,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ],
+      "typedInferenceBounds": {
+        "workTypes": [
+          "classification",
+          "extraction",
+          "summarization",
+          "inquiry",
+          "software-engineering"
+        ],
+        "maximumSourceWords": 1500,
+        "maximumSourceCharacters": 12000,
+        "maximumRequestCharacters": 30000,
+        "maximumOutputTokens": 700,
+        "note": "The local NPU provider's admission bounds for typed requests (the model is this admission's own); admitBoundedTypedInference checks a typed request against them."
+      }
+    },
+    {
+      "providerId": "groq",
+      "actor": "urn:ame:groq-inference-team",
+      "allowance": "groq-requests",
+      "model": "openai/gpt-oss-120b",
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "long-context",
+        "code",
+        "Chinese-language",
+        "classification",
+        "extraction",
+        "summarization",
+        "inquiry",
+        "software-engineering",
+        "code-review",
+        "json-output",
+        "json-schema-output",
+        "text-output"
+      ],
+      "qualityTiers": [
+        "frontier-hosted"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 4,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ]
+    },
+    {
+      "providerId": "openrouter-cohere-north",
+      "actor": "urn:ame:openrouter-inference-team",
+      "allowance": "openrouter-requests",
+      "capabilities": [
+        "chat",
+        "long-context",
+        "code",
+        "classification",
+        "extraction",
+        "summarization",
+        "inquiry",
+        "software-engineering",
+        "code-review",
+        "json-output",
+        "json-schema-output",
+        "reasoning",
+        "text-output",
+        "tool-calling"
+      ],
+      "qualityTiers": [
+        "frontier-hosted"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 1,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ],
+      "model": "nvidia/nemotron-3-super-120b-a12b:free"
+    },
+    {
+      "providerId": "gemini",
+      "actor": "urn:ame:gemini-inference-team",
+      "model": "gemini-3.8-flash",
+      "capabilityModels": {
+        "text-to-speech": [
+          "gemini-3.8-flash-tts",
+          "gemini-3.1-flash-tts-preview",
+          "gemini-2.5-flash-preview-tts",
+          "gemini-3.8-flash-lite-tts",
+          "gemini-2.5-pro-preview-tts"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "long-context",
+        "code",
+        "classification",
+        "extraction",
+        "summarization",
+        "inquiry",
+        "software-engineering",
+        "code-review",
+        "json-output",
+        "json-schema-output",
+        "reasoning",
+        "text-output"
+      ],
+      "qualityTiers": [
+        "frontier-hosted"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 2,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ]
+    },
+    {
+      "providerId": "nvidia-nim",
+      "actor": "urn:ame:nvidia-inference-team",
+      "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
+      "auth": {
+        "mode": "bearer"
+      },
+      "apiKeyEnv": "API_KEY_INFERENCE_NVIDIA",
+      "model": "nvidia/nemotron-3-ultra-550b-a55b",
+      "capabilities": [
+        "chat",
+        "long-context",
+        "classification",
+        "extraction",
+        "summarization",
+        "inquiry",
+        "json-output",
+        "json-schema-output",
+        "reasoning",
+        "text-output"
+      ],
+      "qualityTiers": [
+        "frontier-hosted"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 4,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ]
+    },
+    {
+      "providerId": "cloudflare-workers-ai",
+      "actor": "urn:ame:cloudflare-workers-ai-inference-team",
+      "endpoint": "https://api.cloudflare.com/client/v4/accounts/{CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions",
+      "auth": {
+        "mode": "bearer"
+      },
+      "apiKeyEnv": "API_KEY_CLOUDFLARE_WORKERS_AI",
+      "model": "@cf/openai/gpt-oss-120b",
+      "capabilityModels": {
+        "text-to-speech": [
+          "@cf/myshell-ai/melotts"
+        ]
+      },
+      "capabilities": [
+        "chat",
+        "long-context",
+        "text-to-speech",
+        "image-generation",
+        "classification",
+        "extraction",
+        "summarization",
+        "inquiry",
+        "json-output",
+        "json-schema-output",
+        "reasoning",
+        "text-output"
+      ],
+      "qualityTiers": [
+        "frontier-hosted"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 2,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ]
+    },
+    {
+      "providerId": "codex",
+      "actor": "urn:ame:bare-cedar-fog-codex-inference-team",
+      "allowance": "chatgpt-codex",
+      "auth": {
+        "mode": "none"
+      },
+      "model": "default",
+      "endpointClass": "local-command-inference",
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "long-context",
+        "json-output",
+        "json-schema-output",
+        "code",
+        "classification",
+        "extraction",
+        "summarization",
+        "inquiry",
+        "software-engineering",
+        "code-review",
+        "text-output"
+      ],
+      "qualityTiers": [
+        "frontier-subscription"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 1,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ]
+    },
+    {
+      "providerId": "antigravity",
+      "actor": "urn:ame:bare-cedar-fog-antigravity-inference-team",
+      "allowance": "google-ai-pro-antigravity",
+      "auth": {
+        "mode": "none"
+      },
+      "model": "default",
+      "endpointClass": "local-command-inference",
+      "capabilities": [
+        "chat",
+        "reasoning",
+        "long-context",
+        "json-output",
+        "json-schema-output",
+        "code",
+        "classification",
+        "extraction",
+        "summarization",
+        "writing",
+        "inquiry",
+        "software-engineering",
+        "code-review",
+        "text-output"
+      ],
+      "qualityTiers": [
+        "frontier-subscription"
+      ],
+      "authorityScopes": [
+        "urn:scope:bounded-inference-candidate"
+      ],
+      "effects": [
+        "read-only"
+      ],
+      "idempotence": [
+        "idempotent"
+      ],
+      "availableCapacity": 1,
+      "considerationKind": "credit",
+      "considerationAsset": "urn:union:consideration:provider-invocation",
+      "considerationUnit": "provider-invocation",
+      "considerationNumerator": "1",
+      "considerationDenominator": "1",
+      "declaredResources": [
+        {
+          "resource": "provider-attention",
+          "unit": "bounded-lot",
+          "amount": {
+            "numerator": "1",
+            "denominator": "1"
+          }
+        }
+      ]
+    }
+  ]
+}

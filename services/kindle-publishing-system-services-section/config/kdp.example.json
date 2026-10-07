@@ -1,0 +1,5 @@
+{
+  "_comment": "storageState defaults to ~/.config/561-group/browser-sessions/kdp.json; fixture dry-runs do not load it",
+  "validationPublicKey": "./kindle-validation-public.pem",
+  "marketplace": "https://kdp.amazon.com"
+}

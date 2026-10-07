@@ -1,0 +1,86 @@
+{
+  "type": "SchedulingConsumerRoster",
+  "version": 1,
+  "recordedAt": "2026-09-05T00:00:00Z",
+  "movement": "oh duh we should like, share scheduling across ALL our code.",
+  "note": "Every row is a place in the tree where 'something is due at a time and recurs' is computed separately, per the founder's order and the receiver's jsnode-graph survey. icalendar-services-section (RFC 5545) is the shared owner going forward; cutOver:true rows have already been migrated onto it in this lot.",
+  "rows": [
+    {
+      "package": "@red-cup-engineering/schedule-set-of-votes-service",
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-services-section/services/curation-services-section/services/schedule-set-of-votes-service",
+      "whatItSchedules": "A day's Hive curation votes for one account: each candidate post's scheduled vote instant, weighted and budgeted by policy.",
+      "cutOver": true,
+      "nextStep": "Done this lot (0.1.0 -> 0.2.0, additive): each scheduled vote's instant is now computed as a bare-DTSTART VEVENT (RFC 5545 SS3.8.5.2, no RRULE) via @red-cup-engineering/expand-recurrence-rule-service@0.1.0, exposed as a new `dtstart` field alongside the pre-existing `time`. Published and fresh-install tested green."
+    },
+    {
+      "package": "@red-cup-engineering/education-platform-service",
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/education-platform-service",
+      "whatItSchedules": "src/srs.mts, src/session.mts: an FSRS-lite spaced-repetition next-due instant per learning item.",
+      "cutOver": true,
+      "nextStep": "Done this lot (0.2.4 -> 0.2.5), additive, FSRS-lite math in srs.mts untouched. Added session.mts:nextDueEvent() (a reviewed card's FSRS-lite next-due instant, from srs.mts's existing daysUntilRetention, as a bare-DTSTART RFC 5545 VEVENT over the platform's existing epoch-day/DAY_MS convention from persistence.mts) and session.mts:dueReviewCandidates(), which composes @red-cup-engineering/derive-set-of-due-events-service over those VEVENTs -- never a second hand-rolled due comparison. buildReviewSession() gained an additive 5th options.dueOnly parameter: default (no options) call is byte-for-byte the prior always-eligible behavior (every existing test and its documented contract unchanged); passing {dueOnly:true} narrows eligibility through dueReviewCandidates first. Tests 80/80 pass baseline -> 81/81 pass after (new test in session.test.mts proving dueReviewCandidates/buildReviewSession dueOnly match derive-set-of-due-events-service's own answer), 0 non-canonical lockfile URLs, additive tarball diff vs 0.2.4, published as 0.2.5, fresh-install verified. Receipt: ni:///sha-256;tOuIQmRMRh6yUiBAYlhmVeXoI5u9zJYXSXL49z_SwQE (computer-game-system-services-section data/logs)."
+    },
+    {
+      "package": "@coesite-operations/schedule-set-of-observations-service",
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/union-services-section/services/union-market-services-section/services/observer-market-services-section/services/schedule-set-of-observations-service",
+      "whatItSchedules": "One purchase window over an ObserverCatalog's offers for a set of subscribers, given each subscriber's per-observer cadence want and ENERGY budget.",
+      "cutOver": false,
+      "nextStep": "Read the cadence-want shape; if it is expressible as FREQ=... (e.g. every N hours/days), model it as an RRULE and window-bound occurrences via expand-recurrence-rule-service instead of hand-rolled cadence arithmetic. Requires reading observer-market-services-section's consumer too before changing the shared shape."
+    },
+    {
+      "package": "@coesite-operations/scheduled-activity-delivery-service",
+      "path": "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/services/scheduled-activity-delivery-service",
+      "whatItSchedules": "Portable ScheduleDelivery for colony-owned, contracted, idempotent ActivityStreams delivery (delivery retry/backoff timing).",
+      "cutOver": true,
+      "nextStep": "Done this lot (0.2.0 -> 0.2.1; published 0.1.1 -> 0.2.1, only 0.1.1 was ever actually published, so the diff baseline was 0.1.1). runDue()'s occurrence/scheduledFor math for a recurring schedule (firstDueAt+intervalSeconds) now composes @red-cup-engineering/expand-recurrence-rule-service (a bare-DTSTART VEVENT with a FREQ=SECONDLY;INTERVAL=n RRULE, window {start: firstDueAt, end: at}, occurrence index = occurrences.length-1) instead of hand-rolled Math.floor division. Retry/backoff timing (recoverAfter, the 20s buffer) is untouched -- that is a distinct scheduling call site the founder's order did not name here. Tests 50/45 pass baseline -> 51/46 pass after (new test icalendar-recurrence-due.test.mjs), 0 non-canonical lockfile URLs, additive tarball diff vs 0.1.1, published as 0.2.1, fresh-install verified. Receipt: ni:///sha-256;PD0hafquwVO_n7mgCuWN_OPIuF6SEJjMjKUjKs1HYEo (operations-services-section data/logs)."
+    },
+    {
+      "package": "@causeway-services/koios-news-schedule-delivery-activation-current",
+      "path": "lib/emsenn/services/561-group/services/public-services-section/services/public-social-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news/schedule-delivery-activation-current",
+      "whatItSchedules": "Koios News's current delivery-activation schedule (when a news delivery activates).",
+      "cutOver": false,
+      "nextStep": "Not found by jsnode_search under 'schedule'/'daily'/'timer' as a distinct package in this pass beyond the founder-named one; read its source to determine current representation (cron-like text vs ad hoc Date math) before modeling as VEVENT/RRULE through icalendar-services-section."
+    },
+    {
+      "package": "@red-cup-engineering/alpaca-account-kill-switch-service",
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/web-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-financial-brokerage-platform-services-section/services/alpaca-services-section/services/alpaca-account-kill-switch-service",
+      "whatItSchedules": "Runs on its own 30-minute market-hours systemd timer; on trip, disables every existing Alpaca loop timer.",
+      "cutOver": false,
+      "nextStep": "systemd OnCalendar= timer, not a Node RRULE computation -- out of this lot's scope. If a unified due-view is ever wanted across systemd timers and in-code schedules, translate each unit's OnCalendar= expression to an equivalent RFC 5545 RRULE for read-only comparison; never make icalendar-services-section itself own systemd unit files (that stays LAGOON/qtOps custody per org-layering)."
+    },
+    {
+      "package": "@red-cup-engineering/alpaca-alert-watch-service",
+      "path": null,
+      "whatItSchedules": "Runs on its own 15-minute market-hours systemd timer, watching Alpaca paper-loop journals and the kill switch's tripped-record.",
+      "cutOver": false,
+      "nextStep": "Same as alpaca-account-kill-switch-service: a systemd timer, not a Node scheduling call site. No code cutover applicable; note only."
+    },
+    {
+      "package": "@red-cup-engineering/footing",
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/footing",
+      "whatItSchedules": "Daily-tournament plumbing shared by every seeded-daily 561 Group game (ruinfold, durante, aletheon, farstone, world-hosting): UTC date arithmetic for the tournament day boundary, submission guards keyed to that boundary.",
+      "cutOver": false,
+      "nextStep": "Express the daily UTC tournament-day boundary as a FREQ=DAILY RRULE (or the day's own DTSTART/DTEND pair) via expand-recurrence-rule-service instead of hand-rolled UTC date arithmetic. Touches 5 declared dependents (@561-group/aletheon, @561-group/ruinfold-daily, @causeway-services/farstone, @red-cup-engineering/durante, @red-cup-engineering/world-hosting) so this cutover needs its own bounded lot with each dependent's tests re-run."
+    },
+    {
+      "package": "@red-cup-engineering/cartridge",
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/cartridge",
+      "whatItSchedules": "The `/seed` daily-UTC seed boundary consumed by the house's daily-seeded games.",
+      "cutOver": false,
+      "nextStep": "Same shape as footing's daily boundary: model the daily-UTC seed rollover as a FREQ=DAILY RRULE via expand-recurrence-rule-service. Two vendored dist/ copies exist under public game services (parlor-service, be-not-so-fearful-service) -- those are build artifacts, not separate source consumers, and are not counted as separate rows."
+    },
+    {
+      "package": "MetroPlat loop timers (Monitor/Analyze/Plan/Execute stages)",
+      "path": null,
+      "whatItSchedules": "The ops.561.group control-plane loop stages' own interval timers.",
+      "cutOver": false,
+      "nextStep": "Per the 2026-09-05 ruling 'MetroPlat is a MARSH library' (561-group-services-section/data/records/2026-09-05-ruling-metroplat-is-a-marsh-library.json): this scheduling logic living inside metroplat's own src/ is itself the debt named by that ruling, not something to patch in place. The lawful move is an icalendar-services-section-backed scheduling operation package that metroplat composes as a thin verb, in a dedicated lot scoped to metroplat's own standardization program -- out of reach for a bounded lot touching only the checkout's Node packages."
+    },
+    {
+      "package": "systemd-unit-inventory-observation-service (observed units' OnCalendar= timers)",
+      "path": null,
+      "whatItSchedules": "Every systemd --user timer unit on the host, as OS-level OnCalendar= recurrence expressions.",
+      "cutOver": false,
+      "nextStep": "Not a Node scheduling call site -- systemd's own calendar-expression grammar, read-only observed by this service. If a unified due-view across systemd timers and in-code RRULEs is ever wanted, that is a translation/comparison layer over both, never a rewrite of systemd units into RFC 5545."
+    }
+  ]
+}

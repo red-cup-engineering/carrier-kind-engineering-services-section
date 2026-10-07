@@ -17,13 +17,12 @@
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/json-rpc-transport-service": "workspace:*"
+    "@red-cup-engineering/computer-system-engine": "workspace:*"
   },
   "files": [
     "src",
-    "scripts",
-    "README.md"
+    "README.md",
+    "scripts"
   ],
   "exports": {
     "./semantic-content-identity": "./src/semantic-content-identity.mjs",
@@ -80,7 +79,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/red-cup-engineering/computer-services-section.git",
-    "directory": "services/computer-networking-engineering-services-section/services/http-services-section"
+    "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
+    "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section"
   }
 }

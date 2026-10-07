@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { executeOpenAiCompatibleToolAgent } from "../../src/openai/tool-agent.mjs";
-import { createRepositoryObservationHandlers, REPOSITORY_OBSERVATION_TOOLS } from "@red-cup-engineering/computer-system-engine/repository-observation";
+import { createRepositoryObservationHandlers, REPOSITORY_OBSERVATION_TOOLS } from "@red-cup-engineering/feltos/operations";
 
 import { providerConfiguration } from "@red-cup-engineering/computer-inference-engine/openai/provider-runtime";
 

@@ -1,4 +1,6 @@
 import { nonportableOperations, operation, operationIrAudit } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operationIrAudit } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { actions } from "@red-cup-engineering/relating/actions";

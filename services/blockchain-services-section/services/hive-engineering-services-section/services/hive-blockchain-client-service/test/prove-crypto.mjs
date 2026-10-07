@@ -3,9 +3,9 @@
 // known dhive vector, and sign/verify/recover/determinism/canonicality of the ECDSA signer.
 import { run, isMain } from "./_harness.mjs";
 import crypto from "node:crypto";
-import { encode, decode } from "@red-cup-engineering/base58-encoding-service";
-import { sha256, sha256d, ripemd160, hmacSha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
-import { sign, verify, recover, getPublicKey } from "@red-cup-engineering/cryptographic-data-service/secp256k1";
+import { encode, decode } from "@red-cup-engineering/computer-data-serialization-services-section/base58";
+import { sha256, sha256d, ripemd160, hmacSha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sign, verify, recover, getPublicKey } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/secp256k1";
 import { PrivateKey, PublicKey } from "../src/keys.mjs";
 
 // Known (WIF, STM public) vector lifted verbatim from dhive test/crypto.ts `mainPair`
@@ -23,7 +23,7 @@ const FALLBACK_RIPEMD_ABC = await (async () => {
   const orig = crypto.getHashes;
   crypto.getHashes = () => orig.call(crypto).filter((h) => h !== "ripemd160");
   try {
-    const m = await import(`${import.meta.resolve("@red-cup-engineering/cryptographic-data-service/hash")}?forcefallback=${Date.now()}`);
+    const m = await import(`${import.meta.resolve("@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash")}?forcefallback=${Date.now()}`);
     return m.ripemd160(Buffer.from("abc")).toString("hex");
   } finally {
     crypto.getHashes = orig;

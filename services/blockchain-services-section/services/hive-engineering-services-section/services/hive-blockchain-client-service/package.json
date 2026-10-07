@@ -23,6 +23,7 @@
     "graphene",
     "secp256k1",
     "json-rpc",
+    "zero-dependency",
     "cli"
   ],
   "scripts": {
@@ -51,12 +52,12 @@
   },
   "private": false,
   "dependencies": {
-    "@red-cup-engineering/exact-number-data-service": "0.1.0",
-    "@red-cup-engineering/cryptographic-data-service": "0.1.0",
-    "@red-cup-engineering/json-rpc-transport-service": "0.1.0",
-    "@red-cup-engineering/base58-encoding-service": "0.1.0",
-    "@red-cup-engineering/text-slug-service": "0.1.0",
-    "@red-cup-engineering/exact-order-book-service": "0.1.0"
+    "@red-cup-engineering/exact-number-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/json-rpc-transport-service": "workspace:*",
+    "@red-cup-engineering/base58-encoding-service": "workspace:*",
+    "@red-cup-engineering/text-slug-service": "workspace:*",
+    "@red-cup-engineering/exact-order-book-service": "workspace:*"
   },
   "repository": {
     "type": "git",

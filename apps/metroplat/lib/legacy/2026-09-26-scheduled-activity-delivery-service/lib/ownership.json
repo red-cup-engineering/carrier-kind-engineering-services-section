@@ -1,0 +1,14 @@
+{
+  "kind": "ownership-law-shadow",
+  "node": "scheduled-activity-delivery-service",
+  "owners": ["board-of-directors", "executive-office", "working-services-section"],
+  "effective-law": {
+    "direct-contracting": true,
+    "owner-gateway-required": false,
+    "rules": [
+      "this node owns its schedules, reservations, receipts, code, and refusal",
+      "customers alone admit provider actors and capabilities",
+      "owners receive no implicit runtime or customer authority"
+    ]
+  }
+}

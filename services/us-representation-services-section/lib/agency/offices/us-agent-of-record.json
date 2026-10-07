@@ -1,0 +1,10 @@
+{
+  "id": "us-agent-of-record",
+  "name": "US Agent of Record",
+  "kind": "office",
+  "normative-structure": "The office answers for holding each client's FDA US agent role: being named in the FDA's registration system, answering FDA calls and mail in US business hours, forwarding every FDA communication to the client the same day in English and Chinese, reminding the client of its October-to-December renewal, and recording the engagement's stages and payments.",
+  "deontic-profile": { "holding-fda-us-agent-roles": "duty" },
+  "authority-scope": ["./"],
+  "jurisdiction": "us-representation",
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "561-group-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-doing-business-with-chinese-businesses.md" }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "land-contracts",
+  "name": "Land Contracts",
+  "kind": "market",
+  "entity": "561-group-llc",
+  "faces": "Owners of property they do not use who would rather have a fast, certain sale, and the builders and investors who buy what fits them.",
+  "offices": ["land-caller", "land-acquisitions-lead", "land-dispositions-lead", "land-transaction-coordinator"],
+  "contracts": ["land-contracts-leading-goal", "owner-household-chain-group"],
+  "settings": [
+    { "axis": "offer-open-lot", "means": "share of the county land estimate a first offer on an infill lot or site opens at", "poles": [0.2, 0.9], "unit": "share", "default": 0.5 },
+    { "axis": "offer-ceiling-lot", "means": "share of the county land estimate above which the Group does not offer on a lot or site", "poles": [0.3, 1], "unit": "share", "default": 0.7 },
+    { "axis": "offer-open-seasonal", "means": "opening share for seasonal land", "poles": [0.1, 0.9], "unit": "share", "default": 0.4 },
+    { "axis": "offer-ceiling-seasonal", "means": "ceiling share for seasonal land", "poles": [0.2, 1], "unit": "share", "default": 0.6 },
+    { "axis": "offer-open-rural", "means": "opening share for rural acreage, the blind-offer range", "poles": [0.1, 0.6], "unit": "share", "default": 0.25 },
+    { "axis": "offer-ceiling-rural", "means": "ceiling share for rural acreage", "poles": [0.15, 0.8], "unit": "share", "default": 0.45 },
+    { "axis": "offer-open-dwelling", "means": "opening share of the county total estimate for a house", "poles": [0.2, 0.9], "unit": "share", "default": 0.5 },
+    { "axis": "offer-ceiling-dwelling", "means": "ceiling share of the county total estimate for a house", "poles": [0.3, 1], "unit": "share", "default": 0.7 },
+    { "axis": "target-fee", "means": "the fee kept between a matched buyer's price and the offer ceiling", "poles": [500, 50000], "unit": "USD", "default": 3000 },
+    { "axis": "land-fund-share", "means": "share of the Group's net fee (after the caller's share) each closing reserves to the land fund, which pays for land the Group keeps, its installments and its property tax", "poles": [0, 1], "unit": "share", "default": 0.5 },
+    { "axis": "caller-share", "means": "the originating caller's share of each net fee under the joint-venture caller agreement", "poles": [0, 1], "unit": "share", "default": 0.4 },
+    { "axis": "quiet-days", "means": "days before an owner not reached is called again", "poles": [1, 120], "unit": "days", "default": 14 },
+    { "axis": "earnest-money", "means": "earnest money deposited per signed purchase agreement", "poles": [100, 2000], "unit": "USD", "default": 300 }
+  ],
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "engineering-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-enterprise-layer.md" }
+}

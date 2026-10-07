@@ -1,0 +1,196 @@
+/**
+ * The workspace policy of the carrier contract: whichever agent CLI carries a duty or a task, it
+ * works in a Git worktree opened for that one task alone, never in the repository's shared checkout
+ * (the node's live data root, where other sessions' code runs).
+ *
+ *   per task      `<root>/<task id>`, a detached worktree at origin/main with submodules at their gitlinks;
+ *                 no two tasks share a tree, and the root is outside the repository;
+ *   reading       a task that only reads works in its own tree opened without installing packages, under
+ *                 the carrier's read-only effects; nothing of it is committed;
+ *   writing       its change is committed and named a candidate to the merge queue (land-candidate's
+ *                 own path), then the tree is removed; a task that failed keeps its tree, marked,
+ *                 with the last FAILED_WORKTREES_KEPT of them retained;
+ *   fail closed   a worktree that cannot be opened rejects, so no session starts, and a working
+ *                 directory inside a primary checkout is refused by every argument or unit builder.
+ *
+ * A dialect names itself (`name`, `label`); its root is `METROPLAT_<NAME>_WORKTREES`, default
+ * `~/.local/state/561-group/<name>-worktrees`, and its branches `<name>/<task id>`.
+ */
+import { existsSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import path from "node:path";
+
+import { commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
+
+/** How many failed tasks' worktrees stay for inspection; older ones are removed. */
+export const FAILED_WORKTREES_KEPT = 10;
+
+/** How long an entry of a retired shared root is left alone when it is pruned, and how many of the
+ *  newest stay regardless. */
+export const RETIRED_ROOT_GRACE_MS = 7 * 24 * 3_600_000;
+export const RETIRED_ROOT_KEPT = 5;
+
+const environmentName = (dialect) => `METROPLAT_${dialect.name.toUpperCase().replace(/[^A-Z0-9]+/gu, "_")}_WORKTREES`;
+
+/** Where a dialect's task worktrees live. Outside the repository: inside it, each worktree's packages
+ *  would join the pnpm workspace beside the originals and the tree would read as untracked files in
+ *  the shared checkout. */
+export const carrierWorktreeRoot = (dialect, environment = process.env) =>
+  environment[environmentName(dialect)] || path.join(homedir(), ".local", "state", "561-group", `${dialect.name}-worktrees`);
+
+/** The worktree of one task: `<root>/<task id>`. */
+export function carrierTaskWorktree(dialect, taskId, environment = process.env) {
+  if (typeof taskId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/u.test(taskId)) throw new TypeError(`a ${dialect.label} task worktree is named by a task id of letters, digits, '.', '_' and '-'`);
+  return path.join(carrierWorktreeRoot(dialect, environment), taskId);
+}
+
+/** The branch of one task's worktree, and where its change is published when it joins nothing. */
+export const carrierTaskBranch = (dialect, taskId) => `${dialect.name}/${taskId}`;
+const strandedBranch = (dialect, taskId) => `${dialect.name}/stranded/${taskId}`;
+
+/** The nearest enclosing Git working tree of `directory`, and whether it is a primary checkout (its
+ *  `.git` is a directory) rather than a linked worktree (its `.git` is a file). */
+function enclosingCheckout(directory) {
+  for (let current = path.resolve(directory); ; current = path.dirname(current)) {
+    try { return { root: current, shared: statSync(path.join(current, ".git")).isDirectory() }; }
+    catch (error) { if (error.code !== "ENOENT" && error.code !== "ENOTDIR") throw error; }
+    if (path.dirname(current) === current) return undefined;
+  }
+}
+
+/** Refuse a working directory inside a primary checkout, the shared tree every writer would otherwise
+ *  edit under the node. Every start, resume and unit a carrier builds goes through this. */
+export function assertNotSharedCheckout(dialect, cwd) {
+  if (typeof cwd !== "string" || cwd === "") throw new TypeError(`a ${dialect.label} session needs its own task worktree as its working directory`);
+  const checkout = enclosingCheckout(cwd);
+  if (checkout?.shared === true) throw new TypeError(`a ${dialect.label} session never runs in the shared checkout ${checkout.root}: it works in a worktree of its own (${cwd})`);
+  return cwd;
+}
+
+/** What every carrier session is told of where it works. */
+export const CARRIER_WORKSPACE_RULE = "Your working directory is a Git worktree opened for this task alone, detached at origin/main. Work only in it. Never edit, stash, reset, checkout, pull, merge or rebase in the shared checkout of the repository (the node's live data root, where other sessions' code runs), and never change directory into it to write. Your change joins main through the merge queue as a candidate; the runner commits and names it, so do not push.";
+
+/** Open the task's own detached worktree at origin/main, submodules at their gitlinks, packages linked
+ *  offline (a read-only task does not install). `cwd` is the repository the worktree borrows objects
+ *  from, and is never itself the workspace. Fails closed: when the worktree cannot be opened this
+ *  rejects, and no session starts. A worktree that already exists is the task's own earlier one and is
+ *  reused as it stands when `reuse` is set (recovery), never reset. `commandRunner`, when given,
+ *  replaces the house command executor for the worktree's steps. */
+export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "repository-write", reuse = false, commandRunner, environment = process.env }) {
+  const workspace = carrierTaskWorktree(dialect, taskId, environment);
+  const branch = carrierTaskBranch(dialect, taskId);
+  if (path.resolve(workspace) === path.resolve(cwd)) throw new TypeError(`a ${dialect.label} task worktree is never the repository it borrows from`);
+  try {
+    if (reuse && existsSync(path.join(workspace, ".git"))) return Object.freeze({ workspace, branch, reused: true });
+    const prepared = await prepareWorktree({ repository: cwd, workspace, branch, install: effects !== "read-only", runner: commandRunner });
+    assertNotSharedCheckout(dialect, prepared.workspace);
+    return Object.freeze({ ...prepared, reused: false });
+  } catch (error) {
+    throw new Error(`the ${dialect.label} task worktree ${workspace} could not be opened, so the task does not run: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+  }
+}
+
+const keptMarker = (dialect, environment, taskId) => path.join(carrierWorktreeRoot(dialect, environment), `${taskId}.kept`);
+
+/** After a task: remove its worktree when its change reached the merge queue as a candidate (or it
+ *  changed nothing); keep it, marked, when it failed, and remove the failed worktrees beyond the
+ *  last `keep`. The task's branch stays in the repository either way. Resolves whether the worktree
+ *  was kept. */
+export async function releaseCarrierWorktree(dialect, { cwd, workspace, taskId, failed, commandRunner, environment = process.env, keep = FAILED_WORKTREES_KEPT }) {
+  if (failed) {
+    writeFileSync(keptMarker(dialect, environment, taskId), `${JSON.stringify({ taskId, workspace, kept: new Date().toISOString() })}\n`, { mode: 0o600 });
+    const root = carrierWorktreeRoot(dialect, environment);
+    const marked = readdirSync(root).filter((name) => name.endsWith(".kept"))
+      .map((name) => ({ name, mtime: statSync(path.join(root, name)).mtimeMs })).sort((left, right) => right.mtime - left.mtime);
+    for (const { name } of marked.slice(keep)) {
+      const id = name.slice(0, -".kept".length);
+      await removeWorktree({ repository: cwd, workspace: path.join(root, id), runner: commandRunner }).catch(() => undefined);
+      rmSync(path.join(root, name), { force: true });
+    }
+    return true;
+  }
+  await removeWorktree({ repository: cwd, workspace, runner: commandRunner });
+  rmSync(keptMarker(dialect, environment, taskId), { force: true });
+  return false;
+}
+
+/** Whether a finished task's trace reached the queue: it changed nothing, or it names a candidate (or
+ *  joined main outright). A stranded or unresolved trace did not. */
+export const carrierTraceNamed = (trace) => trace?.integration === undefined
+  ? (trace?.changedPaths ?? []).length === 0
+  : trace.integration.queued === true || trace.integration.head !== undefined;
+
+/** Commit the complete named task trace, if it wrote anything, describe it against origin/main, and
+ *  join it to origin/main in the same act (the merge queue, as a candidate). A conflict goes to
+ *  `resolve`; a trace still conflicting is published as <name>/stranded/<task>. */
+export async function finishCarrierWorktree(dialect, { workspace, branch = undefined, taskId, responsibility, resolve, commandRunner, now = () => new Date().toISOString() }) {
+  const runner = commandRunner;
+  const task = branch ?? carrierTaskBranch(dialect, taskId);
+  let commit = await commitWorktree({ workspace, message: [responsibility, `${dialect.label} task ${taskId}`], runner });
+  const changedPaths = await worktreeChanges({ workspace, branch: task, runner });
+  if (commit === undefined && changedPaths.length > 0) commit = await worktreeHead({ workspace, runner });
+  if (commit === undefined) return Object.freeze({ branch: task, changedPaths });
+  const integration = await integrateWorktree({ workspace, branch: task, stranded: strandedBranch(dialect, taskId), resolve, runner });
+  // Integration names a merge-queue candidate; the task is integrated only once its verdict lands.
+  const landed = integration.head !== undefined && integration.queued !== true;
+  return Object.freeze({ branch: task, commit, changedPaths, ...(landed ? { integrated: now() } : integration.queued === true ? { queued: now() } : {}), integration });
+}
+
+/** Prune a retired shared root once: remove each of its worktrees that is clean, older than the grace
+ *  period and not among the newest `kept`, from `repository`'s registry (their branches stay). A dirty
+ *  or recent one stays. Marks the root so later calls do nothing. Resolves the names it removed. */
+export async function pruneRetiredWorktreeRoot({ root, repository, commandRunner, now = Date.now(), grace = RETIRED_ROOT_GRACE_MS, kept = RETIRED_ROOT_KEPT }) {
+  const marker = path.join(root, ".retired");
+  if (!existsSync(root) || existsSync(marker)) return Object.freeze([]);
+  const entries = readdirSync(root, { withFileTypes: true }).filter((entry) => entry.isDirectory())
+    .map((entry) => ({ name: entry.name, mtime: statSync(path.join(root, entry.name)).mtimeMs })).sort((left, right) => right.mtime - left.mtime);
+  const removed = [];
+  for (const { name, mtime } of entries.slice(kept)) {
+    if (now - mtime < grace) continue;
+    const workspace = path.join(root, name);
+    try {
+      if (await worktreeDirty({ workspace, runner: commandRunner })) continue;
+      await removeWorktree({ repository, workspace, runner: commandRunner });
+      removed.push(name);
+    } catch { /* an entry that cannot be read as a clean worktree stays */ }
+  }
+  writeFileSync(marker, `${JSON.stringify({ retired: new Date(now).toISOString(), removed })}\n`, { mode: 0o600 });
+  return Object.freeze(removed);
+}
+
+/** The effects a task's tree is opened for. */
+const defaultEffects = ({ receiving }) => (receiving ? "read-only" : "repository-write");
+
+/**
+ * The `workspaceOf` of the carrier contract (agent-harness `carrier/agency-carrier.mjs`) for a
+ * dialect: each act, execution or receiving, works in a worktree of its own. `open` resolves it (and
+ * rejects when it cannot be opened, so nothing runs in `repository`, the shared checkout); `close`
+ * settles it once the session ended: a writing act's change is committed and named a candidate, then
+ * the tree is removed, or kept when the act failed. `effectsOf({ item, receiving })` says whether the
+ * act writes (`repository-write`) or only reads (`read-only`). `retired` names shared roots this
+ * policy replaces, pruned once when the first tree opens.
+ */
+export function carrierWorkspaces(dialect, { repository, commandRunner, environment = process.env, effectsOf = defaultEffects, retired = [] }) {
+  const prune = async () => { for (const root of retired) await pruneRetiredWorktreeRoot({ root, repository, commandRunner }).catch(() => undefined); };
+  let pruning;
+  return Object.freeze({
+    open: async (spec) => {
+      pruning ??= prune();
+      await pruning;
+      const effects = effectsOf(spec);
+      return (await prepareCarrierWorktree(dialect, { cwd: repository, taskId: spec.id, effects, reuse: true, commandRunner, environment })).workspace;
+    },
+    close: async (spec) => {
+      const { item, id, workspace, session } = spec;
+      let named = false;
+      if (session?.ok === true) {
+        if (effectsOf(spec) === "read-only") named = true;
+        else {
+          const trace = await finishCarrierWorktree(dialect, { workspace, taskId: id, responsibility: `${item.office ?? "office"} duty ${item.scope ?? id}`, commandRunner });
+          named = carrierTraceNamed(trace);
+        }
+      }
+      await releaseCarrierWorktree(dialect, { cwd: repository, workspace, taskId: id, failed: !named, commandRunner, environment });
+    },
+  });
+}

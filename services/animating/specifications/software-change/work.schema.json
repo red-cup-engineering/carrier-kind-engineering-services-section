@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe.software.work.v1",
+  "title": "aoe.software.work.v1",
+  "description": "An admitted software-change work intent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "operation",
+    "actor",
+    "request"
+  ],
+  "properties": {
+    "operation": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "request": {
+      "type": "object"
+    }
+  },
+  "x-codegen": {
+    "exportName": "workSchema",
+    "typeName": "Work",
+    "runtimeName": "workType"
+  }
+}

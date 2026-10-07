@@ -1,0 +1,9 @@
+#!/bin/bash
+# Run elan's lake inside lean.slice so no Lean work can take the machine's memory.
+# Source: lean-system-services-section/deploy (symlinked into ~/.elan/bin); `elan self update` replaces the link with the plain proxy, so re-link after updating.
+: "${LEAN_NUM_THREADS:=4}"; export LEAN_NUM_THREADS
+if [ -z "$LEAN_SLICED" ] && [ -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bus" ]; then
+  LEAN_SLICED=1 exec systemd-run --user --scope --quiet --collect --slice=lean.slice \
+    -E LEAN_SLICED=1 -E LEAN_NUM_THREADS -- /bin/bash -c 'exec -a lake "$0" "$@"' "$HOME/.elan/bin/elan" "$@"
+fi
+exec -a lake "$HOME/.elan/bin/elan" "$@"

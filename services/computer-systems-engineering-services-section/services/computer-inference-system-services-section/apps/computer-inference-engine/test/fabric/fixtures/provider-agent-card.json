@@ -1,6 +1,6 @@
 {
-  "name": "Synthetic test inference provider",
-  "description": "Synthetic deterministic provider fixture for local metered inference tests. It represents no operational provider, wallet authority or customer.",
+  "name": "Groq Inference Team",
+  "description": "Executes one typed RMN text-inference effect through the settlement's bounded Groq harness.",
   "supportedInterfaces": [
     {
       "url": "${BASE_URL}/a2a/jsonrpc",
@@ -16,8 +16,8 @@
     }
   ],
   "provider": {
-    "url": "https://example.invalid",
-    "organization": "Synthetic test fixture"
+    "url": "https://emsenn.net/",
+    "organization": "Groq Inference Team via A2A Services Section"
   },
   "version": "1.0.0",
   "capabilities": {
@@ -29,13 +29,13 @@
         "description": "Signed sovereign M1 black-box circuit interface inhabited by this endpoint.",
         "required": true,
         "params": {
-          "profile": "org.emsenn.sen.sovereign-circuit-interface.v1",
-          "account": "eip155:31337:0x0000000000000000000000000000000000000002",
-          "authority": "ni:///sha-256;Jqu-NIaSEZZKfrhBTXzM0cHZ49Ga1NoTZlDrKrslI-s",
-          "custody": "ni:///sha-256;kQUkyjuGT6qkVzSfOOhDbF7N1xXGO64AdJvdSwt9P8c",
-          "territory": "ni:///sha-256;mG0KlPG2F35wAlxrkfqLaFjZ4ZD65sn46w4Iw2gWsjU",
+          "profile": "org.emsenn.rmn.sovereign-circuit-interface.v1",
+          "account": "eip155:5615610:0xa57b2e287fae147663fb1c3ca9ba672302956fff",
+          "authority": "ni:///sha-256;xP8l1j0BDG6iGR8qIC5eA3Fg5pPECeBMg34VUacLA7c",
+          "custody": "ni:///sha-256;Vsct2IZuTblKLO7yCnezYTTGNJMZ6Iqx9ZJFzWLxirg",
+          "territory": "ni:///sha-256;v0CnbRQjE065NY7JY-VyRCJS-wT7fephQ_Qm3b3QAxk",
           "component": {
-            "profile": "org.emsenn.sen.hierarchical-circuit.v3",
+            "profile": "org.emsenn.rmn.hierarchical-circuit.v3",
             "law": "ni:///sha-256;0iRtsVjOcdPu2DVQvX1wythjfgazjIEMqLzxiw3u1cQ",
             "ports": [
               {
@@ -143,21 +143,7 @@
           "maximumRequestCharacters": "15000",
           "maximumOutputTokens": "900",
           "maximumConcurrentLots": "1",
-          "considerationAlternatives": [
-            {
-              "id": "resolution-credit",
-              "obligations": [
-                {
-                  "id": "resolution-credit",
-                  "kind": "credit",
-                  "asset": "urn:union:credit:relative-resolution-milliquanta-v1",
-                  "amount": 27,
-                  "unit": "relative-resolution-milliquanta-v1",
-                  "settlementAdapter": "urn:union:settlement-adapter:direct-witness-v1"
-                }
-              ]
-            }
-          ]
+          "considerationAlternatives": [{ "id": "resolution-credit", "obligations": [{ "id": "resolution-credit", "kind": "credit", "asset": "urn:union:credit:relative-resolution-milliquanta-v1", "amount": 27, "unit": "relative-resolution-milliquanta-v1", "settlementAdapter": "urn:union:settlement-adapter:direct-witness-v1" }] }]
         }
       }
     ],
@@ -194,5 +180,6 @@
       ],
       "securityRequirements": []
     }
-  ]
+  ],
+  "signatures": []
 }

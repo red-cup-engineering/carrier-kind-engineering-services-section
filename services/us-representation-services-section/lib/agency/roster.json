@@ -1,0 +1,18 @@
+{
+  "node": "us-representation",
+  "offices": [
+    "lib/agency/offices/us-representation-caller.json",
+    "lib/agency/offices/us-agent-of-record.json",
+    "lib/agency/offices/sales-representative.json"
+  ],
+  "duties": [
+    "lib/agency/duties/calling-chinese-makers.json",
+    "lib/agency/duties/holding-fda-us-agent-roles.json",
+    "lib/agency/duties/selling-makers-lines.json"
+  ],
+  "works": [
+    "lib/agency/works/calling-chinese-makers.json",
+    "lib/agency/works/holding-fda-us-agent-roles.json",
+    "lib/agency/works/selling-makers-lines.json"
+  ]
+}

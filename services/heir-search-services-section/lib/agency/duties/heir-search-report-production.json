@@ -1,0 +1,15 @@
+{
+  "id": "heir-search-report-production",
+  "name": "produce one heir search report from a priced order",
+  "authority": "emsenn",
+  "work": "heir-search-report-production",
+  "from": "one priced order and the research findings gathered against it (heir tree entries with their confirming or contesting sources, the chain of title)",
+  "to": "one assembled report written to dated records, and its journal record",
+  "cost": "research time, per-county paid document retrieval where county records are paper-only",
+  "otherwise": "no report exists; the order stays open",
+  "claim": "leader-account-and-capital-authority",
+  "delegation": false,
+  "skills": [
+    "heir-search-report-production"
+  ]
+}

@@ -27,6 +27,7 @@
     "@red-cup-engineering/css-services-section": "workspace:*",
     "@red-cup-engineering/datom": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/html-engineering-services-section": "workspace:*",
     "@red-cup-engineering/html-structural-projection-service": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",

@@ -1,0 +1,15 @@
+{
+  "node": "heir-search-enterprise",
+  "offices": [
+    "lib/agency/offices/heir-search-caller.json",
+    "lib/agency/offices/heir-search-researcher.json"
+  ],
+  "duties": [
+    "lib/agency/duties/heir-search-lead-and-order-intake.json",
+    "lib/agency/duties/heir-search-report-production.json"
+  ],
+  "works": [
+    "lib/agency/works/heir-search-lead-and-order-intake.json",
+    "lib/agency/works/heir-search-report-production.json"
+  ]
+}

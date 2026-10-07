@@ -1,13 +1,29 @@
-# A2A compatibility package
+# A2A Services Section
 
-This restores the plain-Node `@red-cup-engineering/a2a-services-section` package consumed by FeltOS, preserving its eight public subpaths and existing protocol behavior. It includes the JSON-RPC client/server, signed Agent Card helpers, durable state stores and SEN/circuit parts. It does not use `@a2a-js/sdk`.
+This section owns independently hireable dies implementing the official A2A
+1.0 boundary: parts and task clients, signed Agent Card discovery,
+contracted-agent serving and state custody, key provisioning, portfolio status,
+and machine-bound deployed-provider observation. There is no section-level
+runtime or package.
 
-The original snapshot combined this executable package with a README describing a different, package-free SDK-based section. The original README is preserved under `provenance/original-README.md`; its statements are historical, not this package's installation contract. Source restoration does not activate a provider or grant an identity, credential, publication or deployment permission.
+The serving die publishes the standard Agent Card discovery resource and the
+official JSON-RPC and HTTP+JSON bindings supplied by `@a2a-js/sdk`. Legacy A2A
+0.3 compatibility is deliberately disabled. Each carried operation has exactly
+one raw `application/rmn+cbor` part with an RFC 6920 SHA-256 `ni` identity in
+standard A2A metadata. Other standard A2A parts may carry Marks such as prompt
+text or referenced resources; there is no private task envelope.
 
-## Verification
+Each contracted executor reads one standard A2A 1.0 `Message` JSON value from
+standard input and writes one standard A2A 1.0 `Message` JSON value to standard
+output. JSON exists here because the public protocol requires it; the
+operation identity remains the RMN CBOR part. The executor remains responsible
+for the private effect named by its settlement contract. None of the protocol
+dies reads the customer's interior or becomes a Union registry or scheduler.
 
-Run `npm run check` and `npm test` from this directory after installing the exact compatible dependencies. The check visits every script and test file instead of passing several filenames to one `node --check` invocation.
+Production Agent Cards must advertise HTTPS interfaces. Loopback HTTP is
+admitted only for node-local conformance and supervised same-host operation.
 
-## Publication prerequisites
-
-The original workspace dependency contracts are preserved, except for the verified unused networking edge. Several required source versions are unpublished, while some same-name published versions expose different APIs. Explicit pins await compatible upstream release receipts. No lockfile or passing installation is claimed. Do not publish this package until its exact dependency closure and lockfile are received and the shared publication assay emits a valid artifact plan.
+The deployed-provider observation service joins an infrastructure owner's exact
+resource/revision/origin observation to signed Agent Card and provider-owned
+operation evidence. It does not infer application health from Cloud Run
+readiness and does not own deployment effects.

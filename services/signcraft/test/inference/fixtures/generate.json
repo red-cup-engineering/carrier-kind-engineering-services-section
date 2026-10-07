@@ -1,0 +1,16 @@
+{
+  "objects": ["dog", "whale", "sparrow", "trout", "bat"],
+  "attributes": ["mammal", "bird", "fish", "warm", "feathers", "aquatic", "airbreathing", "flies"],
+  "pairs": [
+    ["dog", "mammal"], ["dog", "warm"], ["dog", "airbreathing"],
+    ["whale", "mammal"], ["whale", "warm"], ["whale", "aquatic"], ["whale", "airbreathing"],
+    ["sparrow", "bird"], ["sparrow", "warm"], ["sparrow", "feathers"], ["sparrow", "airbreathing"], ["sparrow", "flies"],
+    ["trout", "fish"], ["trout", "aquatic"],
+    ["bat", "mammal"], ["bat", "warm"], ["bat", "airbreathing"], ["bat", "flies"]
+  ],
+  "charges": [["newcomer", "warm", "potential"]],
+  "conductances": [["warm", "mammal", 2], ["warm", "bird", 0.5]],
+  "object": "newcomer",
+  "temperature": 0.5,
+  "seed": 3
+}

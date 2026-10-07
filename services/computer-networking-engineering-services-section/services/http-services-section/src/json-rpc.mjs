@@ -1,6 +1,3 @@
-import { callJsonRpc } from "@red-cup-engineering/json-rpc-transport-service";
-export { callJsonRpc };
-
 import { collectBody } from "./body/body.mjs";
 
 export function createJsonRpcTransport({ timeout = 8000, maxBytes = 16 * 1024 * 1024, fetchImpl = globalThis.fetch } = {}) {
@@ -14,6 +11,21 @@ export function createJsonRpcTransport({ timeout = 8000, maxBytes = 16 * 1024 * 
     const bytes = await collectBody(response.body, maxBytes, "JSON-RPC response", signal);
     return { status: response.status, body: new TextDecoder("utf-8", { fatal: true }).decode(bytes) };
   };
+}
+
+export async function callJsonRpc(transport, url, envelope) {
+  const response = await transport(url, envelope);
+  if (!response || response.status < 200 || response.status >= 300 || typeof response.status !== "number") {
+    throw new Error(`HTTP ${response?.status} from ${url}`);
+  }
+  const payload = JSON.parse(response.body);
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error(`Invalid JSON-RPC response from ${url}`);
+  if (payload.error !== undefined && payload.error !== null) {
+    const error = new Error(`RPC error from ${url}: ${payload.error?.message ?? JSON.stringify(payload.error)}`);
+    error.rpcError = payload.error;
+    throw error;
+  }
+  return payload.result;
 }
 
 /**

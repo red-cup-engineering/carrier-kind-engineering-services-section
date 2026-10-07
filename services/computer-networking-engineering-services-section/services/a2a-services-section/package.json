@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": false,
   "type": "module",
-  "description": "Plain-Node A2A 1.0 compatibility package: JSON-RPC client/server, signed Agent Cards, durable stores and SEN parts.",
+  "description": "Plain-Node A2A 1.0: the JSON-RPC client and server, signed Agent Cards, durable task and push-notification stores, and SEN parts. No @a2a-js/sdk, no build step, no runtime npm dependencies.",
   "exports": {
     "./a2a-client": "./scripts/a2a-client.mjs",
     "./a2a-server": "./scripts/a2a-server.mjs",
@@ -18,14 +18,15 @@
     "scripts"
   ],
   "scripts": {
-    "check": "for file in scripts/*.mjs test/*.mjs; do node --check \"$file\" || exit; done",
+    "check": "node --check scripts/*.mjs && node --check test/*.test.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/file-services": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",

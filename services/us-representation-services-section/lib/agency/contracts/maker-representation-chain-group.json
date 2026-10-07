@@ -1,0 +1,14 @@
+{
+  "id": "maker-representation-chain-group",
+  "type": "chain-group",
+  "enterprises": ["us-representation"],
+  "enterprise": "us-representation",
+  "user": "A Chinese maker selling in the United States: registered and reachable for its regulators, its products sold to US buyers, and answered for in English in US hours, as if it had its own people here.",
+  "parties": [
+    { "office": "us-representation-caller", "share": 0.35, "does": "reaches makers, screens them, and brings them to an agreement" },
+    { "office": "us-agent-of-record", "share": 0.3, "does": "holds FDA US agent roles and answers regulators the same day" },
+    { "office": "sales-representative", "share": 0.35, "does": "sells represented lines to US buyers and stands for makers at shows" }
+  ],
+  "sharing": "value captured above the US representation leading goal's value-captured target, divided by share; no pool, no sharing",
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "561-group-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-doing-business-with-chinese-businesses.md" }
+}

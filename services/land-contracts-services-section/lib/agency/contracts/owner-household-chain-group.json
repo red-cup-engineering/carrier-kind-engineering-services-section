@@ -1,0 +1,16 @@
+{
+  "id": "owner-household-chain-group",
+  "type": "chain-group",
+  "enterprises": ["land-contracts", "heir-search"],
+  "enterprise": "land-contracts",
+  "user": "An owner household holding property it does not use, including heirs who cannot yet sign for it: a fast, certain, fairly priced sale, or a cleared title the family can act on.",
+  "parties": [
+    { "office": "land-caller", "share": 0.3, "does": "reaches owners and buyers" },
+    { "office": "land-acquisitions-lead", "share": 0.3, "does": "makes offers and signs purchase agreements" },
+    { "office": "land-dispositions-lead", "share": 0.2, "does": "assigns contracts to buyers" },
+    { "office": "land-transaction-coordinator", "share": 0.05, "does": "keeps documents and deadlines to closing" },
+    { "office": "heir-search-researcher", "share": 0.15, "does": "reconstructs heirs so an estate's owners can sign" }
+  ],
+  "sharing": "value captured above the land-contracts leading goal's value-captured target, divided by share; no pool, no sharing",
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "engineering-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-enterprise-layer.md" }
+}

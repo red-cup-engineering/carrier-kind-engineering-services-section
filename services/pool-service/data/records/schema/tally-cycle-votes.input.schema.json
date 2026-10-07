@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pool-service/tally-cycle-votes-input",
+  "title": "tallyCycleVotesInput",
+  "description": "The request tally-cycle-votes.mjs reads via --request or stdin: tallying one cycle's recorded distribution votes.",
+  "type": "object",
+  "required": ["cycleId", "closedAt"],
+  "properties": {
+    "cycleId": { "type": "string", "minLength": 1 },
+    "closedAt": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

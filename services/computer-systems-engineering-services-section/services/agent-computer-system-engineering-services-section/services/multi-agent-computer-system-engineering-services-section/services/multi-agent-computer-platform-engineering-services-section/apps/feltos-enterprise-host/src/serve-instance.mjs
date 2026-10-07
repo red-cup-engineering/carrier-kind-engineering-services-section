@@ -270,6 +270,23 @@ export function createEnterpriseServicePlatform({
       return Response.json({
         ok,
         service: config.instance.name,
+        workPeerActor: config.workPeerActor ?? null,
+        release: environment.GUIX_MACHINE_RELEASE_ID ?? null,
+        artifact: environment.GUIX_MACHINE_ARTIFACT ?? null,
+        deployment: (() => {
+          if (!environment.GUIX_MACHINE_DEPLOYMENT_STATUS) return null;
+          try {
+            const value=JSON.parse(readFileSync(environment.GUIX_MACHINE_DEPLOYMENT_STATUS,'utf8'));
+            return Object.fromEntries(['outcome','machine','revision','repository','run','stage','at','reason','storePath','previous','retained'].filter(k=>Object.hasOwn(value,k)).map(k=>[k,value[k]]));
+          } catch {return null}
+        })(),
+        sources: (() => {
+          if (!environment.GUIX_MACHINE_ARTIFACT) return null;
+          try {
+            const metadata=JSON.parse(readFileSync(path.join(environment.GUIX_MACHINE_ARTIFACT,'.metadata','sources.json'),'utf8'));
+            return metadata.repositories.map(({repository,commit})=>({repository,commit,url:`https://github.com/${repository}/commit/${commit}`}));
+          } catch { return null; }
+        })(),
         state: unloaded ? "unready" : report.state,
         phases: report.providers,
         ...(probe === undefined ? {} : { probe: true, families }),
