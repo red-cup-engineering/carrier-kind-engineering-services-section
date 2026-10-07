@@ -41,7 +41,9 @@
                            (cons (car pair)
                                  (regexp-substitute/global
                                   #f "\\{release\\}" (cdr pair) 'pre out 'post)))
-                         '#$environment)))
+                         (append '#$environment
+                           (list (cons "NODE_OPTIONS" (format #f "--max-old-space-size=~a --disable-sigusr1" #$heap))
+                                 (cons "PATH" (string-append out "/bin:/home/emsenn/.local/bin:/usr/local/bin:/usr/bin:/bin")))))))
               (copy-recursively #$(local-file source "admitted-runtime" #:recursive? #t) out)
               (mkdir-p bin)
               (mkdir-p units)
