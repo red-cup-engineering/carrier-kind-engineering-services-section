@@ -32,7 +32,8 @@ export async function dispatchWire(
     return { code: 2, stdout: "", stderr: `${program}: ${error instanceof Error ? error.message : String(error)}\n` };
   }
   if (verb === undefined) return { code: 2, stdout: "", stderr: `${program}: a verb is required; known: ${verbs}\n` };
-  const operation = catalog.byVerb.get(verb);
+  const operation = options.operation===undefined ? catalog.byVerb.get(verb) : catalog.byReference.get(options.operation);
+  if(options.operation!==undefined && (operation===undefined || operation.verb!==verb))return {code:2,stdout:"",stderr:`${program}: the addressed operation ${options.operation} does not offer ${verb}\n`};
   if (operation === undefined) return { code: 2, stdout: "", stderr: `${program}: unknown verb ${JSON.stringify(verb)}; known: ${verbs}\n` };
 
   let values;
@@ -65,7 +66,7 @@ export async function dispatchWire(
     observedAt,
     causes: options.causes ?? [],
   });
-  const receipt = await dispatch({ catalog, witness: options.witness, authorize, now: options.now, ...(options.coordinate === undefined ? {} : { coordinate: options.coordinate }) }, candidate);
+  const receipt = await dispatch({ catalog, witness: options.witness, authorize, now: options.now, ...(options.beforeExecute === undefined ? {} : { beforeExecute: options.beforeExecute }), ...(options.coordinate === undefined ? {} : { coordinate: options.coordinate }) }, candidate);
   if (!receipt.ok || receipt.value === undefined) {
     return {
       code: 1,

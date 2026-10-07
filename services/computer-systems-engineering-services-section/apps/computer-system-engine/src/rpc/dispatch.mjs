@@ -1,5 +1,6 @@
 /** The sole governed execution path for canonical RPC invocations. */
 
+import { invocation as semanticInvocation } from "./invocation.mjs";
 import { executionReceipt } from "./receipt.mjs";
 
 import { isOperationHandlerResult } from "./execution-context.mjs";
@@ -129,6 +130,14 @@ const isDerivation = (operation) => operation.effects.class === "pure" || operat
  */
 export async function dispatch(runtime, invocation) {
   const operation = runtime.catalog.byReference.get(invocation.operation);
+  // CLI options select the same parameter the body reads. Authorization and its
+  // witness must use that semantic input, not an overridden JSON spelling.
+  const locus = operation?.locus;
+  const argument = locus === undefined || !operation.options.includes(locus) ? undefined : invocation.arguments[locus];
+  if (typeof argument === "string" && argument.trim() !== "" && (invocation.input === null || typeof invocation.input === "object" && !Array.isArray(invocation.input))
+    && invocation.input?.[locus] !== argument.trim()) {
+    invocation = semanticInvocation({ ...invocation, input: { ...invocation.input, [locus]: argument.trim() } });
+  }
   if (operation === undefined || operation.verb !== invocation.verb || !isDerivation(operation)
     || operation.effects.coordination === "coordination-required") return witnessedDispatch(runtime, invocation);
   const startedAt = runtime.now();
@@ -160,6 +169,8 @@ export async function dispatch(runtime, invocation) {
   if (!decision.ok) return witnessAct(decision, obstruction(invocation, operation.ref, "authorization", startedAt, runtime.now(), decision.reasons, [], decision));
   let handled;
   try {
+    if(runtime.beforeExecute!==undefined)operation.domain?.assert(invocation.input, `operation ${operation.verb} input`);
+    await runtime.beforeExecute?.(invocation, operation, decision);
     handled = await operation.execute(invocation.input, invocation.arguments, Object.freeze({
       kind: "metroplat.rpc.execution-context",
       invocation,
@@ -307,6 +318,8 @@ async function witnessedDispatch(runtime, invocation) {
     const arguments_ = operation.effects.replay === "idempotency-key"
       ? { ...invocation.arguments, "idempotency-key": invocation.id }
       : invocation.arguments;
+    if(runtime.beforeExecute!==undefined)operation.domain?.assert(invocation.input, `operation ${operation.verb} input`);
+    await runtime.beforeExecute?.(invocation, operation, decision);
     const handled = await operation.execute(invocation.input, arguments_, Object.freeze({
       kind: "metroplat.rpc.execution-context",
       invocation,

@@ -7,11 +7,11 @@
  */
 import { activateMcpRequestedCapabilities, mcpOptions, mcpProcessConfig } from "@red-cup-engineering/metroplat/mcp-options";
 import { installedMetroplatFromProcessOptions, installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
-import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
+import {metroplatFilesystemBinding,requireMetroplatBinding} from "./mcp-binding.mjs";
 import { programMcpToolsWithEndpoints } from "./presentation/program-surface.mjs";
 import { platformOperationFamilyDescriptors } from "./catalog.mjs";
 
-export async function openMetroplatMcp({ dataRoot, clockStateRoot, environment = process.env, args = [], instancePath, moduleBasePath, createWorkOptions, operationSources = [] } = {}) {
+export async function openMetroplatMcp({ dataRoot, clockStateRoot, environment = process.env, args = [], instancePath, moduleBasePath, createWorkOptions, binding:owningBinding, operationSources = [] } = {}) {
   const processConfig = mcpProcessConfig(args, environment);
   if (instancePath !== undefined && (typeof instancePath !== "string" || instancePath.length === 0)) {
     throw new TypeError("MetroPlat instance path must be a nonempty string");
@@ -22,6 +22,7 @@ export async function openMetroplatMcp({ dataRoot, clockStateRoot, environment =
   const install = (binding, options = {}) => instancePath === undefined
     ? installedMetroplatFromProcessOptions(processConfig, binding, options)
     : installedMetroplatInstance(instancePath, binding, options, moduleBasePath ?? instancePath);
+  if(owningBinding!==undefined)requireMetroplatBinding(owningBinding,dataRoot);
   const installed = await install(null);
   let opened;
   const open = async () => opened ??= (async () => {
@@ -39,13 +40,15 @@ export async function openMetroplatMcp({ dataRoot, clockStateRoot, environment =
     throw new TypeError("MetroPlat host work options must be an object");
   }
   const workOptions = Object.freeze({ ...hostedWork, environment, instanceIdentity: installed.identity });
-  const repositoryRoot = environment.METROPLAT_REPOSITORY_ROOT;
+  const repositoryRoot = owningBinding?.repositoryRoot ?? environment.METROPLAT_REPOSITORY_ROOT;
+  const binding = requireMetroplatBinding(owningBinding ?? metroplatFilesystemBinding(dataRoot,{clockStateRoot,repositoryRoot}),dataRoot);
   // An instance serves its own data root. Other nodes are federated as declared peers by the
   // host; MetroPlat does not discover them by walking the filesystem.
   const { defaultMcpApex } = await import("./mcp-surface.mjs");
-  const operational = await install(defaultFilesystemBinding(dataRoot, { clockStateRoot, repositoryRoot }), workOptions);
+  const operational = await install(binding,workOptions);
   induced = defaultMcpApex(dataRoot, {
     rootName,
+    binding,
     ...(repositoryRoot === undefined ? {} : { repositoryRoot }),
     ...(clockStateRoot === undefined ? {} : { clockStateRoot }),
     ...(processConfig.claudeSessionRoot === undefined ? {} : { claudeSessionRoot: processConfig.claudeSessionRoot }),
@@ -53,6 +56,8 @@ export async function openMetroplatMcp({ dataRoot, clockStateRoot, environment =
     trustedOperationSources: [...operational.operationSources, ...operationSources],
     presentationOptions: { deriveSchemaResources: false, deriveLspResources: false, derivePrompts: false },
     workOptions,
+    ...(hostedWork.agencyRoot===undefined?{}:{agencyRoot:hostedWork.agencyRoot}),
+    ...(hostedWork.resolveActorSubject===undefined?{}:{resolveActorSubject:hostedWork.resolveActorSubject}),
     ...((instancePath ?? processConfig.instance) === undefined ? {} : { descriptorFamilies: platformOperationFamilyDescriptors }),
   });
   activateMcpRequestedCapabilities(dataRoot, induced, processConfig);

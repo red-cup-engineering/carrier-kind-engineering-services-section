@@ -1,16 +1,26 @@
+import {createProgrammeCustody} from "@red-cup-engineering/feltos/program-custody";
+import {agentOfIdentity} from '@red-cup-engineering/feltos/identity';
+import {agentCardOfAgent,A2A_PROTOCOL_VERSION} from '@red-cup-engineering/feltos/capabilities';
+import {operationsOfEnterprise,operationsOfInstance} from './actor-mesh.mjs';
+import {createOperationCatalog} from '@red-cup-engineering/computer-system-engine/rpc/operation';
+import {describe} from '@red-cup-engineering/computer-system-engine/rpc/describe';
+import {agencyAt} from '@red-cup-engineering/metroplat/offices';
+import {defaultFilesystemBinding} from '@red-cup-engineering/computer-system-engine/rpc/binding';
 import { hostedWorkIntentAdmission, hostedWorkOpening } from "./federated-work.mjs";
 import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { activityPubApplication } from "@red-cup-engineering/activitypub-services-section/app";
 import { createLocalActivityPubProvider } from "@red-cup-engineering/activitypub-services-section/local-server";
-import { extractSenActivity, SEN_MEDIA_TYPE } from "@red-cup-engineering/activitypub-services-section/sen-activity";
+import { projectSenActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { createCapabilityPlatform } from "@red-cup-engineering/computer-system-platform/capability-lifecycle";
 import { startNativeApplication } from "@red-cup-engineering/computer-web-server/native-application";
 import { inheritedListenFd, installGracefulShutdown } from "@red-cup-engineering/http-services-section/node-server";
 import { federateMcpServers } from "@red-cup-engineering/mcp-engineering-services-section/federation";
 import { createMcpClient, mcpInProcessTransport } from "@red-cup-engineering/mcp-engineering-services-section/client";
-import { appendArrivalAtRoot } from "@red-cup-engineering/computer-system-engine/rpc/arrival-store";
+import { processAdmittedActorRequest, actorPaymentMetadata } from '@red-cup-engineering/computer-system-engine/rpc/actor-processing';
+import { agentSenMessage } from '@red-cup-engineering/a2a-services-section/sen-part';
+import { deliverActivity } from '@red-cup-engineering/activitypub-services-section';
 import { reconcileDeclaredSchedules, runClockHeartbeat } from "@red-cup-engineering/organizing/work/recurring";
 import { parseEnvFileText } from "@red-cup-engineering/key-management-services-section/env-file";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
@@ -18,19 +28,12 @@ import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/insta
 import { systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
 import { mergeSettlementTransfer, settlementHoldings } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { createEnterpriseEntrance } from "./entrance.mjs";
-import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler } from "./activitypub-node.mjs";
+import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment } from "./activitypub-node.mjs";
 import { enterpriseWebConfig } from "./instance-config.mjs";
 import { installedEnterpriseWeb } from "./installed-web.mjs";
 import { enterpriseOperationRuntime } from "./enterprise-runtime.mjs";
 import { EnterpriseExecutionWorker } from "./enterprise-execution.mjs";
 import { linkLiveModules } from "./probe-link.mjs";
-
-function admitArrival(arrival, { dataRoot, origin, identifier, instanceId }) {
-  if (arrival.jsonLd?.object?.mediaType !== SEN_MEDIA_TYPE) return undefined;
-  const recipient = new URL(`/actors/${encodeURIComponent(identifier)}`, origin).href;
-  const projection = extractSenActivity(arrival.jsonLd, { expectedActor: arrival.jsonLd.actor, expectedRecipient: recipient });
-  return appendArrivalAtRoot(dataRoot, projection.cloudEvent, { rootName: instanceId });
-}
 
 export function metroplatEnvironment(config) {
   return {
@@ -146,38 +149,76 @@ function baseUpstreams(metroplat, config) {
   }];
 }
 
-async function activityPubProvider(config, environment) {
+export async function activityPubProvider(config, environment, {operationSurface,binding:owningBinding}={}) {
   if (config.activityPub === undefined) return undefined;
-  if (config.activityPub.nodeHost === undefined) {
-    return createLocalActivityPubProvider({
-      environment,
-      ...config.activityPub,
-      onActivity: (arrival) => admitArrival(arrival, {
-        dataRoot: config.metroplatDataRoot,
-        origin: config.activityPub.origin,
-        identifier: config.activityPub.identifier,
-        instanceId: config.instance.name,
-      }),
-    });
-  }
-  const actors = activityPubActorsAtHost({
-    agencyRoot: config.agencyRoot,
-    host: config.activityPub.nodeHost,
-    keysDirectory: config.activityPub.keysDirectory,
-    instanceActor: config.activityPub.instanceActor,
+  const programmes=createProgrammeCustody(path.join(config.stateDir,"programmes"));
+  const node=config.activityPub.nodeHost;
+  const actors=node===undefined ? [{identifier:config.activityPub.identifier}] : await activityPubActorsAtHost({
+    agencyRoot:config.agencyRoot,host:node,keysDirectory:config.activityPub.keysDirectory,instanceActor:config.activityPub.instanceActor,
   });
+  const currentActor=node===undefined?undefined:async identifier=>(await activityPubActorsAtHost({
+    agencyRoot:config.agencyRoot,host:node,keysDirectory:config.activityPub.keysDirectory,
+    instanceActor:config.activityPub.instanceActor,allowEmpty:true,
+  })).find(actor=>actor.identifier===identifier);
   let activityPub;
-  const onActivity = createActivityPubNodeArrivalHandler({
-    dataRoot: config.metroplatDataRoot,
-    rootName: config.instance.name,
-    origin: config.activityPub.origin,
-    actors,
-    workPeerActor: config.workPeerActor,
-    agencyRoot: config.agencyRoot,
-    host: config.activityPub.nodeHost ?? config.instance.name,
+  const actorPayments=new Map();
+  const onActivity=createActivityPubNodeArrivalHandler({
+    dataRoot:config.metroplatDataRoot,rootName:config.instance.name,origin:config.activityPub.origin,actors,resolveActor:currentActor,
+    workPeerActor:config.workPeerActor,agencyRoot:config.agencyRoot,host:node??config.instance.name,
+    executeRequest:async ({event,authenticatedActor,admission,recipient,recipientActor})=>{
+      if(typeof operationSurface!=="function")throw new TypeError("actor requests need the installed operation surface");
+      if(recipientActor.character!==undefined)throw new TypeError("a character inbox receives messages; invoke its offering enterprise actor");
+      const surface=await operationSurface();
+      const apex=surface.apex??surface;
+      await programmes.retain(surface.operations??apex.catalog.operations);
+      return processAdmittedActorRequest({event,admission,authenticatedActor,
+        operations:recipientActor.enterprise?operationsOfEnterprise(agencyAt(config.agencyRoot),recipientActor.enterprise,surface.operations??apex.catalog.operations):
+          node===undefined?surface.operations??apex.catalog.operations:operationsOfInstance(agencyAt(config.agencyRoot),node,surface.operations??apex.catalog.operations),recipient,
+        binding:owningBinding??defaultFilesystemBinding(config.metroplatDataRoot,{rootName:config.instance.name}),authorize:apex.authorize,
+         payment:await enterpriseActorPayment(recipientActor,recipient,actorPayments)});
+    },
+    reply:async ({identifier,recipient,inbox,request,result})=>{
+      const bytes=senActivityObjectBytes({objectKind:"metroplat.dispatch.result",value:{request,result}});
+      const activity=projectSenActivity({type:"Accept",origin:config.activityPub.origin,identifier,recipient,
+        objectBytes:bytes,a2aMessage:{...agentSenMessage(bytes),...(result.taskId===undefined?{}:{taskId:result.taskId}),metadata:actorPaymentMetadata(result)},
+        agentCard:new URL('/.well-known/agent-card.json',config.activityPub.origin).href,eventTime:new Date().toISOString()});
+      return deliverActivity(activityPub.provider,{identifier,recipient,inbox,activity});
+    },
   });
-  activityPub = await createLocalActivityPubProvider({ environment, ...config.activityPub, actors, onActivity });
-  return activityPub;
+  activityPub=await createLocalActivityPubProvider({environment,...config.activityPub,...(node===undefined?{}:{actors,dynamicActors:true,resolveActor:currentActor}),onActivity});
+  const native=activityPub.provider;
+  const projected={...native,routeCapabilities:Object.freeze({...native.routeCapabilities,actorPrograms:typeof operationSurface==="function",programmeBytes:typeof operationSurface==="function",actorAgentCards:true}),fetch:async request=>{
+    if(programmes.matches(request.url)){
+      if(typeof operationSurface==='function'){
+        const surface=await operationSurface();await programmes.retain(surface.operations??surface.apex?.catalog.operations??surface.catalog?.operations);
+      }
+      const response=await programmes.handle(request);
+      return response.status===404?native.fetch(request):response;
+    }
+    const path=new URL(request.url).pathname,match=/^\/actors\/([a-z0-9][a-z0-9._-]*)\/(programs|agent-card)\.json$/u.exec(path);
+    if(!match)return native.fetch(request);
+    if(request.method!=='GET')return new Response(null,{status:405});
+    const actor=node===undefined?actors.find(actor=>actor.identifier===match[1]):await currentActor(match[1]);
+    if(!actor)return new Response(null,{status:404});
+    if(match[2]==='agent-card'){
+      const inbox=new URL('/actors/'+encodeURIComponent(actor.identifier)+'/inbox',config.activityPub.origin).href;
+      return Response.json(agentCardOfAgent(agentOfIdentity({identity:actor.identifier}),{url:inbox,
+        supportedInterfaces:[{url:inbox,protocolBinding:'ACTIVITYPUB+SEN',protocolVersion:A2A_PROTOCOL_VERSION}]}),
+        {headers:actor.character?{}:{link:`<${new URL('/actors/'+encodeURIComponent(actor.identifier)+'/programs.json',config.activityPub.origin).href}>; rel="https://feltos.561.group/relations/programs"`}});
+    }
+    if(actor.character||typeof operationSurface!=='function')return new Response(null,{status:404});
+    const surface=await operationSurface(),operations=surface.operations??surface.apex?.catalog.operations??surface.catalog.operations;
+    const offered=actor.enterprise?operationsOfEnterprise(agencyAt(config.agencyRoot),actor.enterprise,operations):
+     node===undefined?operations:operationsOfInstance(agencyAt(config.agencyRoot),node,operations);
+    await programmes.retain(offered);
+    const payment=actor.enterprise?.x402;
+    return Response.json({...describe(createOperationCatalog(offered)),...(payment===undefined?{}:{payment:{
+     protocol:'x402',version:2,owner:{enterprise:actor.enterprise.id,entity:actor.enterprise.entity??null},
+     price:payment.price,...(payment.requestPricing===undefined?{}:{requestPricing:payment.requestPricing}),
+     payTo:payment.payTo,assetExtra:payment.assetExtra,facilitator:payment.facilitatorUrl,
+    }})});
+  }};
+  return Object.freeze({...activityPub,provider:Object.freeze(projected)});
 }
 
 // Stop ingress before provider storage/queues. Always release the federation even if
@@ -219,6 +260,7 @@ export function createEnterpriseServicePlatform({
   runtime = enterpriseOperationRuntime({
     installed, config, environment,
     activityPubProvider: () => platform.capabilities().federation?.activityPub?.provider,
+    activityPubInbox: () => platform.capabilities().federation?.activityPub?.inbox,
     executeIsolatedWork: (request) => executionWorker.execute(request),
   });
   const schedules = runtime.schedules;
@@ -309,6 +351,7 @@ export function createEnterpriseServicePlatform({
         instancePath: config.instance.manifest, moduleBasePath: installed.web.hostPath,
         operationSources: runtime.operationSources,
         createWorkOptions: runtime.createWorkOptions,
+        binding: runtime.binding,
       });
       if (probe !== undefined) {
         // METROPLAT_PROBE_REALIZE=0 boots the surface only, as the live node does: families load on first call.
@@ -380,7 +423,7 @@ export function createEnterpriseServicePlatform({
       const queueAbort = new AbortController();
       let queueWorker;
       try {
-        activityPub = probe === undefined ? await createActivityPub(config, environment) : undefined;
+        activityPub = probe === undefined ? await createActivityPub(config, environment, {operationSurface:capabilities["metroplat-host"].operationSurface,binding:runtime.binding}) : undefined;
         if (config.activityPubProjection !== undefined && probe === undefined) {
           // Same provider, finite canonical routes, separate loopback ingress.
           // Binding precedes installation, so a failed bind cannot leave stale
