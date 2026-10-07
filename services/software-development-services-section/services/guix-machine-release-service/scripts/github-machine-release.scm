@@ -101,7 +101,7 @@
                (retired-workspace (begin (run "rm" "-rf" workspace) #t))
                (built (json-string->scm (capture "guix" "repl" "--" (string-append service "/scripts/guix-deployment.scm")
                        "build" (string-append snapshot "/channels.scm") (string-append service "/src")
-                       (string-append snapshot "/machine.scm") closure (assoc-ref config "gcRoot"))))
+                       (string-append snapshot "/machine.scm") closure (string-append (assoc-ref config "gcRoot") "-" (or (getenv "GITHUB_RUN_ID") (number->string (getpid))) "-" (or (getenv "GITHUB_RUN_ATTEMPT") "1")))))
                (store (assoc-ref built "storePath")))
           (write-json (string-append work "/candidate.json") built)
           (when (getenv "GITHUB_STEP_SUMMARY")
