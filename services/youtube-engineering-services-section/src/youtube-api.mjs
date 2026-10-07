@@ -5,6 +5,10 @@ import { createHash } from 'node:crypto';
 const API = 'https://www.googleapis.com/youtube/v3/';
 const UPLOAD = 'https://www.googleapis.com/upload/youtube/v3/';
 const CHUNK = 8 * 1024 * 1024; // A bounded multiple of Google's 256 KiB chunk unit.
+// Channel clients share one project's read/edit quota. Stop further attempts
+// in this turn after Google reports exhaustion; a later timer turn can observe
+// recovery. This applies to Data API calls, not independent provider budgets.
+const quotaWaits = new Map();
 
 function futureUtc(value) {
   if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z$/.test(value) || !Number.isFinite(Date.parse(value)) || Date.parse(value) <= Date.now()) {
@@ -54,6 +58,11 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   if (!refreshTokenEnv || !env[refreshTokenEnv]) throw new Error(`Missing channel credential: ${refreshTokenEnv || 'refreshTokenEnv'}`);
   for (const name of ['YOUTUBE_OAUTH_CLIENT_ID', 'YOUTUBE_OAUTH_CLIENT_SECRET']) if (!env[name]) throw new Error(`Missing credential: ${name}`);
   let token, expires = 0;
+  // Reuse one owned inventory within a production turn. Individual video reads
+  // still observe current state before every edit, and upload reconciliation
+  // always bypasses this cache before deciding whether to create a session.
+  const OBSERVATION_TTL = 5 * 60 * 1000;
+  let identityObservation, identityObservedAt = 0, uploadObservation, uploadsObservedAt = 0;
   async function request(operation, url, options) {
     await authorize(operation, {provider:'youtube',url:String(url),method:options?.method ?? 'GET'});
     return fetchImpl(url, options);
@@ -66,13 +75,32 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       if (!result.access_token) throw new Error('Google OAuth returned no access token');
       token = result.access_token; expires = Date.now() + Math.max(0, (Number(result.expires_in ?? 3600) - 60)) * 1000;
     }
+    if (options.method && options.method !== 'GET' && (url.startsWith(API + 'videos?') || url.startsWith(UPLOAD))) {
+      // Invalidate before attempting the write: a lost response is ambiguous.
+      uploadObservation = undefined;
+    }
     return request(operation, url, { ...options, redirect: 'manual', headers: { ...options.headers, Authorization: `Bearer ${token}` } });
   }
-  async function api(path, options) { return responseJson(await authorized(API + path, options)); }
-  async function verifyIdentity() {
-    const result = await api('channels?part=id,contentDetails&mine=true');
-    if (result.items?.length !== 1 || result.items[0].id !== channelId) throw new Error(`YouTube credential does not identify configured channel ${channelId}`);
-    return result.items[0];
+  async function api(path, options) {
+    const key=env.YOUTUBE_OAUTH_CLIENT_ID,wait=quotaWaits.get(key);
+    if(wait&&Date.now()<wait.until)throw wait.error;
+    if(wait)quotaWaits.delete(key);
+    try {return await responseJson(await authorized(API + path, options));}
+    catch(error){if(error.reason==='quotaExceeded')quotaWaits.set(key,{error,until:Date.now()+5*60_000});throw error;}
+  }
+  async function verifyIdentity({ fresh = false } = {}) {
+    if (fresh || (token && Date.now() >= expires) || Date.now() - identityObservedAt >= OBSERVATION_TTL) identityObservation = undefined;
+    if (!identityObservation) {
+      identityObservedAt = Date.now();
+      identityObservation = (async () => {
+        const result = await api('channels?part=id,contentDetails&mine=true');
+        if (result.items?.length !== 1 || result.items[0].id !== channelId) throw new Error(`YouTube credential does not identify configured channel ${channelId}`);
+        return result.items[0];
+      })();
+    }
+    const observed = identityObservation;
+    try { return structuredClone(await observed); }
+    catch (error) { if (identityObservation === observed) identityObservation = undefined; throw error; }
   }
   async function getVideo(videoId) {
     if (!/^[\w-]{11}$/.test(videoId ?? '')) throw new Error('Invalid YouTube video ID');
@@ -85,7 +113,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     if (!video || video.snippet?.channelId !== channelId) throw new Error('Video does not belong to configured YouTube channel');
     return video;
   }
-  async function listUploads() {
+  async function readUploads() {
     const channel = await verifyIdentity(), playlist = channel.contentDetails?.relatedPlaylists?.uploads;
     if (!playlist) throw new Error('Configured YouTube channel has no uploads playlist');
     const videos = [], seenPages = new Set();
@@ -106,7 +134,14 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     } while (page);
     return videos;
   }
-  async function upload({ filePath, metadata, publishAt, marker, onCheckpoint, checkpoint }) {
+  async function listUploads({ fresh = false } = {}) {
+    if (fresh || (token && Date.now() >= expires) || Date.now() - uploadsObservedAt >= OBSERVATION_TTL) uploadObservation = undefined;
+    if (!uploadObservation) { uploadsObservedAt = Date.now(); uploadObservation = readUploads(); }
+    const observed = uploadObservation;
+    try { return structuredClone(await observed); }
+    catch (error) { if (uploadObservation === observed) uploadObservation = undefined; throw error; }
+  }
+  async function upload({ filePath, metadata, publishAt, marker, onCheckpoint, checkpoint, language }) {
     const when = publishAt === undefined ? undefined : (checkpoint?.publishAt === publishAt ? publishAt : futureUtc(publishAt));
     if (typeof marker !== 'string' || !/^[A-Za-z0-9_./:-]{1,200}$/.test(marker)) throw new Error('A stable production marker is required');
     if (typeof onCheckpoint !== 'function') throw new Error('A durable onCheckpoint callback is required');
@@ -125,7 +160,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       return video;
     }
     async function reconcile() {
-      const matches = (await listUploads()).filter(video => (video.snippet?.description ?? '').includes(label));
+      const matches = (await listUploads({ fresh: true })).filter(video => (video.snippet?.description ?? '').includes(label));
       if (matches.length > 1) throw new Error('Multiple YouTube videos carry this production marker; reconcile manually');
       return matches[0];
     }
@@ -202,9 +237,158 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     if (video.status?.privacyStatus !== 'private') throw new Error('Only a private video can be scheduled');
     if (video.status?.uploadStatus !== 'processed' || (video.processingDetails?.processingStatus && video.processingDetails.processingStatus !== 'succeeded')) throw new Error('Video processing must succeed before scheduling');
     futureUtc(when);
-    return responseJson(await authorized(API + 'videos?part=status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: videoId, status: { privacyStatus: 'private', publishAt: when, selfDeclaredMadeForKids: false, containsSyntheticMedia: true } }) }, 'youtube.schedule'));
+    return responseJson(await authorized(API + 'videos?part=status', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: videoId, status: publicationStatus(video, { privacyStatus: 'private', publishAt: when, selfDeclaredMadeForKids: false, containsSyntheticMedia: true }) }) }, 'youtube.schedule'));
   }
-  return { verifyIdentity, listUploads, upload, setThumbnail, getVideo, schedule };
+  async function setTitle({videoId,title}) {
+    if(typeof title !== 'string' || !title.trim() || title.length>100) throw new Error('Invalid YouTube title');
+    const video=await ownVideo(videoId);
+    if(video.snippet.title===title) return video;
+    const {description,tags,categoryId,defaultLanguage,defaultAudioLanguage}=video.snippet;
+    await responseJson(await authorized(API+'videos?part=snippet',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:videoId,snippet:{title,description,tags,categoryId,defaultLanguage,defaultAudioLanguage}})},'youtube.metadata'));
+    let saved=await ownVideo(videoId);
+    // Updates can be acknowledged before videos.list observes the new value.
+    // Poll the read; never repeat the write to compensate for that lag.
+    for(let attempt=0;saved.snippet.title!==title&&attempt<8;attempt++) {
+      await delay(500);saved=await ownVideo(videoId);
+    }
+    if(saved.snippet.title!==title) throw new Error('YouTube title did not persist');
+    return saved;
+  }
+  async function setRelatedVideo({videoId,relatedVideoId,storageState=env.YOUTUBE_STUDIO_STORAGE_STATE}) {
+    const short=await ownVideo(videoId), parent=await ownVideo(relatedVideoId);
+    if(videoId===relatedVideoId || !['public','unlisted'].includes(parent.status.privacyStatus)) throw new Error('Related Video must be another public or unlisted video on the same channel');
+    await authorize('youtube.related-video',{provider:'youtube',videoId:short.id,relatedVideoId:parent.id,channelId});
+    const {setShortRelatedVideo}=await import('./youtube-studio.mjs');
+    return setShortRelatedVideo({videoId,relatedVideoId,channelId,channelName:short.snippet.channelTitle,storageState});
+  }
+  async function setLearningLinks({videoId,text}) {
+    if(typeof text!=='string'||text.length>2000)throw new Error('Invalid learning resource links');
+    const video=await ownVideo(videoId),start='[learning-resources]',end='[/learning-resources]';
+    const previous=video.snippet.description??'';
+    const description=previous.replace(/\n*\[learning-resources\][\s\S]*?\[\/learning-resources\]/gu,'').trimEnd()+'\n\n'+start+'\n'+text+'\n'+end;
+    if(Buffer.byteLength(description,'utf8')>5000)throw new Error('Learning links exceed YouTube description limit');
+    if(previous===description)return video;
+    const {title,tags,categoryId,defaultLanguage,defaultAudioLanguage}=video.snippet;
+    await responseJson(await authorized(API+'videos?part=snippet',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:videoId,snippet:{title,description,tags,categoryId,defaultLanguage,defaultAudioLanguage}})},'youtube.metadata'));
+    let saved=await ownVideo(videoId);for(let attempt=0;saved.snippet.description!==description&&attempt<8;attempt++){await delay(500);saved=await ownVideo(videoId);}
+    if(saved.snippet.description!==description)throw new Error('Learning resources did not persist');return saved;
+  }
+  async function publish({videoId}) {
+    const video=await ownVideo(videoId);
+    if(video.status.privacyStatus==='public') return video;
+    if(video.status.privacyStatus!=='private' || video.status.publishAt || video.status.uploadStatus!=='processed') throw new Error('Only an unscheduled, processed private video can be published');
+    await responseJson(await authorized(API+'videos?part=status',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:videoId,status:publicationStatus(video,{privacyStatus:'public',selfDeclaredMadeForKids:false,containsSyntheticMedia:true})})},'youtube.publish'));
+    let saved=await ownVideo(videoId);
+    for(let attempt=0;saved.status.privacyStatus!=='public'&&attempt<8;attempt++) {
+      await delay(500);saved=await ownVideo(videoId);
+    }
+    if(saved.status.privacyStatus!=='public') throw new Error('YouTube publication did not persist');
+    return saved;
+  }
+  async function unlist({videoId}) {
+    const video=await ownVideo(videoId);
+    if(video.status.privacyStatus==='unlisted') return video;
+    if(video.status.privacyStatus!=='public'||video.status.publishAt) throw new Error('Only an unscheduled public video can be unlisted');
+    await authorize('youtube.unlist',{provider:'youtube',videoId,channelId});
+    await responseJson(await authorized(API+'videos?part=status',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:videoId,status:publicationStatus(video,{privacyStatus:'unlisted',selfDeclaredMadeForKids:false,containsSyntheticMedia:true})})},'youtube.unlist'));
+    const saved=await ownVideo(videoId);
+    if(saved.status.privacyStatus!=='unlisted') throw new Error('YouTube unlisting did not persist');
+    return saved;
+  }
+  async function audienceReports({now=new Date()}={}) {
+    await verifyIdentity();
+    const endDate=new Date(now.getTime()-86400000).toISOString().slice(0,10),startDate=new Date(now.getTime()-31*86400000).toISOString().slice(0,10);
+    const queries=[
+      ['videos',{dimensions:'video',metrics:'views,estimatedMinutesWatched,averageViewPercentage,subscribersGained',sort:'-views',maxResults:'100'}],
+      ['traffic',{dimensions:'insightTrafficSourceType',metrics:'views,estimatedMinutesWatched',sort:'-views'}],
+      ['countries',{dimensions:'country',metrics:'views,estimatedMinutesWatched',sort:'-views',maxResults:'25'}],
+    ];
+    const reports={startDate,endDate};
+    for(const [name,query]of queries) {
+      const params=new URLSearchParams({ids:'channel=='+channelId,startDate,endDate,...query});
+      try {const result=await responseJson(await authorized('https://youtubeanalytics.googleapis.com/v2/reports?'+params));
+        reports[name]={status:'observed',rows:(result.rows??[]).map(row=>Object.fromEntries(result.columnHeaders.map((column,index)=>[column.name,row[index]])))};
+      }catch(error){reports[name]={status:'unavailable',reason:error.message};}
+    }
+    try {
+      const result=await api('commentThreads?part=snippet&allThreadsRelatedToChannelId='+encodeURIComponent(channelId)+'&maxResults=25&order=time&textFormat=plainText');
+      reports.questions={status:'observed',rows:(result.items??[]).map(item=>({videoId:item.snippet.videoId,text:item.snippet.topLevelComment.snippet.textOriginal,publishedAt:item.snippet.topLevelComment.snippet.publishedAt})).filter(item=>/[?？]/u.test(item.text))};
+    }catch(error){reports.questions={status:'unavailable',reason:error.message};}
+    return reports;
+  }
+  async function listPages(path) {
+    const items=[];let page='';const seen=new Set();
+    do {if(seen.has(page))throw new Error('YouTube pagination did not advance');seen.add(page);
+      const value=await api(path+(page?'&pageToken='+encodeURIComponent(page):''));items.push(...(value.items??[]));page=value.nextPageToken??'';
+    }while(page);return items;
+  }
+  async function ensureLearningCourse({playlistId,channelName,videoIds}) {
+    await verifyIdentity();
+    if(!Array.isArray(videoIds)||videoIds.length<3||new Set(videoIds).size!==videoIds.length)throw new Error('A Course needs at least three distinct owned teaching videos');
+    const owned=new Set((await listUploads()).filter(video=>video.status?.privacyStatus==='public'&&!video.contentDetails?.contentRating?.ytRating).map(video=>video.id));
+    if(videoIds.some(id=>!owned.has(id)))throw new Error('A Course may only contain public all-ages videos on this channel');
+    const playlist=(await api('playlists?part=snippet&id='+encodeURIComponent(playlistId))).items?.[0];
+    if(playlist?.snippet?.channelId!==channelId)throw new Error('Course playlist does not belong to configured channel');
+    await authorize('youtube.curriculum',{provider:'youtube',channelId,playlistId});
+    const{setLearningCourse}=await import('./youtube-studio.mjs');return setLearningCourse({channelId,channelName,playlistId});
+  }
+  // Courses are a Studio-only extension of playlists. Maintain the underlying
+  // owned learning sequence through the documented API; never label it a Course
+  // until Studio has independently confirmed the conversion.
+  async function ensureLearningPlaylist({marker,title,description,videoIds,privacyStatus='public',checkpoint={},onCheckpoint}) {
+    if(!/^[a-z0-9/-]{1,150}$/u.test(marker??'')||typeof title!=='string'||!title.trim()||title.length>150||typeof description!=='string'||!Array.isArray(videoIds)||new Set(videoIds).size!==videoIds.length||videoIds.some(id=>! /^[\w-]{11}$/u.test(id))||!['public','private','unlisted'].includes(privacyStatus)||typeof onCheckpoint!=='function')throw new Error('Invalid learning playlist request');
+    await verifyIdentity();
+    const owned=new Map((await listUploads()).map(video=>[video.id,video]));
+    if(videoIds.some(id=>!owned.has(id)||owned.get(id).status.privacyStatus!=='public'))throw new Error('Learning playlists only admit public videos on the configured channel');
+    const label='[curriculum:'+marker+']';
+    let state={...checkpoint};const save=async change=>{state={...state,...change};await onCheckpoint({...state});};
+    const playlists=await listPages('playlists?part=snippet,status&mine=true&maxResults=50');
+    const matches=playlists.filter(p=>p.snippet?.channelId===channelId&&(p.snippet?.description??'').includes(label));
+    if(matches.length>1)throw new Error('Multiple learning playlists carry this curriculum marker');
+    let playlist=matches[0];
+    if(!playlist&&state.playlistId)throw new Error('Retained learning playlist is not observable');
+    if(!playlist) {
+      if(state.creating)throw new Error('Learning playlist creation is ambiguous; reconcile the submitted request before retrying');
+      await save({creating:true});
+      playlist=await responseJson(await authorized(API+'playlists?part=snippet,status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({snippet:{title,description:description+'\n\n'+label},status:{privacyStatus}})},'youtube.curriculum'));
+    }
+    if(playlist.snippet?.channelId!==channelId)throw new Error('Learning playlist does not belong to configured channel');
+    await save({creating:false,playlistId:playlist.id});
+    if(playlist.snippet.title!==title||playlist.snippet.description!==description+'\n\n'+label||playlist.status.privacyStatus!==privacyStatus) {
+      await responseJson(await authorized(API+'playlists?part=snippet,status',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:playlist.id,snippet:{title,description:description+'\n\n'+label},status:{privacyStatus}})},'youtube.curriculum'));
+    }
+    const path='playlistItems?part=snippet,contentDetails&maxResults=50&playlistId='+encodeURIComponent(playlist.id);
+    async function readItems(){for(let attempt=0;;attempt++){try{return await listPages(path);}catch(error){if((error.status!==404&&!/pagination did not advance/u.test(error.message))||attempt>=10)throw error;await delay(500);}}}
+    let items=await readItems();
+    for(let position=0;position<videoIds.length;position++) {
+      const videoId=videoIds[position],found=items.filter(item=>item.contentDetails?.videoId===videoId);
+      if(found.length>1)throw new Error('Learning playlist contains duplicate lessons');
+      const item=found[0];
+      const snippet={playlistId:playlist.id,resourceId:{kind:'youtube#video',videoId},position};
+      let changed=false;
+      if(!item) {
+        if(state.adding===videoId)throw new Error('Playlist lesson insertion is ambiguous; reconcile before retrying');
+        await save({adding:videoId});
+        await responseJson(await authorized(API+'playlistItems?part=snippet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({snippet})},'youtube.curriculum'));
+        changed=true;
+      }else if(item.snippet.position!==position) {
+        await responseJson(await authorized(API+'playlistItems?part=snippet',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id,snippet})},'youtube.curriculum'));
+        changed=true;
+      }
+      if(changed){
+        for(let attempt=0;;attempt++) {
+          items=await readItems();const observed=items.slice().sort((a,b)=>a.snippet.position-b.snippet.position).map(i=>i.contentDetails.videoId);
+          if(videoIds.slice(0,position+1).every((id,index)=>observed[index]===id))break;
+          if(attempt>=10)throw new Error('YouTube has not exposed the acknowledged curriculum edit yet');await delay(500);
+        }
+      }
+      await save({adding:null});
+    }
+    const ordered=items.sort((a,b)=>a.snippet.position-b.snippet.position).map(item=>item.contentDetails.videoId);
+    if(videoIds.some((id,index)=>ordered[index]!==id))throw new Error('YouTube did not retain the curriculum order');
+    return {playlistId:playlist.id,url:'https://www.youtube.com/playlist?list='+playlist.id,videoIds:ordered,verifiedAt:new Date().toISOString(),carrier:'youtube-playlist'};
+  }
+  return { audienceReports, verifyIdentity, listUploads, upload, setThumbnail, getVideo, schedule, setTitle, setRelatedVideo, publish, unlist, ensureLearningPlaylist, setLearningLinks, ensureLearningCourse };
 }
 
 function nextOffset(response, size) {

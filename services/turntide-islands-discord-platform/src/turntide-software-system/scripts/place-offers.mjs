@@ -59,7 +59,7 @@ try {
     try {
       if (channelId === undefined) throw new Error(`channel ${due.channel} is not a live declared channel`);
       const recent = await transport.listMessages(channelId, 50);
-      const present = recent.find((message) => message.authorBot && message.content.includes(due.entry.offer.item.url));
+      const present = recent.find((message) => message.authorBot && message.content.includes(due.entry.offer.item.url) && (due.entry.offer.item.resources??[]).every(resource=>message.content.includes(resource.url)));
       const message = present ?? await transport.createMessage(channelId, { content, allowedMentions: { users: [] } });
       recordPosted(ledger, due.key, due.channel, message.id, now, present === undefined ? "posted" : "already-present");
       placements.push({ key: due.key, channel: due.channel, status: present === undefined ? "posted" : "already-present", messageId: message.id });

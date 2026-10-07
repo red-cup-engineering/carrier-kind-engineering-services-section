@@ -29,6 +29,7 @@ export function admitPlacementOffer(raw) {
   if (item.summary !== undefined && (typeof item.summary !== "string" || item.summary.length > 2000)) fail("item.summary must be at most 2000 characters");
   if (item.tags !== undefined && (!Array.isArray(item.tags) || item.tags.some((tag) => typeof tag !== "string"))) fail("item.tags must be strings");
   if (item.published !== undefined && !Number.isFinite(Date.parse(item.published))) fail("item.published must be a date");
+  if(item.resources!==undefined&&(!Array.isArray(item.resources)||item.resources.length>2||item.resources.some(resource=>!['image/png','application/pdf'].includes(resource.mimeType)||typeof resource.label!=='string'||resource.label.length>100||!/^https:\/\/drive\.google\.com\//u.test(resource.url??''))))fail('teaching resources must be at most two public Drive images or PDFs');
   for (const field of ["subjects", "hints"]) {
     if (raw[field] !== undefined && (!Array.isArray(raw[field]) || raw[field].some((subject) => typeof subject !== "string"))) fail(`${field} must be subject names`);
   }
@@ -44,6 +45,7 @@ export function admitPlacementOffer(raw) {
       ...(item.summary === undefined || item.summary.trim() === "" ? {} : { summary: item.summary.trim() }),
       ...(item.tags === undefined ? {} : { tags: item.tags.slice(0, 30) }),
       ...(item.published === undefined ? {} : { published: new Date(item.published).toISOString() }),
+      ...(item.resources===undefined?{}:{resources:item.resources.map(({label,url,mimeType})=>({label,url,mimeType}))}),
     },
     ...(raw.subjects === undefined ? {} : { subjects: raw.subjects }),
     ...(raw.hints === undefined ? {} : { hints: raw.hints }),

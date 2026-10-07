@@ -146,6 +146,7 @@ export function renderPlacement(shape, entry, channel) {
   const { offer } = entry;
   const title = escapeMarkdown(offer.item.title);
   if (offer.kind === "video") {
+    if(offer.item.resources?.length)return `📚 **${title}** · ${escapeMarkdown(offer.source.name)}\n${offer.item.resources.map(resource=>`${escapeMarkdown(resource.label)}: ${resource.url}`).join('\n')}\nFull lesson: ${offer.item.url}`;
     return `🎬 new from **${escapeMarkdown(offer.source.name)}**: ${title}\n${offer.item.url}`;
   }
   if (channel === shape.placement.wire) {

@@ -11,7 +11,8 @@
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/assisted-browser-services-section": "workspace:*"
   },
   "exports": {
     "./api": "./src/youtube-api.mjs",
