@@ -19,6 +19,9 @@
 (define (atomic-link file target)
   (let ((next (string-append file ".next-" (number->string (getpid)))))
     (symlink target next) (rename-file next file)))
+(define* (atomic-copy source target #:optional (mode #o600))
+  (let ((next (string-append target ".next-" (number->string (getpid)))))
+    (copy-file source next) (chmod next mode) (rename-file next target)))
 (define (receipt root outcome value)
   (let ((path (string-append root "/" (number->string (current-time)) "-" outcome ".json")))
     (call-with-output-file path (lambda (p) (scm->json value p) (newline p)))
@@ -85,11 +88,11 @@
          (previous-link (string-append root "/previous"))
          (held-previous (and (file-exists? previous-link) (readlink previous-link)))
          (unit-file (string-append (getenv "HOME") "/.config/systemd/user/" unit))
-         (unit-backup (string-append root "/.unit-before-guix"))
          (old-unit-link (and (eq? (stat:type (lstat unit-file)) 'symlink) (readlink unit-file)))
          (was-running? (zero? (system* "systemctl" "--user" "is-active" "--quiet" unit)))
          (receipts (field config "receiptRoot"))
          (scratch (mkdtemp (string-append root "/.probe-XXXXXX")))
+         (unit-backup (string-append scratch "/main.unit"))
          (probe-env (string-append scratch "/probe.env"))
          (probe (string-append name "-guix-probe"))
          (stage "staging")
@@ -203,8 +206,7 @@
         ;; application outputs, never a mutable machine checkout.
         (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" store)
         (atomic-link profile store)
-        (copy-file (string-append store "/.guix-systemd/" unit) (string-append unit-file ".next"))
-        (rename-file (string-append unit-file ".next") unit-file)
+        (atomic-copy (string-append store "/.guix-systemd/" unit) unit-file)
         ;; Save and install every managed controller/unit atomically. Ongoing
         ;; newsroom jobs keep their old immutable programs until they finish;
         ;; timers use the new generation on their next invocation.
@@ -217,9 +219,7 @@
                    (list path backup exists? link))) managed-files))
         (set! managed-changed? #t)
         (for-each (lambda (file)
-                    (copy-file (cdr file) (string-append (car file) ".next"))
-                    (when (string-contains (cdr file) "/bin/") (chmod (string-append (car file) ".next") #o555))
-                    (rename-file (string-append (car file) ".next") (car file))) managed-files)
+                    (atomic-copy (cdr file) (car file) (if (string-contains (cdr file) "/bin/") #o555 #o600))) managed-files)
         (run "systemctl" "--user" "daemon-reload")
         (run "systemctl" "--user" "restart" unit)
         (for-each (lambda (name) (run "systemctl" "--user" "restart" name)) activated-units)
@@ -245,8 +245,7 @@
                       (match saved
                         ((path backup exists? link)
                          (cond (link (atomic-link path link))
-                               (exists? (copy-file backup (string-append path ".next"))
-                                        (rename-file (string-append path ".next") path))
+                               (exists? (atomic-copy backup path (stat:perms (stat backup))))
                                ((file-exists? path) (delete-file path)))))) managed-backups))
         (when (and previous stopped?)
           ;; A failed Guix command may already have changed its profile.
@@ -255,8 +254,7 @@
           (if held-previous (atomic-link previous-link held-previous)
               (when (file-exists? previous-link) (delete-file previous-link)))
           (if old-unit-link (atomic-link unit-file old-unit-link)
-            (begin (copy-file unit-backup (string-append unit-file ".next"))
-                   (rename-file (string-append unit-file ".next") unit-file)))
+            (atomic-copy unit-backup unit-file))
           (system* "systemctl" "--user" "daemon-reload")
           (configuration-commands config "reload" store)
           (for-each (lambda (held) (when (cdr held) (run "systemctl" "--user" "restart" (car held)))) held-unit-actives)
