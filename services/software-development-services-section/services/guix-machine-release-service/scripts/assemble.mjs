@@ -78,4 +78,8 @@ await rm(join(closure,'app/node_modules/.pnpm/lock.yaml'));
 await writeFile(join(closure,'.metadata','sources.json'),JSON.stringify(sources,null,2)+'\n');
 const release={machineCommit:process.env.GITHUB_SHA??null,machineRepository:process.env.GITHUB_REPOSITORY??null,dependencyLockSha256:createHash('sha256').update(lock).digest('hex')};
 await writeFile(join(closure,'.metadata','release.json'),JSON.stringify(release,null,2)+'\n');
+// The receiving machine executes this exact, immutable owning controller.
+// Public snapshot declarations travel with it; private environment files do not.
+await cp(providers['@red-cup-engineering/guix-machine-release-service'],join(closure,'.controller'),{recursive:true});
+for(const name of ['machine.json','channels.scm']) await cp(join(snapshot,name),join(closure,'.controller',name));
 process.stdout.write(JSON.stringify({closure})+'\n');
