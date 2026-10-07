@@ -171,7 +171,9 @@ export function partition(section) {
 export function relate(left, right) {
   const told = mergeCellSets(left.settled, right.settled);
   const at = site(told, [...left.site.specializations, ...right.site.specializations]);
-  const rules = [...new Map([...left.rules, ...right.rules, ...transportRules(at)].map((r) => [r.name, r])).values()];
+  // Names label derivations; distinct premises, thresholds or conclusions may
+  // share a name. Only coincident rule content is the same license to fire.
+  const rules = [...new Map([...left.rules, ...right.rules, ...transportRules(at)].map((r) => [semanticId(r), r])).values()];
   return settle(posit(at, told), rules);
 }
 
