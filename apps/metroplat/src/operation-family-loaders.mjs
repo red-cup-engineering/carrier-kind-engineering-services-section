@@ -117,7 +117,7 @@ export async function loadOperationFamily(module, binding, context = {}) {
       })]);
     }
     case "@red-cup-engineering/metroplat/offices": return (await import("@red-cup-engineering/metroplat/offices")).officeOperations(binding, context.sourceSet ?? (() => []));
-    case "@red-cup-engineering/metroplat/world": return (await import("@red-cup-engineering/metroplat/world")).worldOperations(binding, context.operationSource ?? (() => []), context.workOptions?.instanceIdentity, context.dispatchOperation, { characterCommunication: context.workOptions?.characterCommunication,actorMesh:context.workOptions?.actorMesh });
+    case "@red-cup-engineering/metroplat/world": return (await import("@red-cup-engineering/metroplat/world")).worldOperations(binding, context.operationSource ?? (() => []), context.workOptions?.instanceIdentity, { characterCommunication: context.workOptions?.characterCommunication,actorMesh:context.workOptions?.actorMesh });
     case "@red-cup-engineering/metroplat/claude-harness": return (await import("@red-cup-engineering/agent-harness-computer-system-engineering-services-section/claude-code/harness-projection")).claudeHarnessOperations(await claudeHarnessHost(binding));
     case "@red-cup-engineering/metroplat/codex-harness": {
       const [{ codexHarnessOperations }, { repositoryRootOf }] = await Promise.all([

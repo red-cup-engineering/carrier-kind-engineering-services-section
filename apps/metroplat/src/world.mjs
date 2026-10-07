@@ -614,8 +614,7 @@ const summarize = (value) => {
  * One running world over a MetroPlat binding. `operations()` yields the catalog's operations
  * (read lazily, since the world's own operations are part of that catalog).
  */
-export function createMetroplatWorld({ binding, operations, identity, dispatchOperation, characterCommunication, actorMesh, now = Date.now }) {
-  if (typeof dispatchOperation !== "function") throw new TypeError("World requires the assembled operation dispatcher");
+export function createMetroplatWorld({ binding, operations, identity, characterCommunication, actorMesh, now = Date.now }) {
   let state, building;
   const build = async () => {
     const root = agencyRootOf(binding);
@@ -1049,9 +1048,9 @@ function characterNameIn(agency, character) {
 const turnContract = schemaFrom({ $id: "metroplat/world/turn", title: "WorldTurn", type: "object", required: ["kind", "actor", "messages", "results"], properties: { kind: { const: "metroplat.world.turn" }, actor: { type: "string" }, character: { type: "string" }, messages: { type: "array", items: { type: "string" } }, results: { type: "array" }, packages: { type: "array", items: { type: "object", required: ["name", "data"], properties: { name: { type: "string" }, data: {} } }, description: "What the turn showed, as data under a GMCP-style package name: Work.Quests, Work.Quest, Work.Journal (what awaits the character's move; on its first turn too), Work.Tellings (what was told around the character since its last turn)." }, frame: { type: "object", description: "The character's FeltOS perception frame, when asked for." } } });
 
 /** The world's operations: connect as your character, speak commands, and read the city's atlas, pulse and tellings, and your journal. */
-export function worldOperations(binding, operations, identity, dispatchOperation, { characterCommunication,actorMesh } = {}) {
+export function worldOperations(binding, operations, identity, { characterCommunication,actorMesh } = {}) {
   let world;
-  const instance = () => (world ??= createMetroplatWorld({ binding, operations, identity, dispatchOperation, characterCommunication,actorMesh }));
+  const instance = () => (world ??= createMetroplatWorld({ binding, operations, identity, characterCommunication,actorMesh }));
   // A power used from a command is caused by that command's witnessed evidence, never by its
   // invocation id: an invocation is an entity, not a witness, and a cause that is no witness is
   // never admitted, so everything that names it waits forever.
