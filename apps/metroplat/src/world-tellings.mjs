@@ -23,6 +23,7 @@
  */
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { resolve } from "@red-cup-engineering/organizing/agency";
+import { subjects, certainValue, exitsOf } from "@red-cup-engineering/feltos/world";
 import { OPENING_MOVES, gistOfOpening, houseSectionOf, sectionsOf } from "@red-cup-engineering/organizing/enterprise";
 
 /** The journal the work arena's moves are recorded in (feltos/work/work-board's `WORK_BOARD_KIND`). */
@@ -137,10 +138,11 @@ export function proseOf(move, opening, nameOf = (player) => player) {
  * `characterName(player)` names a character of the agency's cast, or nothing.
  * @param {{ game: { rooms: Record<string, { name: string, exits: Record<string, string> }>, assertions: ReadonlyArray<object> }, agency: object, plaza: string }} world
  */
-export function worldPlaces({ game, agency, plaza, characterName = () => undefined }) {
+export function worldPlaces({ world, agency, plaza, characterName = () => undefined }) {
   const roomOf = new Map(), sectionAt = new Map();
-  for (const { subject, predicate, object } of game.assertions) {
-    const section = predicate === "section-path" ? houseSectionOf(object) : undefined;
+  for (const subject of subjects(world)) {
+    const path = certainValue(world, subject, "section-path");
+    const section = certainValue(world, subject, "kind") === "room" && typeof path === "string" ? houseSectionOf(path) : undefined;
     if (section !== undefined && !roomOf.has(section)) roomOf.set(section, subject);
     if (section !== undefined && !sectionAt.has(subject)) sectionAt.set(subject, section);
   }
@@ -154,7 +156,7 @@ export function worldPlaces({ game, agency, plaza, characterName = () => undefin
   const chainOf = (room) => {
     if (!chains.has(room)) {
       const chain = [];
-      for (let at = room; at !== undefined && !chain.includes(at); at = at === plaza ? undefined : game.rooms[at]?.exits.up ?? plaza) chain.push(at);
+      for (let at = room; at !== undefined && !chain.includes(at); at = at === plaza ? undefined : exitsOf(world, at).find(exit => exit.direction === "up")?.destination ?? plaza) chain.push(at);
       chains.set(room, Object.freeze(chain));
     }
     return chains.get(room);
@@ -177,7 +179,7 @@ export function worldPlaces({ game, agency, plaza, characterName = () => undefin
     if (player === "market") return "the market";
     if (enterprises.has(player)) return enterprises.get(player).name ?? player;
     const office = officeOf(player);
-    if (office !== undefined) return `the ${office.name} of ${game.rooms[hallOf(player)]?.name ?? "the house"}`;
+    if (office !== undefined) return `the ${office.name} of ${certainValue(world, hallOf(player), "name") ?? "the house"}`;
     return characterName(player) ?? String(player ?? "someone");
   };
   return Object.freeze({

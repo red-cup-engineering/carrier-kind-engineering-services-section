@@ -18,6 +18,7 @@
  * @module
  */
 import path from "node:path";
+import { subjects, certainValue, values } from "@red-cup-engineering/feltos/world";
 import { journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { actorIdFor } from "@red-cup-engineering/feltos/mud-server";
 
@@ -140,10 +141,13 @@ export function pulseReading(pulse, now, since = 0) {
  * it was built from, `root` the agency root, `characterOf(account)` the character an account enters
  * as, and `standing(account)` the room its character stands in now, if it is in the city.
  */
-export function pulseSites({ game, agency, root, characterOf, standing, characterName = (character) => character }) {
+export function pulseSites({ world, agency, root, characterOf, standing, characterName = (character) => character }) {
   const prefix = root === undefined ? "" : `${path.basename(root)}/`;
-  const roomOfSection = new Map(game.assertions.filter((a) => a.predicate === "section-path")
-    .map((a) => [a.object.startsWith(prefix) ? a.object.slice(prefix.length) : a.object, a.subject]));
+  const roomOfSection = new Map(subjects(world).filter(id => certainValue(world, id, "kind") === "room")
+    .flatMap(id => {
+      const section = certainValue(world, id, "section-path");
+      return typeof section === "string" ? [[section.startsWith(prefix) ? section.slice(prefix.length) : section, id]] : [];
+    }));
   const roomAt = (sectionPath) => {
     for (const parts = String(sectionPath ?? "").split("/"); parts.length > 0; parts.pop()) {
       const room = roomOfSection.get(parts.join("/"));
@@ -154,7 +158,11 @@ export function pulseSites({ game, agency, root, characterOf, standing, characte
   const enterprises = [...agency.enterprises.values()];
   const enterpriseOf = (ref) => enterprises.find((e) => e.id === ref || e.key === ref);
   const seatOf = new Map();
-  for (const a of game.assertions) if (a.predicate === "seated" && !seatOf.has(a.object)) seatOf.set(a.object, game.things[a.subject]?.location);
+  for (const office of subjects(world).filter(id => values(world, id, "tag").includes("office"))) {
+    const room = certainValue(world, office, "located-in");
+    if (room === null) continue;
+    for (const actor of values(world, office, "seated")) if (!seatOf.has(actor)) seatOf.set(actor, room);
+  }
   const officeRoom = (actor) => seatOf.get(actor);
   return (attempt) => {
     const enterprise = attempt.enterprise === undefined ? undefined : enterpriseOf(attempt.enterprise);
