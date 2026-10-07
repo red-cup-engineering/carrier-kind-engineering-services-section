@@ -29,6 +29,9 @@
           (next (string-append root "/.latest-" (number->string (getpid)))))
       (copy-file path next) (rename-file next latest))
     path))
+(define (admitted-health-reading? value expected-artifact)
+  (and (eq? (assoc-ref value "ok") #t)
+       (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))))
 (define* (health url #:optional expected-artifact)
   ;; Bound elapsed time even when curl itself reaches its three-second timeout.
   (let ((deadline (+ (get-internal-real-time) (* 600 internal-time-units-per-second))))
@@ -36,8 +39,10 @@
       (catch #t
         (lambda ()
           (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
-            (if (and (assoc-ref value "ok") (equal? (assoc-ref value "state") "ready")
-                     (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))) #t
+          ;; The owning health endpoint checks loaded/linked families and
+          ;; permits a usable degraded node. Do not replace that proof with
+          ;; a second, conflicting supervisor-state interpretation.
+          (if (admitted-health-reading? value expected-artifact) #t
                 (error "candidate is not ready"))))
         (lambda args
           (if (< (get-internal-real-time) deadline)
