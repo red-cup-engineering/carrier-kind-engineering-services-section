@@ -313,3 +313,10 @@ export async function dispatchChatCompletionInOrder({ catalog, packet }, { reque
   }
 }
 
+
+
+export function isZeroCashProvider(row, requestedModel = row?.defaultModel) {
+  return row?.pricePerMillionTokensMicroUsd?.input === 0 && row?.pricePerMillionTokensMicroUsd?.output === 0
+    && row?.entitlement?.cashCost === "zero" && row.entitlement.paidOverage === "forbidden"
+    && row.entitlement.model === requestedModel;
+}
