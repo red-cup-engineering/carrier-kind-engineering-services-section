@@ -1,0 +1,57 @@
+; Pure placement-independent RMN die profile.
+; Normative decoded forms of placement-neutral M1 circuit definitions and
+; sovereign recursive assemblies. Canonical bytes are relational RMN
+; ascriptions, not CBOR maps encoded directly from this diagnostic view.
+;
+; Behavior is a tensor factorization. Each pin occurs in exactly one factor,
+; and only an irreducible factor expands to a finite FOUR table. This prevents
+; a circuit-of-circuits from collapsing independent work into one exponential
+; global truth table.
+
+four = { positiveEvidence: bool, negativeEvidence: bool }
+ni = tstr .regexp "^ni:///sha-256;[A-Za-z0-9_-]{43}$"
+caip10 = tstr
+caip2 = tstr
+
+port = {
+  name: tstr,
+  direction: "input" / "output",
+  predicate: ni,
+  carrier: ni,
+  mode: "tensor" / "par"
+}
+
+endpoint = { instance: tstr / null, port: tstr }
+net = {
+  name: tstr,
+  driver: endpoint,
+  sinks: [+ endpoint],
+  mode: "tensor" / "par",
+  chain: caip2 / null,
+  contract: ni / null
+}
+
+instance = { name: tstr, component: ni }
+behavior-row = { input: [* four], output: [* four] }
+behavior-factor = {
+  inputs: [* tstr],
+  outputs: [* tstr],
+  rows: [* behavior-row]
+}
+
+hierarchical-circuit = {
+  profile: "org.emsenn.rmn.hierarchical-circuit.v3",
+  law: ni,
+  ports: [* port],
+  instances: [* instance],
+  nets: [* net],
+  behavior: { factors: [* behavior-factor] }
+}
+
+circuit-membrane = { account: caip10, authority: ni, custody: ni, territory: ni }
+assembly-placement = { address: [* tstr], membrane: circuit-membrane }
+circuit-assembly = {
+  profile: "org.emsenn.rmn.circuit-assembly.v1",
+  circuit: ni,
+  placements: [+ assembly-placement]
+}
