@@ -11,12 +11,26 @@ for(const source of spec.repositories){
  const head=api(`repos/${source.repository}/branches/${encodeURIComponent(ref)}`).commit.sha;
  if(head===source.commit)continue;
  const prs=api(`repos/${source.repository}/commits/${head}/pulls`);
- const pr=prs.find(pr=>pr.merged_at&&pr.base.ref===ref&&pr.merge_commit_sha===head);
+ let pr=prs.find(pr=>pr.merged_at&&pr.base.ref===ref&&pr.merge_commit_sha===head);
+ // Publication data may advance after the approved software merge. Receive
+ // that merge from its ancestry rather than losing it behind a raw data pin.
+ if(!pr){
+  const candidates=api(`repos/${source.repository}/pulls?state=closed&base=${encodeURIComponent(ref)}&sort=updated&direction=desc&per_page=50`)
+   .filter(p=>p.merged_at&&p.merge_commit_sha&&p.merge_commit_sha!==source.commit)
+   .sort((a,b)=>b.merged_at.localeCompare(a.merged_at));
+  for(const candidate of candidates){
+   const forward=api(`repos/${source.repository}/compare/${source.commit}...${candidate.merge_commit_sha}`).status;
+   if(forward!=='ahead')continue;
+   const ancestry=api(`repos/${source.repository}/compare/${candidate.merge_commit_sha}...${head}`).status;
+   if(['ahead','identical'].includes(ancestry)){pr=candidate;break}
+  }
+ }
+ const admitted=pr?.merge_commit_sha;
  // A raw push is not an admitted source release. Owning-repository merge
  // permissions and its review rules remain the authority.
  if(!pr){process.stderr.write(`Awaiting owning PR merge: ${source.repository}@${head}\n`);continue}
- updates.push({repository:source.repository,before:source.commit,commit:head,pullRequest:pr.html_url,mergedAt:pr.merged_at,mergedBy:pr.merged_by?.login??null});
- source.commit=head;source.admission={pullRequest:pr.html_url,mergedAt:pr.merged_at};
+ updates.push({repository:source.repository,before:source.commit,commit:admitted,pullRequest:pr.html_url,mergedAt:pr.merged_at,mergedBy:pr.merged_by?.login??null});
+ source.commit=admitted;source.admission={pullRequest:pr.html_url,mergedAt:pr.merged_at};
 }
 if(!updates.length){process.stdout.write('No newly merged source releases.\n');process.exit(0)}
 await writeFile(join(snapshot,'sources.json'),JSON.stringify(spec,null,2)+'\n');
