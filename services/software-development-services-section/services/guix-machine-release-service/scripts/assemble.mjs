@@ -31,6 +31,7 @@ exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts
 const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
 exec(process.execPath,['--test',fileURLToPath(new URL('../test/release-admission.test.mjs',import.meta.url)),...checks.map(f=>join(entry,'test',f)),join(providers['@red-cup-engineering/semantic-content-identify-service'],'test/semantic-content-identity.test.mjs')],{env:environment});
 exec(process.execPath,['--test',join(providers['@red-cup-engineering/computer-inference-engine'],'test/zero-cash-account-admission.test.mjs')],{env:environment});
+exec(process.execPath,['--test',join(providers['@red-cup-engineering/activitypub-services-section'],'test/sqlite-queue-responsiveness.test.mjs')],{env:environment});
 const newsroom=providers['@causeway-services/koios-news'];
 exec(process.execPath,['--input-type=module','-e',"await import('./src/news-line.mjs')"],{env:environment,cwd:newsroom});
 exec(process.execPath,['--test',...['article-reporting.test.mjs','editorial-protocol.test.mjs','evidence-replay.test.mjs','inference-config.test.mjs','newsroom-transitions.test.mjs'].map(f=>join(newsroom,'test',f))],{env:environment,cwd:newsroom});
