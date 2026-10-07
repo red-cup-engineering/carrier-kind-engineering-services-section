@@ -147,10 +147,10 @@
                 ("METROPLAT_DATA_ROOT" . ,(string-append scratch "/settlement"))
                 ("ACTIVITYPUB_SQLITE_PATH" . ,(string-append scratch "/activitypub.sqlite"))
                 ("AGENCY_ACTS_LOG" . ,(string-append scratch "/acts.jsonl"))))))
-        (run "systemd-run" "--user" "--collect" "--quiet" "--nice=10"
+        (run "systemd-run" "--user" "--collect" "--quiet" "--nice=0"
              (string-append "--unit=" probe)
              (string-append "--property=EnvironmentFile=" probe-env)
-             "--property=CPUWeight=20" "--property=IOWeight=20"
+             "--property=CPUWeight=100" "--property=IOWeight=100"
              "--property=MemoryMax=640M" "--property=OOMScoreAdjust=1000"
              "--setenv=METROPLAT_PROBE=1" "--setenv=METROPLAT_PROBE_LISTEN=127.0.0.1:18819"
              (string-append "--setenv=FELTOS_ENTERPRISE_HOST=" store "/deployment/host.json")
