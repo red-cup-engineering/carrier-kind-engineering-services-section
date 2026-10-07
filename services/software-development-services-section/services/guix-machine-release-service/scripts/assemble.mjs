@@ -2,6 +2,7 @@ import {readFile,writeFile,mkdir,cp,rm,mkdtemp,symlink,realpath} from 'node:fs/p
 import {readFileSync as requireRead} from 'node:fs';
 import {resolve,join,relative,dirname} from 'node:path';
 import {createHash} from 'node:crypto';
+import {createRequire} from 'node:module';
 import {spawnSync} from 'node:child_process';
 const [workspaceArg,snapshotArg,outputArg]=process.argv.slice(2);
 const workspace=resolve(workspaceArg),snapshot=resolve(snapshotArg),output=resolve(outputArg);
@@ -31,6 +32,27 @@ exec(process.execPath,['--test',...checks.map(f=>join(entry,'test',f)),join(prov
 await mkdir(output,{recursive:true});
 const closure=await mkdtemp(join(output,'.closure-'));
 exec('npm',['exec','--yes','--package=pnpm@11.9.0','--','pnpm','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy',join(closure,'app')],{env:{...environment,NODE_OPTIONS:'--max-old-space-size=1024'}});
+// Deployment materializes workspace providers as local file packages. Require
+// every external version and integrity to equal the reviewed lock before sealing.
+const requireWorkspace=createRequire(join(workspace,'package.json'));
+const {parse}=requireWorkspace('yaml');
+const reviewed=parse(await readFile(join(workspace,'pnpm-lock.yaml'),'utf8'));
+const deployed=parse(await readFile(join(closure,'app/node_modules/.pnpm/lock.yaml'),'utf8'));
+const sourceDirectories=new Map(sources.packages.map(p=>['packages/'+p.name.replaceAll('/','__'),p]));
+const dependencyEvidence=[];
+for(const [key,value] of Object.entries(deployed.packages??{})){
+  if(value.resolution?.type==='directory'){
+    const provider=sourceDirectories.get(value.resolution.directory);
+    if(!provider||key!==`${provider.name}@file:${value.resolution.directory}`)
+      throw new Error(`Unadmitted deployed source provider: ${key}`);
+    dependencyEvidence.push({package:provider.name,version:provider.version,repository:provider.repository,commit:provider.commit});
+  }else{
+    const admitted=reviewed.packages?.[key];
+    if(!admitted||JSON.stringify(admitted.resolution)!==JSON.stringify(value.resolution))
+      throw new Error(`Deployment changed a reviewed dependency: ${key}`);
+    dependencyEvidence.push({package:key,resolution:value.resolution});
+  }
+}
 // Legacy deploy leaves the cyclic entry package linked to its workspace.
 // Bind that self-reference to the identical deployed entry before sealing.
 const self=join(closure,'app/node_modules/.pnpm/node_modules/@red-cup-engineering/feltos-enterprise-host');
@@ -50,6 +72,8 @@ await rm(join(closure,'app/node_modules/.pnpm-workspace-state-v1.json'),{force:t
 const lock=await readFile(join(workspace,'pnpm-lock.yaml'));
 await mkdir(join(closure,'.metadata'),{recursive:true});
 await writeFile(join(closure,'.metadata','dependencies.lock.yaml'),lock);
+await writeFile(join(closure,'.metadata','runtime-dependencies.json'),JSON.stringify(dependencyEvidence,null,2)+'\n');
+await rm(join(closure,'app/node_modules/.pnpm/lock.yaml'));
 await writeFile(join(closure,'.metadata','sources.json'),JSON.stringify(sources,null,2)+'\n');
 const release={machineCommit:process.env.GITHUB_SHA??null,machineRepository:process.env.GITHUB_REPOSITORY??null,dependencyLockSha256:createHash('sha256').update(lock).digest('hex')};
 await writeFile(join(closure,'.metadata','release.json'),JSON.stringify(release,null,2)+'\n');

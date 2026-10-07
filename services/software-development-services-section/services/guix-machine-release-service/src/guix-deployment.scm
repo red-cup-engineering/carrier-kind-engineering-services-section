@@ -15,7 +15,7 @@
 (define* (enterprise-deployment machine-name directory entry
                                #:key environment-file (environment '())
                                socket (heap 512) (restart-seconds 5)
-                               oom-score memory-high)
+                               oom-score memory-high (auxiliary-units '()))
   (let ((admitted-source (getenv "GUIX_DEPLOYMENT_SOURCE")))
     (unless (and admitted-source (file-exists? admitted-source))
       (error "GUIX_DEPLOYMENT_SOURCE must name the admitted runtime closure"))
@@ -61,6 +61,11 @@
                           #$(file-append bash-minimal "/bin/sh")
                           runtime (string-append out "/" #$entry))))
               (chmod launcher #o555)
+              (call-with-output-file (string-append bin "/owning-repository-release-only")
+                (lambda (port)
+                  (format port "#!~a~%echo 'Release through reviewed owning-repository merges and the GitHub Guix machine snapshot.' >&2~%exit 1~%"
+                          #$(file-append bash-minimal "/bin/sh"))))
+              (chmod (string-append bin "/owning-repository-release-only") #o555)
               (call-with-output-file unit
                 (lambda (port)
                   (format port "[Unit]~%Description=~a Guix enterprise deployment~%After=network-online.target~a~%Wants=network-online.target~a~%~%[Service]~%Type=simple~%WorkingDirectory=~a/~a~%ExecStart=~a~%EnvironmentFile=~a~%"
@@ -77,6 +82,35 @@
               (call-with-output-file (string-append units "/environment")
                 (lambda (port)
                   (for-each (lambda (pair) (format port "~a=~s~%" (car pair) (cdr pair))) env)))
+              ;; Additional services belong to the same immutable generation
+              ;; and are installed by the same release transaction.
+              (for-each
+                (lambda (service)
+                  (let* ((name (assoc-ref service 'name))
+                         (program (assoc-ref service 'program))
+                         (command (string-append out "/" program))
+                         (interpreter (if (assoc-ref service 'shell?)
+                                          #$(file-append bash-minimal "/bin/bash") runtime)))
+                    (unless (file-exists? command) (error "auxiliary program missing" name program))
+                    (call-with-output-file (string-append units "/" name)
+                      (lambda (port)
+                        (format port "[Unit]~%Description=~a Guix deployment~%After=network-online.target~%[Service]~%Type=oneshot~%WorkingDirectory=~a/~a~%ExecStart=~a ~a~%TimeoutStartSec=~a~%UMask=0077~%"
+                                name out (assoc-ref service 'directory) interpreter command
+                                (or (assoc-ref service 'timeout) "3600"))
+                        (when (assoc-ref service 'precheck)
+                          (format port "ExecStartPre=~a ~a/~a~%" runtime out (assoc-ref service 'precheck)))
+                        (for-each (lambda (file) (format port "EnvironmentFile=~a~%" file))
+                                  (or (assoc-ref service 'environment-files) '()))
+                        (format port "EnvironmentFile=~a/~a.environment~%" units name)))
+                    (call-with-output-file (string-append units "/" name ".environment")
+                      (lambda (port)
+                        (for-each
+                          (lambda (pair)
+                            (format port "~a=~s~%" (car pair)
+                                    (regexp-substitute/global #f "\\{release\\}" (cdr pair) 'pre out 'post)))
+                          (append (or (assoc-ref service 'environment) '())
+                                  (list (cons "PATH" (string-append out "/bin:/home/emsenn/.local/bin:/usr/local/bin:/usr/bin:/bin")))))))))
+                '#$auxiliary-units)
               #t))))
       (home-page "https://561.group")
       (synopsis (string-append machine-name " enterprise deployment"))

@@ -58,7 +58,16 @@
          (run-url (and (getenv "GITHUB_REPOSITORY") (getenv "GITHUB_RUN_ID")
                     (string-append "https://github.com/" (getenv "GITHUB_REPOSITORY")
                                    "/actions/runs/" (getenv "GITHUB_RUN_ID"))))
-         (stopped? #f))
+         (stopped? #f)
+         (managed-files
+           (append
+             (map (lambda (name) (cons (string-append (getenv "HOME") "/.config/systemd/user/" name)
+                                     (string-append store "/.guix-systemd/" name)))
+                  (vector->list (or (assoc-ref config "auxiliaryUnits") #())))
+             (map (lambda (spec) (cons (field spec "path") (string-append store "/bin/owning-repository-release-only")))
+                  (vector->list (or (assoc-ref config "retiredDeployers") #())))))
+         (managed-backups '())
+         (managed-changed? #f))
     (unless (and (equal? repository (field config "repository"))
                  (string? revision) (= (string-length revision) 40)
                  (equal? (field config "stateCompatibility") "preserve-existing"))
@@ -101,6 +110,21 @@
              (string-append "--setenv=METROPLAT_DATA_ROOT=" scratch "/settlement")
              (string-append store "/bin/" name))
         (health "http://127.0.0.1:18819/healthz" store)
+        (set! stage "auxiliary-check")
+        (for-each
+          (lambda (check)
+            (let* ((aux-unit (field check "unit"))
+                   (unit-text (call-with-input-file (string-append store "/.guix-systemd/" aux-unit) get-string-all))
+                   (files (filter-map (lambda (line)
+                            (and (string-prefix? "EnvironmentFile=" line)
+                                 (substring line (string-length "EnvironmentFile="))))
+                            (string-split unit-text #\newline))))
+              (apply run "systemd-run" "--user" "--wait" "--pipe" "--collect" "--quiet"
+                         "--property=MemoryMax=640M"
+                         (append (map (lambda (file) (string-append "--property=EnvironmentFile=" file)) files)
+                                 (list (string-append store "/bin/node")
+                                       (string-append store "/" (field check "program")))))))
+          (vector->list (or (assoc-ref config "auxiliaryChecks") #())))
         (set! stage "pre-switch-check")
         (when stage-only?
           (run "systemctl" "--user" "stop" probe)
@@ -132,6 +156,21 @@
         (atomic-link profile store)
         (copy-file (string-append store "/.guix-systemd/" unit) (string-append unit-file ".next"))
         (rename-file (string-append unit-file ".next") unit-file)
+        ;; Save and install every managed controller/unit atomically. Ongoing
+        ;; newsroom jobs keep their old immutable programs until they finish;
+        ;; timers use the new generation on their next invocation.
+        (set! managed-backups
+          (map (lambda (file)
+                 (let* ((path (car file)) (backup (string-append scratch "/managed-" (number->string (length managed-backups)) "-" (basename path)))
+                        (exists? (file-exists? path))
+                        (link (and exists? (eq? (stat:type (lstat path)) 'symlink) (readlink path))))
+                   (when (and exists? (not link)) (copy-file path backup))
+                   (list path backup exists? link))) managed-files))
+        (set! managed-changed? #t)
+        (for-each (lambda (file)
+                    (copy-file (cdr file) (string-append (car file) ".next"))
+                    (when (string-contains (cdr file) "/bin/") (chmod (string-append (car file) ".next") #o555))
+                    (rename-file (string-append (car file) ".next") (car file))) managed-files)
         (run "systemctl" "--user" "daemon-reload")
         (run "systemctl" "--user" "restart" unit)
         (set! stage "live-check")
@@ -144,6 +183,14 @@
       (lambda args
         (system* "systemctl" "--user" "stop" probe)
         (when (file-exists? probe-env) (delete-file probe-env))
+        (when managed-changed?
+          (for-each (lambda (saved)
+                      (match saved
+                        ((path backup exists? link)
+                         (cond (link (atomic-link path link))
+                               (exists? (copy-file backup (string-append path ".next"))
+                                        (rename-file (string-append path ".next") path))
+                               ((file-exists? path) (delete-file path)))))) managed-backups))
         (when (and previous stopped?)
           ;; A failed Guix command may already have changed its profile.
           ;; Always restore the exact held generation before restarting.
