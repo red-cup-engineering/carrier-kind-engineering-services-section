@@ -44,7 +44,7 @@
      (assert-closed source)
      (setenv "GUIX_DEPLOYMENT_SOURCE" (canonicalize-path source))
      (let* ((lines (guix channels "build" "--no-grafts" "-L" load-path
-                         "-f" definition "--root" root))
+                         "-f" definition (string-append "--root=" root)))
             (store (last lines)))
        (unless (string-prefix? "/gnu/store/" store)
          (error "Guix returned no store output" lines))

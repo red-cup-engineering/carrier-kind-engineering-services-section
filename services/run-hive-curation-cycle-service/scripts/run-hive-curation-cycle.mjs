@@ -4,7 +4,7 @@ import { scheduleSetOfVotes } from "@red-cup-engineering/schedule-set-of-votes-s
 import { castSetOfVotes } from "@red-cup-engineering/cast-set-of-votes-service";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { curationPolicy } from "@red-cup-engineering/hive-fleet-operations-service/strategy";
-import { runJavascriptNodeOperation } from "../../../../../../../../../../computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-node-services-section/src/operation.mjs";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
 
 const DEFAULT_NODES = Object.freeze(["https://api.hive.blog", "https://api.openhive.network"]);
 

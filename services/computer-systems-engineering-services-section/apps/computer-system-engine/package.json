@@ -108,6 +108,12 @@
     "@red-cup-engineering/mcp-engineering-services-section": "0.1.0",
     "@red-cup-engineering/metrologic": "0.3.0",
     "@red-cup-engineering/relating": "0.10.1",
-    "@red-cup-engineering/uri-services-section": "0.1.0"
+    "@red-cup-engineering/uri-services-section": "0.1.0",
+    "@red-cup-engineering/signcraft": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/signchain": "workspace:*",
+    "@red-cup-engineering/node-process-services-section": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*"
   }
 }

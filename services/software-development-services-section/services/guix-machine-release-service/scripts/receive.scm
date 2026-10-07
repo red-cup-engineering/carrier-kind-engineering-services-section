@@ -23,12 +23,13 @@
   (let ((path (string-append root "/" (number->string (current-time)) "-" outcome ".json")))
     (call-with-output-file path (lambda (p) (scm->json value p) (newline p)))
     path))
-(define (health url)
+(define* (health url #:optional expected-artifact)
   (let loop ((left 40))
     (catch #t
       (lambda ()
         (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
-          (if (and (assoc-ref value "ok") (equal? (assoc-ref value "state") "ready")) #t
+          (if (and (assoc-ref value "ok") (equal? (assoc-ref value "state") "ready")
+                   (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))) #t
               (error "candidate is not ready"))))
       (lambda args (if (> left 1) (begin (sleep 3) (loop (- left 1))) (apply throw args))))))
 
@@ -37,6 +38,8 @@
          (profile (string-append root "/current"))
          (unit (field config "unit")) (env-file (field config "environmentFile"))
          (previous (and (file-exists? profile) (readlink profile)))
+         (previous-link (string-append root "/previous"))
+         (held-previous (and (file-exists? previous-link) (readlink previous-link)))
          (unit-file (string-append (getenv "HOME") "/.config/systemd/user/" unit))
          (unit-backup (string-append root "/.unit-before-guix"))
          (receipts (field config "receiptRoot"))
@@ -58,6 +61,7 @@
             (for-each (lambda (pair) (format p "~a=~s~%" (car pair) (cdr pair)))
               `(("METROPLAT_PROBE" . "1")
                 ("METROPLAT_PROBE_LISTEN" . "127.0.0.1:18819")
+                ("GUIX_MACHINE_ARTIFACT" . ,store)
                 ("FELTOS_ENTERPRISE_HOST" . ,(string-append store "/deployment/host.json"))
                 ("METROPLAT_REPOSITORY_ROOT" . ,store)
                 ("METROPLAT_WEB_STATE_DIR" . ,(string-append scratch "/state"))
@@ -77,7 +81,7 @@
              (string-append "--setenv=METROPLAT_WEB_DATA_DIR=" scratch "/data")
              (string-append "--setenv=METROPLAT_DATA_ROOT=" scratch "/settlement")
              (string-append store "/bin/" name))
-        (health "http://127.0.0.1:18819/healthz")
+        (health "http://127.0.0.1:18819/healthz" store)
         (when failure-test? (error "deliberate pre-switch check failure"))
         (run "systemctl" "--user" "stop" probe)
         (delete-file probe-env)
@@ -91,12 +95,12 @@
         (unless (and previous (string-suffix? "-link" previous))
           (when previous (atomic-link (string-append profile ".before-guix") previous))
           (when previous (delete-file profile)))
-        (run "guix" "package" "--profile" profile "--install" store)
+        (run "guix" "package" (string-append "--profile=" profile) "--install" store)
         (copy-file (string-append store "/.guix-systemd/" unit) (string-append unit-file ".next"))
         (rename-file (string-append unit-file ".next") unit-file)
         (run "systemctl" "--user" "daemon-reload")
         (run "systemctl" "--user" "restart" unit)
-        (health (field config "health"))
+        (health (field config "health") store)
         (receipt receipts "success" `(("outcome" . "success") ("storePath" . ,store)
                                       ("previous" . ,previous) ("machine" . ,name))))
       (lambda args
@@ -106,6 +110,8 @@
           ;; A failed Guix command may already have changed its profile.
           ;; Always restore the exact held generation before restarting.
           (atomic-link profile previous)
+          (if held-previous (atomic-link previous-link held-previous)
+              (when (file-exists? previous-link) (delete-file previous-link)))
           (copy-file unit-backup (string-append unit-file ".next"))
           (rename-file (string-append unit-file ".next") unit-file)
           (system* "systemctl" "--user" "daemon-reload")

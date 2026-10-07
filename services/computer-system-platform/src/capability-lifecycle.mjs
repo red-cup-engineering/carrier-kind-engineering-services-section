@@ -1,4 +1,4 @@
-import { serviceLifecycleEvent } from "../../../../computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-node-services-section/services/node-process-services-section/src/lifecycle.mjs";
+import { serviceLifecycleEvent } from "@red-cup-engineering/node-process-services-section/lifecycle";
 
 /** A provider lifetime without an operation/type registry. */
 export function isCapabilityPlatform(value) {

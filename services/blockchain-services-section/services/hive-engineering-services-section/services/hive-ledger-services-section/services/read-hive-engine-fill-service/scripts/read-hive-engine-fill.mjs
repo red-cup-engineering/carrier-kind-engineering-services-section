@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
-import { runJavascriptNodeOperation } from "../../../../../../../../../../computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-node-services-section/src/operation.mjs";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
 const SUPPORTED_ACTIONS = new Set(["marketpools:swapTokens", "market:sell", "market:buy"]);
 
 function queryNode(node, transactionId, fetchImpl) {

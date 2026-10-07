@@ -2,7 +2,7 @@
 import { submitToSigner } from "@red-cup-engineering/hive-fleet-operations-service/signer";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
-import { runJavascriptNodeOperation } from "../../../../../../../../../../computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-node-services-section/src/operation.mjs";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
 
 const DEFAULT_NODES = Object.freeze(["https://api.hive.blog", "https://api.openhive.network"]);
 
