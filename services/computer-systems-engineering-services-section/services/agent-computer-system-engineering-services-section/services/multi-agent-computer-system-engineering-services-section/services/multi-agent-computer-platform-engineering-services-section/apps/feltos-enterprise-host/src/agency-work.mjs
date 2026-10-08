@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 import path from "node:path";
 import { operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { configuredWorkSourceRepository } from "@red-cup-engineering/metroplat/source-repository";
 import { allocationSources } from "@red-cup-engineering/metroplat/allocation-sources";
 import { codexAgencyWorkProvider } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/codex/agency-work";
 import { codexNodeOptions } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/codex/operations";
@@ -180,7 +181,7 @@ export function inferenceReceiver({ binding, identity, environment, repositoryRo
  * window spent out takes the carrier out of staffing until it turns. An allowance the house has not
  * read prices at the unit, since an unknown is never free.
  */
-function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession }) {
+function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession, operationOf }) {
   const carriers = [];
   const repositoryRoot = environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd();
   if (environment.METROPLAT_CODEX_WORKER) {
@@ -198,6 +199,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         metroplatServer: environment.METROPLAT_CODEX_MCP_SERVER,
         characterName: environment.METROPLAT_CODEX_CHARACTER_NAME ?? "the Codex character",
         cwd: environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot,
+        repositoryOf: spec => configuredWorkSourceRepository(environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot, spec, { operationOf }),
         // No deployment names the model: an allocation carries its derived carrier, and the session observes the one that ran.
         ...(environment.METROPLAT_CODEX_BIN ? { codex: environment.METROPLAT_CODEX_BIN } : {}),
       }),
@@ -219,6 +221,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         mcpConfig: environment.METROPLAT_CLAUDE_MCP_CONFIG ?? path.join(repositoryRoot, ".mcp.json"),
         characterName: environment.METROPLAT_CLAUDE_CHARACTER_NAME ?? "the Claude Code character",
         cwd: repositoryRoot,
+        repositoryOf: spec => configuredWorkSourceRepository(repositoryRoot, spec, { operationOf }),
         officeAgent: (office) => officeAgentDefinition({ repoRoot: repositoryRoot, agency: agencyAt(firmPoolRoot), office }),
         ...(environment.METROPLAT_CLAUDE_BIN ? { claude: environment.METROPLAT_CLAUDE_BIN } : {}),
       }),
@@ -334,6 +337,7 @@ export function enterpriseAgencyWorkOptions({
     return receipt;
   };
   const carriers = hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot,
+    operationOf: verb => operationSurface().operations.find(operation => operation.verb === verb),
     onSession: (item, session) => recordHostedStart(item, session),
     onReceivingSession: (review, session) => recordHostedSession(review, { session }) });
   // A carrier with declared models stands ready before its first run: each model is admitted under
@@ -545,7 +549,8 @@ export function enterpriseAgencyWorkOptions({
           carriers: authority.models, standing, price: Math.min(1, authority.carrier.pricing().price) });
         if (staffing?.exhausted === true) continue;
         const review = { agent: authority.carrier.workerId, allocatedModel: staffing.carrier, scope: proposal.scope,
-          delegation: { provider: authority.carrier.workerId }, office: authority.office, proposal, staffing, root: owningBinding.dataRoot };
+          delegation: { provider: authority.carrier.workerId }, office: authority.office, proposal, staffing, root: owningBinding.dataRoot,
+          ...(item.sourceRepository === undefined ? {} : { sourceRepository: item.sourceRepository }) };
         if (authority.carrier.adapter.receivingExhausted?.(review) === true) continue;
         // Ended agent turns remain terminal. Only the provider's bounded,
         // evidenced transport/capacity recovery can reopen a failed start.

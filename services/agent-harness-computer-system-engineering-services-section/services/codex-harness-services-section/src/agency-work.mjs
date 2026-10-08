@@ -16,14 +16,14 @@ export const codexWorkSuit = (item, options) => agencyWorkSuit(item, { ...option
  *  own (its change is committed and named a candidate to the merge queue, then the tree is removed, or
  *  kept when the act failed), a receiving act reads in one of its own. Opening fails closed: the act
  *  fails and nothing runs in `repository`, the shared checkout. */
-export const codexWorkspaces = ({ repository, commandRunner, environment = process.env }) => carrierWorkspaces(codexDialect, { repository, commandRunner, environment });
+export const codexWorkspaces = ({ repository, repositoryOf, commandRunner, environment = process.env }) => carrierWorkspaces(codexDialect, { repository, repositoryOf, commandRunner, environment, effectsOf: spec => spec.receiving || repositoryOf?.(spec)?.mode === "no-source" ? "read-only" : "repository-write" });
 
 /** `executeAgencyWork(item)` for a node whose Codex character is `workerId`. `cwd` is the repository the
  *  acts' worktrees borrow from; no act runs in it. */
-export function codexAgencyWorkProvider({ metroplatServer, codex, sandbox = "workspace-write", cwd, commandRunner, systemRunner, environment, ...options }) {
+export function codexAgencyWorkProvider({ metroplatServer, codex, sandbox = "workspace-write", cwd, repositoryOf, commandRunner, systemRunner, environment, ...options }) {
   return agencyWorkCarrier({
-    ...options, cwd, workspaceOf: codexWorkspaces({ repository: cwd, commandRunner, ...(environment === undefined ? {} : { environment }) }),
+    ...options, cwd, workspaceOf: codexWorkspaces({ repository: cwd, repositoryOf, commandRunner, ...(environment === undefined ? {} : { environment }) }),
     dialect: codexDialect, mcpServer: metroplatServer, ...(codex === undefined ? {} : { executable: codex }),
-    sessionOptions: ({ receiving }) => ({ sandbox: receiving ? "read-only" : sandbox, ...(systemRunner === undefined ? {} : { systemRunner }), ...(metroplatServer === undefined ? {} : { requiredMcpServer: metroplatServer }) }),
+    sessionOptions: ({ item, receiving }) => ({ sandbox: receiving || repositoryOf?.({ item, receiving })?.mode === "no-source" ? "read-only" : sandbox, ...(systemRunner === undefined ? {} : { systemRunner }), ...(metroplatServer === undefined ? {} : { requiredMcpServer: metroplatServer }) }),
   });
 }
