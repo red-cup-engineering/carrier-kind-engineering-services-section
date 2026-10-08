@@ -14,7 +14,7 @@ import {
   minskyRegime,
   net,
 } from "../src/accounting/institution.mjs";
-import { gradedFromParts } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts } from "@red-cup-engineering/exact-number-data-service/graded";
 
 const usd = (num) => gradedFromParts(BigInt(num), 1n, "USD");
 

@@ -50,7 +50,7 @@
  */
 import { event, eventStructure } from "@red-cup-engineering/playing/structuring/event/structure";
 import { negative, polarityName, polarityReading, positive } from "@red-cup-engineering/playing/structuring/polarity";
-import { knowledgeJoinAll, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinAll, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 import { bearersHandedBy } from "../agency/index.mjs";
 import {
   OPENING_MOVES, PROTOCOL, RESPONSE_MOVES, TAKING_MOVE, TOLD_MOVES,

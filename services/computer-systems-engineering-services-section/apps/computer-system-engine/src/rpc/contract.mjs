@@ -15,7 +15,7 @@ import { inhabitants } from "@red-cup-engineering/json-schema-services-section/i
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 
 import { operationConvergenceSignature } from "./convergence.mjs";
-import { knowledgeJoinReading, readingAs, readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, readingAs, readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
 
 function lawCitation(input) {
   return Object.freeze({

@@ -24,7 +24,6 @@
   ],
   "dependencies": {
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/forecasting": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",

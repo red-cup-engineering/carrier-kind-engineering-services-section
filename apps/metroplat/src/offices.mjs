@@ -32,7 +32,7 @@ import { journal, openJournal } from "@red-cup-engineering/computer-system-engin
 import { toEavt } from "@red-cup-engineering/eavt/row";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinAll, readingAs, readingSchema } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinAll, readingAs, readingSchema } from "@red-cup-engineering/computer-data-services-section/four";
 import { incumbencyState, officeIncumbencyClaimCell } from "@red-cup-engineering/socializing/office";
 import { AGENCY_POOLS, agencyRootFrom, bearersHandedBy, governanceOf, isToldBearer, officeCoordinationBoundary as officeBoundary, officeReading, officesOf, resolve, toldBearersOf, withSeatClaims, withToldHands } from "@red-cup-engineering/organizing/agency";
 import { agencyAt, agencyMoved } from "@red-cup-engineering/organizing/agency/held";
@@ -386,8 +386,10 @@ export const handedAgency = (binding, agency = agencyAt(agencyRootOf(binding))) 
 const masksOf = (binding, account, agency) => toldBearersOf(handedAgency(binding, agency), account);
 
 /** The bearers an account acts for: the characters it is a told hand of, then each it is an authored hand of. */
-function bearersOfAccount(binding, account, agency) {
-  return bearersHandedBy(handedAgency(binding, agency), account).filter((bearer) => bearer !== account);
+function bearersOfAccount(binding, account, agency = agencyAt(agencyRootOf(binding))) {
+  const face=binding.resolveActorSubject?.(account);
+  if(face!==undefined&&(typeof face!=='string'||!agency.characters.has(face)&&![...agency.characters.values()].some(record=>record.id===face)))throw new TypeError('network face names no current authored character');
+  return [...new Set([...bearersHandedBy(handedAgency(binding, agency), account),...(face===undefined?[]:[face])])].filter((bearer) => bearer !== account);
 }
 
 /** Who an authenticated account can provide work as: itself and every bearer it acts for. */
@@ -417,7 +419,7 @@ function claimedOffices(agency, claims, holder) {
 /** Every office an account acts under, and how: its own seat, a masked character's, or its bearer's. */
 export function officesOfAccount(binding, account, agency = agencyAt(agencyRootOf(binding))) {
   const claims = readIncumbencyClaims(binding.dataRoot), masks = readCharacterMasks(binding.dataRoot);
-  return projected(`offices-of\u0000${binding.dataRoot}\u0000${account}`, [claims, masks, agency],
+  return projected(`offices-of\u0000${binding.dataRoot}\u0000${account}`, [claims, masks, agency, binding.resolveActorSubject?.(account)],
     () => deriveOfficesOfAccount(binding, account, agency, claims));
 }
 

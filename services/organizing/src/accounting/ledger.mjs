@@ -33,8 +33,8 @@ import { utterance } from "@red-cup-engineering/signcell/cell";
 import { settleMembrane } from "@red-cup-engineering/signcraft/membrane";
 import { compare } from "@red-cup-engineering/signcraft/settle";
 
-import { gradedComplete, gradedConserved } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
-import { gradeOf, gradedAdd, gradedCompare, gradedIsZero, gradedNegate, gradedQuotient, gradedSubtract, gradedTimes, gradedToExactString, gradedZero } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedComplete, gradedConserved } from "@red-cup-engineering/exact-number-data-service/graded";
+import { gradeOf, gradedAdd, gradedCompare, gradedIsZero, gradedNegate, gradedQuotient, gradedSubtract, gradedTimes, gradedToExactString, gradedZero } from "@red-cup-engineering/exact-number-data-service/graded";
 
 
 // ── Re-derived ledger boundary records (own carriers; ./money Money is the magnitude) ──────────

@@ -7,7 +7,7 @@ import { engineFind } from "../src/core/hiveScriptSupport.mjs";
 import { pathToFileURL } from "node:url";
 
 import { certifyHiveEngineExit } from "../src/core/exitTightness.mjs";
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { liveEngineBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 
 const NODES = ["https://api.hive-engine.com/rpc/contracts", "https://herpc.dtools.dev/contracts"];

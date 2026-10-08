@@ -3,7 +3,7 @@
  * order with its right residual — all SignChain's reading operations.
  */
 import { knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { truthJoinReading, truthLeqReading, truthMeetReading, readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { truthJoinReading, truthLeqReading, truthMeetReading, readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** A settled value's parse status: ambiguous (told both), void (told nothing), or decided. */
 export const readingStatus = (value) => {

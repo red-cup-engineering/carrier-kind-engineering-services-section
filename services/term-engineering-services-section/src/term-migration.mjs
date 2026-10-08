@@ -5,7 +5,7 @@ import { basename, extname } from "node:path";
 import { mutateMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/mutate-markdown-frontmatter";
 import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
 import { migrateLegacyTermMarkdown, normalizeTermAliases, normalizeTermDescription, normalizeTermName, readTermMarkdown, renderTermMarkdown, termStem } from "./term-carrier.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const humanize = (value) => value.replace(/[-_]+/gu, " ").replace(/\b\w/gu, (letter) => letter.toUpperCase());
 

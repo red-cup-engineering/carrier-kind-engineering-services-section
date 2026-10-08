@@ -26,7 +26,7 @@ import path from "node:path";
 import { createVerifiedContentReader } from "@red-cup-engineering/immutable-content-custody-service";
 import { verifyArtifact } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 import { parse, requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { journalWitness, parseJournalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event";

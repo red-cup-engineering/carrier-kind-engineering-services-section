@@ -56,8 +56,8 @@
     "@red-cup-engineering/cryptographic-data-service": "workspace:*",
     "@red-cup-engineering/json-rpc-transport-service": "workspace:*",
     "@red-cup-engineering/base58-encoding-service": "workspace:*",
-    "@red-cup-engineering/text-slug-service": "workspace:*",
-    "@red-cup-engineering/exact-order-book-service": "workspace:*"
+    "@red-cup-engineering/exact-order-book-service": "workspace:*",
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*"
   },
   "repository": {
     "type": "git",

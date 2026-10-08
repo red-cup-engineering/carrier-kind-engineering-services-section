@@ -37,7 +37,7 @@ import { individuate } from "./individuate.mjs";
 import { classifySkillfulWork } from "./skillful-work.mjs";
 import { peerHandedness } from "../../embodying/handedness.mjs";
 import { predicateMatches } from "../../embodying/boundary/relation-boundary.mjs";
-import { census as fourCensus, knowledgeJoinOfCensus, knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { census as fourCensus, knowledgeJoinOfCensus, knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** The boundary direction of each faculty: where it acts relative to the agent's boundary. */
 const FACE_DIRECTION = Object.freeze({

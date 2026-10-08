@@ -12,7 +12,7 @@
  */
 import path from "node:path";
 
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { readLegibility } from "@red-cup-engineering/computer-code-development-engine/monitoring/filesystem/legibility/service";
 import { readFileCensus } from "@red-cup-engineering/computer-code-development-engine/monitoring/filesystem/file-census/service";

@@ -35,7 +35,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { operation, operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { defineGame } from "@red-cup-engineering/feltos/game";
 import { actorIdFor, createMudServer } from "@red-cup-engineering/feltos/mud-server";
 import { composeCapabilities, defineCapability } from "@red-cup-engineering/feltos/capabilities";
@@ -614,8 +614,7 @@ const summarize = (value) => {
  * One running world over a MetroPlat binding. `operations()` yields the catalog's operations
  * (read lazily, since the world's own operations are part of that catalog).
  */
-export function createMetroplatWorld({ binding, operations, identity, dispatchOperation, characterCommunication, now = Date.now }) {
-  if (typeof dispatchOperation !== "function") throw new TypeError("World requires the assembled operation dispatcher");
+export function createMetroplatWorld({ binding, operations, identity, characterCommunication, actorMesh, now = Date.now }) {
   let state, building;
   const build = async () => {
     const root = agencyRootOf(binding);
@@ -815,22 +814,19 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
       && (entry.scope === undefined || selected.locus === undefined || entry.scope === input?.[selected.locus]))) {
       return turn([`${verb} is not currently available to this account. Type powers to see current operations.`]);
     }
-    const request = { id: `${actor}:${enterprise ?? ""}:${verb}:${parent?.id ?? "world"}`, verb, input,
+    const request = { operation:selected.ref, verb, input,
       ...(enterprise === undefined ? {} : { enterprise }) };
     const messages = [setting];
     try {
-      const dispatched = await dispatchOperation(account, request, parent);
-      if (dispatched.code !== 0) {
-        const reason = dispatched.stderr.trim() || "operation was obstructed";
-        const result = { verb, ok: false, error: reason, receipt: dispatched.receipt?.id };
-        messages.push(`${verb} failed: ${reason}`);
-        return turn(messages, [result]);
-      }
-      const value = dispatched.receipt.value;
-      // A move on the work board is seen at once by whoever asks after it next.
-      if (BOARD_MOVES.test(verb)) quests?.forget();
-      messages.push(`${verb}: ${summarize(value)}`);
-      return turn(messages, [{ verb, ok: true, value, receipt: dispatched.receipt.id }]);
+      if(!actorMesh)throw new Error('this host has no running actor mesh');
+      const submission=await actorMesh.submit(account,request,{admit:()=>{
+        const currentOperation=operations().find(operation=>operation.ref===selected.ref&&operation.verb===verb);
+        const standing=currentOperation===undefined?[]:projectOperationAffordances([currentOperation],readStanding(binding,account,{operation:currentOperation,input}),account);
+        const currentEntries=operationAffordanceCategories.flatMap(category=>standing[category]??[]);
+        if(!currentEntries.some(entry=>entry.verb===verb&&(entry.scope===undefined||currentOperation.locus===undefined||entry.scope===input?.[currentOperation.locus])))throw new Error('current operation or office standing was withdrawn before sending');
+      }});
+      messages.push(`Submitted ${verb} to ${submission.recipient}. Type messages for its reply.`);
+      return turn(messages,[{verb,submitted:true,request:submission.request,recipient:submission.recipient}]);
     } catch (error) {
       messages.push(`${verb} failed: ${error.message}`);
       return turn(messages, [{ verb, ok: false, error: error.message }]);
@@ -961,6 +957,22 @@ export function createMetroplatWorld({ binding, operations, identity, dispatchOp
     },
     /** Speak one command line as the account's character. */
     async command(account, line, parent, options = {}) {
+      const [meshVerb,meshArgument]=verbOf(line);
+      if(meshVerb==='message'||meshVerb==='messages'){
+        try{
+          if(!actorMesh)throw new Error('this host has no running actor mesh');
+          if(meshVerb==='message'){
+            const parsed=/^(\S+)\s+([\s\S]+)$/u.exec(meshArgument);
+            if(!parsed)throw new Error('message <actor@instance> <words or request JSON>');
+            const submission=await actorMesh.send(account,parsed[1],parsed[2]);
+            return Object.freeze({...powerTurn(account,[`Submitted to ${submission.recipient}. Type messages for replies.`]),packages:[{name:'Comm.Submission',data:submission}]});
+          }
+          const inbox=await actorMesh.read(account,meshArgument.trim()||undefined);
+          if(inbox.items.some(entry=>entry.kind==='metroplat.dispatch.result'&&entry.value.result?.code===0&&BOARD_MOVES.test(entry.value.result.verb)))quests?.forget();
+          return Object.freeze({...powerTurn(account,inbox.items.length?inbox.items.map(entry=>`${entry.sender}: ${entry.text}`):['No messages.']),packages:[{name:'Comm.Inbox',data:inbox}]});
+        }catch(error){return powerTurn(account,[error.message]);}
+      }
+
       const direct = await communicationTurn(account, line, parent) ?? await playedMove(account, line, parent) ?? await directPower(account, line, parent);
       if (direct !== undefined) {
         if (state?.actors.has(account)) seen(state, account, direct.actor);
@@ -1035,9 +1047,9 @@ function characterNameIn(agency, character) {
 const turnContract = schemaFrom({ $id: "metroplat/world/turn", title: "WorldTurn", type: "object", required: ["kind", "actor", "messages", "results"], properties: { kind: { const: "metroplat.world.turn" }, actor: { type: "string" }, character: { type: "string" }, messages: { type: "array", items: { type: "string" } }, results: { type: "array" }, packages: { type: "array", items: { type: "object", required: ["name", "data"], properties: { name: { type: "string" }, data: {} } }, description: "What the turn showed, as data under a GMCP-style package name: Work.Quests, Work.Quest, Work.Journal (what awaits the character's move; on its first turn too), Work.Tellings (what was told around the character since its last turn)." }, frame: { type: "object", description: "The character's FeltOS perception frame, when asked for." } } });
 
 /** The world's operations: connect as your character, speak commands, and read the city's atlas, pulse and tellings, and your journal. */
-export function worldOperations(binding, operations, identity, dispatchOperation, { characterCommunication } = {}) {
+export function worldOperations(binding, operations, identity, { characterCommunication,actorMesh } = {}) {
   let world;
-  const instance = () => (world ??= createMetroplatWorld({ binding, operations, identity, dispatchOperation, characterCommunication }));
+  const instance = () => (world ??= createMetroplatWorld({ binding, operations, identity, characterCommunication,actorMesh }));
   // A power used from a command is caused by that command's witnessed evidence, never by its
   // invocation id: an invocation is an entity, not a witness, and a cause that is no witness is
   // never admitted, so everything that names it waits forever.

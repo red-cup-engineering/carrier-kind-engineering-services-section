@@ -1,3 +1,4 @@
+import {actorSubjectAtHost,createEnterpriseActorMesh} from './actor-mesh.mjs';
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { enterpriseRootOf, settlementsRootOf } from "@red-cup-engineering/organizing/enterprise";
@@ -11,13 +12,14 @@ import { workReplicationOperations } from "./work-replication.mjs";
 import { enterpriseLoopOperations, enterpriseLoopSchedules } from "./enterprise-loops.mjs";
 
 /** The one installed MetroPlat operation surface used by both request dispatch and clock work. */
-export function enterpriseOperationRuntime({ installed, config, environment, activityPubProvider = () => undefined, openWork: hostOpenWork, executeIsolatedWork }) {
+export function enterpriseOperationRuntime({ installed, config, environment, activityPubProvider = () => undefined, activityPubInbox = () => undefined, openWork: hostOpenWork, executeIsolatedWork }) {
   const schedules = [
     ...(installed.schedules ?? []),
     ...enterpriseLoopSchedules({ agency: agencyAt(config.agencyRoot), host: config.activityPub?.nodeHost ?? installed.identity.id, account: installed.identity.id }),
   ];
   const nodeHost = config.activityPub?.nodeHost ?? installed.identity.id;
-  const binding = defaultFilesystemBinding(config.metroplatDataRoot);
+  const resolveActorSubject=subject=>actorSubjectAtHost(config,subject);
+  const binding = defaultFilesystemBinding(config.metroplatDataRoot,{agencyRoot:config.agencyRoot,repositoryRoot:config.repositoryRoot,resolveActorSubject});
   let hostedWork;
   let hostedSurface;
   let hostWorkOptions;
@@ -30,7 +32,7 @@ export function enterpriseOperationRuntime({ installed, config, environment, act
     const record = records[0];
     if (heldRealms.has(record)) return heldRealms.get(record);
     const root = enterpriseRootOf(record, { settlementsRoot: settlementsRootOf(environment), repositoryRoot: config.repositoryRoot });
-    const own = root === binding.dataRoot ? binding : defaultFilesystemBinding(root, { repositoryRoot: config.repositoryRoot });
+    const own = root === binding.dataRoot ? binding : defaultFilesystemBinding(root, { agencyRoot:config.agencyRoot,repositoryRoot:config.repositoryRoot,resolveActorSubject });
     const options = enterpriseAgencyWorkOptions({ ...hostWorkOptions, workBinding: own, enterprise: record.id });
     const officeKeys = enterpriseOfficeKeys(agency, record);
     const realm = Object.freeze({ binding: own, officeKeys, options: Object.freeze({
@@ -70,6 +72,8 @@ export function enterpriseOperationRuntime({ installed, config, environment, act
       const admitWorkIntent = hostedWorkIntentAdmission({ config, binding, resolveWorkRealm });
       return hostedWork = Object.freeze({
         ...enterpriseAgencyWorkOptions(options),
+        resolveActorSubject,agencyRoot:config.agencyRoot,
+        ...(config.activityPub?.nodeHost===undefined?{}:{actorMesh:createEnterpriseActorMesh({config,binding,provider:activityPubProvider,inbox:activityPubInbox})}),
         resolveWorkRealm,
         environment: options.environment,
         instanceIdentity: options.identity,

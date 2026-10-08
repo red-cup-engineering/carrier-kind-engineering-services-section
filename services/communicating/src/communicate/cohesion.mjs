@@ -25,7 +25,7 @@ import { utteranceCarrier } from "@red-cup-engineering/relating";
 import { cohomologyReceiptOfCells } from "@red-cup-engineering/signgraph/cohomology";
 import { receipt } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/chromatic-lorentzian";
 import { cell } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/transfinite-cell-complex";
-import { magnitude, toCount } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { magnitude, toCount } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { relationGraphOfCells } from "@red-cup-engineering/signgraph/cell-graph";
 import { componentCount, treeCount, hodgeDecomposition } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/laplacian";
 import { mutualInformation } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/information";

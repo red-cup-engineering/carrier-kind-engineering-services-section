@@ -6,7 +6,7 @@ import {
   inspectKnowledgeOfferSession,
 
 } from "./knowledge-broker.mjs";
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const MAX_FORM_BYTES = 64 * 1024;
 const LICENSE_SCOPES = new Set(["community-memory", "union-licensed-pseudonymous", "union-licensed-attributed"]);

@@ -2,7 +2,7 @@ import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, u
 import { dirname, isAbsolute, resolve } from "node:path";
 import { appendJsonl, createInferenceScheduler, observationsFromRecords, readJsonl } from "./inference-fabric.mjs";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 export const safeRefusal = (id, type) => ({ id: typeof id === "string" && id ? id : null, attempts: [], refusal: { type }, latencyMs: 0, scheduler: { admitted: false } });
 export const jobDigest = (value) => { try { return semanticId(value); } catch { return null; } };

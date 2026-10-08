@@ -30,7 +30,7 @@
  * incumbent's body natural for as long as the incumbency holds.
  */
 import { handedness, handednessCoordinateNames } from "@red-cup-engineering/animating/becoming/doing/embodying/handedness";
-import { knowledgeJoinAll, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinAll, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
 import { mask as gameMask, sides } from "@red-cup-engineering/gaming/mask";
 
 import { bodyOf, officeCoordinationBoundary, officeReading, resolve } from "./index.mjs";

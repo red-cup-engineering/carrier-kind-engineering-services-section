@@ -22,6 +22,7 @@ export function npmRegistryApplication({ configuration = {} } = {}) {
   const registry = createNpmRegistry({
     storage: home(configuration.storage), htpasswd: home(configuration.htpasswd), origin: configuration.origin,
     privateScopes: configuration.privateScopes, privateNames: configuration.privateNames, uplink: configuration.uplink,
+    cachePublicTarballs: configuration.cachePublicTarballs,
   });
   const hostOf = (context) => {
     const headers = context.request?.headers;

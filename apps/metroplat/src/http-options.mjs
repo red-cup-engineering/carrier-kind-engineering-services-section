@@ -1,7 +1,7 @@
 /** Process-root identity and least-privilege capability activation for HTTP. */
 
 import { can, grantAssertion } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
-import { timingSafeStringEqual } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { timingSafeStringEqual } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import {
   admitCapabilityAssertions,
   readCapabilityAssertions,

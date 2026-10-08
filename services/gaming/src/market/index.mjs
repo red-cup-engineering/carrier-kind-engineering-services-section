@@ -7,8 +7,8 @@
  * mechanics; financial/product packages may name the venue, but the game-shaped
  * book walk belongs to gaming.
  */
-import { rationalOfBigInts } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { admitGraded, gradeOf, gradedAdd, gradedCompare, gradedQuotient, gradedRatio, gradedScale, gradedSign, gradedSubtract, gradedTimes, gradedZero } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { rationalOfBigInts } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { admitGraded, gradeOf, gradedAdd, gradedCompare, gradedQuotient, gradedRatio, gradedScale, gradedSign, gradedSubtract, gradedTimes, gradedZero } from "@red-cup-engineering/exact-number-data-service/graded";
 
 
 const oneHalf = rationalOfBigInts(1n, 2n);

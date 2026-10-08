@@ -1,3 +1,7 @@
+import { parseNiUri } from '@red-cup-engineering/uri-services-section/ni-uri';
+import { extractSenPart, parseA2aMessage } from '@red-cup-engineering/a2a-services-section/sen-part';
+import { admitNormalizedSemanticContent } from '@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime';
+import { termToJson } from '@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec';
 /**
  * @packageDocumentation
  *
@@ -16,10 +20,10 @@
  */
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
 import { settleCausalSet } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/causal";
 import {
   arrivalUtteranceFromCloudEvent,
@@ -112,11 +116,21 @@ function rejectAuthoritySmuggling(value, label) {
 export function arrivalDispatchClaimFromCloudEvent(event) {
   if (event.data === null || typeof event.data !== "object" || Array.isArray(event.data)) return undefined;
   const data = event.data;
-  const material = data["material"];
+  let material = data["material"];
+  if (material === undefined && data.profile === "org.harmonious-union.activitypub.cloudevent.a2a-sen.v1" && data.transport === "A2A") {
+    // A reply is evidence for its waiting caller, never another execution request.
+    if (data.message?.role !== "ROLE_USER") return undefined;
+    if (JSON.stringify(data.message).length > 512 * 1024) throw new TypeError("arrival message exceeds its admitted carrier");
+    const part = extractSenPart(parseA2aMessage(data.message).parts);
+    if (part.bytes.length > 256 * 1024) throw new TypeError("arrival request exceeds its admitted carrier");
+    const admitted = admitNormalizedSemanticContent(part.bytes, part.ni);
+    if (admitted.envelope.objectKind !== "metroplat.dispatch.arrival-material") return undefined;
+    material = termToJson(admitted.envelope.settledBody);
+  }
   if (material === undefined) return undefined;
   const record = jsonRecord(material, "arrival dispatch material");
   if (record["kind"] !== "metroplat.dispatch.arrival-material") return undefined;
-  rejectUnexpectedKeys(record, ["kind", "argv", "stdin", "subject", "program", "caller"], "arrival dispatch material");
+  rejectUnexpectedKeys(record, ["kind", "argv", "stdin", "subject", "program", "operation", "caller"], "arrival dispatch material");
   const argvValue = record["argv"];
   if (!Array.isArray(argvValue) || argvValue.length === 0 || !argvValue.every((entry) => typeof entry === "string" && entry.trim() !== "")) {
     throw new TypeError("arrival dispatch material.argv must be a non-empty string array");
@@ -128,12 +142,15 @@ export function arrivalDispatchClaimFromCloudEvent(event) {
   if (caller !== undefined) rejectAuthoritySmuggling(caller, "arrival dispatch material.caller");
   const claimedSubject = optionalString(record, "subject", "arrival dispatch material");
   const program = optionalString(record, "program", "arrival dispatch material");
+  const operation = optionalString(record, "operation", "arrival dispatch material");
+  if(operation!==undefined)parseNiUri({uri:operation});
   return Object.freeze({
     kind: "metroplat.arrival.dispatch-claim",
     argv: Object.freeze([...argvValue]),
     stdin: stdinValue ?? "",
     ...(claimedSubject === undefined ? {} : { claimedSubject }),
     ...(program === undefined ? {} : { program }),
+    ...(operation === undefined ? {} : { operation }),
     ...(caller === undefined ? {} : { caller: Object.freeze({ ...caller }) }),
   });
 }

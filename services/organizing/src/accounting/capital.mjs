@@ -71,11 +71,11 @@
  */
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { charPoly, rank } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { charPoly, rank } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { reseed } from "@red-cup-engineering/animating/becoming/doing/working/governing/agent";
 
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { gradeOf, gradedIsZero, gradedRatio, gradedSubtract, gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradeOf, gradedIsZero, gradedRatio, gradedSubtract, gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
 
 /** The carrier `$id` of a capital circuit — the M–C–M′ reseed spiral. */
 export const CAPITAL_CIRCUIT_ID = "organizing/accounting/capital/circuit";

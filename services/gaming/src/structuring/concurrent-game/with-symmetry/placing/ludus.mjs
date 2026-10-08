@@ -24,7 +24,7 @@
  */
 import { causes, eventIds } from "@red-cup-engineering/playing/structuring/event/structure";
 
-import { fromRatio } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { fromRatio } from "@red-cup-engineering/exact-number-data-service/exact-number";
 
 
 const comparable = (structure                     , a        , b        )          =>

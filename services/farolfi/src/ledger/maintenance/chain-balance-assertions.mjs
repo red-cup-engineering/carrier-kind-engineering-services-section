@@ -8,7 +8,7 @@ import {
 import { observeAddress } from "@red-cup-engineering/treasury-observation-service/native";
 import { balancesOfToken } from "@red-cup-engineering/treasury-observation-service/tokens";
 import { renderBalanceDirective, renderFile } from "./beancount-render.mjs";
-import { addDecimalStrings, stripUnitSuffix } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { addDecimalStrings, stripUnitSuffix } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import {

@@ -41,8 +41,8 @@
  */
 
 import { arenaEvents } from "../arena.mjs";
-import { ratCompare } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { fromRatio } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { ratCompare } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { fromRatio } from "@red-cup-engineering/exact-number-data-service/exact-number";
 
 
 /** The four Caillois regimes, in Caillois's canonical order. */

@@ -4,7 +4,7 @@
 // balance SIM exit through that pool using integer/fraction arithmetic only,
 // and never touches CITY NFTs (they are historical custody, not a market).
 
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { engineCustomJson, exactInputSwapOutput, pools, reserveFraction } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 
 const ACCOUNT = /^(?=.{3,16}$)[a-z](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z](?:[a-z0-9-]*[a-z0-9])?)*$/;

@@ -16,9 +16,9 @@
   ],
   "dependencies": {
     "@red-cup-engineering/metrologic": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
-    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
+    "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "devDependencies": {},
   "scripts": {

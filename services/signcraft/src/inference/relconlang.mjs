@@ -5,7 +5,7 @@
 // data/manifest.json's rwil list, which is the falsehood, replaced. Every row carries the
 // knowledge reading.
 
-import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** @typedef {{e:string, a:string, v:string, t:number, reading:string}} Row */
 /** @typedef {{s:string, P:string, o:string|null, reading:string, aspect:string|null, event:string}} Cell */

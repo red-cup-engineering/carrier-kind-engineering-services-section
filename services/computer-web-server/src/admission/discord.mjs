@@ -8,8 +8,8 @@
 // closed rather than falling back to a cached role.
 import { DiscordUserAuthorizationError, discordMemberHasRole, discordUserAuthorizationUrl, exchangeDiscordAuthorizationCode, getCurrentDiscordGuildMember, getCurrentDiscordUser, refreshDiscordAuthorization, revokeDiscordAuthorization, } from '@red-cup-engineering/discord-rest-transport-service/user-oauth';
 import { clearedCookie, cookieValue, opaqueCookie, publicBaseUrl, randomToken, safeReturnTo, sealConfidential, unsealConfidential, } from './session.mjs';
-import { sha256Base64Url } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
-import { sha256Hex } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
+import { sha256Base64Url } from '@red-cup-engineering/cryptographic-data-service/integrity';
+import { sha256Hex } from '@red-cup-engineering/cryptographic-data-service/integrity';
 export const DISCORD_LOGIN_PATH = '/oauth/discord/login';
 export const DISCORD_CALLBACK_PATH = '/oauth/discord/callback';
 const TRANSACTION_TTL_SECONDS = 600;

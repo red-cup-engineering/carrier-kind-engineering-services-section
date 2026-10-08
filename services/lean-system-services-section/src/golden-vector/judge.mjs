@@ -13,7 +13,7 @@
  * meet of every operation's reading is the truth top.
  */
 import { coincides } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { isTruthTop, readingOfRecord, record, recordAdd, truthMeetAll } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isTruthTop, readingOfRecord, record, recordAdd, truthMeetAll } from "@red-cup-engineering/computer-data-services-section/four";
 import { leanGoldenVectorsByAction } from "./codec.mjs";
 
 const agreement = record(1, 0);

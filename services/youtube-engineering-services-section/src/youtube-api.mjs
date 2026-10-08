@@ -98,6 +98,11 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     const reading={reason:'quotaExceeded',observedAt:new Date(clock()).toISOString(),retryAt:nextYouTubeQuotaReset(clock()),bucket};
     quotaWaits.set(project+':'+bucket,reading);const path=quotaPath(bucket);if(path)privateJson(path,reading);
   }
+  // Uploads also need owned-video reads. Refuse before restoring media bytes.
+  function assertUploadAvailable() {
+    const wait=waiting('general')??waiting('uploads');
+    if(wait)throw wait;
+  }
   function lastObservedUploads() {
     if(!inventoryPath||!existsSync(inventoryPath))return null;
     let saved;try{saved=JSON.parse(readFileSync(inventoryPath,'utf8'));}catch{remove(inventoryPath);return null;}
@@ -203,6 +208,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     const when = publishAt === undefined ? undefined : (checkpoint?.publishAt === publishAt ? publishAt : futureUtc(publishAt));
     if (typeof marker !== 'string' || !/^[A-Za-z0-9_./:-]{1,200}$/.test(marker)) throw new Error('A stable production marker is required');
     if (typeof onCheckpoint !== 'function') throw new Error('A durable onCheckpoint callback is required');
+    assertUploadAvailable();
     const label = `[production:${marker}]`;
     const size = (await stat(filePath)).size;
     if (!Number.isSafeInteger(size) || size <= 0) throw new Error('Video file must be nonempty');
@@ -447,7 +453,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     if(videoIds.some((id,index)=>ordered[index]!==id))throw new Error('YouTube did not retain the curriculum order');
     return {playlistId:playlist.id,url:'https://www.youtube.com/playlist?list='+playlist.id,videoIds:ordered,verifiedAt:new Date().toISOString(),carrier:'youtube-playlist'};
   }
-  return { audienceReports, verifyIdentity, listUploads, lastObservedUploads, upload, setThumbnail, getVideo, schedule, setTitle, setRelatedVideo, publish, unlist, ensureLearningPlaylist, setLearningLinks, ensureLearningCourse };
+  return { audienceReports, verifyIdentity, listUploads, lastObservedUploads, assertUploadAvailable, upload, setThumbnail, getVideo, schedule, setTitle, setRelatedVideo, publish, unlist, ensureLearningPlaylist, setLearningLinks, ensureLearningCourse };
 }
 
 function nextOffset(response, size) {

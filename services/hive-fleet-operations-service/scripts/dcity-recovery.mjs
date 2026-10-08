@@ -8,7 +8,7 @@ import { reportFailure } from "../src/commandFailure.mjs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { planDCityLiquidSimRecovery } from "@red-cup-engineering/dcity-services-section";
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { makeFail, parseAccountExecuteOneOptions, rpc as supportRpc, engineTransaction, oneRow } from "../src/core/hiveScriptSupport.mjs";
 import { submitToSigner } from "../src/core/signer.mjs";

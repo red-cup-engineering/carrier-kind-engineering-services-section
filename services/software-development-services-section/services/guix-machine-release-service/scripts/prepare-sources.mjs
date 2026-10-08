@@ -39,8 +39,9 @@ export function packageSources(repositories, owners = {}) {
       const owner = owners[manifest.name];
       if (typeof owner === 'string' && owner !== repository) continue;
       if (owner && typeof owner === 'object' && (owner.repository !== repository || owner.path !== dirname(path))) continue;
-      if (packages.has(manifest.name)) throw new Error(`ambiguous source owner for ${manifest.name}; pin its owning repository`);
-      packages.set(manifest.name, { manifest, directory: resolve(directory, dirname(path)), repository, commit, path: dirname(path) });
+      const candidate = { manifest, directory: resolve(directory, dirname(path)), repository, commit, path: dirname(path) };
+      const previous = packages.get(manifest.name);
+      packages.set(manifest.name, previous ? [...(Array.isArray(previous) ? previous : [previous]), candidate] : candidate);
     }
   }
   return packages;
@@ -53,6 +54,7 @@ export function selectedSources(packages, entries, dependencyPins = {}) {
     const name = queue[cursor];
     if (selected.has(name)) continue;
     const p = packages.get(name);
+    if (Array.isArray(p)) throw new Error(`ambiguous source owner for required package ${name}: ${p.map(source => `${source.repository}:${source.path}`).join(", ")}; pin its owning repository`);
     if (!p) throw new Error(`entry or workspace dependency has no pinned source: ${name}`);
     selected.set(name, p);
     const peers = Object.fromEntries(Object.entries(p.manifest.peerDependencies ?? {}).filter(([name]) => !p.manifest.peerDependenciesMeta?.[name]?.optional));

@@ -12,8 +12,8 @@
  * can still live as portable term bodies, with Lean-emitted vectors acting as
  * the oracle for the finite law surface this package actually claims.
  */
-import { tm, } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { jsonToTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm, } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { jsonToTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import {
   aperiodicClosureRegime,
   finiteClosureRegime,

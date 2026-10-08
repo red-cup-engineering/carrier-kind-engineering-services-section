@@ -113,9 +113,12 @@
                     (unless (file-exists? command) (error "auxiliary program missing" name program))
                     (call-with-output-file (string-append units "/" name)
                       (lambda (port)
-                        (format port "[Unit]~%Description=~a Guix deployment~%After=network-online.target~%[Service]~%Type=oneshot~%WorkingDirectory=~a/~a~%ExecStart=~a ~a~%TimeoutStartSec=~a~%UMask=0077~%"
-                                name out (assoc-ref service 'directory) interpreter command
+                        (format port "[Unit]~%Description=~a Guix deployment~%After=network-online.target~%[Service]~%Type=~a~%WorkingDirectory=~a/~a~%ExecStart=~a ~a~%TimeoutStartSec=~a~%UMask=0077~%"
+                                name (if (equal? (assoc-ref service 'type) "simple") "simple" "oneshot")
+                                out (assoc-ref service 'directory) interpreter command
                                 (or (assoc-ref service 'timeout) "3600"))
+                        (when (equal? (assoc-ref service 'type) "simple")
+                          (format port "Restart=on-failure~%RestartSec=5~%"))
                         (when (assoc-ref service 'precheck)
                           (format port "ExecStartPre=~a ~a/~a~%" runtime out (assoc-ref service 'precheck)))
                         (when (assoc-ref service 'memory-high)

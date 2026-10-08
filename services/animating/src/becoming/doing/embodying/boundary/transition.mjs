@@ -9,7 +9,7 @@
  */
 
 import { knowledgeReading, sameCell } from "@red-cup-engineering/signcell/cell";
-import { sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 // ---------- private helpers ----------
 

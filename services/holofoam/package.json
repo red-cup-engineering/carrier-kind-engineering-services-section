@@ -22,8 +22,8 @@
   },
   "dependencies": {
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/metrologic": "workspace:*"
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*"
   },
   "scripts": {
     "build": "node scripts/build.mjs",

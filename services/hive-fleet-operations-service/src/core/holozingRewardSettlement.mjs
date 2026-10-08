@@ -1,5 +1,5 @@
 import { accountsWithLane } from "./accountStrategy.mjs";
-import { decimalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { witnessChainAct } from "./journal.mjs";
 import { assertPlainObject as object } from "./objectGuards.mjs";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";

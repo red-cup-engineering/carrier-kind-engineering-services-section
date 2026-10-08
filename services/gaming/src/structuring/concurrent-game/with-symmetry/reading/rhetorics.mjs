@@ -1,4 +1,4 @@
-import { samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { samePoint } from "@red-cup-engineering/computer-data-services-section/four";
 /**
  * Sutton-Smith's seven rhetorics of play — and play's constitutive ambiguity.
  *

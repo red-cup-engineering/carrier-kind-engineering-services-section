@@ -15,8 +15,8 @@
  * act vocabulary is finite and checked at decode: a boundary string never
  * casts directly into the vocabulary.
  */
-import { tm, ty } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { checkTy } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
+import { tm, ty } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { checkTy } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
 
 /** The four artifact acts, one per tier crossing: log admit, state settle, record commit, content realize. */
 

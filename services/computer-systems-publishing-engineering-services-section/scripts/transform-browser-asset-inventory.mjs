@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { dirname, extname, posix } from 'node:path';
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
 
 const IMMUTABLE = 'public, max-age=31536000, immutable';
 const DEFAULT_EXTENSIONS = Object.freeze(['.css', '.js', '.mjs']);

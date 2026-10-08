@@ -1,6 +1,6 @@
 import { configureOpenAiCompatibleRequest, exchangeOpenAiCompatibleAssistantMessage } from "./openai-compatible-chat-completion.mjs";
 import { CHAT_COMPLETION_TURN_INPUT_SCHEMA } from "./chat-turn-contract.mjs";
-import { admit, defineType, createTypeSystem } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { admit, defineType, createTypeSystem } from "@red-cup-engineering/computer-data-services-section/type-system";
 import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
 import { declareCapabilityOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { bindingsProviders, createComputerPlatform } from "@red-cup-engineering/computer-system-platform";

@@ -10,7 +10,7 @@ import { createHash } from "node:crypto";
 import { relative, resolve as resolvePath, sep } from "node:path";
 import { readFileBytes, readFileText } from "@red-cup-engineering/file-services/read-file";
 import { writeFileText } from "@red-cup-engineering/file-services/write-file";
-import { termToJson } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { termToJson } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { walkPosixPathsSync } from "@red-cup-engineering/computer-filepath-engineering-services-section/walk-posix-paths";
 
 // relateFilepath/resolveFilepath-service were folded away (I/O family

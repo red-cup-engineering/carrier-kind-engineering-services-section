@@ -4,7 +4,7 @@
 // existing verdict consumers can migrate without a second closure engine.
 
 import { makeContext, closeAttrs } from "@red-cup-engineering/metrologic/closure/formal-context";
-import { readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 import { makeValuation, withReading, settle, readingAt } from "./nuclei.mjs";
 import { makeComplex, withConductance, refusalNumber } from "./complex.mjs";
 import { address, cell, triple } from "@red-cup-engineering/signcell/cell";

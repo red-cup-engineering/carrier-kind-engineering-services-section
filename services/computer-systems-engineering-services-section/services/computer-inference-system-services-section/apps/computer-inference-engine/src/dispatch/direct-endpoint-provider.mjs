@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { nonnegativeHostRatio as exactNonnegativeAmount, positiveHostRatio as exactAmount } from "@red-cup-engineering/metrologic/number/wire-ratio";
 import { executionConfigurationIdentity } from "./sen-carrier.mjs";
 import { isCommandEndpoint } from "../command/exchange.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { pricingRootOf, appendProviderAvailability, latestProviderAvailability, loadObservations } from "./expected-resolution-pricing.mjs";
 import { perishablePrice } from "@red-cup-engineering/organizing/enterprise";
 import { allowanceLedgerPath, readAllowanceLedger, recordAllowanceEvidence } from "../media/allowance-ledger.mjs";

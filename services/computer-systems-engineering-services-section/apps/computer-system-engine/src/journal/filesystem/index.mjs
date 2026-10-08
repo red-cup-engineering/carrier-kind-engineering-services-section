@@ -13,7 +13,7 @@
 //   <contentDir>/<term>/<term>.<type>  content-tier cuts read from records
 
 import path from "node:path";
-import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { eavtKey } from "@red-cup-engineering/eavt/row";
 
 /** Beyond this many bytes, `readRows`/`readRowsPath` refuse a

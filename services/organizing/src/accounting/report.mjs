@@ -54,7 +54,7 @@ import loadLedger, {
   isMalformed,
   postingHolding,
 } from "./ledger.mjs";
-import { gradeOf, gradedAdd, gradedFromParts, gradedIsZero, gradedNegate, gradedSubtract, gradedTimes, gradedToDecimalString, gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradeOf, gradedAdd, gradedFromParts, gradedIsZero, gradedNegate, gradedSubtract, gradedTimes, gradedToDecimalString, gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
 
 
 // ════════════════════════════════════════════════════════════════════════════════════

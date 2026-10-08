@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 import { AbiCoder, Interface, sha256 } from "ethers";
 import { executeEnterpriseUserOperation } from "./enterprise-user-operation.mjs";
-import { admit, getType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
-import { admitTypeSystemDocument } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/document";
+import { admit, getType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { admitTypeSystemDocument } from "@red-cup-engineering/computer-data-services-section/type-system/document";
 import { admitOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
 

@@ -3,8 +3,7 @@
  */
 
 import { assembleDefaultServiceMcp } from "./catalog.mjs";
-import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
-import { processPackageRoot } from "@red-cup-engineering/node-process-services-section/entrypoint";
+import {metroplatFilesystemBinding,requireMetroplatBinding} from "./mcp-binding.mjs";
 
 /**
  * The induced MCP apex, read/write bound to the service's own data root: the
@@ -16,9 +15,8 @@ import { processPackageRoot } from "@red-cup-engineering/node-process-services-s
 
 export function defaultMcpApex(
   dataRoot,
-  { trustedOperationSources = [], workOptions = {}, presentationOptions = {}, rootName = "@red-cup-engineering/metroplat", descriptorFamilies, ...bindingOptions } = {},
+  { trustedOperationSources = [], workOptions = {}, presentationOptions = {}, rootName = "@red-cup-engineering/metroplat", descriptorFamilies, binding:owningBinding, ...bindingOptions } = {},
 ) {
-  const packageRoot = processPackageRoot(import.meta.url);
-  const binding = defaultFilesystemBinding(dataRoot, { ...bindingOptions, packageRoot });
+  const binding = requireMetroplatBinding(owningBinding ?? metroplatFilesystemBinding(dataRoot,bindingOptions),dataRoot);
   return assembleDefaultServiceMcp(binding, rootName, trustedOperationSources, workOptions, descriptorFamilies, presentationOptions).apex;
 }

@@ -26,7 +26,7 @@ import {
   termTouches,
 
 } from "./relation-boundary.mjs";
-import { sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 export { transition } from "./transition.mjs";
 

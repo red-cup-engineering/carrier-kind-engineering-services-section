@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { seavt } from "@red-cup-engineering/semiotic-eavt-services-section/admit-seavt-row";
-import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { appendSeavtEntries } from "@red-cup-engineering/semiotic-eavt-services-section/append-seavt-entries";
 const directSeavt = (entity, attribute, value, time) => seavt(jsonToTerm(entity), jsonToTerm(attribute), jsonToTerm(value), time);
 

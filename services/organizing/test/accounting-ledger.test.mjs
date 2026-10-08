@@ -18,7 +18,7 @@ import loadLedger, {
   runningBalances,
   transaction,
 } from "../src/accounting/ledger.mjs";
-import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
 
 const usd = (num) => gradedFromParts(BigInt(num), 1n, "USD");
 const shares = (num) => gradedFromParts(BigInt(num), 1n, "SHARE");

@@ -109,6 +109,8 @@ export function unreachable(reason, attempts) {
   return { ok: false, reason, attempts };
 }
 
+const FINALITY_CLASSIFICATION = Object.freeze({latest:"unfinalized",safe:"safe",finalized:"finalized"});
+
 function boundaryIdentity(boundary) {
   return {
     chain: boundary.chain,
@@ -119,6 +121,7 @@ function boundaryIdentity(boundary) {
     blockNumber: boundary.blockNumber,
     blockTag: boundary.blockTag,
     blockHash: boundary.blockHash,
+    ...(boundary.blockTimestampSeconds === undefined ? {} : {blockTimestampSeconds: boundary.blockTimestampSeconds}),
     observedAt: boundary.observedAt,
     provider: boundary.provider,
   };
@@ -131,6 +134,7 @@ export function sameObservationBoundary(left, right) {
     && left.blockNumber === right.blockNumber
     && left.blockTag === right.blockTag
     && left.blockHash === right.blockHash
+    && left.blockTimestampSeconds === right.blockTimestampSeconds
     && left.requestedFinality === right.requestedFinality
     && left.finality === right.finality
     && left.provider === right.provider;
@@ -257,10 +261,11 @@ function validateBoundary(chainDescriptor, boundary) {
   if (!chainDescriptor.rpc.includes(boundary.provider)) {
     return `boundary provider ${boundary.provider} is not registered for ${chainDescriptor.id}`;
   }
-  if (!new Set(["safe", "finalized"]).has(boundary.requestedFinality)
-    || boundary.finality !== boundary.requestedFinality) {
-    return "boundary lacks one consistent safe/finalized classification";
+  if (!Object.hasOwn(FINALITY_CLASSIFICATION, boundary.requestedFinality)
+    || boundary.finality !== FINALITY_CLASSIFICATION[boundary.requestedFinality]) {
+    return "boundary lacks one consistent requested/observed finality classification";
   }
+  if (boundary.blockTimestampSeconds !== undefined && (typeof boundary.blockTimestampSeconds !== "string" || !/^(?:0|[1-9][0-9]*)$/u.test(boundary.blockTimestampSeconds))) return "boundary block timestamp must be exact seconds";
   if (typeof boundary.blockTag !== "string" || !/^0x[0-9a-fA-F]+$/u.test(boundary.blockTag)
     || typeof boundary.blockHash !== "string" || !/^0x[0-9a-fA-F]{64}$/u.test(boundary.blockHash)) {
     return "boundary lacks a resolved block tag/hash";
@@ -324,8 +329,8 @@ export async function acquireObservationBoundary(chainDescriptor, options = {}) 
     finality = "finalized",
     now = () => new Date(),
   } = options;
-  if (!new Set(["safe", "finalized"]).has(finality)) {
-    throw new RangeError(`chains: finality must be "safe" or "finalized", got ${JSON.stringify(finality)}`);
+  if (!Object.hasOwn(FINALITY_CLASSIFICATION, finality)) {
+    throw new RangeError(`chains: finality must be "latest", "safe" or "finalized", got ${JSON.stringify(finality)}`);
   }
   const attempts = [];
   for (const provider of chainDescriptor.rpc) {
@@ -361,10 +366,11 @@ export async function acquireObservationBoundary(chainDescriptor, options = {}) 
         chainId: chainDescriptor.chainId,
         caip2: chainDescriptor.caip2,
         requestedFinality: finality,
-        finality,
+        finality: FINALITY_CLASSIFICATION[finality],
         blockNumber: hexToBigInt(block.number).toString(),
         blockTag: block.number,
         blockHash: block.hash,
+        ...(block.timestamp == null ? {} : {blockTimestampSeconds: hexToBigInt(block.timestamp).toString()}),
         observedAt: now().toISOString(),
         provider,
       });

@@ -52,7 +52,7 @@ import { admitOrderBook, marketBuyWalk } from "@red-cup-engineering/gaming/marke
 import { martingalePrice } from "@red-cup-engineering/socializing/price";
 import { settleValue } from "./value.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { admitGraded, gradeOf, gradedCompare, gradedZero } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { admitGraded, gradeOf, gradedCompare, gradedZero } from "@red-cup-engineering/exact-number-data-service/graded";
 
 /* ──────────────────────────────────────────────────────────────────────────
  * (1) best-execution — optimization over the book-walk.

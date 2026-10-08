@@ -5,11 +5,11 @@
 // Nothing in this module signs or broadcasts a transaction: `planWorkerBeeYield`
 // only encodes the `custom_json` operation it would take.
 
-import { decimalUnits as units, formatUnits as format, rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits as units, formatUnits as format, rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { engineCustomJson, tokens } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { parseEngineOrderBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { marketSellWalk } from "@red-cup-engineering/gaming/market";
-import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 
 const SYMBOL = "WORKERBEE";
 const POOL_ACCOUNT = "ph1102";

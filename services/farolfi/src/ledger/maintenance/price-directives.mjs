@@ -6,7 +6,7 @@ import { writeFileText } from "@red-cup-engineering/file-services/write-file";
 import { callMany } from "@red-cup-engineering/treasury-observation-service/chains";
 import { renderFile, renderPriceDirective } from "./beancount-render.mjs";
 import { fetchCoingeckoUsdPrices } from "./coingecko.mjs";
-import { multiplyDecimalStrings } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { multiplyDecimalStrings } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { hiveEngineUnclassifiedSymbols } from "./ledger-metadata.mjs";
 

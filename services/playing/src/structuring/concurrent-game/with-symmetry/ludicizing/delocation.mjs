@@ -18,7 +18,7 @@
  */
 import { design } from "./design.mjs";
 import { locus, locusFromKey, locusKey } from "./locus.mjs";
-import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** The concatenation of two loci: the address `outer` followed by the address `inner`. */
 export const concatLocus = (outer, inner) =>

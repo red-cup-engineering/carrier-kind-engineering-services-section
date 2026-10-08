@@ -3,7 +3,7 @@
  *
  * The roster is explicit caller-owned data. This module never reads environment variables,
  * wallet files, signing material, or transaction instructions. Every value-bearing observation
- * retains its checked state and finalized-block provenance; unavailable discovery is not an
+ * retains its checked state, pinned-block provenance and explicit finality; unavailable discovery is not an
  * empty portfolio and an absent price is not zero dollars.
  */
 import { getAddress } from "ethers";
@@ -95,7 +95,7 @@ function uncheckedChainCoverage(roster, reason) {
 }
 
 async function observeBeefy(chainDescriptor, wallet, tokens, options, observeVault) {
-  if (!tokens.checked) {
+  if (!tokens.checked && !tokens.holdings?.length) {
     return unchecked(`verified token discovery unavailable: ${tokens.reason}`, tokens.attempts ?? []);
   }
   const candidates = tokens.holdings.filter((holding) => holding.checked && !holding.empty
@@ -109,9 +109,9 @@ async function observeBeefy(chainDescriptor, wallet, tokens, options, observeVau
   }
   const failures = positions.filter(({ checked }) => !checked);
   return {
-    checked: failures.length === 0,
+    checked: tokens.checked === true && failures.length === 0,
     positions,
-    ...(failures.length === 0 ? {} : {
+    ...(!tokens.checked ? {reason: `verified token discovery incomplete: ${tokens.reason}`, attempts: tokens.attempts ?? []} : failures.length === 0 ? {} : {
       reason: `${failures.length} Beefy position observation(s) were unreachable`,
       attempts: failures.flatMap(({ attempts = [] }) => attempts),
     }),
@@ -290,8 +290,8 @@ export async function observePortfolio(input, injected = {}) {
     timeoutMs: input.timeoutMs ?? 15000,
     observedDate,
   };
-  if (!new Set(["safe", "finalized"]).has(config.finality)) {
-    throw new RangeError(`portfolio: finality must be "safe" or "finalized", got ${JSON.stringify(config.finality)}`);
+  if (!new Set(["latest", "safe", "finalized"]).has(config.finality)) {
+    throw new RangeError(`portfolio: finality must be "latest", "safe" or "finalized", got ${JSON.stringify(config.finality)}`);
   }
   if (!Number.isFinite(config.timeoutMs) || config.timeoutMs <= 0) {
     throw new RangeError("portfolio: timeoutMs must be a positive number");

@@ -6,8 +6,8 @@
  * can carry the proof-reading as inspectable Relation Model Notation instead of
  * opaque callback-only behavior.
  */
-import { tm, } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm, } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 
 const field = (key) => tm.field(key, tm.var(0));
 
