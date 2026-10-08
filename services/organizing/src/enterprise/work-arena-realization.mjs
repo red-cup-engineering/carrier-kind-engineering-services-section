@@ -7,7 +7,7 @@
  * is better) and reads the arena's board back in the law's terms. It decides nothing itself: every
  * standing, refusal, delivery reading and wager standing is the arena's.
  */
-import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 import { intentOfThread, moveOf, orderOf, workBoard, wagersOf, takersOf, REALIZED_EDITION, RESPONSE_MOVES, TOLD_MOVES } from "./index.mjs";
 

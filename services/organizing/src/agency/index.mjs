@@ -32,7 +32,7 @@ import { governance } from "@red-cup-engineering/socializing/governance";
 import { costQuantale } from "@red-cup-engineering/metrologic/models/order/quantale";
 import { normalizeRule, ruleNorms } from "./rules.mjs";
 import { BODY_KINDS, MASK_KINDS } from "./kinds.mjs";
-import { knowledgeJoinAll, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinAll, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 import { agencyActsLog, foldAgencyActs, readAgencyActs, revisionOf } from "./acts.mjs";
 
 import { instantiateAgencyForm } from "./forms.mjs";

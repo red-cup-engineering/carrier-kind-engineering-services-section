@@ -1,5 +1,5 @@
 /** Deterministic, headless Holofoam organism and field simulation. */
-import { mulberry32 } from "@red-cup-engineering/computer-data-engineering-services-section/randomization/mulberry32";
+import { mulberry32 } from "@red-cup-engineering/computer-data-services-section/randomization/mulberry32";
 import { settleEvidence } from "@red-cup-engineering/metrologic/closure/src/directed-evidence";
 
 const TAU = Math.PI * 2;

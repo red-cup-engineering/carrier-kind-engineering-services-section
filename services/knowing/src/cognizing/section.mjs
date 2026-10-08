@@ -13,7 +13,7 @@
  */
 
 import { cellSet, isCell, knowledgeReading, sameCell } from "@red-cup-engineering/signcell/cell";
-import { knowledgeJoinReading, knowledgeMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, knowledgeMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
 import { closureRegimeName, closureRegimeNames, omegaOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { ofNat, regimeOfOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/ordinal-closure";
 

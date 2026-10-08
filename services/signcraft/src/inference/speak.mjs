@@ -9,7 +9,7 @@
 import { mulberry32 } from "./learn.mjs";
 import { makeContext, intent, extent } from "@red-cup-engineering/metrologic/closure/formal-context";
 import { parseLine, tokenize, cellCorpus, cellsFromRows } from "./relconlang.mjs";
-import { knowledgeBottom, knowledgeJoinReading, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeBottom, knowledgeJoinReading, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 function normalizeUnitsInput(lines) {
   return lines.map((line, idx) => {

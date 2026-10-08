@@ -5,7 +5,7 @@
 import { run, isMain } from "./_harness.mjs";
 import { transactionDigest, signTransaction, transactionId, CHAIN_ID } from "../src/transaction.mjs";
 import { PrivateKey } from "../src/keys.mjs";
-import { getPublicKey, recover } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/secp256k1";
+import { getPublicKey, recover } from "@red-cup-engineering/cryptographic-data-service/secp256k1";
 import * as ops from "../src/ops.mjs";
 import { HiveClient } from "../src/client.mjs";
 

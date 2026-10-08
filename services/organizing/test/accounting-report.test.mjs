@@ -22,7 +22,7 @@ import {
   valuationReport,
   renderValuation,
 } from "../src/accounting/report.mjs";
-import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
 
 const usd = (num) => gradedFromParts(BigInt(num), 1n, "USD");
 

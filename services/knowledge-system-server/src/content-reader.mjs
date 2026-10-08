@@ -4,7 +4,7 @@
 import { lstat, readdir, readFile, realpath } from 'node:fs/promises';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 export const CONTENT_READER_CONTRACT_VERSION = 'content-reader/v1';
 

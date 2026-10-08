@@ -24,7 +24,7 @@ import { sectionEavtEvidence, settleEavtEvidence } from "@red-cup-engineering/ea
 import { sectionSpace } from "@red-cup-engineering/metrologic/articulation/predicating/positing/independent-evidence";
 import { evidence } from "@red-cup-engineering/signcell/cell";
 import { pointWitnesses } from "@red-cup-engineering/metrologic/chu";
-import { readingAs, truthMeetAll, isTruthTop } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingAs, truthMeetAll, isTruthTop } from "@red-cup-engineering/computer-data-services-section/four";
 
 // facesOf(space, point) — the readiness cone read, mirroring principal.mjs's facesOf: the witnessing
 // states of a Work-item/check cell, split by the FOUR face they charge, plus the cell's settled

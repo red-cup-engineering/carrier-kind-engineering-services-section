@@ -1,4 +1,4 @@
-import { negateReading, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { negateReading, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
 /**
  * Polarity — Player/Opponent duality, the $(-)^\perp$ of concurrent game systems,
  * realized as a Belnap class of the meme-algebra bilattice reading.

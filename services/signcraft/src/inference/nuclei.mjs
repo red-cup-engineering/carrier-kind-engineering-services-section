@@ -23,7 +23,7 @@ import { refusalNumber } from "./complex.mjs";
 import { ledgerCellStep } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/flow";
 
 import { lawfulBasis, impClosure, closeAttrs, extent, NEG, isDenied, baseAttr } from "@red-cup-engineering/metrologic/closure/formal-context";
-import { isConsistentReading, knowledgeBottom, knowledgeHeight as readingKnowledgeHeight, knowledgeJoinReading, readingOfSides, samePoint, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isConsistentReading, knowledgeBottom, knowledgeHeight as readingKnowledgeHeight, knowledgeJoinReading, readingOfSides, samePoint, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 // The H-theorem counts the told sides of a cell's reading.
 export const kHeight = readingKnowledgeHeight;

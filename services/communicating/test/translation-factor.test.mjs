@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { canonical } from "@red-cup-engineering/json-services-section";
-import { readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
 import { evidence, knowledgeReading } from "@red-cup-engineering/signcell/cell";
 import { mark, utterance } from "@red-cup-engineering/signcell/utterance";
 import {

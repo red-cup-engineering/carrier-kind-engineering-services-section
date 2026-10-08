@@ -6,7 +6,7 @@ import {
   compiledBundleFromLanguageManifest,
 
 } from "../presentation.mjs";
-import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 const fieldSeparator = "|";
 

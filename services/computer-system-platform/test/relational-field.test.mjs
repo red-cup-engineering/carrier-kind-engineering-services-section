@@ -2,8 +2,8 @@ import { createComputerPlatform, bindingsProviders } from "../src/index.mjs";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { COMPUTER_ENGINEERING_SPECIFICATION_ID } from "@red-cup-engineering/computer-system-engine/specification";
-import { createRelationalField, defineRelation } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/relations";
-import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { createRelationalField, defineRelation } from "@red-cup-engineering/computer-data-services-section/type-system/relations";
+import { defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
 import { admitOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { decodeOperationOutcome, encodeOperationRequest, relationalFieldWireCodec, wireCodecCatalog } from "../src/wire.mjs";
 

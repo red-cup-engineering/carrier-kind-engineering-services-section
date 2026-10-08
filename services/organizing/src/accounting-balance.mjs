@@ -6,13 +6,13 @@
  * supplies the accounting adapter: amounts are exact bigint rationals graded by
  * commodity, with JSON-safe decimal integer strings at the organizing boundary.
  */
-import { gradedComplete, gradedConserved } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedComplete, gradedConserved } from "@red-cup-engineering/exact-number-data-service/graded";
 
 import {
   postingWeight,
 
 } from "./accounting/ledger.mjs";
-import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
 
 /** Read whether a transaction conserves in every commodity and infer one elided leg if possible. */
 export function accountingBalance(entry                 )                    {

@@ -1,10 +1,10 @@
-import {sha256Hex} from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
+import {sha256Hex} from '@red-cup-engineering/cryptographic-data-service/integrity';
 import {seatedEnterprises} from '@red-cup-engineering/feltos/work/enterprise-loop';
 import { arrivalDispatchClaimFromCloudEvent } from '@red-cup-engineering/computer-system-engine/rpc/arrival';
 import path from "node:path";
 
 import { extractSenActivity, extractSignCellEvidenceActivity, SEN_MEDIA_TYPE, SIGNCELL_EVIDENCE_MEDIA_TYPE } from "@red-cup-engineering/activitypub-services-section/sen-activity";
-import { termToJson } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { termToJson } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { admitNormalizedSemanticContent } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import { appendArrivalAtRoot } from "@red-cup-engineering/computer-system-engine/rpc/arrival-store";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";

@@ -1,4 +1,4 @@
-import {sha256Hex} from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import {sha256Hex} from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 export function createProviderAccountEntitlementResolver(observations, { now = () => Date.now() } = {}) {
   if (!Array.isArray(observations)) throw new TypeError("provider account entitlements must be an array");

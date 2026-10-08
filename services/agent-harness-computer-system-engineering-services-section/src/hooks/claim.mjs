@@ -1,4 +1,4 @@
-import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 
 export function hookEventClaimTerm(input) {
   return jsonToTerm(Object.freeze({

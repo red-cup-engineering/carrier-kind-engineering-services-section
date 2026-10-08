@@ -14,8 +14,8 @@
  * `find` searches are the very CHL.Tm IR relating proves and evaluates.
  */
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
-import { ty, tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { hasTy, tyEqual } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
+import { ty, tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { hasTy, tyEqual } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
 
 /**

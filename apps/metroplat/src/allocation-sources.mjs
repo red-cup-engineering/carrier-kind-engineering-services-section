@@ -1,5 +1,5 @@
 /** Live provider facts and authored office services for the allocation reader. */
-import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
 import { agencyAt, agencyRootOf, carrierTestimony, harnessModelCharacterResolver, currentHarnessCarrier } from "./offices.mjs";
 import { firmPoolAuthorityCandidates } from "./firm-pool-authority.mjs";
 

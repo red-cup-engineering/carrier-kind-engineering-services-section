@@ -1,7 +1,7 @@
 /** @module book-record Market operation for a sourced CSL-JSON book record. */
 
 import { fetchOpenLibraryBook, normalizeIsbn } from "@red-cup-engineering/csl-json-services-section/open-library";
-import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 import { reliableBibliographyFetch } from "./reference-check.mjs";
 
 const truthReading = (positive, negative) => readingOfSides("truth", positive, negative);

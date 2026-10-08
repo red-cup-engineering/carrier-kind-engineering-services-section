@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { admitOrderBook, marketStructure } from "../src/market/index.mjs";
-import { admitGraded, gradedAdd, gradedFromParts, gradedNegate, gradedOfDecimal, gradedToDecimalString, gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
-import { gradedComplete, gradedConserved } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { admitGraded, gradedAdd, gradedFromParts, gradedNegate, gradedOfDecimal, gradedToDecimalString, gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
+import { gradedComplete, gradedConserved } from "@red-cup-engineering/exact-number-data-service/graded";
 
 test("production money keeps ordinary ledger decimals compact and exact", () => {
   const hive = gradedFromParts(142423n, 1000n, "HIVE");

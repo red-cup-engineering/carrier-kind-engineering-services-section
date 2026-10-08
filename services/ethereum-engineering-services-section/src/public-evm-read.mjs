@@ -1,4 +1,4 @@
-import { toChecksumAddress } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/evm";
+import { toChecksumAddress } from "@red-cup-engineering/cryptographic-data-service/evm";
 
 const BASE_CHAIN_ID = 8453;
 

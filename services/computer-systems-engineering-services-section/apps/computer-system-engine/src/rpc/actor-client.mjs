@@ -2,7 +2,7 @@ import {deliverActivity,resolveActivityPubRecipient} from '@red-cup-engineering/
 import {extractSenActivity,projectSenActivity,senActivityObjectBytes} from '@red-cup-engineering/activitypub-services-section/sen-activity';
 import {userSenMessage} from '@red-cup-engineering/a2a-services-section/sen-part';
 import {admitNormalizedSemanticContent} from '@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime';
-import {termToJson} from '@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec';
+import {termToJson} from '@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec';
 import {requireJsonValue} from '@red-cup-engineering/json-services-section';
 import {parseNiUri} from '@red-cup-engineering/uri-services-section/ni-uri';
 

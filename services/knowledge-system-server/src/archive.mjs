@@ -1,7 +1,7 @@
 import { evaluateSparql, triplesToTurtle } from "@red-cup-engineering/rdf-data-model-services-section/sparql-over-eavt";
 import { askEavtCell } from "@red-cup-engineering/eavt/ask-eavt-cell";
 import { queryTripleFragment } from "@red-cup-engineering/http-services-section/triple-pattern-fragments";
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
 import { compareReadings, generatedConcepts, relationalPredicates, settledness, witnessing } from "@red-cup-engineering/signgraph/mesh";
 import { readDivergences, readFiber, readKeyAffinities } from "@red-cup-engineering/markdown-engineering-services-section/vault/fibration";
 import { localeOf, nameKey, openMarkdownVault } from "./markdown-vault.mjs";

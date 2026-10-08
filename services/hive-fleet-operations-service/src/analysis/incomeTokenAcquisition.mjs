@@ -1,5 +1,5 @@
-import { decimalUnits, formatUnits, rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { decimalUnits, formatUnits, rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 import { parseEngineOrderBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { marketBuyWalk, marketSellWalk } from "@red-cup-engineering/gaming/market";
 function validateBps(value, label) {

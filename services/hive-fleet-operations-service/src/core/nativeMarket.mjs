@@ -1,4 +1,4 @@
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { limitOrderCancel, limitOrderCreate } from "@red-cup-engineering/hive-blockchain-client-service/ops.mjs";
 export const DEFAULT_NATIVE_MARKET_POLICY = Object.freeze({
     minimumSpreadHbd: "0.001",

@@ -27,9 +27,9 @@ import { keySatisfiesAuthority, loadHiveKey } from "@red-cup-engineering/key-man
 import { ENGINE_NODES, EngineClient, exactOutputSwapInput, poolFeeBps, reserveFraction } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { parseEngineOrderBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { marketSellWalk } from "@red-cup-engineering/gaming/market";
-import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 import { currentVotingMana } from "@red-cup-engineering/hive-blockchain-client-service/rewards.mjs";
-import { decimalUnits, rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { NET_FLOOR_MARGIN_SWAP_HIVE } from "../src/core/resourceCostModel.mjs";
 import { observeRcReserve } from "../src/integrations/hive/rcReserve.adapter.mjs";
 import { assertRulesPermit } from "../src/core/rules.mjs";

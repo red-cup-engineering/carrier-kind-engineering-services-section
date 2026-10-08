@@ -6,7 +6,7 @@
  * documents. Runtime routing and dispatch remain in `src/running`.
  */
 
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { schemaRegistry } from "@red-cup-engineering/json-schema-services-section/schema-registry";
 import { promptDescriptor, } from "./prompt.mjs";
 import { declaredSchemas } from "@red-cup-engineering/json-schema-services-section/contracts";

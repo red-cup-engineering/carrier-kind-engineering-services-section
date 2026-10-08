@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { semanticId } from "@rsc-quiescent/rmn-semantic-conformance";
 import { compileRmlLaw } from "@rsc-quiescent/rmn-semantic-conformance/law";
 import { encodeRelationalValue } from "@rsc-quiescent/rmn-semantic-conformance/relational-value";
-import { sha256Digest } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Digest } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const read = (path) => JSON.parse(readFileSync(join(ROOT, path), "utf8"));

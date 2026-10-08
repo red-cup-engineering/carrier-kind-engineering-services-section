@@ -1,7 +1,7 @@
 import { readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
 export const ETHEREUM_ACTIVITY_PROVIDER = "urn:ame:ethereum-services-section:evm-activity-pulse-provider";

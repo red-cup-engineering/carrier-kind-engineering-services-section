@@ -27,11 +27,11 @@
     "node": ">=22.18"
   },
   "dependencies": {
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/oauth-services-section": "workspace:*",
-    "@red-cup-engineering/signcell": "workspace:*"
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*"
   },
   "bin": {
     "bridge-mcp-server": "scripts/bridge-mcp-server.mjs",

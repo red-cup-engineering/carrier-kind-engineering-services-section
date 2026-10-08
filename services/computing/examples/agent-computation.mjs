@@ -7,7 +7,7 @@
  */
 import { compute, compose, relay, bang, transport, admitAgent } from "../src/computing.mjs";
 import { agent } from "@red-cup-engineering/animating/becoming/doing/working/governing/agent";
-import { readingOfSides, knowledgeJoinAll } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides, knowledgeJoinAll } from "@red-cup-engineering/computer-data-services-section/four";
 
 // ── enriched agents: goal-bearing individuals ─────────────────────────────────────
 const trueAgent = agent("the-sky|is-blue", {

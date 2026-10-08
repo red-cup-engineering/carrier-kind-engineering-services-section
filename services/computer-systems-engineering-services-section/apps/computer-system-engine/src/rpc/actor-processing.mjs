@@ -1,6 +1,6 @@
 import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
 import {canonicalJson} from '@red-cup-engineering/json-services-section';
-import {sha256Hex} from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
+import {sha256Hex} from '@red-cup-engineering/cryptographic-data-service/integrity';
 import {processLeaseCoordinator} from './coordination.mjs';
 import {ARRIVAL_PROCESS_FEED,ARRIVAL_PROCESS_TERM,arrivalDispatchClaimFromCloudEvent,admitCloudEventArrival} from './arrival.mjs';
 import {openJournal,journal} from '../journal/journal.mjs';

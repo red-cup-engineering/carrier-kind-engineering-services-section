@@ -11,7 +11,7 @@
 // the one owner. It runs on node:crypto; a Workers runtime needs the same
 // operations over Web Crypto, which is a port of this module, not a fork of it.
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
-import { sha256 } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash';
+import { sha256 } from '@red-cup-engineering/cryptographic-data-service/hash';
 import { parseCookieHeader, serializeSetCookie } from '@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cookie';
 import { signCookieValue, unsignCookieValue } from '@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/signed-cookie';
 export const DEFAULT_SESSION_TTL_SECONDS = 1_209_600; // 14 days, the house precedent.

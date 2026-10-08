@@ -1,4 +1,4 @@
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { boundedPoolOutput, exactInputPoolOutput } from "./exactTriangle.mjs";
 export const MAX_EXACT_POOL_CYCLE_SEARCH_UNITS = 1_000_000n;
 function validate(input) {

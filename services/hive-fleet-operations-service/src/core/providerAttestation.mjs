@@ -1,5 +1,5 @@
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { attestationRecord, readingOfRecord, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { attestationRecord, readingOfRecord, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 /**
  * Independent providers' observations of one exact state, read in FOUR. Each available observation's
  * state (read by `stateOf`, which may refuse) is keyed by its content address; the reading is the

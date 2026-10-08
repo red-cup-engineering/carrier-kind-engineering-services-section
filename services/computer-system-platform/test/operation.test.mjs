@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { COMPUTER_ENGINEERING_SPECIFICATION_ID } from "@red-cup-engineering/computer-system-engine/specification";
-import { defineType, specializeType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { stringDescriptor } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { defineType, specializeType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { stringDescriptor } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { admitOperation, composeOperations, executeOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 
 const text = defineType({ id: "test:text", name: "text", description: "test", schema: { type: "string" }, parents: [] }).value;

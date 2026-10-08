@@ -21,7 +21,7 @@
  * identity, journal kind and subject field, so their recorded history stays readable.
  */
 import { createTypedMark, referenceOf } from "@red-cup-engineering/signcell/typed-mark";
-import { defineSchemaType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type";
+import { defineSchemaType } from "@red-cup-engineering/computer-data-services-section/type-system/schema-type";
 import { createSignGraph } from "@red-cup-engineering/signcell/semantic-graph";
 import { projectSignGraphTopology } from "@red-cup-engineering/signgraph/graph";
 import { TellingLog } from "@red-cup-engineering/signchain/log";

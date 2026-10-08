@@ -12,7 +12,7 @@ import { appendEavtRow } from "@red-cup-engineering/eavt/append-eavt-row";
 import { readEavtEntries } from "@red-cup-engineering/eavt/read-eavt-entries";
 import { relations } from "@red-cup-engineering/eavt/select-relations";
 import { appendSeavtEntries } from "@red-cup-engineering/semiotic-eavt-services-section/append-seavt-entries";
-import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { ADMITTED_HARNESS_ACTORS } from "../src/harness-lifecycle.mjs";
 import { findWorldAddressByName } from "@red-cup-engineering/flatfile-resource-graph-service/lagoon-world";
 import { readTurnEvents, fold } from "../scripts/fold-harness-turns.mjs";

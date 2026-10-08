@@ -15,8 +15,8 @@
  * amount per subject (graded rationals), so the
  * addressable alpha is an exact amount in the field's commodity squared.
  */
-import { ratFromInt } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { gradeOf, gradedAdd, gradedCompare, gradedNegate, gradedScale, gradedSign, gradedSubtract, gradedTimes, gradedZero } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { ratFromInt } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { gradeOf, gradedAdd, gradedCompare, gradedNegate, gradedScale, gradedSign, gradedSubtract, gradedTimes, gradedZero } from "@red-cup-engineering/exact-number-data-service/graded";
 import { attentionGraph, attentionSpectrum } from "./graph.mjs";
 
 function field(graph, valueOf) {

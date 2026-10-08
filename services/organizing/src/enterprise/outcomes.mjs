@@ -34,8 +34,8 @@
 import { createHash } from "node:crypto";
 import { readFileSync, statSync } from "node:fs";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
-import { readingFamilies, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
-import { formatGraded, gradedAdd, gradedFromParts, gradedIsZero, gradedNegate, gradedOfDecimal, gradedQuotient, gradedTimes, gradedToDecimalString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { readingFamilies, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { formatGraded, gradedAdd, gradedFromParts, gradedIsZero, gradedNegate, gradedOfDecimal, gradedQuotient, gradedTimes, gradedToDecimalString } from "@red-cup-engineering/exact-number-data-service/graded";
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { open, posting, transaction } from "../accounting/ledger.mjs";

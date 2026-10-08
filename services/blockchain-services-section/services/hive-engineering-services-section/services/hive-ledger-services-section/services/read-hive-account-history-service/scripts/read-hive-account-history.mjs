@@ -11,7 +11,7 @@ import {
   divideDecimalStrings,
   multiplyDecimalStrings,
   stripUnitSuffix,
-} from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+} from "@red-cup-engineering/exact-number-data-service/decimal-string";
 
 /** The operation kinds the Hive ledger derivation cares about; the roadmap's named set. */
 export const DEFAULT_OPERATION_KINDS = [

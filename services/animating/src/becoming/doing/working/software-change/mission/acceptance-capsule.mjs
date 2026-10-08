@@ -3,7 +3,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
 import { runTestsCommand } from "@red-cup-engineering/javascript-node-services-section/run-sandboxed-command";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const CAPSULE_TYPE = "ProtectedAcceptanceCapsule";
 const CAPSULE_VERSION = 1;

@@ -1,4 +1,4 @@
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { exactOutputSwapInput, reserveFraction } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 function factor(precision) {
     if (!Number.isInteger(precision) || precision < 0 || precision > 18) throw new Error("precision must be an integer from 0 through 18");

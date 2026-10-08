@@ -5,7 +5,7 @@ import {
   intCompare,
   intSubtract,
   toInt,
-} from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+} from "@red-cup-engineering/exact-number-data-service/exact-number";
 
 const required = ["item", "owner", "from", "to", "payer", "payee"];
 const present = (value) => value !== undefined && value !== null;

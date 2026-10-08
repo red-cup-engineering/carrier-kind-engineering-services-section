@@ -3,8 +3,8 @@ import { toPostObservation } from "@red-cup-engineering/computing-with-hive/comp
 import { curationPriceOf, currentVotingMana } from "@red-cup-engineering/hive-blockchain-client-service/rewards.mjs";
 import { nativeMarketVwap } from "../../core/nativeMarket.mjs";
 import { parseInternalOrderBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
-import { ratMultiply, toNumber } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { gradedSign, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { ratMultiply, toNumber } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { gradedSign, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 function isRecord(value) {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }

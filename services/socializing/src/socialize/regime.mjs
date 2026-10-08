@@ -26,7 +26,7 @@ import {
   closureRegimeNamed,
   finiteClosureRegime,
 } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
-import { costlierRegime } from "@red-cup-engineering/computer-data-engineering-services-section/closure-regime";
+import { costlierRegime } from "@red-cup-engineering/computer-data-services-section/closure-regime";
 import { cohomologyVanishesInRegime } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/value-category";
 
 const strict = closureRegimeName(finiteClosureRegime);

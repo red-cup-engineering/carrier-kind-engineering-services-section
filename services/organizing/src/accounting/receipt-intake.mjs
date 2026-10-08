@@ -1,5 +1,5 @@
 import { balances, isTransaction, makeRegistry } from "./ledger.mjs";
-import { gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
 
 const nonemptyText = (value) => typeof value === "string" && value.trim().length > 0;
 const economicMetaFields = ["recognition", "economic_event", "contract_id", "invoice_id", "performance_id", "source_id", "evidence_ids", "venue", "account", "mandate_id", "witness_block", "witness_nodes", "witness_database_hash"];

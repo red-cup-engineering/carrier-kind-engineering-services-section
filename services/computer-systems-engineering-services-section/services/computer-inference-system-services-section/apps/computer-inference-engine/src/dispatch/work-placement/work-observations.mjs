@@ -1,5 +1,5 @@
-import { createRelationalField, defineRelation } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/relations";
-import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { createRelationalField, defineRelation } from "@red-cup-engineering/computer-data-services-section/type-system/relations";
+import { defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
 
 const text = { type: "string", pattern: "\\S" };
 const amount = { type: "object", required: ["numerator", "denominator"], properties: { numerator: text, denominator: text } };

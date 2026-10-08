@@ -1,4 +1,4 @@
-import { admit, defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { admit, defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
 
 export const MCP_CLIENT_ENDPOINT_SCHEMA = {
   $schema: "https://json-schema.org/draft/2020-12/schema",

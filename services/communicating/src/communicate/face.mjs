@@ -50,7 +50,7 @@
 import { knowledgeJoin } from "@red-cup-engineering/signchain/bilattice";
 import { cell, evidenceOf, knowledgeReading } from "@red-cup-engineering/signcell/cell";
 import { denialOf } from "@red-cup-engineering/signcraft/membrane";
-import { census, truthJoinOfCensus } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { census, truthJoinOfCensus } from "@red-cup-engineering/computer-data-services-section/four";
 
 
 /** The axis this face reads — the agentive-triad TRUTH axis (`≤_t`, negation antitone). */
