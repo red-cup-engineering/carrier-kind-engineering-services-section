@@ -5,7 +5,7 @@
  *
  * Work is judged in many registers: an assayer accepts or rejects a delivered request on the work
  * arena, a receiver accepts or refuses an inference delivery, an editor accepts or returns an
- * edition, a customer pays an x402 offer, a retailer reports a royalty. Each is the same act — the
+ * edition, a customer judges a delivery, a retailer reports a royalty. Each is the same act — the
  * receiver's decision on a delivery (fabrication science, "acceptance"; a fabricator's passing
  * assay is evidence toward it, never a substitute) — and each is told here as one **outcome**: who
  * delivered what lot, which carrier did the work, who judged it, the verdict, the evidence it
@@ -44,7 +44,7 @@ import { resourcesOf, sumResources } from "./resources.mjs";
 import { assayerOf, createWorkArenaReader, houseSectionOf, offerAt } from "./work-arena.mjs";
 import { playerOfAct } from "../agency/cast.mjs";
 
-/** The registers a judgment of work is told in. */
+/** Judgment registers; x402-settlement is retained solely to read historical payment claims. */
 export const OUTCOME_SOURCES = Object.freeze(["work-arena", "work-discharge", "inference-market", "editor", "customer", "x402-settlement", "royalty"]);
 
 /** A judgment's verdict: the delivery accepted, rejected (returned, refused), or an earlier judgment withdrawn. */
@@ -105,6 +105,7 @@ export function outcomeOf(input) {
   if (input === null || typeof input !== "object") throw new TypeError("an outcome is an object");
   const source = required(input, "source");
   if (!OUTCOME_SOURCES.includes(source)) throw new TypeError(`an outcome's source is one of ${OUTCOME_SOURCES.join(", ")}`);
+  if (source === "x402-settlement") throw new TypeError("an x402 payment is not a judgment of delivered work; retain it as cash evidence");
   const verdict = required(input, "verdict");
   if (!OUTCOME_VERDICTS.includes(verdict)) throw new TypeError(`an outcome's verdict is one of ${OUTCOME_VERDICTS.join(", ")}`);
   if (verdict === "voided" && !text(input.voids)) throw new TypeError("a voiding outcome names the outcome it voids");
@@ -207,6 +208,7 @@ export function outcomeJournal(root, { now = () => new Date().toISOString(), ded
       let appended = 0;
       for (const outcome of [outcomes].flat()) {
         const made = outcome.kind === OUTCOME_KIND && text(outcome.id) ? outcome : outcomeOf(outcome);
+        if (made.source === "x402-settlement") throw new TypeError("an x402 payment cannot be recorded as customer acceptance");
         if (told.has(made.id)) continue;
         // Recorded when told, which an import of old judgments makes later than when they were judged.
         journal.record({ category: made.source, recordedAt: now(), record: made, told: toldOfOutcome(made) });
@@ -225,10 +227,11 @@ export function outcomeJournal(root, { now = () => new Date().toISOString(), ded
  * @param {ReadonlyArray<object>} outcomes
  */
 export function standingOutcomes(outcomes) {
-  const voided = new Set(outcomes.filter((outcome) => outcome.verdict === "voided").map((outcome) => outcome.voids));
+  const voided = new Set(outcomes.filter((outcome) => outcome.source !== "x402-settlement" && outcome.verdict === "voided").map((outcome) => outcome.voids));
   const latest = new Map();
   for (const outcome of outcomes) {
-    if (outcome.verdict === "voided" || voided.has(outcome.id)) continue;
+    // Historical payment-as-acceptance rows remain readable as claims, not standing judgments.
+    if (outcome.source === "x402-settlement" || outcome.verdict === "voided" || voided.has(outcome.id)) continue;
     const key = `${outcome.source}\u0000${outcome.delivery}\u0000${outcome.judge}`;
     const held = latest.get(key);
     if (held === undefined || held.at < outcome.at || (held.at === outcome.at && held.id < outcome.id)) latest.set(key, outcome);
@@ -266,7 +269,7 @@ export function standingOf(outcomes, { keyOf = (outcome) => outcome.carrier } = 
  */
 export function standingIndexOf(standing, { at, digest, excluded = [] } = {}) {
   return Object.freeze({
-    kind: "organizing.enterprise.outcome-standing", at, digest, excluded: Object.freeze([...excluded]),
+    kind: "organizing.enterprise.outcome-standing", at, digest, excluded: Object.freeze([...new Set([...excluded, "x402-settlement"])]),
     standing: Object.freeze([...standing.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([carrier, { accepted, attempts }]) => Object.freeze({ carrier, accepted, attempts }))),
   });
 }
@@ -274,7 +277,8 @@ export function standingIndexOf(standing, { at, digest, excluded = [] } = {}) {
 export function readStandingIndex(path) {
   try {
     const index = JSON.parse(readFileSync(path, "utf8"));
-    if (index?.kind !== "organizing.enterprise.outcome-standing" || !Array.isArray(index.standing)) return new Map();
+    if (index?.kind !== "organizing.enterprise.outcome-standing" || !Array.isArray(index.standing)
+        || !index.excluded?.includes("x402-settlement")) return new Map();
     return new Map(index.standing.filter((row) => text(row?.carrier) && Number.isInteger(row.accepted) && Number.isInteger(row.attempts))
       .map((row) => [row.carrier, { accepted: row.accepted, attempts: row.attempts }]));
   } catch { return new Map(); }
@@ -297,7 +301,7 @@ export function marketJudgmentsIndexOf(outcomes, { at, digest } = {}) {
 export function readMarketJudgments(path) {
   try {
     const index = JSON.parse(readFileSync(path, "utf8"));
-    return index?.kind === "organizing.enterprise.market-judgments" && Array.isArray(index.judgments) ? Object.freeze(index.judgments) : Object.freeze([]);
+    return index?.kind === "organizing.enterprise.market-judgments" && Array.isArray(index.judgments) ? Object.freeze(index.judgments.filter((row) => row.source !== "x402-settlement")) : Object.freeze([]);
   } catch { return Object.freeze([]); }
 }
 
@@ -340,7 +344,7 @@ export function readJudgedSettlements(path, enterprise) {
     } catch { held = { mtime, enterprises: {} }; }
     judgedSettlementsHeld.set(path, held);
   }
-  return held.enterprises[enterprise] ?? [];
+  return (held.enterprises[enterprise] ?? []).filter((row) => row.source !== "x402-settlement");
 }
 
 /** The Beta(1,1) posterior acceptance of a standing: (accepted + 1) / (attempts + 2). */
@@ -404,7 +408,7 @@ const linkOf = (outcome) => `outcome-${Buffer.from(outcome.id.split(";").at(-1),
  * judgment inside the entity books nothing: the Group paying itself is no sale.
  */
 export function outcomePostingsOf(outcome, partyOf) {
-  if (outcome.verdict !== "accepted" || outcome.value === undefined || !BOOKED_SEAMS.includes(seamOfOutcome(outcome, partyOf))) return Object.freeze([]);
+  if (outcome.source === "x402-settlement" || outcome.verdict !== "accepted" || outcome.value === undefined || !BOOKED_SEAMS.includes(seamOfOutcome(outcome, partyOf))) return Object.freeze([]);
   const amount = gradedOfDecimal(outcome.value.amount, outcome.value.currency);
   return Object.freeze([
     posting({ account: outcome.value.settledTo ?? "Assets:Receivables:Trade", amount }),
