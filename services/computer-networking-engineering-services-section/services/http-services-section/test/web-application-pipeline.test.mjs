@@ -811,6 +811,31 @@ test("a real client abort still terminates a pending incoming body read", async 
     request.destroy();
     await observed;
 });
+
+test("a disconnected client cannot crash a response before its headers arrive", {timeout:15000}, async (t)=>{
+    let seen, release, aborted, cancelled;
+    const received=new Promise(resolve=>seen=resolve);
+    const resume=new Promise(resolve=>release=resolve);
+    const disconnect=new Promise(resolve=>aborted=resolve);
+    const stopped=new Promise(resolve=>cancelled=resolve);
+    const handle=createFetchHandler({resources:[
+        {match:"/slow",handler:async ctx=>{
+            ctx.signal.addEventListener("abort",aborted,{once:true});seen();
+            await resume;
+            return new Response(new ReadableStream({cancel:()=>cancelled()}),{headers:{"content-type":"text/plain"}});
+        }},
+        {match:"/health",handler:()=>new Response("healthy",{headers:{"content-type":"text/plain"}})}
+    ]});
+    const server=await start(handle.engine,{port:0,host:"127.0.0.1"});
+    t.after(()=>server.close());
+    const request=nodeRequest(`http://127.0.0.1:${server.port}/slow`);
+    request.on("error",()=>{});request.end();await received;
+    request.destroy();await disconnect;release();await stopped;
+    await new Promise(resolve=>setImmediate(resolve));
+    const response=await fetch(`http://127.0.0.1:${server.port}/health`);
+    assert.equal(response.status,200);assert.equal(await response.text(),"healthy");
+});
+
 test("HTTP/2 refusal closes only the unfinished upload after delivering its response", {
     timeout: 3000
 }, async (t)=>{
