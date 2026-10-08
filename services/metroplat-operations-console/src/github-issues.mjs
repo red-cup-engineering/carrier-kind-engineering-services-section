@@ -196,9 +196,11 @@ async function threadsBySource(urls, as) {
  * answers for them now. The board is the only registry; there is no cursor to lose. Closure resolves
  * the report only: work anyone adopted from it stands on its own request.
  */
-export async function syncGitHubIssues({ repository, producer, office, issueNumbers: requestedIssueNumbers, runAs, fetchImpl = fetch, token, tokenCommand, receivingBinding }) {
+export async function syncGitHubIssues({ repository, producer, office, issueNumbers: requestedIssueNumbers, runAs, fetchImpl = fetch, token, tokenCommand, receivingBinding, resolveReceivingBinding }) {
   repository = repositoryName(repository);
   const issueNumbers = selectedIssueNumbers(requestedIssueNumbers);
+  if (resolveReceivingBinding !== undefined && typeof resolveReceivingBinding !== "function") throw new TypeError("GitHub receiving resolver must be a host capability");
+  if (resolveReceivingBinding !== undefined && receivingBinding !== undefined) throw new TypeError("GitHub intake must select one receiving binding source");
   const as = (verb, input) => runAs(producer, verb,
     office !== undefined && ["work-open", "work-move"].includes(verb) ? { ...input, as: office } : input);
   if (!token && tokenCommand !== undefined) {
@@ -211,8 +213,20 @@ export async function syncGitHubIssues({ repository, producer, office, issueNumb
     if (!token) throw new Error("the configured GitHub credential source returned no credential");
   }
   let repositoryRecord;
-  if (receivingBinding !== undefined) {
+  if (receivingBinding !== undefined || resolveReceivingBinding !== undefined) {
     repositoryRecord = await githubJson(new URL(`https://api.github.com/repos/${repository}`), `/repos/${repository}`, {fetchImpl,token});
+    if (!Number.isSafeInteger(repositoryRecord.id) || repositoryRecord.id <= 0 || repositoryRecord.full_name?.toLowerCase() !== repository || repositoryRecord.private !== false)
+      throw new TypeError("GitHub intake has no verified matching public repository audience");
+    if (resolveReceivingBinding !== undefined) {
+      receivingBinding = await resolveReceivingBinding({ repository,
+        repositoryRecord: Object.freeze({ id: repositoryRecord.id, full_name: repositoryRecord.full_name, private: repositoryRecord.private }),
+        producer, office });
+      if (receivingBinding === undefined || receivingBinding === null
+          || !Array.isArray(receivingBinding.scope) || receivingBinding.scope.length === 0
+          || receivingBinding.scope.some(value => typeof value !== "string" || value.trim() === "")
+          || typeof receivingBinding.receiver !== "string" || receivingBinding.receiver.trim() === "")
+        throw new TypeError("GitHub receiving resolver did not bind an institutional receiver");
+    }
     if (repositoryRecord.id !== receivingBinding.repositoryId || repositoryRecord.full_name?.toLowerCase() !== repository || repositoryRecord.private !== false || receivingBinding.visibility !== "public")
       throw new TypeError("GitHub intake has no verified matching public repository audience");
   }

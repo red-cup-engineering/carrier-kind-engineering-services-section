@@ -90,3 +90,47 @@ test('consumer final readback cannot replace the primary carrier verified by its
  f.runAs=async(p,v,i)=>{if(v==='work-board'&&i.thread&&++reads===2){const opening=f.threads[0].opening;opening.evidence=replaceCarrier(opening.evidence,d=>d.source.objectType==='issue');opening.sources=opening.sources.map(source=>{if(source.kind!=='github-source-document')return source;const envelope=readGitHubSourceDocument(source);return gitHubSourceDocument(Object.fromEntries(Object.entries(envelope).reverse()));});}return original(p,v,i);};
  await assert.rejects(f.sync(),/substituted a selected source carrier/);assert.equal(f.effects,1);
 });
+
+test('host resolver sees frozen repository identity before any body or board call on every invocation', async () => {
+  const f = fixture();
+  let resolutions = 0;
+  const resolveReceivingBinding = async (input) => { resolutions++; assert.deepEqual(input.repositoryRecord, repo); assert.ok(Object.isFrozen(input.repositoryRecord)); assert.equal(input.producer, 'person:reader'); assert.equal(input.office, 'office:actual'); assert.equal(f.calls.at(-1), '/repos/owner/public'); return { ...binding, as: 'office:actual' }; };
+  const sync = () => syncGitHubIssues({ repository: 'owner/public', producer: 'person:reader', office: 'office:actual', resolveReceivingBinding, issueNumbers: [2], fetchImpl: f.fetchImpl, runAs: f.runAs });
+  await sync();
+  await sync();
+  assert.equal(resolutions, 2);
+  assert.equal(f.effects, 1);
+});
+test('a configured resolver refusal or missing binding never falls back to incumbent intake', async () => {
+  for (const resolveReceivingBinding of [async () => { throw Error('institutional source relation unresolved'); }, async () => undefined, async () => null, async () => ({ ...binding, receiver: '' }), async () => ({ ...binding, scope: [] })]) {
+    const f = fixture();
+    await assert.rejects(syncGitHubIssues({ repository: 'owner/public', producer: 'person:reader', resolveReceivingBinding, issueNumbers: [2], fetchImpl: f.fetchImpl, runAs: f.runAs }), /institutional/);
+    assert.deepEqual(f.calls, ['/repos/owner/public']);
+    assert.equal(f.effects, 0);
+  }
+});
+test('changed repository identity and private visibility refuse before a resolver or source material runs', async () => {
+  for (const change of [{ full_name: 'other/public' }, { private: true }, { private: undefined }, { id: undefined }]) {
+    const f = fixture();
+    Object.assign(f.repo, change);
+    let resolved = false;
+    await assert.rejects(syncGitHubIssues({ repository: 'owner/public', producer: 'person:reader', resolveReceivingBinding: () => { resolved = true; return binding; }, issueNumbers: [2], fetchImpl: f.fetchImpl, runAs: f.runAs }), /verified matching public repository audience/);
+    assert.equal(resolved, false);
+    assert.deepEqual(f.calls, ['/repos/owner/public']);
+    assert.equal(f.effects, 0);
+  }
+  const f = fixture();
+  f.repo.id = 8;
+  await assert.rejects(syncGitHubIssues({ repository: 'owner/public', producer: 'person:reader', resolveReceivingBinding: () => binding, issueNumbers: [2], fetchImpl: f.fetchImpl, runAs: f.runAs }), /verified matching public repository audience/);
+  assert.deepEqual(f.calls, ['/repos/owner/public']);
+  assert.equal(f.effects, 0);
+});
+test('repository metadata failure cannot run a resolver or fetch a source body', async () => {
+  const f = fixture();
+  let resolved = false;
+  const calls = [];
+  await assert.rejects(syncGitHubIssues({ repository: 'owner/public', producer: 'person:reader', resolveReceivingBinding: () => { resolved = true; return binding; }, issueNumbers: [2], fetchImpl: async (url) => { calls.push(new URL(url).pathname); throw Error('metadata unavailable'); }, runAs: f.runAs }), /metadata unavailable/);
+  assert.equal(resolved, false);
+  assert.deepEqual(calls, ['/repos/owner/public']);
+  assert.equal(f.effects, 0);
+});
