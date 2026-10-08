@@ -148,7 +148,7 @@ test("mcpToolRefusal builds a datum conforming to its own schema, and mcpToolRef
   assert.equal(result.structuredContent, refusal);
 });
 
-test("invalid MCP arguments are absent from public refusal and RPC witnesses; earlier arrival custody remains separate", async () => {
+test("invalid MCP arguments are absent from public refusal and RPC witnesses; earliest arrival retains a distinct rejection reference", async () => {
   const sentinel = "synthetic-unaccepted-credential-value";
   const assertions = [grantAssertion("issuer:test", "subject:test", "infograph#add-one", at())];
   const surface = surfaceWithGrants(assertions);
@@ -164,6 +164,133 @@ test("invalid MCP arguments are absent from public refusal and RPC witnesses; ea
   assert.equal(refused.result.structuredContent.phase, "input");
   assert.equal(JSON.stringify(refused).includes(sentinel), false);
   assert.equal(JSON.stringify(events).includes(sentinel), false);
-  // This assertion describes the separate transport-retention gap; it is not a privacy guarantee.
-  assert.equal(JSON.stringify(arrivals).includes(sentinel), true);
+  assert.equal(JSON.stringify(arrivals).includes(sentinel), false);
+  assert.equal(arrivals.length, 1);
+  assert.equal(arrivals[0].data.material.kind, "metroplat.mcp.projected-arrival-material");
+  assert.equal(arrivals[0].data.material.message.kind, "metroplat.mcp.rejected-message-reference");
+});
+
+test('accepted valid tool arrival preserves exact material and existing content identity', async () => {
+  const { transportCloudEvent } = await import('@red-cup-engineering/computer-system-engine/rpc/arrival');
+  const arrivals = [], events = [];
+  const options = serveOptions(memoryWitness(events)), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const message = { jsonrpc: '2.0', id: 11, method: 'tools/call', params: { name: 'add-one', arguments: { input: { value: 2 } } } };
+  const surface = surfaceWithGrants([grantAssertion('issuer:test', 'subject:test', 'infograph#add-one', at())]);
+  const response = await programMcpHandle(surface, message, options);
+  assert.deepEqual(response.result.structuredContent, { result: 3 });
+  const original = transportCloudEvent('mcp-http', { kind: 'metroplat.mcp.arrival-material', message }, at(), { kind: 'metroplat.generated-endpoint-readout-reference', transport: 'mcp-http', path: '/mcp', verb: 'tools/call' });
+  assert.deepEqual(arrivals, [original]);
+});
+
+for (const wrapped of [true, false]) test(`invalid ${wrapped ? 'wrapped' : 'object-input'} tool arguments are absent from the earliest retained carrier`, async () => {
+  const sentinel = 'synthetic-unaccepted-credential-value', arrivals = [], events = [];
+  const options = serveOptions(memoryWitness(events)), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const body = { value: 1, forbidden: sentinel };
+  const surface = surfaceWithGrants([grantAssertion('issuer:test', 'subject:test', 'infograph#add-one', at())]);
+  const response = await programMcpHandle(surface, { jsonrpc: '2.0', id: 12, method: 'tools/call', params: { name: 'add-one', arguments: wrapped ? { input: body } : body } }, options);
+  assert.equal(response.result.isError, true);
+  for (const carrier of [arrivals, events, response]) assert.equal(JSON.stringify(carrier).includes(sentinel), false);
+  assert.equal(arrivals[0].data.material.message.kind, 'metroplat.mcp.rejected-message-reference');
+});
+
+test('unknown tool is retained as a rejection reference without its argument payload', async () => {
+  const sentinel = 'synthetic-unaccepted-credential-value', arrivals = [], events = [];
+  const options = serveOptions(memoryWitness(events)), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const response = await programMcpHandle(surfaceWithGrants([]), { jsonrpc: '2.0', id: 13, method: 'tools/call', params: { name: 'absent-tool', arguments: { forbidden: sentinel } } }, options);
+  assert.ok(response.error); assert.equal(events.length, 0);
+  for (const carrier of [arrivals, response]) assert.equal(JSON.stringify(carrier).includes(sentinel), false);
+  assert.equal(arrivals[0].data.material.message.reason, 'unknown-tool');
+});
+
+test('mixed batch projects only rejected members while valid siblings still execute', async () => {
+  const sentinel = 'synthetic-unaccepted-credential-value', arrivals = [], events = [];
+  const options = serveOptions(memoryWitness(events)), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const valid = { jsonrpc: '2.0', id: 14, method: 'tools/call', params: { name: 'add-one', arguments: { input: { value: 4 } } } };
+  const invalid = { jsonrpc: '2.0', id: 15, method: 'tools/call', params: { name: 'add-one', arguments: { input: { value: 1, forbidden: sentinel } } } };
+  const surface = surfaceWithGrants([grantAssertion('issuer:test', 'subject:test', 'infograph#add-one', at())]);
+  const response = await programMcpHandle(surface, [valid, invalid], options);
+  assert.deepEqual(response.find(item => item.id === 14).result.structuredContent, { result: 5 });
+  assert.equal(response.find(item => item.id === 15).result.isError, true);
+  for (const carrier of [arrivals, events, response]) assert.equal(JSON.stringify(carrier).includes(sentinel), false);
+  assert.deepEqual(arrivals[0].data.material.message[0], valid);
+  assert.equal(arrivals[0].data.material.message[1].kind, 'metroplat.mcp.rejected-message-reference');
+  assert.equal(arrivals[0].data.material.kind, 'metroplat.mcp.projected-arrival-material');
+});
+
+test('valid unauthorized tool arrival remains unchanged and still cannot execute', async () => {
+  const arrivals = [], events = [];
+  const options = serveOptions(memoryWitness(events)), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const message = { jsonrpc: '2.0', id: 16, method: 'tools/call', params: { name: 'add-one', arguments: { input: { value: 4 } } } };
+  const response = await programMcpHandle(surfaceWithGrants([]), message, options);
+  assert.equal(response.result.structuredContent.phase, 'authorization');
+  assert.equal(arrivals[0].data.material.kind, 'metroplat.mcp.arrival-material');
+  assert.deepEqual(arrivals[0].data.material.message, message);
+});
+
+test('real filesystem arrival and RPC journals receive no rejected tool body', async context => {
+  const { mkdtempSync, readFileSync, readdirSync, rmSync } = await import('node:fs');
+  const { join } = await import('node:path'); const { tmpdir } = await import('node:os');
+  const { filesystemArrivalOptions, arrivalLogPathForDate, readArrivalLogProjection } = await import('@red-cup-engineering/computer-system-engine/rpc/arrival-store');
+  const { journalRpcWitness } = await import('@red-cup-engineering/computer-system-engine/rpc/journal-witness');
+  const root = mkdtempSync(join(tmpdir(), 'mcp-rejected-arrival-')); context.after(() => rmSync(root, { recursive: true, force: true }));
+  const sentinel = 'synthetic-unaccepted-credential-value';
+  const options = { subject: 'subject:test', caller: { transport: 'synthetic-test' }, now: at, witness: journalRpcWitness(root), ...filesystemArrivalOptions(root) };
+  const surface = surfaceWithGrants([grantAssertion('issuer:test', 'subject:test', 'infograph#add-one', at())]);
+  const { routeRequest } = await import('@red-cup-engineering/metroplat/presentation/serving');
+  const message = { jsonrpc: '2.0', id: 17, method: 'tools/call', params: { name: 'add-one', arguments: { input: { value: 1, forbidden: sentinel } } } };
+  const response = await routeRequest(surface, { method: 'POST', path: '/mcp', query: {}, body: JSON.stringify(message), accept: 'application/json' }, options);
+  assert.equal(response.status, 200);
+  const result = JSON.parse(response.body);
+  assert.equal(result.result.isError, true); assert.equal(result.result.structuredContent.phase, 'input');
+  assert.equal(JSON.stringify(result).includes(sentinel), false);
+  const files = []; function visit(dir) { for (const entry of readdirSync(dir, { withFileTypes: true })) { const path = join(dir, entry.name); if (entry.isDirectory()) visit(path); else files.push(path); } }
+  visit(root); assert.ok(files.length > 0);
+  for (const path of files) assert.equal(readFileSync(path).includes(Buffer.from(sentinel)), false, path);
+  const feed = arrivalLogPathForDate(root, '2026-09-04');
+  const { readFileUtf8 } = await import('@red-cup-engineering/computer-system-engine/filesystem');
+  const projection = readArrivalLogProjection(feed.artifact, { readFileUtf8 });
+  assert.equal(projection.obstructedPackets, 0, JSON.stringify(projection.entries.map(entry => entry.obstructions))); assert.equal(projection.validPackets, 1);
+  assert.equal(projection.entries[0].materialKind, 'metroplat.mcp.projected-arrival-material');
+  assert.equal(projection.entries[0].boundaryEvent.operation, 'mcp');
+  assert.equal(projection.entries[0].dispatchEvent, undefined);
+  assert.equal(JSON.stringify(projection).includes(sentinel), false);
+});
+
+test('malformed tools/call framing retains a rejection reference before protocol refusal', async () => {
+  const sentinel = 'synthetic-unaccepted-credential-value', arrivals = [], events = [];
+  const options = serveOptions(memoryWitness(events)), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const result = await programMcpHandle(surfaceWithGrants([]), { jsonrpc: '1.0', id: 18, method: 'tools/call', params: { name: 'add-one', arguments: { input: { forbidden: sentinel } } } }, options);
+  assert.ok(result.error); assert.equal(events.length, 0);
+  assert.equal(JSON.stringify([arrivals, result]).includes(sentinel), false);
+  assert.equal(arrivals[0].data.material.message.reason, 'malformed-tool-request');
+});
+
+test('tools without a declared domain retain their existing permissive arrival contract', async () => {
+  const untyped = operation({ verb: 'untyped-read', run: () => ({ result: 'permitted' }) });
+  const surface = projectSurface([untyped], { capabilityAssertions: () => [grantAssertion('issuer:test', 'subject:test', 'infograph#untyped-read', at())] });
+  const arrivals = [], options = serveOptions(memoryWitness([])), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const message = { jsonrpc: '2.0', id: 19, method: 'tools/call', params: { name: 'untyped-read', arguments: { input: { arbitrary: 'permitted by existing untyped contract' } } } };
+  const result = await programMcpHandle(surface, message, options);
+  assert.equal(result.result.isError, undefined);
+  assert.equal(arrivals[0].data.material.kind, 'metroplat.mcp.arrival-material');
+  assert.deepEqual(arrivals[0].data.material.message, message);
+});
+
+test('entirely valid batches preserve original arrival material and identity', async () => {
+  const { transportCloudEvent } = await import('@red-cup-engineering/computer-system-engine/rpc/arrival');
+  const surface = surfaceWithGrants([grantAssertion('issuer:test', 'subject:test', 'infograph#add-one', at())]);
+  const arrivals = [], options = serveOptions(memoryWitness([])), prior = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return prior(event); };
+  const message = [20, 21].map(id => ({ jsonrpc: '2.0', id, method: 'tools/call', params: { name: 'add-one', arguments: { input: { value: id } } } }));
+  const result = await programMcpHandle(surface, message, options);
+  assert.equal(result.length, 2); assert.ok(result.every(item => item.result.isError === undefined));
+  const expected = transportCloudEvent('mcp-http', { kind: 'metroplat.mcp.arrival-material', message }, at(), { kind: 'metroplat.generated-endpoint-readout-reference', transport: 'mcp-http', path: '/mcp', verb: 'invalid' });
+  assert.deepEqual(arrivals, [expected]);
 });

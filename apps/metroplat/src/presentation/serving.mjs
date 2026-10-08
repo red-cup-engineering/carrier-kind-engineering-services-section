@@ -22,6 +22,7 @@
  * `services/http`.
  */
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
+import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { negotiateType } from "@red-cup-engineering/http-services-section/negotiation";
 import { apexMcpServer, approximationChain, continuationHandle, eventIndexAfter, html, json, negotiateOutputWire, promptArguments, stdinOf, text, wantsEventStream } from "@red-cup-engineering/computer-web-server/platform-http/operation-serving";
@@ -181,6 +182,37 @@ export function admitServedRequestArrival(
   }
 }
 
+/** The same wire projection used for tool execution and pre-retention domain admission. */
+function inputOfToolCall(induced, name, args) {
+  const program = induced.discovery.programs.find((bin) => bin.name === name);
+  const wrapped = args !== null && typeof args === "object" && Object.keys(args).length === 1 && Object.hasOwn(args, "input") && program?.domainSchema?.properties?.input === undefined;
+  return (toolTakesArguments(program?.domainSchema) && !wrapped ? args : args?.input) ?? {};
+}
+
+/** Keep accepted tool message bytes unchanged. A rejected member has a distinct reference;
+ * mixed batches retain accepted siblings and never disguise the projected batch as raw input.
+ * This is declared operation-domain admission, not transport authentication or a secret filter. */
+function mcpArrivalRetention(induced, message) {
+  if (Array.isArray(message)) {
+    const members = message.map(item => mcpArrivalRetention(induced, item));
+    return members.every(item => !item.rejected) ? { message, rejected: false }
+      : { message: members.map(item => item.message), rejected: true };
+  }
+  if (message?.method !== "tools/call") return { message, rejected: false };
+  const selected = induced.operations.find(operation => operation.verb === message.params?.name);
+  let reason;
+  if (message.jsonrpc !== "2.0") reason = "malformed-tool-request";
+  else if (selected === undefined) reason = "unknown-tool";
+  else if (selected.domain !== undefined) {
+    try { selected.domain.assert(inputOfToolCall(induced, selected.verb, message.params?.arguments ?? {}), "MCP tool input"); }
+    catch { reason = "invalid-tool-input"; }
+  }
+  if (reason === undefined) return { message, rejected: false };
+  const material = Object.freeze({ kind: "metroplat.mcp.rejected-message-reference", message: artifactId(message), reason,
+    ...(selected === undefined ? {} : { operation: selected.ref, ...(selected.domain === undefined ? {} : { domain: selected.domain.id }) }) });
+  return { message: Object.freeze({ ...material, id: artifactId(material) }), rejected: true };
+}
+
 function admitMcpArrival(
   induced,
   message,
@@ -193,9 +225,10 @@ function admitMcpArrival(
   const at = options.now();
   try {
     const arrivalTransport = options.arrivalTransport ?? transport;
+    const retained = mcpArrivalRetention(induced, requireJsonValue(message, "mcp arrival message"));
     const receipt = options.onArrival(transportCloudEvent(arrivalTransport, Object.freeze({
-      kind: "metroplat.mcp.arrival-material",
-      message: requireJsonValue(message, "mcp arrival message"),
+      kind: retained.rejected ? "metroplat.mcp.projected-arrival-material" : "metroplat.mcp.arrival-material",
+      message: retained.message,
     }), at, Object.freeze({
       kind: "metroplat.generated-endpoint-readout-reference",
       transport: arrivalTransport,
@@ -365,11 +398,8 @@ function programMcpServer(induced, version) {
       tools: programMcpToolsWithEndpoints(induced.operations, induced.discovery.programs, induced.discovery.package),
       callTool: async (name, args, context) => {
         const options = context.dispatchOptions;
-        const program = induced.discovery.programs.find((bin) => bin.name === name);
-        // Arguments are the input of an object-input tool; a lone { input } is still read as the input.
-        const wrapped = args !== null && typeof args === "object" && Object.keys(args).length === 1 && Object.hasOwn(args, "input") && program?.domainSchema?.properties?.input === undefined;
-        const input = toolTakesArguments(program?.domainSchema) && !wrapped ? args : args?.input;
-        const result = await dispatchProjectedSurface(induced, [name], stdinOf(input ?? {}), options);
+        const input = inputOfToolCall(induced, name, args);
+        const result = await dispatchProjectedSurface(induced, [name], stdinOf(input), options);
         if (result.code !== 0) return mcpToolErrorResult(induced, "tools/call", result, options);
         const endpoint = induced.discovery.programs.find((bin) => bin.name === name);
         const act = induced.operations.find((operation) => operation.verb === name);

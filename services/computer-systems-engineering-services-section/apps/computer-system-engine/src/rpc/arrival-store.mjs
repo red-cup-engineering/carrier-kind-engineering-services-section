@@ -57,7 +57,7 @@ function bytesOf(value) {
 
 function boundaryOperation(materialKind, endpoint) {
   if (materialKind === "metroplat.dispatch.arrival-material") return "dispatch";
-  if (materialKind === "metroplat.mcp.arrival-material") return "mcp";
+  if (materialKind === "metroplat.mcp.arrival-material" || materialKind === "metroplat.mcp.projected-arrival-material") return "mcp";
   if (materialKind === "metroplat.http.arrival-material") return "http";
   if (materialKind === "metroplat.hook.arrival-material") return "hook";
   const verb = endpoint !== undefined && endpoint !== null && typeof endpoint === "object" && !Array.isArray(endpoint)
