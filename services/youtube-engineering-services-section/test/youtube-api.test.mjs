@@ -49,6 +49,8 @@ test('a restarted worker makes no OAuth, read or write requests until the observ
  const afterRefusal=requests,client=restarted(options);
  await assert.rejects(client.getVideo(videoId),e=>e.retryAt==='2026-10-08T07:01:00.000Z');
  await assert.rejects(client.setTitle({videoId,title:'Changed'}),e=>e.reason==='quotaExceeded');
+ assert.throws(()=>client.assertUploadAvailable(),e=>e.reason==='quotaExceeded');
+ await assert.rejects(client.upload({...input(join(root,'missing-video.mp4')),onCheckpoint:()=>assert.fail('No upload checkpoint while paused')}),e=>e.reason==='quotaExceeded');
  assert.equal(requests,afterRefusal);
  now=Date.parse('2026-10-08T07:01:01Z');exhausted=false;
  assert.equal((await client.getVideo(videoId)).id,videoId);assert.equal(requests,afterRefusal+2);
