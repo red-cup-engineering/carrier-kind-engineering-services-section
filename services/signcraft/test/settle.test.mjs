@@ -9,7 +9,7 @@ import { rule } from "@red-cup-engineering/signchain/rules";
 import { coincidenceKey } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import * as metrologic from "@red-cup-engineering/metrologic/obstruction/settling";
 import {
-  settleCells, settlementAdmits, settlementEvidence, filtration, filtrationOf, increments, firings,
+  settleCells, relate, evidenceIn, settlementAdmits, settlementEvidence, filtration, filtrationOf, increments, firings,
   limitStages, nonScottFirings, firstCohomology, gradedGap, closureInvariant, closureEquivalent, classify,
 } from "../src/settle.mjs";
 
@@ -105,4 +105,67 @@ test("a settlement's own filtration is strict", () => {
   assert.equal(classify(s).regime, "strict");
   assert.equal(classify(s).depth, s.settledAt);
   assert.equal(filtrationOf(s).stages.length, s.stages.length);
+});
+
+
+// Rules can be dormant in each local settlement and fire only after their
+// evidence is joined. A derivation label is not the identity of that license.
+test("relating settlements preserves same-name rules with distinct conclusions", () => {
+  const premise = t("job", "has", "input");
+  const conclusions = [t("job", "can", "analyze"), t("job", "can", "plan")];
+  const local = settleCells([], conclusions.map((conclusion) => rule("advance", [
+    { cell: premise, atLeast: "potential" },
+  ], { cell: conclusion, reading: "potential" })));
+  const evidence = settleCells([at("job", "has", "input")]);
+  const joined = relate(local, evidence);
+  for (const conclusion of conclusions) {
+    const telling = evidenceIn(joined.settled, conclusion.subject, conclusion.predicate, conclusion.object);
+    assert.equal(telling.for.length, 1);
+    assert.equal(telling.for[0].rule, "advance");
+    assert.deepEqual(telling.for[0].from, [address(premise)]);
+  }
+  assert.equal(joined.rules.length, 2);
+  assert.equal(settlementAdmits(joined).admitted, true);
+  assert.deepEqual(relate(evidence, local).settled, joined.settled);
+});
+
+test("relating settlements retains both same-name evidence lanes without explosion", () => {
+  const premise = t("job", "has", "input");
+  const conclusion = t("job", "can", "plan");
+  const local = settleCells([], ["potential", "active"].map((reading) => rule("advance", [
+    { cell: premise, atLeast: reading },
+  ], { cell: conclusion, reading })));
+  const evidence = settleCells([cell("job", "has", "input", { for: ["observed"], against: ["disputed"] })]);
+  const joined = relate(local, evidence);
+  const telling = evidenceIn(joined.settled, "job", "can", "plan");
+  assert.equal(telling.for.length, 1);
+  assert.equal(telling.against.length, 1);
+  assert.equal(joined.settled.length, 2);
+  assert.equal(joined.rules.length, 2);
+  assert.equal(settlementAdmits(joined).admitted, true);
+});
+
+test("relating settlements retains same-name rules distinguished by their threshold", () => {
+  const premise = t("job", "has", "input"), conclusion = t("job", "can", "plan");
+  const local = settleCells([], ["potential", "active"].map((atLeast) => rule("advance", [
+    { cell: premise, atLeast },
+  ], { cell: conclusion, reading: "potential" })));
+  const joined = relate(local, settleCells([at("job", "has", "input")]));
+  assert.equal(evidenceIn(joined.settled, "job", "can", "plan").for.length, 1);
+  assert.equal(joined.rules.length, 2);
+  assert.equal(settlementAdmits(joined).admitted, true);
+});
+
+test("relating coincident rule content is idempotent, including NFC-equivalent labels", () => {
+  const make = (name) => rule(name, [{ cell: t("job", "has", "input"), atLeast: "potential" }], {
+    cell: t("job", "can", "plan"), reading: "potential",
+  });
+  const left = settleCells([at("job", "has", "input")], [make("caf\u00e9")]);
+  const right = settleCells([], [make("cafe\u0301")]);
+  const joined = relate(left, right);
+  assert.equal(joined.rules.length, 1);
+  assert.deepEqual(joined.settled, left.settled);
+  assert.deepEqual(relate(joined, joined).settled, joined.settled);
+  assert.equal(relate(joined, joined).rules.length, 1);
+  assert.equal(settlementAdmits(joined).admitted, true);
 });

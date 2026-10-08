@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { makeInference, infer, inferSettled } from "../../src/inference/infer.mjs";
+import { rule } from "@red-cup-engineering/signchain/rules";
+import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
 // Raw inference over a real house domain: the import-stratification law and
 // custody rules, encoded as data. The kernel derives lawfulness verdicts a
@@ -112,4 +114,25 @@ test("scale check: raw inference stays fast on a thousand-rule base", () => {
   assert.equal(out.witness.length, 1000);
   console.log(`thousand-hop derivation with full witness chain: ${ms.toFixed(1)}ms`);
   assert.ok(ms < 5000);
+});
+
+test("verdict witness DAGs retain complete rule identity in both evidence lanes", () => {
+  const engine = makeInference({ attributes: ["input", "output"], rules: [
+    { name: "same-label", if: ["input"], then: ["output"] },
+  ] });
+  const result = infer(engine, { facts: ["input"], denials: ["input"], query: "output" });
+  const positive = result.witness.find(w => w.attr === "output");
+  const negative = result.counterWitness.find(w => w.attr === "output");
+  assert.equal(positive.by, "same-label");
+  assert.equal(negative.by, "same-label");
+  assert.equal(typeof positive.ruleId, "string");
+  assert.equal(typeof negative.ruleId, "string");
+  assert.notEqual(positive.ruleId, negative.ruleId);
+  const at = predicate => ({ subject: "signcraft.inference", predicate, object: "signcraft.inference" });
+  for (const [witness, reading] of [[positive, "potential"], [negative, "active"]]) {
+    assert.equal(witness.ruleId, semanticId(rule("same-label", [{ cell: at("input"), atLeast: reading }], { cell: at("output"), reading })));
+  }
+  assert.deepEqual(positive.premises, ["input"]);
+  assert.equal(Object.hasOwn(result.witness.find(w => w.attr === "input"), "ruleId"), false);
+  assert.equal(JSON.parse(JSON.stringify(result)).witness.find(w => w.attr === "output").ruleId, positive.ruleId);
 });
