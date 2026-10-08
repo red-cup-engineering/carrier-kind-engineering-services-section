@@ -2,7 +2,7 @@
  * schemas holds the JSON-schema surfaces for capability values and protocol-facing capability records.
  * It may import values and schema, but it must not import records, logic, fixpoint, math, codecs, contracts, rendering, search, runtime, integrations, interfaces, or apps.
  */
-import { readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
 
 const jsonValueSchema = {};
 

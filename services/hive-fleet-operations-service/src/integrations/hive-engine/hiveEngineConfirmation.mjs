@@ -2,7 +2,7 @@
 // effect: a leg is confirmed only when its sidechain transaction ran the admitted contract action
 // without errors and the account's own token-transfer events prove the exact quantity moved within
 // its committed SWAP.HIVE bound. Amounts stay integer units; a float never decides an effect.
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { transactionLogs } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 
 function record(value) {

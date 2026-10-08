@@ -36,7 +36,7 @@
  */
 import { knowledgeReading } from "@red-cup-engineering/signcell/cell";
 import { graphSpectrum } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/laplacian";
-import { magnitude, toCount } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { magnitude, toCount } from "@red-cup-engineering/exact-number-data-service/exact-number";
 
 import { admitSeed, descend } from "./becoming/descending.mjs";
 import {

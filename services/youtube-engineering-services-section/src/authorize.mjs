@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { randomBytes } from "node:crypto";
 import { createYouTube } from './youtube-api.mjs';
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
 const SCOPES='https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/yt-analytics.readonly';
 /** One PKCE consent request for a loopback redirect. The caller keeps state and verifier until the consent returns. */
 export function consentRequest({ clientId, port = 8765 }) {
@@ -40,6 +40,7 @@ if (typeof onToken !== 'function' || typeof onAuthorizationUrl !== 'function') t
 if(!clientId || !clientSecret) throw new Error('Missing shared YouTube OAuth client credentials');
 const request=consentRequest({clientId,port});
 const server=createServer(async(req,res)=>{
+  if(req.url==='/favicon.ico') {res.writeHead(204);res.end();return;}
   try {
     const code=returnedConsent(req.url,request);
     await onToken(await exchangeConsent({channelId,clientId,clientSecret,code,verifier:request.verifier,redirectUri:request.redirectUri,fetchImpl}));

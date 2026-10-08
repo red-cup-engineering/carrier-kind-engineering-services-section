@@ -25,7 +25,7 @@ import { classify, settle } from "@red-cup-engineering/signcraft/settle";
 import { cohomologyReceiptOfCells } from "@red-cup-engineering/signgraph/cohomology";
 import { parseMarkdown, frontmatterConformance, markdownDataform, documentTypeFragment, documentTypeAssertions, allDocumentTypeAssertions, DOC_TYPE_STAMP, markdownProjector, markdownDocumentSchemaFragment, documentTypeDefinitions } from "@red-cup-engineering/markdown-engineering-services-section/markdown-projector";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 const markdown = Object.freeze({ createMarkdownDocument, parseMarkdown, frontmatterConformance, markdownDataform, documentTypeFragment, documentTypeAssertions, allDocumentTypeAssertions, DOC_TYPE_STAMP, markdownProjector, markdownDocumentSchemaFragment, documentTypeDefinitions });
 
 // The memory readings are interface-first derived producers for now; their generated

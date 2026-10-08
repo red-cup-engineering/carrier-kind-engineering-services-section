@@ -171,7 +171,7 @@
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 import { gameRules, hashPosition } from "@red-cup-engineering/gaming/running/rules";
-import { readingOfSides, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
 import { evidence as toldEvidence } from "@red-cup-engineering/signcell/cell";
 import { pricedNerve } from "@red-cup-engineering/signgraph/cohomology";
 import { ORDER_CHANNELS } from "../work/staffing.mjs";

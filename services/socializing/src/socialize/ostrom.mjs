@@ -21,7 +21,7 @@ import { witnessedReading } from "@red-cup-engineering/signchain/bilattice";
 import { sheafEvidence, spectralConsensus } from "./consensus.mjs";
 
 import { GOVERNANCE_LEVELS } from "./deciding.mjs";
-import { truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 // ── IAD rule grid (the 7 rule-types × 3 levels) ──
 

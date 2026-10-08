@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { sourceArrivalFromObservation, syndicationFeed } from "./source-arrival.mjs";
 import { acquireSyndicationSource } from "./source-acquisition.mjs";
-import { sha256Digest } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Digest } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const DEFAULT_MAX_ITEMS_PER_FEED = 40;
 const SUMMARY_BYTE_LIMIT = 2048;

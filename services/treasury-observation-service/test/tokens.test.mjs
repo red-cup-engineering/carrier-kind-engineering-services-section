@@ -130,7 +130,7 @@ test("verifiedTokenHoldings(): falls from Blockscout to Rabby candidates and pro
   assert.equal(result.checked, true);
   assert.equal(result.holdings[0].raw, "541862");
   assert.equal(result.holdings[0].indexerClaimedRawBalance, "0xdeadbeef");
-  assert.deepEqual(calls, ["eth_call", "eth_call", "eth_call"]);
+  assert.deepEqual(calls, ["eth_call", "eth_call", "eth_call", "eth_call"]);
 });
 
 test("discoverTokenHoldings(): skips Rabby native and malformed candidates without treating them as token balances", async () => {
@@ -154,4 +154,45 @@ test("discoverTokenHoldings(): reports unknown when both Base candidates fail", 
   assert.equal(result.checked, false);
   assert.equal("discovered" in result, false);
   assert.equal(result.attempts.length, 2);
+});
+
+test("bounded fixed-block verification retains good holdings and exact atoms when one symbol fails",async()=>{
+ const candidates=Array.from({length:6},(_,i)=>'0x'+(i+1).toString(16).padStart(40,'0'));
+ const boundary={chain:'base',chainId:8453,caip2:'eip155:8453',requestedFinality:'finalized',finality:'finalized',blockNumber:'100',blockTag:'0x64',blockHash:'0x'+'ab'.repeat(32),observedAt:'2026-09-01T12:00:00.000Z',provider:CHAINS.base.rpc[0]};
+ let active=0,maximum=0;
+ const publicEvmReadPool={async requestAtBoundary({boundary:selected,params}){
+  assert.equal(selected.blockHash,boundary.blockHash);const [{to,data}]=params;
+  for(const [fn,result] of Object.entries({balanceOf:42n,decimals:18,symbol:'mooTEST'})){
+   if(!data.startsWith(erc20.getFunction(fn).selector))continue;
+   if(fn==='balanceOf'){active++;maximum=Math.max(maximum,active);await new Promise(resolve=>setTimeout(resolve,5));active--;}
+   if(fn==='symbol'&&to.toLowerCase()===candidates.at(-1))throw new Error('symbol getter unavailable');
+   return {value:erc20.encodeFunctionResult(fn,[result]),provider:{url:boundary.provider}};
+  }throw new Error('unexpected read');
+ }};
+ const fetchImpl=async()=>({ok:true,status:200,json:async()=>candidates.map(address=>({token:{type:'ERC-20',address_hash:address,symbol:'INDEXER'},value:'999'}))});
+ const result=await verifiedTokenHoldings(CHAINS.base,WALLET,{boundary,fetchImpl,publicEvmReadPool});
+ assert.equal(result.checked,false);assert.equal(result.holdings.length,6);assert.equal(result.holdings.filter(x=>x.checked).length,5);
+ assert.equal(result.holdings.at(-1).raw,'42');assert.equal(result.holdings.at(-1).balanceObserved,true);
+ assert.equal(result.holdings.at(-1).symbol,null);assert.equal(result.holdings.at(-1).empty,false);
+ assert.ok(maximum>1&&maximum<=4);assert.deepEqual(result.holdings.map(x=>x.token.toLowerCase()),candidates);
+ assert.equal(result.provenance.blockHash,boundary.blockHash);
+});
+
+test("multicall proves a whole token batch at one boundary despite a reverted symbol",async()=>{
+ const aggregate=new Interface(['function aggregate3((address target,bool allowFailure,bytes callData)[] calls) payable returns ((bool success,bytes returnData)[] returnData)']);
+ const bad='0x0000000000000000000000000000000000000002';
+ const boundary={chain:'base',chainId:8453,caip2:'eip155:8453',requestedFinality:'finalized',finality:'finalized',blockNumber:'100',blockTag:'0x64',blockHash:'0x'+'ab'.repeat(32),observedAt:'2026-09-01T12:00:00.000Z',provider:CHAINS.base.rpc[0]};
+ let requests=0;
+ const publicEvmReadPool={async requestAtBoundary({boundary:selected,params}){
+  assert.equal(selected.blockHash,boundary.blockHash);requests++;const [{to,data}]=params;assert.equal(to,'0xcA11bde05977b3631167028862bE2a173976CA11');
+  const [reads]=aggregate.decodeFunctionData('aggregate3',data);assert.equal(reads.length,6);
+  const results=reads.map(read=>{const parsed=erc20.parseTransaction({data:read.callData});if(read.target.toLowerCase()===bad&&parsed.name==='symbol')return {success:false,returnData:'0x'};return {success:true,returnData:erc20.encodeFunctionResult(parsed.name,[{balanceOf:42n,decimals:6,symbol:'USDC'}[parsed.name]])};});
+  return {value:aggregate.encodeFunctionResult('aggregate3',[results]),provider:{url:boundary.provider}};
+ }};
+ const fetchImpl=async()=>({ok:true,status:200,json:async()=>[TOKEN,bad].map(address_hash=>({token:{type:'ERC-20',address_hash},value:'999'}))});
+ const result=await verifiedTokenHoldings(CHAINS.base,WALLET,{boundary,fetchImpl,publicEvmReadPool});
+ assert.equal(requests,1);assert.equal(result.checked,false);assert.equal(result.holdings.length,2);
+ assert.equal(result.holdings[0].checked,true);assert.equal(result.holdings[0].amount,'0.000042');
+ assert.equal(result.holdings[1].balanceObserved,true);assert.equal(result.holdings[1].raw,'42');assert.equal(result.holdings[1].symbol,null);
+ assert.equal(result.holdings[0].provenance.blockHash,boundary.blockHash);
 });

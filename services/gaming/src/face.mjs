@@ -40,7 +40,7 @@ import { polarity } from "@red-cup-engineering/playing/structuring/polarity";
 import { transposition } from "./structuring/concurrent-game/with-symmetry/nominalizing/permutation.mjs";
 import { eventName, nominalActionJudgment } from "./structuring/concurrent-game/with-symmetry/nominalizing/action.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { census } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { census } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** The agentive-triad bilattice axis gaming's face reads. */
 

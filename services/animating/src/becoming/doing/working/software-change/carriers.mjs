@@ -1,5 +1,5 @@
 /** Generated from specifications/*.schema.json. Do not edit. */
-import { defineSchemaType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type";
+import { defineSchemaType } from "@red-cup-engineering/computer-data-services-section/type-system/schema-type";
 export const artifactSchema = Object.freeze({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "aoe.software.artifact.v2",

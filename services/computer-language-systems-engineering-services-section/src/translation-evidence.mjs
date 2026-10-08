@@ -18,7 +18,7 @@
  * reading is the knowledge join of its segments', the union of their sides.
  * Nothing here hashes or reads a file, so it runs within an edge request.
  */
-import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 import { measureSubtitleCue } from "@red-cup-engineering/computer-text-content-engineering-services-section/subtitles";
 
 const HAN = /\p{Script=Han}/gu;

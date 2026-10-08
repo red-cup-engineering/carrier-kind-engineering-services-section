@@ -1,5 +1,5 @@
 import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 /**
  * Frontmatter attributes rendered as carrier metadata rather than as a

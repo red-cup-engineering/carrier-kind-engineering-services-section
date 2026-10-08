@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import {
   admitSetOfSessionEventArrivals,
   containsSecretLookingKey,

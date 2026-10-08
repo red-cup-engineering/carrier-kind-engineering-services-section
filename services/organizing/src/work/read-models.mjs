@@ -33,8 +33,8 @@ import {
   workLedgerObligationOfRow,
 
 } from "./observations.mjs";
-import { ratToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number-host";
-import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { ratToExactString } from "@red-cup-engineering/exact-number-data-service/exact-number-host";
+import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** Price one witnessed work diamond by the same join closure ordinary settlement uses. */
 export function workItemAccountingOfDiamond(diamond) {

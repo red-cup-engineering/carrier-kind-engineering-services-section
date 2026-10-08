@@ -7,7 +7,6 @@
   "exports": {
     "./filesystem": "./src/filesystem.mjs",
     "./specification": "./src/specification.mjs",
-    "./typed-operation-message": "./src/typed-operation-message.mjs",
     "./generated/specification-declarations": "./src/generated/specification-declarations.mjs",
     "./specifications/*": "./specifications/*",
     "./serve-verbs-over-stdio": "./scripts/serve-verbs-over-stdio.mjs",
@@ -73,7 +72,9 @@
     "./rpc/mcp-operations": "./src/rpc/mcp-operations.mjs",
     "./journal/exchange": "./src/journal/exchange.mjs",
     "./rpc/wire-dispatch": "./src/rpc/wire-dispatch.mjs",
-    "./rpc/node": "./src/rpc/node.mjs"
+    "./rpc/node": "./src/rpc/node.mjs",
+    "./rpc/actor-processing": "./src/rpc/actor-processing.mjs",
+    "./rpc/actor-client": "./src/rpc/actor-client.mjs"
   },
   "files": [
     "src",
@@ -94,10 +95,9 @@
   "dependencies": {
     "@red-cup-engineering/computer-code-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-content-engineering-services-section": "0.1.0",
-    "@red-cup-engineering/computer-data-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "0.1.0",
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "0.3.0",
+    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
     "@red-cup-engineering/eavt": "0.10.4",
     "@red-cup-engineering/html-structural-projection-service": "0.3.0",
     "@red-cup-engineering/http-services-section": "0.6.1",
@@ -116,6 +116,9 @@
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/node-process-services-section": "workspace:*",
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
-    "@red-cup-engineering/signgraph": "workspace:*"
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/a2a-services-section": "workspace:*",
+    "@red-cup-engineering/activitypub-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*"
   }
 }

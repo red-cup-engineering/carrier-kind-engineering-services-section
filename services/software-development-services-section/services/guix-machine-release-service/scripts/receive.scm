@@ -29,16 +29,25 @@
           (next (string-append root "/.latest-" (number->string (getpid)))))
       (copy-file path next) (rename-file next latest))
     path))
+(define (admitted-health-reading? value expected-artifact)
+  (and (eq? (assoc-ref value "ok") #t)
+       (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))))
 (define* (health url #:optional expected-artifact)
-  ;; Match the service startup deadline; constrained probes can start slowly.
-  (let loop ((left 200))
-    (catch #t
-      (lambda ()
-        (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
-          (if (and (assoc-ref value "ok") (equal? (assoc-ref value "state") "ready")
-                   (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))) #t
-              (error "candidate is not ready"))))
-      (lambda args (if (> left 1) (begin (sleep 3) (loop (- left 1))) (apply throw args))))))
+  ;; Bound elapsed time even when curl itself reaches its three-second timeout.
+  (let ((deadline (+ (get-internal-real-time) (* 600 internal-time-units-per-second))))
+    (let loop ()
+      (catch #t
+        (lambda ()
+          (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
+          ;; The owning health endpoint checks loaded/linked families and
+          ;; permits a usable degraded node. Do not replace that proof with
+          ;; a second, conflicting supervisor-state interpretation.
+          (if (admitted-health-reading? value expected-artifact) #t
+                (error "candidate is not ready"))))
+        (lambda args
+          (if (< (get-internal-real-time) deadline)
+              (begin (sleep 3) (loop))
+              (apply throw args)))))))
 
 (define (configuration-commands config action store)
   (for-each
@@ -71,6 +80,21 @@
                      (eq? (stat:type (lstat file)) 'symlink))
             (delete-file file))))
       (scandir (dirname root)))))
+
+(define (reconcile-release-roots config)
+  ;; Failed promotion may leave the auxiliary Guix profile on its candidate.
+  ;; The application links remain authoritative; protect both before retiring
+  ;; obsolete candidate/profile roots. This operation never switches code.
+  (let* ((root (field config "releaseRoot"))
+         (current-link (string-append root "/current"))
+         (previous-link (string-append root "/previous"))
+         (current (and (file-exists? current-link) (canonicalize-path current-link)))
+         (previous (and (file-exists? previous-link) (canonicalize-path previous-link))))
+    (when (and current (string-prefix? "/gnu/store/" current))
+      (root-release-generations config current current previous)
+      (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" current)
+      (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--delete-generations"))
+    (run "guix" "gc" "--free-space=2GB")))
 
 (define (retain-release-roots config store current previous)
     (root-release-generations config store current previous)
@@ -261,7 +285,17 @@
           (for-each (lambda (held) (when (cdr held) (run "systemctl" "--user" "restart" (car held)))) held-unit-actives)
           (when was-running?
             (run "systemctl" "--user" "restart" unit)
-            (health (field config "health"))))
+            (catch #t
+              (lambda () (health (field config "health")))
+              (lambda recovery-args
+                (receipt receipts "recovery-failure"
+                  `(("outcome" . "recovery-failure") ("storePath" . ,store)
+                    ("retained" . ,previous) ("machine" . ,name)
+                    ("revision" . ,revision) ("repository" . ,repository)
+                    ("run" . ,run-url) ("stage" . "restore-live-check")
+                    ("at" . ,(strftime "%FT%TZ" (gmtime (current-time))))
+                    ("reason" . "Prior generation restored, but its live check failed; inspect the linked job and service log.")))
+                (apply throw recovery-args)))))
         (receipt receipts "failure" `(("outcome" . "failure") ("storePath" . ,store)
                                       ("retained" . ,previous) ("machine" . ,name)
                                       ("revision" . ,revision) ("repository" . ,repository)
@@ -275,13 +309,15 @@
   ((config-file store . options)
    (let* ((config (read-json config-file)) (root (field config "releaseRoot"))
           (lease (string-append root "/.release.lock/lease")))
-     (unless (or (equal? store "previous") (string-prefix? "/gnu/store/" store))
+     (unless (or (equal? store "previous") (equal? store "current") (string-prefix? "/gnu/store/" store))
        (error "candidate must be a Guix store output"))
      (run "mkdir" "-p" (dirname lease))
      (if (equal? (getenv "GUIX_MACHINE_RELEASE_LOCKED") "1")
+         (if (and (equal? store "current") (member "--reconcile" options))
+           (reconcile-release-roots config)
          (let ((candidate (if (equal? store "previous") (canonicalize-path (string-append root "/previous")) store)))
            (unless (string-prefix? "/gnu/store/" candidate) (error "rollback requires a retained Guix generation"))
-           (display (receive config candidate (member "--check-failure" options) (member "--stage-only" options))) (newline))
+           (display (receive config candidate (member "--check-failure" options) (member "--stage-only" options))) (newline)))
          (begin
            (setenv "GUIX_MACHINE_RELEASE_LOCKED" "1")
            (apply run "flock" "--exclusive" "--wait" "900" lease "guix" "repl" "--"

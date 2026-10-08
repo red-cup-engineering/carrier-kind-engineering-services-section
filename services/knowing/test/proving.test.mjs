@@ -4,8 +4,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { ty } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { hasTy } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
+import { ty } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { hasTy } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
 import { find, inhabit } from "../src/proving/index.mjs";
 
 const A = ty.base(), U = ty.unit();

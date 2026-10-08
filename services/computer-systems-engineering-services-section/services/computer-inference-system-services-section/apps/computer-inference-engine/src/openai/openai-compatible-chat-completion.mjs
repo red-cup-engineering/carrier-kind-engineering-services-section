@@ -121,7 +121,15 @@ async function exchangeAssistantTransport(body, config, request) {
   if (!response.ok) {
     const retryAfter = response.headers?.get?.("retry-after");
     const retryAfterSeconds = typeof retryAfter === "string" && /^\d+$/u.test(retryAfter) ? Number(retryAfter) : null;
-    return refuse("http", "provider-refused", { status: response.status, ...(Number.isSafeInteger(retryAfterSeconds) ? { retryAfterSeconds } : {}) });
+    let providerMessage;
+    try {
+      const body=await response.json(),error=body?.error??body?.[0]?.error;
+      if(typeof error?.message==="string"){
+        const key=typeof config.apiKey==="string"&&config.apiKey.length?config.apiKey:null;
+        providerMessage=(key?error.message.replaceAll(key,"<redacted>").replaceAll(encodeURIComponent(key),"<redacted>"):error.message).slice(0,1000);
+      }
+    } catch { /* HTTP status remains evidence when the error body is unavailable. */ }
+    return refuse("http", "provider-refused", { status: response.status, ...(providerMessage?{providerMessage}:{}), ...(Number.isSafeInteger(retryAfterSeconds) ? { retryAfterSeconds } : {}) });
   }
   const result = await readProviderResponseJson(response, config.signal);
   if (!result.ok) return result;
@@ -173,7 +181,7 @@ export async function runOpenAiCompatibleChatExchange(packet, config, request = 
     if (!exchange.ok) {
       const cause = exchange.cause;
       const unmet = cause.kind === "http" ? [`http-failure:${cause.status}`] : [cause.kind === "transport" ? "network-error" : cause.kind === "policy" ? `provider-policy:${cause.reason}` : "unparseable-response-body"];
-      return refusal(cause.kind === "http" ? `${config.providerId} responded with HTTP ${cause.status} ${STATUS_CODES[cause.status] ?? ""}` : cause.reason, unmet);
+      return refusal(cause.kind === "http" ? `${config.providerId} responded with HTTP ${cause.status} ${STATUS_CODES[cause.status] ?? ""}${cause.providerMessage?": "+cause.providerMessage:""}` : cause.reason, unmet);
     }
     const parsed = exchange.body;
     const assistantMessage = parsed?.choices?.[0]?.message;
@@ -305,3 +313,10 @@ export async function dispatchChatCompletionInOrder({ catalog, packet }, { reque
   }
 }
 
+
+
+export function isZeroCashProvider(row, requestedModel = row?.defaultModel) {
+  return row?.pricePerMillionTokensMicroUsd?.input === 0 && row?.pricePerMillionTokensMicroUsd?.output === 0
+    && row?.entitlement?.cashCost === "zero" && row.entitlement.paidOverage === "forbidden"
+    && row.entitlement.model === requestedModel;
+}

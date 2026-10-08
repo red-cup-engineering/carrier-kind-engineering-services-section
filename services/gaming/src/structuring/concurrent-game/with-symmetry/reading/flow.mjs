@@ -32,8 +32,8 @@
 
 import { arenaEvents } from "../arena.mjs";
 import { emptyPlay, extend, positionOf } from "../strategizing/play.mjs";
-import { ratCompare, ratSubtract } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { fromRatio } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { ratCompare, ratSubtract } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { fromRatio } from "@red-cup-engineering/exact-number-data-service/exact-number";
 
 
 /**

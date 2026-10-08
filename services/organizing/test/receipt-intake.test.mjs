@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { posting, transaction } from "../src/accounting/ledger.mjs";
 import { reconcileReceiptCandidates } from "../src/accounting/receipt-intake.mjs";
-import { gradedFromParts } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts } from "@red-cup-engineering/exact-number-data-service/graded";
 
 const usd = (value) => gradedFromParts(BigInt(value), 1n, "USD");
 const candidate = (sourceId, amount = 4, meta = {}) => ({

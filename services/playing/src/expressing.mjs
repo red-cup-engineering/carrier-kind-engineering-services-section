@@ -1,6 +1,6 @@
 /** Playing's typed SEN programs. Fixed records use direct product projection; variable collections are homogeneous lists. */
-import { tm, ty } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { booleanDescriptor, listTy, numberDescriptor, objectTerm, objectTy, projectField, stringDescriptor, stringTerm, typedListTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm, ty } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { booleanDescriptor, listTy, numberDescriptor, objectTerm, objectTy, projectField, stringDescriptor, stringTerm, typedListTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 
 const scalarTy = ty.prod(ty.base(), ty.base());
 const readingTy = ty.base();

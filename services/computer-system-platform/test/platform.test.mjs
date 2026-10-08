@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { COMPUTER_ENGINEERING_SPECIFICATION_ID } from "@red-cup-engineering/computer-system-engine/specification";
-import { createTypeSystem, defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { createTypeSystem, defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
 import { declareCapabilityOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { encodeOperationRequest, decodeOperationOutcome, jsonWireCodec, wireCodecCatalog } from "../src/wire.mjs";
 import { bindingsProviders, createComputerPlatform, hostResolverOf, isComputerPlatform } from "../src/index.mjs";

@@ -9,7 +9,7 @@
 
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinReading, readingAs, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, readingAs, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 /**
  * The content of one capability claim, addressed by its language term.

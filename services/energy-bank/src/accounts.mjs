@@ -21,7 +21,7 @@
  * source).
  */
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const slug = (text) => slugify(text);
 

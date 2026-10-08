@@ -39,7 +39,7 @@ import {
   relay,
 
 } from "./computing.mjs";
-import { knowledgeJoinReading, knowledgeMeetOfCensus } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, knowledgeMeetOfCensus } from "@red-cup-engineering/computer-data-services-section/four";
 import { claimValue, tokenValue } from "@red-cup-engineering/signcell/cell";
 
 /** The knowledge-axis Belnap census of the relayed standing of each concern (FOUR values). */

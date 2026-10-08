@@ -2,7 +2,7 @@
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { isArtifactRef } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { parse } from "@red-cup-engineering/json-services-section";
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
 import {
   admitTerm,
   readTermCatalog,

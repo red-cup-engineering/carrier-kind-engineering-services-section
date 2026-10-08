@@ -9,7 +9,7 @@ import { spawn } from "node:child_process";
 import { HONEY_SWAP_ACCOUNT, WRAP_MEMO } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { aagaardParityReport, capabilityReport, createAagaardRuntime, createHiveClient, createHiveEngineClient, createOperatorAuth, dispositionIncentiveNomination, ensureStore, fleetWitnessDigest, isLocked, listIncentiveNominations, loadAagaardConfig, mergeWalletState, planGaming, planIncentives, planTrades, planVotes, readAlphaRadar, readLockedDrafts, readSubstrateSnapshots, postCandidateFromHive } from "../src/index.mjs";
 import { hiveWalletMoves } from "../src/agent/hive-fleet-domain.mjs";
-import { rationalOfBigInts } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { rationalOfBigInts } from "@red-cup-engineering/exact-number-data-service/exact-number";
 function hoursAgoIso(hours, at) {
     return new Date(Date.parse(at) - hours * 3_600_000).toISOString();
 }

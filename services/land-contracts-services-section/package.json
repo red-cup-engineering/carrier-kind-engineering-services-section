@@ -27,7 +27,6 @@
   "dependencies": {
     "@red-cup-engineering/arcgis-rest-services-section": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/csv-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",

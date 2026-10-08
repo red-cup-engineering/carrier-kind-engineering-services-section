@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadRegistry, acquireJournalLock, jobDigest } from "../../src/fabric/inference-broker.mjs";
 import { appendJsonl, dispatchJobs, observationsFromRecords, readJsonl, inferenceRegistryFromCatalog } from "../../src/fabric/inference-fabric.mjs";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const valued = new Set(["input", "output", "registry", "concurrency", "attempts", "history", "summary", "providers"]); const booleans = new Set(["resume", "dry-run", "help", "recover-stale-lock", "roundtable"]);
 function parse(argv) { const out = {}; for (let i = 0; i < argv.length; i += 1) { const raw = argv[i]; if (!raw.startsWith("--")) throw new Error(`unexpected argument ${raw}`); const key = raw.slice(2); if (booleans.has(key)) out[key] = true; else if (valued.has(key)) { const value = argv[++i]; if (!value || value.startsWith("--")) throw new Error(`missing value for --${key}`); out[key] = value; } else throw new Error(`unknown flag --${key}`); } return out; }

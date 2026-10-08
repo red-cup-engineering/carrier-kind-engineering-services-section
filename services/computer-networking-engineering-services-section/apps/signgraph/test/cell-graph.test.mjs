@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { samePoint } from "@red-cup-engineering/computer-data-services-section/four";
 import { cell } from "@red-cup-engineering/signcell/cell";
 import { at, transpose } from "@red-cup-engineering/metrologic/chu";
 import { cellGraph } from "../src/cell-graph.mjs";

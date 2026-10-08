@@ -9,7 +9,12 @@
          (lines (let loop ((out '())) (let ((line (read-line p)))
                    (if (eof-object? line) (reverse out) (loop (cons line out))))))
          (status (close-pipe p)))
-    (unless (zero? status) (error "release step failed" (car argv)))
+    (unless (zero? status)
+      ;; Assembly returns its closure as the last stdout line. Preserve bounded
+      ;; compiler/test diagnostics when it fails, instead of discarding them.
+      (for-each (lambda (line) (display line (current-error-port)) (newline (current-error-port)))
+                (drop lines (max 0 (- (length lines) 40))))
+      (error "release step failed" (car argv)))
     (if (null? lines) "" (last lines))))
 (define (capture-all . argv)
   (let* ((p (apply open-pipe* OPEN_READ argv))
@@ -106,18 +111,23 @@
              (service (string-append (assoc-ref owner "directory") "/services/software-development-services-section/services/guix-machine-release-service"))
              (lock (string-append snapshot "/dependencies.lock.yaml")))
         (when (equal? mode "deploy")
-          (run "node" (string-append service "/scripts/verify-release-admission.mjs") snapshot))
+          (run "node" (string-append service "/scripts/verify-release-admission.mjs") snapshot)
+          ;; Native builders need space before sealing their new Guix input.
+          ;; The sole writer reconciles failed candidates under its own lease.
+          (unless (assoc-ref config "receiverHost")
+            (run "guix" "repl" "--" (string-append service "/scripts/receive.scm")
+                 (string-append snapshot "/machine.json") "current" "--reconcile")))
         (run "node" (string-append service "/scripts/prepare-sources.mjs") prepared)
         (if (equal? mode "resolve")
           (begin
-            (run "npm" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--dir" workspace
+            (run "npm" "--registry=https://registry.npmjs.org/" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--registry=https://registry.npmjs.org/" "--dir" workspace
                  "install" "--lockfile-only" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))
             (copy-file (string-append workspace "/pnpm-lock.yaml") lock)
             (exit 0))
           (begin
             (unless (file-exists? lock) (error "reviewed dependency lock is missing; resolve and commit it before deployment"))
             (copy-file lock (string-append workspace "/pnpm-lock.yaml"))
-            (run "npm" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--dir" workspace
+            (run "npm" "--registry=https://registry.npmjs.org/" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--registry=https://registry.npmjs.org/" "--dir" workspace
                  "install" "--frozen-lockfile" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))))
         (let* ((assembled (json-string->scm (capture "node" (string-append service "/scripts/assemble.mjs") workspace snapshot (string-append work "/artifacts"))))
                (closure (assoc-ref assembled "closure"))
@@ -136,6 +146,12 @@
                                ((equal? mode "build") '("--stage-only")) (else '()))))
             (if (assoc-ref config "receiverHost")
               (begin
+                ;; Reclaim only unrooted Guix items before importing the candidate.
+                ;; Existing release/profile/stage roots protect both generations;
+                ;; the canonical writer lease serializes this with their changes.
+                (remote (assoc-ref config "receiverHost") "flock" "--exclusive" "--wait" "900"
+                  (string-append (assoc-ref config "releaseRoot") "/.release.lock/lease")
+                  "guix" "gc" "--free-space=2GB")
                 (run "guix" "copy" (string-append "--to=" (shell-word (assoc-ref config "receiverHost"))) store)
                 (remote (assoc-ref config "receiverHost") "guix" "repl" "--"
                   (string-append store "/.controller/scripts/register-candidate-root.scm") store

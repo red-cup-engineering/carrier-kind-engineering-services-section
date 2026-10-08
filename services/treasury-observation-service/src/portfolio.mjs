@@ -95,7 +95,7 @@ function uncheckedChainCoverage(roster, reason) {
 }
 
 async function observeBeefy(chainDescriptor, wallet, tokens, options, observeVault) {
-  if (!tokens.checked) {
+  if (!tokens.checked && !tokens.holdings?.length) {
     return unchecked(`verified token discovery unavailable: ${tokens.reason}`, tokens.attempts ?? []);
   }
   const candidates = tokens.holdings.filter((holding) => holding.checked && !holding.empty
@@ -109,9 +109,9 @@ async function observeBeefy(chainDescriptor, wallet, tokens, options, observeVau
   }
   const failures = positions.filter(({ checked }) => !checked);
   return {
-    checked: failures.length === 0,
+    checked: tokens.checked === true && failures.length === 0,
     positions,
-    ...(failures.length === 0 ? {} : {
+    ...(!tokens.checked ? {reason: `verified token discovery incomplete: ${tokens.reason}`, attempts: tokens.attempts ?? []} : failures.length === 0 ? {} : {
       reason: `${failures.length} Beefy position observation(s) were unreachable`,
       attempts: failures.flatMap(({ attempts = [] }) => attempts),
     }),

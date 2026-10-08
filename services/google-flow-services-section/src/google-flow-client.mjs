@@ -26,12 +26,16 @@ import {
 export { RPC };
 export const HOME_URL = 'https://flow.google.com/';
 
-/** The account's storage state file: GOOGLE_FLOW_STORAGE_STATE, else notebooklm's profile's. */
+/** Flow owns its session: Notebook renewal must never replace its site-bound state. */
 export const storageStatePath = (env = process.env) => env.GOOGLE_FLOW_STORAGE_STATE
-  ?? join(env.HOME || homedir(), '.notebooklm', 'profiles', env.NOTEBOOKLM_PROFILE ?? 'default', 'storage_state.json');
+  ?? join(env.XDG_STATE_HOME || join(env.HOME || homedir(), '.local', 'state'), '561-group', 'google-flow', 'storage_state.json');
 
 export function readStorageState({ env = process.env, storagePath } = {}) {
-  return JSON.parse(readFileSync(storagePath ?? storageStatePath(env), 'utf8'));
+  try {return JSON.parse(readFileSync(storagePath ?? storageStatePath(env), 'utf8'));}
+  catch(error) {
+    if(error.code!=='ENOENT')throw error;
+    throw Object.assign(new Error('The Flow-owned Google session has not been connected'),{code:'FLOW_AUTHENTICATION_PENDING'});
+  }
 }
 
 /**

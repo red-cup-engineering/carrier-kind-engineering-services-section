@@ -1,6 +1,6 @@
 import { expectedCurationReward } from "@red-cup-engineering/hive-blockchain-client-service/rewards.mjs";
-import { rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { gradedSign, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { gradedSign, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 import { DEFAULT_THRESHOLDS } from "./ontology.mjs";
 import { valuatePost, scoreBasisPoints } from "./valuation.mjs";
 /**

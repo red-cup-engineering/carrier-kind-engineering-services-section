@@ -17,7 +17,7 @@ import {
   transaction,
 
 } from "@red-cup-engineering/organizing/accounting/ledger";
-import { gradedFromParts } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts } from "@red-cup-engineering/exact-number-data-service/graded";
 
 function linesOf(text) {
   const lines = text.split(/\r\n|\r|\n/);

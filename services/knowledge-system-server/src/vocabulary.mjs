@@ -1,4 +1,4 @@
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { triplesToTurtle } from "@red-cup-engineering/rdf-data-model-services-section/sparql-over-eavt";
 import { AUTHORIZED_RELATION_PREDICATES, relationPredicateRange } from "@red-cup-engineering/term-engineering-services-section/carrier";
 import { admitTermMarkdownInVault } from "@red-cup-engineering/term-engineering-services-section/relations";

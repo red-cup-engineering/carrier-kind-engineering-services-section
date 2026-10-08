@@ -24,7 +24,7 @@
  * are commensurable quantities, and depth is the strict excess of the former.
  */
 
-import { ratCompare, ratSubtract } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { ratCompare, ratSubtract } from "@red-cup-engineering/exact-number-data-service/exact-number";
 
   
 

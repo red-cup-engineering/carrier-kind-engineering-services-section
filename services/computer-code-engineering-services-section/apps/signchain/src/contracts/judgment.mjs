@@ -12,7 +12,7 @@
  *   admissible through the phase's observability, so no evidence enters
  */
 import { evidence, knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { truthMeetReading, truthTop } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { truthMeetReading, truthTop } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** The structural face of a computing-stratum semantic judgment. */
 

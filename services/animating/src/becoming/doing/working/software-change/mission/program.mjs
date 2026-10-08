@@ -9,7 +9,7 @@ import { semanticId } from "@red-cup-engineering/computer-content-engineering-se
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { runTestsCommand } from "@red-cup-engineering/javascript-node-services-section/run-sandboxed-command";
 import { assayExecutionGeometryCircuit, measureExecutionEconomy, projectExecutionGeometryCircuit as defaultProjectExecutionGeometryCircuit } from "./execution-circuit.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 // The officer academy holds the offices, character and skill repertoire the
 // engineering design stages are written under; UNION_OFFICER_ACADEMY_ROOT names it.

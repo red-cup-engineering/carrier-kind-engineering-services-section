@@ -20,13 +20,13 @@
 import { cell } from "@red-cup-engineering/signcell/cell";
 import { cohomologyReceiptOfCells } from "@red-cup-engineering/signgraph/cohomology";
 import { receipt } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/chromatic-lorentzian";
-import { members, intZero, intOne, intNegate, intIsZero as intIsZero_2, isNegative, magnitude, toCount } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { members, intZero, intOne, intNegate, intIsZero as intIsZero_2, isNegative, magnitude, toCount } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { isHarmonicOfWeights, hodgeDecompositionOfWeights, diffusionDirections, weightsOfEdges, graphSpectrum } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/laplacian";
 import { agent } from "@red-cup-engineering/animating/becoming/doing/working/governing/agent";
 import { admitCommunicationAction } from "@red-cup-engineering/communicating/communicate/morphisms/illocute";
 import { ofCourse, atom } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/proving/proposition";
 import { positive } from "@red-cup-engineering/playing/structuring/polarity";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** The carrier `$id`s the surface references. computing operates over the AGENT carrier. */
 export const AGENT_CARRIER_ID = "animating/becoming/doing/working/governing/agent";

@@ -13,8 +13,6 @@
   "dependencies": {
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
@@ -28,7 +26,9 @@
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/signgraph": "workspace:*",
     "@red-cup-engineering/signcraft": "workspace:*",
-    "@red-cup-engineering/signchain": "workspace:*"
+    "@red-cup-engineering/signchain": "workspace:*",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "exports": {
     "./package.json": "./package.json",

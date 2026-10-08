@@ -28,7 +28,7 @@
     "@red-cup-engineering/cloudflare-r2-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-web-server": "workspace:*",
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*"
   },

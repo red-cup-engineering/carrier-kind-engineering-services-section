@@ -40,6 +40,9 @@
  * distinct concern from dispatching a read/write verb, even though both read
  * the same data root — that lives in the sibling `./agent-context.mjs`, not here.
  */
+import { javascriptProgram } from "@red-cup-engineering/javascript-node-services-section/module-closure";
+import {defaultFilesystemBinding} from "@red-cup-engineering/computer-system-engine/rpc/binding";
+import {schemaFrom} from "@red-cup-engineering/json-schema-services-section/contracts";
 import { pathPoint } from "@red-cup-engineering/computer-filepath-engineering-services-section/posix";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import path from "node:path";
@@ -769,8 +772,7 @@ function stringArg(args, key) {
 function bindingOfArgs(args) {
   const dataRoot = stringArg(args, "data-root");
   if (dataRoot === undefined) throw new TypeError("filesystem: expected --data-root");
-  return Object.freeze({
-    dataRoot,
+  return defaultFilesystemBinding(dataRoot,{
     ...(stringArg(args, "root-name") === undefined ? {} : { rootName: stringArg(args, "root-name") }),
     ...(stringArg(args, "claude-session-root") === undefined ? {} : { claudeSessionRoot: stringArg(args, "claude-session-root") }),
     ...(stringArg(args, "codex-session-root") === undefined ? {} : { codexSessionRoot: stringArg(args, "codex-session-root") }),
@@ -782,32 +784,44 @@ function bindingOfArgs(args) {
 /** read — `readAtRoot`: dispatch a path through the projector catalog at a corner. */
 export const readOperation = operation({
   verb: "read",
+  locus: "path",
+  domain:schemaFrom({$id:"metroplat/resources/read-request",type:["object","null"],properties:{path:{type:"string",minLength:1},corner:{type:"string"}},additionalProperties:true}),
   inputFormat: "json",
   outputFormat: "json",
   options: Object.freeze(["path", "corner", "data-root", "root-name", "claude-session-root", "codex-session-root", "codex-memory-root", "package-root"]),
   summary: "Read a path through the most specific recognizing projector at a requested content-commitment corner.",
   description: "Domain: { path, corner? } (or --path/--corner). Files present their content, directories present their manifest, and dated state-tier settlement addresses recompute through their deriver when current. Dispatch is classifyAt over the mounted projector catalog; the reading carries the projector type, corner, rung, and carried items.",
   relation: "projection",
-  run: (input, args) => {
+  program: javascriptProgram(import.meta.url, "runRead"),
+});
+
+
+export function runRead(input, args = {}, context) {
     const record = (input ?? {});
     const request = {
       path: stringArg(args, "path") ?? String(record["path"] ?? ""),
       corner: stringArg(args, "corner") ?? (typeof record["corner"] === "string" ? record["corner"] : undefined),
     };
-    return readAtRoot(bindingOfArgs(args), request);
-  },
-});
+    return readAtRoot(context?.filesystemBinding??bindingOfArgs(args), request);
+}
 
 /** write — `writeAtRoot`: admission a claim and fold it through the write leg. */
 export const writeOperation = operation({
   verb: "write",
+  locus: "path",
+  effects:{class:"external",replay:"coordinated",coordination:"coordination-required",deterministic:"unmeasured",totality:"partial"},
+  domain:schemaFrom({$id:"metroplat/resources/write-request",type:"object",required:["claim"],properties:{path:{type:"string",minLength:1},claim:{},token:{type:"string"},at:{type:"string"},causes:{type:"array",items:{type:"string"}}},additionalProperties:true}),
   inputFormat: "json",
   outputFormat: "json",
   options: Object.freeze(["path", "token", "at", "data-root", "root-name"]),
   summary: "Admit a claim as a journaled utterance and fold it, through whichever of the three markdown codecs recognizes the path (or plain canonical JSON otherwise), to the addressed path.",
   description: "Domain: { path?, claim, token?, at? }. A pathless write records EAVT rows under the bound data root's log tier (hook envelopes keep their established row shape); an addressed write records under the innermost enclosing settlement of the target path (the nearest ancestor with deposited data/journals, the bound root as fallback), then folds the claim through the site-note, agents-doc, or plain markdown codec if the target path matches one of them (most specific first), else writes the claim as canonical JSON. A directory-manifest claim materializes as the directory itself; a command claim ({ tool: tex-engine|blueprint-tool|verso-tool, command?, args? }) written to a workspace directory executes through the lifecycle-recorded process boundary, its lifecycle recorded in the workspace's own settlement, with the tool observation as the receipt.",
   relation: "projection",
-  run: (input, args) => {
+  program: javascriptProgram(import.meta.url, "runWrite"),
+});
+
+
+export function runWrite(input, args = {}, context) {
     const record = (input ?? {});
     const request = {
       path: stringArg(args, "path") ?? (typeof record["path"] === "string" ? record["path"] : undefined),
@@ -818,9 +832,8 @@ export const writeOperation = operation({
         ? Object.freeze(record["causes"].filter((cause) => typeof cause === "string"))
         : undefined,
     };
-    return writeAtRoot(bindingOfArgs(args), request);
-  },
-});
+    return writeAtRoot(context?.filesystemBinding??bindingOfArgs(args), request);
+}
 
 export const filesystemOperations = Object.freeze([readOperation, writeOperation]);
 
@@ -832,7 +845,7 @@ function boundOperation(unbound, binding) {
     ...(binding.codexSessionRoot === undefined ? {} : { "codex-session-root": binding.codexSessionRoot }),
     ...(binding.codexMemoryRoot === undefined ? {} : { "codex-memory-root": binding.codexMemoryRoot }),
     ...(binding.packageRoot === undefined ? {} : { "package-root": binding.packageRoot }),
-  });
+  },{filesystemBinding:binding});
 }
 
 /** Replace unbound read/write in a family with ones bound to this node's roots. */

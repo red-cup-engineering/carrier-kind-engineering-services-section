@@ -21,7 +21,7 @@ import { utterance } from "@red-cup-engineering/signcell/cell";
 import { playingFace } from "../src/face.mjs";
 import { isDesign } from "../src/structuring/concurrent-game/with-symmetry/ludicizing/design.mjs";
 import { readingPolarity } from "../src/structuring/polarity.mjs";
-import { isReading, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isReading, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** A membrane line `token|claim` as a relating utterance carrier. */
 const line = (token, claim) => utterance(token, claim);

@@ -14,7 +14,7 @@ import {
   multiplyDecimalStrings,
   negateDecimalString,
   stripUnitSuffix,
-} from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+} from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { deriveSetOfFillTransactions } from "@red-cup-engineering/farolfi/ledger/maintenance/venue-fills";
 
 const ZERO = "0";

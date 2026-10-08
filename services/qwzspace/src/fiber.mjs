@@ -9,7 +9,7 @@
 // Coordinates stay in the world's frame (`frame: "enu"`): x east, y north, z up, in metres. Each
 // backend maps that frame to its own device. `yaw` is the heading in radians clockwise from north.
 
-import { isReading, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isReading, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 import { COMPASS, bodyCentroid, segmentThroughPrism } from "@red-cup-engineering/feltos/geometry";
 import { environmentAt } from "./environment.mjs";
 import { SCENE_VERSION } from "./project.mjs";

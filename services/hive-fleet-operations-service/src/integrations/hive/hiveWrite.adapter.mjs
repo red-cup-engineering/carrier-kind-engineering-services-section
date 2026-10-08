@@ -1,5 +1,5 @@
 import { engineCustomJson, market, poolRatioDeposit, pools, tokens, peg } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { nativeCancelOrderOperation, nativeLimitOrderOperation } from "../../core/nativeMarket.mjs";
 function request(input) {
     return Object.freeze({ kind: "aagaard.hive-write", ...input });

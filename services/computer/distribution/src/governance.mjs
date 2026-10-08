@@ -23,8 +23,8 @@
  // the four-bilattice values
 import { pointWitnesses } from "@red-cup-engineering/metrologic/chu"; // the cone reads: a point's witness row + its settled charge
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
-import { sha256Bytes } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/portable-sha256";
-import { isTruthTop } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { sha256Bytes } from "@red-cup-engineering/cryptographic-data-service/portable-sha256";
+import { isTruthTop } from "@red-cup-engineering/computer-data-services-section/four";
 
 // stableId(parts, kind) — content-addressed id of a decision (jcs->sha256, the row identity), so the
 // same actor+action+target+time fold to the same decision id (federation can then dedupe them).

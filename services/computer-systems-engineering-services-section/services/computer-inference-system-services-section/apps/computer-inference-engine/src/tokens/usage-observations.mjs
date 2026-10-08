@@ -8,7 +8,7 @@ import { agentSessionTokenUsageObservationCollector as collectTokenUsage,
 import { composeTokenUsageCostEstimates } from "@red-cup-engineering/computer-inference-engine/cost/token-usage/core";
 import { statementLogInformation } from "@red-cup-engineering/eavt/statement";
 import { ledgerConserved, valueQuantity } from "@red-cup-engineering/x402-services-section/value-settlement";
-import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 
 const MICRODOLLARS_PER_DOLLAR = 1_000_000n;
 const MAX_SAFE_BIGINT = BigInt(Number.MAX_SAFE_INTEGER);

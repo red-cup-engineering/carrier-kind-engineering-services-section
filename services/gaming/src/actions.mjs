@@ -61,8 +61,8 @@ import {
   rhetoricsCarrier,
   strategyReportCarrier,
 } from "./carriers/index.mjs";
-import { ratToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number-host";
-import { toInt, fromRatio } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { ratToExactString } from "@red-cup-engineering/exact-number-data-service/exact-number-host";
+import { toInt, fromRatio } from "@red-cup-engineering/exact-number-data-service/exact-number";
 export { reachability, reachabilityOf } from "./reachability.mjs";
 
 // ── the carrier $id vocabulary (bare descent paths; see src/carriers/*.schema.json) ──

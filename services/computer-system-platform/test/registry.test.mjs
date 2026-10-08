@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createTypeSystem, defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { createTypeSystem, defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
 import { declareCapabilityOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { createComputerPlatform, bindingsProviders } from "../src/index.mjs";
 import { decodeOperationOutcome, encodeOperationRequest, jsonWireCodec, wireCodecCatalog } from "../src/wire.mjs";
