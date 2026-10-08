@@ -121,6 +121,8 @@
                           (format port "Restart=on-failure~%RestartSec=5~%"))
                         (when (assoc-ref service 'precheck)
                           (format port "ExecStartPre=~a ~a/~a~%" runtime out (assoc-ref service 'precheck)))
+                        (when (assoc-ref service 'poststop)
+                          (format port "ExecStopPost=~a ~a/~a~%" runtime out (assoc-ref service 'poststop)))
                         (when (assoc-ref service 'memory-high)
                           (format port "MemoryHigh=~a~%" (assoc-ref service 'memory-high)))
                         (when (assoc-ref service 'nice)

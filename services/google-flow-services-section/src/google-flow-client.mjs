@@ -3,8 +3,7 @@
  * batchexecute session under its AiSandboxAngularFrontend.
  *
  * The credential is the Google account's browser storage state: GOOGLE_FLOW_STORAGE_STATE names
- * a file, else the one `notebooklm login` keeps fresh for the same account is used, since Flow
- * and Gemini Notebook are both of the account's Google AI plan.
+ * a file, else Flow's own cloud profile is used. Notebook renewal cannot replace it.
  *
  * credits() answers the balance the profile menu shows ("1,050 Google Flow credits") and the
  * instant the plan's monthly grant renews, from the call the page makes on load. models() answers

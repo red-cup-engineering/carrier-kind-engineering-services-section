@@ -142,6 +142,12 @@
           ;; Guix owns the sealed input now; mutable packaging scratch is not a release.
           (run "rm" "-rf" closure)
           (write-json (string-append work "/candidate.json") built)
+          (setenv "GUIX_MACHINE_SNAPSHOT" snapshot)
+          ;; Each capability is admitted by its own consumer, independent of website startup.
+          (when (and (assoc-ref config "mediaReceipt") (not (assoc-ref config "receiverHost")))
+            (run (string-append store "/bin/node")
+                 (string-append store "/node_modules/@causeway-services/public-education-services-section/scripts/receive-production.mjs")
+                 store (if (equal? mode "deploy") "receive" "check")))
           (when (getenv "GITHUB_STEP_SUMMARY")
             (call-with-output-file (getenv "GITHUB_STEP_SUMMARY")
               (lambda (p) (format p "Guix candidate: `~a`~%~%NAR SHA256: `~a`~%" store (assoc-ref built "narSha256")))))
@@ -160,6 +166,12 @@
                   (string-append store "/.controller/scripts/register-candidate-root.scm") store
                   (string-append (assoc-ref config "gcRoot") "-received-" (or (getenv "GITHUB_RUN_ID") (number->string (getpid)))
                                  "-" (or (getenv "GITHUB_RUN_ATTEMPT") "1")))
+                (when (assoc-ref config "mediaReceipt")
+                  (remote (assoc-ref config "receiverHost") "env"
+                    (string-append "GITHUB_SHA=" (or (getenv "GITHUB_SHA") ""))
+                    (string-append store "/bin/node")
+                    (string-append store "/node_modules/@causeway-services/public-education-services-section/scripts/receive-production.mjs")
+                    store (if (equal? mode "deploy") "receive" "check")))
                 (remote-receive config (string-append store "/.controller") store options))
               (apply run "guix" "repl" "--" (string-append service "/scripts/receive.scm")
                      (string-append snapshot "/machine.json") store

@@ -121,7 +121,12 @@
          (scratch (mkdtemp (string-append root "/.probe-XXXXXX")))
          (unit-backup (string-append scratch "/main.unit"))
          (probe-env (string-append scratch "/probe.env"))
-         (probe (string-append name "-guix-probe-" (number->string (getpid))))
+         (probe (string-append name "-guix-probe-" (basename scratch)))
+         (probe-listen
+           (string-append "127.0.0.1:"
+             (string-trim-both
+               (capture (string-append store "/bin/node") "--input-type=module" "--eval"
+                 "import {createServer} from 'node:net'; const s=createServer(); s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>console.log(p));});"))))
          (stage "staging")
          (identity (read-json (string-append store "/.metadata/release.json")))
          (revision (assoc-ref identity "machineCommit"))
@@ -151,6 +156,11 @@
     (retain-release-roots config store previous held-previous)
     (catch #t
       (lambda ()
+        (set! stage "host-check")
+        (run (string-append store "/bin/node")
+             (string-append store "/.controller/scripts/check-host.mjs") store
+             (or (getenv "GUIX_MACHINE_SNAPSHOT") (string-append store "/.controller")))
+        (set! stage "staging")
         ;; The app's probe mode suppresses clocks, remote delivery and companions.
         ;; It gets empty state and does not inherit the live data root.
         ;; EnvironmentFile wins over systemd Environment settings. Append probe
@@ -163,7 +173,7 @@
             (newline p)
             (for-each (lambda (pair) (format p "~a=~s~%" (car pair) (cdr pair)))
               `(("METROPLAT_PROBE" . "1")
-                ("METROPLAT_PROBE_LISTEN" . "127.0.0.1:18819")
+                ("METROPLAT_PROBE_LISTEN" . ,probe-listen)
                 ("GUIX_MACHINE_ARTIFACT" . ,store)
                 ("NODE_OPTIONS" . "--max-old-space-size=384 --disable-sigusr1")
                 ("FELTOS_ENTERPRISE_HOST" . ,(string-append store "/deployment/host.json"))
@@ -182,14 +192,14 @@
              (string-append "--property=EnvironmentFile=" probe-env)
              "--property=CPUWeight=100" "--property=IOWeight=100"
              "--property=MemoryMax=640M" "--property=OOMScoreAdjust=1000"
-             "--setenv=METROPLAT_PROBE=1" "--setenv=METROPLAT_PROBE_LISTEN=127.0.0.1:18819"
+             "--setenv=METROPLAT_PROBE=1" (string-append "--setenv=METROPLAT_PROBE_LISTEN=" probe-listen)
              (string-append "--setenv=FELTOS_ENTERPRISE_HOST=" store "/deployment/host.json")
              (string-append "--setenv=METROPLAT_REPOSITORY_ROOT=" store)
              (string-append "--setenv=METROPLAT_WEB_STATE_DIR=" scratch "/state")
              (string-append "--setenv=METROPLAT_WEB_DATA_DIR=" scratch "/data")
              (string-append "--setenv=METROPLAT_DATA_ROOT=" scratch "/settlement")
              (string-append store "/bin/" name))
-        (health "http://127.0.0.1:18819/healthz" store)
+        (health (string-append "http://" probe-listen "/healthz") store)
         (set! stage "auxiliary-check")
         (for-each
           (lambda (check)
