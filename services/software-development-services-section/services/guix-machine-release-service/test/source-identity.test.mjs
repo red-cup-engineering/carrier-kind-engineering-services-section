@@ -27,3 +27,13 @@ test('an unresolved workspace input is refused rather than floated to a registry
   const packages = new Map([['app', { manifest: { dependencies: { missing: 'workspace:*' } } }]]);
   assert.throws(() => selectedSources(packages, ['app']), /pinned source or released version/);
 });
+
+ test('ambiguity is refused only in the required dependency closure', () => {
+  const provider = { manifest: { dependencies: {} }, repository: 'example/one', path: 'provider' };
+  const other = { ...provider, repository: 'example/two' };
+  const packages = new Map([['app', { manifest: { dependencies: {} } }], ['unused', [provider, other]]]);
+  assert.deepEqual([...selectedSources(packages, ['app']).keys()], ['app']);
+  assert.throws(() => selectedSources(packages, ['unused']), /required package unused.*example\/one:provider.*example\/two:provider/);
+  packages.get('app').manifest.dependencies.unused = 'workspace:*';
+  assert.throws(() => selectedSources(packages, ['app']), /required package unused/);
+});
