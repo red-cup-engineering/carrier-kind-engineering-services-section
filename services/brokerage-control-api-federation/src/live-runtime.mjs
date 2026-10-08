@@ -1,15 +1,19 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { open, mkdir, rename, link, unlink } from 'node:fs/promises';
 import { join, isAbsolute } from 'node:path';
+import { credentialPath, forgetCredential, keepCredential } from '@red-cup-engineering/credential-custody-service/keep';
 import { createPrincipalAlpacaBrokerageSystem } from './principal-brokerage-system.mjs';
 const digest = value => createHash('sha256').update(typeof value==='string'?value:JSON.stringify(value)).digest('hex');
 const reference = value => {if(typeof value!=='string'||!value.trim()||value.length>512)throw new TypeError('record-reference-required');return value;};
 
 /** Bind the existing brokerage system to a production host's private records.
  * Keys and grants are reread for each authorized operation; this constructor
- * never creates authority, seeds capital, or exposes a credential endpoint. */
-export function openProductionAlpacaBrokerage({stateRoot, custodyRoot, fetchImpl=fetch, clock=()=>new Date().toISOString()}) {
- if(!isAbsolute(stateRoot ?? '')||!isAbsolute(custodyRoot ?? ''))throw new TypeError('absolute-production-custody-and-state-roots-required');
+ * never creates authority, seeds capital, or exposes a credential endpoint.
+ * Authority keys are credentials of the host's store (credential custody):
+ * read at alpaca/<digest>.json in CREDENTIALS_DIRECTORY, kept and forgotten
+ * through the store; custodyRoot instead names a directory the caller owns. */
+export function openProductionAlpacaBrokerage({stateRoot, custodyRoot, env=process.env, fetchImpl=fetch, clock=()=>new Date().toISOString()}) {
+ if(!isAbsolute(stateRoot ?? '')||(custodyRoot!==undefined&&!isAbsolute(custodyRoot)))throw new TypeError('absolute-production-custody-and-state-roots-required');
  const filename=(kind,id)=>join(stateRoot,kind,digest(reference(id))+'.json');
  const readFile=async(file,secret=false)=>{
   const handle=await open(file,'r');try{
@@ -38,8 +42,20 @@ export function openProductionAlpacaBrokerage({stateRoot, custodyRoot, fetchImpl
   const text=Buffer.concat(chunks).toString('utf8');
   return {status:response.status,headers:{'x-request-id':response.headers.get('x-request-id')},body:text?JSON.parse(text):null};
  };
+ const place=id=>`alpaca/${digest(reference(id))}.json`, credentialId=id=>`alpaca.${digest(reference(id)).slice(0,32)}`;
+ const storeCustody={
+  retrieve:async id=>{try{return await readFile(credentialPath(place(id),env),true);}catch(error){if(error.code==='ENOENT')return null;throw error;}},
+  store:async({provider,subject,secret})=>{
+   reference(provider);reference(subject);
+   if(!secret || typeof secret!=='object')throw new TypeError('private-credential-record-required');
+   const id=`urn:authority:${provider}:${subject}:${randomUUID()}`;
+   await keepCredential({id:credentialId(id),service:'alpaca',path:place(id),value:JSON.stringify({...secret,storedAt:clock()})+'\n',kind:'api-key',provider},env);
+   return {reference:id,provider,secretBytesReturned:false};
+  },
+  revoke:async id=>(await forgetCredential({id:credentialId(id)},env)).forgotten,
+ };
  const system=createPrincipalAlpacaBrokerageSystem({
-  authorityCustody:{
+  authorityCustody:custodyRoot===undefined?storeCustody:{
    retrieve:async id=>{try{return await readFile(join(custodyRoot,digest(reference(id))+'.json'),true);}catch(error){if(error.code==='ENOENT')return null;throw error;}},
    store:async({provider,subject,secret})=>{
     reference(provider);reference(subject);

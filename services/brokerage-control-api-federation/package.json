@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@red-cup-engineering/credential-custody-service": "workspace:*",
     "@red-cup-engineering/account-evidence-reconciliation-service": "workspace:*",
     "@red-cup-engineering/alpha-portfolio-order-intent-service": "workspace:*",
     "@red-cup-engineering/brokerage-authority-custody-service": "workspace:*",
