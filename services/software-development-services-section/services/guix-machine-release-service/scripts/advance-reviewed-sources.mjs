@@ -4,7 +4,7 @@ import {spawnSync} from 'node:child_process';
 const [snapshotArg,workArg,serviceArg]=process.argv.slice(2);
 const originSnapshot=resolve(snapshotArg),work=resolve(workArg),service=resolve(serviceArg);
 let snapshot=originSnapshot;
-const run=(cmd,args,cwd=snapshot)=>{const r=spawnSync(cmd,args,{cwd,encoding:'utf8',maxBuffer:64*1024*1024});if(r.error||r.status!==0)throw r.error??new Error(`${cmd} failed: ${r.stderr.slice(-2000)}`);return r.stdout.trim()};
+const run=(cmd,args,cwd=snapshot)=>{const r=spawnSync(cmd,args,{cwd,encoding:'utf8',maxBuffer:64*1024*1024});if(r.error||r.status!==0)throw r.error??new Error(`${cmd} failed (${r.status}): ${r.stdout.slice(-6000)}\n${r.stderr.slice(-2000)}`);return r.stdout.trim()};
 const api=path=>JSON.parse(run('gh',['api',path]));
 const gitCredentials=['-c','credential.helper=!gh auth git-credential','-c','http.https://github.com/.extraheader='];
 await mkdir(work,{recursive:true});
