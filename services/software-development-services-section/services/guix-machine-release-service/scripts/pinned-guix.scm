@@ -13,10 +13,11 @@
          (body (get-string-all port))
          (status (close-pipe port))
          (actual (if (zero? status) (vector->list (json-string->scm body)) '()))
-         (arguments (if (and (pair? arguments) (equal? (car arguments) "shell"))
-           (append (list "shell" "--rebuild-cache"
-                     (string-append "--root=/var/guix/profiles/per-user/" (passwd:name (getpwuid (getuid)))
-                       "/github-guix-environment-" (number->string (current-time)) "-" (number->string (getpid))))
+         (shell-root (and (pair? arguments) (equal? (car arguments) "shell")
+           (string-append "/var/guix/profiles/per-user/" (passwd:name (getpwuid (getuid)))
+             "/github-guix-environment-" (number->string (current-time)) "-" (number->string (getpid)))))
+         (arguments (if shell-root
+           (append (list "shell" "--rebuild-cache" (string-append "--root=" shell-root))
                    (cdr arguments)) arguments))
          (same? (and (zero? status) (= (length expected) (length actual))
            (every (lambda (channel)
@@ -33,6 +34,14 @@
                       (not observed))))) expected))))
     (when (file-exists? profile)
       (setenv "PATH" (string-append (dirname profile) ":" (or (getenv "PATH") ""))))
-    (unless (zero? (apply system* command (if same? arguments (append (list "time-machine" "-C" channels "--") arguments))))
-      (error "pinned Guix invocation failed" arguments))))
+    ;; This invocation owns this root only while its shell child is running.
+    ;; Release/profile/candidate roots belong to the native release writer.
+    (dynamic-wind
+      (lambda () #t)
+      (lambda ()
+        (unless (zero? (apply system* command (if same? arguments (append (list "time-machine" "-C" channels "--") arguments))))
+          (error "pinned Guix invocation failed" arguments)))
+      (lambda ()
+        (when (and shell-root (false-if-exception (lstat shell-root)))
+          (delete-file shell-root))))))
  (_ (error "usage: pinned-guix.scm CHANNELS ARGUMENTS...")))
