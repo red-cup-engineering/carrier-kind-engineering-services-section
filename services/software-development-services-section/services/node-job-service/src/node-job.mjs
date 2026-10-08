@@ -13,7 +13,7 @@
  * (Kubernetes manifests directory, systemd drop-ins, cron.d), so two concurrent additions never edit
  * the same bytes. `readNodeJobDeclarations` is the one reader.
  *
- * A declaration is { id, summary, directory, node, environment?, maxSeconds?, successExitStatus?,
+ * A declaration is { id, summary, directory, node, environment?, credentials?, maxSeconds?, successExitStatus?,
  * finally?, workingTree?, priority?, demand? | schedule? | everySeconds?, timeZone?, firstDueAt?,
  * startingDeadlineSeconds?, maxAttempts?, retryAfterSeconds? }: directory is release-relative,
  * node the arguments the node's own runtime runs there, finally the arguments of a program run
@@ -35,6 +35,11 @@
  * (NODE_JOB_WORKING_TREE) and the custody (NODE_JOB_CUSTODY, a JSON array) to the run, and the
  * program reads and writes its data there (computer-code-development-engine `git/working-tree`).
  * No two jobs of a deployment hold overlapping custody, so no two runs write the same path.
+ *
+ * A job that uses credentials names the services whose credentials it runs with: `credentials`, e.g.
+ * ["kalshi"]. The node names the directory its host's credentials are rendered into
+ * (NODE_JOB_CREDENTIALS_DIRECTORY, a runtime tmpfs written by credential custody `render-host`), and the
+ * run reads `<directory>/<service>.env` as an environment file. A job never names a credential path itself.
  */
 import { execFile } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
@@ -46,6 +51,7 @@ import { fileURLToPath } from "node:url";
 const RECORDER = fileURLToPath(new URL("../scripts/record-node-job-run.mjs", import.meta.url));
 const JOB_ID = /^[a-z0-9][a-z0-9-]*$/;
 const ENVIRONMENT_NAME = /^[A-Z_][A-Z0-9_]*$/;
+const CREDENTIAL_SERVICE = /^[a-z0-9][a-z0-9.-]*$/;
 // A unit that has not ended holds the job's turn: one run of a job at a time (concurrencyPolicy: Forbid).
 const HOLDING = new Set(["active", "activating", "deactivating", "reloading", "refreshing"]);
 
@@ -127,6 +133,10 @@ function declarationOf(job, source) {
   for (const [name, value] of Object.entries(environment)) {
     if (!ENVIRONMENT_NAME.test(name) || typeof value !== "string") throw new TypeError(`${where} has an invalid environment entry ${name}`);
   }
+  const credentials = job.credentials ?? [];
+  if (!Array.isArray(credentials) || !credentials.every((service) => typeof service === "string" && CREDENTIAL_SERVICE.test(service))) {
+    throw new TypeError(`${where} has credentials that are not a list of credential service names`);
+  }
   if (job.maxSeconds !== undefined && (!Number.isInteger(job.maxSeconds) || job.maxSeconds < 1)) throw new TypeError(`${where} has a maxSeconds that is not a positive number of seconds`);
   const successExitStatus = job.successExitStatus ?? [];
   if (!Array.isArray(successExitStatus) || !successExitStatus.every((status) => Number.isInteger(status) && status > 0 && status < 256)) {
@@ -137,7 +147,7 @@ function declarationOf(job, source) {
   return Object.freeze({
     id: job.id, summary: job.summary, directory: normalize(job.directory), node: Object.freeze([...job.node]),
     ...(job.finally === undefined ? {} : { finally: Object.freeze([...job.finally]) }),
-    environment: Object.freeze({ ...environment }), ...(job.maxSeconds === undefined ? {} : { maxSeconds: job.maxSeconds }), successExitStatus: Object.freeze([...successExitStatus]),
+    environment: Object.freeze({ ...environment }), credentials: Object.freeze([...credentials]), ...(job.maxSeconds === undefined ? {} : { maxSeconds: job.maxSeconds }), successExitStatus: Object.freeze([...successExitStatus]),
     ...(custody === undefined ? {} : { workingTree: Object.freeze({ custody }) }),
     ...(job.priority === undefined ? {} : { priority: job.priority }),
     trigger: triggerOf(job, where),
@@ -238,12 +248,15 @@ const expand = (value, release) => value.replaceAll("{release}", release);
  * Returns { kind, job, unit, state: running | started, release?, startedAt?, last }, where last is
  * the receipt of the job's last run to end. A run's outcome is its receipt, not this call's.
  */
-export async function runNodeJob({ deploymentRoot, job: id, workingTree, home = homedir(), node = process.execPath, now = () => new Date() }) {
+export async function runNodeJob({ deploymentRoot, job: id, workingTree, credentialsDirectory = process.env.NODE_JOB_CREDENTIALS_DIRECTORY, home = homedir(), node = process.execPath, now = () => new Date() }) {
   const declared = nodeJobsOf(deploymentRoot);
   const job = declared?.jobs.get(id);
   if (job === undefined) throw new TypeError(`node-job: ${deploymentRoot} declares no job ${JSON.stringify(id)}`);
   if (job.workingTree !== undefined && (typeof workingTree !== "string" || !isAbsolute(workingTree) || !existsSync(workingTree))) {
     throw new TypeError(`node-job: ${job.id} holds working-tree custody, and this node names no working tree to run it in`);
+  }
+  if (job.credentials.length > 0 && (typeof credentialsDirectory !== "string" || !isAbsolute(credentialsDirectory))) {
+    throw new TypeError(`node-job: ${job.id} runs with credentials, and this node names no credentials directory (NODE_JOB_CREDENTIALS_DIRECTORY)`);
   }
   const unit = `${declared.unitPrefix}-job-${job.id}.service`;
   const receipt = receiptOf(home, declared.releaseRoot, job.id);
@@ -279,6 +292,7 @@ export async function runNodeJob({ deploymentRoot, job: id, workingTree, home = 
     "--property=UMask=0077",
     ...(job.priority === "idle" ? ["--property=Nice=19", "--property=CPUSchedulingPolicy=idle", "--property=IOSchedulingClass=idle"] : []),
     "--property=NoNewPrivileges=yes",
+    ...job.credentials.map((service) => `--property=EnvironmentFile=${resolve(credentialsDirectory, `${service}.env`)}`),
     ...(job.successExitStatus.length === 0 ? [] : [`--property=SuccessExitStatus=${job.successExitStatus.join(" ")}`]),
     // ExecStopPost commands run in order: the job's own finally, then the receipt of the whole run.
     ...(job.finally === undefined ? [] : [`--property=ExecStopPost=${node} ${job.finally.map((argument) => expand(argument, release)).join(" ")}`]),
