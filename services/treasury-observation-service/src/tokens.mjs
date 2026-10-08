@@ -174,8 +174,10 @@ export async function discoverTokenHoldings(chainDescriptor, walletAddress, opti
  * @returns {Promise<import("./tokens.d.ts").VerifiedTokenHoldings>}
  */
 export async function verifiedTokenHoldings(chainDescriptor, walletAddress, options = {}) {
-  const discovery = await discoverTokenHoldings(chainDescriptor, walletAddress, options);
-  if (!discovery.checked) return { ...discovery, holdings: [] };
+  const discovery = options.discovery ?? await discoverTokenHoldings(chainDescriptor, walletAddress, options);
+  if (!discovery.checked && !discovery.discovered?.length) return { ...discovery, holdings: [] };
+  if (!Array.isArray(discovery.discovered) || discovery.discovered.length > 2048) throw new TypeError("bounded-token-candidates-required");
+  if (normalizedAddress("walletAddress", discovery.address) !== normalizedAddress("walletAddress", walletAddress) || discovery.chain !== chainDescriptor.id) throw new TypeError("token-candidate-wallet-chain-mismatch");
   const holdings = [];
   // Multicall retains one boundary while avoiding hundreds of public round trips.
   // Chains/providers that cannot return an aggregate retain bounded direct reads.
