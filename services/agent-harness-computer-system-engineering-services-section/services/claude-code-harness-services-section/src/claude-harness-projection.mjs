@@ -2,16 +2,17 @@
  * The Claude Code harness of a node, projected from the corpus by the node's MetroPlat. Nothing
  * here is authored by hand, and nothing projected is an authority (MetroPlat architecture §8.7):
  *
- * - every agency skill is a node skill, `.claude/skills/<id>/SKILL.md`, standing with the verbs it
- *   requires and the offices that provide it;
+ * - no agency skill is a node skill: a session carries the skills of the offices it holds, named in
+ *   `.claude/CLAUDE.md` and read from their records when a duty calls on them, and an agent carries
+ *   its office's skills in its own file. A registry of every skill in the agency put tarot and Hive
+ *   games in every session's context and the ecosystem in none (founder, 2026-10-06);
  * - every office seated at dignitas that holds skills is a named agent, `.claude/agents/<id>.md`
  *   (office + character + recognition + induction = officer; a vacant office is never projected,
  *   2026-08-27 note on operating the Claude and Codex harnesses);
- * - every lifecycle event the agent-lifecycle-event schema names is admitted into the node's
- *   MetroPlat settlement as an arrival, so a session's work is witnessed in the same journal
- *   every other face of that settlement writes; SessionStart runs in the foreground, because it
- *   is the session's entry (its mask over the harness character, and the duties it opens with),
- *   and every other event in the background;
+ * - no hooks: a hook on every lifecycle event put a token fetch and a node round trip in front of
+ *   every tool call, and an unreachable node cost each call its full timeout (2026-10-06);
+ * - `.claude/CLAUDE.md` opens with the software ecosystem note, so every session knows what
+ *   SignStuff, metrologic, the agent-organization-engine, FeltOS and MetroPlat are;
  * - the MetroPlat faces the node reaches are its MCP servers, and they are its only ones: a
  *   session's whole toolkit is MetroPlat, and the apps MetroPlat hosts (L-Space among them) are
  *   reached as its verbs, never as servers of their own beside it.
@@ -24,18 +25,16 @@
  */
 import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { incumbenciesOf, officeReading } from "@red-cup-engineering/organizing/agency";
 import { agencyAt } from "@red-cup-engineering/organizing/agency/held";
 import { projectOfficeAgent } from "./install-claude-as-an-agent.mjs";
 
-const LIFECYCLE_SCHEMA = fileURLToPath(new URL("../../../data/records/schema/agent-lifecycle-event.schema.json", import.meta.url));
 const MANIFEST = ".claude/.claude-harness-manifest";
 const SETTINGS = ".claude/settings.local.json";
 const MCP = ".mcp.json";
-const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+const ECOSYSTEM_NOTE = "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/561-group-board-of-directors/services/561-group-board-of-directors-leader-movement-team/content/text/documents/articles/notes/2026/09/23/2026-09-23-note-on-the-software-ecosystem.md";
 
 /**
  * What a session may hold in context. A session keeps the model's full window: study that spans
@@ -63,20 +62,29 @@ export const SHARED_CHECKOUT_DENY = Object.freeze([
 
 const withoutFrontmatter = (text) => text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/u, "").trim();
 const readJson = (file) => (existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : {});
-const code = (items) => items.map((item) => `\`${item}\``).join(", ");
 
-function skillFile(agency, skill, providers) {
-  const source = path.join(agency.root, skill.source);
-  const text = skill.source.endsWith(".json") ? String(skill.description ?? "") : withoutFrontmatter(readFileSync(source, "utf8"));
-  const standing = [
-    "## Standing",
-    "",
-    `Projected from \`${skill.source}\` by MetroPlat; the record is the skill, and this file is rewritten from it.`,
-    ...(skill.closureKind ? [`Closure kind: ${skill.closureKind}.`] : []),
-    ...(skill.requiresCapabilities.length ? [`MetroPlat verbs it requires: ${code(skill.requiresCapabilities)}.`] : []),
-    ...(providers.length ? [`Offices that provide it: ${code(providers)}.`] : ["No office provides it yet."]),
-  ];
-  return `---\nname: ${skill.id}\ndescription: ${JSON.stringify(String(skill.description ?? "").replace(/\s+/gu, " ").trim())}\n---\n\n${text}\n\n${standing.join("\n")}\n`;
+
+/**
+ * The offices a session at the node holds, read from the records: the session is its harness
+ * character's mask, so it holds every office that character is seated in at dignitas, each in full
+ * with the skills realizing its duties (the projection installing-claude-as-an-agent renders).
+ * Priming happens here, once, at projection time. The rules it acts under are not projected: the
+ * rule store is settled at runtime (agency rules with rule-admit's beside them), so the session's
+ * entry reads them live.
+ */
+function heldOffices(agency, readings, harness, obstructions) {
+  const characters = new Set([...agency.characters.values()].filter((character) => character.kind === "harness" && character.harness === harness).map((character) => character.id));
+  const offices = [];
+  for (const reading of readings) {
+    if (!reading.seats.some((seat) => seat.state === "dignitas" && characters.has(seat.holder))) continue;
+    try {
+      const text = withoutFrontmatter(projectOfficeAgent({ repoRoot: path.dirname(agency.root), agency, office: reading.office }).text);
+      offices.push(text.split(/\n## Skills\n/u)[0].trim());
+    } catch (error) {
+      obstructions.push({ office: reading.office, reason: `the session's own office does not project: ${error.message}` });
+    }
+  }
+  return offices.length ? ["# The offices this session holds", ...offices].join("\n\n") : "";
 }
 
 /**
@@ -90,7 +98,7 @@ function skillFile(agency, skill, providers) {
  * session environment the node's sessions run under, `SESSION_BUDGET` unless the host holds another;
  * `deny` the commands they may never run, `SHARED_CHECKOUT_DENY` unless the host holds another.
  */
-export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCommand, harness = "claude", mcpServers = {}, standing, budget = SESSION_BUDGET, deny = SHARED_CHECKOUT_DENY }) {
+export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCommand, harness = "claude", mcpServers = {}, standing, budget = SESSION_BUDGET, deny = [] }) {
   node = path.resolve(node);
   const agency = agencyAt(path.resolve(agencyRoot));
   const obstructions = [];
@@ -101,15 +109,6 @@ export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCom
   for (const reading of readings) {
     for (const skill of reading.skills) providers.set(skill.id, [...(providers.get(skill.id) ?? []), reading.id]);
   }
-  const seenSkills = new Set();
-  for (const skill of agency.skills.values()) {
-    if (!SKILL_NAME.test(skill.id) || skill.id.length > 64) { obstructions.push({ skill: skill.source, reason: "its id is no harness skill name" }); continue; }
-    if (seenSkills.has(skill.id)) { obstructions.push({ skill: skill.source, reason: `skill id '${skill.id}' is seated in several sections` }); continue; }
-    if (!skill.description) { obstructions.push({ skill: skill.source, reason: "it has no description to be selected by" }); continue; }
-    seenSkills.add(skill.id);
-    files.set(`.claude/skills/${skill.id}/SKILL.md`, skillFile(agency, skill, [...new Set(providers.get(skill.id) ?? [])].sort()));
-  }
-
   const seenAgents = new Set();
   for (const reading of readings) {
     if (!incumbenciesOf(agency, reading.office).some((seat) => seat.state === "dignitas")) continue;
@@ -124,19 +123,15 @@ export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCom
     }
   }
 
-  if (typeof standing === "string" && standing.trim() !== "") {
-    files.set(".claude/CLAUDE.md", `<!-- Projected by claude-harness-project from this MetroPlat's standing instructions. Never edit it: change what it is projected from, and project again. -->\n\n${standing.trim()}\n`);
+  const held = heldOffices(agency, readings, harness, obstructions);
+  const ecosystem = path.join(path.dirname(agency.root), ECOSYSTEM_NOTE);
+  if (existsSync(ecosystem)) standing = [withoutFrontmatter(readFileSync(ecosystem, "utf8")), String(standing ?? "").trim()].filter(Boolean).join("\n\n");
+  else obstructions.push({ standing: ECOSYSTEM_NOTE, reason: "the software ecosystem note is absent" });
+  if ((typeof standing === "string" && standing.trim() !== "") || held !== "") {
+    files.set(".claude/CLAUDE.md", `<!-- Projected by claude-harness-project from this MetroPlat's standing instructions and the agency records. Never edit it: change what it is projected from, and project again. -->\n\n${[String(standing ?? "").trim(), held].filter(Boolean).join("\n\n")}\n`);
   }
 
-  const events = JSON.parse(readFileSync(LIFECYCLE_SCHEMA, "utf8")).properties.event.enum;
-  const admit = typeof hookCommand === "string" && hookCommand.trim() !== "" ? hookCommand : undefined;
-  // The harness gives a session 60 s to initialize, SessionStart included: the entry hook must end
-  // well inside that, so a slow journal costs the session its opening context, never the session.
-  // PreToolUse is answered too, with what the fleet already knows about what the tool is about to
-  // load; it waits on the node for that, bounded so an unreachable node costs a tool call seconds.
-  const answered = new Map([["SessionStart", 30], ["PreToolUse", 10]]);
-  const hookOf = (event) => answered.has(event) ? { type: "command", command: admit, timeout: answered.get(event) } : { type: "command", command: admit, async: true, timeout: 30 };
-  const hooks = admit === undefined ? {} : Object.fromEntries(events.map((event) => [event, [{ hooks: [hookOf(event)] }]]));
+  const hooks = {};
 
   return Object.freeze({
     kind: "claude-harness.projection",
@@ -147,7 +142,7 @@ export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCom
     env: Object.freeze({ ...budget }),
     deny: Object.freeze([...deny]),
     mcpServers,
-    counts: { skills: seenSkills.size, agents: seenAgents.size, events: Object.keys(hooks).length, mcpServers: Object.keys(mcpServers).length, standing: files.has(".claude/CLAUDE.md"), budget: Object.keys(budget).length, deny: deny.length },
+    counts: { agents: seenAgents.size, events: Object.keys(hooks).length, mcpServers: Object.keys(mcpServers).length, standing: files.has(".claude/CLAUDE.md"), budget: Object.keys(budget).length, deny: deny.length },
     obstructions: Object.freeze(obstructions),
   });
 }
