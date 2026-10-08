@@ -7,7 +7,7 @@ import { syncGitHubIssues } from "./github-issues.mjs";
 
 /** An installed operations console. The instance supplies identity, roots and
  * policy; the platform supplies admission and the operation caller. */
-export function operationsConsole({ config, configuration = {}, run, runAs }) {
+export function operationsConsole({ config, configuration = {}, run, runAs, resolveGitHubReceivingBinding }) {
   const label = configuration.label ?? config.instance.label ?? config.instance.title;
   const githubSource = configuration.githubIssueSources?.[config.instance.name];
   // The house's work is held across many repositories; a source names them as owner/name or owner/*.
@@ -59,7 +59,9 @@ export function operationsConsole({ config, configuration = {}, run, runAs }) {
         if (typeof producer !== "string" || !producer) throw new TypeError("sign in to synchronize GitHub reports");
         if (!federates(args.repository)) throw new TypeError(`${args.repository} is not among this instance's GitHub issue sources`);
         return syncGitHubIssues({ repository: args.repository, producer, office: args.as, issueNumbers: args.issueNumbers,
-          runAs, token: process.env.METROPLAT_GITHUB_TOKEN, tokenCommand: githubSource.tokenCommand });
+          runAs, token: process.env.METROPLAT_GITHUB_TOKEN, tokenCommand: githubSource.tokenCommand,
+          ...(resolveGitHubReceivingBinding === undefined ? {} : { resolveReceivingBinding: ({ repository, repositoryRecord }) =>
+            resolveGitHubReceivingBinding({ repository, repositoryRecord, subject: producer, office: args.as }) }) });
       },
     }])],
     rootRoutes: [

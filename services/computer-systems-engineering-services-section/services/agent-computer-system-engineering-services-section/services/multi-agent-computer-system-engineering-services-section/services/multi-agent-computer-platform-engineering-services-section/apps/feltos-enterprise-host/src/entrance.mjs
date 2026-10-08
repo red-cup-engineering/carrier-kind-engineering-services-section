@@ -37,7 +37,7 @@ const withinTimeout = (promise, what) => Promise.race([
  * may see, and the entrance admits it on that word, for reads only. */
 export function createEnterpriseEntrance(config, {
   federation, tools = [], activityPubProvider, applications = [], rootRoutes = [],
-  publicRoute = enterprisePublicRoute, sessionCookiePrefix = "metroplat", calls,
+  publicRoute = enterprisePublicRoute, sessionCookiePrefix = "metroplat", calls, resolveGitHubReceivingBinding,
 } = {}) {
   const base = config.publicBaseUrl;
   const resource = `${base}/mcp`;
@@ -133,7 +133,8 @@ export function createEnterpriseEntrance(config, {
       tools: federation.tools.length, unavailable: federation.unavailable,
     }, { cacheControl: { noStore: true } }),
   }] };
-  const context = Object.freeze({ config, run, runAs, registry, admission, authorization });
+  const context = Object.freeze({ config, run, runAs, registry, admission, authorization,
+    ...(resolveGitHubReceivingBinding === undefined ? {} : { resolveGitHubReceivingBinding }) });
   const selected = typeof applications === "function" ? applications(context) : applications;
   if (!Array.isArray(selected)) throw new TypeError("MetroPlat applications must provide an array");
   const installedApps = [];

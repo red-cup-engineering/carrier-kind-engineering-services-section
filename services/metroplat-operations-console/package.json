@@ -22,9 +22,19 @@
     "@red-cup-engineering/oauth-services-section": "workspace:*",
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/qwzspace": "workspace:*",
-    "@red-cup-engineering/web-page-tiling-engine": "workspace:*"
+    "@red-cup-engineering/web-page-tiling-engine": "workspace:*",
+    "@red-cup-engineering/github-semioverse-settler-service": "workspace:*"
   },
   "bin": {
     "metroplat-check-live-ledger": "scripts/check-live-ledger.mjs"
+  },
+  "receivingTests": [
+    "test/github-issues.test.mjs",
+    "test/github-native-intake.test.mjs",
+    "test/github-resolver-application.test.mjs"
+  ],
+  "devDependencies": {
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/metroplat": "workspace:*"
   }
 }

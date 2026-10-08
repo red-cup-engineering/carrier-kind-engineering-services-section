@@ -196,9 +196,11 @@ async function threadsBySource(urls, as) {
  * answers for them now. The board is the only registry; there is no cursor to lose. Closure resolves
  * the report only: work anyone adopted from it stands on its own request.
  */
-export async function syncGitHubIssues({ repository, producer, office, issueNumbers: requestedIssueNumbers, runAs, fetchImpl = fetch, token, tokenCommand }) {
+export async function syncGitHubIssues({ repository, producer, office, issueNumbers: requestedIssueNumbers, runAs, fetchImpl = fetch, token, tokenCommand, receivingBinding, resolveReceivingBinding }) {
   repository = repositoryName(repository);
   const issueNumbers = selectedIssueNumbers(requestedIssueNumbers);
+  if (resolveReceivingBinding !== undefined && typeof resolveReceivingBinding !== "function") throw new TypeError("GitHub receiving resolver must be a host capability");
+  if (resolveReceivingBinding !== undefined && receivingBinding !== undefined) throw new TypeError("GitHub intake must select one receiving binding source");
   const as = (verb, input) => runAs(producer, verb,
     office !== undefined && ["work-open", "work-move"].includes(verb) ? { ...input, as: office } : input);
   if (!token && tokenCommand !== undefined) {
@@ -210,12 +212,42 @@ export async function syncGitHubIssues({ repository, producer, office, issueNumb
     }
     if (!token) throw new Error("the configured GitHub credential source returned no credential");
   }
+  let repositoryRecord;
+  if (receivingBinding !== undefined || resolveReceivingBinding !== undefined) {
+    repositoryRecord = await githubJson(new URL(`https://api.github.com/repos/${repository}`), `/repos/${repository}`, {fetchImpl,token});
+    if (!Number.isSafeInteger(repositoryRecord.id) || repositoryRecord.id <= 0 || repositoryRecord.full_name?.toLowerCase() !== repository || repositoryRecord.private !== false)
+      throw new TypeError("GitHub intake has no verified matching public repository audience");
+    if (resolveReceivingBinding !== undefined) {
+      receivingBinding = await resolveReceivingBinding({ repository,
+        repositoryRecord: Object.freeze({ id: repositoryRecord.id, full_name: repositoryRecord.full_name, private: repositoryRecord.private }),
+        producer, office });
+      if (receivingBinding === undefined || receivingBinding === null
+          || !Array.isArray(receivingBinding.scope) || receivingBinding.scope.length === 0
+          || receivingBinding.scope.some(value => typeof value !== "string" || value.trim() === "")
+          || typeof receivingBinding.receiver !== "string" || receivingBinding.receiver.trim() === "")
+        throw new TypeError("GitHub receiving resolver did not bind an institutional receiver");
+    }
+    if (repositoryRecord.id !== receivingBinding.repositoryId || repositoryRecord.full_name?.toLowerCase() !== repository || repositoryRecord.private !== false || receivingBinding.visibility !== "public")
+      throw new TypeError("GitHub intake has no verified matching public repository audience");
+  }
   let discoveredIssues;
   if (issueNumbers === undefined) {
     discoveredIssues = await githubPages(`/repos/${repository}/issues?state=all&sort=created&direction=asc`, { fetchImpl, token });
   } else {
     discoveredIssues = [];
     for (const number of issueNumbers) discoveredIssues.push(await githubIssue(repository, number, { fetchImpl, token }));
+  }
+  if (receivingBinding !== undefined) {
+    const items = [];
+    for (const issue of discoveredIssues) {
+      const pull = issue.pull_request === undefined ? undefined : await githubJson(new URL(`https://api.github.com/repos/${repository}/pulls/${issue.number}`), `/repos/${repository}/pulls/${issue.number}`, {fetchImpl,token});
+      const comments = issue.comments > 0 ? await githubPages(`/repos/${repository}/issues/${issue.number}/comments`, {fetchImpl,token}) : [];
+      const reviews = pull === undefined ? [] : await githubPages(`/repos/${repository}/pulls/${issue.number}/reviews`, {fetchImpl,token});
+      const reviewComments = pull === undefined ? [] : await githubPages(`/repos/${repository}/pulls/${issue.number}/comments`, {fetchImpl,token});
+      items.push({issue,pull,comments,reviewComments,reviews});
+    }
+    const {receivePublicGitHubItems}=await import("./github-native-intake.mjs");
+    return receivePublicGitHubItems({repository,repositoryRecord,binding:receivingBinding,items,producer,office,runAs});
   }
   const issues = discoveredIssues.filter((issue) => issue.pull_request === undefined);
   const urls = issues.map((issue) => githubIssueUrl(repository, issue.number));
