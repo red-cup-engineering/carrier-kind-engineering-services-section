@@ -14,8 +14,9 @@ export function youtubeCredentialPath(env = process.env) {
   return env.YOUTUBE_CREDENTIALS ?? credentialPath("youtube.env", env);
 }
 
-/** The credential file's KEY=value pairs; empty when the node holds none yet. */
+/** The credential file's KEY=value pairs; empty when the node holds none yet, or this process was given no credentials. */
 export function readYouTubeCredentials(env = process.env) {
+  if (!env.YOUTUBE_CREDENTIALS && !env.CREDENTIALS_DIRECTORY) return {};
   const path = youtubeCredentialPath(env);
   return existsSync(path) ? parseEnv(readFileSync(path, "utf8")) : {};
 }

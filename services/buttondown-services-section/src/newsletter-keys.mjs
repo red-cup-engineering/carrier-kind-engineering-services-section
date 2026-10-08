@@ -20,8 +20,9 @@ export function newsletterKeyPath(newsletter, { env = process.env } = {}) {
   return credentialPath(`buttondown/${newsletterName(newsletter)}.api-key`, env);
 }
 
-/** The newsletter's key, or null when none is held yet. */
+/** The newsletter's key, or null when none is held yet (or this process was given no credentials). */
 export async function readNewsletterKey(newsletter, options = {}) {
+  if (!(options.env ?? process.env).CREDENTIALS_DIRECTORY) return null;
   try {
     const key = (await readFile(newsletterKeyPath(newsletter, options), "utf8")).trim();
     return key || null;

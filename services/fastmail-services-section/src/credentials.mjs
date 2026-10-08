@@ -19,8 +19,10 @@ export const credentialsPath = (account, env) => {
 
 export function openCredentials(env = process.env) {
   return Object.freeze({
-    describe: credentialsDir(env),
+    describe: env.FASTMAIL_CREDENTIALS_DIR || env.CREDENTIALS_DIRECTORY ? credentialsDir(env) : "(this process was given no credentials)",
     async read(account) {
+      // A process given no credentials holds none.
+      if (!env.FASTMAIL_CREDENTIALS_DIR && !env.CREDENTIALS_DIRECTORY) return null;
       try {
         return JSON.parse(await readFile(credentialsPath(account, env), "utf8"));
       } catch (error) {

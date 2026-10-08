@@ -44,7 +44,7 @@ export function openProductionAlpacaBrokerage({stateRoot, custodyRoot, env=proce
  };
  const place=id=>`alpaca/${digest(reference(id))}.json`, credentialId=id=>`alpaca.${digest(reference(id)).slice(0,32)}`;
  const storeCustody={
-  retrieve:async id=>{try{return await readFile(credentialPath(place(id),env),true);}catch(error){if(error.code==='ENOENT')return null;throw error;}},
+  retrieve:async id=>{if(!env.CREDENTIALS_DIRECTORY)return null;try{return await readFile(credentialPath(place(id),env),true);}catch(error){if(error.code==='ENOENT')return null;throw error;}},
   store:async({provider,subject,secret})=>{
    reference(provider);reference(subject);
    if(!secret || typeof secret!=='object')throw new TypeError('private-credential-record-required');
