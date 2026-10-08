@@ -12,7 +12,8 @@ import bcrypt from "bcryptjs";
  *   fetched from the uplink.
  * - Any other name is the uplink's (registry.npmjs.org): its packument is fetched when the cached copy
  *   is older than `uplinkMaxAgeMs` (the cached copy answers when the uplink cannot), and a tarball is
- *   fetched once and kept.
+ *   fetched once and kept unless `cachePublicTarballs` is false. Installations
+ *   can retain their own verified bytes without a second public binary cache.
  * - Publishing is Basic authentication against the htpasswd file the store already uses (bcrypt), the
  *   credential npm sends from `username`/`_password`. A version, once published, is never replaced.
  *
@@ -20,7 +21,7 @@ import bcrypt from "bcryptjs";
  */
 export function createNpmRegistry({
   storage, htpasswd, origin, privateScopes = [], privateNames = [],
-  uplink = "https://registry.npmjs.org", uplinkMaxAgeMs = 10 * 60_000,
+  uplink = "https://registry.npmjs.org", uplinkMaxAgeMs = 10 * 60_000, cachePublicTarballs = true,
   fetch: fetchImpl = fetch, now = () => new Date(),
 }) {
   if (typeof storage !== "string" || !storage) throw new TypeError("the registry needs its package storage directory");
@@ -102,7 +103,7 @@ export function createNpmRegistry({
     const bytes = Buffer.from(await response.arrayBuffer());
     const expected = packument._distfiles[file].sha;
     if (expected && createHash("sha1").update(bytes).digest("hex") !== expected) throw new Error(`${file} from the uplink does not match its shasum`);
-    await writeAtomic(path, bytes);
+    if (cachePublicTarballs) await writeAtomic(path, bytes);
     return bytes;
   }
 
