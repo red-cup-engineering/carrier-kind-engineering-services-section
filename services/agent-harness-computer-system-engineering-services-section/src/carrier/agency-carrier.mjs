@@ -189,7 +189,7 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     const evidence = [
       ...(session.thread === undefined ? [] : [`${dialect.evidence}:${session.thread}`]),
       ...(session.carrierEvidence === undefined ? [] : [`${dialect.name}-session-context:${session.carrierEvidence}`]),
-      `${dialect.name}-exit:${session.exitCode}`, `${dialect.name}-prompt-sha256:${createHash("sha256").update(readFileSync(path.join(directory(item), "prompt.txt"))).digest("hex")}`, `${dialect.name}-task:${taskId(item)}`,
+      `${dialect.name}-exit:${session.exitCode}`, `${dialect.name}-prompt-sha256:${createHash("sha256").update(readFileSync(path.join(session.artifactDir, "prompt.txt"))).digest("hex")}`, `${dialect.name}-task:${taskId(item)}`,
     ];
     // Its token usage is what the work consumed, a field of the proposal rather than an evidence string.
     const resources = tokenUsageResources(session.usage, carrier.model);
@@ -217,7 +217,8 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     const run = async ({ onSession: bindSession } = {}) => {
       const selectedModel = item.allocatedModel ?? model;
       const suit = agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise });
-      const prior = existsSync(path.join(directory(item), "exit-code")) ? readHarnessSessionArtifacts(dialect, directory(item)) : undefined;
+      const observed = readHarnessSessionArtifacts(dialect, directory(item));
+      const prior = observed.exitCode === undefined ? undefined : observed;
       const observe = onSession === undefined || selectedModel === undefined ? undefined : session => onSession(item, observedCarrier(session, selectedModel, requiredEffort(item)));
       if (prior?.thread !== undefined && prior.model !== undefined) await observe?.(prior);
       const onObservedSession = async session => { await observe?.(session); await bindSession?.(session); };
@@ -249,9 +250,7 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
   // delegation. Keep this separate from recover, which may launch a continuation.
   provider.completed = item => {
     if (item.delegation?.provider !== workerId) return undefined;
-    const artifactDir = directory(item);
-    if (!existsSync(path.join(artifactDir, "exit-code"))) return undefined;
-    const session = readHarnessSessionArtifacts(dialect, artifactDir);
+    const session = readHarnessSessionArtifacts(dialect, directory(item));
     if (session.exitCode === undefined) return undefined;
     return outcomeOf(item, session);
   };
@@ -282,9 +281,9 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
   const receivingAttempt = review => {
     for (let attempt = 0; ; attempt += 1) {
       const artifactDir = attemptDirectory(review, attempt);
-      const ended = path.join(artifactDir, "exit-code");
-      if (!existsSync(ended)) return { attempt, finished: false };
       const session = readHarnessSessionArtifacts(dialect, artifactDir);
+      if (session.exitCode === undefined) return { attempt, finished: false };
+      const ended = path.join(session.artifactDir, "exit-code");
       if (retryableHarnessSession(dialect, session, { artifactDir, retryStartup: true })) return { attempt, finished: false };
       if (!session.ok || optionalJudgement(session.message).judgement?.decision !== "unverified" || attempt + 1 >= RECEIVING_ATTEMPTS) return { attempt, finished: true };
       if (Date.now() - statSync(ended).mtimeMs < RECEIVING_RETRY_MS) return { attempt, finished: true };
@@ -299,9 +298,9 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
   // while the work awaits receipt: it is offered again for admission, never run again.
   provider.receivingJudged = review => {
     const { artifactDir } = receivingTask(review);
-    if (!existsSync(path.join(artifactDir, "exit-code"))) return false;
     const session = readHarnessSessionArtifacts(dialect, artifactDir);
-    return session.ok && ["accepted", "rejected"].includes(optionalJudgement(session.message).judgement?.decision);
+    return session.exitCode !== undefined && session.ok
+      && ["accepted", "rejected"].includes(optionalJudgement(session.message).judgement?.decision);
   };
   provider.receive = review => {
     const run = async ({ onSession: bindSession } = {}) => {
@@ -338,19 +337,8 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     const session = await inWorkspace({ item: review, id, receiving: true }, async workspace => {
     const sessionOptions = workspace === undefined ? sessionOptionsOf : { ...sessionOptionsOf, cwd: workspace };
     let ended;
-    if (existsSync(path.join(artifactDir, "prompt.txt"))) {
-      // A failed start never witnessed an agent context. Preserve its old prompt
-      // and use the current contract when starting the first actual thread.
-      if (prior.thread === undefined && prior.exitCode !== undefined) {
-        const promptFile = path.join(artifactDir, "prompt.txt");
-        const previous = readFileSync(promptFile, "utf8");
-        if (previous !== suit.text) {
-          const snapshot = path.join(artifactDir, `prompt.txt.${createHash("sha256").update(previous).digest("hex")}`);
-          if (!existsSync(snapshot)) writeFileSync(snapshot, previous, { mode: 0o600 });
-          writeFileSync(promptFile, suit.text, { mode: 0o600 });
-        }
-      }
-      ended = existsSync(path.join(artifactDir, "exit-code"))
+    if (prior.thread !== undefined || prior.exitCode !== undefined || existsSync(path.join(prior.artifactDir, "prompt.txt"))) {
+      ended = prior.exitCode !== undefined
         ? await retryTransientHarnessSession(dialect, prior, { ...sessionOptions, retryStartup: true })
         : await recoverHarnessSession(dialect, sessionOptions);
       if (ended === undefined) ended = await waitForHarnessSession(dialect, { ...sessionOptions, unit: `${dialect.unit}-${id}` });

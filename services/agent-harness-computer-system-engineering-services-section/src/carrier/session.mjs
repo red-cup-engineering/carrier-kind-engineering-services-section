@@ -95,7 +95,7 @@ async function ownerIsDefinitelyGone(owner) {
 }
 // Capacity belongs to this host's provider, not to a checkout/worktree path that can differ
 // between duties. The stable per-user state root is shared by every local executor process.
-const sharedCapacityRoot = (dialect, environment = process.env) => path.join(environment.HOME ?? homedir(), ".local", "state", "561-group", `${dialect.pool}-provider-capacity`);
+const sharedCapacityRoot = (dialect, environment = process.env) => path.join(environment.XDG_STATE_HOME || path.join(environment.HOME ?? homedir(), ".local", "state"), "561-group", `${dialect.pool}-provider-capacity`);
 const capacityLockPath = root => path.join(root, "capacity.lock");
 const reservationPath = (root, slot) => path.join(root, `slot-${slot}.json`);
 const readText = file => { try { return readFileSync(file, "utf8"); } catch (error) { if (error.code === "ENOENT") return undefined; throw error; } };
@@ -153,7 +153,7 @@ async function withCapacityLock(root, operation) {
 }
 
 async function artifactRunnerIsDefinitelyGone(dialect, directory, unit, systemRunner) {
-  if (existsSync(path.join(directory, "exit-code"))) return true;
+  const completionMarker = existsSync(path.join(directory, "exit-code"));
   let runner;
   try { runner = JSON.parse(readFileSync(path.join(directory, "runner-process.json"), "utf8")); }
   catch { runner = undefined; } // Missing or malformed birth identity stays uncertain unless systemd proves the unit is inactive.
@@ -161,25 +161,30 @@ async function artifactRunnerIsDefinitelyGone(dialect, directory, unit, systemRu
     let current;
     try { current = processIdentity(runner.pid); } catch { return false; }
     if (current !== undefined && current.boot === runner.boot && current.started === runner.started) return false;
-    if ((readText(path.join(directory, "runner-notes.txt")) ?? "").includes(inProcessNote(dialect))) return true;
+    if ((readText(path.join(directory, "runner-notes.txt")) ?? "").includes(inProcessNote(dialect))) return completionMarker;
   } else if ((readText(path.join(directory, "runner-notes.txt")) ?? "").includes(inProcessNote(dialect))) {
     return false;
   }
-  if (typeof unit !== "string" || unit.length === 0) return false;
+  if (typeof unit !== "string" || unit.length === 0) return completionMarker;
   let status;
   try { status = await systemRunner("systemctl", ["--user", "show", `${unit}.service`, "-p", "LoadState", "-p", "ActiveState"], {}); }
   catch { return false; }
   if (status?.exitCode !== 0) return false;
   const state = Object.fromEntries((status.stdout ?? "").trim().split("\n").filter(Boolean).map(line => line.split("=")));
-  return state.LoadState === "not-found"
-    || (state.LoadState === "loaded" && ["inactive", "failed"].includes(state.ActiveState));
+  if (state.LoadState === "not-found"
+    || (state.LoadState === "loaded" && ["inactive", "failed"].includes(state.ActiveState))) return true;
+  // An earlier turn may have left an exit marker in a legacy task directory. A live unit
+  // always outranks that artifact when deciding whether its provider lease can be reclaimed.
+  return false;
 }
 
 async function reservationWorkersAreDefinitelyGone(dialect, record, systemRunner = systemdCommand) {
   if (!record.artifactDir) return false;
   if (!existsSync(record.artifactDir)) return true;
-  if (!await artifactRunnerIsDefinitelyGone(dialect, record.artifactDir, record.unit, systemRunner)) return false;
-  return resolutionWorkersAreDefinitelyGone(dialect, record, systemRunner);
+  const exactTurn = /^turn-\d{6}$/u.test(path.basename(record.artifactDir));
+  const directory = exactTurn ? record.artifactDir : latestHarnessTurnDirectory(record.artifactDir).directory;
+  if (!await artifactRunnerIsDefinitelyGone(dialect, directory, record.unit, systemRunner)) return false;
+  return resolutionWorkersAreDefinitelyGone(dialect, { ...record, artifactDir: directory }, systemRunner);
 }
 
 async function resolutionWorkersAreDefinitelyGone(dialect, record, systemRunner = systemdCommand) {
@@ -321,7 +326,9 @@ async function bindSharedSession(reservation, session) {
     if (current?.id !== reservation.record.id) throw new Error("provider reservation changed before its observed session could be bound");
     const temporary = `${file}.${randomUUID()}.tmp`;
     try {
-      writeExclusiveJson(temporary, { ...current, session: thread });
+      writeExclusiveJson(temporary, { ...current, session: thread,
+        ...(typeof session.artifactDir === "string" ? { artifactDir: session.artifactDir } : {}),
+        ...(Number.isInteger(session.turn) ? { turn: session.turn } : {}) });
       renameSync(temporary, file);
     } finally {
       try { unlinkSync(temporary); } catch (error) { if (error.code !== "ENOENT") throw error; }
@@ -329,11 +336,13 @@ async function bindSharedSession(reservation, session) {
   });
 }
 
-async function releaseSharedSlot(reservation) {
+async function releaseSharedSlot(reservation, systemRunner = systemdCommand) {
   await withCapacityLock(reservation.root, async () => {
     const file = reservationPath(reservation.root, reservation.slot);
-    if (reservation.record.artifactDir && !await reservationWorkersAreDefinitelyGone(reservation.dialect, reservation.record)) return;
-    if (readJson(file)?.id === reservation.record.id) unlinkSync(file);
+    const current = readJson(file);
+    if (current?.id !== reservation.record.id) return;
+    if (current.artifactDir && !await reservationWorkersAreDefinitelyGone(reservation.dialect, current, systemRunner)) return;
+    unlinkSync(file);
   });
 }
 
@@ -352,10 +361,10 @@ const drain = dialect => {
       queue.dispatching -= 1;
       queue.activeSlots.add(shared.slot);
       return Promise.resolve().then(() => task(shared.slot, { onSession: session => bindSharedSession(shared, session) })).then(async value => {
-        await releaseSharedSlot(shared);
+        await releaseSharedSlot(shared, systemRunner);
         resolve(value);
       }, async error => {
-        await releaseSharedSlot(shared);
+        await releaseSharedSlot(shared, systemRunner);
         reject(error);
       }).finally(() => {
         queue.activeSlots.delete(shared.slot);
@@ -392,9 +401,9 @@ export async function runReservedProviderTurn(dialect, reservation, task) {
   return task(reservation.slot, { onSession: session => bindSharedSession(leaseOf(dialect, reservation), session) });
 }
 
-export async function releaseProviderTurn(dialect, reservation) {
+export async function releaseProviderTurn(dialect, reservation, { systemRunner = systemdCommand } = {}) {
   if (reservation?.acquired !== true) return;
-  await releaseSharedSlot(leaseOf(dialect, reservation));
+  await releaseSharedSlot(leaseOf(dialect, reservation), systemRunner);
 }
 
 /** Run a systemd command. Kept behind one function so callers and tests can substitute the host. */
@@ -433,9 +442,44 @@ export function harnessTaskArtifactDirectory(dialect, dataRoot, id, formerRoots 
   return path.join(dataRoot, "data", "state", dialect.tasks, id);
 }
 
+const turnRoot = directory => path.join(directory, "turns");
+const turnName = sequence => `turn-${String(sequence).padStart(6, "0")}`;
+const turnSequence = name => {
+  const match = /^turn-(\d{6})$/u.exec(name);
+  return match === null ? undefined : Number(match[1]);
+};
+
+/** Each provider invocation owns an immutable directory inside its task's durable record. */
+function nextHarnessTurnDirectory(directory) {
+  const turns = turnRoot(directory);
+  mkdirSync(turns, { recursive: true, mode: 0o700 });
+  const used = new Set(readdirSync(turns).map(turnSequence).filter(Number.isInteger));
+  let sequence = 1;
+  for (;;) {
+    while (used.has(sequence)) sequence += 1;
+    const current = path.join(turns, turnName(sequence));
+    try { mkdirSync(current, { recursive: false, mode: 0o700 }); return { directory: current, sequence }; }
+    catch (error) { if (error.code !== "EEXIST") throw error; used.add(sequence); sequence += 1; }
+  }
+}
+
+/** Existing task roots may be read by older consumers; resolve them to the latest exact turn. */
+function latestHarnessTurnDirectory(directory) {
+  const exactSequence = turnSequence(path.basename(directory));
+  if (Number.isInteger(exactSequence)) return { directory, sequence: exactSequence };
+  let turns;
+  try { turns = readdirSync(turnRoot(directory)).map(name => ({ name, sequence: turnSequence(name) }))
+    .filter(turn => Number.isInteger(turn.sequence)).sort((a, b) => b.sequence - a.sequence); }
+  catch (error) { if (error.code === "ENOENT") return { directory, sequence: undefined }; throw error; }
+  return turns.length === 0 ? { directory, sequence: undefined }
+    : { directory: path.join(turnRoot(directory), turns[0].name), sequence: turns[0].sequence };
+}
+
 /** What the runner itself witnessed of a session, beside the dialect's reading of the CLI's own
  *  events: the exit code, and every runner, stderr and note line as an error. */
 export function readHarnessSessionArtifacts(dialect, directory) {
+  const turn = latestHarnessTurnDirectory(directory);
+  directory = turn.directory;
   const native = dialect.readSession(directory);
   const errors = [...(native.errors ?? [])];
   const rawExitCode = readOptional(artifact(directory, "exit-code"))?.trim();
@@ -446,7 +490,8 @@ export function readHarnessSessionArtifacts(dialect, directory) {
   for (const line of (readOptional(artifact(directory, "runner-errors.txt")) ?? "").split(/\r?\n/u)) if (line.trim() !== "") errors.push(line.trim());
   for (const line of (readOptional(artifact(directory, "runner-notes.txt")) ?? "").split(/\r?\n/u)) if (line.trim() !== "") errors.push(line.trim());
   const ok = exitCode === 0 && native.message !== undefined && native.failed !== true;
-  return Object.freeze({ ...native, ok, exitCode, errors: Object.freeze(errors) });
+  return Object.freeze({ ...native, ok, exitCode, errors: Object.freeze(errors), artifactDir: directory,
+    ...(turn.sequence === undefined ? {} : { turn: turn.sequence }) });
 }
 
 const delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -462,6 +507,7 @@ async function unitEnded(systemRunner, unit) {
 }
 
 export async function waitForHarnessSession(dialect, { artifactDir, unit, timeoutMs = 3_600_000, pollIntervalMs = POLL_INTERVAL_MS, systemRunner = systemdCommand, onSession }) {
+  artifactDir = latestHarnessTurnDirectory(artifactDir).directory;
   const exitFile = artifact(artifactDir, "exit-code");
   const deadline = Date.now() + timeoutMs;
   let observed = false;
@@ -584,34 +630,38 @@ export async function launchHarnessSession(dialect, { directory, input, args, cw
 /** Whether a stopped session is one the runner carries on: the provider had no room, or (when the
  *  caller opts in) the required MCP handshake failed before a thread started. */
 export function retryableHarnessSession(dialect, result, { artifactDir: directory, retryDelaysMs = RETRY_DELAYS_MS, retryStartup = false }) {
-  const attempt = readdirSync(directory).filter(name => /^exit-code\.\d+$/u.test(name)).length + 1;
+  const attempt = Number.isInteger(result?.turn) ? result.turn
+    : latestHarnessTurnDirectory(directory).sequence ?? 1;
   return result.exitCode !== undefined && (dialect.startupFailure(result) ? retryStartup && attempt <= Math.min(2, retryDelaysMs.length)
     : dialect.transient(result) && attempt <= retryDelaysMs.length);
 }
 
 /**
  * Carry on a session that stopped because the provider had no room or its required MCP handshake
- * failed before a thread started. Resume only a witnessed thread. Each stopped attempt's events,
- * stderr and exit code are set aside as `<name>.<n>`, which also counts the attempts across a node restart.
+ * failed before a thread started. Resume only a witnessed thread. Each retry gets a new immutable
+ * turn directory, so old evidence cannot become the completion evidence of the resumed turn.
  */
 export async function retryTransientHarnessSession(dialect, result, { artifactDir: directory, cwd, taskId, executable = dialect.executable, timeoutMs = 3_600_000, pollIntervalMs = POLL_INTERVAL_MS, systemRunner = systemdCommand, retryDelaysMs = RETRY_DELAYS_MS, retryStartup = false, onSession, ...options }) {
   const unit = `${dialect.unit}-${taskId ?? path.basename(directory)}`;
-  const lastFile = artifact(directory, "last-message.txt");
   let current = result;
   for (;;) {
-    const attempt = readdirSync(directory).filter((name) => /^exit-code\.\d+$/u.test(name)).length + 1;
+    const attempt = (Number.isInteger(current?.turn) ? current.turn : latestHarnessTurnDirectory(directory).sequence ?? 1) + 1;
     if (!retryableHarnessSession(dialect, current, { artifactDir: directory, retryDelaysMs, retryStartup })) return current;
-    await delay(retryDelaysMs[attempt - 1]);
-    for (const name of ["events.jsonl", "stderr.txt"]) if (existsSync(artifact(directory, name))) renameSync(artifact(directory, name), artifact(directory, `${name}.${attempt}`));
-    renameSync(artifact(directory, "exit-code"), artifact(directory, `exit-code.${attempt}`));
-    let input = artifact(directory, "prompt.txt");
-    let args = dialect.startArguments({ ...options, cwd, lastFile, artifactDir: directory, taskId });
+    await delay(retryDelaysMs[attempt - 2]);
+    const next = nextHarnessTurnDirectory(directory);
+    const lastFile = artifact(next.directory, "last-message.txt");
+    let input = artifact(next.directory, "prompt.txt");
+    let args = dialect.startArguments({ ...options, cwd, lastFile, artifactDir: next.directory, taskId });
     if (current.thread !== undefined) {
-      input = artifact(directory, "resume-prompt.txt");
+      input = artifact(next.directory, "resume-prompt.txt");
       writeFileSync(input, promptText(dialect, `Your last turn stopped because the model was unavailable, not because of your work. Continue the assignment from where you left off.\n`), { mode: 0o600 });
-      args = dialect.resumeArguments({ ...options, cwd, lastFile, thread: current.thread, artifactDir: directory, taskId });
+      args = dialect.resumeArguments({ ...options, cwd, lastFile, thread: current.thread, artifactDir: next.directory, taskId });
+    } else {
+      const previousPrompt = readOptional(artifact(current.artifactDir ?? latestHarnessTurnDirectory(directory).directory, "prompt.txt"));
+      if (previousPrompt === undefined) throw new Error(`${dialect.label} startup retry has no witnessed prompt to carry forward`);
+      writeFileSync(input, previousPrompt, { mode: 0o600 });
     }
-    current = await launchHarnessSession(dialect, { directory, input, args, cwd, executable, unit, timeoutMs, pollIntervalMs, systemRunner, onSession, confinement: dialect.confinement?.({ ...options, cwd, artifactDir: directory }) });
+    current = await launchHarnessSession(dialect, { directory: next.directory, input, args, cwd, executable, unit, timeoutMs, pollIntervalMs, systemRunner, onSession, confinement: dialect.confinement?.({ ...options, cwd, artifactDir: next.directory }) });
   }
 }
 
@@ -657,11 +707,12 @@ const promptText = (dialect, text) => (dialect.promptOf === undefined ? text : d
  */
 export async function resumeHarnessSession(dialect, { thread, prompt, directory, cwd, unitTask, executable = dialect.executable, timeoutMs = 3_600_000, pollIntervalMs = POLL_INTERVAL_MS, systemRunner = systemdCommand, retryDelaysMs = RETRY_DELAYS_MS, onSession, ...options }) {
   mkdirSync(directory, { recursive: true, mode: 0o700 });
-  const input = artifact(directory, "prompt.txt");
+  const turn = nextHarnessTurnDirectory(directory);
+  const input = artifact(turn.directory, "prompt.txt");
   writeFileSync(input, promptText(dialect, prompt), { mode: 0o600 });
-  const lastFile = artifact(directory, "last-message.txt");
-  const args = dialect.resumeArguments({ ...options, cwd, lastFile, thread, artifactDir: directory, taskId: unitTask });
-  const first = await launchHarnessSession(dialect, { directory, input, args, cwd, executable, unit: `${dialect.unit}-${unitTask}`, timeoutMs, pollIntervalMs, systemRunner, onSession, confinement: dialect.confinement?.({ ...options, cwd, artifactDir: directory }) });
+  const lastFile = artifact(turn.directory, "last-message.txt");
+  const args = dialect.resumeArguments({ ...options, cwd, lastFile, thread, artifactDir: turn.directory, taskId: unitTask });
+  const first = await launchHarnessSession(dialect, { directory: turn.directory, input, args, cwd, executable, unit: `${dialect.unit}-${unitTask}`, timeoutMs, pollIntervalMs, systemRunner, onSession, confinement: dialect.confinement?.({ ...options, cwd, artifactDir: turn.directory }) });
   const carried = { ...options, artifactDir: directory, cwd, taskId: unitTask, executable, timeoutMs, pollIntervalMs, systemRunner, retryDelaysMs, onSession };
   return carryUnfinishedHarnessSession(dialect, await retryTransientHarnessSession(dialect, first, carried), carried);
 }
@@ -673,8 +724,10 @@ export async function resumeHarnessSession(dialect, { thread, prompt, directory,
 export async function runHarnessSession(dialect, { prompt, cwd, artifactDir, taskId, executable = dialect.executable, timeoutMs = 3_600_000, pollIntervalMs = POLL_INTERVAL_MS, systemRunner = systemdCommand, retryDelaysMs = RETRY_DELAYS_MS, onSession, ...options }) {
   if (typeof prompt !== "string" || prompt.trim() === "") throw new TypeError(`a ${dialect.label} session needs a prompt`);
   dialect.checkOptions?.(options);
-  const directory = artifactDir ?? mkdtempSync(path.join(tmpdir(), `${dialect.name}-session-`));
-  mkdirSync(directory, { recursive: true, mode: 0o700 });
+  const root = artifactDir ?? mkdtempSync(path.join(tmpdir(), `${dialect.name}-session-`));
+  mkdirSync(root, { recursive: true, mode: 0o700 });
+  const turn = nextHarnessTurnDirectory(root);
+  const directory = turn.directory;
   const promptFile = artifact(directory, "prompt.txt");
   writeFileSync(promptFile, promptText(dialect, prompt), { mode: 0o600 });
   const unit = `${dialect.unit}-${taskId ?? path.basename(directory)}`;
@@ -689,34 +742,33 @@ export async function runHarnessSession(dialect, { prompt, cwd, artifactDir, tas
 export async function recoverHarnessSession(dialect, { artifactDir: directory, taskId, thread, cwd, executable = dialect.executable,
   timeoutMs = 3_600_000, pollIntervalMs = POLL_INTERVAL_MS, systemRunner = systemdCommand,
   retryDelaysMs = RETRY_DELAYS_MS, onSession, ...options }) {
-  if (existsSync(artifact(directory, "exit-code"))) return readHarnessSessionArtifacts(dialect, directory);
+  const activeTurn = latestHarnessTurnDirectory(directory);
+  const activeDirectory = activeTurn.directory;
+  if (existsSync(artifact(activeDirectory, "exit-code"))) return readHarnessSessionArtifacts(dialect, activeDirectory);
   const unit = `${dialect.unit}-${taskId ?? path.basename(directory)}`;
   const status = await systemRunner("systemctl", ["--user", "show", `${unit}.service`,
     "-p", "LoadState", "-p", "ActiveState"], {});
   const state = Object.fromEntries((status.stdout ?? "").trim().split("\n").map(line => line.split("=")));
   if (status.exitCode !== 0 || !["not-found", "loaded"].includes(state.LoadState)
     || !["inactive", "failed"].includes(state.ActiveState)) return undefined;
-  const processFile = artifact(directory, "runner-process.json");
+  const processFile = artifact(activeDirectory, "runner-process.json");
   if (existsSync(processFile)) {
     const previous = JSON.parse(readFileSync(processFile, "utf8"));
     const current = processIdentity(previous.pid);
     if (current !== undefined && current.boot === previous.boot && current.started === previous.started) return undefined;
-  } else if ((readOptional(artifact(directory, "runner-notes.txt")) ?? "").includes(inProcessNote(dialect))) {
+  } else if ((readOptional(artifact(activeDirectory, "runner-notes.txt")) ?? "").includes(inProcessNote(dialect))) {
     return undefined;
   }
   // The wrapper may have completed between the process read and this boundary.
-  if (existsSync(artifact(directory, "exit-code"))) return readHarnessSessionArtifacts(dialect, directory);
-  const session = readHarnessSessionArtifacts(dialect, directory);
+  if (existsSync(artifact(activeDirectory, "exit-code"))) return readHarnessSessionArtifacts(dialect, activeDirectory);
+  const session = readHarnessSessionArtifacts(dialect, activeDirectory);
   const nativeThread = thread ?? session.thread;
   if (nativeThread === undefined) throw new Error(`${dialect.label} runner disappeared before a native session was witnessed`);
-  const attempt = readdirSync(directory).filter(name => /^events\.jsonl\.interrupted-\d+$/u.test(name)).length + 1;
-  for (const name of ["events.jsonl", "stderr.txt", "runner-notes.txt", "runner-process.json"]) {
-    if (existsSync(artifact(directory, name))) renameSync(artifact(directory, name), artifact(directory, `${name}.interrupted-${attempt}`));
-  }
-  const input = artifact(directory, "resume-prompt.txt");
+  const next = nextHarnessTurnDirectory(directory);
+  const input = artifact(next.directory, "resume-prompt.txt");
   writeFileSync(input, promptText(dialect, "Your execution process was interrupted. Continue this same allocated duty from its existing evidence and current owning-node state. Check effects already recorded before acting; preserve the original receiving condition.\n"), { mode: 0o600 });
-  const args = dialect.resumeArguments({ ...options, cwd, lastFile: artifact(directory, "last-message.txt"), thread: nativeThread, artifactDir: directory, taskId });
-  const first = await launchHarnessSession(dialect, { directory, input, args, cwd, executable, unit, timeoutMs, pollIntervalMs, systemRunner, onSession, confinement: dialect.confinement?.({ ...options, cwd, artifactDir: directory }) });
+  const args = dialect.resumeArguments({ ...options, cwd, lastFile: artifact(next.directory, "last-message.txt"), thread: nativeThread, artifactDir: next.directory, taskId });
+  const first = await launchHarnessSession(dialect, { directory: next.directory, input, args, cwd, executable, unit, timeoutMs, pollIntervalMs, systemRunner, onSession, confinement: dialect.confinement?.({ ...options, cwd, artifactDir: next.directory }) });
   const carried = { ...options, artifactDir: directory, taskId, cwd, executable, timeoutMs, pollIntervalMs, systemRunner, retryDelaysMs, onSession };
   return carryUnfinishedHarnessSession(dialect, await retryTransientHarnessSession(dialect, first, carried), carried);
 }

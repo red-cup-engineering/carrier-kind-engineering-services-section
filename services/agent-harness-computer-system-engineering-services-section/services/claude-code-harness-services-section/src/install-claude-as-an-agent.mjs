@@ -6,7 +6,7 @@
 
 import * as defaultFilesystem from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
-import { readAgency, resolve as resolveRecord } from "@red-cup-engineering/organizing/agency";
+import { officeReading, readAgency, resolve as resolveRecord } from "@red-cup-engineering/organizing/agency";
 
 let REPO_ROOT;
 let DRY_RUN;
@@ -133,13 +133,10 @@ function officeOfRecord(record) {
   return office;
 }
 
+// The office as the registry reads it: a formed office (`formed-from` a form, with `parameters`)
+// is its form applied, so its normative structure, duties and skills are the effective record's.
 function canonicalOffice(office) {
-  let spec;
-  try {
-    spec = JSON.parse(readFileSync(office.record, "utf8"));
-  } catch (e) {
-    die(`${rel(office.record)} is unreadable: ${e.message}`);
-  }
+  const spec = officeReading(agencyOf(), office.key).effective;
   if (spec.kind !== "office") {
     die(`${rel(office.record)} declares 'kind: ${spec.kind ?? "(nothing)"}' — refusing to install from a non-office.`);
   }
