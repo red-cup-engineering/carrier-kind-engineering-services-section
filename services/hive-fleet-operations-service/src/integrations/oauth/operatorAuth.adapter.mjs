@@ -24,10 +24,12 @@ function responseOf(value) {
 
 /**
  * @param {{ publicBaseUrl: string, opsToken?: string, allowedEmail: string, openWhenUnconfigured?: boolean,
- *   google?: { clientId?: string, clientSecret?: string }, sessionSecret?: string, stateDir?: string }} options
+ *   google?: { clientId?: string, clientSecret?: string }, sessionSecret?: string, stateDir?: string, grantStoreProfile?: string }} options
  */
 export function createOperatorAuth(options) {
   const publicBaseUrl = new URL(options.publicBaseUrl).href.replace(/\/$/u, "");
+  const grantStore = options.stateDir === undefined ? undefined : createJsonFileGrantStore(join(options.stateDir, "oauth"), { profile: options.grantStoreProfile });
+  if (options.grantStoreProfile !== undefined && grantStore?.profile !== options.grantStoreProfile) throw new TypeError("requested OAuth grant custody profile is unavailable");
   const opsToken = text(options.opsToken);
   const googleClientId = text(options.google?.clientId);
   const googleClientSecret = text(options.google?.clientSecret);
@@ -51,7 +53,7 @@ export function createOperatorAuth(options) {
     issuer: publicBaseUrl,
     name: new URL(publicBaseUrl).host,
     resources: [`${publicBaseUrl}/ops`],
-    ...(options.stateDir === undefined ? {} : { store: createJsonFileGrantStore(join(options.stateDir, "oauth")) }),
+    ...(grantStore === undefined ? {} : { store: grantStore }),
     authenticate: async (ctx) => {
       if (mode === "open") return { subject: "local-operator" };
       if (mode === "bearer") {

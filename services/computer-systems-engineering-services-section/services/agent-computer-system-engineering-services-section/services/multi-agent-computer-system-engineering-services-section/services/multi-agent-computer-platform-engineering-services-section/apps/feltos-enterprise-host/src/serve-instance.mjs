@@ -253,6 +253,7 @@ export function createEnterpriseServicePlatform({
   const startApplication = services.startNativeApplication ?? startNativeApplication;
   const companionFactory = services.startCompanion ?? startCompanion;
   const createActivityPub = services.activityPubProvider ?? activityPubProvider;
+  const grantStoreProfile = services.oauthGrantStoreProfile ?? environment.OAUTH_GRANT_STORE_PROFILE;
   let platform;
   let runtime;
   const executionWorker = new EnterpriseExecutionWorker({ hostPath: installed.web.hostPath, environment,
@@ -378,6 +379,7 @@ export function createEnterpriseServicePlatform({
       const initial = entranceFactory(config, {
         federation: bootstrapFederation,
         sessionCookiePrefix: installed.web.cookiePrefix ?? "metroplat",
+        grantStoreProfile,
         applications: installed.applications,
         rootRoutes,
       });
@@ -438,6 +440,7 @@ export function createEnterpriseServicePlatform({
           federation,
           activityPubProvider: activityPub?.provider,
           sessionCookiePrefix: installed.web.cookiePrefix ?? "metroplat",
+          grantStoreProfile,
           applications: installed.applications,
           rootRoutes,
         });
