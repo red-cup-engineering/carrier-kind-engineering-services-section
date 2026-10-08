@@ -173,6 +173,10 @@
                 ("METROPLAT_DATA_ROOT" . ,(string-append scratch "/settlement"))
                 ("ACTIVITYPUB_SQLITE_PATH" . ,(string-append scratch "/activitypub.sqlite"))
                 ("AGENCY_ACTS_LOG" . ,(string-append scratch "/acts.jsonl"))))))
+        ;; Cancellation can leave the preceding transient probe loaded. The
+        ;; writer lease makes its isolated unit ours to reconcile before reuse.
+        (system* "systemctl" "--user" "stop" probe)
+        (system* "systemctl" "--user" "reset-failed" probe)
         (run "systemd-run" "--user" "--collect" "--quiet" "--nice=0"
              (string-append "--unit=" probe)
              (string-append "--property=EnvironmentFile=" probe-env)
