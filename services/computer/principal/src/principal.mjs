@@ -32,7 +32,7 @@ import { sectionSpace } from "@red-cup-engineering/metrologic/articulation/predi
 import { governAction } from "@red-cup-engineering/computer/distribution/governance";
 import { allocateProcess } from "@red-cup-engineering/computer/process-runtime/allocation";
 import { pointWitnesses } from "@red-cup-engineering/metrologic/chu";
-import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
 
 // === the recognition CONE: a principal's identity as a Chu space ============================
 // A principal's identity is "the recognition graph" — and a graph of (party recognizes principal-AS-X)

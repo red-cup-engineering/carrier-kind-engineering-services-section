@@ -25,8 +25,8 @@
  * @packageDocumentation
  */
 
-import { hashSeed } from "@red-cup-engineering/computer-data-engineering-services-section/randomization/hash-seed";
-import { mulberry32 } from "@red-cup-engineering/computer-data-engineering-services-section/randomization/mulberry32";
+import { hashSeed } from "@red-cup-engineering/computer-data-services-section/randomization/hash-seed";
+import { mulberry32 } from "@red-cup-engineering/computer-data-services-section/randomization/mulberry32";
 
 /** The efforts a carrier can be run at, cheapest first. */
 export const EFFORTS = Object.freeze(["medium", "high", "xhigh"]);

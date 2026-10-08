@@ -12,7 +12,7 @@ import { pathToFileURL } from "node:url";
 import { recordAssetYield } from "../src/core/assetYieldSettlement.mjs";
 import { makeFail, engineFind, engineTransaction } from "../src/core/hiveScriptSupport.mjs";
 import { planWorkerBeeYield, statesAgree } from "@red-cup-engineering/workerbee-services-section";
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { liveEngineBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { submitToSigner } from "../src/core/signer.mjs";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";

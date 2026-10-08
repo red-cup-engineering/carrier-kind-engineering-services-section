@@ -1,4 +1,4 @@
-import { knowledgeJoinReading, knowledgeMeetReading, isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, knowledgeMeetReading, isReading } from "@red-cup-engineering/computer-data-services-section/four";
 /**
  * Hohfeldian relations and their evidence-valued readings.
  *

@@ -4,7 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { encryptSettlementMnemonic, ensureSettlementPassword, inspectSettlementMnemonic, openSettlementSigner } from "@red-cup-engineering/ethereum-engineering-services-section/settlement-key-custody";
 import { writeFileTextSync } from "@red-cup-engineering/file-services/write-file";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 export const YANAGI_WALLET_ADDRESS = "0x224c08a8526751887a83e2711b167f890c6d078d";
 export const YANAGI_WALLET_URN = "urn:ame:yanagi-wallet";

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import loadLedger, { posting, transaction } from "../src/accounting/ledger.mjs";
 import { openItemsReport } from "../src/accounting/open-items.mjs";
-import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedToExactString } from "@red-cup-engineering/exact-number-data-service/graded";
 const usd = (n) => gradedFromParts(BigInt(n), 1n, "USD");
 test("open items retain invoice identity and partial reductions", () => {
  const l=loadLedger([transaction({id:"i",date:"2026-01-01",narration:"invoice",postings:[posting({account:"Assets:Receivables:Trade",amount:usd(1200),meta:{invoice_id:"I",due_date:"2026-01-10",counterparty:"A",source_id:"s1"}}),posting({account:"Income:Sales",amount:usd(-1200)})]}),transaction({id:"p",date:"2026-01-02",narration:"payment",postings:[posting({account:"Assets:Cash",amount:usd(300)}),posting({account:"Assets:Receivables:Trade",amount:usd(-300),meta:{invoice_id:"I"}})]})]);

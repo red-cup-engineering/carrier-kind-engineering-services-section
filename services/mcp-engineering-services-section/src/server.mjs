@@ -3,7 +3,7 @@
 // transport is `./http.mjs`; clients are `./client.mjs`. No SDK, no zod: tool arguments are
 // admitted against their declared `inputSchema` through the data section's type system.
 
-import { admit, defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { admit, defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
 
 /** Protocol revisions this server speaks, newest first. `initialize` echoes the client's when it
  *  is one of these and answers with the newest otherwise, as the lifecycle specifies. */

@@ -13,13 +13,13 @@ import { FLEET_DATA_DIR, witnessChainAct } from "../src/core/journal.mjs";
 import { assertLiquidationSymbolAllowed } from "../src/core/protectedAssets.mjs";
 import { makeFail, engineFind, engineTransaction } from "../src/core/hiveScriptSupport.mjs";
 import { engineCustomJson, market } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
-import { decimalUnits, formatUnits, rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits, rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { submitToSigner } from "../src/core/signer.mjs";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { FLEET_ACCOUNTS } from "../src/core/core.adapter.mjs";
 import { liveEngineBook, parseEngineOrderBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { bestBid, marketSellWalk } from "@red-cup-engineering/gaming/market";
-import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedSign, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 const hiveReader = new HiveClient();
 
 const CONTRACT_NODES = ["https://api.hive-engine.com/rpc/contracts", "https://herpc.dtools.dev/contracts"];

@@ -1,5 +1,5 @@
 // terracore — TerraCore player-state parsing, scrap-claim and Engineering-
-import { formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 // upgrade planning, and conservative PvE battle-target selection. Every
 // exported "plan"/"select"/"*Intent" function returns an unsigned
 // `custom_json` intent explicitly marked `approvedForBroadcast: false`, or

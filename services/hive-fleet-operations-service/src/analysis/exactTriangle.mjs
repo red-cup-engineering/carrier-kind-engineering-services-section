@@ -1,8 +1,8 @@
-import { decimalUnits, formatUnits, rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits, rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { exactInputSwapOutput, reserveFraction } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { parseEngineOrderBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { marketSellWalk } from "@red-cup-engineering/gaming/market";
-import { gradedFromParts, gradedIsZero, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedFromParts, gradedIsZero, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 function scale(precision) {
     if (!Number.isSafeInteger(precision) || precision < 0 || precision > 18) throw new Error("precision must be an integer from 0 through 18");
     return 10n ** BigInt(precision);

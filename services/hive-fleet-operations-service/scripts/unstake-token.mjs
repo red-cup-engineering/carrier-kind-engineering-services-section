@@ -10,7 +10,7 @@ import { TOKEN_UNLOCK_CATEGORY, tokenUnlockEvent } from "../src/core/tokenUnlock
 import { FLEET_DATA_DIR, witnessChainAct } from "../src/core/journal.mjs";
 import { makeFail, engineFind, engineTransaction } from "../src/core/hiveScriptSupport.mjs";
 import { engineCustomJson, tokens } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { submitToSigner } from "../src/core/signer.mjs";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 const hiveReader = new HiveClient();

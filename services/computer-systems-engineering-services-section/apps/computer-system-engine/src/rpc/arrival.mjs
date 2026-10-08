@@ -1,7 +1,7 @@
 import { parseNiUri } from '@red-cup-engineering/uri-services-section/ni-uri';
 import { extractSenPart, parseA2aMessage } from '@red-cup-engineering/a2a-services-section/sen-part';
 import { admitNormalizedSemanticContent } from '@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime';
-import { termToJson } from '@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec';
+import { termToJson } from '@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec';
 /**
  * @packageDocumentation
  *
@@ -20,10 +20,10 @@ import { termToJson } from '@red-cup-engineering/computer-data-engineering-servi
  */
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
 import { settleCausalSet } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/causal";
 import {
   arrivalUtteranceFromCloudEvent,

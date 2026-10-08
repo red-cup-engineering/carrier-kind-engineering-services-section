@@ -6,7 +6,7 @@ import path from "node:path";
 import os from "node:os";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { PrivateKey, KEY_ROLES } from "@red-cup-engineering/hive-blockchain-client-service/keys.mjs";
-import { sealWithPassphrase, openWithPassphrase } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/seal";
+import { sealWithPassphrase, openWithPassphrase } from "@red-cup-engineering/cryptographic-data-service/seal";
 
 export { KEY_ROLES };
 

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { randomBytes } from "node:crypto";
 import { PrivateKey } from "@red-cup-engineering/hive-blockchain-client-service/keys.mjs";
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
 import { verifyHiveSignedMessage } from "../scripts/verify-hive-signed-message.mjs";
 
 // A throwaway key generated fresh for this test run via the house client's

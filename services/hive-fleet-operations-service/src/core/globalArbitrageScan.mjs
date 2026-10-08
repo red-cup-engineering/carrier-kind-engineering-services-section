@@ -1,4 +1,4 @@
-import { decimalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { sizeExactPoolToBook } from "../analysis/exactArbitrage.mjs";
 import { attestProviders } from "./providerAttestation.mjs";
 export const GLOBAL_ARBITRAGE_SCAN_SCHEMA = "aagaard.global-arbitrage-scan.v1";

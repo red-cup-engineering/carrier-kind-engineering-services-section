@@ -20,7 +20,7 @@ import {
 } from "../src/core/terracoreSettlement.mjs";
 import { makeFail, rpc as sharedRpc } from "../src/core/hiveScriptSupport.mjs";
 import { observeRcReserve } from "../src/integrations/hive/rcReserve.adapter.mjs";
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { submitToSigner } from "../src/core/signer.mjs";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { FLEET_ACCOUNTS } from "../src/core/core.adapter.mjs";

@@ -4,7 +4,7 @@ import { createLedger } from "./ledger.mjs";
 
 import { checkBooksBalance, checkNoNegativeBalances, verifyPayoutInvariant, checkPayoutInvariant, checkAll } from "./invariants.mjs";
 import { fundAccount, transferEnergy, spendFromAccount, createPool, withMember, contributeToPool, distributePool } from "./transfer.mjs";
-import { seededStream } from "@red-cup-engineering/computer-data-engineering-services-section/randomization/stream";
+import { seededStream } from "@red-cup-engineering/computer-data-services-section/randomization/stream";
 
 const DATE = "2026-08-19";
 

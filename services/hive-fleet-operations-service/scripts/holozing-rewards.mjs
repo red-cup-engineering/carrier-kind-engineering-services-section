@@ -20,7 +20,7 @@ import {
   planHoloZingRewardClaim,
   reconcileHoloZingRewardClaim,
 } from "@red-cup-engineering/holozing-services-section";
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
 import { makeFail, parseAccountExecuteOneOptions, rpc as supportRpc, engineFind } from "../src/core/hiveScriptSupport.mjs";
 import { loadVerifiedHiveKey } from "@red-cup-engineering/key-management-services-section/hive-keystore";
 

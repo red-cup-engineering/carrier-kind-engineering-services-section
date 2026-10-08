@@ -2,7 +2,7 @@
 // public market observation, exact planning, the signer, independent chain
 // confirmation, and a priced-resource result into one operational effect.
 import { EngineClient, ENGINE_NODES, engineCustomJson, market, pools } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
-import { decimalUnits, formatUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { runSigner } from "./signer.mjs";
 import { priceResourceCosts, RESOURCE_COMPONENT_NAMES } from "./resourceCostModel.mjs";
 import { assessSellLegEffect, assessSwapLegEffect } from "../integrations/hive-engine/hiveEngineConfirmation.mjs";

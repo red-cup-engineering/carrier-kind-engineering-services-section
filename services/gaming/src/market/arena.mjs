@@ -58,7 +58,7 @@ import { nominalArenaJudgment } from "../structuring/concurrent-game/with-symmet
 import { GameComputer } from "../running/computer.mjs";
 import { addDesign, settle } from "../running/game.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { gradedCompare } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradedCompare } from "@red-cup-engineering/exact-number-data-service/graded";
 
 /** The carrier `$id` of a market arena — the order book read as a CGS arena. */
 export const MARKET_ARENA_ID = "gaming/market/arena";

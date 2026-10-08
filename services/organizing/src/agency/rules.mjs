@@ -22,7 +22,7 @@
  * action proceeds unless the permitted cell is told against. The same rules are the governance's norms
  * (`ruleNorms`): MUST requires and MUST NOT forbids its action for the subject's members.
  */
-import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
 import { cell, cellSet, knowledgeReading, sameCell } from "@red-cup-engineering/signcell/cell";
 import { rule as chainRule, step } from "@red-cup-engineering/signchain/rules";
 

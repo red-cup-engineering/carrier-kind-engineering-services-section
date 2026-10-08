@@ -5,7 +5,7 @@ import { fileURLToPath as projectFileUrlFilepath } from "node:url";
 import { MarkdownFileRevisionConflict, markdownFileRevision, writeMarkdownFile } from "@red-cup-engineering/markdown-engineering-services-section/write-markdown-file";
 import { classifyMarkdownCorpusPath, planMarkdownCorpusCleanup, prepareMarkdownCorpusCleanupDocument, selectMarkdownCorpusCleanupTransactionsByActionKinds } from "../src/term-migration.mjs";
 import { readMarkdownCorpus } from "./plan-set-of-terms.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 
 function confined(root, relativePath) {

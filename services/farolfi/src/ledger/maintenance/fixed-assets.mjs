@@ -1,4 +1,4 @@
-import { formatScaled, parseDecimal } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { formatScaled, parseDecimal } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 
 const CATEGORY_COMPONENTS = { "computer-equipment": "Computer-Equipment", "other-equipment": "Other-Equipment" };
 

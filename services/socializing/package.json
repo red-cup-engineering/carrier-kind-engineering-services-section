@@ -15,7 +15,6 @@
     "@red-cup-engineering/communicating": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
@@ -27,7 +26,9 @@
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/signcraft": "workspace:*",
-    "@red-cup-engineering/signgraph": "workspace:*"
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "exports": {
     ".": "./src/index.mjs",

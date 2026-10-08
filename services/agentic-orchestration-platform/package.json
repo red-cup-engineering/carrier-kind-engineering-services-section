@@ -24,7 +24,6 @@
   "dependencies": {
     "@red-cup-engineering/animating": "workspace:*",
     "@red-cup-engineering/communicating": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-web-server": "workspace:*",
     "@red-cup-engineering/computing": "workspace:*",

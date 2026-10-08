@@ -12,10 +12,10 @@ import { fileURLToPath } from "node:url";
 import {
   admitArtifactFabricationRealizationPlan,
   admitArtifactFabricationSpecification,
-} from "@red-cup-engineering/computer-data-engineering-services-section/artifact-fabrication";
+} from "@red-cup-engineering/computer-data-services-section/artifact-fabrication";
 import { designTokenStyle, listChapters, normalizeAssets, sha256File, sha256SourceHash } from "./ebook-production.mjs";
 import { produceEbook } from "../scripts/produce-ebook.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { isNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 

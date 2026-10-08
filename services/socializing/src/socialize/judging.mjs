@@ -1,4 +1,4 @@
-import { knowledgeJoinReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
 /**
  * judging — socializing's JUDGMENT AGGREGATION: the discursive dilemma (the doctrinal paradox) and
  * its principled escape, the logical sibling of `preference.mts`'s Arrow/Condorcet escape.

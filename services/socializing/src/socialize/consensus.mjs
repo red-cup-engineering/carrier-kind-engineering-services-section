@@ -26,7 +26,7 @@
 
 import { cell } from "@red-cup-engineering/signcell/cell";
 import { cohomologyOfCells } from "@red-cup-engineering/signgraph/cohomology";
-import { members, intZero, intOne, intNegate, intIsZero as intIsZero_2, isNegative, magnitude, toCount } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { members, intZero, intOne, intNegate, intIsZero as intIsZero_2, isNegative, magnitude, toCount } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { createGraph, weaklyConnectedComponents } from "@red-cup-engineering/metrologic/models/graphs/directed-multigraph";
 import { isHarmonicOfWeights, hodgeDecompositionOfWeights, diffusionDirections, weightsOfEdges, graphSpectrum } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/laplacian";
 import { knowledgeJoin, knowledgeMeet } from "@red-cup-engineering/signchain/bilattice";

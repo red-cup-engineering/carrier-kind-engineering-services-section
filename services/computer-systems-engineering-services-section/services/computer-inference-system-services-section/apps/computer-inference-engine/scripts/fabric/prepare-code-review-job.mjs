@@ -3,7 +3,7 @@ import { isMain } from "@red-cup-engineering/javascript-file-services-section/ja
 import { writeFileAtomic, writeFileAtomicNew } from "@red-cup-engineering/computer-system-engine/filesystem";
 import { lstatSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, relative, resolve } from "node:path";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const valued = new Set(["id", "root", "instruction-file", "file", "output", "difficulty", "max-tokens", "max-source-bytes", "capability"]), booleans = new Set(["overwrite", "help"]);
 function parse(argv) {

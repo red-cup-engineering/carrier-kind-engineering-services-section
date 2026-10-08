@@ -4,7 +4,7 @@ import { createCipheriv, randomBytes } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
 import { transferAuthProfile } from "../../src/authentication/profile-transfer.mjs";
 
 const validNotebook = (value) => Array.isArray(value.cookies) && value.cookies.length > 0;

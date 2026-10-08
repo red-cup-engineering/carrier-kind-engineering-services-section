@@ -4,7 +4,7 @@ import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/
 
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { encodeCanonical } from "@red-cup-engineering/cbor-services-section";
-import { typedListItems, typedListTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { typedListItems, typedListTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import {
   admitRelationalValuePayload,
   decodeRelationalValue,

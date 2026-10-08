@@ -21,7 +21,7 @@ import { site, transportRules } from "@red-cup-engineering/signgraph/site";
 import { rankIdentity, rankVanishing } from "@red-cup-engineering/signgraph/cohomology";
 import { evidenceAt, lastValuation, posit } from "@red-cup-engineering/signgraph/valuation";
 import { presentedCategoryDiagram } from "@red-cup-engineering/signgraph/diagram";
-import { readingFamilies, readingOfSides, sidesOfReading, census } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingFamilies, readingOfSides, sidesOfReading, census } from "@red-cup-engineering/computer-data-services-section/four";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { closureRegimeName } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { ofNat, regimeOfOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/ordinal-closure";

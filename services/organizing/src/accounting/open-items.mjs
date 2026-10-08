@@ -1,4 +1,4 @@
-import { gradeOf, gradedAdd, gradedCompare, gradedNegate, gradedToExactString, gradedZero } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
+import { gradeOf, gradedAdd, gradedCompare, gradedNegate, gradedToExactString, gradedZero } from "@red-cup-engineering/exact-number-data-service/graded";
 
 
 const text = (x) => typeof x === "string" && x.length ? x : null;

@@ -1,7 +1,7 @@
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
 import { promises as fsp } from "node:fs";
 import { join } from "node:path";
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
 import { writeFileAtomicAsync } from "@red-cup-engineering/computer-system-engine/filesystem";
 import { isSafeBucket, listKeys, s3Resource as s3BucketsResource } from "@red-cup-engineering/http-services-section/s3";
 function strongObjectEtag(body) {

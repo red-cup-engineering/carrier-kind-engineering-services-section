@@ -3,7 +3,7 @@ import { acceptKey, encodeFrame, FrameDecoder } from "@red-cup-engineering/code-
 import net from "node:net";
 import tls from "node:tls";
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
-import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 function parseFrames(socket, onFrame, maxPayload) {
     const decoder = new FrameDecoder(maxPayload === undefined ? {} : {
         maxPayload

@@ -1,5 +1,5 @@
 import { witnessChainAct } from "./journal.mjs";
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { niUriDigest } from "@red-cup-engineering/uri-services-section/ni-uri";
 export const HBD_SAVINGS_TOUCH_SCHEMA = "aagaard.hbd-savings-touch.v1";

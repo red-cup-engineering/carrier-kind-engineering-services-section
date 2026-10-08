@@ -6,7 +6,7 @@ import { createImmutableContentCustody } from "@red-cup-engineering/immutable-co
 import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { admitArtifactFabricationRealizationPlan, admitArtifactFabricationSpecification } from "@red-cup-engineering/computer-code-development-engine/artifact-fabrication";
+import { admitArtifactFabricationRealizationPlan, admitArtifactFabricationSpecification } from "@red-cup-engineering/computer-data-services-section/artifact-fabrication";
 import { audiobookMasteringSpecification, describeAudiobookEditionSource, wordErrorRate } from "@red-cup-engineering/voice-audio-services-section";
 
 const ni = makeNiUri;

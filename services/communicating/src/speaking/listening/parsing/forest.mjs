@@ -12,7 +12,7 @@ import { articulateCommunication } from "./articulating.mjs";
 import { cohomology } from "./cohomology.mjs";
 import { parse } from "./parsing.mjs";
 import { spansInSentenceOfTier, wordsInSentence } from "./construing.mjs";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 const spanSchema = {
   type: "object",

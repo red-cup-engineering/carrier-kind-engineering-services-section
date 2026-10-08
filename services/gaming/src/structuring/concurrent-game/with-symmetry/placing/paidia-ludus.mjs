@@ -27,12 +27,12 @@
  * Caillois modes" â€” the modes are most distinct at the ludus end.
  */
 
-import { ratCompare } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { ratCompare } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import {
 
   ludusIndex,
 } from "./ludus.mjs";
-import { fromRatio } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { fromRatio } from "@red-cup-engineering/exact-number-data-service/exact-number";
 
 
 /** The five bands of the axis, paidia-end first. */

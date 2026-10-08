@@ -2,7 +2,7 @@ import {
   createR2RestClient,
   r2RestConfiguration,
 } from "@red-cup-engineering/cloudflare-r2-services-section/r2-rest";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 const SHA256 = /^0x[a-f0-9]{64}$/u;
 const PREFIX = "activitypub-services-section/onchain-data-resource-service/external-bodies/sha256";

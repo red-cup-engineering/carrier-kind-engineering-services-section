@@ -12,7 +12,7 @@ import {
   searchOpenLibraryBooks,
 } from "@red-cup-engineering/csl-json-services-section/open-library";
 import { crossrefWorkToCsl } from "@red-cup-engineering/csl-json-services-section/scripts/project-crossref-work-csl.mjs";
-import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 import { resolveDoi } from "../scripts/resolve-doi.mjs";
 import { fetchOpenAlexWork } from "../scripts/fetch-openalex-work.mjs";
 import { searchOpenAlexWorks } from "../scripts/search-openalex-works.mjs";

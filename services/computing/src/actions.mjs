@@ -7,7 +7,7 @@
  */
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { tmCarrier } from "@red-cup-engineering/relating";
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
 import {
   coreActions,
   computeAction,

@@ -8,7 +8,7 @@
  * organizations are SignChain's `chuMap`.
  */
 import { coincides } from "@red-cup-engineering/signcell/cell";
-import { count, fromNatural } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { count, fromNatural } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { chuSpaceOfEntries } from "@red-cup-engineering/metrologic/chu";
 
 /** The Chu space of a cell set under a list of named observations. */

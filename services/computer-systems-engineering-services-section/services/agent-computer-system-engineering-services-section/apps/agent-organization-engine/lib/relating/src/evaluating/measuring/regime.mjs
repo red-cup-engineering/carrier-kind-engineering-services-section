@@ -1,5 +1,5 @@
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { objectTerm, stringTerm, booleanConditionTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { objectTerm, stringTerm, booleanConditionTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { aperiodicClosureRegime, finiteClosureRegime, scottClosureRegime, transfiniteClosureRegime } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { classifyRegime } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/value-category";
 

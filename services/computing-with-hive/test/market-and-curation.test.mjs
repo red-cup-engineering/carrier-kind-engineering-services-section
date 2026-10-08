@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { gradedFromParts as amount, gradedValue } from "@red-cup-engineering/computer-data-engineering-services-section/number/graded";
-import { rationalUnits } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { rationalOfBigInts } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { gradedFromParts as amount, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
+import { rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { rationalOfBigInts } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { parseEngineOrderBook, parseInternalOrderBook, bookReport, judgeIntent } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { curationProposal } from "../src/computing/curation/curation.mjs";
 

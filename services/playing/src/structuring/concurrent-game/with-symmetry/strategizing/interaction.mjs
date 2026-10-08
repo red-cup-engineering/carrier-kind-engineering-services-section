@@ -18,7 +18,7 @@
  */
 import { design, designAct, designReading, supportKeys } from "../ludicizing/design.mjs";
 import { locusFromKey } from "../ludicizing/locus.mjs";
-import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
 
 const sharedAndUnionKeys = (d1, d2) => {
   const keys1 = new Set(supportKeys(d1));

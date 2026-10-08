@@ -20,7 +20,7 @@ import { ecosystemInfoTiling, regulateEcosystemCausalWidth, stabilizeEcosystemCa
 import { aperiodicTilesFromEcosystem, readAperiodicPatch, selfOrganizeAperiodicPatch, readAperiodicTheoryAtlas, planAperiodicBridges } from "../src/aperiodic-tiling.mjs";
 import { agent } from "@red-cup-engineering/animating/becoming/doing/working/governing/agent";
 import { admitSeed } from "@red-cup-engineering/animating/becoming/descending";
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
 
 // enriched agents (built by animating), NOT bare values
 const verifiedAgent = agent("the-sky|is-blue", { identity: "observer", goal: { predicate: "is-blue", reading: "potential" } });

@@ -8,7 +8,7 @@
  */
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { count } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { count } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { shannonEntropy, mutualInformation } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/information";
 
 const readingSchema = { enum: ["absurd", "potential", "active", "stable"] };

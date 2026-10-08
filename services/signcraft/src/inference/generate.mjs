@@ -29,7 +29,7 @@
 
 import { readingAt, kHeight } from "./nuclei.mjs";
 import { impClosure, closeAttrs, extent, NEG, isDenied, baseAttr } from "@red-cup-engineering/metrologic/closure/formal-context";
-import { isConsistentReading, knowledgeJoinReading, readingOfSides, samePoint, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isConsistentReading, knowledgeJoinReading, readingOfSides, samePoint, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
 
 const hasTruth = (q) => sidesOfReading(q)[0];
 const hasFalsity = (q) => sidesOfReading(q)[1];

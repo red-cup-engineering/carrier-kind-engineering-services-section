@@ -49,7 +49,7 @@ import {
 
 } from "./field.mjs";
 import { convergeAction } from "./converge.mjs";
-import { census, truthJoinOfCensus } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { census, truthJoinOfCensus } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** The axis this face reads — the agentive-triad TRUTH axis (`≤_t`, negation antitone). */
 export const SOCIALIZING_FACE_AXIS = "truth";

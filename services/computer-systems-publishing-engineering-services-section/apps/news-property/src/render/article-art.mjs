@@ -1,5 +1,5 @@
 /** Deterministic, reader-visible SVG art for an article without a supplied hero. */
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
 
 function escapeXml(value) {
   return String(value)

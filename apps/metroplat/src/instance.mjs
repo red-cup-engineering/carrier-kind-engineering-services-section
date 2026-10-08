@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
 import { createTypedMark } from "@red-cup-engineering/signcell/typed-mark";
 import { operationSourcesFromFern, fernCatalogOptionsFrom } from "./fern-catalog.mjs";
 

@@ -1,4 +1,4 @@
-import { addDecimalStrings, divideDecimalStrings, multiplyDecimalStrings, parseDecimal } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
+import { addDecimalStrings, divideDecimalStrings, multiplyDecimalStrings, parseDecimal } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/u;
 const ZERO_PATTERN = /^0(\.0+)?$/u;
