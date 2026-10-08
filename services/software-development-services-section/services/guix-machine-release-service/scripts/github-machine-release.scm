@@ -111,7 +111,12 @@
              (service (string-append (assoc-ref owner "directory") "/services/software-development-services-section/services/guix-machine-release-service"))
              (lock (string-append snapshot "/dependencies.lock.yaml")))
         (when (equal? mode "deploy")
-          (run "node" (string-append service "/scripts/verify-release-admission.mjs") snapshot))
+          (run "node" (string-append service "/scripts/verify-release-admission.mjs") snapshot)
+          ;; Native builders need space before sealing their new Guix input.
+          ;; The sole writer reconciles failed candidates under its own lease.
+          (unless (assoc-ref config "receiverHost")
+            (run "guix" "repl" "--" (string-append service "/scripts/receive.scm")
+                 (string-append snapshot "/machine.json") "current" "--reconcile")))
         (run "node" (string-append service "/scripts/prepare-sources.mjs") prepared)
         (if (equal? mode "resolve")
           (begin

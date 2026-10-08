@@ -81,6 +81,21 @@
             (delete-file file))))
       (scandir (dirname root)))))
 
+(define (reconcile-release-roots config)
+  ;; Failed promotion may leave the auxiliary Guix profile on its candidate.
+  ;; The application links remain authoritative; protect both before retiring
+  ;; obsolete candidate/profile roots. This operation never switches code.
+  (let* ((root (field config "releaseRoot"))
+         (current-link (string-append root "/current"))
+         (previous-link (string-append root "/previous"))
+         (current (and (file-exists? current-link) (canonicalize-path current-link)))
+         (previous (and (file-exists? previous-link) (canonicalize-path previous-link))))
+    (when (and current (string-prefix? "/gnu/store/" current))
+      (root-release-generations config current current previous)
+      (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" current)
+      (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--delete-generations"))
+    (run "guix" "gc" "--free-space=2GB")))
+
 (define (retain-release-roots config store current previous)
     (root-release-generations config store current previous)
     ;; Guix deduplicates immutable files and collects only unrooted store items.
@@ -294,13 +309,15 @@
   ((config-file store . options)
    (let* ((config (read-json config-file)) (root (field config "releaseRoot"))
           (lease (string-append root "/.release.lock/lease")))
-     (unless (or (equal? store "previous") (string-prefix? "/gnu/store/" store))
+     (unless (or (equal? store "previous") (equal? store "current") (string-prefix? "/gnu/store/" store))
        (error "candidate must be a Guix store output"))
      (run "mkdir" "-p" (dirname lease))
      (if (equal? (getenv "GUIX_MACHINE_RELEASE_LOCKED") "1")
+         (if (and (equal? store "current") (member "--reconcile" options))
+           (reconcile-release-roots config)
          (let ((candidate (if (equal? store "previous") (canonicalize-path (string-append root "/previous")) store)))
            (unless (string-prefix? "/gnu/store/" candidate) (error "rollback requires a retained Guix generation"))
-           (display (receive config candidate (member "--check-failure" options) (member "--stage-only" options))) (newline))
+           (display (receive config candidate (member "--check-failure" options) (member "--stage-only" options))) (newline)))
          (begin
            (setenv "GUIX_MACHINE_RELEASE_LOCKED" "1")
            (apply run "flock" "--exclusive" "--wait" "900" lease "guix" "repl" "--"
