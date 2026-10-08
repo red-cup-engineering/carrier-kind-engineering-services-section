@@ -15,7 +15,7 @@ import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-
 import { PrivateKey } from "@red-cup-engineering/hive-blockchain-client-service/keys.mjs";
 import { keepCredential } from "@red-cup-engineering/credential-custody-service/keep";
 import { backupKeyPath, configRoot, keyPath, metaPath } from "../src/keystore-paths.mjs";
-import { defaultHiveKeyRoot, hiveKeyPath, setHiveKey } from "../src/hive-keystore.mjs";
+import { hiveKeyPath, setHiveKey } from "../src/hive-keystore.mjs";
 import { buildWalletRegistry, normalizeWalletRow } from "../src/wallet-registry.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -86,7 +86,7 @@ export async function createWallet({ id, chain, owner, role, relations = [], pas
   // A Hive key is an account's active role key, kept where the fleet signer reads it: the Hive
   // keystore (<root>/<account>/active.wif), under the home root and again under the backup root.
   const hive = HIVE_CHAINS.has(chain);
-  const hiveRoots = hive ? { primary: defaultHiveKeyRoot(home), backup: resolve(backupRoot, "hive") } : null;
+  const hiveRoots = hive ? { primary: resolve(root, "hive"), backup: resolve(backupRoot, "hive") } : null;
   const primaryPath = hive ? hiveKeyPath(id, "active", hiveRoots.primary) : keyPath({ configRoot: root, chain, id });
   const backupPath = hive ? hiveKeyPath(id, "active", hiveRoots.backup) : backupKeyPath({ backupRoot, chain, id });
   const sidecarPath = metaPath({ configRoot: root, chain, id });
@@ -95,8 +95,8 @@ export async function createWallet({ id, chain, owner, role, relations = [], pas
 
   const materialized = EVM_CHAINS.has(chain) ? await materializeEvmKey(passphrase) : materializeHiveKey();
   if (hive) {
-    setHiveKey(id, "active", materialized.wif, { root: hiveRoots.primary });
-    setHiveKey(id, "active", materialized.wif, { root: hiveRoots.backup });
+    await setHiveKey(id, "active", materialized.wif, { root: hiveRoots.primary, env });
+    await setHiveKey(id, "active", materialized.wif, { root: hiveRoots.backup, env });
   } else {
     writePrivateFile(primaryPath, materialized.fileContents);
     writePrivateFile(backupPath, materialized.fileContents);

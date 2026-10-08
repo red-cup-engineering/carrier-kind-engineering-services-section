@@ -219,7 +219,8 @@ export function loadAagaardConfig(options = {}) {
         live: env["AAGAARD_LIVE"] === "1" || raw["live"] === true,
         enabled: enabledCapabilities(raw["enabled"]),
         cadenceSeconds: Math.max(60, Math.floor(numberOr(raw["cadenceSeconds"], 900))),
-        keyRoot: expandHome(env["HIVE_KEY_ROOT"] ?? (typeof raw["keyRoot"] === "string" ? raw["keyRoot"] : "~/.config/blockchain/hive"), env),
+        // Hive keys are credentials of the host's store, rendered under hive/ in CREDENTIALS_DIRECTORY.
+        keyRoot: expandHome(env["HIVE_KEY_ROOT"] ?? (typeof raw["keyRoot"] === "string" ? raw["keyRoot"] : env["CREDENTIALS_DIRECTORY"] ? path.join(env["CREDENTIALS_DIRECTORY"], "hive") : ""), env),
         hive: hiveConfig(raw),
         hiveEngine: hiveEngineConfig(raw),
         wallets
@@ -396,7 +397,7 @@ export function candidateFieldDigest(posts) {
                     rshares: vote.rshares,
                     time: vote.time ?? null,
                     percent: vote.percent ?? null
-                })).sort((left, right)=>`${left.voter}\u0000${left.time ?? ""}`.localeCompare(`${right.voter}\u0000${right.time ?? ""}`))
+                })).sort((left, right)=>`${left.voter}\^@${left.time ?? ""}`.localeCompare(`${right.voter}\^@${right.time ?? ""}`))
         }));
     return semanticIdentity("aagaard.strategy-candidate-field", field);
 }
