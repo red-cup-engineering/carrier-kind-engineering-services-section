@@ -319,10 +319,11 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     return saved;
   }
   async function setRelatedVideo({videoId,relatedVideoId,storageState=env.YOUTUBE_STUDIO_STORAGE_STATE}) {
+    const {assertStudioAvailable,setShortRelatedVideo}=await import('./youtube-studio.mjs');
+    assertStudioAvailable({storageState});
     const short=await ownVideo(videoId), parent=await ownVideo(relatedVideoId);
     if(videoId===relatedVideoId || !['public','unlisted'].includes(parent.status.privacyStatus)) throw new Error('Related Video must be another public or unlisted video on the same channel');
     await authorize('youtube.related-video',{provider:'youtube',videoId:short.id,relatedVideoId:parent.id,channelId});
-    const {setShortRelatedVideo}=await import('./youtube-studio.mjs');
     return setShortRelatedVideo({videoId,relatedVideoId,channelId,channelName:short.snippet.channelTitle,storageState});
   }
   async function setLearningLinks({videoId,text}) {
