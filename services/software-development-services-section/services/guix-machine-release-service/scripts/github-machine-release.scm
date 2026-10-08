@@ -136,6 +136,12 @@
                                ((equal? mode "build") '("--stage-only")) (else '()))))
             (if (assoc-ref config "receiverHost")
               (begin
+                ;; Reclaim only unrooted Guix items before importing the candidate.
+                ;; Existing release/profile/stage roots protect both generations;
+                ;; the canonical writer lease serializes this with their changes.
+                (remote (assoc-ref config "receiverHost") "flock" "--exclusive" "--wait" "900"
+                  (string-append (assoc-ref config "releaseRoot") "/.release.lock/lease")
+                  "guix" "gc" "--free-space=2GB")
                 (run "guix" "copy" (string-append "--to=" (shell-word (assoc-ref config "receiverHost"))) store)
                 (remote (assoc-ref config "receiverHost") "guix" "repl" "--"
                   (string-append store "/.controller/scripts/register-candidate-root.scm") store
