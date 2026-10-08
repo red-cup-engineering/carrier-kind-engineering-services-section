@@ -16,7 +16,7 @@ function tempRoots() {
 
 test("createWallet refuses without a passphrase", async () => {
   const { home, backupRoot, journalRoot } = tempRoots();
-  const result = await createWallet({ id: "test-base-wallet", chain: "base", owner: "org", role: "pool", passphrase: undefined, backupRoot, home, journalRoot });
+  const result = await createWallet({ id: "test-base-wallet", chain: "base", owner: "org", role: "pool", passphrase: undefined, backupRoot, home, credentialsDirectory: home, journalRoot });
   assert.equal(result.created, false);
   assert.match(result.reason, /KEY_PASSPHRASE is not set/u);
   rmSync(home, { recursive: true, force: true });
@@ -26,7 +26,7 @@ test("createWallet refuses without a passphrase", async () => {
 
 test("createWallet refuses without a backup root", async () => {
   const { home, backupRoot, journalRoot } = tempRoots();
-  const result = await createWallet({ id: "test-base-wallet", chain: "base", owner: "org", role: "pool", passphrase: "a".repeat(20), backupRoot: undefined, home, journalRoot });
+  const result = await createWallet({ id: "test-base-wallet", chain: "base", owner: "org", role: "pool", passphrase: "a".repeat(20), backupRoot: undefined, home, credentialsDirectory: home, journalRoot });
   assert.equal(result.created, false);
   assert.match(result.reason, /KEY_BACKUP_ROOT is not set/u);
   rmSync(home, { recursive: true, force: true });
@@ -39,7 +39,7 @@ test("createWallet: EVM (base) round trip -- dual-copy custody, mode 0600, decry
   const registryPath = join(journalRoot, "registry.json");
   const passphrase = "correct horse battery staple!!";
   try {
-    const result = await createWallet({ id: "tidepool-pool-base", chain: "base", owner: "org", role: "pool", relations: [{ kind: "consumed-by", target: "pool-service" }], passphrase, backupRoot, home, registryPath, journalRoot });
+    const result = await createWallet({ id: "tidepool-pool-base", chain: "base", owner: "org", role: "pool", relations: [{ kind: "consumed-by", target: "pool-service" }], passphrase, backupRoot, home, credentialsDirectory: home, registryPath, journalRoot });
     assert.equal(result.created, true);
     assert.equal(result.chain, "base");
     assert.match(result.address, /^0x[0-9a-fA-F]{40}$/u);
@@ -67,7 +67,7 @@ test("createWallet: EVM (base) round trip -- dual-copy custody, mode 0600, decry
     assert.deepEqual(sidecar.relations, [{ kind: "consumed-by", target: "pool-service" }]);
     assert.ok(sidecar.createdAt);
 
-    const duplicateId = await createWallet({ id: "tidepool-pool-base", chain: "base", owner: "org", role: "pool", passphrase, backupRoot, home, registryPath, journalRoot });
+    const duplicateId = await createWallet({ id: "tidepool-pool-base", chain: "base", owner: "org", role: "pool", passphrase, backupRoot, home, credentialsDirectory: home, registryPath, journalRoot });
     assert.equal(duplicateId.created, false);
     assert.match(duplicateId.reason, /a key already exists at/u);
   } finally {
@@ -81,7 +81,7 @@ test("createWallet: Hive round trip -- WIF primary/backup parse to the same publ
   const { home, backupRoot, journalRoot } = tempRoots();
   const passphrase = "unused-for-hive-but-required!!";
   try {
-    const result = await createWallet({ id: "test-hive-wallet", chain: "hive", owner: "org", role: "auxiliary", passphrase, backupRoot, home, journalRoot });
+    const result = await createWallet({ id: "test-hive-wallet", chain: "hive", owner: "org", role: "auxiliary", passphrase, backupRoot, home, credentialsDirectory: home, journalRoot });
     assert.equal(result.created, true);
     assert.equal(result.chain, "hive");
     assert.equal(result.address, "test-hive-wallet");
@@ -101,7 +101,7 @@ test("createWallet: Hive round trip -- WIF primary/backup parse to the same publ
 
 test("createWallet refuses an unsupported chain", async () => {
   const { home, backupRoot, journalRoot } = tempRoots();
-  const result = await createWallet({ id: "test-solana-wallet", chain: "solana", owner: "org", role: "auxiliary", passphrase: "x".repeat(20), backupRoot, home, journalRoot });
+  const result = await createWallet({ id: "test-solana-wallet", chain: "solana", owner: "org", role: "auxiliary", passphrase: "x".repeat(20), backupRoot, home, credentialsDirectory: home, journalRoot });
   assert.equal(result.created, false);
   assert.match(result.reason, /chain solana is not supported/u);
   rmSync(home, { recursive: true, force: true });

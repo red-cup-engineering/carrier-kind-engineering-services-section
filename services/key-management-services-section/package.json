@@ -54,6 +54,7 @@
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
+    "@red-cup-engineering/credential-custody-service": "workspace:*",
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
     "@red-cup-engineering/ethereum-engineering-services-section": "workspace:*",
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",

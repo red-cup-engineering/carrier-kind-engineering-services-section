@@ -2,7 +2,7 @@
 /**
  * Derives the WalletRegistry: never hand-written. Folds four live sources -- this host's own
  * runtime environment (every `.env`/`.env.*` beside the checkout root, plus every `*.env` under
- * `~/.config/561-group`), its keystore directory, the ethereum-services-section census, and tree
+ * this process's credentials directory), its keystore directory, the ethereum-services-section census, and tree
  * relations -- plus a house-carrier fold for wallets no live source names. Never guesses custody
  * or owner.
  */
@@ -207,7 +207,7 @@ function safeReaddir(directory) {
 /**
  * Lists every environment file this host's runtime loader would read: `.env` and every
  * `.env.*` sibling directly under `checkoutRoot`, plus every `*.env` file directly under
- * `houseConfigRoot` (`~/.config/561-group`, matching `ops-mcp-client.env`'s own convention).
+ * `houseConfigRoot` (this process's credentials directory, rendered by credential custody).
  * Sorted for stable output; a missing directory or file is simply absent, never an error.
  * @param {{checkoutRoot: string, houseConfigRoot: (string|null)}} input
  * @returns {readonly string[]} Absolute paths, sorted.
@@ -483,7 +483,7 @@ if (import.meta.main) {
   const facts = JSON.parse(readFileSync(values.facts ?? DEFAULT_FACTS_PATH, "utf8"));
   const host = values.host ?? hostname();
   const checkoutRoot = values["checkout-root"] ?? findRepoRoot(PACKAGE_ROOT);
-  const houseConfigRoot = configRoot({});
+  const houseConfigRoot = configRoot();
   const envFilePaths = findEnvFilesToScan({ checkoutRoot, houseConfigRoot });
   const derivedAt = new Date().toISOString();
   let { registry, unresolvedHiveKeys } = await deriveWalletRegistry({

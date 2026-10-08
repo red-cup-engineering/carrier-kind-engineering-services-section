@@ -17,15 +17,17 @@ export function extensionForChain(chain) {
 }
 
 /**
- * The org's canonical config root for house key material: `~/.config/561-group`, matching the
- * convention `~/.config/561-group/ops-mcp-client.env` already uses. Never `.env*` and never a
- * path inside the git checkout.
- * @param {{home?: string}} [input]
- * @returns {string}
+ * The root house key material is read under: this process's credentials directory (CREDENTIALS_DIRECTORY, rendered
+ * from the host's credential store by credential custody), where a wallet keystore is `keys/<chain>/<id>.<ext>`.
+ * `directory` names another root, for a test. Never a home directory, never `.env*`, never a path inside the git
+ * checkout. With `optional`, a process given no credentials directory gets null.
+ * @param {{directory?: string, optional?: boolean}} [input]
+ * @returns {string|null}
  */
-export function configRoot({ home = process.env.HOME } = {}) {
-  if (!home) throw new TypeError("keystore-paths: HOME is not set");
-  return join(home, ".config", "561-group");
+export function configRoot({ directory = process.env.CREDENTIALS_DIRECTORY, optional = false } = {}) {
+  if (directory) return directory;
+  if (optional) return null;
+  throw new TypeError("keystore-paths: CREDENTIALS_DIRECTORY is not set (this process was not given its host's rendered credentials)");
 }
 
 /**

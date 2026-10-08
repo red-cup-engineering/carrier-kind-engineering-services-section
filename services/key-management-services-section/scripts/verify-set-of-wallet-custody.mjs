@@ -204,7 +204,7 @@ if (import.meta.main) {
   const passphrase = process.env.KEY_PASSPHRASE;
   const backupRoot = process.env.KEY_BACKUP_ROOT;
   const checkoutRoot = values["checkout-root"] ?? findRepoRoot(PACKAGE_ROOT);
-  const houseConfigRoot = configRoot({});
+  const houseConfigRoot = configRoot({ optional: true });
   const env = { ...readEnvVariablesFromFiles(findEnvFilesToScan({ checkoutRoot, houseConfigRoot })), ...process.env };
   const result = await verifyWalletCustody({
     registry,
