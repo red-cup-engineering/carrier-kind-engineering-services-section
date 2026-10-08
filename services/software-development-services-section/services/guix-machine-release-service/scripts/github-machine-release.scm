@@ -9,7 +9,12 @@
          (lines (let loop ((out '())) (let ((line (read-line p)))
                    (if (eof-object? line) (reverse out) (loop (cons line out))))))
          (status (close-pipe p)))
-    (unless (zero? status) (error "release step failed" (car argv)))
+    (unless (zero? status)
+      ;; Assembly returns its closure as the last stdout line. Preserve bounded
+      ;; compiler/test diagnostics when it fails, instead of discarding them.
+      (for-each (lambda (line) (display line (current-error-port)) (newline (current-error-port)))
+                (drop lines (max 0 (- (length lines) 40))))
+      (error "release step failed" (car argv)))
     (if (null? lines) "" (last lines))))
 (define (capture-all . argv)
   (let* ((p (apply open-pipe* OPEN_READ argv))
@@ -136,6 +141,12 @@
                                ((equal? mode "build") '("--stage-only")) (else '()))))
             (if (assoc-ref config "receiverHost")
               (begin
+                ;; Reclaim only unrooted Guix items before importing the candidate.
+                ;; Existing release/profile/stage roots protect both generations;
+                ;; the canonical writer lease serializes this with their changes.
+                (remote (assoc-ref config "receiverHost") "flock" "--exclusive" "--wait" "900"
+                  (string-append (assoc-ref config "releaseRoot") "/.release.lock/lease")
+                  "guix" "gc" "--free-space=2GB")
                 (run "guix" "copy" (string-append "--to=" (shell-word (assoc-ref config "receiverHost"))) store)
                 (remote (assoc-ref config "receiverHost") "guix" "repl" "--"
                   (string-append store "/.controller/scripts/register-candidate-root.scm") store
