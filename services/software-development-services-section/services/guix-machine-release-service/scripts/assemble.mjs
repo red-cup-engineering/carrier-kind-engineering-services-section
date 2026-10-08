@@ -9,6 +9,13 @@ const [workspaceArg,snapshotArg,outputArg]=process.argv.slice(2);
 const workspace=resolve(workspaceArg),snapshot=resolve(snapshotArg),output=resolve(outputArg);
 const sources=JSON.parse(await readFile(join(workspace,'sources.json'),'utf8'));
 const providers=Object.fromEntries(sources.packages.map(p=>[p.name,join(workspace,'packages',p.name.replaceAll('/','__'))]));
+// Checks use the same admitted package namespace as the sealed runtime.
+// Embedded modules keep their declared providers even inside another package.
+for(const [name,directory] of Object.entries(providers)){
+  const link=join(workspace,'node_modules',name);
+  await mkdir(dirname(link),{recursive:true});
+  await symlink(relative(dirname(link),directory),link);
+}
 const entry=providers['@red-cup-engineering/feltos-enterprise-host'];
 const exec=(program,args,options={})=>{const r=spawnSync(program,args,{stdio:'inherit',...options});if(r.error||r.status!==0)throw r.error??new Error(`${program} build check failed (${r.status})`)};
 const environment={...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot};
@@ -56,13 +63,6 @@ const dependencyEvidence=[
 for(const name of ['packages','node_modules'])
   exec('cp',['--archive','--link',join(workspace,name),join(closure,name)]);
 await symlink(relative(workspace,entry),join(closure,'app'));
-// Public deployment declarations resolve composed source providers at the
-// artifact root, while each package keeps its checked dependency links.
-for(const [name,directory] of Object.entries(providers)){
-  const link=join(closure,'node_modules',name);
-  await mkdir(dirname(link),{recursive:true});
-  await symlink(relative(dirname(link),join(closure,relative(workspace,directory))),link);
-}
 // Verify the actual sealed host and newsroom graphs, before Guix admission.
 exec(process.execPath,['--input-type=module','-e',"await import('./app/src/serve-instance.mjs'); await import('./node_modules/@causeway-services/koios-news/src/news-line.mjs')"],{env:environment,cwd:closure});
 await cp(join(snapshot,'deployment'),join(closure,'deployment'),{recursive:true});
