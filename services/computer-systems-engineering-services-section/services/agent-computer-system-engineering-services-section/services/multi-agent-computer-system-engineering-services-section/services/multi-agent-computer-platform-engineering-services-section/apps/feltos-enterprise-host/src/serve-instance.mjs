@@ -1,3 +1,4 @@
+import { Worker } from "node:worker_threads";
 import {createProgrammeCustody} from "@red-cup-engineering/feltos/program-custody";
 import {agentOfIdentity} from '@red-cup-engineering/feltos/identity';
 import {agentCardOfAgent,A2A_PROTOCOL_VERSION} from '@red-cup-engineering/feltos/capabilities';
@@ -486,6 +487,11 @@ export function createEnterpriseServicePlatform({
 
 /** One FeltOS host executable interprets its own host declaration and the selected MetroPlat instance. */
 export async function serveEnterpriseInstance({ hostPath, environment = process.env, requireTls = true, shutdown = {} } = {}) {
+  if (environment.GUIX_MACHINE_DEPLOYMENT_STATUS && environment.METROPLAT_PROBE !== "1") {
+    const diagnostic = new Worker(new URL("./startup-cpu-profile.mjs", import.meta.url), { workerData: { statusPath: environment.GUIX_MACHINE_DEPLOYMENT_STATUS } });
+    diagnostic.on("error", error => process.stderr.write(`[startup-cpu] ${error.message}\n`));
+    diagnostic.unref();
+  }
   if (typeof hostPath !== "string" || !hostPath) throw new TypeError("FELTOS_ENTERPRISE_HOST is required");
   const web = await installedEnterpriseWeb(hostPath);
   const instancePath = web.instancePath;
