@@ -47,8 +47,10 @@ export async function dispatchWire(
   let input;
   try {
     input = wireCodec(inputFormat).decode(stdin);
-  } catch (error) {
-    return { code: 1, stdout: "", stderr: `${program} ${verb}: ${error instanceof Error ? error.message : String(error)}\n` };
+  } catch {
+    // Decoder diagnostics may quote the unaccepted source bytes. No invocation or raw witness
+    // exists yet, so return a fixed boundary refusal rather than forwarding that parser text.
+    return { code: 1, stdout: "", stderr: `${program} ${verb}: input could not be decoded using the selected wire format\n` };
   }
 
   const caller = options.caller ?? Object.freeze({ transport: "unknown" });

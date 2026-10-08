@@ -128,8 +128,8 @@ test("tools/call refusal from a thrown domain assertion carries the same structu
   }, options);
   assert.equal(badInput.result.isError, true);
   mcpToolRefusalContract.assert(badInput.result.structuredContent, "thrown add-one domain assertion");
-  assert.equal(badInput.result.structuredContent.phase, "execution");
-  assert.match(badInput.result.structuredContent.reasons[0], /add-one input/u);
+  assert.equal(badInput.result.structuredContent.phase, "input");
+  assert.match(badInput.result.structuredContent.reasons[0], /does not satisfy its declared domain/u);
 });
 
 test("mcpExecutionRefusal encodes a thrown value as a structured refusal datum", () => {
@@ -146,4 +146,24 @@ test("mcpToolRefusal builds a datum conforming to its own schema, and mcpToolRef
   const result = mcpToolRefusalResult("no capability", refusal);
   assert.equal(result.isError, true);
   assert.equal(result.structuredContent, refusal);
+});
+
+test("invalid MCP arguments are absent from public refusal and RPC witnesses; earlier arrival custody remains separate", async () => {
+  const sentinel = "synthetic-unaccepted-credential-value";
+  const assertions = [grantAssertion("issuer:test", "subject:test", "infograph#add-one", at())];
+  const surface = surfaceWithGrants(assertions);
+  const events = [], arrivals = [];
+  const options = serveOptions(memoryWitness(events));
+  const originalArrival = options.onArrival;
+  options.onArrival = event => { arrivals.push(event); return originalArrival(event); };
+  const refused = await programMcpHandle(surface, {
+    jsonrpc: "2.0", id: 5, method: "tools/call",
+    params: { name: "add-one", arguments: { input: { value: 1, forbidden: sentinel } } },
+  }, options);
+  assert.equal(refused.result.isError, true);
+  assert.equal(refused.result.structuredContent.phase, "input");
+  assert.equal(JSON.stringify(refused).includes(sentinel), false);
+  assert.equal(JSON.stringify(events).includes(sentinel), false);
+  // This assertion describes the separate transport-retention gap; it is not a privacy guarantee.
+  assert.equal(JSON.stringify(arrivals).includes(sentinel), true);
 });
