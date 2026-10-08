@@ -99,7 +99,9 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     quotaWaits.set(project+':'+bucket,reading);const path=quotaPath(bucket);if(path)privateJson(path,reading);
   }
   // Uploads also need owned-video reads. Refuse before restoring media bytes.
-  function assertUploadAvailable() {
+  function assertUploadAvailable({checkpoint}={}) {
+    if(checkpoint?.sessionExpiredAt&&!Number.isFinite(Date.parse(checkpoint.sessionExpiredAt)))throw new Error('Invalid expired upload checkpoint');
+    if(checkpoint?.sessionExpiredAt&&clock()<Date.parse(checkpoint.sessionExpiredAt)+3600000)throw Object.assign(new Error('YouTube upload session expired; wait one hour before reconciling a replacement'),{code:'YOUTUBE_UPLOAD_SESSION_EXPIRED',retryAt:new Date(Date.parse(checkpoint.sessionExpiredAt)+3600000).toISOString()});
     const wait=waiting('general')??waiting('uploads');
     if(wait)throw wait;
   }
@@ -208,7 +210,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     const when = publishAt === undefined ? undefined : (checkpoint?.publishAt === publishAt ? publishAt : futureUtc(publishAt));
     if (typeof marker !== 'string' || !/^[A-Za-z0-9_./:-]{1,200}$/.test(marker)) throw new Error('A stable production marker is required');
     if (typeof onCheckpoint !== 'function') throw new Error('A durable onCheckpoint callback is required');
-    assertUploadAvailable();
+    assertUploadAvailable({checkpoint});
     const label = `[production:${marker}]`;
     const size = (await stat(filePath)).size;
     if (!Number.isSafeInteger(size) || size <= 0) throw new Error('Video file must be nonempty');
@@ -235,7 +237,9 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       if (video && video.snippet?.channelId === channelId && (video.snippet?.description ?? '').includes(label)) return complete(video);
       throw new Error('Previously completed upload is not observable; refusing a duplicate');
     }
-    if (state.phase === 'complete' || (checkpoint && !state.sessionUrl)) throw new Error('Ambiguous upload checkpoint; refusing a duplicate');
+    if (state.phase === 'complete' || (checkpoint && !state.sessionUrl && !state.sessionExpiredAt)) throw new Error('Ambiguous upload checkpoint; refusing a duplicate');
+    if(state.sessionExpiredAt&&state.sessionUrl&&state.expiredSessionSha256!==fingerprint(state.sessionUrl))throw new Error('Expired upload session identity changed');
+    if(state.sessionExpiredAt)await save({sessionUrl:undefined,nextOffset:0,attemptedEnd:undefined,phase:'expired-reconciled'});
     if (!state.sessionUrl) {
       if (when) futureUtc(when);
       if (typeof metadata?.title !== 'string' || !metadata.title.trim() || metadata.title.length > 100) throw new Error('Video title must contain 1–100 characters');
@@ -247,7 +251,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
         body: JSON.stringify({ snippet: { title: metadata.title, description, tags: metadata.tags ?? [], categoryId: '27', ...(language?{defaultLanguage:new Intl.Locale(language).toString(),defaultAudioLanguage:new Intl.Locale(language).toString()}:{}) }, status: { privacyStatus: 'private', ...(when ? { publishAt: when } : {}), selfDeclaredMadeForKids: false, containsSyntheticMedia: true } }),
       }, 'youtube.upload');
       if (!response.ok) await responseJson(response);
-      await save({ phase: 'uploading', sessionUrl: sessionAddress(response.headers.get('location')), nextOffset: 0 });
+      await save({ phase: 'uploading', sessionUrl: sessionAddress(response.headers.get('location')), nextOffset: 0,sessionExpiredAt:undefined });
     } else {
       sessionAddress(state.sessionUrl);
       const response = await authorized(state.sessionUrl, { method: 'PUT', headers: { 'Content-Length': '0', 'Content-Range': `bytes */${size}` } }, 'youtube.upload');
@@ -255,6 +259,10 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       if (response.status !== 308) {
         const recovered = await reconcile();
         if (recovered) return complete(recovered);
+        if([404,410].includes(response.status)) {
+          await save({phase:'expired',sessionExpiredAt:new Date(clock()).toISOString(),expiredSessionSha256:fingerprint(state.sessionUrl)});
+          throw Object.assign(new Error('YouTube upload session is gone; reconcile owned uploads after one hour before replacing it'),{code:'YOUTUBE_UPLOAD_SESSION_EXPIRED'});
+        }
         throw new Error(`Resumable upload status HTTP ${response.status}; outcome ambiguous, refusing a duplicate`);
       }
       await save({ phase: 'uploading', nextOffset: nextOffset(response, size) });
@@ -275,6 +283,11 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
         }
         if (response.ok) return complete(await responseJson(response));
         if (response.status !== 308) {
+          const recovered=await reconcile();if(recovered)return complete(recovered);
+          if([404,410].includes(response.status)) {
+            await save({phase:'expired',sessionExpiredAt:new Date(clock()).toISOString(),expiredSessionSha256:fingerprint(state.sessionUrl)});
+            throw Object.assign(new Error('YouTube upload session is gone; reconcile owned uploads after one hour before replacing it'),{code:'YOUTUBE_UPLOAD_SESSION_EXPIRED'});
+          }
           await save({ phase: 'uncertain' });
           throw new Error(`Upload HTTP ${response.status}; retry using persisted session, never a fresh upload`);
         }
