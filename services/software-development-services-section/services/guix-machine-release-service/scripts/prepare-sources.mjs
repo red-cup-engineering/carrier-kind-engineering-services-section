@@ -67,7 +67,7 @@ export function selectedSources(packages, entries, dependencyPins = {}) {
   return selected;
 }
 
-export function prepare({ repositories, entries, buildEntries = [], owners, dependencyPins = {}, output }) {
+export function prepare({ repositories, entries, buildEntries = [], owners, dependencyPins = {}, output, manifestsOnly = false }) {
   const selected = selectedSources(packageSources(repositories, owners), [...entries,...buildEntries], dependencyPins);
   const root = resolve(output);
   mkdirSync(root, { recursive: true });
@@ -75,19 +75,19 @@ export function prepare({ repositories, entries, buildEntries = [], owners, depe
   const selectedFiles=new Map(),requests=new Map();
   for(const [name,p] of selected){
     const repo=repositories.find(r=>r.repository===p.repository);
-    const files=treeFiles(repo.directory,p.commit,p.path).filter(({mode,file})=>['100644','100755'].includes(mode)&&!file.split('/').some(x=>['node_modules','.git','legacy','vendor'].includes(x)));
+    const files=manifestsOnly?[]:treeFiles(repo.directory,p.commit,p.path).filter(({mode,file})=>['100644','100755'].includes(mode)&&!file.split('/').some(x=>['node_modules','.git','legacy','vendor'].includes(x)));
     selectedFiles.set(name,files);
     if(!requests.has(p.repository))requests.set(p.repository,{repo,oids:[]});
     requests.get(p.repository).oids.push(...files.map(f=>f.oid));
   }
-  for(const {repo,oids} of requests.values())prefetch(repo.directory,repo.commit,oids);
+  for(const {repo,oids} of requests.values())if(oids.length)prefetch(repo.directory,repo.commit,oids);
   for (const [name, p] of selected) {
     const target = resolve(root, 'packages', name.replaceAll('/', '__'));
     mkdirSync(target, { recursive: true });
     const sourceRepository = repositories.find(r => r.repository === p.repository).directory;
     const files=selectedFiles.get(name);
     // Read the immutable object set in one batch rather than one process per file.
-    const batch=spawnSync('git',['cat-file','--batch'],{cwd:sourceRepository,input:files.map(f=>f.oid+'\n').join(''),maxBuffer:256*1024*1024});
+    const batch=files.length?spawnSync('git',['cat-file','--batch'],{cwd:sourceRepository,input:files.map(f=>f.oid+'\n').join(''),maxBuffer:256*1024*1024}):{status:0,stdout:Buffer.alloc(0)};
     if(batch.error||batch.status!==0)throw batch.error??new Error('cannot read source object batch');
     let offset=0;
     for(const {mode,oid,file} of files){
@@ -128,5 +128,5 @@ export function prepare({ repositories, entries, buildEntries = [], owners, depe
 
 if (process.argv[1] && import.meta.url === new URL(`file://${resolve(process.argv[1])}`).href) {
   const spec = JSON.parse(readFileSync(process.argv[2], 'utf8'));
-  process.stdout.write(JSON.stringify(prepare(spec)) + '\n');
+  process.stdout.write(JSON.stringify(prepare({...spec,manifestsOnly:process.argv.includes('--manifests-only')})) + '\n');
 }
