@@ -2,7 +2,7 @@ import { constants as http2Constants } from "node:http2";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { applyTrailerHeader, immediateResponseTrailers, resolveResponseTrailers, writeResponseTrailers } from "./trailers.mjs";
-import { bodyForbidden, pipeCompressed, planWebResponseCompression, writeContentCodingNotAcceptable } from "./response-compression.mjs";
+import { bodyForbidden, responseCompressionTransform, planWebResponseCompression, writeContentCodingNotAcceptable } from "./response-compression.mjs";
 function requestBody(req, response) {
     let cleanup = ()=>{};
     let pull = ()=>{};
@@ -92,11 +92,10 @@ export function toWebRequest(req, context = {}) {
 export async function sendWebResponse(first, second, options = {}) {
     const response = first instanceof Response ? first : second;
     const res = first instanceof Response ? second : first;
-    // A response can finish being prepared after its client has left. Do not
-    // create a new Node stream pipeline against an already closed receiver.
-    if (res.destroyed) {
-        await response.body?.cancel().catch(()=>{});
-        return;
+    // A late response still owns its body, but cannot attach a reader to a closed socket.
+    if (res.destroyed || res.writableEnded) {
+        await response.body?.cancel();
+        throw new DOMException("Response connection closed before delivery", "AbortError");
     }
     const headers = {};
     for (const [key, value] of response.headers)if (key !== "set-cookie") headers[key] = value;
@@ -118,16 +117,17 @@ export async function sendWebResponse(first, second, options = {}) {
         return;
     }
     const source = Readable.fromWeb(response.body);
-    const compressed = pipeCompressed(source, plan);
+    const compression = responseCompressionTransform(plan);
     const cancel = ()=>{
         if (!res.writableFinished) {
             source.destroy();
-            if (compressed !== source) compressed.destroy();
+            compression?.destroy();
         }
     };
     res.once("close", cancel);
     try {
-        await pipeline(compressed, res, {
+        // One pipeline owns every stage, including body errors and cancellation.
+        await pipeline(...(compression ? [source, compression, res] : [source, res]), {
             end: false
         });
         writeResponseTrailers(res, await resolveResponseTrailers(response));

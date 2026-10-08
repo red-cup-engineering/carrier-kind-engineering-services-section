@@ -267,6 +267,9 @@
         (configuration-commands config "reload" store)
         (set! stage "live-check")
         (health (field config "health") store)
+        ;; Successor receiving is separate from idempotent configuration reload.
+        ;; Recovery reloads the held configuration without asserting new capability.
+        (configuration-commands config "receive" store)
         ;; Stable roots retain both rollback targets; older profile generations
         ;; no longer retain every historical build forever.
         (root-release-generations config store store previous)
