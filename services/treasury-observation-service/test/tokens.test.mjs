@@ -196,3 +196,24 @@ test("multicall proves a whole token batch at one boundary despite a reverted sy
  assert.equal(result.holdings[1].balanceObserved,true);assert.equal(result.holdings[1].raw,'42');assert.equal(result.holdings[1].symbol,null);
  assert.equal(result.holdings[0].provenance.blockHash,boundary.blockHash);
 });
+
+
+test("declared and previously witnessed candidates are rechecked without claiming unavailable discovery is complete",async()=>{
+ const boundary={chain:'base',chainId:8453,caip2:'eip155:8453',requestedFinality:'finalized',finality:'finalized',blockNumber:'100',blockTag:'0x64',blockHash:'0x'+'ab'.repeat(32),observedAt:'2026-09-01T12:00:00.000Z',provider:CHAINS.base.rpc[0]};
+ const aggregate=new Interface(['function aggregate3((address target,bool allowFailure,bytes callData)[] calls) payable returns((bool success,bytes returnData)[])']);
+ let calls=0;
+ const publicEvmReadPool={async requestAtBoundary({boundary:selected,params}){
+  assert.equal(selected.blockHash,boundary.blockHash);assert.equal(params.at(-1),boundary.blockTag);calls++;
+  const values=[['balanceOf',155n],['decimals',6],['symbol','USDC']].map(([method,value])=>({success:true,returnData:erc20.encodeFunctionResult(method,[value])}));
+  return {value:aggregate.encodeFunctionResult('aggregate3',[values]),provider:{url:boundary.provider}};
+ }};
+ for(const available of [true,false]){
+  const discovery={chain:'base',address:WALLET,checked:available,discovered:[{tokenAddress:TOKEN,claimedRawBalance:'999999999',claimedSymbol:'untrusted'}],...(available?{}:{reason:'current index unavailable',attempts:[]})};
+  const result=await verifiedTokenHoldings(CHAINS.base,WALLET,{boundary,discovery,publicEvmReadPool,fetchImpl:async()=>{throw Error('no repeat discovery');}});
+  assert.equal(result.checked,available);assert.equal(result.holdings[0].checked,true);
+  assert.equal(result.holdings[0].raw,'155');assert.equal(result.provenance.blockHash,boundary.blockHash);
+  if(!available)assert.equal(result.reason,'current index unavailable');
+ }
+ assert.equal(calls,2);
+ await assert.rejects(verifiedTokenHoldings(CHAINS.base,WALLET,{discovery:{chain:'base',address:TOKEN,checked:true,discovered:[{tokenAddress:TOKEN}]}}),/wallet-chain-mismatch/);
+});
