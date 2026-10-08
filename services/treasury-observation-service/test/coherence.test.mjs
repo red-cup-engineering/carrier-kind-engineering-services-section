@@ -150,3 +150,21 @@ test("observeCoherentSnapshot(): one unreachable required leg refuses the compos
   assert.match(snapshot.reason, /coherent snapshot leg failed/);
   assert.equal("observations" in snapshot, false);
 });
+
+
+test("current quantities retain unfinalized classification and block time while every read stays pinned",async()=>{
+ const {fetchImpl:base,log}=coherentRpc();
+ const fetchImpl=async(url,init)=>{
+  const body=JSON.parse(init.body);
+  const response=await base(url,init);
+  if(body.method==='eth_getBlockByNumber'&&response.ok){const value=await response.json();value.result.timestamp='0x64';return {...response,json:async()=>value};}
+  return response;
+ };
+ const snapshot=await observeCoherentSnapshot(CHAINS.base,[options=>balanceOfToken(CHAINS.base,TOKEN,WALLET,options)],{fetchImpl,finality:'latest',now:fixedNow});
+ assert.equal(snapshot.checked,true);
+ assert.equal(snapshot.boundary.requestedFinality,'latest');assert.equal(snapshot.boundary.finality,'unfinalized');
+ assert.equal(snapshot.boundary.blockTimestampSeconds,'100');
+ assert.equal(snapshot.observations[0].provenance.blockTimestampSeconds,'100');
+ assert.ok(log.some(row=>row.method==='eth_getBlockByNumber'&&row.params[0]==='latest'));
+ assert.ok(log.filter(row=>row.method==='eth_call').every(row=>row.params.at(-1)===BLOCK_TAG));
+});
