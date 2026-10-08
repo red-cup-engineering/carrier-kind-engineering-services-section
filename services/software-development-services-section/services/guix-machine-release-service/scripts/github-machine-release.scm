@@ -115,14 +115,14 @@
         (run "node" (string-append service "/scripts/prepare-sources.mjs") prepared)
         (if (equal? mode "resolve")
           (begin
-            (run "npm" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--dir" workspace
+            (run "npm" "--registry=https://registry.npmjs.org/" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--registry=https://registry.npmjs.org/" "--dir" workspace
                  "install" "--lockfile-only" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))
             (copy-file (string-append workspace "/pnpm-lock.yaml") lock)
             (exit 0))
           (begin
             (unless (file-exists? lock) (error "reviewed dependency lock is missing; resolve and commit it before deployment"))
             (copy-file lock (string-append workspace "/pnpm-lock.yaml"))
-            (run "npm" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--dir" workspace
+            (run "npm" "--registry=https://registry.npmjs.org/" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--registry=https://registry.npmjs.org/" "--dir" workspace
                  "install" "--frozen-lockfile" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))))
         (let* ((assembled (json-string->scm (capture "node" (string-append service "/scripts/assemble.mjs") workspace snapshot (string-append work "/artifacts"))))
                (closure (assoc-ref assembled "closure"))
