@@ -9,11 +9,13 @@
  * (checksum for single-part uploads, size for multipart). State a node keeps is written once and never rewritten
  * (content-addressed evidence, closed journal days), so the cloud copy is the file.
  *
- *   offload-host-state.mjs --host <name> --env <file with CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN>
- *     --bucket <r2 bucket> --path <dir, ~-relative>=<hours kept locally>[=<glob>] [--path ...] [--dry-run]
+ *   offload-host-state.mjs --host <name> [--env <file>] --bucket <r2 bucket> --path <dir, ~-relative>=<hours kept locally>[=<glob>] [--path ...] [--dry-run]
  *
  * A glob narrows a directory to the files it matches (rclone filter syntax, relative to the directory), e.g.
  * a journal tree to its write-only packet archives: journals=48=**packets/**
+ *
+ * CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN come from the environment (a node job declaring its credentials
+ * gets them there), or from --env <file> when run by hand.
  *
  * R2's S3 credentials derive from the API token (access key = token id, secret = SHA-256 of the token value).
  */
@@ -25,11 +27,11 @@ import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 
 const { values } = parseArgs({ options: { host: { type: "string" }, env: { type: "string" }, bucket: { type: "string" }, path: { type: "string", multiple: true }, "dry-run": { type: "boolean" } } });
-if (!values.host || !values.env || !values.bucket || !values.path?.length) throw new Error("usage: offload-host-state.mjs --host <name> --env <file> --bucket <bucket> --path <dir>=<hours>[=<glob>] [--path ...] [--dry-run]");
+if (!values.host || !values.bucket || !values.path?.length) throw new Error("usage: offload-host-state.mjs --host <name> [--env <file>] --bucket <bucket> --path <dir>=<hours>[=<glob>] [--path ...] [--dry-run]");
 const home = homedir(), expand = (p) => (p.startsWith("/") ? p : join(home, p.replace(/^~\/?/u, "")));
-const env = Object.fromEntries(readFileSync(expand(values.env), "utf8").split("\n").map((l) => /^([A-Z0-9_]+)=(.*)$/u.exec(l.trim())).filter(Boolean).map((m) => [m[1], m[2].replace(/^["']|["']$/gu, "")]));
+const env = !values.env ? process.env : Object.fromEntries(readFileSync(expand(values.env), "utf8").split("\n").map((l) => /^([A-Z0-9_]+)=(.*)$/u.exec(l.trim())).filter(Boolean).map((m) => [m[1], m[2].replace(/^["']|["']$/gu, "")]));
 const { CLOUDFLARE_ACCOUNT_ID: account, CLOUDFLARE_API_TOKEN: token } = env;
-if (!account || !token) throw new Error(`${values.env} must set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN`);
+if (!account || !token) throw new Error(`${values.env ?? "the environment"} must set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN`);
 const verify = await (await fetch("https://api.cloudflare.com/client/v4/user/tokens/verify", { headers: { authorization: `Bearer ${token}` } })).json();
 if (!verify.success || !verify.result?.id) throw new Error(`Cloudflare token unusable: ${JSON.stringify(verify.errors ?? [])}`);
 
