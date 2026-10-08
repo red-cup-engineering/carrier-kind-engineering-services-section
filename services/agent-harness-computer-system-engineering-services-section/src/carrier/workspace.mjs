@@ -16,11 +16,11 @@
  * A dialect names itself (`name`, `label`); its root is `METROPLAT_<NAME>_WORKTREES`, default
  * `~/.local/state/561-group/<name>-worktrees`, and its branches `<name>/<task id>`.
  */
-import { existsSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 
-import { commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
+import { assertWorktreeOwner, commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
 
 /** How many failed tasks' worktrees stay for inspection; older ones are removed. */
 export const FAILED_WORKTREES_KEPT = 10;
@@ -81,8 +81,10 @@ export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "
   const branch = carrierTaskBranch(dialect, taskId);
   if (path.resolve(workspace) === path.resolve(cwd)) throw new TypeError(`a ${dialect.label} task worktree is never the repository it borrows from`);
   try {
+    if (existsSync(workspace)) assertWorktreeOwner(cwd, workspace);
     if (reuse && existsSync(path.join(workspace, ".git"))) return Object.freeze({ workspace, branch, reused: true });
     const prepared = await prepareWorktree({ repository: cwd, workspace, branch, install: effects !== "read-only", runner: commandRunner });
+    assertWorktreeOwner(cwd, prepared.workspace);
     assertNotSharedCheckout(dialect, prepared.workspace);
     return Object.freeze({ ...prepared, reused: false });
   } catch (error) {
@@ -101,11 +103,20 @@ export async function releaseCarrierWorktree(dialect, { cwd, workspace, taskId, 
     writeFileSync(keptMarker(dialect, environment, taskId), `${JSON.stringify({ taskId, workspace, kept: new Date().toISOString() })}\n`, { mode: 0o600 });
     const root = carrierWorktreeRoot(dialect, environment);
     const marked = readdirSync(root).filter((name) => name.endsWith(".kept"))
-      .map((name) => ({ name, mtime: statSync(path.join(root, name)).mtimeMs })).sort((left, right) => right.mtime - left.mtime);
+      .map((name) => ({ name, mtime: statSync(path.join(root, name)).mtimeMs }))
+      .filter(({ name }) => {
+        const held = path.join(root, name.slice(0, -".kept".length));
+        if (!existsSync(held)) return false;
+        try { assertWorktreeOwner(cwd, held); return true; } catch { return false; }
+      }).sort((left, right) => right.mtime - left.mtime);
     for (const { name } of marked.slice(keep)) {
       const id = name.slice(0, -".kept".length);
-      await removeWorktree({ repository: cwd, workspace: path.join(root, id), runner: commandRunner }).catch(() => undefined);
-      rmSync(path.join(root, name), { force: true });
+      try {
+        const held = path.join(root, id);
+        assertWorktreeOwner(cwd, held);
+        await removeWorktree({ repository: cwd, workspace: held, runner: commandRunner });
+        rmSync(path.join(root, name), { force: true });
+      } catch { /* Unremoved or foreign work retains its recovery marker. */ }
     }
     return true;
   }
@@ -145,21 +156,46 @@ export async function pruneRetiredWorktreeRoot({ root, repository, commandRunner
   const entries = readdirSync(root, { withFileTypes: true }).filter((entry) => entry.isDirectory())
     .map((entry) => ({ name: entry.name, mtime: statSync(path.join(root, entry.name)).mtimeMs })).sort((left, right) => right.mtime - left.mtime);
   const removed = [];
-  for (const { name, mtime } of entries.slice(kept)) {
+  let unresolved = false;
+  const owned = entries.filter(({ name }) => {
+    try { assertWorktreeOwner(repository, path.join(root, name)); return true; }
+    catch { unresolved = true; return false; }
+  });
+  for (const { name, mtime } of owned.slice(kept)) {
     if (now - mtime < grace) continue;
     const workspace = path.join(root, name);
     try {
       if (await worktreeDirty({ workspace, runner: commandRunner })) continue;
       await removeWorktree({ repository, workspace, runner: commandRunner });
       removed.push(name);
-    } catch { /* an entry that cannot be read as a clean worktree stays */ }
+    } catch { unresolved = true; /* an entry that cannot be read or removed stays */ }
   }
-  writeFileSync(marker, `${JSON.stringify({ retired: new Date(now).toISOString(), removed })}\n`, { mode: 0o600 });
+  if (!unresolved) writeFileSync(marker, `${JSON.stringify({ retired: new Date(now).toISOString(), removed })}\n`, { mode: 0o600 });
   return Object.freeze(removed);
 }
 
 /** The effects a task's tree is opened for. */
+export const SOURCE_FREE_WORKSPACE_RULE = "Your working directory is private read-only task scratch, not a Git source workspace. Perform only the declared source-free method. Do not clone, install packages, commit, or use a release or shared checkout as a substitute source.";
+
 const defaultEffects = ({ receiving }) => (receiving ? "read-only" : "repository-write");
+function sourceFreeWorkspace(dialect, spec, environment) {
+  const root = carrierWorktreeRoot(dialect, environment);
+  if (!path.isAbsolute(root)) throw new TypeError("source workspace: source-free task root must be absolute");
+  const workspace = carrierTaskWorktree(dialect, spec.id, environment);
+  // The whole existing parent chain is checked again before recursive cleanup. A symlink
+  // cannot redirect this private task directory into another source or another task's data.
+  for (let directory = workspace; ; directory = path.dirname(directory)) {
+    try {
+      const stat = lstatSync(directory);
+      if (!stat.isDirectory() || stat.isSymbolicLink()) throw new TypeError("source workspace: source-free workspace parents must be real directories");
+    } catch (error) { if (error.code !== "ENOENT") throw error; }
+    if (path.dirname(directory) === directory) break;
+  }
+  if (existsSync(workspace) && (!lstatSync(workspace).isDirectory() || lstatSync(workspace).isSymbolicLink() || existsSync(path.join(workspace, ".git")))) {
+    throw new TypeError("source workspace: source-free work cannot reuse a Git worktree or non-directory");
+  }
+  return workspace;
+}
 
 /**
  * The `workspaceOf` of the carrier contract (agent-harness `carrier/agency-carrier.mjs`) for a
@@ -170,18 +206,48 @@ const defaultEffects = ({ receiving }) => (receiving ? "read-only" : "repository
  * act writes (`repository-write`) or only reads (`read-only`). `retired` names shared roots this
  * policy replaces, pruned once when the first tree opens.
  */
-export function carrierWorkspaces(dialect, { repository, commandRunner, environment = process.env, effectsOf = defaultEffects, retired = [] }) {
-  const prune = async () => { for (const root of retired) await pruneRetiredWorktreeRoot({ root, repository, commandRunner }).catch(() => undefined); };
-  let pruning;
+export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRunner, environment = process.env, effectsOf = defaultEffects, retired = [] }) {
+  const prune = async repository => { for (const root of retired) await pruneRetiredWorktreeRoot({ root, repository, commandRunner }).catch(() => undefined); };
+  const pruning = new Map();
   return Object.freeze({
+    rule: spec => repositoryOf?.(spec)?.mode === "no-source" ? SOURCE_FREE_WORKSPACE_RULE : CARRIER_WORKSPACE_RULE,
+    // Recovery reads existing proof before opening anything. A retained worktree is equivalent
+    // owner evidence for older sessions; an absent receipt field alone does not invalidate it.
+    ...(repositoryOf === undefined ? {} : { verify: (spec) => {
+      const source = repositoryOf(spec);
+      if (source?.then !== undefined) throw new TypeError("source workspace: synchronous custody resolution is required for session readback");
+      if (spec.item?.execution?.sourceRepository !== undefined && spec.item.execution.sourceRepository !== source.sourceRepository) throw new TypeError("source workspace: execution sourceRepository differs from its admitted obligation");
+      if (source.mode === "no-source") { sourceFreeWorkspace(dialect, spec, environment); return source; }
+      const workspace = carrierTaskWorktree(dialect, spec.id, environment);
+      if (existsSync(workspace)) { assertWorktreeOwner(source.repository, workspace); return source; }
+      if (spec.item?.execution?.sourceRepository === source.sourceRepository) return source;
+      throw new TypeError("source workspace: execution owner is unresolved; retain its source worktree or reconcile its source-owner execution witness before resuming");
+    } }),
     open: async (spec) => {
-      pruning ??= prune();
-      await pruning;
+      const bound = repositoryOf === undefined ? { repository } : await repositoryOf(spec);
+      if (bound.mode === "no-source") {
+        if (effectsOf(spec) !== "read-only") throw new TypeError("source workspace: source-free sessions require read-only effects");
+        const workspace = sourceFreeWorkspace(dialect, spec, environment);
+        mkdirSync(workspace, { recursive: true, mode: 0o700 });
+        return workspace;
+      }
+      const source = bound.repository;
+      if (typeof source !== "string" || source.length === 0) throw new TypeError("source workspace: a configured source repository is required");
+      if (!pruning.has(source)) pruning.set(source, prune(source));
+      await pruning.get(source);
       const effects = effectsOf(spec);
-      return (await prepareCarrierWorktree(dialect, { cwd: repository, taskId: spec.id, effects, reuse: true, commandRunner, environment })).workspace;
+      return (await prepareCarrierWorktree(dialect, { cwd: source, taskId: spec.id, effects, reuse: true, commandRunner, environment })).workspace;
     },
     close: async (spec) => {
       const { item, id, workspace, session } = spec;
+      const bound = repositoryOf === undefined ? { repository } : await repositoryOf(spec);
+      if (bound.mode === "no-source") {
+        if (workspace !== sourceFreeWorkspace(dialect, spec, environment)) throw new TypeError("source workspace: source-free task path changed");
+        if (session?.ok === true) rmSync(workspace, { recursive: true });
+        return;
+      }
+      const source = bound.repository;
+      assertWorktreeOwner(source, workspace);
       let named = false;
       if (session?.ok === true) {
         if (effectsOf(spec) === "read-only") named = true;
@@ -190,7 +256,7 @@ export function carrierWorkspaces(dialect, { repository, commandRunner, environm
           named = carrierTraceNamed(trace);
         }
       }
-      await releaseCarrierWorktree(dialect, { cwd: repository, workspace, taskId: id, failed: !named, commandRunner, environment });
+      await releaseCarrierWorktree(dialect, { cwd: source, workspace, taskId: id, failed: !named, commandRunner, environment });
     },
   });
 }

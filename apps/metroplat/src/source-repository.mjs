@@ -26,3 +26,30 @@ export function configuredSourceRepository(repositoryRoot, declaredOwner) {
   if (realpathSync(git(repository, ["rev-parse", "--show-toplevel"])) !== repository || remote(repository) !== declaredOwner) throw new TypeError("source repository: initialized source origin does not match its configured custody");
   return Object.freeze({ repository, sourceRepository: declaredOwner });
 }
+
+
+/** Resolve an allocated work source using host custody. Receiving retains the producing owner. */
+export function configuredWorkSourceRepository(repositoryRoot, { item, receiving = false }, { operationOf } = {}) {
+  const owner = receiving ? item?.proposal?.sourceRepository : item?.sourceRepository;
+  if (owner === undefined) {
+    if (item?.sourceRepository !== undefined || item?.execution?.sourceRepository !== undefined) throw new TypeError("source workspace: original sourceRepository is unresolved");
+    const work = receiving ? item?.proposal : item;
+    const capabilities = work?.requiresCapabilities;
+    if (!Array.isArray(capabilities)) throw new TypeError("source workspace: admitted work sourceRepository or explicit source-free method is required");
+    if (capabilities.some(verb => typeof verb !== "string" || verb.startsWith("duty-worktree-"))) throw new TypeError("source workspace: admitted work sourceRepository is required for source capabilities");
+    // Empty methods and installed pure operations need no repository. Host-read/external
+    // operations have no implied source-free meaning: their workspace contract stays explicit.
+    for (const verb of capabilities) {
+      const operation = operationOf?.(verb);
+      if (operation?.locus === "duty") throw new TypeError("source workspace: admitted work sourceRepository is required for source capabilities");
+      if (operation?.effects?.class !== "pure") throw new TypeError("source workspace: source-free capability semantics are not established");
+    }
+    return Object.freeze({ mode: "no-source", effects: "read-only" });
+  }
+  if (typeof owner !== "string" || owner.trim() === "") throw new TypeError("source workspace: admitted work sourceRepository is required");
+  if (receiving && item.sourceRepository !== owner) throw new TypeError("source workspace: proposal sourceRepository no longer matches its admitted obligation");
+  try { return configuredSourceRepository(repositoryRoot, owner); }
+  catch (cause) {
+    throw new TypeError("source workspace: configured writable Git source custody is unavailable for the admitted sourceRepository; the immutable release is not a source workspace", { cause });
+  }
+}

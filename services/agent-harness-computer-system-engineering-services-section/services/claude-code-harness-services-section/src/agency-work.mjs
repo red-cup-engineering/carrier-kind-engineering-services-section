@@ -37,20 +37,20 @@ export function officeAgentDefinition({ repoRoot, agency = readAgency(repoRoot),
 }
 
 /** The task worktree of each act: opened for writing when the duty writes, read-only otherwise. */
-export const claudeWorkspaces = ({ repository, commandRunner, environment = process.env, retired = [] }) => carrierWorkspaces(claudeCodeDialect, {
-  repository, commandRunner, environment, retired,
-  effectsOf: ({ item, receiving }) => (receiving || claudeEffectsOf(item) === "read-only" ? "read-only" : "repository-write"),
+export const claudeWorkspaces = ({ repository, repositoryOf, commandRunner, environment = process.env, retired = [] }) => carrierWorkspaces(claudeCodeDialect, {
+  repository, repositoryOf, commandRunner, environment, retired,
+  effectsOf: ({ item, receiving }) => (receiving || repositoryOf?.({ item, receiving })?.mode === "no-source" || claudeEffectsOf(item) === "read-only" ? "read-only" : "repository-write"),
 });
 
 /** `executeAgencyWork(item)` for a node whose Claude Code character is `workerId`.
  *  `officeAgent(office)` projects an office; `cwd` is the repository each act's task worktree borrows
  *  from, and no act runs in it. `retired` names shared roots (the former duty-worktrees root) pruned once. */
-export function claudeCodeAgencyWorkProvider({ mcpServer = "metroplat", mcpConfig, officeAgent, addDirs = [], claude, cwd, commandRunner, environment, retired, ...options }) {
+export function claudeCodeAgencyWorkProvider({ mcpServer = "metroplat", mcpConfig, officeAgent, addDirs = [], claude, cwd, repositoryOf, commandRunner, environment, retired, ...options }) {
   return agencyWorkCarrier({
     ...options, cwd, dialect: claudeCodeDialect, mcpServer, ...(claude === undefined ? {} : { executable: claude }),
-    workspaceOf: claudeWorkspaces({ repository: cwd, commandRunner, ...(environment === undefined ? {} : { environment }), ...(retired === undefined ? {} : { retired }) }),
+    workspaceOf: claudeWorkspaces({ repository: cwd, repositoryOf, commandRunner, ...(environment === undefined ? {} : { environment }), ...(retired === undefined ? {} : { retired }) }),
     sessionOptions: ({ item, receiving }) => {
-      const effects = receiving ? "read-only" : claudeEffectsOf(item);
+      const effects = receiving || repositoryOf?.({ item, receiving })?.mode === "no-source" ? "read-only" : claudeEffectsOf(item);
       return {
         effects, mcpServer, ...(mcpConfig === undefined ? {} : { mcpConfig }),
         ...(addDirs.length === 0 ? {} : { addDirs }),

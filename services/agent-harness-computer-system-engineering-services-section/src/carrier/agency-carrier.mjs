@@ -74,7 +74,7 @@ function worldAccess(dialect, server) {
 
 /** The suit a carrier session wears for one duty: the duty in the rail's own terms, the house's told
  *  fiber (read from `toldRoot`), and where the Group's knowledge is. */
-export function agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise }) {
+export function agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise, workspaceRule = dialect.workspaceRule }) {
   const workPrefix = enterprise === undefined ? "" : `@${enterprise} `;
   const access = worldAccess(dialect, mcpServer);
   const boardMethods = new Set((item.methodResources ?? []).map((resource) => resource.verb));
@@ -93,7 +93,7 @@ export function agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeNam
     toldBudget: 6_000,
     identity: [`You are ${characterName}, the ${dialect.label} character of this machine, serving the office allocated in the duty below through the 561 Group's MetroPlat. Perform its actual duty and method at the responsibility level of that office.`],
     capabilities: [
-      ...(dialect.workspaceRule === undefined ? [] : [dialect.workspaceRule]),
+      ...(workspaceRule === undefined ? [] : [workspaceRule]),
       ...(nodeName === undefined ? [] : [`The execution node owning this allocation is ${nodeName}. Its work subjects and allocations are local to that node. ${access === undefined ? "Select the installed MetroPlat MCP server for that exact node." : `Use the declared ${mcpServer} MetroPlat MCP server: ${access.connect} followed by ${access.command}. Select that exact server rather than another node or app connector.`}`]),
       "Use a command line consisting of the verb, a space, and its JSON input. Work from the original subject, scope, signed Action, governing terms and full method carried below. The host has already selected this canonical allocated duty and checked current provider authority. Inspect only current evidence necessary to execute this method or meet its receiver condition; do not reread the whole dispatch queue or office catalog as a startup ritual.",
       "When the allocated implementation uses duty-worktree-open or duty-worktree-commit, its workspace duty is the exact scope of the allocation below, not the office-service definition id.",
@@ -113,6 +113,7 @@ export function agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeNam
       `This duty is already allocated and invoked by the resident work controller: ${JSON.stringify({ allocation: item.allocation, scope: item.scope, provider: item.delegation?.provider, execution: item.execution })}. Perform its method in this worker; do not allocate this same duty again or require access to the controller's private execute/pump verbs.`,
       `When you need current execution state, read only your exact delegated duty: ${workPrefix}agency-work-delegated ${JSON.stringify({ scope: item.scope })}. Its native execution receipt and admitted session are process evidence, distinct from an assignment label. Missing a resource actually needed by your method is a separate obstruction.`,
       ...(item.signedAction === undefined ? [] : [`Signed next Action and witnessed Resources: ${JSON.stringify(item.signedAction)}`]),
+      ...(item.sourceRepository === undefined ? [] : [`Admitted source repository: ${item.sourceRepository}`]),
       `Work: ${item.work}`,
       ...(item.governing === undefined ? [] : [`Canonical governing terms at allocation, with their source revisions: ${JSON.stringify(item.governing)}`]),
       `Skill: ${item.skill}`,
@@ -216,7 +217,7 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     }
     const run = async ({ onSession: bindSession } = {}) => {
       const selectedModel = item.allocatedModel ?? model;
-      const suit = agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise });
+      const suit = agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise, workspaceRule: workspaceOf?.rule?.({ item, id: taskId(item), receiving: false }) ?? dialect.workspaceRule });
       const observed = readHarnessSessionArtifacts(dialect, directory(item));
       const prior = observed.exitCode === undefined ? undefined : observed;
       const observe = onSession === undefined || selectedModel === undefined ? undefined : session => onSession(item, observedCarrier(session, selectedModel, requiredEffort(item)));
@@ -244,6 +245,7 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
   provider.session = item => {
     const session = readHarnessSessionArtifacts(dialect, directory(item));
     const selectedModel = item.allocatedModel ?? model;
+    if (session.thread !== undefined && session.model !== undefined) workspaceOf?.verify?.({ item, id: taskId(item), receiving: false });
     return session.thread === undefined || session.model === undefined ? undefined : observedCarrier(session, selectedModel, requiredEffort(item));
   };
   // Observing a terminal result cannot resume the provider or exercise its old
@@ -252,10 +254,12 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     if (item.delegation?.provider !== workerId) return undefined;
     const session = readHarnessSessionArtifacts(dialect, directory(item));
     if (session.exitCode === undefined) return undefined;
+    workspaceOf?.verify?.({ item, id: taskId(item), receiving: false });
     return outcomeOf(item, session);
   };
   provider.recover = item => {
     if (item.delegation?.provider !== workerId) return undefined;
+    workspaceOf?.verify?.({ item, id: taskId(item), receiving: false });
     const run = async ({ onSession: bindSession } = {}) => {
       const selectedModel = item.allocatedModel ?? model;
       const session = await inWorkspace({ item, id: taskId(item), receiving: false }, workspace => recoverHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), artifactDir: directory(item), taskId: taskId(item),

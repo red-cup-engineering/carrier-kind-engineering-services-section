@@ -442,6 +442,7 @@ export const agencyWorkDelegatedSchema = {
         resources: { type: "array", items: delegatedOperationResourceSchema },
         execution: { type: "object", required: ["state", "receipt"], properties: {
           state: { const: "started" }, receipt: { type: "string", minLength: 1 },
+          sourceRepository: { type: "string", minLength: 1 },
           session: { type: "string", minLength: 1 }, model: { type: "string", minLength: 1 },
         }, additionalProperties: false },
         intent: { type: "string" }, subject: { type: "string" }, work: { type: "string" }, skill: { type: "string" },
