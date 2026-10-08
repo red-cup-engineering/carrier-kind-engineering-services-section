@@ -165,3 +165,12 @@ test("observePortfolio(): validates roster and protocol configuration before eff
   );
   assert.equal(effects, 0);
 });
+
+test("a failed token does not erase independently verified vault positions", async () => {
+ const defaults=dependencies();
+ const report=await observePortfolio({roster:[{subject:SUBJECT,address:ADDRESS}],chains:[CHAINS.base]},dependencies({observeTokens:async(...args)=>({...await defaults.observeTokens(...args),checked:false,reason:'another token has unavailable metadata'})}));
+ const wallet=report.chains[0].wallets[0];
+ assert.equal(report.coverage.complete,false);assert.equal(wallet.verifiedTokens.checked,false);assert.equal(wallet.beefyPositions.checked,false);
+ assert.equal(wallet.beefyPositions.positions[0].vault,VAULT);assert.equal(wallet.beefyPositions.positions[0].checked,true);
+ assert.match(wallet.beefyPositions.reason,/incomplete/);
+});
