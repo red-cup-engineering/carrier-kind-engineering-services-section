@@ -27,5 +27,9 @@
   },
   "bin": {
     "metroplat-check-live-ledger": "scripts/check-live-ledger.mjs"
-  }
+  },
+  "receivingTests": [
+    "test/github-issues.test.mjs",
+    "test/github-native-intake.test.mjs"
+  ]
 }
