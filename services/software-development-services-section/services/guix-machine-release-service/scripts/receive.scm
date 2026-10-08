@@ -121,7 +121,7 @@
          (scratch (mkdtemp (string-append root "/.probe-XXXXXX")))
          (unit-backup (string-append scratch "/main.unit"))
          (probe-env (string-append scratch "/probe.env"))
-         (probe (string-append name "-guix-probe"))
+         (probe (string-append name "-guix-probe-" (number->string (getpid))))
          (stage "staging")
          (identity (read-json (string-append store "/.metadata/release.json")))
          (revision (assoc-ref identity "machineCommit"))
