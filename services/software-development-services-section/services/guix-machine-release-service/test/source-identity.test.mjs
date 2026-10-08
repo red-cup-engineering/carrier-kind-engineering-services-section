@@ -13,12 +13,17 @@ test('preparation uses committed blobs even when the checkout has later edits', 
     writeFileSync(resolve(repo, 'package.json'), JSON.stringify({ name: '@example/app', version: '1.0.0', type: 'module' }));
     writeFileSync(resolve(repo, 'index.mjs'), 'export const released = true;\n');
     writeFileSync(resolve(repo, 'example-package.json'), JSON.stringify({name:'@example/app',version:'99.0.0'}));
+    for (const path of ['unused-one', 'unused-two']) {
+      mkdirSync(resolve(repo, path));
+      writeFileSync(resolve(repo, path, 'package.json'), JSON.stringify({ name: '@example/unused', version: '1.0.0' }));
+    }
     command('git', ['add', '.'], repo);
     command('git', ['-c', 'user.name=fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'fixture'], repo);
     const commit = command('git', ['rev-parse', 'HEAD'], repo);
     writeFileSync(resolve(repo, 'index.mjs'), 'throw new Error("unreviewed");\n');
     prepare({ repositories: [{ directory: repo, repository: 'example/app', commit }], entries: ['@example/app'], output: resolve(root, 'output') });
     assert.equal(readFileSync(resolve(root, 'output/packages/@example__app/index.mjs'), 'utf8'), 'export const released = true;\n');
+    assert.throws(() => prepare({ repositories: [{ directory: repo, repository: 'example/app', commit }], entries: ['@example/unused'], output: resolve(root, 'ambiguous') }), /ambiguous source owner for required package/);
     assert.throws(() => prepare({ repositories: [{ directory: repo, repository: 'example/app', commit: '0'.repeat(40) }], entries: ['@example/app'], output: resolve(root, 'refused') }), /source commit differs/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
@@ -28,7 +33,7 @@ test('an unresolved workspace input is refused rather than floated to a registry
   assert.throws(() => selectedSources(packages, ['app']), /pinned source or released version/);
 });
 
- test('ambiguity is refused only in the required dependency closure', () => {
+test('ambiguity is refused only in the required dependency closure', () => {
   const provider = { manifest: { dependencies: {} }, repository: 'example/one', path: 'provider' };
   const other = { ...provider, repository: 'example/two' };
   const packages = new Map([['app', { manifest: { dependencies: {} } }], ['unused', [provider, other]]]);
