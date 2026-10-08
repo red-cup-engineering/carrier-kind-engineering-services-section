@@ -122,3 +122,24 @@ test("direct and indexed rule firing agree for explicit historical and current w
   assert.deepEqual(fireRule(r, [premise], 1)[0].for[0], { rule: "advance", from: [address(premise)] });
   assert.equal(fireRule(r, [premise])[0].for[0].ruleId, semanticId(r));
 });
+
+
+test("malformed JSON stage records and missing valuation fields are refused", () => {
+  const original = settleCells([premise], [make()]);
+  const malformed = [null, false, 7, "stage", [], {}, { stage: 1 },
+    { stage: 1, valuation: original.stages[1].valuation },
+    { stage: 1, designated: original.stages[1].designated },
+    { ...original.stages[1], valuation: null },
+    { ...original.stages[1], designated: {} }];
+  for (const stage of malformed) {
+    const record = JSON.parse(JSON.stringify(original));
+    record.stages[1] = stage;
+    assert.equal(settlementAdmits(record).admitted, false);
+  }
+  const dropped = JSON.parse(JSON.stringify(original));
+  dropped.stages.pop();
+  assert.equal(settlementAdmits(dropped).admitted, false);
+  const missingSettled = JSON.parse(JSON.stringify(original));
+  delete missingSettled.settled;
+  assert.equal(settlementAdmits(missingSettled).admitted, false);
+});

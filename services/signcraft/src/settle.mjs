@@ -121,11 +121,14 @@ export function settlementAdmits(settlement) {
     const stage = stages[index], replayed = orbit[index];
     if (stage === undefined) return refuse(`stage ${index}: dropped — the closure orbit continues past stage ${index - 1}`);
     if (replayed === undefined) return refuse(`stage ${index}: not in the closure orbit — the valuation at stage ${index - 1} is already S-closed`);
+    if (stage === null || typeof stage !== "object" || Array.isArray(stage)) return refuse(`stage ${index}: not a stage record`);
+    if (!Array.isArray(stage.valuation) || !Array.isArray(stage.designated)) return refuse(`stage ${index}: missing or malformed valuation or designated cells`);
     if (stage.stage !== index) return refuse(`stage ${index}: numbered ${stage.stage}`);
     if (id(stage.valuation) !== id(replayed)) return refuse(`stage ${index}: valuation differs from the replayed closure orbit`);
     if (id(stage.designated) !== id(designatedCells(replayed))) return refuse(`stage ${index}: designated cells differ from the valuation's told cells`);
   }
   if (settlement.settledAt !== stages.length - 1) return refuse(`settledAt ${settlement.settledAt} is not the last stage ${stages.length - 1}`);
+  if (!Array.isArray(settlement.settled)) return refuse("missing or malformed settled valuation");
   if (id(settlement.settled) !== id(orbit[orbit.length - 1])) return refuse(`settled valuation is not the closure's least fixed point above the seed (stage ${orbit.length - 1})`);
   return Object.freeze({ admitted: true, reason: undefined });
 }
