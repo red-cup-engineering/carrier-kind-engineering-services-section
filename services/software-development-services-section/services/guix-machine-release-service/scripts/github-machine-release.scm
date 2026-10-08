@@ -117,9 +117,12 @@
           (unless (assoc-ref config "receiverHost")
             (run "guix" "repl" "--" (string-append service "/scripts/receive.scm")
                  (string-append snapshot "/machine.json") "current" "--reconcile")))
-        (run "node" (string-append service "/scripts/prepare-sources.mjs") prepared)
+        (apply run "node" (string-append service "/scripts/prepare-sources.mjs") prepared
+               (if (equal? mode "resolve") '("--manifests-only") '()))
         (if (equal? mode "resolve")
           (begin
+            (when (file-exists? lock)
+              (copy-file lock (string-append workspace "/pnpm-lock.yaml")))
             (run "npm" "--registry=https://registry.npmjs.org/" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--registry=https://registry.npmjs.org/" "--dir" workspace
                  "install" "--lockfile-only" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))
             (copy-file (string-append workspace "/pnpm-lock.yaml") lock)
