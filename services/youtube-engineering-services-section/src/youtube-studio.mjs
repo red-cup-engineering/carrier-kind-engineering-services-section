@@ -22,6 +22,10 @@ function retainStudioFailure(error,storageState) {
  mkdirSync(join(storageState,'..'),{recursive:true,mode:0o700});const next=path+'.'+process.pid+'.tmp';writeFileSync(next,JSON.stringify(held),{mode:0o600});renameSync(next,path);
 }
 
+async function bounded(operation,timeout,code,message) {
+ let timer;try{return await Promise.race([operation,new Promise((_,reject)=>{timer=setTimeout(()=>reject(blocked(code,message)),timeout);})]);}finally{clearTimeout(timer);}
+}
+
 // The hosted browser's active publishing identity is shared across channels.
 // Hold its OS lock through channel switching, edits, saved-state verification
 // and cookie custody. Process death releases it without a stale lock directory.
@@ -67,8 +71,8 @@ export async function openStudioSession({storageState=join(homedir(),'.config/56
   atomic(tabState,retained);
   atomic(storageState,await session.context.storageState({indexedDB:true}));
  };
- return {...session,save,close:async()=>{try{await session.close();}finally{await release();}}};
- }catch(error){await session?.close().catch(()=>{});await release();
+ return {...session,save:()=>bounded(save(),5000,'YOUTUBE_STUDIO_UNAVAILABLE','Studio session custody timed out'),close:async()=>{try{await bounded(session.close(),5000,'YOUTUBE_STUDIO_UNAVAILABLE','Studio control disconnect timed out');}finally{await release();}}};
+ }catch(error){if(session)await bounded(session.close(),5000,'YOUTUBE_STUDIO_UNAVAILABLE','Studio control disconnect timed out').catch(()=>{});await release();
   if(!error.code)error=blocked('YOUTUBE_STUDIO_UNAVAILABLE','The hosted Studio browser could not open its control session');
   retainStudioFailure(error,storageState);throw error;}
 }
@@ -146,6 +150,7 @@ export async function setShortRelatedVideo({videoId,relatedVideoId,channelId,cha
  if(!/^[\w-]{11}$/u.test(videoId??'') || !/^[\w-]{11}$/u.test(relatedVideoId??'') || !/^UC[\w-]{22}$/u.test(channelId??'')) throw new Error('Exact owned YouTube IDs are required');
  const session=await openStudioSession({storageState});let failure;
  const page=session.page;
+ page.on('dialog',async dialog=>{if(dialog.type()==='beforeunload')await dialog.accept();});
  page.setDefaultTimeout(45_000);
  const challenge=async()=>{
   const welcome=page.getByRole('dialog').filter({hasText:'Welcome to YouTube Studio'});
@@ -211,7 +216,7 @@ export async function setShortRelatedVideo({videoId,relatedVideoId,channelId,cha
   }
  }
 
- try {
+ const edit=async()=>{
   // Merely opening another brand's video does not switch Studio's active
   // publishing identity. Select its live API name, then verify the exact ID
   // on Studio's channel home before touching the video editor.
@@ -246,5 +251,6 @@ export async function setShortRelatedVideo({videoId,relatedVideoId,channelId,cha
   await readyRelated();
   if(await savedTarget()!==relatedVideoId) throw blocked('YOUTUBE_RELATED_VIDEO_NOT_SAVED','Related Video selection did not persist after a reload');
   return {videoId,relatedVideoId,verifiedAt:new Date().toISOString(),carrier:'youtube-studio-related-video'};
- } catch(error) {failure=error;throw error;} finally {await session.save().catch(()=>{});if(failure)retainStudioFailure(failure,storageState);await session.close();}
+ };
+ try {return await bounded(edit(),180000,'YOUTUBE_STUDIO_SESSION_UNAVAILABLE','The Related Video edit exceeded three minutes; reconcile saved attribution next turn');} catch(error) {failure=error;throw error;} finally {try{await session.save().catch(()=>{});if(failure)retainStudioFailure(failure,storageState);}finally{await session.close();}}
 }
