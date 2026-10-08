@@ -38,7 +38,7 @@ exec(process.execPath,['--input-type=module','-e',"await import('./src/news-line
 exec(process.execPath,['--test',...['article-reporting.test.mjs','editorial-protocol.test.mjs','evidence-replay.test.mjs','inference-config.test.mjs','newsroom-transitions.test.mjs'].map(f=>join(newsroom,'test',f))],{env:environment,cwd:newsroom});
 await mkdir(output,{recursive:true});
 const closure=await mkdtemp(join(output,'.closure-'));
-exec('npm',['exec','--yes','--package=pnpm@11.9.0','--','pnpm','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy','--config.package-import-method=hardlink',join(closure,'app')],{env:{...environment,NODE_OPTIONS:'--max-old-space-size=1024'}});
+exec('npm',['--registry=https://registry.npmjs.org/','exec','--yes','--package=pnpm@11.9.0','--','pnpm','--registry=https://registry.npmjs.org/','--dir',workspace,'--filter=@red-cup-engineering/feltos-enterprise-host','deploy','--prod','--legacy','--config.package-import-method=hardlink',join(closure,'app')],{env:{...environment,NODE_OPTIONS:'--max-old-space-size=1024'}});
 // Deployment materializes workspace providers as local file packages. Require
 // every external version and integrity to equal the reviewed lock before sealing.
 const requireWorkspace=createRequire(join(workspace,'package.json'));
