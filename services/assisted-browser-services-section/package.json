@@ -4,6 +4,7 @@
   "type": "module",
   "description": "The browser a person at the node helps an agent in: a visible window (Windows Edge over CDP under WSL), overlay guides for the steps only a person may do, and the house's signed-in sessions at outside web portals, kept private and reused headless.",
   "exports": {
+    "./session-custody": "./src/session-custody.mjs",
     "./accounts": "./src/accounts.mjs",
     "./assist": "./src/assist.mjs",
     "./discovery": "./src/discovery.mjs",
@@ -20,6 +21,7 @@
     "scripts"
   ],
   "dependencies": {
+    "@red-cup-engineering/credential-custody-service": "workspace:*",
     "playwright": "1.62.1"
   },
   "scripts": {

@@ -1,15 +1,15 @@
 import { chmod, mkdir, readFile, rename, stat, unlink, writeFile } from "node:fs/promises";
-import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { guidePerson } from "./assist.mjs";
+import { checkpointSession, sessionFile, sessionsDirectory } from "./session-custody.mjs";
 import { openHeadless, openWindow } from "./window.mjs";
 
 /**
  * The house's accounts at outside web portals, and the browser sessions that
  * stand for them. The person at the node signs in once, in a visible window;
- * the session is then kept as Playwright storage state, private to the user
- * (0600, in a 0700 directory outside the repository), and reused headless
- * until it lapses. No password or cookie value ever passes through code or
+ * the session is then kept as Playwright storage state, live in runtime memory
+ * and sealed in the host's credential store (session-custody.mjs), and reused
+ * headless until it lapses. No password or cookie value ever passes through code or
  * output.
  *
  * `mapped` names the date a read-only walk confirmed the portal's signed-in
@@ -90,9 +90,16 @@ export function webAccount(id) {
   return ACCOUNTS[id];
 }
 
-/** ASSISTED_BROWSER_SESSIONS_DIR moves the sessions, for a test or a second node user. */
-export const sessionsDir = (env = process.env) => env.ASSISTED_BROWSER_SESSIONS_DIR ?? join(env.HOME ?? homedir(), ".config", "561-group", "browser-sessions");
-export const sessionPath = (id, env) => join(sessionsDir(env), `${(webAccount(id), id)}.json`);
+/** Sessions are in custody (session-custody.mjs); ASSISTED_BROWSER_SESSIONS_DIR instead names a directory the caller owns, for a test. */
+export const sessionsDir = (env = process.env) => env.ASSISTED_BROWSER_SESSIONS_DIR ?? sessionsDirectory(env);
+export const sessionPath = (id, env = process.env) => env.ASSISTED_BROWSER_SESSIONS_DIR ? join(env.ASSISTED_BROWSER_SESSIONS_DIR, `${(webAccount(id), id)}.json`) : sessionFile(`${(webAccount(id), id)}.json`, env);
+
+/** Checkpoint a saved session into the credential store when it is one of the custodied live sessions. */
+async function keepSession(path, force, env = process.env) {
+  if (env.ASSISTED_BROWSER_SESSIONS_DIR || dirname(resolve(path)) !== resolve(sessionsDirectory(env))) return;
+  await checkpointSession(path.slice(dirname(resolve(path)).length + 1), env, { force })
+    .catch((error) => process.stderr.write(`assisted-browser: the session was saved but not checkpointed into custody: ${error.message}\n`));
+}
 export const signInCommand = (id) => `assisted-sign-in ${(webAccount(id), id)}`;
 
 const parse = (value) => { try { return new URL(String(value)); } catch { return null; } };
@@ -178,7 +185,7 @@ export async function isSessionValid(id, { storageState = sessionPath(id), home 
  */
 export async function openAccount(id, { visible = false, storageState = sessionPath(id), timeoutMs = SIGN_IN_TIMEOUT_MS, notify = notifyStderr } = {}, capabilities = {}) {
   const { home } = webAccount(id);
-  const save = async (context) => writePrivateStorageState(storageState, await context.storageState());
+  const save = async (context, force = false) => { const path = await writePrivateStorageState(storageState, await context.storageState()); await keepSession(path, force); return path; };
   if (!visible && await isSessionValid(id, { storageState }, capabilities)) {
     const opened = await openHeadless({ storageState }, capabilities);
     await opened.page.goto(home, { waitUntil: "domcontentloaded" });
@@ -188,7 +195,7 @@ export async function openAccount(id, { visible = false, storageState = sessionP
   try {
     await opened.page.goto(home, { waitUntil: "domcontentloaded", timeout: 60_000 });
     const signedInNow = await awaitSignIn(id, opened.page, home, { humanWaitMs: timeoutMs, notify });
-    if (signedInNow) await save(opened.context);
+    if (signedInNow) await save(opened.context, true);
     return { ...opened, signedInNow, close: async () => { await save(opened.context).catch(() => {}); await opened.close(); } };
   } catch (error) {
     await opened.close();
@@ -208,6 +215,7 @@ export async function captureSignIn(id, options = {}, capabilities = {}) {
     else await guidePerson(context, `Sign in to ${account.name}. When its dashboard shows, click Done.`, [{ label: "Done", final: true }], { timeout: timeoutMs, notify: capabilities.notify });
     const state = await context.storageState();
     const path = await writePrivateStorageState(storageStatePath, state);
+    await keepSession(path, true);
     return Object.freeze({ account: id, path, cookieCount: Array.isArray(state.cookies) ? state.cookies.length : 0 });
   } finally {
     await close();

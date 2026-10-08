@@ -1,10 +1,10 @@
 // The cloud owns this persistent profile; publishers attach through loopback CDP.
-import {homedir} from 'node:os';
-import {join} from 'node:path';
 import {readFileSync,writeFileSync,existsSync,renameSync} from 'node:fs';
 import {openPersistentWindow} from '@red-cup-engineering/assisted-browser-services-section/window';
-const saved=join(homedir(),'.config/561-group/youtube-studio-storage-state.json'),tabState=saved+'.session';
-const session=await openPersistentWindow({profile:saved+'.profile',storageState:saved,headless:false,args:['--remote-debugging-address=127.0.0.1','--remote-debugging-port=9226'],userAgent:'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36'});
+import {checkpointSession,profileDirectory,sessionFile} from '@red-cup-engineering/assisted-browser-services-section/session-custody';
+// The Studio session is a browser session in custody: live in runtime memory, sealed in the credential store.
+const saved=sessionFile('youtube-studio.json'),tabState=sessionFile('youtube-studio.json.session');
+const session=await openPersistentWindow({profile:profileDirectory('youtube-studio'),storageState:saved,headless:false,args:['--remote-debugging-address=127.0.0.1','--remote-debugging-port=9226'],userAgent:'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36'});
 // The publisher owns dialogs; the daemon observes without accepting verification.
 const observe=page=>page.on('dialog',()=>{});session.context.on('page',observe);for(const page of session.context.pages())observe(page);
 const retained=existsSync(tabState)?JSON.parse(readFileSync(tabState,'utf8')):{};
@@ -18,6 +18,7 @@ async function save(){if(writing)return;writing=true;try{
  for(const page of session.context.pages())if(page.url().startsWith('https://studio.youtube.com/')){
   try{atomic(tabState,{'https://studio.youtube.com':await bounded(page.evaluate(()=>Object.fromEntries(Object.keys(sessionStorage).map(key=>[key,sessionStorage.getItem(key)]))))});}catch{}
  }
+ for(const name of ['youtube-studio.json','youtube-studio.json.session'])await checkpointSession(name).catch(()=>{});
 }finally{writing=false;}}
 const timer=setInterval(()=>save().catch(()=>{}),15000);
 async function close(){if(closing)return;closing=true;clearInterval(timer);await bounded(save()).catch(()=>{});await bounded(session.close()).catch(()=>{});process.exit(0);}
