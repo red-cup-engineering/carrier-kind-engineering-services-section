@@ -9,7 +9,12 @@
          (lines (let loop ((out '())) (let ((line (read-line p)))
                    (if (eof-object? line) (reverse out) (loop (cons line out))))))
          (status (close-pipe p)))
-    (unless (zero? status) (error "release step failed" (car argv)))
+    (unless (zero? status)
+      ;; Assembly returns its closure as the last stdout line. Preserve bounded
+      ;; compiler/test diagnostics when it fails, instead of discarding them.
+      (for-each (lambda (line) (display line (current-error-port)) (newline (current-error-port)))
+                (drop lines (max 0 (- (length lines) 40))))
+      (error "release step failed" (car argv)))
     (if (null? lines) "" (last lines))))
 (define (capture-all . argv)
   (let* ((p (apply open-pipe* OPEN_READ argv))
