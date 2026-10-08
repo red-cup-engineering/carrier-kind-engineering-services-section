@@ -59,6 +59,7 @@ function derivationOf(settlement, side) {
         attr: value.predicate,
         by: witness.rule ?? "given",
         premises: (witness.from ?? []).map((key) => attributeByAddress.get(key)),
+        ...(witness.ruleId === undefined ? {} : { ruleId: witness.ruleId }),
       });
     }
   }
@@ -80,7 +81,7 @@ export function witnessChain(derivation, attr) {
     const n = derivation.get(a);
     if (!n) return;
     for (const p of n.premises) walk(p);
-    chain.push({ attr: a, by: n.by, premises: n.premises });
+    chain.push({ attr: a, by: n.by, premises: n.premises, ...(n.ruleId === undefined ? {} : { ruleId: n.ruleId }) });
   })(attr);
   return chain;
 }
