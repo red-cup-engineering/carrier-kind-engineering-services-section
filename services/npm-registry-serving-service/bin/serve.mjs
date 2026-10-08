@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {Readable} from 'node:stream';
 import {npmRegistryApplication} from '../src/application.mjs';
 
-const configuration=JSON.parse(await readFile(process.argv[2],'utf8'));
+const configuration=JSON.parse(await readFile(process.argv[2]??process.env.NPM_REGISTRY_CONFIGURATION,'utf8'));
 const application=npmRegistryApplication({configuration});
 const port=Number(process.env.NPM_REGISTRY_PORT??18821);
 if(!Number.isInteger(port)||port<1||port>65535)throw new Error('invalid registry port');
