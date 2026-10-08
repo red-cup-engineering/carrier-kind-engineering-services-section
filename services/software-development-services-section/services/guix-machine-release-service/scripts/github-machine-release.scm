@@ -120,6 +120,11 @@
         (run "node" (string-append service "/scripts/prepare-sources.mjs") prepared)
         (if (equal? mode "resolve")
           (begin
+            ;; Source admission changes the owning packages, not every public
+            ;; dependency satisfying a version range. Retain the reviewed graph
+            ;; as the input and resolve only the bindings that must change.
+            (when (file-exists? lock)
+              (copy-file lock (string-append workspace "/pnpm-lock.yaml")))
             (run "npm" "--registry=https://registry.npmjs.org/" "exec" "--yes" "--package=pnpm@11.9.0" "--" "pnpm" "--registry=https://registry.npmjs.org/" "--dir" workspace
                  "install" "--lockfile-only" "--ignore-scripts" "--cache-dir" (string-append work "/registry-cache"))
             (copy-file (string-append workspace "/pnpm-lock.yaml") lock)
