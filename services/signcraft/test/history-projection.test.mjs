@@ -177,3 +177,64 @@ test("an absent object range admits its first matching observation", () => {
   const next = observeHistory(base, [offered("task", "worker-c", "first")]);
   assert.equal(read(next).length, 1);
 });
+
+const predicateCarriers = [
+  ["NFC", "é", "e\u0301"],
+  ["record", Object.freeze({ name: "p" }), Object.freeze({ name: "p" })],
+  ["array", Object.freeze(["p"]), Object.freeze(["p"])],
+];
+for (const [name, declared, alternative] of predicateCarriers) {
+  for (const direction of ["addition", "removal"]) {
+    test(`${name} predicate identity refreshes alternative ${direction}`, () => {
+      const base = createHistory([declared]);
+      const left = observeHistory(base, [cell("task", declared, "worker-a", { for: ["a"] })]);
+      const right = observeHistory(base, [cell("task", alternative, "worker-b", { for: ["b"] })]);
+      const joined = mergeHistories(left, right);
+      const patterns = [
+        { subject: "task", predicate: declared, object: "worker-a" },
+        { predicate: alternative, object: "worker-a" },
+        { object: "worker-a" },
+      ];
+      for (const pattern of patterns) {
+        const read = historyDerivation((history) => queryHistory(history, pattern));
+        const [first, next] = direction === "addition" ? [left, joined] : [joined, left];
+        assert.deepEqual(read(first), queryHistory(first, pattern));
+        assert.deepEqual(read(next), queryHistory(next, pattern));
+      }
+    });
+  }
+  test(`${name} predicate identity retains the narrow functional frame`, () => {
+    const base = observeHistory(createHistory([declared]), [cell("task", declared, "worker-a", { for: ["a"] })]);
+    let calls = 0;
+    const read = historyDerivation((history) => {
+      calls++;
+      return queryHistory(history, { predicate: declared, object: "worker-a" });
+    });
+    const first = read(base);
+    const next = observeHistory(base, [cell("other", alternative, "worker-b", { for: ["b"] })]);
+    assert.equal(read(next), first);
+    assert.equal(calls, 1);
+  });
+}
+
+test("NFC predicate alternatives cross nested capture, checkpoints, restore and bounded fallback", () => {
+  const base = createHistory(["é"]);
+  const left = observeHistory(base, [cell("task", "é", "worker-a", { for: ["a"] })]);
+  const right = observeHistory(base, [cell("task", "e\u0301", "worker-b", { for: ["b"] })]);
+  const joined = mergeHistories(left, right);
+  const checkpoint = checkpointHistory(joined);
+  const restored = restoreHistory(JSON.parse(JSON.stringify(checkpoint)));
+  let tail = joined;
+  for (let index = 0; index < 260; index++) {
+    tail = observeHistory(tail, [cell("other", "tick", index, { for: [index] })]);
+  }
+  const pattern = { subject: "task", predicate: "e\u0301", object: "worker-a" };
+  for (const target of [joined, checkpoint, restored, tail]) {
+    const inner = historyDerivation((history) => queryHistory(history, pattern));
+    const outer = historyDerivation((history) => inner(history).map((value) => value.against));
+    assert.deepEqual(outer(left), [[]]);
+    const captured = captureHistoryReads(() => outer(target));
+    assert.deepEqual(captured.result, [["b"]]);
+    assert.deepEqual(captured.reads, [pattern]);
+  }
+});

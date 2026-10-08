@@ -119,13 +119,15 @@ const meets = (pattern, at) => Object.entries(pattern).every(([role, term]) => c
 // its subject/predicate, even when that alternative does not match the query object.
 const affects = (pattern, at, functional, history) => {
   if (meets(pattern, at)) return true;
-  if (!Object.hasOwn(pattern, "object") || !functional.has(at.predicate)
+  if (!Object.hasOwn(pattern, "object")
     || !Object.entries(pattern).every(([role, term]) => role === "object" || coincides(at[role], term))) return false;
+  // Functional membership belongs to the projected target, as in sectionOf: a raw
+  // alternative may use a different but canonically equivalent predicate carrier.
   // Removed matching objects are themselves changes. If the object remains, read
   // its projected dependency without recording a new query. Another task's offer
   // stays outside this body's load query, preserving the narrow incremental frame.
   return sectionOf(history, at.subject).some((value) =>
-    coincides(value.predicate, at.predicate) && coincides(value.object, pattern.object));
+    functional.has(value.predicate) && coincides(value.predicate, at.predicate) && coincides(value.object, pattern.object));
 };
 /** What a derivation queried, keyed by the role a changed cell is looked up by: its subject when the
  * query named one, else its predicate. Matching accounts for the query projection below. */
