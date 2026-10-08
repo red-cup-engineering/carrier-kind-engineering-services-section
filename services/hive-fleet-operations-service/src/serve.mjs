@@ -28,6 +28,7 @@ const publicBaseUrl = (process.env["PUBLIC_BASE_URL"] ?? process.env["BASE_URL"]
 const googleDiscoveryUrl = process.env["GOOGLE_DISCOVERY_URL"];
 const auth = options.auth ?? createOperatorAuth({
     publicBaseUrl,
+    grantStoreProfile: options.grantStoreProfile ?? process.env["OAUTH_GRANT_STORE_PROFILE"],
     opsToken: process.env["AAGAARD_OPS_TOKEN"] ?? "",
     ...(process.env["AAGAARD_SESSION_SECRET"] ? { sessionSecret: process.env["AAGAARD_SESSION_SECRET"] } : {}),
     ...(store.dataDir ? { stateDir: store.dataDir } : {}),
