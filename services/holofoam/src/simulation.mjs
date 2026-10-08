@@ -1,37 +1,75 @@
-/** Deterministic, headless Holofoam organism and field simulation. */
+/**
+ * Holofoam: a SignCraft simulation engine. An experiment is a SignCraft history: its definition and every
+ * admitted event are cells observed at their tick. Organism state is never written; it is derived by
+ * deterministic replay of that history. Policies are SignCell evidence settled by SignChain rules under
+ * SignCraft's closure.
+ */
 import { mulberry32 } from "@red-cup-engineering/computer-data-services-section/randomization/mulberry32";
-import { settleEvidence } from "@red-cup-engineering/metrologic/closure/src/directed-evidence";
+import { cell } from "@red-cup-engineering/signcell/cell";
+import { rule } from "@red-cup-engineering/signchain/rules";
+import { settleCells } from "@red-cup-engineering/signcraft/settle";
+import { createHistory, historyHeads, observeHistory, queryHistory, restoreHistory, validateHistory } from "@red-cup-engineering/signcraft/history";
+import { admitEvent, admitSpec, presetNames } from "./admission.mjs";
+import { admitLegacyCheckpoint } from "./legacy-state.mjs";
+
+export { admitEvent, presetNames };
 
 const TAU = Math.PI * 2;
+export const EXPERIMENT_FORMAT = "holofoam.experiment/v2";
+const MAX_TERMINAL_TICK = 1_000_000;
+const MAX_EVENTS = 10_000;
+const MAX_REPLAY_ORGANISM_TICKS = 20_000_000;
 
-const presets = {
-  bloom: { label: "Bloom", population: 420, drag: 0.94, field: 0.13, cohesion: 0.016, mutation: 0.08 },
-  tide: { label: "Tide", population: 620, drag: 0.91, field: 0.21, cohesion: 0.008, mutation: 0.14 },
-  braid: { label: "Braid", population: 520, drag: 0.925, field: 0.18, cohesion: 0.028, mutation: 0.22 },
-  ember: { label: "Ember", population: 360, drag: 0.88, field: 0.27, cohesion: 0.005, mutation: 0.31 },
-};
 
-export function presetNames() { return Object.keys(presets); }
+// The sensed atoms, and the recommendation each genome edge licenses when its atom is sensed.
+const ATOMS = ["favorable-flow", "signal", "crowded", "mixed"];
+const EDGE_OF_ATOM = { "favorable-flow": "flow", signal: "signal", crowded: "crowded", mixed: "mixed" };
+const RECOMMENDS = { "favorable-flow": "approach-for", signal: "approach-for", crowded: "approach-against", mixed: "approach-against" };
+const sensedCell = (atom, witnesses = []) => cell("senses", "holds", atom, { for: witnesses });
+const recommendation = (value, witnesses = []) => cell("policy", "recommends", value, { for: witnesses });
+const compiledTables = new Map();
 
+/** The policy table of a genome: for each sensory signature, the SignCraft settlement of the sensed atoms under the genome's edges as SignChain rules. */
 export function compileModel(genome) {
-  const atoms = ["favorable-flow", "signal", "crowded", "mixed"];
-  const table = Object.freeze(Object.fromEntries(Array.from({ length: 16 }, (_, mask) => {
-    const seed = atoms.filter((_, bit) => mask & (1 << bit));
-    const result = settleEvidence({ vertices: [{ id: "senses", basis: atoms, seed }, { id: "policy", basis: ["approach-for", "approach-against"], seed: [] }], edges: [{ id: `${genome.id}-policy`, source: "senses", target: "policy", map: {
-      "favorable-flow": genome.edges.flow ? ["approach-for"] : [], signal: genome.edges.signal ? ["approach-for"] : [], crowded: genome.edges.crowded ? ["approach-against"] : [], mixed: genome.edges.mixed ? ["approach-against"] : [],
-    } }] });
-    const values = result.values.policy;
-    const action = values.includes("approach-for") && values.includes("approach-against") ? "inspect" : values.includes("approach-against") ? "avoid" : values.includes("approach-for") ? "approach" : "explore";
-    return [mask, Object.freeze({ action, values, witnesses: result.witnesses.policy })];
-  })));
+  const signature = `${genome.id}|${ATOMS.map((atom) => (genome.edges[EDGE_OF_ATOM[atom]] ? 1 : 0)).join("")}`;
+  let table = compiledTables.get(signature);
+  if (table === undefined) {
+    const rules = ATOMS.filter((atom) => genome.edges[EDGE_OF_ATOM[atom]]).map((atom) => rule(`${genome.id}-${EDGE_OF_ATOM[atom]}`, [{ cell: sensedCell(atom), atLeast: "potential" }], { cell: recommendation(RECOMMENDS[atom]), reading: "potential" }));
+    table = Object.freeze(Object.fromEntries(Array.from({ length: 16 }, (_, mask) => {
+      const sensed = ATOMS.filter((_, bit) => mask & (1 << bit)).map((atom) => sensedCell(atom, [`sensed:${atom}`]));
+      const settled = settleCells(sensed, rules).settled;
+      const told = (value) => settled.find((at) => at.subject === "policy" && at.predicate === "recommends" && at.object === value && at.for.length > 0);
+      const values = Object.freeze(["approach-for", "approach-against"].filter((value) => told(value) !== undefined));
+      const witnesses = Object.freeze(Object.fromEntries(values.map((value) => [value, told(value).for])));
+      const action = values.length === 2 ? "inspect" : values[0] === "approach-against" ? "avoid" : values[0] === "approach-for" ? "approach" : "explore";
+      return [mask, Object.freeze({ action, values, witnesses })];
+    })));
+    if (compiledTables.size > 256) compiledTables.clear();
+    compiledTables.set(signature, table);
+  }
   return Object.freeze({ id: genome.id, lineage: genome.lineage, parent: genome.parent, edges: genome.edges, table });
 }
 
-export function createExperiment({ seed = 17, preset = "bloom", width = 1, height = 1, config: suppliedConfig } = {}) {
-  if (!Number.isInteger(seed) || !Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0 || width > 16 || height > 16) throw new TypeError("experiment seed and dimensions are not admitted");
-  const config = { ...(presets[preset] ?? presets.bloom), ...(suppliedConfig ?? {}) };
-  const ranges = { drag: [.5, .999], field: [0, 1], cohesion: [0, .1], mutation: [0, 1] };
-  if (!Number.isInteger(config.population) || config.population < 1 || config.population > 5_000 || Object.keys(suppliedConfig ?? {}).some((key) => !Object.hasOwn(presets.bloom, key)) || !Object.entries(ranges).every(([key, [low, high]]) => Number.isFinite(config[key]) && config[key] >= low && config[key] <= high)) throw new TypeError("experiment configuration is not admitted");
+const DEFAULT_RULES = Object.freeze({ east: 0.75, north: 0.42, whirl: 0.68, porous: 0.9 });
+const DEFAULT_GENOMES = Object.freeze([
+  Object.freeze({ id: "lineage-0-base", lineage: 0, parent: null, edges: Object.freeze({ flow: true, signal: true, crowded: false, mixed: false }) }),
+  Object.freeze({ id: "lineage-1-base", lineage: 1, parent: null, edges: Object.freeze({ flow: true, signal: false, crowded: true, mixed: true }) }),
+  Object.freeze({ id: "lineage-2-base", lineage: 2, parent: null, edges: Object.freeze({ flow: false, signal: true, crowded: true, mixed: false }) }),
+]);
+
+// The derived world of a definition: the initial organisms are a function of the seed, never recorded.
+function worldOf(definition) {
+  const { seed, preset, width, height, config, origin } = definition;
+  const base = {
+    version: 1, modelVersion: 1, seed, preset, width, height, tick: 0, paused: false,
+    config: { ...config }, rules: { ...definition.rules }, events: [], selected: null,
+    signals: new Float32Array(24 * 24), spatial: new Map(), barriers: [],
+    genomes: definition.genomes.map((genome) => ({ ...genome, edges: { ...genome.edges } })), compiledModels: [],
+  };
+  if (origin !== undefined) {
+    const state = structuredClone(origin);
+    return Object.assign(base, { tick: state.tick, paused: state.paused, rules: state.rules, selected: state.selected, signals: Float32Array.from(state.signals), barriers: state.barriers, genomes: state.genomes, organisms: state.organisms });
+  }
   const next = mulberry32(seed);
   const organisms = Array.from({ length: config.population }, (_, id) => {
     const hue = Math.floor(next() * 70) + (id % 3) * 95;
@@ -44,23 +82,28 @@ export function createExperiment({ seed = 17, preset = "bloom", width = 1, heigh
       model: { observations: [], witnesses: [], favorableFlow: "unknown", crowding: "unknown", signal: "unknown", flow: 0, action: "explore" },
     };
   });
-  return {
-    version: 1, modelVersion: 1, seed, preset, width, height, tick: 0, paused: false,
-    config: { ...config }, organisms,
-    // These are persistent, spatially meaningful transport rules. Their
-    // settled finite interpretation will arrive from metrologic upstream.
-    rules: { east: 0.75, north: 0.42, whirl: 0.68, porous: 0.9 },
-    events: [], selected: null,
-    signals: new Float32Array(24 * 24),
-    spatial: new Map(),
-    barriers: [],
-    genomes: [
-      { id: "lineage-0-base", lineage: 0, parent: null, edges: { flow: true, signal: true, crowded: false, mixed: false } },
-      { id: "lineage-1-base", lineage: 1, parent: null, edges: { flow: true, signal: false, crowded: true, mixed: true } },
-      { id: "lineage-2-base", lineage: 2, parent: null, edges: { flow: false, signal: true, crowded: true, mixed: false } },
-    ],
-    compiledModels: [],
-  };
+  return Object.assign(base, { organisms });
+}
+
+const definitionCell = (definition) => cell("holofoam.experiment", "defines", { format: EXPERIMENT_FORMAT, ...definition }, { for: ["holofoam.createExperiment"] });
+const reachesCell = (tick) => cell("holofoam.experiment", "reaches", tick, { for: ["holofoam.clock"] });
+const eventCell = (seq, event) => cell(`tick:${event.tick}`, "event", { seq, ...event }, { for: ["holofoam.admitEvent"] });
+const HISTORY_FUNCTIONAL = ["reaches"];
+
+/** A new experiment: the definition observed into a fresh SignCraft history, and the world it derives. */
+export function createExperiment(spec = {}, { origin } = {}) {
+  const admitted = admitSpec(spec);
+  const definition = { ...admitted, rules: { ...DEFAULT_RULES }, genomes: DEFAULT_GENOMES.map((genome) => ({ ...genome, edges: { ...genome.edges } })), ...(origin === undefined ? {} : { origin }) };
+  const world = worldOf(definition);
+  world.history = observeHistory(createHistory(HISTORY_FUNCTIONAL), [definitionCell(definition), reachesCell(world.tick)], { source: "holofoam.definition" });
+  return world;
+}
+
+/** A v1 explicit current-state checkpoint, imported as the origin of a history. */
+export function experimentFromLegacy(value) {
+  const state = admitLegacyCheckpoint(value);
+  const world = createExperiment({ seed: state.seed, preset: state.preset, width: state.width, height: state.height, config: state.config }, { origin: state });
+  return world;
 }
 
 function rebuildModels(world) { world.compiledModels = world.genomes.map((genome) => compileModel(genome)); }
@@ -229,8 +272,8 @@ export function step(world, count = 1, { force = false } = {}) {
   return world;
 }
 
-export function applyEvent(world, event) {
-  const admitted = admitEvent(event, world.tick);
+/** Apply an event already admitted (by applyEvent, or by replay from a history that recorded it). */
+function enact(world, admitted) {
   if ((admitted.kind === "select" || admitted.kind === "adopt") && admitted.id >= world.organisms.length) throw new TypeError("organism id is not admitted for this experiment");
   world.events.push(admitted);
   if (admitted.kind === "rule") world.rules[admitted.rule] = admitted.value;
@@ -253,50 +296,103 @@ export function applyEvent(world, event) {
   return world;
 }
 
-function finiteBetween(value, low, high, name) {
-  if (!Number.isFinite(value) || value < low || value > high) throw new TypeError(`${name} is not admitted`);
-  return value;
-}
-
-/** Admit only bounded, serializable interactions before they enter a replay. */
-export function admitEvent(event, tick) {
-  if (!event || !Number.isInteger(tick) || tick < 0 || tick > 1_000_000) throw new TypeError("event tick is not admitted");
-  if (event.kind === "rule" && !Object.hasOwn({ east: 1, north: 1, whirl: 1, porous: 1 }, event.rule)) throw new TypeError("rule is not admitted");
-  if (event.kind === "rule") return { kind: "rule", rule: event.rule, value: finiteBetween(event.value, 0, 1, "rule value"), tick };
-  if (event.kind === "pulse") return { kind: "pulse", x: finiteBetween(event.x, 0, 1, "pulse x"), y: finiteBetween(event.y, 0, 1, "pulse y"), radius: finiteBetween(event.radius, .001, .5, "pulse radius"), force: finiteBetween(event.force, -.05, .05, "pulse force"), tick };
-  if (event.kind === "select" && Number.isInteger(event.id) && event.id >= 0 && event.id < 100_000) return { kind: "select", id: event.id, tick };
-  if (event.kind === "barrier") return { kind: "barrier", x: finiteBetween(event.x, 0, 1, "barrier x"), y: finiteBetween(event.y, 0, 1, "barrier y"), radius: finiteBetween(event.radius, .01, .25, "barrier radius"), erase: Boolean(event.erase), tick };
-  if (event.kind === "adopt" && Number.isInteger(event.id) && Number.isInteger(event.lineage) && event.id >= 0 && event.lineage >= 0 && event.lineage < 3) return { kind: "adopt", id: event.id, lineage: event.lineage, tick };
-  if (event.kind === "mutate" && Number.isInteger(event.lineage) && event.lineage >= 0 && event.lineage < 3 && ["flow", "signal", "crowded", "mixed"].includes(event.edge)) return { kind: "mutate", lineage: event.lineage, edge: event.edge, tick };
-  throw new TypeError("event kind is not admitted");
-}
-
-export function replay(experiment) {
-  if (!experiment || experiment.version !== 1 || experiment.modelVersion !== 1 || !Array.isArray(experiment.events) || experiment.events.length > 10_000 || !Number.isInteger(experiment.terminalTick) || experiment.terminalTick < 0 || experiment.terminalTick > 10_000) throw new TypeError("experiment is not admitted");
-  const world = createExperiment(experiment);
-  const admittedEvents = experiment.events.map((event) => admitEvent(event, event.tick));
-  let previousTick = 0;
-  for (const admitted of admittedEvents) {
-    if (admitted.tick < previousTick || admitted.tick > experiment.terminalTick) throw new TypeError("event order is not admitted");
-    while (world.tick < admitted.tick) step(world);
-    applyEvent(world, admitted);
-    previousTick = admitted.tick;
-  }
-  while (world.tick < experiment.terminalTick) step(world);
+/** Admit an event, observe it into the experiment's history at the current tick, and enact it. */
+export function applyEvent(world, event) {
+  const admitted = admitEvent(event, world.tick);
+  if ((admitted.kind === "select" || admitted.kind === "adopt") && admitted.id >= world.organisms.length) throw new TypeError("organism id is not admitted for this experiment");
+  if (world.events.length >= MAX_EVENTS) throw new TypeError("experiment event count is not admitted");
+  const history = observeHistory(world.history, [eventCell(world.events.length, admitted)], { source: "holofoam.event" });
+  enact(world, admitted);
+  world.history = history;
   return world;
 }
 
-export function snapshot(world) {
-  return JSON.stringify({ version: world.version, modelVersion: world.modelVersion, seed: world.seed, preset: world.preset, width: world.width, height: world.height, config: world.config, rules: world.rules, events: world.events, terminalTick: world.tick });
+function reachedTick(history) {
+  const reached = queryHistory(history, { subject: "holofoam.experiment", predicate: "reaches" });
+  return reached.length === 1 ? reached[0].object : undefined;
 }
 
-export function encodeExperiment(world) { return btoa(snapshot(world)); }
+/** Observe the world's tick into its history and return that history: the experiment's whole record. */
+export function snapshot(world) {
+  if (reachedTick(world.history) !== world.tick) world.history = observeHistory(world.history, [reachesCellChecked(world.tick)], { source: "holofoam.clock" });
+  return world.history;
+}
+
+function reachesCellChecked(tick) {
+  if (!Number.isInteger(tick) || tick < 0 || tick > MAX_TERMINAL_TICK) throw new TypeError("experiment terminal tick is not admitted");
+  return reachesCell(tick);
+}
+
+/** The same history reaching a later (or earlier, for a cut) tick. */
+export function observeTick(history, tick) { return observeHistory(history, [reachesCellChecked(tick)], { source: "holofoam.clock" }); }
+
+/** The bounded facts a history declares, read without replaying it. */
+export function describeHistory(input) {
+  const history = admitHistory(input);
+  const defined = queryHistory(history, { subject: "holofoam.experiment", predicate: "defines" });
+  const events = queryHistory(history, { predicate: "event" });
+  const terminalTick = reachedTick(history);
+  if (defined.length !== 1 || defined[0].object?.format !== EXPERIMENT_FORMAT || !Number.isInteger(terminalTick) || terminalTick < 0 || terminalTick > MAX_TERMINAL_TICK || events.length > MAX_EVENTS) throw new TypeError("experiment is not admitted");
+  return Object.freeze({ history, definition: defined[0].object, events: events.map((at) => at.object).sort((a, b) => a.seq - b.seq), terminalTick, address: historyHeads(history).join(",") });
+}
+
+function admitHistory(input) {
+  let value = input;
+  try { if (typeof value === "string") value = JSON.parse(value.startsWith("{") ? value : atob(value)); validateHistory(value); return restoreHistory(value); }
+  catch { throw new TypeError("experiment is not admitted"); }
+}
+
+// Derived worlds, remembered by history address so undo and forks need not re-derive a long prefix.
+// This is an acceleration of the replay law, never a source: a miss replays from the definition.
+const derived = new Map();
+const DERIVED_LIMIT = 24;
+function remember(address, world) {
+  const { history, compiledModels, spatial, ...state } = world;
+  derived.delete(address); derived.set(address, structuredClone(state));
+  if (derived.size > DERIVED_LIMIT) derived.delete(derived.keys().next().value);
+}
+/** Forget every remembered derived world; the next restoration replays. */
+export function clearDerived() { derived.clear(); }
+/** Whether the world of this history is already derived. */
+export function isDerived(history) { return derived.has(historyHeads(history).join(",")); }
+
+/** The world a history derives: deterministic replay of its definition and admitted events. */
+export function replay(input) {
+  const described = describeHistory(input);
+  const { history, definition, events, terminalTick, address } = described;
+  let world;
+  const cached = derived.get(address);
+  if (cached !== undefined) {
+    world = Object.assign(structuredClone(cached), { spatial: new Map(), compiledModels: [] });
+  } else {
+    if (definition.config.population * terminalTick > MAX_REPLAY_ORGANISM_TICKS) throw new TypeError("experiment replay exceeds the work bound");
+    world = worldOf(definition);
+    let previousTick = world.tick;
+    events.forEach((recorded, index) => {
+      const { seq, ...event } = recorded;
+      const admitted = admitEvent(event, event.tick);
+      if (seq !== index || admitted.tick < previousTick || admitted.tick > terminalTick) throw new TypeError("event order is not admitted");
+      while (world.tick < admitted.tick) step(world, 1, { force: true });
+      enact(world, admitted);
+      previousTick = admitted.tick;
+    });
+    while (world.tick < terminalTick) step(world, 1, { force: true });
+    if (world.tick !== terminalTick) throw new TypeError("experiment terminal tick is not admitted");
+  }
+  world.history = history;
+  world.paused = false;
+  rebuildModels(world);
+  return world;
+}
+
+/** Record a world's derived state against its history address, for later fast restoration. */
+export function rememberDerived(world) { remember(historyHeads(snapshot(world)).join(","), world); return world.history; }
+
+export function encodeExperiment(world) { return btoa(JSON.stringify(snapshot(world))); }
 
 export function decodeExperiment(encoded) {
   if (typeof encoded !== "string" || encoded.length > 2_000_000) throw new TypeError("experiment encoding is not admitted");
-  let parsed;
-  try { parsed = JSON.parse(encoded.startsWith("{") ? encoded : atob(encoded)); } catch { throw new TypeError("experiment encoding is not admitted"); }
-  return replay(parsed);
+  return replay(encoded);
 }
 
 /** Finite grid quadrature of the app's vector field, not a global H1 result. */

@@ -7,7 +7,7 @@ const element = (name, attributes = {}) => {
 };
 
 function panel(label, checkpoint, selectedId) {
-  const world = checkpoint?.world;
+  const world = checkpoint?.reading;
   const svg = element("svg", { viewBox: "0 0 220 150", role: "img", "aria-label": `${label} at tick ${world?.tick ?? "unknown"}` });
   svg.append(element("rect", { width: 220, height: 150, fill: "#101820", rx: 5 }));
   const title = element("text", { x: 8, y: 16, fill: "#eef5f7", "font-size": 11 });

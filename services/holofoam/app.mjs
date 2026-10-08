@@ -2,7 +2,7 @@ import { applyEvent, createExperiment, decodeExperiment, encodeExperiment, loopC
 import { createRenderer } from "./src/rendering.mjs";
 import { operations } from "./src/operations.mjs";
 import { recordCanvasWebm, saveCanvasPng } from "./src/capture.mjs";
-import { checkpoint as makeCheckpoint, restoreCheckpoint } from "./src/checkpoint.mjs";
+import { checkpoint as makeCheckpoint, CHECKPOINT_KIND, LEGACY_CHECKPOINT_KIND, readingOf, restoreCheckpoint } from "./src/checkpoint.mjs";
 import { renderForkComparison } from "./fork-view.mjs";
 import { COMPARISON_KIND, compareField, reopenComparison } from "./src/comparison.mjs";
 
@@ -15,7 +15,6 @@ const senses = document.querySelector("#senses");
 const readout = document.querySelector("#readout");
 const seed = Number(new URLSearchParams(location.search).get("seed"));
 let world;
-let historicalReplay = true;
 try {
   if (location.hash) {
     const encoded = location.hash.slice(1);
@@ -32,9 +31,9 @@ const exportComparison = document.querySelector("#export-comparison");
 let lastComparison = null;
 function clearComparison() { lastComparison = null; exportComparison.disabled = true; status.textContent = ""; document.querySelector("#fork-view").replaceChildren(); }
 function showStatus(message) { status.textContent = message; status.closest("details").open = true; }
-function checkpoint() { undo.push(structuredClone(makeCheckpoint(world))); if (undo.length > 32) undo.shift(); redo.length = 0; }
-function restore(value) { world = restoreCheckpoint(value); historicalReplay = false; clearComparison(); syncControls(); }
-function startNew(presetName) { world = createExperiment({ seed: world.seed, preset: presetName }); historicalReplay = true; undo.length = 0; redo.length = 0; clearComparison(); syncControls(); }
+function checkpoint() { undo.push(makeCheckpoint(world)); if (undo.length > 32) undo.shift(); redo.length = 0; }
+function restore(value) { world = restoreCheckpoint(value); clearComparison(); syncControls(); }
+function startNew(presetName) { world = createExperiment({ seed: world.seed, preset: presetName }); undo.length = 0; redo.length = 0; clearComparison(); syncControls(); }
 function intervene(event) { checkpoint(); applyEvent(world, event); refreshEdges(); }
 
 preset.replaceChildren(...presetNames().map((name) => new Option(name, name)));
@@ -51,10 +50,10 @@ pause.onclick = () => { world.paused = !world.paused; pause.textContent = world.
 document.querySelector("#step").onclick = () => step(world, 1, { force: true });
 preset.onchange = () => startNew(preset.value);
 document.querySelectorAll("[data-rule]").forEach((input) => input.addEventListener("input", () => applyEvent(world, { kind: "rule", rule: input.dataset.rule, value: Number(input.value) })));
-document.querySelector("#share").onclick = async () => { if (!historicalReplay) { showStatus("This current-state checkpoint cannot be a seed-replay link. Use Export to share it accurately."); return; } try { const encoded = encodeExperiment(world); const admitted = operations.admit.execute({ experiment: JSON.parse(atob(encoded)) }); const state = btoa(JSON.stringify(admitted.experiment)); await navigator.clipboard.writeText(`${location.origin}${location.pathname}#${state}`); document.querySelector("#share").textContent = "Copied"; } catch (error) { showStatus(`Share refused: ${error.message}. Use Export for a current-state checkpoint.`); } };
+document.querySelector("#share").onclick = async () => { try { const encoded = encodeExperiment(world); const admitted = operations.admit.execute({ experiment: JSON.parse(atob(encoded)) }); const state = btoa(JSON.stringify(admitted.experiment)); await navigator.clipboard.writeText(`${location.origin}${location.pathname}#${state}`); document.querySelector("#share").textContent = "Copied"; } catch (error) { showStatus(`Share refused: ${error.message}. Use Export for a checkpoint file.`); } };
 function downloadJson(value, filename) { const anchor = document.createElement("a"); anchor.href = URL.createObjectURL(new Blob([JSON.stringify(value, null, 2)], { type: "application/json" })); anchor.download = filename; anchor.click(); URL.revokeObjectURL(anchor.href); }
 document.querySelector("#export").onclick = () => downloadJson(makeCheckpoint(world), `holofoam-state-${world.tick}.json`);
-exportComparison.onclick = () => { if (lastComparison) downloadJson(lastComparison.document, `holofoam-comparison-${lastComparison.document.input.checkpoint.world.tick}.json`); };
+exportComparison.onclick = () => { if (lastComparison) downloadJson(lastComparison.document, `holofoam-comparison-${lastComparison.document.input.checkpoint.tick}.json`); };
 document.querySelector("#import").onchange = async (event) => {
   try {
     const parsed = JSON.parse(await event.target.files[0].text());
@@ -63,12 +62,12 @@ document.querySelector("#import").onchange = async (event) => {
       restore(comparison.document.input.checkpoint);
       world.paused = true; syncControls();
       showComparison(comparison);
-    } else if (parsed.kind) restore(parsed);
+    } else if (parsed.kind === CHECKPOINT_KIND || parsed.kind === LEGACY_CHECKPOINT_KIND) restore(parsed);
     else {
       const admitted = operations.admit.execute({ experiment: parsed });
       world = decodeExperiment(btoa(JSON.stringify(admitted.experiment)));
-      historicalReplay = true; clearComparison();
-      showStatus("Bounded historical replay imported; current-state saves use checkpoints."); syncControls();
+      clearComparison();
+      showStatus("Experiment history imported and replayed."); syncControls();
     }
   } catch (error) { showStatus(`Import refused: ${error.message}`); }
   finally { event.target.value = ""; }
@@ -100,11 +99,11 @@ document.querySelector("#what-if").onclick = () => {
 };
 function showComparison(value) {
   const { document: { input }, result } = value;
-  const start = input.checkpoint.world;
+  const start = readingOf(restoreCheckpoint(input.checkpoint));
   const { rule, value: target } = input.variationEvent;
   const selected = start.organisms[start.selected ?? 0];
   document.querySelector("#what-rule").value = rule;
-  showStatus(`context: ${rule} ${start.rules[rule].toFixed(2)} → ${target.toFixed(2)}\nmodel: ${result.comparison.policyState} (${start.genomes[selected.lineage].id})\nticks: ${start.tick} → ${start.tick + input.count}\nprovenance: current state; seed history unverified\naction changes: ${result.comparison.changedActionCount}\nmean displacement: ${result.comparison.meanDisplacement.toFixed(4)}`);
+  showStatus(`context: ${rule} ${start.rules[rule].toFixed(2)} → ${target.toFixed(2)}\nmodel: ${result.comparison.policyState} (${start.genomes[selected.lineage].id})\nticks: ${start.tick} → ${start.tick + input.count}\nprovenance: SignCraft history, forked at the checkpoint\naction changes: ${result.comparison.changedActionCount}\nmean displacement: ${result.comparison.meanDisplacement.toFixed(4)}`);
   renderForkComparison(document.querySelector("#fork-view"), result, selected.id);
   lastComparison = value; exportComparison.disabled = false;
 }

@@ -1,35 +1,41 @@
 /** JSON-safe Holofoam action registry shared by browser and headless callers. */
-import { applyEvent, compileModel, createExperiment, replay, snapshot, step } from "./simulation.mjs";
-import { checkpoint, MAX_CHECKPOINT_TICK, restoreCheckpoint } from "./checkpoint.mjs";
+import { applyEvent, compileModel, createExperiment, describeHistory, isDerived, rememberDerived, replay, snapshot, step } from "./simulation.mjs";
+import { checkpoint, MAX_CHECKPOINT_TICK, readingOf, restoreCheckpoint } from "./checkpoint.mjs";
 
 const MAX_POPULATION = 1_000;
 const MAX_REPLAY_TICKS = 2_048;
 const MAX_ACTION_TICKS = 256;
 const MAX_ORGANISM_TICKS = 100_000;
+const MAX_REPLAY_PREFIX_ORGANISM_TICKS = 8_000_000;
 
 function record(value, label) {
   if (value === null || typeof value !== "object" || Array.isArray(value)) throw new TypeError(`${label} must be an object`);
   return value;
 }
 
+// An experiment is a shared SignCraft history, bounded by what it declares before any of it is replayed.
 function withinBudget(experiment, additionalTicks = 0, copies = 1) {
-  const value = record(experiment, "experiment");
-  const population = value.config?.population ?? MAX_POPULATION;
+  const described = describeHistory(experiment);
+  const population = described.definition.config?.population ?? MAX_POPULATION;
   if (!Number.isInteger(population) || population < 1 || population > MAX_POPULATION) throw new TypeError("experiment population exceeds the operation budget");
-  if (!Number.isInteger(value.terminalTick) || value.terminalTick < 0 || value.terminalTick > MAX_REPLAY_TICKS) throw new TypeError("experiment terminal tick exceeds the operation budget");
-  if (!Array.isArray(value.events) || value.events.length > MAX_REPLAY_TICKS) throw new TypeError("experiment event count exceeds the operation budget");
-  if (!Number.isInteger(additionalTicks) || additionalTicks < 0 || population * (value.terminalTick + additionalTicks) * copies > MAX_ORGANISM_TICKS) throw new TypeError("experiment replay exceeds the operation work budget");
-  return value;
+  if (described.terminalTick > MAX_REPLAY_TICKS) throw new TypeError("experiment terminal tick exceeds the operation budget");
+  if (described.events.length > MAX_REPLAY_TICKS) throw new TypeError("experiment event count exceeds the operation budget");
+  if (!Number.isInteger(additionalTicks) || additionalTicks < 0 || population * (described.terminalTick + additionalTicks) * copies > MAX_ORGANISM_TICKS) throw new TypeError("experiment replay exceeds the operation work budget");
+  return described.history;
 }
 
-function restore(experiment, additionalTicks = 0) {
-  let value;
-  try { value = typeof experiment === "string" ? JSON.parse(experiment) : experiment; }
-  catch { throw new TypeError("experiment must be an admitted replay snapshot"); }
-  return replay(withinBudget(value, additionalTicks));
+function restore(experiment, additionalTicks = 0) { return replay(withinBudget(experiment, additionalTicks)); }
+
+// A checkpoint is bounded by its declared tick and population before it is replayed; a derived prefix costs nothing again.
+function restoreWithinBudget(value, additionalTicks, copies = 1) {
+  const described = describeHistory(value?.history);
+  const population = described.definition.config?.population ?? MAX_POPULATION;
+  if (described.terminalTick + additionalTicks > MAX_CHECKPOINT_TICK || population * additionalTicks * copies > MAX_ORGANISM_TICKS) throw new TypeError("checkpoint continuation exceeds the operation work budget");
+  if (!isDerived(described.history) && population * described.terminalTick > MAX_REPLAY_PREFIX_ORGANISM_TICKS) throw new TypeError("checkpoint continuation exceeds the operation work budget");
+  return restoreCheckpoint(value);
 }
 
-function encode(world) { return JSON.parse(snapshot(world)); }
+const encode = snapshot;
 
 function summary(world) {
   const energy = world.organisms.reduce((sum, organism) => sum + organism.energy, 0);
@@ -51,8 +57,7 @@ function admittedWorld(input, additionalTicks = 0) {
   const hasCheckpoint = input.checkpoint !== undefined; const hasExperiment = input.experiment !== undefined; const hasSpec = input.spec !== undefined;
   if ([hasCheckpoint, hasExperiment, hasSpec].filter(Boolean).length > 1) throw new TypeError("input must carry one state representation");
   if (hasCheckpoint) {
-    const world = restoreCheckpoint(input.checkpoint);
-    if (world.organisms.length * additionalTicks > MAX_ORGANISM_TICKS || world.tick + additionalTicks > MAX_CHECKPOINT_TICK) throw new TypeError("checkpoint continuation exceeds the operation work budget");
+    const world = restoreWithinBudget(input.checkpoint, additionalTicks);
     return Object.freeze({ world, seedHistory: false });
   }
   if (hasExperiment) return Object.freeze({ world: restore(input.experiment, additionalTicks), seedHistory: true });
@@ -62,7 +67,7 @@ function admittedWorld(input, additionalTicks = 0) {
   return Object.freeze({ world: createExperiment(spec), seedHistory: true });
 }
 
-function stateOutput(world, seedHistory) { return Object.freeze({ ...(seedHistory ? { experiment: encode(world), provenance: "seed-history" } : { provenance: "unverified-current-state" }), checkpoint: checkpoint(world), summary: summary(world) }); }
+function stateOutput(world, seedHistory) { return Object.freeze({ ...(seedHistory ? { experiment: encode(world) } : {}), provenance: "history", checkpoint: checkpoint(world), summary: summary(world) }); }
 
 function admittedEvent(world, event) {
   return applyEvent(world, record(event, "event"));
@@ -160,19 +165,20 @@ export const operations = Object.freeze({
     execute(input = {}) {
       const inputValue = record(input, "input");
       if ([inputValue.checkpoint !== undefined, inputValue.experiment !== undefined, inputValue.spec !== undefined].filter(Boolean).length !== 1) throw new TypeError("input must carry one state representation");
-      const base = inputValue.experiment;
       const frames = count(input.count ?? 1);
-      if (inputValue.checkpoint === undefined) { const admittedBase = typeof base === "string" ? JSON.parse(base) : base; withinBudget(admittedBase, frames, 2); }
-      else { const checked = restoreCheckpoint(inputValue.checkpoint); if (checked.tick + frames > MAX_CHECKPOINT_TICK || checked.organisms.length * frames * 2 > MAX_ORGANISM_TICKS) throw new TypeError("checkpoint continuation exceeds the operation work budget"); }
+      // One history, cut once: both continuations are derived from it, differing only in the interventions observed into them.
+      const fromCheckpoint = inputValue.checkpoint !== undefined;
+      const origin = fromCheckpoint ? restoreWithinBudget(inputValue.checkpoint, frames, 2) : replay(withinBudget(inputValue.experiment, frames, 2));
+      const cut = rememberDerived(origin);
       const run = (event) => {
-        const world = inputValue.checkpoint === undefined ? restore(base, frames) : restoreCheckpoint(inputValue.checkpoint);
+        const world = replay(cut);
         if (event !== undefined) admittedEvent(world, event);
         step(world, frames, { force: true });
-        return Object.freeze({ world, result: Object.freeze({ ...(inputValue.checkpoint === undefined ? { experiment: encode(world) } : {}), checkpoint: checkpoint(world), provenance: inputValue.checkpoint === undefined ? "seed-history" : "unverified-current-state", summary: summary(world) }) });
+        return Object.freeze({ world, result: Object.freeze({ ...(fromCheckpoint ? {} : { experiment: encode(world) }), checkpoint: Object.freeze({ ...checkpoint(world), reading: readingOf(world) }), provenance: "history", summary: summary(world) }) });
       };
       const baseline = run(input.baselineEvent);
       const variation = run(input.variationEvent);
-      return Object.freeze({ baseline: baseline.result, variation: variation.result, comparison: compareWorlds(baseline.world, variation.world) });
+      return Object.freeze({ baseline: baseline.result, variation: variation.result, comparison: compareWorlds(baseline.world, variation.world), fork: Object.freeze({ from: describeHistory(cut).address, baseline: describeHistory(baseline.world.history).address, variation: describeHistory(variation.world.history).address }) });
     },
   }),
 });
