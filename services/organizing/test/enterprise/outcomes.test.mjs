@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import {
-  acceptanceReadoutOf, deliveryReadingOf, isoWeekOf, outcomeBookText, outcomeJournal, outcomeOf, partyResolverOf, seamOfOutcome, standingOf,
+  acceptanceReadoutOf, deliveryReadingOf, isoWeekOf, outcomeBookText, outcomeJournal, outcomeOf, partyResolverOf, seamOfOutcome, standingOf, readStandingIndex, readMarketJudgments, readJudgedSettlements, standingIndexOf,
 } from "../../src/enterprise/outcomes.mjs";
 
 const SECTION = "services/engineering-services-section";
@@ -16,8 +16,8 @@ const accounts = new Map([["0x42f7", { entity: "561-group-llc" }], ["0xf0f0", { 
 const partyOf = partyResolverOf({ territories, accounts });
 
 const sale = (payer, tx, amount) => outcomeOf({
-  source: "x402-settlement", lot: "sku:a", delivery: `tx:${tx}`, provider: `section:lib/emsenn/services/561-group/${SECTION}/services/x`,
-  judge: `eip155:8453:${payer}`, verdict: "accepted", at: "2026-10-02T11:00:00.000Z", evidence: [`evm:${tx}`],
+  source: "customer", lot: "sku:a", delivery: `tx:${tx}`, provider: `section:lib/emsenn/services/561-group/${SECTION}/services/x`,
+  judge: `eip155:8453:${payer}`, verdict: "accepted", at: "2026-10-02T11:00:00.000Z", evidence: [`customer-judgment:${tx}`],
   value: { amount, currency: "USDC", basis: "price", account: "Income:Sales:X402:Translation", settledTo: "Assets:Digital-Assets:EVM:Base:Tokens" },
 });
 const assayInput = (thread, verdict, at) => ({
@@ -91,4 +91,21 @@ test("the journal tells an outcome once, however often it is told", async () => 
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+
+test('cached payment claims do not supply standing, routing or enterprise judged settlements',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'outcome-payment-cache-'));
+ try{
+  const standing=join(root,'standing.json'),market=join(root,'market.json'),settled=join(root,'settled.json');
+  await writeFile(standing,JSON.stringify({kind:'organizing.enterprise.outcome-standing',standing:[{carrier:'model',accepted:26,attempts:26}]}));
+  assert.equal(readStandingIndex(standing).size,0);
+  await writeFile(standing,JSON.stringify(standingIndexOf(new Map([['model',{accepted:1,attempts:2}]]))));
+  assert.deepEqual([...readStandingIndex(standing)],[['model',{accepted:1,attempts:2}]]);
+  const old={source:'x402-settlement',verdict:'accepted'},judgment={source:'customer',verdict:'accepted'};
+  await writeFile(market,JSON.stringify({kind:'organizing.enterprise.market-judgments',judgments:[old,judgment]}));
+  assert.deepEqual(readMarketJudgments(market),[judgment]);
+  await writeFile(settled,JSON.stringify({kind:'organizing.enterprise.judged-settlements',enterprises:{engineering:[old,judgment]}}));
+  assert.deepEqual(readJudgedSettlements(settled,'engineering'),[judgment]);
+ }finally{await rm(root,{recursive:true,force:true});}
 });
