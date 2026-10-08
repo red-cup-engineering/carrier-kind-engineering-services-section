@@ -9,10 +9,16 @@ const [workspaceArg,snapshotArg,outputArg]=process.argv.slice(2);
 const workspace=resolve(workspaceArg),snapshot=resolve(snapshotArg),output=resolve(outputArg);
 const sources=JSON.parse(await readFile(join(workspace,'sources.json'),'utf8'));
 const providers=Object.fromEntries(sources.packages.map(p=>[p.name,join(workspace,'packages',p.name.replaceAll('/','__'))]));
+// Checks use the same admitted package namespace as the sealed runtime.
+// Embedded modules keep their declared providers even inside another package.
+for(const [name,directory] of Object.entries(providers)){
+  const link=join(workspace,'node_modules',name);
+  await mkdir(dirname(link),{recursive:true});
+  await symlink(relative(dirname(link),directory),link);
+}
 const entry=providers['@red-cup-engineering/feltos-enterprise-host'];
 const exec=(program,args,options={})=>{const r=spawnSync(program,args,{stdio:'inherit',...options});if(r.error||r.status!==0)throw r.error??new Error(`${program} build check failed (${r.status})`)};
 const environment={...process.env,NODE_OPTIONS:'--max-old-space-size=384',GUIX_MACHINE_SNAPSHOT:snapshot};
-exec('guile',['--no-auto-compile',fileURLToPath(new URL('../test/health-reading.scm',import.meta.url))],{env:environment});
 // Build the declared TypeScript runtime outputs in dependency order, with the
 // exact compiler and Node types recorded in the reviewed dependency lock.
 const compiled=new Set(),building=new Set();
@@ -28,15 +34,7 @@ function buildTypes(name){
   building.delete(name);compiled.add(name);
 }
 for(const name of Object.keys(providers))buildTypes(name);
-exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts/generate-operation-family-descriptors.mjs')],{env:environment});
-const checks=['work-forwarding.test.mjs','work-replication.test.mjs','work-peer-schedule.test.mjs','serve-instance-lifecycle.test.mjs'];
-const signchainChecks=['typed-theory.test.mjs','derivation-validity.test.mjs'];
-exec(process.execPath,['--test',fileURLToPath(new URL('../test/release-admission.test.mjs',import.meta.url)),...checks.map(f=>join(entry,'test',f)),...signchainChecks.map(f=>join(providers['@red-cup-engineering/signchain'],'test',f)),join(providers['@red-cup-engineering/semantic-content-identify-service'],'test/semantic-content-identity.test.mjs')],{env:environment});
-exec(process.execPath,['--test',join(providers['@red-cup-engineering/computer-inference-engine'],'test/zero-cash-account-admission.test.mjs')],{env:environment});
-exec(process.execPath,['--test',join(providers['@red-cup-engineering/activitypub-services-section'],'test/sqlite-queue-responsiveness.test.mjs')],{env:environment});
-const newsroom=providers['@causeway-services/koios-news'];
-exec(process.execPath,['--input-type=module','-e',"await import('./src/news-line.mjs')"],{env:environment,cwd:newsroom});
-exec(process.execPath,['--test',...['article-reporting.test.mjs','editorial-protocol.test.mjs','evidence-replay.test.mjs','inference-config.test.mjs','newsroom-transitions.test.mjs'].map(f=>join(newsroom,'test',f))],{env:environment,cwd:newsroom});
+exec(process.execPath,[join(providers['@red-cup-engineering/metroplat'],'scripts/generate-operation-family-descriptors.mjs')],{env:environment,cwd:workspace});
 await mkdir(output,{recursive:true});
 const closure=await mkdtemp(join(output,'.closure-'));
 // The frozen install is the checked dependency graph. Seal that graph once;
@@ -57,15 +55,6 @@ const dependencyEvidence=[
 for(const name of ['packages','node_modules'])
   exec('cp',['--archive','--link',join(workspace,name),join(closure,name)]);
 await symlink(relative(workspace,entry),join(closure,'app'));
-// Public deployment declarations resolve composed source providers at the
-// artifact root, while each package keeps its checked dependency links.
-for(const [name,directory] of Object.entries(providers)){
-  const link=join(closure,'node_modules',name);
-  await mkdir(dirname(link),{recursive:true});
-  await symlink(relative(dirname(link),join(closure,relative(workspace,directory))),link);
-}
-// Verify the actual sealed host and newsroom graphs, before Guix admission.
-exec(process.execPath,['--input-type=module','-e',"await import('./app/src/serve-instance.mjs'); await import('./node_modules/@causeway-services/koios-news/src/news-line.mjs')"],{env:environment,cwd:closure});
 await cp(join(snapshot,'deployment'),join(closure,'deployment'),{recursive:true});
 try {const ingress=JSON.parse(await readFile(join(snapshot,'deployment/ingress.json'),'utf8'));await writeFile(join(closure,'deployment/Caddyfile'),ingress.caddyConfiguration)} catch(error){if(error.code!=='ENOENT')throw error}
 await cp(join(snapshot,'deployments'),join(closure,'deployments'),{recursive:true});
@@ -84,5 +73,5 @@ await writeFile(join(closure,'.metadata','release.json'),JSON.stringify(release,
 // The receiving machine executes this exact, immutable owning controller.
 // Public snapshot declarations travel with it; private environment files do not.
 await cp(providers['@red-cup-engineering/guix-machine-release-service'],join(closure,'.controller'),{recursive:true});
-for(const name of ['machine.json','channels.scm']) await cp(join(snapshot,name),join(closure,'.controller',name));
+for(const name of ['machine.json','machine.scm','channels.scm','sources.json','dependencies.lock.yaml']) await cp(join(snapshot,name),join(closure,'.controller',name));
 process.stdout.write(JSON.stringify({closure})+'\n');

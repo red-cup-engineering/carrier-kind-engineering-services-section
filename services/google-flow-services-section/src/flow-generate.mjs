@@ -62,6 +62,14 @@ export function readPacing(path = join(flowStateDir(), 'pacing.json')) {
   } catch { return { gapMs: PACING.floorMs, ...(existsSync(path)?{verificationRequired:{code:'FLOW_PACING_STATE_UNREADABLE',message:'Repair or explicitly resume the retained Flow pacing state before generating'}}:{}) }; }
 }
 
+/** Local admission for new work; accepted submissions are collected independently. */
+export function flowGenerationAdmission({env=process.env,state=flowStateDir(env)}={}) {
+ const held=readPacing(join(state,'pacing.json')).verificationRequired;
+ if(held)return {allowed:false,status:'verification-pending',reason:held};
+ if(!existsSync(storageStatePath(env)))return {allowed:false,status:'authentication-pending'};
+ return {allowed:true};
+}
+
 function writePacing(pacing, path = join(flowStateDir(), 'pacing.json')) {
   mkdirSync(dirname(path), { recursive: true });
   const temporary=path+'.'+process.pid+'.tmp';
@@ -416,8 +424,8 @@ export async function runFlowQueue({ projectId, config = loadFlowAllowanceConfig
   for (const dir of [pending, claims, done]) mkdirSync(dir, { recursive: true });
   for (const name of readdirSync(claims)) if (!alive(Number(name.split('-')[0]))) recoverClaim(join(claims, name), state);
   const received=await resumeFlowSubmissions({state,open});
-  const held = readPacing(join(state, 'pacing.json')).verificationRequired;
-  if (held) return { verificationRequired: held, results: [], received, queued: readdirSync(pending).filter(name => name.endsWith('.jsonl')).flatMap(name => lines(join(pending, name))).length };
+  const admission=flowGenerationAdmission({state});
+  if (!admission.allowed) return { verificationRequired: admission.reason??{code:'FLOW_AUTHENTICATION_PENDING'}, results: [], received, queued: readdirSync(pending).filter(name => name.endsWith('.jsonl')).flatMap(name => lines(join(pending, name))).length };
   if(!readdirSync(pending).some(name=>name.endsWith('.jsonl')))return {results:[],received,queued:0};
   const claim = join(claims, `${process.pid}-${now.getTime()}`);
   mkdirSync(claim);

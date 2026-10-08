@@ -94,7 +94,9 @@
       (root-release-generations config current current previous)
       (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" current)
       (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--delete-generations"))
-    (run "guix" "gc" "--free-space=2GB")))
+    ;; Sealing temporarily holds both the checked closure and its store input.
+    ;; Collect before assembly so a native build can retain current/previous.
+    (run "guix" "gc" "--free-space=4GiB")))
 
 (define (retain-release-roots config store current previous)
     (root-release-generations config store current previous)
@@ -119,7 +121,12 @@
          (scratch (mkdtemp (string-append root "/.probe-XXXXXX")))
          (unit-backup (string-append scratch "/main.unit"))
          (probe-env (string-append scratch "/probe.env"))
-         (probe (string-append name "-guix-probe"))
+         (probe (string-append name "-guix-probe-" (basename scratch)))
+         (probe-listen
+           (string-append "127.0.0.1:"
+             (string-trim-both
+               (capture (string-append store "/bin/node") "--input-type=module" "--eval"
+                 "import {createServer} from 'node:net'; const s=createServer(); s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>console.log(p));});"))))
          (stage "staging")
          (identity (read-json (string-append store "/.metadata/release.json")))
          (revision (assoc-ref identity "machineCommit"))
@@ -149,6 +156,11 @@
     (retain-release-roots config store previous held-previous)
     (catch #t
       (lambda ()
+        (set! stage "host-check")
+        (run (string-append store "/bin/node")
+             (string-append store "/.controller/scripts/check-host.mjs") store
+             (or (getenv "GUIX_MACHINE_SNAPSHOT") (string-append store "/.controller")))
+        (set! stage "staging")
         ;; The app's probe mode suppresses clocks, remote delivery and companions.
         ;; It gets empty state and does not inherit the live data root.
         ;; EnvironmentFile wins over systemd Environment settings. Append probe
@@ -161,7 +173,7 @@
             (newline p)
             (for-each (lambda (pair) (format p "~a=~s~%" (car pair) (cdr pair)))
               `(("METROPLAT_PROBE" . "1")
-                ("METROPLAT_PROBE_LISTEN" . "127.0.0.1:18819")
+                ("METROPLAT_PROBE_LISTEN" . ,probe-listen)
                 ("GUIX_MACHINE_ARTIFACT" . ,store)
                 ("NODE_OPTIONS" . "--max-old-space-size=384 --disable-sigusr1")
                 ("FELTOS_ENTERPRISE_HOST" . ,(string-append store "/deployment/host.json"))
@@ -171,19 +183,23 @@
                 ("METROPLAT_DATA_ROOT" . ,(string-append scratch "/settlement"))
                 ("ACTIVITYPUB_SQLITE_PATH" . ,(string-append scratch "/activitypub.sqlite"))
                 ("AGENCY_ACTS_LOG" . ,(string-append scratch "/acts.jsonl"))))))
+        ;; Cancellation can leave the preceding transient probe loaded. The
+        ;; writer lease makes its isolated unit ours to reconcile before reuse.
+        (system* "systemctl" "--user" "stop" probe)
+        (system* "systemctl" "--user" "reset-failed" probe)
         (run "systemd-run" "--user" "--collect" "--quiet" "--nice=0"
              (string-append "--unit=" probe)
              (string-append "--property=EnvironmentFile=" probe-env)
              "--property=CPUWeight=100" "--property=IOWeight=100"
              "--property=MemoryMax=640M" "--property=OOMScoreAdjust=1000"
-             "--setenv=METROPLAT_PROBE=1" "--setenv=METROPLAT_PROBE_LISTEN=127.0.0.1:18819"
+             "--setenv=METROPLAT_PROBE=1" (string-append "--setenv=METROPLAT_PROBE_LISTEN=" probe-listen)
              (string-append "--setenv=FELTOS_ENTERPRISE_HOST=" store "/deployment/host.json")
              (string-append "--setenv=METROPLAT_REPOSITORY_ROOT=" store)
              (string-append "--setenv=METROPLAT_WEB_STATE_DIR=" scratch "/state")
              (string-append "--setenv=METROPLAT_WEB_DATA_DIR=" scratch "/data")
              (string-append "--setenv=METROPLAT_DATA_ROOT=" scratch "/settlement")
              (string-append store "/bin/" name))
-        (health "http://127.0.0.1:18819/healthz" store)
+        (health (string-append "http://" probe-listen "/healthz") store)
         (set! stage "auxiliary-check")
         (for-each
           (lambda (check)
@@ -251,6 +267,9 @@
         (configuration-commands config "reload" store)
         (set! stage "live-check")
         (health (field config "health") store)
+        ;; Successor receiving is separate from idempotent configuration reload.
+        ;; Recovery reloads the held configuration without asserting new capability.
+        (configuration-commands config "receive" store)
         ;; Stable roots retain both rollback targets; older profile generations
         ;; no longer retain every historical build forever.
         (root-release-generations config store store previous)

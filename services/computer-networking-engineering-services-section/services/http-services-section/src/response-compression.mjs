@@ -33,8 +33,8 @@ export function planWebResponseCompression(status, headers, options = {}) {
         coding
     };
 }
-export function pipeCompressed(source, plan) {
-    return plan.kind === "compress" ? source.pipe(compressStream(plan.coding)) : source;
+export function responseCompressionTransform(plan) {
+    return plan.kind === "compress" ? compressStream(plan.coding) : null;
 }
 export function writeContentCodingNotAcceptable(headers) {
     setHeader(headers, "content-type", "text/plain; charset=utf-8");
