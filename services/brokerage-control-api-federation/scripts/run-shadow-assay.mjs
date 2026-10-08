@@ -10,7 +10,7 @@ import { assayCausalPanel } from "./causal-market-panel-assay.mjs";
 import { createCausalPortfolioLearningCircuit } from "./circuit.mjs";
 import { measureCausalPatchNovelty } from "./causal-tiling-novelty-measure.mjs";
 import { measureCorrelationGraph } from "./correlation-graph-measure.mjs";
-import { createContentAddressedDatasetStore } from "@red-cup-engineering/content-addressed-dataset-store-service";
+import { createContentAddressedDatasetStore } from "@red-cup-engineering/file-data-services-section/dataset-store";
 import { fitDeterministicRidge, predictDeterministicRidge } from "./ridge.mjs";
 import { allocateMandatePortfolio } from "@red-cup-engineering/mandate-portfolio-allocation-service";
 import { selectModelCandidate } from "@red-cup-engineering/model-tournament-service";
