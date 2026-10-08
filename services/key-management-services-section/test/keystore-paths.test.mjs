@@ -12,17 +12,25 @@ test("extensionForChain rejects an unsupported chain", () => {
   assert.throws(() => extensionForChain("solana"), /chain solana is not supported/u);
 });
 
-test("configRoot builds ~/.config/561-group under the given home", () => {
-  assert.equal(configRoot({ home: "/home/test" }), "/home/test/.config/561-group");
+test("configRoot is this process's credentials directory, or the directory given", () => {
+  const saved = process.env.CREDENTIALS_DIRECTORY;
+  process.env.CREDENTIALS_DIRECTORY = "/run/user/1/credentials";
+  try {
+    assert.equal(configRoot(), "/run/user/1/credentials");
+    assert.equal(configRoot({ directory: "/tmp/test-credentials" }), "/tmp/test-credentials");
+  } finally {
+    if (saved === undefined) delete process.env.CREDENTIALS_DIRECTORY; else process.env.CREDENTIALS_DIRECTORY = saved;
+  }
 });
 
-test("configRoot throws when HOME is not set and none is given", () => {
-  const savedHome = process.env.HOME;
-  delete process.env.HOME;
+test("configRoot refuses without a credentials directory, or gives null when optional", () => {
+  const saved = process.env.CREDENTIALS_DIRECTORY;
+  delete process.env.CREDENTIALS_DIRECTORY;
   try {
-    assert.throws(() => configRoot(), /HOME is not set/u);
+    assert.throws(() => configRoot(), /CREDENTIALS_DIRECTORY is not set/u);
+    assert.equal(configRoot({ optional: true }), null);
   } finally {
-    process.env.HOME = savedHome;
+    if (saved !== undefined) process.env.CREDENTIALS_DIRECTORY = saved;
   }
 });
 

@@ -37,9 +37,10 @@
  * No two jobs of a deployment hold overlapping custody, so no two runs write the same path.
  *
  * A job that uses credentials names the services whose credentials it runs with: `credentials`, e.g.
- * ["kalshi"]. The node names the directory its host's credentials are rendered into
- * (NODE_JOB_CREDENTIALS_DIRECTORY, a runtime tmpfs written by credential custody `render-host`), and the
- * run reads `<directory>/<service>.env` as an environment file. A job never names a credential path itself.
+ * ["kalshi"]. The node's own CREDENTIALS_DIRECTORY names where its host's credentials are rendered (a runtime
+ * tmpfs written by credential custody `render-host`); the run reads `<directory>/<service>.env` as an environment
+ * file and is given CREDENTIALS_DIRECTORY, so code finding a file credential reads it there. A job never names a
+ * credential path itself.
  */
 import { execFile } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
@@ -248,7 +249,7 @@ const expand = (value, release) => value.replaceAll("{release}", release);
  * Returns { kind, job, unit, state: running | started, release?, startedAt?, last }, where last is
  * the receipt of the job's last run to end. A run's outcome is its receipt, not this call's.
  */
-export async function runNodeJob({ deploymentRoot, job: id, workingTree, credentialsDirectory = process.env.NODE_JOB_CREDENTIALS_DIRECTORY, home = homedir(), node = process.execPath, now = () => new Date() }) {
+export async function runNodeJob({ deploymentRoot, job: id, workingTree, credentialsDirectory = process.env.CREDENTIALS_DIRECTORY ?? process.env.NODE_JOB_CREDENTIALS_DIRECTORY, home = homedir(), node = process.execPath, now = () => new Date() }) {
   const declared = nodeJobsOf(deploymentRoot);
   const job = declared?.jobs.get(id);
   if (job === undefined) throw new TypeError(`node-job: ${deploymentRoot} declares no job ${JSON.stringify(id)}`);
@@ -256,7 +257,7 @@ export async function runNodeJob({ deploymentRoot, job: id, workingTree, credent
     throw new TypeError(`node-job: ${job.id} holds working-tree custody, and this node names no working tree to run it in`);
   }
   if (job.credentials.length > 0 && (typeof credentialsDirectory !== "string" || !isAbsolute(credentialsDirectory))) {
-    throw new TypeError(`node-job: ${job.id} runs with credentials, and this node names no credentials directory (NODE_JOB_CREDENTIALS_DIRECTORY)`);
+    throw new TypeError(`node-job: ${job.id} runs with credentials, and this node names no credentials directory (CREDENTIALS_DIRECTORY)`);
   }
   const unit = `${declared.unitPrefix}-job-${job.id}.service`;
   const receipt = receiptOf(home, declared.releaseRoot, job.id);
@@ -282,6 +283,7 @@ export async function runNodeJob({ deploymentRoot, job: id, workingTree, credent
     NODE_JOB_RELEASE: commit ?? "",
     NODE_JOB_STARTED_AT: startedAt,
     NODE_JOB_DEMAND: demandOf(receipt),
+    ...(job.credentials.length === 0 ? {} : { CREDENTIALS_DIRECTORY: resolve(credentialsDirectory) }),
     ...(job.workingTree === undefined ? {} : { NODE_JOB_WORKING_TREE: workingTree, NODE_JOB_CUSTODY: JSON.stringify(job.workingTree.custody) }),
   };
   const started = await run("systemd-run", [

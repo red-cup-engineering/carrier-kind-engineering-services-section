@@ -83,7 +83,7 @@ async function cmdKeySet(args) {
         if (!passStdin) return die("--encrypt requires --passphrase-stdin (passphrase on stdin line 2)");
         const passphrase = (lines[1] ?? "").replace(/\n$/, "");
         if (!passphrase) return die("no passphrase on stdin (line 2)");
-        setHiveKey(account, role, wif, {
+        await setHiveKey(account, role, wif, {
             passphrase,
             ...root !== undefined ? {
                 root
@@ -92,7 +92,7 @@ async function cmdKeySet(args) {
         out(`stored sealed ${role} key for @${account}`);
         return 0;
     }
-    setHiveKey(account, role, wif, {
+    await setHiveKey(account, role, wif, {
         ...root !== undefined ? {
             root
         } : {}
@@ -156,7 +156,7 @@ async function cmdKeyDerive(args) {
             }
         }
         try {
-            setHiveKey(account, role, priv.toString(), {
+            await setHiveKey(account, role, priv.toString(), {
                 ...encrypt ? {
                     passphrase
                 } : {},
@@ -263,7 +263,7 @@ async function main() {
             console.error("  hive-key check <account> [--passphrase-stdin]");
             console.error("  hive-key identify [--accounts a,b]");
             console.error("  hive-key sort <dump-file> [--accounts a,b] [--write]");
-            console.error("  HIVE_KEY_ROOT overrides the key store root (~/.config/blockchain/hive); HIVE_NODES the RPC nodes.");
+            console.error("  HIVE_KEY_ROOT overrides the key store root (hive/ in CREDENTIALS_DIRECTORY); HIVE_NODES the RPC nodes.");
             return 1;
     }
 }

@@ -2,7 +2,7 @@ import { agencyAt, agencyRootOf, coordinatingOfficeSession } from "@red-cup-engi
 import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
 import { extractSignCellEvidenceActivity, projectSignCellEvidenceActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
-import { homeHostOf, moveOf, openingOf, OPENING_MOVES, readForward, responseOf, TOLD_MOVES, unreadReasonOf, workHomesOf } from "@red-cup-engineering/organizing/enterprise";
+import { homeHostOf, moveOf, openingOf, OPENING_MOVES, readForward, responseOf, TOLD_MOVES, unreadReasonOf, workArenaLawOf, workHomesOf } from "@red-cup-engineering/organizing/enterprise";
 import { holderOf, settlementIntake, workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 
 /** An opening move of the work arena, carried between peer settlements as SignCell evidence. */
@@ -66,15 +66,44 @@ export function hostedWorkIntentAdmission({ config, binding, resolveWorkRealm })
   return intake;
 }
 
-/** The host's opening port: play the opening on this settlement's board, then hand it to the peer. */
+/** Equality is the existing native opening carrier, not only its report-condition id. */
+const sameOpening = (left, right) => Buffer.from(senActivityObjectBytes({ objectKind: WORK_OPENING_OBJECT_KIND, value: left }))
+  .equals(Buffer.from(senActivityObjectBytes({ objectKind: WORK_OPENING_OBJECT_KIND, value: right })));
+
+/** The host's opening port: retain the original opening, and carry a new report
+ * observation as the native corroboration the board actually admitted. */
 export function hostedWorkOpening({ config, provider, binding, enterprises, deliver: deliverOpening = deliverActivity }) {
-  const board = workBoardStore(binding, { agency: () => agencyAt(config.agencyRoot ?? agencyRootOf(binding)), homes: workHomesOf(() => agencyAt(config.agencyRoot ?? agencyRootOf(binding)), enterprises) });
+  const agency = () => agencyAt(config.agencyRoot ?? agencyRootOf(binding));
+  const board = workBoardStore(binding, { agency, homes: workHomesOf(agency, enterprises) });
   return async (input) => {
-    const fresh = openingOf({ ...input, at: input.at ?? binding.now() });
-    // Opening the same content again hands on the move already played, so a retry is the same evidence.
-    const opening = board.read(fresh.at).threads.find((thread) => thread.id === fresh.id)?.opening ?? fresh;
-    const deliver = prepareWorkOpeningDelivery({ config, provider: provider(), opening, deliver: deliverOpening });
-    return deliverAdmittedWork(deliver, board.play(opening));
+    // The board admits under its agency's adopted law, which can precede the
+    // newest law this release realizes. The offered carrier must name that
+    // same edition so a replay is compared with the record actually admitted.
+    const fresh = openingOf({ ...input, at: input.at ?? binding.now() }, { law: workArenaLawOf(agency()).inForce });
+    const known = board.read(fresh.at).threads.find((thread) => thread.id === fresh.id);
+    const transport = provider();
+    const opening = known?.opening ?? fresh;
+    const deliver = prepareWorkOpeningDelivery({ config, provider: transport, opening, deliver: deliverOpening });
+    if (known !== undefined && (fresh.move !== "report" || sameOpening(opening, fresh))) {
+      // A repeated opening remains the original evidence on both nodes. It is
+      // not another report by the earlier speaker at the earlier time.
+      return deliverAdmittedWork(deliver, opening);
+    }
+    if (known === undefined) return deliverAdmittedWork(deliver, board.play(fresh));
+    // Validate the offered opening's carrier before its local effect. Fixed
+    // opening/authority fields are still owned by the board's original record.
+    prepareWorkOpeningDelivery({ config, provider: transport, opening: fresh, deliver: deliverOpening });
+    const admission = board.play(fresh);
+    const forward = deliver === undefined ? undefined : async () => {
+      await deliver();
+      // Use the emitted native move, including its actual admitted law/hand.
+      // A later preparation/queue failure is an explicit failed peer handoff,
+      // not a claim that receiving succeeded or permission to repeat the work.
+      const tell = prepareWorkTellingDelivery({ config, provider: transport, telling: admission, deliver: deliverOpening });
+      if (tell === undefined) throw new TypeError("admitted report telling lost its peer delivery binding");
+      await tell();
+    };
+    return deliverAdmittedWork(forward, admission);
   };
 }
 
@@ -293,7 +322,12 @@ export function preparePeerWorkOpening({ projection, senderActorId, peerActor, b
   // A peer's opening this board cannot read under its own edition: kept unread, never refused.
   if (unreadReasonOf(projection.value) !== undefined) return () => keepUnread(binding, projection.value);
   const opening = assertFederatedOpening(projection.value);
-  return () => workBoardStore(binding, { agency: () => agencyAt(agencyRoot), homes: workHomesOf(() => agencyAt(agencyRoot), enterprises) }).play(opening);
+  return () => {
+    const board = workBoardStore(binding, { agency: () => agencyAt(agencyRoot), homes: workHomesOf(() => agencyAt(agencyRoot), enterprises) });
+    const known = board.read(opening.at).threads.find((thread) => thread.id === opening.id);
+    if (known !== undefined && sameOpening(known.opening, opening)) return known.opening;
+    return board.play(opening);
+  };
 }
 
 /**

@@ -1,17 +1,21 @@
 // hive-keystore — Hive role keys at rest: <root>/<account>/<role>.wif (plaintext, mode 0600) or
 // <role>.wif.enc (sealed under a passphrase), directories mode 0700. This is the layout the
-// production host keeps; the root defaults to ~/.config/blockchain/hive.
+// production host keeps. The root is HIVE_KEY_ROOT, or else `hive/` in this process's credentials
+// directory (CREDENTIALS_DIRECTORY, rendered from the host's credential store by credential
+// custody); a key stored there is kept in the store. Never a home directory.
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, chmodSync } from "node:fs";
 import path from "node:path";
-import os from "node:os";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { PrivateKey, KEY_ROLES } from "@red-cup-engineering/hive-blockchain-client-service/keys.mjs";
 import { sealWithPassphrase, openWithPassphrase } from "@red-cup-engineering/cryptographic-data-service/seal";
+import { keepCredential } from "@red-cup-engineering/credential-custody-service/keep";
 
 export { KEY_ROLES };
 
-export function defaultHiveKeyRoot(home = os.homedir()) {
-  return path.join(home, ".config/blockchain/hive");
+export function defaultHiveKeyRoot(env = process.env) {
+  if (env.HIVE_KEY_ROOT) return env.HIVE_KEY_ROOT;
+  if (env.CREDENTIALS_DIRECTORY) return path.join(env.CREDENTIALS_DIRECTORY, "hive");
+  throw new Error("hive-keystore: neither HIVE_KEY_ROOT nor CREDENTIALS_DIRECTORY names where Hive keys are");
 }
 
 export function hiveKeyDir(account, root = defaultHiveKeyRoot()) {
@@ -27,8 +31,11 @@ function sealedKeyPath(account, role, root) {
   return `${hiveKeyPath(account, role, root)}.enc`;
 }
 
-/** Store a role key, plaintext or sealed under `passphrase`; never both forms for one role. */
-export function setHiveKey(account, role, wif, { root = defaultHiveKeyRoot(), passphrase } = {}) {
+/**
+ * Store a role key, plaintext or sealed under `passphrase`; never both forms for one role. The file is written at
+ * once; a key stored in this process's credentials directory is then kept in the host's credential store.
+ */
+export async function setHiveKey(account, role, wif, { root = defaultHiveKeyRoot(), passphrase, env = process.env } = {}) {
   try {
     PrivateKey.from(wif);
   } catch (error) {
@@ -42,6 +49,9 @@ export function setHiveKey(account, role, wif, { root = defaultHiveKeyRoot(), pa
   mkdirSync(hiveKeyDir(account, root), { recursive: true, mode: 0o700 });
   writeFileSync(target, passphrase ? sealWithPassphrase(wif, passphrase) : `${wif}\n`, { mode: 0o600 });
   chmodSync(target, 0o600);
+  if (env.CREDENTIALS_STORE && env.CREDENTIALS_DIRECTORY && path.resolve(root) === path.resolve(env.CREDENTIALS_DIRECTORY, "hive")) {
+    await keepCredential({ id: `hive.${account}.${role}-wif${passphrase ? "-enc" : ""}`, service: "hive-keys", path: path.relative(env.CREDENTIALS_DIRECTORY, target), value: readFileSync(target, "utf8"), kind: "private-key", provider: "hive" }, env);
+  }
 }
 
 /** The role key's WIF, or undefined when none is stored; a sealed key needs `passphrase`. */

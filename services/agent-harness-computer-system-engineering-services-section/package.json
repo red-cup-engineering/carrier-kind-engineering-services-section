@@ -8,6 +8,7 @@
     ".": "./src/harness-lifecycle.mjs",
     "./harness-lifecycle": "./src/harness-lifecycle.mjs",
     "./agent-lifecycle-hook": "./src/agent-lifecycle-hook.mjs",
+    "./host-resource-hook": "./src/host-resource-hook.mjs",
     "./cli": "./src/cli.mjs",
     "./harness-efficiency": "./src/harness-efficiency.mjs",
     "./harness-routing": "./src/harness-routing.mjs",
@@ -20,6 +21,7 @@
     "./scripts/fold-harness-lifecycle.mjs": "./scripts/fold-harness-lifecycle.mjs",
     "./scripts/fold-harness-turns.mjs": "./scripts/fold-harness-turns.mjs",
     "./scripts/seed-offices.mjs": "./scripts/seed-offices.mjs",
+    "./scripts/install-host-resource-hook.mjs": "./scripts/install-host-resource-hook.mjs",
     "./claude-code": "./services/claude-code-harness-services-section/src/index.mjs",
     "./claude-code/harness-projection": "./services/claude-code-harness-services-section/src/claude-harness-projection.mjs",
     "./claude-code/install-claude-as-an-agent": "./services/claude-code-harness-services-section/src/install-claude-as-an-agent.mjs",
@@ -54,7 +56,8 @@
     "record-harness-provider-commission": "scripts/record-harness-provider-commission.mjs",
     "summarize-harness-lifecycle": "scripts/summarize-harness-lifecycle.mjs",
     "harness-lifecycle-cli": "scripts/harness-lifecycle-cli.mjs",
-    "admit-set-of-session-event-arrivals": "scripts/admit-set-of-session-event-arrivals.mjs"
+    "admit-set-of-session-event-arrivals": "scripts/admit-set-of-session-event-arrivals.mjs",
+    "install-host-resource-hook": "scripts/install-host-resource-hook.mjs"
   },
   "files": [
     "src",
@@ -63,7 +66,7 @@
     "services"
   ],
   "scripts": {
-    "check": "node --check src/cli.mjs && node --check src/harness-lifecycle.mjs && node --check src/harness-routing.mjs && node --check src/agent-lifecycle-hook.mjs && node --check src/harness-efficiency.mjs && node --check src/ops-attention-events.mjs && node --check src/tool-evidence.mjs && node --check scripts/record-harness-skill-selection.mjs && node --check scripts/record-harness-provider-commission.mjs && node --check scripts/summarize-harness-lifecycle.mjs && node --check scripts/admit-set-of-session-event-arrivals.mjs && node --check scripts/harness-lifecycle-cli.mjs && node --check scripts/fold-harness-lifecycle.mjs && node --check scripts/fold-harness-turns.mjs && node --check scripts/seed-offices.mjs && node --check src/carrier/session.mjs && node --check src/carrier/agency-carrier.mjs && node --check src/carrier/inference-receiving-carrier.mjs && node --check src/carrier/workspace.mjs",
+    "check": "node --check src/cli.mjs && node --check src/harness-lifecycle.mjs && node --check src/harness-routing.mjs && node --check src/agent-lifecycle-hook.mjs && node --check src/harness-efficiency.mjs && node --check src/ops-attention-events.mjs && node --check src/tool-evidence.mjs && node --check scripts/record-harness-skill-selection.mjs && node --check scripts/record-harness-provider-commission.mjs && node --check scripts/summarize-harness-lifecycle.mjs && node --check scripts/admit-set-of-session-event-arrivals.mjs && node --check scripts/harness-lifecycle-cli.mjs && node --check scripts/fold-harness-lifecycle.mjs && node --check scripts/fold-harness-turns.mjs && node --check scripts/seed-offices.mjs && node --check src/carrier/session.mjs && node --check src/carrier/agency-carrier.mjs && node --check src/carrier/inference-receiving-carrier.mjs && node --check src/carrier/workspace.mjs && node --check src/host-resource-hook.mjs && node --check scripts/install-host-resource-hook.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

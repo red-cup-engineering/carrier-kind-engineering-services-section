@@ -25,6 +25,7 @@
     "package.json"
   ],
   "dependencies": {
+    "@red-cup-engineering/credential-custody-service": "workspace:*",
     "@red-cup-engineering/a2a-services-section": "workspace:*",
     "@red-cup-engineering/activitypub-services-section": "workspace:*",
     "@red-cup-engineering/agent-harness-computer-system-engineering-services-section": "workspace:*",

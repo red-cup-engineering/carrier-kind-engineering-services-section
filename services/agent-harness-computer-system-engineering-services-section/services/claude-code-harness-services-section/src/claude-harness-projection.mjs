@@ -9,8 +9,15 @@
  * - every office seated at dignitas that holds skills is a named agent, `.claude/agents/<id>.md`
  *   (office + character + recognition + induction = officer; a vacant office is never projected,
  *   2026-08-27 note on operating the Claude and Codex harnesses);
- * - no hooks: a hook on every lifecycle event put a token fetch and a node round trip in front of
- *   every tool call, and an unreachable node cost each call its full timeout (2026-10-06);
+ * - no lifecycle hooks: a hook on every lifecycle event put a token fetch and a node round trip in
+ *   front of every tool call, and an unreachable node cost each call its full timeout (2026-10-06).
+ *   The one hook projected is the host-resource controller (`src/host-resource-hook.mjs`): a
+ *   PreToolUse hook on Bash that is a local file with no network and no node round trip, that fails
+ *   open and exits in a few milliseconds, and that denies the commands that crashed the machine
+ *   (find over the disk, unscoped status in a large repository, worktrees, clones into a working
+ *   tree) and runs the disk- and CPU-heavy ones one at a time under a host-wide `flock`. It is
+ *   copied to `.claude/hooks/` and named in `hooks`; the same file is projected for Codex as
+ *   `.codex/hooks.json` and `.codex/hooks/` (Codex runs it once its user has reviewed it with /hooks);
  * - `.claude/CLAUDE.md` opens with the software ecosystem note, so every session knows what
  *   SignStuff, metrologic, the agent-organization-engine, FeltOS and MetroPlat are;
  * - the MetroPlat faces the node reaches are its MCP servers, and they are its only ones: a
@@ -29,9 +36,12 @@ import { operation } from "@red-cup-engineering/computer-system-engine/rpc/opera
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { incumbenciesOf, officeReading } from "@red-cup-engineering/organizing/agency";
 import { agencyAt } from "@red-cup-engineering/organizing/agency/held";
+import { hostResourceControl } from "../../../src/host-resource-hook.mjs";
 import { projectOfficeAgent } from "./install-claude-as-an-agent.mjs";
 
 const MANIFEST = ".claude/.claude-harness-manifest";
+/** What the projection owns outright: every file it writes lives under one of these. */
+const projected = (relative) => relative.startsWith(".claude/") || relative.startsWith(".codex/");
 const SETTINGS = ".claude/settings.local.json";
 const MCP = ".mcp.json";
 const ECOSYSTEM_NOTE = "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/561-group-board-of-directors/services/561-group-board-of-directors-leader-movement-team/content/text/documents/articles/notes/2026/09/23/2026-09-23-note-on-the-software-ecosystem.md";
@@ -97,8 +107,10 @@ function heldOffices(agency, readings, harness, obstructions) {
  * written as `.claude/CLAUDE.md`, which the harness loads without any hook. `budget` is the
  * session environment the node's sessions run under, `SESSION_BUDGET` unless the host holds another;
  * `deny` the commands they may never run, `SHARED_CHECKOUT_DENY` unless the host holds another.
+ * `hostResource` (on unless the host says `false`) projects the host-resource controller for the
+ * node's Claude Code and Codex sessions.
  */
-export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCommand, harness = "claude", mcpServers = {}, standing, budget = SESSION_BUDGET, deny = [] }) {
+export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCommand, harness = "claude", mcpServers = {}, standing, budget = SESSION_BUDGET, deny = [], hostResource = true }) {
   node = path.resolve(node);
   const agency = agencyAt(path.resolve(agencyRoot));
   const obstructions = [];
@@ -131,7 +143,10 @@ export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCom
     files.set(".claude/CLAUDE.md", `<!-- Projected by claude-harness-project from this MetroPlat's standing instructions and the agency records. Never edit it: change what it is projected from, and project again. -->\n\n${[String(standing ?? "").trim(), held].filter(Boolean).join("\n\n")}\n`);
   }
 
-  const hooks = {};
+  // The host-resource controller: the only hook, a local file that never waits on the node.
+  const control = hostResource === false ? undefined : hostResourceControl({ node });
+  for (const [relative, text] of control?.files ?? []) files.set(relative, text);
+  const hooks = control?.hooks ?? {};
 
   return Object.freeze({
     kind: "claude-harness.projection",
@@ -142,7 +157,7 @@ export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCom
     env: Object.freeze({ ...budget }),
     deny: Object.freeze([...deny]),
     mcpServers,
-    counts: { agents: seenAgents.size, events: Object.keys(hooks).length, mcpServers: Object.keys(mcpServers).length, standing: files.has(".claude/CLAUDE.md"), budget: Object.keys(budget).length, deny: deny.length },
+    counts: { agents: seenAgents.size, events: Object.keys(hooks).length, mcpServers: Object.keys(mcpServers).length, standing: files.has(".claude/CLAUDE.md"), budget: Object.keys(budget).length, deny: deny.length, hostResource: control !== undefined },
     obstructions: Object.freeze(obstructions),
   });
 }
@@ -164,7 +179,7 @@ export function writeClaudeHarness(projection) {
     writeFileSync(file, text);
     written.push(relative);
   }
-  const removed = prior.filter((relative) => relative.startsWith(".claude/") && !projection.files.has(relative));
+  const removed = prior.filter((relative) => projected(relative) && !projection.files.has(relative));
   for (const relative of removed) {
     rmSync(path.join(node, relative), { force: true });
     const dir = path.dirname(path.join(node, relative));
@@ -200,7 +215,7 @@ export function checkClaudeHarness(projection) {
     else if (readFileSync(file, "utf8") !== text) drift.push({ path: relative, reason: "differs" });
   }
   for (const relative of manifestOf(node)) {
-    if (relative.startsWith(".claude/") && !projection.files.has(relative) && existsSync(path.join(node, relative))) drift.push({ path: relative, reason: "no longer projected" });
+    if (projected(relative) && !projection.files.has(relative) && existsSync(path.join(node, relative))) drift.push({ path: relative, reason: "no longer projected" });
   }
   const settings = readJson(path.join(node, SETTINGS));
   if (JSON.stringify(settings.hooks) !== JSON.stringify(projection.hooks)) drift.push({ path: SETTINGS, reason: "hooks differ" });
@@ -232,6 +247,7 @@ export function claudeHarnessOperations(host) {
     mcpServers: host.mcpServers(),
     standing: host.standing?.(),
     ...(host.deny === undefined ? {} : { deny: host.deny }),
+    ...(host.hostResource === undefined ? {} : { hostResource: host.hostResource }),
   });
   return Object.freeze([
     operation({

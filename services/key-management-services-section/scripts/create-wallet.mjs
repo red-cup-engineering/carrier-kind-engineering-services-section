@@ -8,13 +8,14 @@
  */
 import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Wallet } from "ethers";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { PrivateKey } from "@red-cup-engineering/hive-blockchain-client-service/keys.mjs";
+import { keepCredential } from "@red-cup-engineering/credential-custody-service/keep";
 import { backupKeyPath, configRoot, keyPath, metaPath } from "../src/keystore-paths.mjs";
-import { defaultHiveKeyRoot, hiveKeyPath, setHiveKey } from "../src/hive-keystore.mjs";
+import { hiveKeyPath, setHiveKey } from "../src/hive-keystore.mjs";
 import { buildWalletRegistry, normalizeWalletRow } from "../src/wallet-registry.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -76,16 +77,16 @@ function readRegistry(registryPath) {
  * @returns {Promise<{created: false, reason: string}|{created: true, id: string, chain: string,
  *   address: string, custody: object, backup: object, metaPath: string, receipt: (string|null)}>}
  */
-export async function createWallet({ id, chain, owner, role, relations = [], passphrase, backupRoot, home = process.env.HOME, registryPath, journalRoot = PACKAGE_ROOT }) {
+export async function createWallet({ id, chain, owner, role, relations = [], passphrase, backupRoot, home = process.env.HOME, credentialsDirectory = process.env.CREDENTIALS_DIRECTORY, registryPath, journalRoot = PACKAGE_ROOT, env = process.env }) {
   if (!passphrase) return { created: false, reason: "KEY_PASSPHRASE is not set in the environment" };
   if (!backupRoot) return { created: false, reason: "KEY_BACKUP_ROOT is not set in the environment" };
   if (!EVM_CHAINS.has(chain) && !HIVE_CHAINS.has(chain)) return { created: false, reason: `chain ${chain} is not supported` };
 
-  const root = configRoot({ home });
+  const root = configRoot({ directory: credentialsDirectory });
   // A Hive key is an account's active role key, kept where the fleet signer reads it: the Hive
   // keystore (<root>/<account>/active.wif), under the home root and again under the backup root.
   const hive = HIVE_CHAINS.has(chain);
-  const hiveRoots = hive ? { primary: defaultHiveKeyRoot(home), backup: resolve(backupRoot, "hive") } : null;
+  const hiveRoots = hive ? { primary: resolve(root, "hive"), backup: resolve(backupRoot, "hive") } : null;
   const primaryPath = hive ? hiveKeyPath(id, "active", hiveRoots.primary) : keyPath({ configRoot: root, chain, id });
   const backupPath = hive ? hiveKeyPath(id, "active", hiveRoots.backup) : backupKeyPath({ backupRoot, chain, id });
   const sidecarPath = metaPath({ configRoot: root, chain, id });
@@ -94,8 +95,8 @@ export async function createWallet({ id, chain, owner, role, relations = [], pas
 
   const materialized = EVM_CHAINS.has(chain) ? await materializeEvmKey(passphrase) : materializeHiveKey();
   if (hive) {
-    setHiveKey(id, "active", materialized.wif, { root: hiveRoots.primary });
-    setHiveKey(id, "active", materialized.wif, { root: hiveRoots.backup });
+    await setHiveKey(id, "active", materialized.wif, { root: hiveRoots.primary, env });
+    await setHiveKey(id, "active", materialized.wif, { root: hiveRoots.backup, env });
   } else {
     writePrivateFile(primaryPath, materialized.fileContents);
     writePrivateFile(backupPath, materialized.fileContents);
@@ -109,6 +110,12 @@ export async function createWallet({ id, chain, owner, role, relations = [], pas
   const createdAt = new Date().toISOString();
   mkdirSync(dirname(sidecarPath), { recursive: true, mode: 0o700 });
   writeFileSync(sidecarPath, `${JSON.stringify({ id, chain, owner, role, relations, createdAt }, null, 2)}\n`, "utf8");
+  // The primary keystore and its sidecar are credentials of the host's store: kept there, so the copy written into
+  // this process's (runtime) credentials directory outlives it. The backup copy stays under backupRoot.
+  if (!hive && env.CREDENTIALS_STORE && env.CREDENTIALS_DIRECTORY && resolve(root) === resolve(env.CREDENTIALS_DIRECTORY)) {
+    await keepCredential({ id: `wallet.${chain}.${id}`, service: "key-management", path: relative(root, primaryPath), value: materialized.fileContents, kind: "private-key", provider: chain }, env);
+    await keepCredential({ id: `wallet.${chain}.${id}.meta`, service: "key-management", path: relative(root, sidecarPath), value: readFileSync(sidecarPath, "utf8"), kind: "other", provider: chain }, env);
+  }
 
   // Hive has no address derivable from key material alone (an account name is a chain fact, not
   // a function of the key); the operator's own `id` names the intended account. EVM's derived
