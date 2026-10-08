@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/treasury-observation-service",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "description": "Read-only observation of the Group's on-chain treasury: EVM balances and positions plus normalized, provenance-bearing cross-chain earning opportunities. Distinguishes a checked zero from an unchecked chain and unavailable APY from zero yield, always.",
   "keywords": [

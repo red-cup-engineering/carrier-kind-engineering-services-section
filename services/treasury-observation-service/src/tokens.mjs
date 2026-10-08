@@ -52,7 +52,7 @@ async function encodedCall(chainDescriptor, to, fn, args, options) {
  * @param {string} walletAddress
  * @param {{fetchImpl?: typeof fetch, timeoutMs?: number}} [options]
  * @returns {Promise<import("./tokens.d.ts").TokenBalance>} `checked: false` means the balance was
- *   never learned, not that the token is absent.
+ *   incomplete, not that the token is absent. `balanceObserved` retains exact atoms when metadata fails.
  */
 export async function balanceOfToken(chainDescriptor, tokenAddress, walletAddress, options = {}) {
   const token = normalizedAddress("tokenAddress", tokenAddress);
@@ -73,6 +73,10 @@ export async function balanceOfToken(chainDescriptor, tokenAddress, walletAddres
     return {
       chain: chainDescriptor.id, token, address: wallet, checked: false,
       reason: `boundary-coherent token metadata unavailable: ${failed.reason}`, attempts: failed.attempts ?? [],
+      balanceObserved: true, raw: balanceResult.value.toString(), empty: balanceResult.value === 0n,
+      decimals: decimalsResult.ok ? Number(decimalsResult.value) : null,
+      symbol: symbolResult.ok ? String(symbolResult.value) : null,
+      provenance: observationProvenance(options.boundary, [balanceResult, ...[decimalsResult, symbolResult].filter(result=>result.ok)]),
     };
   }
   const decimals = decimalsResult.ok ? Number(decimalsResult.value) : null;
@@ -173,13 +177,20 @@ export async function verifiedTokenHoldings(chainDescriptor, walletAddress, opti
   const discovery = await discoverTokenHoldings(chainDescriptor, walletAddress, options);
   if (!discovery.checked) return { ...discovery, holdings: [] };
   const holdings = [];
-  for (const candidate of discovery.discovered) {
-    const verified = await balanceOfToken(chainDescriptor, candidate.tokenAddress, walletAddress, options);
-    holdings.push({
-      ...verified,
-      indexerClaimedSymbol: candidate.claimedSymbol,
-      indexerClaimedRawBalance: candidate.claimedRawBalance,
-    });
+  // Multicall retains one boundary while avoiding hundreds of public round trips.
+  // Chains/providers that cannot return an aggregate retain bounded direct reads.
+  for (let offset = 0; offset < discovery.discovered.length; offset += 32) {
+    const candidates = discovery.discovered.slice(offset, offset + 32);
+    const aggregate = await tokenBalanceBatch(chainDescriptor, walletAddress, candidates, options);
+    if (aggregate !== null) { holdings.push(...aggregate); continue; }
+    for (let cursor = 0; cursor < candidates.length; cursor += 4) {
+      const batch = await Promise.all(candidates.slice(cursor, cursor + 4).map(async candidate => ({
+        ...await balanceOfToken(chainDescriptor, candidate.tokenAddress, walletAddress, options),
+        indexerClaimedSymbol: candidate.claimedSymbol,
+        indexerClaimedRawBalance: candidate.claimedRawBalance,
+      })));
+      holdings.push(...batch);
+    }
   }
   if (options.boundary !== undefined) {
     const failed = holdings.find((holding) => !holding.checked);
@@ -187,7 +198,8 @@ export async function verifiedTokenHoldings(chainDescriptor, walletAddress, opti
       return {
         chain: chainDescriptor.id, address: discovery.address, checked: false,
         reason: `boundary-coherent token verification failed: ${failed.reason}`,
-        attempts: failed.attempts ?? [], holdings: [],
+        attempts: failed.attempts ?? [], holdings,
+        provenance: { ...options.boundary, reads: holdings.flatMap(holding => holding.provenance?.reads ?? []) },
       };
     }
     return {
@@ -204,6 +216,39 @@ export const MULTICALL3 = "0xcA11bde05977b3631167028862bE2a173976CA11";
 const multicall3 = new Interface([
   "function aggregate3((address target, bool allowFailure, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[] returnData)",
 ]);
+
+async function tokenBalanceBatch(chainDescriptor, walletAddress, candidates, options) {
+  const wallet = normalizedAddress("walletAddress", walletAddress);
+  const tokens = candidates.map(candidate => normalizedAddress("tokenAddress", candidate.tokenAddress));
+  const methods = ["balanceOf", "decimals", "symbol"];
+  const data = multicall3.encodeFunctionData("aggregate3", [tokens.flatMap(target => methods.map(method => ({
+    target, allowFailure: true, callData: erc20.encodeFunctionData(method, method === "balanceOf" ? [wallet] : []),
+  })))]);
+  const result = await call(chainDescriptor, "eth_call", [{to:MULTICALL3,data}, observationBlockTag(options)], options);
+  if (!result.ok) return null;
+  let values;
+  try { [values] = multicall3.decodeFunctionResult("aggregate3", result.value); }
+  catch { return null; }
+  if (values.length !== tokens.length * methods.length) return null;
+  return tokens.map((token,index) => {
+    const decoded = methods.map((method,field) => {
+      const item = values[index * methods.length + field];
+      if (!item.success) return {ok:false};
+      try { return {ok:true,value:erc20.decodeFunctionResult(method,item.returnData)[0]}; }
+      catch { return {ok:false}; }
+    });
+    const [balance,decimals,symbol] = decoded;
+    const common = {chain:chainDescriptor.id,token,address:wallet,indexerClaimedSymbol:candidates[index].claimedSymbol,indexerClaimedRawBalance:candidates[index].claimedRawBalance};
+    if (!balance.ok) return {...common,checked:false,reason:"multicall balanceOf reverted or was malformed",attempts:[]};
+    const metadataComplete = decimals.ok && symbol.ok;
+    const provenance = options.boundary === undefined ? {} : {provenance:observationProvenance(options.boundary,[result])};
+    return {...common,checked:options.boundary === undefined || metadataComplete,
+      ...(!metadataComplete && options.boundary !== undefined ? {balanceObserved:true,reason:"boundary-coherent token metadata unavailable: multicall metadata reverted or was malformed",attempts:[]} : {}),
+      raw:balance.value.toString(),empty:balance.value === 0n,
+      decimals:decimals.ok ? Number(decimals.value) : null,symbol:symbol.ok ? String(symbol.value) : null,
+      amount:decimals.ok ? formatUnits(balance.value,Number(decimals.value)) : null,via:result.via,...provenance};
+  });
+}
 
 /**
  * One known ERC-20 token's exact balance for many addresses in one read (Multicall3
