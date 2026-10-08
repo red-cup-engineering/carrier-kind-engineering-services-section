@@ -57,6 +57,32 @@ async function windowsLocalAppData(execFileSync) {
 }
 
 /**
+ * WSL's view of a Windows-loopback port. Under WSL's NAT networking (the laptop's mode since 2026-10-06), a
+ * port Windows binds on 127.0.0.1 cannot be reached from WSL, and Edge binds its DevTools port there. This
+ * listens on the same port on WSL's loopback, so the WebSocket address Edge reports still works, and carries
+ * each connection to Windows through WSL interop: one PowerShell per connection piping its standard streams
+ * to the Windows port. No Windows administrator, firewall rule or networking-mode change is needed.
+ */
+let relay = null;
+async function windowsLoopbackRelay(port) {
+  if (relay) return relay;
+  const { createServer } = await import("node:net");
+  const { spawn } = await import("node:child_process");
+  const bridge = `$c=[Net.Sockets.TcpClient]::new('127.0.0.1',${port});$s=$c.GetStream();`
+    + "$i=[Console]::OpenStandardInput();$o=[Console]::OpenStandardOutput();"
+    + "$a=$i.CopyToAsync($s);$b=$s.CopyToAsync($o);[void][Threading.Tasks.Task]::WaitAny($a,$b);$o.Flush();$c.Close()";
+  const server = createServer((socket) => {
+    const child = spawn("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", bridge], { cwd: "/mnt/c", stdio: ["pipe", "pipe", "ignore"] });
+    socket.pipe(child.stdin).on("error", () => {}); child.stdout.pipe(socket).on("error", () => {});
+    const end = () => { socket.destroy(); child.kill(); };
+    socket.on("close", end).on("error", end); child.on("exit", () => socket.end()).on("error", end);
+  });
+  relay = await new Promise((resolve, reject) => { server.once("error", reject); server.listen(port, "127.0.0.1", () => resolve(server)); });
+  relay.unref();
+  return relay;
+}
+
+/**
  * Edge on its DevTools port: the one already answering, or one started now. Starting Edge crosses
  * WSL interop, whose handshake can time out and leave nothing started, so a start whose port stays
  * silent is tried again before giving up.
@@ -65,6 +91,8 @@ async function edgeBrowser(capabilities) {
   const endpoint = `http://127.0.0.1:${EDGE_DEBUG_PORT}`;
   const answers = async () => { try { return (await fetch(`${endpoint}/json/version`)).ok; } catch { return false; } };
   let started = false;
+  // Under WSL NAT the Windows port is out of reach directly; carry it over interop on the same port number.
+  if (!(await answers())) await windowsLoopbackRelay(EDGE_DEBUG_PORT).catch(() => {});
   if (!(await answers())) {
     const { execFileSync, spawn } = await import("node:child_process");
     const localAppData = await windowsLocalAppData(execFileSync);
