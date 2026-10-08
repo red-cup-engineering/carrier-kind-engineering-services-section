@@ -51,9 +51,10 @@ const dependencyEvidence=[
   ...Object.entries(reviewed.packages??{}).map(([key,value])=>({package:key,resolution:value.resolution})),
 ];
 // Relative workspace and third-party links keep their existing topology.
-// Reflinks isolate the candidate from later compiler/workspace writes.
+// The CI compute lease keeps this workspace fixed until Guix seals its own
+// immutable store copy; hardlinks avoid duplicating its full bytes on the host.
 for(const name of ['packages','node_modules'])
-  exec('cp',['--archive','--reflink=auto',join(workspace,name),join(closure,name)]);
+  exec('cp',['--archive','--link',join(workspace,name),join(closure,name)]);
 await symlink(relative(workspace,entry),join(closure,'app'));
 // Public deployment declarations resolve composed source providers at the
 // artifact root, while each package keeps its checked dependency links.
