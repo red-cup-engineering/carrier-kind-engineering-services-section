@@ -1,3 +1,7 @@
+import {mkdtempSync,copyFileSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {execFileSync} from 'node:child_process';
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -78,4 +82,25 @@ test("bounded issue intake rejects invalid selectors before contacting GitHub", 
   }
   assert.equal(requests, 0);
 });
-\n\ntest("issue intake rejects the forbidden noncanonical 561-group repository before contacting GitHub", async () => {\n  let requests = 0;\n  const fetchImpl = async () => { requests++; throw new Error("unexpected request"); };\n  await assert.rejects(\n    syncGitHubIssues({ repository: "emsenn/561-group", producer: "person:alice", runAs: async () => {}, fetchImpl }),\n    /forbidden noncanonical drift/,\n  );\n  assert.equal(requests, 0);\n});\n
+
+
+test("issue intake rejects the forbidden noncanonical 561-group repository before contacting GitHub", async () => {
+  let requests = 0;
+  const fetchImpl = async () => { requests++; throw new Error("unexpected request"); };
+  await assert.rejects(
+    syncGitHubIssues({ repository: "emsenn/561-group", producer: "person:alice", runAs: async () => {}, fetchImpl }),
+    /forbidden noncanonical drift/,
+  );
+  assert.equal(requests, 0);
+});
+
+test('unconfigured incumbent operates when the new provider and native module are absent', t=>{
+ const root=mkdtempSync(join(tmpdir(),'console-incumbent-'));
+ t.after(()=>rmSync(root,{recursive:true,force:true}));
+ const entry=join(root,'github-issues.mjs');copyFileSync(new URL('../src/github-issues.mjs',import.meta.url),entry);
+ const script=`import {pathToFileURL} from 'node:url';
+ const {syncGitHubIssues}=await import(pathToFileURL(process.argv[1]));
+ const result=await syncGitHubIssues({repository:'owner/public',producer:'person:reader',issueNumbers:[1],fetchImpl:async()=>({ok:true,json:async()=>({number:1,node_id:'I1',title:'Finding',body:'Original report',state:'open',comments:0,user:{login:'reader'},updated_at:'2026-10-08T00:00:00Z'})}),runAs:async(_p,v)=>v==='work-board'?{kind:'feltos.work.work-board',matched:0,threads:[],position:'one'}:{thread:'native-report',move:'report'}});
+ console.log(result.played);`;
+ assert.equal(execFileSync(process.execPath,['--input-type=module','-e',script,entry],{encoding:'utf8'}).trim(),'1');
+});

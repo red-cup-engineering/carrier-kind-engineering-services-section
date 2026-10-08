@@ -196,7 +196,7 @@ async function threadsBySource(urls, as) {
  * answers for them now. The board is the only registry; there is no cursor to lose. Closure resolves
  * the report only: work anyone adopted from it stands on its own request.
  */
-export async function syncGitHubIssues({ repository, producer, office, issueNumbers: requestedIssueNumbers, runAs, fetchImpl = fetch, token, tokenCommand }) {
+export async function syncGitHubIssues({ repository, producer, office, issueNumbers: requestedIssueNumbers, runAs, fetchImpl = fetch, token, tokenCommand, receivingBinding }) {
   repository = repositoryName(repository);
   const issueNumbers = selectedIssueNumbers(requestedIssueNumbers);
   const as = (verb, input) => runAs(producer, verb,
@@ -210,12 +210,30 @@ export async function syncGitHubIssues({ repository, producer, office, issueNumb
     }
     if (!token) throw new Error("the configured GitHub credential source returned no credential");
   }
+  let repositoryRecord;
+  if (receivingBinding !== undefined) {
+    repositoryRecord = await githubJson(new URL(`https://api.github.com/repos/${repository}`), `/repos/${repository}`, {fetchImpl,token});
+    if (repositoryRecord.id !== receivingBinding.repositoryId || repositoryRecord.full_name?.toLowerCase() !== repository || repositoryRecord.private !== false || receivingBinding.visibility !== "public")
+      throw new TypeError("GitHub intake has no verified matching public repository audience");
+  }
   let discoveredIssues;
   if (issueNumbers === undefined) {
     discoveredIssues = await githubPages(`/repos/${repository}/issues?state=all&sort=created&direction=asc`, { fetchImpl, token });
   } else {
     discoveredIssues = [];
     for (const number of issueNumbers) discoveredIssues.push(await githubIssue(repository, number, { fetchImpl, token }));
+  }
+  if (receivingBinding !== undefined) {
+    const items = [];
+    for (const issue of discoveredIssues) {
+      const pull = issue.pull_request === undefined ? undefined : await githubJson(new URL(`https://api.github.com/repos/${repository}/pulls/${issue.number}`), `/repos/${repository}/pulls/${issue.number}`, {fetchImpl,token});
+      const comments = issue.comments > 0 ? await githubPages(`/repos/${repository}/issues/${issue.number}/comments`, {fetchImpl,token}) : [];
+      const reviews = pull === undefined ? [] : await githubPages(`/repos/${repository}/pulls/${issue.number}/reviews`, {fetchImpl,token});
+      const reviewComments = pull === undefined ? [] : await githubPages(`/repos/${repository}/pulls/${issue.number}/comments`, {fetchImpl,token});
+      items.push({issue,pull,comments,reviewComments,reviews});
+    }
+    const {receivePublicGitHubItems}=await import("./github-native-intake.mjs");
+    return receivePublicGitHubItems({repository,repositoryRecord,binding:receivingBinding,items,producer,office,runAs});
   }
   const issues = discoveredIssues.filter((issue) => issue.pull_request === undefined);
   const urls = issues.map((issue) => githubIssueUrl(repository, issue.number));
