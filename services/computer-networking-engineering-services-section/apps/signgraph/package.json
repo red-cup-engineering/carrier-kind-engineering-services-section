@@ -26,7 +26,8 @@
     "./valuation": "./src/valuation.mjs",
     "./fiber": "./src/fiber.mjs",
     "./cohomology": "./src/cohomology.mjs",
-    "./paths": "./src/paths.mjs"
+    "./paths": "./src/paths.mjs",
+    "./cellular-sheaf": "./src/cellular-sheaf.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/signcell": "workspace:*",

@@ -7,8 +7,7 @@
  * Query indexes are disposable readings of that carrier.
  */
 import { address, admitCell, cell, cellSet, coincides, evidenced, knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { freezeJson } from "@red-cup-engineering/json-services-section";
+import { bytesToHex, canonicalCarrier, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { PersistentMap } from "./persistent-map.mjs";
 
 // Address arbitrary history content through the same SCA carrier as every cell.
@@ -19,7 +18,7 @@ const identify = (body) => address({ subject: "signcraft.history", predicate: "r
 const textual = (term) => term === null || typeof term === "string";
 const key = (subject, predicate) => textual(subject) && textual(predicate)
   ? `t${JSON.stringify([subject?.normalize("NFC") ?? null, predicate?.normalize("NFC") ?? null])}`
-  : semanticBytes([subject, predicate]).toString("hex");
+  : bytesToHex(semanticBytes([subject, predicate]));
 const cache = new WeakMap();
 const archives = new WeakMap();
 // A checkpoint is named over the names of its cells, each named once per frozen cell, so cutting a
@@ -222,17 +221,6 @@ export function historyDerivation(derive) {
   };
   return derivation;
 }
-// A cell is retained detached from its caller: copied and frozen, unless it already is both. A cell
-// this module's callers made with SignCell, over plain frozen terms, is its own detached copy.
-const plain = (value) => {
-  if (value === null || typeof value !== "object") return typeof value !== "function" && typeof value !== "symbol";
-  if (!Object.isFrozen(value)) return false;
-  const prototype = Object.getPrototypeOf(value);
-  if (Array.isArray(value) ? prototype !== Array.prototype : prototype !== Object.prototype && prototype !== null) return false;
-  for (const member of Object.values(value)) if (!plain(member)) return false;
-  return true;
-};
-const retainCell = (value) => admitCell(plain(value) ? value : freezeJson(structuredClone(value)));
 
 export function createHistory(functionalPredicates = []) {
   const history = Object.freeze({ kind: "signcraft.history", functionalPredicates: frozen([...new Set(functionalPredicates)].sort()), revisions: frozen([]) });
@@ -336,9 +324,9 @@ export function restoreHistory(source) {
   validateHistory(source);
   if (admitted.has(source)) return source;
   const revisions = source.revisions.map((revision) => {
-    const body = { parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(retainCell)) };
+    const body = canonicalCarrier({ parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(admitCell)) });
     if (revision.id !== identify(body)) throw new TypeError("History revision does not match its content address");
-    return Object.freeze({ id: revision.id, ...body });
+    return canonicalCarrier({ id: revision.id, ...body });
   });
   const checkpoint = source.checkpoint === undefined ? undefined : restoreCheckpoint(source.checkpoint);
   if (checkpoint) {
@@ -356,8 +344,8 @@ export function restoreHistory(source) {
 export function observeHistory(history, cells, { source = "signcraft" } = {}) {
   validateHistory(history);
   if (cells.length === 0) return history;
-  const body = { parents: historyHeads(history), source, cells: frozen(cells.map(retainCell)) };
-  const revision = Object.freeze({ id: identify(body), ...body });
+  const body = canonicalCarrier({ parents: historyHeads(history), source, cells: frozen(cells.map(admitCell)) });
+  const revision = canonicalCarrier({ id: identify(body), ...body });
   const next = Object.freeze({ ...history, revisions: frozen([...history.revisions, revision]) });
   // Copy only touched subject indexes; readers of the predecessor remain unchanged.
   const prior = indexOf(history);
@@ -401,8 +389,8 @@ export function replayHistory(history, observations, project = (observation) => 
   for (const observation of observations) {
     const { cells, source = "signcraft" } = project(observation, parents);
     if (cells.length === 0) continue;
-    const body = { parents, source, cells: frozen(cells.map(retainCell)) };
-    const revision = Object.freeze({ id: identify(body), ...body });
+    const body = canonicalCarrier({ parents, source, cells: frozen(cells.map(admitCell)) });
+    const revision = canonicalCarrier({ id: identify(body), ...body });
     revisions.push(revision);
     parents = frozen([revision.id]);
   }
@@ -419,9 +407,9 @@ export function continueHistory(history, revisions) {
   validateHistory(history);
   if (revisions.length === 0) return history;
   const admittedRevisions = revisions.map((revision) => {
-    const body = { parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(retainCell)) };
+    const body = canonicalCarrier({ parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(admitCell)) });
     if (revision.id !== identify(body)) throw new TypeError("History revision does not match its content address");
-    return Object.freeze({ id: revision.id, ...body });
+    return canonicalCarrier({ id: revision.id, ...body });
   });
   const result = Object.freeze({ ...history, revisions: frozen([...history.revisions, ...admittedRevisions]) });
   indexOf(result);
@@ -576,7 +564,7 @@ function restoreCheckpoint(source) {
     || !Array.isArray(source.functionalPredicates) || !Number.isSafeInteger(source.size) || source.size < source.cells.length
     || source.heads.some((head) => typeof head !== "string") || new Set(source.heads).size !== source.heads.length
     || ((source.size === 0) !== (source.heads.length === 0))) throw new TypeError("Invalid history checkpoint");
-  const body = { heads: frozen(source.heads), cells: frozen(source.cells.map(retainCell)), size: source.size, functionalPredicates: frozen(source.functionalPredicates) };
+  const body = { heads: frozen(source.heads), cells: frozen(source.cells.map(admitCell)), size: source.size, functionalPredicates: frozen(source.functionalPredicates) };
   if (source.id !== identifyCheckpoint(body) && source.id !== identifyWholeCheckpoint(body)) throw new TypeError("History checkpoint does not match its content address");
   return Object.freeze({ id: source.id, ...body });
 }
