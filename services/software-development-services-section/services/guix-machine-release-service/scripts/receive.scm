@@ -94,7 +94,9 @@
       (root-release-generations config current current previous)
       (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" current)
       (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--delete-generations"))
-    (run "guix" "gc" "--free-space=2GB")))
+    ;; Sealing temporarily holds both the checked closure and its store input.
+    ;; Collect before assembly so a native build can retain current/previous.
+    (run "guix" "gc" "--free-space=4GiB")))
 
 (define (retain-release-roots config store current previous)
     (root-release-generations config store current previous)
