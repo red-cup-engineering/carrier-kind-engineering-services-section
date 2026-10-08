@@ -110,6 +110,7 @@ export async function observeVaultPosition(chainDescriptor, vaultAddress, wallet
     if (options.boundary !== undefined) {
       return {
         chain: chainDescriptor.id, vault, address: walletAddress, checked: false,
+        empty: false, shares, provenance: shares.provenance,
         reason: `boundary-coherent getPricePerFullShare() failed: ${priceResult.reason}`,
         attempts: priceResult.attempts ?? [],
       };
@@ -118,6 +119,7 @@ export async function observeVaultPosition(chainDescriptor, vaultAddress, wallet
     if (!fallback.ok) {
       return {
         chain: chainDescriptor.id, vault, address: walletAddress, checked: false,
+        empty: false, shares,
         reason: `on-chain getPricePerFullShare() failed (${priceResult.reason}); beefy api fallback also failed (${fallback.reason})`,
         attempts: priceResult.attempts ?? [],
       };
