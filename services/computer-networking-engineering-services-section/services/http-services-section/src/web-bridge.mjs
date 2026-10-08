@@ -92,6 +92,12 @@ export function toWebRequest(req, context = {}) {
 export async function sendWebResponse(first, second, options = {}) {
     const response = first instanceof Response ? first : second;
     const res = first instanceof Response ? second : first;
+    // A response can finish being prepared after its client has left. Do not
+    // create a new Node stream pipeline against an already closed receiver.
+    if (res.destroyed) {
+        await response.body?.cancel().catch(()=>{});
+        return;
+    }
     const headers = {};
     for (const [key, value] of response.headers)if (key !== "set-cookie") headers[key] = value;
     const cookies = response.headers.getSetCookie();
