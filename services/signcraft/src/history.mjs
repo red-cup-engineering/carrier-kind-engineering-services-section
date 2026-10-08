@@ -7,7 +7,7 @@
  * Query indexes are disposable readings of that carrier.
  */
 import { address, admitCell, cell, cellSet, coincides, evidenced, knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { bytesToHex, canonicalCarrier, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { bytesToHex, retainedCarrier, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { PersistentMap } from "./persistent-map.mjs";
 
 // Address arbitrary history content through the same SCA carrier as every cell.
@@ -324,9 +324,9 @@ export function restoreHistory(source) {
   validateHistory(source);
   if (admitted.has(source)) return source;
   const revisions = source.revisions.map((revision) => {
-    const body = canonicalCarrier({ parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(admitCell)) });
+    const body = retainedCarrier({ parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(admitCell)) });
     if (revision.id !== identify(body)) throw new TypeError("History revision does not match its content address");
-    return canonicalCarrier({ id: revision.id, ...body });
+    return retainedCarrier({ id: revision.id, ...body });
   });
   const checkpoint = source.checkpoint === undefined ? undefined : restoreCheckpoint(source.checkpoint);
   if (checkpoint) {
@@ -344,8 +344,8 @@ export function restoreHistory(source) {
 export function observeHistory(history, cells, { source = "signcraft" } = {}) {
   validateHistory(history);
   if (cells.length === 0) return history;
-  const body = canonicalCarrier({ parents: historyHeads(history), source, cells: frozen(cells.map(admitCell)) });
-  const revision = canonicalCarrier({ id: identify(body), ...body });
+  const body = retainedCarrier({ parents: historyHeads(history), source, cells: frozen(cells.map(admitCell)) });
+  const revision = retainedCarrier({ id: identify(body), ...body });
   const next = Object.freeze({ ...history, revisions: frozen([...history.revisions, revision]) });
   // Copy only touched subject indexes; readers of the predecessor remain unchanged.
   const prior = indexOf(history);
@@ -389,8 +389,8 @@ export function replayHistory(history, observations, project = (observation) => 
   for (const observation of observations) {
     const { cells, source = "signcraft" } = project(observation, parents);
     if (cells.length === 0) continue;
-    const body = canonicalCarrier({ parents, source, cells: frozen(cells.map(admitCell)) });
-    const revision = canonicalCarrier({ id: identify(body), ...body });
+    const body = retainedCarrier({ parents, source, cells: frozen(cells.map(admitCell)) });
+    const revision = retainedCarrier({ id: identify(body), ...body });
     revisions.push(revision);
     parents = frozen([revision.id]);
   }
@@ -407,9 +407,9 @@ export function continueHistory(history, revisions) {
   validateHistory(history);
   if (revisions.length === 0) return history;
   const admittedRevisions = revisions.map((revision) => {
-    const body = canonicalCarrier({ parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(admitCell)) });
+    const body = retainedCarrier({ parents: frozen(revision.parents), source: revision.source, cells: frozen(revision.cells.map(admitCell)) });
     if (revision.id !== identify(body)) throw new TypeError("History revision does not match its content address");
-    return canonicalCarrier({ id: revision.id, ...body });
+    return retainedCarrier({ id: revision.id, ...body });
   });
   const result = Object.freeze({ ...history, revisions: frozen([...history.revisions, ...admittedRevisions]) });
   indexOf(result);
