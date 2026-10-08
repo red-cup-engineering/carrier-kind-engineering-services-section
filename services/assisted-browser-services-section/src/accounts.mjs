@@ -66,6 +66,13 @@ export const ACCOUNTS = Object.freeze({
     portal: /^(?:www\.)?kalshi\.com$/u, start: "https://kalshi.com/sign-in", home: "https://kalshi.com/account/profile",
     signIn: { hosts: /^accounts\.google\.com$/u, paths: /^\/(?:sign-?in|log-?in|sign-?up)(?:\/|$)/iu },
   }),
+  // The Group's VPS host: Cold Red Gate is a Vultr instance. The house only ever receives an API key here, pasted
+  // into a step panel (vultr-engineering-services-section provision-vultr-api-key).
+  vultr: account({
+    name: "Vultr", mapped: null,
+    portal: /^my\.vultr\.com$/u, start: "https://my.vultr.com/", home: "https://my.vultr.com/",
+    signIn: { hosts: /^login\.vultr\.com$/u, paths: /^\/(?:login|signup|2fa)(?:\/|$)/iu },
+  }),
   stripe: account({
     name: "Stripe Dashboard", mapped: null,
     portal: /^dashboard\.stripe\.com$/u, start: "https://dashboard.stripe.com/login", home: "https://dashboard.stripe.com/",
