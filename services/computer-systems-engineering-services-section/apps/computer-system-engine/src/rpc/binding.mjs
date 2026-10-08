@@ -47,6 +47,8 @@ export function defaultFilesystemBinding(
     readFile,
     writeFile,
     dataRoot: resolvedRoot,
+    ...(options.agencyRoot===undefined?{}:{agencyRoot:path.resolve(options.agencyRoot)}),
+    ...(options.resolveActorSubject===undefined?{}:{resolveActorSubject:options.resolveActorSubject}),
     // Preserve the host owner's admitted source transport; never manufacture
     // an executor or derive new source custody from the filesystem defaults.
     ...(options.sourceReadResource === undefined ? {} : { sourceReadResource: options.sourceReadResource }),

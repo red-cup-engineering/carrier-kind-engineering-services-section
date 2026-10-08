@@ -73,7 +73,9 @@
     "./rpc/mcp-operations": "./src/rpc/mcp-operations.mjs",
     "./journal/exchange": "./src/journal/exchange.mjs",
     "./rpc/wire-dispatch": "./src/rpc/wire-dispatch.mjs",
-    "./rpc/node": "./src/rpc/node.mjs"
+    "./rpc/node": "./src/rpc/node.mjs",
+    "./rpc/actor-processing": "./src/rpc/actor-processing.mjs",
+    "./rpc/actor-client": "./src/rpc/actor-client.mjs"
   },
   "files": [
     "src",
@@ -116,6 +118,8 @@
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/node-process-services-section": "workspace:*",
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
-    "@red-cup-engineering/signgraph": "workspace:*"
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/a2a-services-section": "workspace:*",
+    "@red-cup-engineering/activitypub-services-section": "workspace:*"
   }
 }

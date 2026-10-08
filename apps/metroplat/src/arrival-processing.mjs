@@ -1,7 +1,11 @@
+import {processingEntryValue,arrivalProcessingRows,processingEntryFromValue,actorRequestProcessing} from '@red-cup-engineering/computer-system-engine/rpc/actor-processing';
+export {processAdmittedActorRequest} from '@red-cup-engineering/computer-system-engine/rpc/actor-processing';
+import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
+import { processLeaseCoordinator } from '@red-cup-engineering/computer-system-engine/rpc/coordination';
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
-import { ARRIVAL_PROCESS_FEED, ARRIVAL_PROCESS_TERM, arrivalDispatchClaimFromCloudEvent } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
+import { ARRIVAL_PROCESS_FEED, ARRIVAL_PROCESS_TERM, arrivalDispatchClaimFromCloudEvent, admitCloudEventArrival } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { } from "@red-cup-engineering/json-services-section";
 
 import { openJournal, journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
@@ -34,13 +38,13 @@ function arrivalProcessingLogPath(logPath) {
 }
 
 function processedArrivalIdentities(logPath) {
-  const identities = new Set();
+  const identities = new Map();
   journal.scan(arrivalProcessingLogPath(logPath), undefined, (_accum, row) => {
     const { a, v } = eavtRecord(row);
     if (canonicalJson(a) !== canonicalJson(ARRIVAL_PROCESS_TERM)) return undefined;
     if (stringAt(v, "state") !== "processed") return undefined;
     const identity = stringAt(v, "cloudEventIdentity");
-    if (identity !== undefined) identities.add(identity);
+    if (identity !== undefined) identities.set(identity,processingEntryFromValue(v));
     return undefined;
   });
   return identities;
@@ -85,7 +89,8 @@ function resolvePrincipalBinding(
       return Object.freeze({
         kind: binding.kind,
         state: binding.state,
-        subject: binding.subject,
+        operation:claim.operation,
+      subject: binding.subject,
         evidence: Object.freeze([...binding.evidence]),
         reasons: Object.freeze([...binding.reasons]),
       });
@@ -100,68 +105,6 @@ function resolvePrincipalBinding(
   } catch (error) {
     return refuseBinding(`arrival principal binding failed: ${error instanceof Error ? error.message : String(error)}`);
   }
-}
-
-function processingEntryValue(
-  entry,
-  state,
-  obstructions,
-  result,
-) {
-  const stdout = result?.stdout ?? "";
-  const stderr = result?.stderr ?? "";
-  return Object.freeze({
-    // Frozen legacy wire discriminant; this value is a processing record.
-    kind: "metroplat.arrival.processing-witness",
-    ...(entry.cloudEventIdentity === undefined ? {} : { cloudEventIdentity: entry.cloudEventIdentity }),
-    ...(entry.packetDigest === undefined ? {} : { packetDigest: entry.packetDigest }),
-    state,
-    ...(entry.dispatchEvent?.verb === undefined ? {} : { verb: entry.dispatchEvent.verb }),
-    ...(result === undefined ? {} : {
-      code: result.code,
-      stdout,
-      stdoutBytes: Buffer.byteLength(stdout, "utf8"),
-      stdoutSha256: sha256Hex(stdout),
-      stderr,
-      stderrBytes: Buffer.byteLength(stderr, "utf8"),
-      stderrSha256: sha256Hex(stderr),
-    }),
-    obstructions,
-  });
-}
-
-function arrivalProcessingRows(entries, at) {
-  return Object.freeze(entries.map(({ entry, value }) => toEavt({
-    e: Object.freeze({
-      kind: "metroplat.arrival.processing",
-      cloudEventIdentity: entry.cloudEventIdentity,
-      packetDigest: entry.packetDigest,
-    }),
-    a: ARRIVAL_PROCESS_TERM,
-    v: value,
-    t: at,
-  })));
-}
-
-function processingEntryFromValue(value) {
-  const obstructionsValue = value["obstructions"];
-  const obstructions = Array.isArray(obstructionsValue)
-    ? obstructionsValue.filter((item) => typeof item === "string")
-    : [];
-  const state = value["state"];
-  return Object.freeze({
-    kind: "metroplat.arrival.processing-entry",
-    ...(typeof value["cloudEventIdentity"] === "string" ? { cloudEventIdentity: value["cloudEventIdentity"] } : {}),
-    ...(typeof value["packetDigest"] === "string" ? { packetDigest: value["packetDigest"] } : {}),
-    state: state === "processed" || state === "skipped" || state === "obstructed" ? state : "obstructed",
-    ...(typeof value["verb"] === "string" ? { verb: value["verb"] } : {}),
-    ...(typeof value["code"] === "number" ? { code: value["code"] } : {}),
-    ...(typeof value["stdoutBytes"] === "number" ? { stdoutBytes: value["stdoutBytes"] } : {}),
-    ...(typeof value["stdoutSha256"] === "string" ? { stdoutSha256: value["stdoutSha256"] } : {}),
-    ...(typeof value["stderrBytes"] === "number" ? { stderrBytes: value["stderrBytes"] } : {}),
-    ...(typeof value["stderrSha256"] === "string" ? { stderrSha256: value["stderrSha256"] } : {}),
-    obstructions: Object.freeze(obstructions),
-  });
 }
 
 export async function processArrivalLogPath(
@@ -180,6 +123,7 @@ export async function processArrivalLogPath(
   let dispatchCandidates = 0;
   let alreadyProcessed = 0;
   for (const entry of projection.entries) {
+    if(options.onlyIdentity!==undefined&&entry.cloudEventIdentity!==options.onlyIdentity)continue;
     if (entry.dispatchEvent === undefined) {
       entries.push(Object.freeze({
         kind: "metroplat.arrival.processing-entry",
@@ -189,6 +133,14 @@ export async function processArrivalLogPath(
         reason: "not-dispatch",
         obstructions: Object.freeze([]),
       }));
+      continue;
+    }
+    // Signed actor work executes in its addressed inbox, including payment admission.
+    // A day-wide collector cannot replay it as an unpriced generic operation.
+    const wire=entry.packet?.presentation?.data;
+    if(wire?.profile==='org.harmonious-union.activitypub.cloudevent.a2a-sen.v1'&&wire.transport==='A2A'){
+      entries.push(Object.freeze({kind:'metroplat.arrival.processing-entry',
+        cloudEventIdentity:entry.cloudEventIdentity,state:'skipped',reason:'actor-inbox-dispatch',obstructions:Object.freeze([])}));
       continue;
     }
     dispatchCandidates += 1;
@@ -204,17 +156,10 @@ export async function processArrivalLogPath(
       }));
       continue;
     }
-    if (entry.cloudEventIdentity !== undefined && processedIdentities.has(entry.cloudEventIdentity)) {
+    const immediate=entry.cloudEventIdentity===undefined||entry.packet===undefined?undefined:actorRequestProcessing(projection.root,entry.cloudEventIdentity,entry.packet.presentation.time);
+    if (entry.cloudEventIdentity !== undefined && (processedIdentities.has(entry.cloudEventIdentity)||immediate?.state==='processed')) {
       alreadyProcessed += 1;
-      entries.push(Object.freeze({
-        kind: "metroplat.arrival.processing-entry",
-        cloudEventIdentity: entry.cloudEventIdentity,
-        ...(entry.packetDigest === undefined ? {} : { packetDigest: entry.packetDigest }),
-        state: "skipped",
-        reason: "already-processed",
-        ...(entry.dispatchEvent.verb === undefined ? {} : { verb: entry.dispatchEvent.verb }),
-        obstructions: Object.freeze([]),
-      }));
+      entries.push(Object.freeze({...(immediate??processedIdentities.get(entry.cloudEventIdentity)),replayed:true}));
       continue;
     }
     const claim = dispatchClaim(entry);
@@ -230,6 +175,7 @@ export async function processArrivalLogPath(
       continue;
     }
     const result = await dispatchWire(catalog, entry.dispatchEvent.argv, claim.stdin, {
+      operation:claim.operation,
       subject: binding.subject,
       caller: Object.freeze({
         transport: "arrival-processor",
@@ -238,6 +184,8 @@ export async function processArrivalLogPath(
         ...(entry.dispatchEvent.caller === undefined ? {} : { boundaryCaller: entry.dispatchEvent.caller }),
       }),
       program: options.program ?? entry.dispatchEvent.program ?? "arrival-processor",
+      request:entry.cloudEventIdentity,
+      coordinate:options.coordinate??processLeaseCoordinator(projection.root),
       now: () => at,
       witness,
     }, options.authorize);
