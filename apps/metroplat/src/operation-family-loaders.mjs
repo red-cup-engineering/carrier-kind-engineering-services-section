@@ -12,7 +12,9 @@ import { lazyOperation } from "@red-cup-engineering/computer-system-engine/rpc/o
  *  instructions are the repository's AGENTS.md, the one instruction file every agent reads. */
 async function claudeHarnessHost(binding) {
   const { agencyRootOf, repositoryRootOf } = await import("@red-cup-engineering/metroplat/offices");
-  const clientEnvironment = () => process.env.METROPLAT_NODE_CLIENT_ENV ?? path.join(homedir(), ".config", "561-group", "bare-cedar-fog.561.group-mcp-client.env");
+  const { credentialPath } = await import("@red-cup-engineering/credential-custody-service/keep");
+  // The machine client's secret is a credential of the host's store, rendered into CREDENTIALS_DIRECTORY.
+  const clientEnvironment = () => process.env.METROPLAT_NODE_CLIENT_ENV ?? credentialPath("bare-cedar-fog.561.group-mcp-client.env");
   // A session names the server by the origin it declares as its protected resource: a client
   // checks the resource metadata against the URL it connected to, so the bind address fails.
   const mcpUrl = () => {

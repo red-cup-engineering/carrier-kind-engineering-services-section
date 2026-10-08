@@ -27,6 +27,7 @@
     "verify": "npm run check && npm test"
   },
   "dependencies": {
+    "@red-cup-engineering/credential-custody-service": "workspace:*",
     "@red-cup-engineering/ebook-production-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/newsletter-issue-production-services-section": "workspace:*"
