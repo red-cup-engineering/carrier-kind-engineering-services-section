@@ -153,7 +153,6 @@
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
-    "@red-cup-engineering/computer-media-content-services-section": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-system-platform": "workspace:*",
