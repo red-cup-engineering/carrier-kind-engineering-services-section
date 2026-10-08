@@ -23,8 +23,12 @@ export async function encoded(iface, chainDescriptor, to, fn, args, options) {
   const result = await call(chainDescriptor, "eth_call", [{ to, data }, observationBlockTag(options)], options);
   if (!result.ok) return result;
   try {
+    const decoded = iface.decodeFunctionResult(fn, result.value);
+    if (iface.encodeFunctionResult(fn, decoded).toLowerCase() !== result.value.toLowerCase()) {
+      throw new TypeError("response does not match the complete canonical ABI result");
+    }
     return {
-      ok: true, value: iface.decodeFunctionResult(fn, result.value), via: result.via,
+      ok: true, value: decoded, via: result.via,
       ...(result.provenance === undefined ? {} : { provenance: result.provenance }),
     };
   } catch (error) {
