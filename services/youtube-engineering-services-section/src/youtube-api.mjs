@@ -84,6 +84,14 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   const fingerprint=value=>createHash('sha256').update(value).digest('hex');
   const project=fingerprint(env.YOUTUBE_OAUTH_CLIENT_ID);
   const inventoryPath=root?join(root,'inventories',fingerprint(JSON.stringify([channelId,env.YOUTUBE_OAUTH_CLIENT_ID,env[refreshTokenEnv]]))+'.json'):null;
+  const authPath=root?join(root,'authentication',fingerprint(JSON.stringify([channelId,env.YOUTUBE_OAUTH_CLIENT_ID,env.YOUTUBE_OAUTH_CLIENT_SECRET,env[refreshTokenEnv]]))+'.json'):null;
+  let authRefusal;
+  function authenticationPending(reason) {return Object.assign(new Error('YouTube authentication pending: '+reason),{code:'YOUTUBE_AUTHENTICATION_PENDING',credentialRequired:true});}
+  function assertAuthentication() {
+    if(authPath&&existsSync(authPath)){const held=JSON.parse(readFileSync(authPath,'utf8'));throw authenticationPending(held.reason);}
+    if(authRefusal)throw authenticationPending(authRefusal);
+  }
+  function refuseAuthentication(reason) {authRefusal=reason;if(authPath)privateJson(authPath,{reason,observedAt:new Date(clock()).toISOString()});return authenticationPending(reason);}
   const inventoryTtl=3600000;
   function quotaPath(bucket){return root?join(root,'quotas',project+'-'+bucket+'.json'):null;}
   function waiting(bucket) {
@@ -102,6 +110,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   function assertUploadAvailable({checkpoint}={}) {
     if(checkpoint?.sessionExpiredAt&&!Number.isFinite(Date.parse(checkpoint.sessionExpiredAt)))throw new Error('Invalid expired upload checkpoint');
     if(checkpoint?.sessionExpiredAt&&clock()<Date.parse(checkpoint.sessionExpiredAt)+3600000)throw Object.assign(new Error('YouTube upload session expired; wait one hour before reconciling a replacement'),{code:'YOUTUBE_UPLOAD_SESSION_EXPIRED',retryAt:new Date(Date.parse(checkpoint.sessionExpiredAt)+3600000).toISOString()});
+    assertAuthentication();
     const wait=waiting('general')??waiting('uploads');
     if(wait)throw wait;
   }
@@ -129,11 +138,15 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   async function authorized(url, options = {}, operation = 'youtube.observe') {
     const dataApi=url.startsWith(API)||url.startsWith(UPLOAD);
     const bucket=url.startsWith(UPLOAD+'videos?')||url.includes('/upload/youtube/v3/videos?')?'uploads':'general';
+    assertAuthentication();
     if(dataApi){const wait=waiting(bucket);if(wait)throw wait;}
     if (!token || Date.now() >= expires) {
-      const result = await responseJson(await request('youtube.auth', 'https://oauth2.googleapis.com/token', {
+      const refreshResponse=await request('youtube.auth', 'https://oauth2.googleapis.com/token', {
         method: 'POST', body: new URLSearchParams({ client_id: env.YOUTUBE_OAUTH_CLIENT_ID, client_secret: env.YOUTUBE_OAUTH_CLIENT_SECRET, refresh_token: env[refreshTokenEnv], grant_type: 'refresh_token' }),
-      }));
+      });
+      const refreshBody=await refreshResponse.clone().json().catch(()=>null);
+      if(['invalid_grant','invalid_client'].includes(refreshBody?.error))throw refuseAuthentication(refreshBody.error);
+      const result=await responseJson(refreshResponse);
       if (!result.access_token) throw new Error('Google OAuth returned no access token');
       token = result.access_token; expires = Date.now() + Math.max(0, (Number(result.expires_in ?? 3600) - 60)) * 1000;
     }
@@ -141,7 +154,15 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       // Invalidate before attempting the write: a lost response is ambiguous.
       invalidateUploads();
     }
-    const response=await request(operation, url, { ...options, redirect: 'manual', headers: { ...options.headers, Authorization: `Bearer ${token}` } });
+    const {authenticationRetried,...requestOptions}=options;
+    const response=await request(operation, url, { ...requestOptions, redirect: 'manual', headers: { ...options.headers, Authorization: `Bearer ${token}` } });
+    if(dataApi&&response.status===401){
+      token=undefined;expires=0;
+      if(!options.method||options.method==='GET') {
+        if(options.authenticationRetried)throw refuseAuthentication('Google rejected a freshly renewed access token');
+        return authorized(url,{...options,authenticationRetried:true},operation);
+      }
+    }
     if(dataApi&&response.status===403){const body=await response.clone().json().catch(()=>null);if(body?.error?.errors?.some(item=>item.reason==='quotaExceeded'))retainQuota(bucket);}
     return response;
   }
