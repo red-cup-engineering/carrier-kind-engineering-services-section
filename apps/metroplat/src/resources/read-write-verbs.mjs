@@ -781,6 +781,9 @@ function bindingOfArgs(args) {
   });
 }
 
+// The read/write pair selects exports of one admitted source snapshot.
+const resourceProgramme = javascriptProgram(import.meta.url, "runRead");
+
 /** read — `readAtRoot`: dispatch a path through the projector catalog at a corner. */
 export const readOperation = operation({
   verb: "read",
@@ -792,7 +795,7 @@ export const readOperation = operation({
   summary: "Read a path through the most specific recognizing projector at a requested content-commitment corner.",
   description: "Domain: { path, corner? } (or --path/--corner). Files present their content, directories present their manifest, and dated state-tier settlement addresses recompute through their deriver when current. Dispatch is classifyAt over the mounted projector catalog; the reading carries the projector type, corner, rung, and carried items.",
   relation: "projection",
-  program: javascriptProgram(import.meta.url, "runRead"),
+  program: resourceProgramme,
 });
 
 
@@ -817,7 +820,7 @@ export const writeOperation = operation({
   summary: "Admit a claim as a journaled utterance and fold it, through whichever of the three markdown codecs recognizes the path (or plain canonical JSON otherwise), to the addressed path.",
   description: "Domain: { path?, claim, token?, at? }. A pathless write records EAVT rows under the bound data root's log tier (hook envelopes keep their established row shape); an addressed write records under the innermost enclosing settlement of the target path (the nearest ancestor with deposited data/journals, the bound root as fallback), then folds the claim through the site-note, agents-doc, or plain markdown codec if the target path matches one of them (most specific first), else writes the claim as canonical JSON. A directory-manifest claim materializes as the directory itself; a command claim ({ tool: tex-engine|blueprint-tool|verso-tool, command?, args? }) written to a workspace directory executes through the lifecycle-recorded process boundary, its lifecycle recorded in the workspace's own settlement, with the tool observation as the receipt.",
   relation: "projection",
-  program: javascriptProgram(import.meta.url, "runWrite"),
+  program: Object.freeze({ ...resourceProgramme, export: "runWrite" }),
 });
 
 
