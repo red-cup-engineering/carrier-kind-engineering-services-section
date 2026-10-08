@@ -17,6 +17,14 @@ harness engineering beneath an inference provider.
   the contract an allocated office duty is executed and independently received
   through (`agency-carrier.mjs`: execution, office-bound authority, receiving,
   outcome accounting, allowance). Each CLI is a dialect of the runner.
+- `src/host-resource-hook.mjs` is the host-resource controller: one zero-dependency PreToolUse
+  hook on Bash, shared by Claude Code and Codex, that denies the commands that exhaust a machine
+  (`find` over the disk or a home, `git worktree add`, `git clone` outside a scratchpad, unscoped
+  `git status`/`log --all`/`ls-files`/`submodule update` in a large repository) and runs the disk-
+  and CPU-heavy ones one at a time under a host-wide `flock`, at `nice 10` and idle I/O class. It
+  fails open and never waits itself. The node projection (`claude-harness-project`) writes it into
+  `.claude/` and `.codex/`; `scripts/install-host-resource-hook.mjs` installs it for one user where
+  no projection runs.
 - `codex-harness-services-section` owns the Codex dialect (`codex exec`), the
   Codex node's durable task rail and the Codex runtime projection.
 - `claude-code-harness-services-section` owns the Claude Code dialect

@@ -25,9 +25,14 @@ import { createHash } from "node:crypto";
 import { closeSync, existsSync, openSync, readdirSync, readSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { artifact, readOptional } from "../../../src/carrier/session.mjs";
+import { hookSettingsArguments } from "../../../src/host-resource-hook.mjs";
 import { CARRIER_WORKSPACE_RULE, assertNotSharedCheckout } from "../../../src/carrier/workspace.mjs";
+
+/** The host-resource controller as this package holds it; a session lives no longer than the process that runs from it. */
+const HOST_RESOURCE_HOOK = fileURLToPath(new URL("../../../src/host-resource-hook.mjs", import.meta.url));
 
 const EFFORTS = new Set(["low", "medium", "high", "xhigh", "max"]);
 const EFFECTS = new Set(["read-only", "workspace-write"]);
@@ -63,7 +68,9 @@ function sharedArguments({ model, reasoningEffort, effects, mcpConfig, mcpServer
   return [
     "-p", "--output-format", "stream-json", "--verbose",
     // The session's whole configuration is what the carrier gives it: no user, project or local settings, hooks or CLAUDE.md drift.
-    "--setting-sources", "", "--permission-mode", "dontAsk",
+    // The one hook it is given is the host-resource controller, so a carrier session is denied the
+    // commands that crashed the machine (an unscoped status of a 70k-file worktree) like any other.
+    "--setting-sources", "", ...hookSettingsArguments(HOST_RESOURCE_HOOK), "--permission-mode", "dontAsk",
     ...(model === undefined ? [] : ["--model", model]),
     ...(reasoningEffort === undefined ? [] : ["--effort", reasoningEffort]),
     ...(mcpConfig === undefined ? [] : ["--mcp-config", mcpConfig]), "--strict-mcp-config",
