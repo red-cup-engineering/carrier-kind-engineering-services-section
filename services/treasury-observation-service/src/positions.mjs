@@ -13,6 +13,55 @@ const vaultInterface = new Interface([
   "function getPricePerFullShare() view returns (uint256)",
 ]);
 
+// BeefyRewardPool stakes and mints an equal number of receipt atoms. Its v2
+// earned(address) returns parallel token/amount arrays, not a scalar reward.
+// https://github.com/beefyfinance/beefy-contracts/blob/master/contracts/BIFI/infra/BeefyRewardPool.sol
+const boostInterface = new Interface([
+  "function stakedToken() view returns (address)",
+  "function earned(address) view returns (address[],uint256[])",
+]);
+
+async function observeBoostPosition(chainDescriptor, vault, walletAddress, shares, options) {
+  const staked = await encoded(boostInterface, chainDescriptor, vault, "stakedToken", [], options);
+  if (!staked.ok) return null;
+  const token = getAddress(staked.value[0]);
+  if (token === "0x0000000000000000000000000000000000000000" || token === vault) {
+    return { chain: chainDescriptor.id, vault, address: walletAddress, checked: false,
+      empty: false, shares, reason: "boost staked token must be a distinct nonzero asset" };
+  }
+  const [rewards, conversion] = await Promise.all([
+    encoded(boostInterface, chainDescriptor, vault, "earned", [walletAddress], options),
+    encoded(vaultInterface, chainDescriptor, token, "getPricePerFullShare", [], options),
+  ]);
+  const stakedAsset = { token, raw: shares.raw };
+  if (conversion.ok) {
+    stakedAsset.pricePerFullShareRaw = conversion.value[0].toString();
+    stakedAsset.underlyingRaw = (BigInt(shares.raw) * conversion.value[0] / (10n ** 18n)).toString();
+  } else stakedAsset.reason = conversion.reason;
+  let earnedRewards;
+  let rewardFailure;
+  if (!rewards.ok) rewardFailure = rewards.reason;
+  else {
+    const [tokens, amounts] = rewards.value;
+    if (tokens.length !== amounts.length || tokens.length > 100
+      || new Set(tokens.map(token => token.toLowerCase())).size !== tokens.length
+      || tokens.some(token => /^0x0{40}$/iu.test(token))) {
+      rewardFailure = "bounded distinct boost reward token/amount pairs required";
+    } else earnedRewards = tokens.map((token, index) => ({ token: getAddress(token), raw: amounts[index].toString() }));
+  }
+  const failures = [rewardFailure, conversion.ok ? undefined : conversion.reason].filter(Boolean);
+  return {
+    chain: chainDescriptor.id, vault, address: walletAddress, positionKind: "staking-boost",
+    checked: failures.length === 0, empty: false, shares, stakedAsset,
+    ...(earnedRewards === undefined ? {} : { earnedRewards }),
+    ...(failures.length === 0 ? {} : { reason: failures.join("; "), attempts: [...(rewards.attempts ?? []), ...(conversion.attempts ?? [])] }),
+    ...(options.boundary === undefined ? {} : { provenance: observationProvenance(options.boundary, [
+      ...shares.provenance.reads.map(read => ({ provenance: { ...options.boundary, ...read } })),
+      staked, ...[rewards, conversion].filter(result => result.ok),
+    ]) }),
+  };
+}
+
 const BEEFY_VAULTS_URL = "https://api.beefy.finance/vaults";
 
 /**
@@ -78,8 +127,9 @@ const erc20Decimals = new Interface(["function decimals() view returns (uint8)"]
  * One wallet's position in a Beefy-style auto-compounding vault: share balance, price per
  * share, and the underlying amount it represents. No USD attached — pricing needs the
  * protocol's own public price API and is a separate step for the caller. Tries the on-chain
- * `getPricePerFullShare()` first; on failure (a vault ABI this getter does not cover), falls
- * back to Beefy's public API, which prices every vault shape — `priceSource` says which path won.
+ * `getPricePerFullShare()` first; on failure, recognizes v2 staking boosts using their
+ * staked token and complete unpaid-reward tuple. A boost reports its deposited vault
+ * shares and their conversion separately. Other unpinned reads fall back to Beefy's public API, which prices every vault shape — `priceSource` says which path won.
  * @param {import("./chains.d.ts").ChainDescriptor} chainDescriptor
  * @param {string} vaultAddress
  * @param {string} walletAddress
@@ -107,6 +157,8 @@ export async function observeVaultPosition(chainDescriptor, vaultAddress, wallet
     via = priceResult.via;
     priceSource = "onchain";
   } else {
+    const boost = await observeBoostPosition(chainDescriptor, vault, walletAddress, shares, options);
+    if (boost !== null) return boost;
     if (options.boundary !== undefined) {
       return {
         chain: chainDescriptor.id, vault, address: walletAddress, checked: false,
@@ -131,7 +183,7 @@ export async function observeVaultPosition(chainDescriptor, vaultAddress, wallet
   const underlyingRaw = (BigInt(shares.raw) * pricePerFullShareRaw) / (10n ** 18n);
   return {
     chain: chainDescriptor.id, vault, address: walletAddress, checked: true, empty: false,
-    shares, pricePerFullShareRaw: pricePerFullShareRaw.toString(),
+    positionKind: "auto-compounding-vault", shares, pricePerFullShareRaw: pricePerFullShareRaw.toString(),
     underlyingRaw: underlyingRaw.toString(), via, priceSource,
     ...(options.boundary === undefined ? {} : {
       provenance: observationProvenance(options.boundary, [

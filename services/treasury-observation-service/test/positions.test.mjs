@@ -190,3 +190,46 @@ test("failed finalized vault conversion retains checked shares at their original
   assert.equal("pricePerFullShareRaw" in p, false);
   assert.equal(apiCalls, 0);
 });
+
+
+test("v2 boost retains deposited vault shares, converts their quantity, and decodes every unpaid reward", async () => {
+  const boost = new Interface(["function stakedToken() view returns (address)", "function earned(address) view returns (address[],uint256[])"]);
+  const stakedToken = "0x2222222222222222222222222222222222222222";
+  const rewardTokens = ["0x3333333333333333333333333333333333333333", "0x4444444444444444444444444444444444444444"];
+  const rpc = encodedFake([
+    [erc20.getFunction("balanceOf").selector, erc20.encodeFunctionResult("balanceOf", [1000000000000000000n])],
+    [erc20.getFunction("decimals").selector, erc20.encodeFunctionResult("decimals", [18])],
+    [erc20.getFunction("symbol").selector, erc20.encodeFunctionResult("symbol", ["rmooTEST"])],
+    [boost.getFunction("stakedToken").selector, boost.encodeFunctionResult("stakedToken", [stakedToken])],
+    [boost.getFunction("earned").selector, boost.encodeFunctionResult("earned", [rewardTokens, [123n, 456n]])],
+  ]);
+  let conversionTarget;
+  const fetchImpl = (url, init) => {
+    const [{ to, data }] = JSON.parse(init.body).params;
+    if (data.startsWith(vaultIface.getFunction("getPricePerFullShare").selector) && to.toLowerCase() === stakedToken.toLowerCase()) {
+      conversionTarget = to;
+      return Promise.resolve({ ok: true, json: async () => ({ result: vaultIface.encodeFunctionResult("getPricePerFullShare", [2000000000000000000n]) }) });
+    }
+    return rpc(url, init);
+  };
+  const p = await observeVaultPosition(CHAINS.base, VAULT, WALLET, { fetchImpl });
+  assert.equal(p.checked, true);
+  assert.equal(p.positionKind, "staking-boost");
+  assert.equal(p.shares.raw, "1000000000000000000");
+  assert.equal(p.stakedAsset.token.toLowerCase(), conversionTarget.toLowerCase());
+  assert.equal(p.stakedAsset.raw, p.shares.raw);
+  assert.equal(p.stakedAsset.underlyingRaw, "2000000000000000000");
+  assert.deepEqual(p.earnedRewards, rewardTokens.map((token, i) => ({ token, raw: ["123", "456"][i] })));
+  assert.equal("underlyingRaw" in p, false);
+  const duplicateRewards = async (url, init) => {
+    const [{data}] = JSON.parse(init.body).params;
+    if (data.startsWith(boost.getFunction("earned").selector)) return {ok: true, json: async () => ({result: boost.encodeFunctionResult("earned", [[rewardTokens[0], rewardTokens[0]], [123n, 456n]])})};
+    return fetchImpl(url, init);
+  };
+  const refused = await observeVaultPosition(CHAINS.base, VAULT, WALLET, {fetchImpl: duplicateRewards});
+  assert.equal(refused.checked, false);
+  assert.equal(refused.shares.raw, p.shares.raw);
+  assert.equal(refused.stakedAsset.underlyingRaw, p.stakedAsset.underlyingRaw);
+  assert.equal("earnedRewards" in refused, false);
+  assert.match(refused.reason, /distinct boost reward/);
+});
