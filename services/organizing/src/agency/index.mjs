@@ -38,7 +38,9 @@ import { agencyActsLog, foldAgencyActs, readAgencyActs, revisionOf } from "./act
 import { instantiateAgencyForm } from "./forms.mjs";
 
 export const AGENCY_POOLS = Object.freeze(["forms", "offices", "duties", "works", "skills", "characters", "masks", "bodies", "organs", "incumbencies", "rules", "enterprises", "contracts", "entities", "principals", "requirements", "deontic-powers", "deontic-immunities", "liberties", "axioms", "directives", "policies", "packets"]);
-const SKIP = new Set(["node_modules", ".git", "legacy", "_archive", "dist", ".cache", ".tmp", "coverage"]);
+// `vendor` holds copies of other packages' records, which are authored in the package that owns
+// them; reading the copy seats the same office or skill twice.
+const SKIP = new Set(["node_modules", ".git", "legacy", "_archive", "vendor", "dist", ".cache", ".tmp", "coverage"]);
 const POOL_PARENT = /(?:^|\/)lib\/agency$/u;
 const SECTION_DIR = /-(?:section|service)$/u;
 const DUTY_PREFIX = /^(?:[a-z0-9-]+\/)?duty\//u;
