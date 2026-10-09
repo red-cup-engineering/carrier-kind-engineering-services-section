@@ -10,6 +10,7 @@
     "./tool-binding": "./src/tool-binding.mjs",
     "./client-endpoint": "./src/client-endpoint.mjs",
     "./catalog": "./src/catalog.mjs",
+    "./modern": "./src/modern.mjs",
     "./articulating-tools": "./src/articulating-tools.mjs",
     "./federation": "./src/federation.mjs",
     "./scripts/bridge-mcp-server": "./scripts/bridge-mcp-server.mjs",
