@@ -14,7 +14,7 @@ import { actorIdFor } from "@red-cup-engineering/feltos/mud-server";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { metroplatGame, worldCapability, worldOperations } from "../src/world.mjs";
 import { worldAtlas } from "../src/world-atlas.mjs";
-import { worldPlaces } from "../src/world-tellings.mjs";
+import { emptyTellings, foldTellings, worldPlaces } from "../src/world-tellings.mjs";
 import { pulseSites } from "../src/world-pulse.mjs";
 
 const game = defineGame({ id: "metro-live", name: "The house", start: "plaza", capabilities: ["metroplat.world"],
@@ -136,17 +136,31 @@ test("office placement follows native relocation and refuses unresolved or dupli
   }]]) };
   const original = tell(authored().world, [claim("seat", "office-key", key)]);
   const places = world => worldPlaces({ world, agency, plaza: "plaza" });
+  assert.equal(places(authored().world).placeOf({ by: key }), "laboratory", "legacy office has section placement without an office-key binding");
+  assert.equal(places(authored().world).nameOf(key), "the Researcher of The new laboratory");
   assert.equal(places(original).placeOf({ by: key }), "laboratory");
   const relocated = tell(original, [claim("seat", "located-in", "other-lab")]);
   assert.equal(places(relocated).placeOf({ by: key }), "other-lab");
   assert.equal(places(relocated).nameOf(key), "the Researcher of The second laboratory");
-  for (const unresolved of [
-    tell(original, [claim("seat", "located-in", null)]),
-    tell(original, [claim("second-seat", "office-key", key), claim("second-seat", "located-in", "other-lab")]),
-    tell(original, [claim("seat", "office-key", "services/laboratory#another-office")]),
+  const told = foldTellings(emptyTellings(), {
+    move: "aim", thread: "fixture:office-location", by: key,
+    purpose: "Every office retains its actual room.", at: "2026-10-09T00:00:00.000Z",
+  }, places(relocated)).tellings[0];
+  assert.equal(told.who, "the Researcher of The second laboratory");
+  assert.equal(told.room, "laboratory", "the office-derived work section still takes precedence over its default hall");
+  for (const [label, unresolved] of [
+    ["null location", tell(original, [claim("seat", "located-in", null)])],
+    ["missing room", tell(original, [claim("seat", "located-in", "missing-room")])],
+    ["non-room location", tell(original, [claim("seat", "located-in", "notes")])],
+    ["contested location", tell(original, [{ ...claim("seat", "located-in", "laboratory"), evidence: "stable" }])],
+    ["refuted location", tell(original, [{ ...claim("seat", "located-in", "laboratory"), evidence: "active" }])],
+    ["duplicate office things", tell(original, [claim("second-seat", "office-key", key), claim("second-seat", "located-in", "other-lab")])],
+    ["competing office keys", tell(original, [claim("seat", "office-key", "services/laboratory#another-office")])],
+    ["contested office key", tell(original, [{ ...claim("seat", "office-key", key), evidence: "stable" }])],
+    ["refuted office key", tell(authored().world, [{ ...claim("seat", "office-key", key), evidence: "active" }])],
   ]) {
-    assert.equal(places(unresolved).placeOf({ by: key }), "plaza");
-    assert.equal(places(unresolved).nameOf(key), "the Researcher of the house");
+    assert.equal(places(unresolved).placeOf({ by: key }), "plaza", label);
+    assert.equal(places(unresolved).nameOf(key), "the Researcher of the house", label);
   }
 });
 
