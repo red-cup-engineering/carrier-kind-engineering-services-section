@@ -14,6 +14,28 @@ export const workSourceClosureContract = schemaFrom(gitSourceClosureSchema);
 
 export const workSourceResultContract = schemaFrom(gitSourceResultSchema);
 
+/** Host-observed task coordinates in existing harness testimony, never a source grant. */
+export const workSourceTaskSchema = {
+  $id: "metroplat/work/source-task", type: "object", additionalProperties: false,
+  required: ["kind", "id", "role", "task", "workspace", "branch", "sourceBinding", "scope", "subject", "office", "effects", "copies"],
+  properties: {
+    kind: { const: "metroplat.work.source-task" }, id: { type: "string", minLength: 1 },
+    role: { enum: ["production", "receiving"] }, effects: { enum: ["read-only", "repository-write"] }, task: { type: "string", minLength: 1, maxLength: 128 },
+    workspace: { type: "string", minLength: 1, maxLength: 4096 }, branch: { type: "string", minLength: 1, maxLength: 1024 },
+    sourceBinding: { type: "string", minLength: 1 }, sourceResult: { type: "string", minLength: 1 },
+    allocation: { type: "string", minLength: 1 }, proposal: { type: "string", minLength: 1 },
+    scope: { type: "string", minLength: 1 }, subject: { type: "string", minLength: 1 }, office: { type: "string", minLength: 1 },
+    copies: { type: "array", minItems: 1, maxItems: 128, items: { type: "object", additionalProperties: false, required: ["path", "device", "inode"], properties: {
+      path: { type: "string", maxLength: 1024 }, device: { type: "string", minLength: 1 }, inode: { type: "string", minLength: 1 },
+    } } },
+  },
+  oneOf: [
+    { properties: { role: { const: "production" } }, required: ["allocation"], not: { anyOf: [{ required: ["proposal"] }, { required: ["sourceResult"] }] } },
+    { properties: { role: { const: "receiving" } }, required: ["proposal", "sourceResult"], not: { required: ["allocation"] } },
+  ],
+};
+export const workSourceTaskContract = schemaFrom(workSourceTaskSchema);
+
 /** Provider-neutral intent at the existing work-obligation boundary. Producer
  * identity and cited source spans are assay evidence, not part of the work
  * ontology. */

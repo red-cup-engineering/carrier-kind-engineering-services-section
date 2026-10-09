@@ -19,7 +19,8 @@ export function enterpriseOperationRuntime({ installed, config, environment, act
   ];
   const nodeHost = config.activityPub?.nodeHost ?? installed.identity.id;
   const resolveActorSubject=subject=>actorSubjectAtHost(config,subject);
-  const binding = defaultFilesystemBinding(config.metroplatDataRoot,{agencyRoot:config.agencyRoot,repositoryRoot:config.repositoryRoot,resolveActorSubject,sourceReadResource});
+  const binding = defaultFilesystemBinding(config.metroplatDataRoot,{agencyRoot:config.agencyRoot,repositoryRoot:config.repositoryRoot,resolveActorSubject,sourceReadResource,
+    sourceTaskOf: (scope, identity, execution) => { if (typeof hostedWork?.sourceTaskOf !== "function") throw new TypeError("source task: native work binding unavailable"); return hostedWork.sourceTaskOf(scope, identity, execution); } });
   // Private host services, supplied by the actual source owner, never operation/instance input.
   const sourcePorts = sourceWorkspaces === undefined ? {} : sourceWorkspaces;
   const sourceKeys = ["prepareSourceBinding", "sourceBindingOf", "bindSourceGit", "publishSourceCandidate", "sourcePreparationOf"];
@@ -40,8 +41,10 @@ export function enterpriseOperationRuntime({ installed, config, environment, act
     const record = records[0];
     if (heldRealms.has(record)) return heldRealms.get(record);
     const root = enterpriseRootOf(record, { settlementsRoot: settlementsRootOf(environment), repositoryRoot: config.repositoryRoot });
-    const own = root === binding.dataRoot ? binding : defaultFilesystemBinding(root, { agencyRoot:config.agencyRoot,repositoryRoot:config.repositoryRoot,resolveActorSubject,sourceReadResource });
-    const options = enterpriseAgencyWorkOptions({ ...hostWorkOptions, workBinding: own, enterprise: record.id });
+    let options;
+    const own = root === binding.dataRoot ? binding : defaultFilesystemBinding(root, { agencyRoot:config.agencyRoot,repositoryRoot:config.repositoryRoot,resolveActorSubject,sourceReadResource,
+      sourceTaskOf: (scope, identity, execution) => { if (typeof options?.sourceTaskOf !== "function") throw new TypeError("source task: native enterprise binding unavailable"); return options.sourceTaskOf(scope, identity, execution); } });
+    options = enterpriseAgencyWorkOptions({ ...hostWorkOptions, workBinding: own, enterprise: record.id });
     const officeKeys = enterpriseOfficeKeys(agency, record);
     const realm = Object.freeze({ binding: own, officeKeys, options: Object.freeze({
       ...options, workEnterprise: record.id, demandAssessment: record.assesses,
