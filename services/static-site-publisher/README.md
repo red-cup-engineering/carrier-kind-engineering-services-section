@@ -24,6 +24,10 @@ Conformance targets are the real, current standards — the WHATWG HTML Living S
 
 `victor build <contentDir> <outDir>` renders a complete site; `victor check` runs the double-build determinism check; `victor serve` watches and serves with drafts visible, and `victor serve --release` serves the release without drafts or a watcher; `victor new` scaffolds a typed cell. The tested walking skeleton includes content-addressed cells, relational Markdown with GFM pipe tables and citations against a CSL-JSON front-matter references block, papers whose chapters are ordered and content-addressed cells in their own right, accessible page rendering, OpenGraph and Twitter-card meta on every rendered page, theme validation, complete and paged publication archives, section/tag/type/status indexes, RSS 2.0, Atom 1.0 and JSON Feed 1.1, browser search, sitemap, robots policy, a 404 page, TUFTE atlas and neighborhood projections, project configuration, deterministic build reports, and recursive byte-preserving public assets with collision protection.
 
+## Neocities deployment plan
+
+`@red-cup-engineering/static-site-publisher/neocities` plans a dry-run Neocities deployment over the artifacts `build` returns: `neocitiesUploadHashRequest` hashes each artifact (SHA-1, as `upload_hash` asks), `neocitiesUploadHashForm` makes the request body, and `planNeocitiesDeployment` reads the response into changed and unchanged paths with an inventory digest. It makes no network call, holds no API key and never plans a deletion.
+
 ## Website framework boundary
 
 Downstream applications import VICTOR, not its HTTP server or TUFTE dependencies. `createVictorWebsite()` owns the whole build, application-composition, TUFTE projection, serving, and rebuild lifecycle:
