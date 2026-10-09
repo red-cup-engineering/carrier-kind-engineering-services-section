@@ -24,6 +24,21 @@ export function publicOrigin(value, { requireTls = true } = {}) {
   return url.origin;
 }
 
+/**
+ * Google sign-in is all-or-none, as ActivityPub is. A node with no Google client still admits its
+ * password, Hive and machine principals: a colony whose origin no Google client has registered
+ * (one that lives in an ephemeral cloud environment, say) is not thereby unable to start.
+ */
+function googleSignIn(environment) {
+  const clientId = present(environment.GOOGLE_CLIENT_ID);
+  const clientSecret = present(environment.GOOGLE_CLIENT_SECRET);
+  if (clientId === undefined && clientSecret === undefined) return undefined;
+  const missing = [["GOOGLE_CLIENT_ID", clientId], ["GOOGLE_CLIENT_SECRET", clientSecret]]
+    .filter(([, value]) => value === undefined).map(([name]) => name);
+  if (missing.length) throw new TypeError(`Google sign-in configuration is all-or-none; missing ${missing.join(", ")}`);
+  return Object.freeze({ clientId, clientSecret });
+}
+
 const AP_KEYS = ["ACTIVITYPUB_ORIGIN", "ACTIVITYPUB_IDENTIFIER", "ACTIVITYPUB_ACTOR_NAME", "ACTIVITYPUB_ACTOR_SUMMARY", "ACTIVITYPUB_KEYS_PATH"];
 function activityPub(environment, stateDir, identity) {
   if (!Object.keys(environment).some((name) => name.startsWith("ACTIVITYPUB_"))) return undefined;
@@ -95,8 +110,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     throw new TypeError("MetroPlat instance origin differs from PUBLIC_BASE_URL");
   }
   const stateDir = resolve(required(setting("METROPLAT_WEB_STATE_DIR"), "METROPLAT_WEB_STATE_DIR"));
-  const googleClientId = required(environment.GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID for MetroPlat Google sign-in");
-  const googleClientSecret = required(environment.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET for MetroPlat Google sign-in");
+  const google = googleSignIn(environment);
   const defaults = installed.web.defaultPaths ?? {};
   const pathSetting = (key, fallback, base = repository) => {
     const value = setting(key);
@@ -142,7 +156,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     stateDir,
     sessionSecret: required(environment.SESSION_SECRET, "SESSION_SECRET"),
     allowedEmail: setting("METROPLAT_ALLOWED_EMAIL")?.toLowerCase(),
-    google: Object.freeze({ clientId: googleClientId, clientSecret: googleClientSecret }),
+    google,
     dataDir: present(setting("METROPLAT_WEB_DATA_DIR")) === undefined ? undefined : resolve(setting("METROPLAT_WEB_DATA_DIR")),
     metroplatSubject: present(setting("METROPLAT_MCP_SUBJECT")) ?? installed.identity.id,
     metroplatCapabilities: installed.capabilities ?? Object.freeze([]),
