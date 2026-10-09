@@ -260,6 +260,8 @@ export function createEnterpriseServicePlatform({
     openWork: (opening) => runtime.openWork(opening) });
   runtime = enterpriseOperationRuntime({
     installed, config, environment,
+    sourceWorkspaces: services.sourceWorkspaces,
+    sourceReadResource: services.sourceReadResource,
     activityPubProvider: () => platform.capabilities().federation?.activityPub?.provider,
     activityPubInbox: () => platform.capabilities().federation?.activityPub?.inbox,
     executeIsolatedWork: (request) => executionWorker.execute(request),
