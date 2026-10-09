@@ -4,6 +4,10 @@ import { extractSignCellEvidenceActivity, projectSignCellEvidenceActivity, senAc
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { homeHostOf, moveOf, openingOf, OPENING_MOVES, readForward, responseOf, TOLD_MOVES, unreadReasonOf, workArenaLawOf, workHomesOf } from "@red-cup-engineering/organizing/enterprise";
 import { holderOf, settlementIntake, workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
+import { admitCapabilityAssertions, readCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
+import { authorizationFromCapabilityAssertions, authorizationFromStanding } from "@red-cup-engineering/computer-system-engine/rpc/dispatch";
+import { can, capabilityGrant, grantAssertion, PUBLIC_HOLDER } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
+import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** An opening move of the work arena, carried between peer settlements as SignCell evidence. */
 export const WORK_OPENING_OBJECT_KIND = "metroplat.work.arena-opening";
@@ -16,6 +20,98 @@ export const WORK_OPENING_OBJECT_KIND = "metroplat.work.arena-opening";
  */
 export const WORK_TELLING_OBJECT_KIND = "metroplat.work.arena-telling";
 const TOLD = new Set(Object.values(TOLD_MOVES).flat());
+
+/**
+ * The work-move kinds a peer can deliver. A peer's authority for each is its standing for the grant
+ * `<node origin>#work-<kind>` in the receiving node's own capability-assertions feed: a peer is a
+ * holder, never an identity this node compares against a configured actor.
+ */
+export const WORK_MOVE_KINDS = Object.freeze(["opening", "telling", "decision", "forward", "refusal"]);
+
+/** The grant a peer holds to deliver one kind of work move to the node at `origin`. */
+export function workGrant(origin, kind) {
+  if (!WORK_MOVE_KINDS.includes(kind)) throw new TypeError(`${kind} is not a federated work move`);
+  return capabilityGrant(new URL(origin).origin, `work-${kind}`);
+}
+
+/** The witness journal of every disposition a peer's delivery received. */
+export const WORK_ADMISSION_OBJECT_KIND = "federated-work-admission";
+
+/** The four standings the gate reads, in the specification's words (extremal reading names). */
+const STANDING = Object.freeze({ unknown: "unevidenced", held: "held", denied: "refused", contested: "contested" });
+const DISPOSITION = Object.freeze({ unevidenced: "refused", held: "admitted", refused: "refused", contested: "held" });
+
+/**
+ * Decide a peer's delivery by the standing its sender holds, at the gate a local invocation passes
+ * (`authorizationFromCapabilityAssertions`), over an uncached, fail-closed read of this node's feed.
+ * Held admits; unevidenced and refused refuse with the obstruction; contested holds the delivery
+ * unadmitted for repair. Every disposition is admitted as a witness before it takes effect.
+ */
+function admitByStanding({ kind, senderActorId, origin, binding, subject, value }) {
+  if (typeof senderActorId !== "string" || senderActorId === "") throw new TypeError(`federated work ${kind} needs its signed sender`);
+  if (typeof origin !== "string" || origin === "") throw new TypeError("federated work admission needs this node's origin");
+  const grant = workGrant(origin, kind);
+  const operation = Object.freeze({ ref: `federated-work:${kind}`, verb: `work-${kind}` });
+  const at = binding.now();
+  const decision = authorizationFromCapabilityAssertions(
+    authorizationFromStanding(new Map([[operation.ref, "held"]]), "federated-work"),
+    () => readCapabilityAssertions(binding.dataRoot), "settled-capability-assertions",
+  )(Object.freeze({ id: subject ?? `${kind}:${senderActorId}:${at}`, subject: senderActorId, resource: new URL(origin).origin }), operation, at);
+  // Any reading the gate does not name as one of the four is not held, and is refused.
+  const standing = decision.ok ? "held" : STANDING[readingAs("extremal", decision.reading)] ?? "refused";
+  const disposition = decision.ok ? "admitted" : DISPOSITION[standing];
+  const reasons = disposition === "admitted" ? [] : standing === "unevidenced"
+    ? [`${senderActorId} holds no standing for ${grant} in this node's capability-assertions feed; the ${kind} needs that grant`]
+    : standing === "contested" ? [`${senderActorId}'s standing for ${grant} is contested; the ${kind} is held unadmitted for repair`]
+      : [`${senderActorId}'s standing for ${grant} is ${standing}; the ${kind} is refused`];
+  const witness = Object.freeze({
+    kind: "metroplat.federated-work.admission", move: kind, disposition, standing, sender: senderActorId, grant,
+    ...(subject === undefined ? {} : { subject }), decision: decision.kind, evidence: Object.freeze([...decision.evidence]),
+    reasons: Object.freeze(reasons), at,
+    // A held delivery keeps what it carried, so a repaired standing can admit it again.
+    ...(disposition === "held" ? { value: JSON.parse(JSON.stringify(value ?? null)) } : {}),
+  });
+  createSemanticRecordJournal({ root: binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND })
+    .record({ category: disposition, recordedAt: at, record: JSON.parse(JSON.stringify(witness)), told: { for: true, against: false } });
+  if (disposition === "refused") throw Object.assign(new TypeError(reasons[0]), { obstruction: witness });
+  return witness;
+}
+
+/** A delivery the sender's contested standing holds: witnessed, never played on the board. */
+const held = (witness) => () => Object.freeze({ held: true, witness });
+
+/** The holders this node's feed gives held standing for some work move on it: its work peers. */
+export function heldWorkPeers(assertions, origin) {
+  const own = new URL(origin).origin;
+  const holders = new Set(assertions.filter((assertion) => assertion.holder !== PUBLIC_HOLDER && assertion.grants.startsWith(`${own}#work-`)).map((assertion) => assertion.holder));
+  return Object.freeze([...holders].filter((holder) => WORK_MOVE_KINDS.some((kind) => readingAs("extremal", can(assertions, holder, workGrant(own, kind)).value) === "held")).sort());
+}
+
+/**
+ * The actors this node hands work to. With a data root they are read from its feed, uncached, so a
+ * peer is whoever holds a work grant here and a revocation stops the handing on; without one (a node
+ * that keeps no feed) they are the declared `workPeers`.
+ */
+export function workPeersOf(config) {
+  if (config.metroplatDataRoot !== undefined && config.publicBaseUrl !== undefined) return heldWorkPeers(readCapabilityAssertions(config.metroplatDataRoot), config.publicBaseUrl);
+  return Object.freeze((config.workPeers ?? []).map((peer) => peer.actor));
+}
+
+/**
+ * Peering: when nodes are first configured as peers, the office holding peering authority here
+ * admits a `grant` to each peer's instance actor for the work moves the pair agrees. A grant
+ * already asserted, or revoked, for that holder is never asserted again, so declaring a peer cannot
+ * undo a revocation; the declaration can be removed once its grants are in the feed.
+ */
+export function admitWorkPeerGrants({ dataRoot, rootName, origin, issuer, peers = [], at }) {
+  if (peers.length === 0) return undefined;
+  if (typeof issuer !== "string" || issuer === "") throw new TypeError("work peering needs the office that holds peering authority");
+  const asserted = readCapabilityAssertions(dataRoot);
+  const assertions = peers.flatMap(({ actor, moves = WORK_MOVE_KINDS }) => moves.map((kind) => workGrant(origin, kind))
+    .filter((grant) => !asserted.some((assertion) => assertion.holder === actor && assertion.grants === grant))
+    .map((grant) => grantAssertion(issuer, actor, grant, at)));
+  return admitCapabilityAssertions({ dataRoot, ...(rootName === undefined ? {} : { rootName }), date: at.slice(0, 10), assertions });
+}
 
 /** A queue failure retains the local admission as an explicit, retryable result. */
 export async function deliverAdmittedWork(deliver, admission) {
@@ -227,9 +323,10 @@ export function prepareWorkDecisionDelivery({ config, provider, decision, delive
  * Validate a forwarded intent and play it on this board, which must be the thread's home: admitted
  * under this node's law in force, legal or refused at the thread's own position.
  */
-export function preparePeerWorkForward({ projection, senderActorId, peerActor, binding, agencyRoot = agencyRootOf(binding), host, enterprises }) {
+export function preparePeerWorkForward({ projection, senderActorId, origin, binding, agencyRoot = agencyRootOf(binding), host, enterprises }) {
   if (projection.objectKind !== WORK_FORWARD_OBJECT_KIND) return undefined;
-  if (senderActorId !== peerActor) throw new TypeError("forwarded work must come from the configured peer actor");
+  const standing = admitByStanding({ kind: "forward", senderActorId, origin, binding, subject: projection.cloudEvent?.id, value: projection.value });
+  if (standing.disposition === "held") return held(standing);
   const said = assertFederatedForward(projection.value);
   return () => {
     const agency = agencyAt(agencyRoot);
@@ -248,9 +345,10 @@ export function preparePeerWorkForward({ projection, senderActorId, peerActor, b
  * it only when that node is the thread's home at the read (`workHomesOf`, given to the board): the check here, while
  * the thread is on this board, only refuses early what the read would never count.
  */
-export function preparePeerWorkDecision({ projection, senderActorId, peerActor, binding, agencyRoot = agencyRootOf(binding), host, enterprises }) {
+export function preparePeerWorkDecision({ projection, senderActorId, origin, binding, agencyRoot = agencyRootOf(binding), host, enterprises }) {
   if (projection.objectKind !== WORK_DECISION_OBJECT_KIND) return undefined;
-  if (senderActorId !== peerActor) throw new TypeError("work decisions must come from the configured peer actor");
+  const standing = admitByStanding({ kind: "decision", senderActorId, origin, binding, subject: projection.cloudEvent?.id, value: projection.value });
+  if (standing.disposition === "held") return held(standing);
   const decision = projection.value;
   if (OPENING_MOVES.includes(decision?.move)) throw new TypeError("a decision is a response, never an opening");
   if (typeof decision.decidedBy !== "string" || decision.decidedBy === "") throw new TypeError("a decision names the node that decided it");
@@ -302,23 +400,32 @@ export function prepareWorkOpeningDelivery({ config, provider, opening, deliver 
 }
 
 function preparePeerDelivery({ config, provider, deliver, activityOf }) {
-  if (config.workPeerActor === undefined || config.deliverWorkToPeer === false) return undefined;
+  if (config.deliverWorkToPeer === false) return undefined;
+  const peers = workPeersOf(config);
+  if (peers.length === 0) return undefined;
   if (provider === undefined || config.activityPub?.instanceActor?.identifier === undefined) {
     throw new TypeError("federated work requires the instance ActivityPub actor");
   }
   const identifier = config.activityPub.instanceActor.identifier;
-  const peerActor = config.workPeerActor;
   // The event is the move itself, at the time it was played: handing it on again is the same activity.
-  const activity = activityOf({ origin: config.publicBaseUrl, identifier, peerActor });
-  return () => deliver(provider, {
-    identifier, recipient: peerActor, inbox: `${peerActor.replace(/\/$/u, "")}/inbox`, activity,
-  });
+  const deliveries = peers.map((peerActor) => ({ peerActor, activity: activityOf({ origin: config.publicBaseUrl, identifier, peerActor }) }));
+  // Every peer is tried; one that failed fails the handoff, so it is sent again (a peer that already
+  // holds the move admits the repeat as a no-op).
+  return async () => {
+    const settled = await Promise.allSettled(deliveries.map(({ peerActor, activity }) => deliver(provider, {
+      identifier, recipient: peerActor, inbox: `${peerActor.replace(/\/$/u, "")}/inbox`, activity,
+    })));
+    const failed = settled.flatMap((result, index) => (result.status === "rejected" ? [`${deliveries[index].peerActor}: ${result.reason?.message ?? result.reason}`] : []));
+    if (failed.length > 0) throw new TypeError(`work handoff failed for ${failed.join("; ")}`);
+    return Object.freeze(settled.map((result) => result.value));
+  };
 }
 
 /** Validate signed peer evidence before retaining its arrival or playing its opening on this board. */
-export function preparePeerWorkOpening({ projection, senderActorId, peerActor, binding, agencyRoot = agencyRootOf(binding), enterprises }) {
+export function preparePeerWorkOpening({ projection, senderActorId, origin, binding, agencyRoot = agencyRootOf(binding), enterprises }) {
   if (projection.objectKind !== WORK_OPENING_OBJECT_KIND) return undefined;
-  if (senderActorId !== peerActor) throw new TypeError("work openings must come from the configured peer actor");
+  const standing = admitByStanding({ kind: "opening", senderActorId, origin, binding, subject: projection.cloudEvent?.id, value: projection.value });
+  if (standing.disposition === "held") return held(standing);
   // A peer's opening this board cannot read under its own edition: kept unread, never refused.
   if (unreadReasonOf(projection.value) !== undefined) return () => keepUnread(binding, projection.value);
   const opening = assertFederatedOpening(projection.value);
@@ -335,9 +442,10 @@ export function preparePeerWorkOpening({ projection, senderActorId, peerActor, b
  * A telling whose thread has not arrived yet is told into the board and read once the thread opens
  * (the arena's `awaiting`), so tellings and openings may arrive in any order.
  */
-export function preparePeerWorkTelling({ projection, senderActorId, peerActor, binding, agencyRoot = agencyRootOf(binding), enterprises }) {
+export function preparePeerWorkTelling({ projection, senderActorId, origin, binding, agencyRoot = agencyRootOf(binding), enterprises }) {
   if (projection.objectKind !== WORK_TELLING_OBJECT_KIND) return undefined;
-  if (senderActorId !== peerActor) throw new TypeError("work tellings must come from the configured peer actor");
+  const standing = admitByStanding({ kind: "telling", senderActorId, origin, binding, subject: projection.cloudEvent?.id, value: projection.value });
+  if (standing.disposition === "held") return held(standing);
   if (unreadReasonOf(projection.value) !== undefined) return () => keepUnread(binding, projection.value);
   const telling = assertFederatedTelling(projection.value);
   return () => {
@@ -354,10 +462,13 @@ export function preparePeerWorkTelling({ projection, senderActorId, peerActor, b
  * content-addressed bytes, so it is opened as this node's evidence addressed to that peer, and the
  * move must be on a thread of this board. The peer's refusal is then a report on this board, by
  * the peer, of the law the move broke there: one thread per refused activity, which a repeated
- * Reject corroborates, related to the thread the move was played on.
+ * Reject corroborates, related to the thread the move was played on. The refusing peer is the
+ * signed sender, which must hold `#work-refusal` here and be the actor the refused move was addressed to.
  */
-export function preparePeerWorkRefusal({ refused, rejectId, reason, senderActorId, ownActor, peerActor, binding, agencyRoot = agencyRootOf(binding), enterprises }) {
-  if (senderActorId !== peerActor) throw new TypeError("work refusals must come from the configured peer actor");
+export function preparePeerWorkRefusal({ refused, rejectId, reason, senderActorId, ownActor, origin, binding, agencyRoot = agencyRootOf(binding), enterprises }) {
+  const standing = admitByStanding({ kind: "refusal", senderActorId, origin, binding, subject: rejectId, value: { refused, rejectId, reason } });
+  if (standing.disposition === "held") return held(standing);
+  const peerActor = senderActorId;
   // Fedify embeds an actor it has dereferenced; the wire extractor reads actors as scalars.
   const idOf = (value) => (typeof value === "string" ? value : value?.id);
   const evidence = extractSignCellEvidenceActivity({ ...refused, actor: idOf(refused?.actor), to: [refused?.to ?? []].flat().map(idOf) }, {
@@ -379,5 +490,5 @@ export function preparePeerWorkRefusal({ refused, rejectId, reason, senderActorI
   };
 }
 
-/** A peer's work evidence, opening or telling, prepared for this board; undefined for any other evidence. */
+/** A peer's work evidence, opening, telling, forward or decision, decided by its sender's standing and prepared for this board; undefined for any other evidence. */
 export const preparePeerWork = (input) => preparePeerWorkOpening(input) ?? preparePeerWorkTelling(input) ?? preparePeerWorkForward(input) ?? preparePeerWorkDecision(input);

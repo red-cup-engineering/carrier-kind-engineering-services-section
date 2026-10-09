@@ -10,7 +10,7 @@ import { createLocalActivityPubProvider } from "@red-cup-engineering/activitypub
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler } from "../src/activitypub-node.mjs";
-import { hostedWorkOpening } from "../src/federated-work.mjs";
+import { admitWorkPeerGrants, hostedWorkOpening } from "../src/federated-work.mjs";
 
 const state = await mkdtemp(path.join(tmpdir(), "federated-work-intake-"));
 const sourceRoot = path.join(state, "source");
@@ -20,7 +20,7 @@ const sourceOrigin = "http://127.0.0.1:18897";
 const peerOrigin = "http://127.0.0.1:18898";
 const account = "fixture:work-intake-caller";
 const config = { instance: { name: "fixture-source" }, publicBaseUrl: sourceOrigin,
-  workPeerActor: `${peerOrigin}/actors/metroplat`, activityPub: { instanceActor: { identifier: "metroplat" } } };
+  workPeers: [{ actor: `${peerOrigin}/actors/metroplat` }], activityPub: { instanceActor: { identifier: "metroplat" } } };
 const originalFetch = globalThis.fetch;
 let source, peer;
 let providerAvailable = true;
@@ -33,7 +33,10 @@ try {
     keysDirectory: path.join(root, "keys"), instanceActor: { identifier: "metroplat", actorName: "Fixture MetroPlat", summary: "Temporary fixture instance for the signed opening receiving check" } });
   const peerActors = actors(peerRoot);
   const arrival = createActivityPubNodeArrivalHandler({ dataRoot: peerRoot, rootName: "fixture-peer",
-    origin: peerOrigin, actors: peerActors, workPeerActor: `${sourceOrigin}/actors/metroplat` });
+    origin: peerOrigin, actors: peerActors });
+  // The peer's peering office grants the source's instance actor the opening it delivers.
+  admitWorkPeerGrants({ dataRoot: peerRoot, origin: peerOrigin, issuer: "fixture-peer#peering",
+    peers: [{ actor: `${sourceOrigin}/actors/metroplat`, moves: ["opening", "telling"] }], at: new Date().toISOString() });
   peer = await createLocalActivityPubProvider({ origin: peerOrigin, actors: peerActors,
     statePath: path.join(peerRoot, "activitypub.sqlite"), queue: false, allowPrivateAddress: true,
     onActivity: async (input) => { const result = await arrival(input); received.push(result); return result; } });

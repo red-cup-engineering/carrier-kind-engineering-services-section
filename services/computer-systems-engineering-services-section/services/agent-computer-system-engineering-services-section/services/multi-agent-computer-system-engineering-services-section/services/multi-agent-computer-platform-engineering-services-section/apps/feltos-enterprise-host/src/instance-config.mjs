@@ -82,6 +82,39 @@ function defaultPath(repository, value, name) {
   return resolve(repository, value);
 }
 
+const WORK_MOVES = Object.freeze(["opening", "telling", "decision", "forward", "refusal"]);
+
+/**
+ * The peers this node is configured with, as the grants its peering office admits to each: an
+ * instance actor and the work moves the pair agrees (all of them unless named). These are admitted
+ * into the node's capability-assertions feed at start and authority is read from there; nothing
+ * here is compared with a sender. The single `METROPLAT_WORK_PEER_ACTOR` (deployed under the alias
+ * `GROUP_PEER_ACTOR`) is read only as such a declaration, so a node migrating from it admits its
+ * peer's grants; once they are admitted the setting can be removed from the environment.
+ */
+function workPeersDeclared(web, legacyActor, origin, activityPubConfig) {
+  if (web.workPeers !== undefined && !Array.isArray(web.workPeers)) throw new TypeError("Enterprise host web workPeers must be an array");
+  const declared = [...(web.workPeers ?? []), ...[legacyActor ?? web.workPeerActor].filter((actor) => actor !== undefined).map((actor) => ({ actor }))];
+  if (web.peeringOffice !== undefined && (typeof web.peeringOffice !== "string" || web.peeringOffice.trim() === "")) {
+    throw new TypeError("Enterprise host web peeringOffice must name the office that holds peering authority");
+  }
+  const peers = new Map();
+  for (const entry of declared) {
+    const peer = new URL(typeof entry?.actor === "string" ? entry.actor : "invalid:");
+    if (peer.protocol !== "https:" || peer.username || peer.password || peer.search || peer.hash
+      || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(peer.pathname) || peer.origin === origin
+      || activityPubConfig?.instanceActor?.identifier === undefined) {
+      throw new TypeError("a work peer requires a different HTTPS instance actor and a local instance actor");
+    }
+    const moves = entry.moves ?? WORK_MOVES;
+    if (!Array.isArray(moves) || moves.length === 0 || moves.some((move) => !WORK_MOVES.includes(move))) {
+      throw new TypeError(`work peer ${peer.href} moves must name some of ${WORK_MOVES.join(", ")}`);
+    }
+    peers.set(peer.href, [...new Set([...(peers.get(peer.href) ?? []), ...moves])]);
+  }
+  return Object.freeze([...peers].map(([actor, moves]) => Object.freeze({ actor, moves: Object.freeze(moves) })));
+}
+
 /** The process consumes deployment settings and admitted instance data. No organization path or tool is built in. */
 export function enterpriseWebConfig(installed, instancePath, environment = process.env, { requireTls = true } = {}) {
   const setting = (name) => present(environment[name] ?? environment[installed.web.environmentAliases?.[name]]);
@@ -118,17 +151,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
   const host = present(environment.HOST) ?? "127.0.0.1";
   const port = Number(present(environment.PORT) ?? "18807");
   const projection = activityPubProjection(environment, host, port, activityPubConfig, origin);
-  const peerSetting = setting("METROPLAT_WORK_PEER_ACTOR") ?? installed.web.workPeerActor;
-  let workPeerActor;
-  if (peerSetting !== undefined) {
-    const peer = new URL(peerSetting);
-    if (peer.protocol !== "https:" || peer.username || peer.password || peer.search || peer.hash
-      || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(peer.pathname) || peer.origin === origin
-      || activityPubConfig?.instanceActor?.identifier === undefined) {
-      throw new TypeError("METROPLAT_WORK_PEER_ACTOR requires a different HTTPS instance actor and a local instance actor");
-    }
-    workPeerActor = peer.href;
-  }
+  const workPeers = workPeersDeclared(installed.web, setting("METROPLAT_WORK_PEER_ACTOR"), origin, activityPubConfig);
   return Object.freeze({
     instance: Object.freeze({
       name: installed.identity.id,
@@ -155,7 +178,8 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     upstreams: Object.freeze(upstreams),
     activityPub: activityPubConfig,
     activityPubProjection: projection,
-    workPeerActor,
+    workPeers,
+    peeringOffice: installed.web.peeringOffice ?? installed.identity.id,
     deliverWorkToPeer: installed.web.deliverWorkToPeer !== false,
   });
 }

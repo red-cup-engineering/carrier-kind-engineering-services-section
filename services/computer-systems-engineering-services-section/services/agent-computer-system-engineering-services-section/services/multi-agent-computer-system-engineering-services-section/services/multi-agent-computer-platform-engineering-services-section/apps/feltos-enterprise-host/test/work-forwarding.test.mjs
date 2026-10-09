@@ -6,7 +6,7 @@ import { test } from "node:test";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { extractSignCellEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
-import { homeHostOf, hostedWorkOpening, hostedWorkTelling, preparePeerWork, workDecisionActivity } from "../src/federated-work.mjs";
+import { admitWorkPeerGrants, homeHostOf, hostedWorkOpening, hostedWorkTelling, preparePeerWork, workDecisionActivity } from "../src/federated-work.mjs";
 import { catchUpWorkPeer } from "../src/work-replication.mjs";
 
 const ENTERPRISES = [
@@ -27,16 +27,18 @@ function city() {
     mkdirSync(agencyRoot, { recursive: true });
     nodes[host] = {
       host, peer, binding: defaultFilesystemBinding(root), agencyRoot,
-      config: { instance: { name: host }, publicBaseUrl: ORIGINS[host], agencyRoot, workPeerActor: actorOf(peer), activityPub: { instanceActor: { identifier: "metroplat" } } },
+      config: { instance: { name: host }, publicBaseUrl: ORIGINS[host], agencyRoot, workPeers: [{ actor: actorOf(peer) }], activityPub: { instanceActor: { identifier: "metroplat" } } },
       refusals: [],
     };
+    // Each node's peering office grants the other node's instance actor every work move.
+    admitWorkPeerGrants({ dataRoot: nodes[host].binding.dataRoot, origin: ORIGINS[host], issuer: `${host}#peering`, peers: nodes[host].config.workPeers, at: "2026-10-03T00:00:00Z" });
   }
   // Delivery: the activity the sender builds is read as the receiver reads signed evidence, then admitted.
   const deliverTo = (from) => async (_provider, { activity }) => {
     const to = nodes[from.peer];
     const evidence = extractSignCellEvidenceActivity({ ...activity, actor: actorOf(from.host) }, { expectedActor: actorOf(from.host), expectedRecipient: actorOf(to.host) });
     try {
-      const admit = preparePeerWork({ projection: evidence, senderActorId: actorOf(from.host), peerActor: actorOf(from.host), binding: to.binding, agencyRoot: to.agencyRoot, host: to.host, enterprises: () => ENTERPRISES });
+      const admit = preparePeerWork({ projection: evidence, senderActorId: actorOf(from.host), origin: ORIGINS[to.host], binding: to.binding, agencyRoot: to.agencyRoot, host: to.host, enterprises: () => ENTERPRISES });
       return admit?.();
     } catch (error) { to.refusals.push(error.message); throw error; }
   };

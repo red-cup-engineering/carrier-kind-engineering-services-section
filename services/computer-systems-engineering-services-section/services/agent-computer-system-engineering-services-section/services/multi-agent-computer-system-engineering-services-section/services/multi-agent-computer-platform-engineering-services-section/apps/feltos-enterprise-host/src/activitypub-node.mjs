@@ -59,7 +59,7 @@ export async function activityPubActorsAtHost({ agencyRoot, host, keysDirectory,
 }
 
 /** Retain verified ActivityPub evidence in node arrivals and addressed character inboxes. */
-export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin, actors, resolveActor, workPeerActor, agencyRoot, host = rootName, executeRequest, reply } = {}) {
+export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin, actors, resolveActor, agencyRoot, host = rootName, executeRequest, reply } = {}) {
   if (typeof rootName !== "string" || rootName.trim() === "") throw new TypeError("ActivityPub arrival needs an admitted instance identity");
   const byIdentifier = new Map((actors??[]).map((actor) => [actor.identifier, actor]));
   const actorAt=resolveActor??(async identifier=>byIdentifier.get(identifier));
@@ -73,7 +73,7 @@ export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin
       const admitRefusal = preparePeerWorkRefusal({
         refused: arrival.jsonLd.object, rejectId: arrival.jsonLd.id, reason: arrival.jsonLd.summary,
         senderActorId: verifiedSender, ownActor: new URL(`/actors/${encodeURIComponent(recipientActor.identifier)}`, origin).href,
-        peerActor: workPeerActor, agencyRoot, binding: defaultFilesystemBinding(dataRoot),
+        origin, agencyRoot, binding: defaultFilesystemBinding(dataRoot),
       });
       return Object.freeze({ refusal: admitRefusal() });
     }
@@ -94,7 +94,7 @@ export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin
       });
       const {preparePeerWork}=await import("./federated-work.mjs");
       const admitWork = preparePeerWork({
-        projection: evidence, senderActorId: verifiedSender, peerActor: workPeerActor, agencyRoot, host,
+        projection: evidence, senderActorId: verifiedSender, origin, agencyRoot, host,
         binding: defaultFilesystemBinding(dataRoot),
       });
       const admittedArrival = appendArrivalAtRoot(dataRoot, evidence.cloudEvent, {

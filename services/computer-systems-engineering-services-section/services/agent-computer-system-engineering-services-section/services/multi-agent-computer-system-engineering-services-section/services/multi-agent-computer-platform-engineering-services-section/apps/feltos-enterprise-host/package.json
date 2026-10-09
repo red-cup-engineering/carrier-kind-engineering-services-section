@@ -58,6 +58,7 @@
   },
   "softwareKind": "service",
   "receivingTests": [
-    "test/account-selection.test.mjs"
+    "test/account-selection.test.mjs",
+    "test/work-peer-standing.test.mjs"
   ]
 }

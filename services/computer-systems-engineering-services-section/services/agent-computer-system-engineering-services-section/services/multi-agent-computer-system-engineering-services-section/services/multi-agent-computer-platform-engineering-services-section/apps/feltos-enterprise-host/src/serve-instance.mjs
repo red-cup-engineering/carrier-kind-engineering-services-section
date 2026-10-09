@@ -6,7 +6,7 @@ import {createOperationCatalog} from '@red-cup-engineering/computer-system-engin
 import {describe} from '@red-cup-engineering/computer-system-engine/rpc/describe';
 import {agencyAt} from '@red-cup-engineering/metroplat/offices';
 import {defaultFilesystemBinding} from '@red-cup-engineering/computer-system-engine/rpc/binding';
-import { hostedWorkIntentAdmission, hostedWorkOpening } from "./federated-work.mjs";
+import { admitWorkPeerGrants, hostedWorkIntentAdmission, hostedWorkOpening, workPeersOf } from "./federated-work.mjs";
 import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -164,7 +164,7 @@ export async function activityPubProvider(config, environment, {operationSurface
   const actorPayments=new Map();
   const onActivity=createActivityPubNodeArrivalHandler({
     dataRoot:config.metroplatDataRoot,rootName:config.instance.name,origin:config.activityPub.origin,actors,resolveActor:currentActor,
-    workPeerActor:config.workPeerActor,agencyRoot:config.agencyRoot,host:node??config.instance.name,
+    agencyRoot:config.agencyRoot,host:node??config.instance.name,
     executeRequest:async ({event,authenticatedActor,admission,recipient,recipientActor})=>{
       if(typeof operationSurface!=="function")throw new TypeError("actor requests need the installed operation surface");
       if(recipientActor.character!==undefined)throw new TypeError("a character inbox receives messages; invoke its offering enterprise actor");
@@ -315,7 +315,7 @@ export function createEnterpriseServicePlatform({
       return Response.json({
         ok,
         service: config.instance.name,
-        workPeerActor: config.workPeerActor ?? null,
+        workPeers: workPeersOf(config),
         release: environment.GUIX_MACHINE_RELEASE_ID ?? null,
         releasePipeline: environment.GUIX_MACHINE_ARTIFACT ? "github-guix" : null,
         releaseProtocolVersion: environment.GUIX_MACHINE_ARTIFACT ? 1 : null,
@@ -497,6 +497,10 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
   const metroplat = await installedMetroplatInstance(instancePath, null, {}, hostPath);
   const installed = { ...metroplat, web };
   const config = enterpriseWebConfig(installed, instancePath, environment, { requireTls });
+  // Declared peers become grants in this node's own feed before anything is delivered or received;
+  // from then on a peer's authority is its standing there.
+  admitWorkPeerGrants({ dataRoot: config.metroplatDataRoot, rootName: config.instance.name, origin: config.publicBaseUrl,
+    issuer: config.peeringOffice, peers: config.workPeers, at: new Date().toISOString() });
   const node = systemNodeFromProcessEnvironment(environment);
   const nodeKey = systemNodeKeyFromProcessEnvironment(environment);
   if (node !== undefined && node.origin !== config.publicBaseUrl) throw new TypeError("System node origin differs from the instance origin");

@@ -28,7 +28,7 @@ import { ALWAYS_TOLD_MOVES, isUnreadableMove, moveOf, OPENING_MOVES, readForward
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
-import { homeHostOf, workHomesOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
+import { homeHostOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
 
 /** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
 const BOARD_KIND = "work-arena-move";
@@ -180,7 +180,7 @@ function noteShipped(dataRoot, ids) {
  * peer admits what it lacks and ignores what it holds.
  */
 export async function catchUpWorkPeer({ config, provider, binding, deliver, host, agencyRoot = config.agencyRoot, enterprises: enterprisesOf }) {
-  if (config.workPeerActor === undefined || config.deliverWorkToPeer === false) return Object.freeze({ shipped: Object.freeze([]), failed: Object.freeze([]) });
+  if (config.deliverWorkToPeer === false || workPeersOf(config).length === 0) return Object.freeze({ shipped: Object.freeze([]), failed: Object.freeze([]) });
   const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: BOARD_KIND });
   const entries = entriesOfJournal(journal);
   const agency = agencyAt(agencyRoot);
