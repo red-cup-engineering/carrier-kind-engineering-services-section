@@ -20,7 +20,7 @@ import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, st
 import { homedir } from "node:os";
 import path from "node:path";
 
-import { assertSourceClosureWorktreeOwners, finishBoundWorktree, removeBoundWorktree, assertWorktreeOwner, commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
+import { assertSourceClosureWorktreeOwners, sourceOnlyPackagePreparation, finishBoundWorktree, removeBoundWorktree, assertWorktreeOwner, commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
 
 /** How many failed tasks' worktrees stay for inspection; older ones are removed. */
 export const FAILED_WORKTREES_KEPT = 10;
@@ -76,14 +76,14 @@ export const CARRIER_WORKSPACE_RULE = "Your working directory is a Git worktree 
  *  rejects, and no session starts. A worktree that already exists is the task's own earlier one and is
  *  reused as it stands when `reuse` is set (recovery), never reset. `commandRunner`, when given,
  *  replaces the house command executor for the worktree's steps. */
-export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "repository-write", reuse = false, sourceBinding, sourceResult, bindGit, commandRunner, environment = process.env }) {
+export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "repository-write", install = effects !== "read-only", reuse = false, sourceBinding, sourceResult, bindGit, commandRunner, environment = process.env }) {
   const workspace = carrierTaskWorktree(dialect, taskId, environment);
   const branch = carrierTaskBranch(dialect, taskId);
   if (path.resolve(workspace) === path.resolve(cwd)) throw new TypeError(`a ${dialect.label} task worktree is never the repository it borrows from`);
   try {
     if (existsSync(workspace)) assertWorktreeOwner(cwd, workspace);
     if (sourceBinding === undefined && reuse && existsSync(path.join(workspace, ".git"))) return Object.freeze({ workspace, branch, reused: true });
-    const prepared = await prepareWorktree({ repository: cwd, workspace, branch, ...(sourceBinding === undefined ? {} : { sourceBinding, sourceResult, from: sourceBinding.copy.commit, bindGit }), install: effects !== "read-only", runner: commandRunner });
+    const prepared = await prepareWorktree({ repository: cwd, workspace, branch, ...(sourceBinding === undefined ? {} : { sourceBinding, sourceResult, from: sourceBinding.copy.commit, bindGit }), install, runner: commandRunner });
     assertWorktreeOwner(cwd, prepared.workspace);
     assertNotSharedCheckout(dialect, prepared.workspace);
     return Object.freeze({ ...prepared, reused: prepared.reused ?? false });
@@ -207,7 +207,7 @@ function sourceFreeWorkspace(dialect, spec, environment) {
  * act writes (`repository-write`) or only reads (`read-only`). `retired` names shared roots this
  * policy replaces, pruned once when the first tree opens.
  */
-export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRunner, environment = process.env, effectsOf = defaultEffects, retired = [], bindGit, publishSourceCandidate }) {
+export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRunner, environment = process.env, effectsOf = defaultEffects, retired = [], bindGit, publishSourceCandidate, sourcePreparationOf }) {
   const prune = async repository => { for (const root of retired) await pruneRetiredWorktreeRoot({ root, repository, commandRunner }).catch(() => undefined); };
   const pruning = new Map();
   const openWithSource = async (spec) => {
@@ -234,7 +234,13 @@ export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRu
       const effects = effectsOf(spec);
       if (bound.sourceBinding !== undefined && spec.receiving && (effects !== "read-only" || spec.item?.proposal?.sourceResult === undefined)) throw new TypeError("source receiving requires the witnessed named result and read-only effects");
       if (bound.sourceBinding !== undefined && effects !== "read-only" && typeof publishSourceCandidate !== "function") throw new TypeError("source workspace: source-writing execution requires its bound candidate publisher before launch");
-      const prepared = await prepareCarrierWorktree(dialect, { cwd: source, taskId: spec.id, effects, reuse: true, sourceBinding: bound.sourceBinding, ...(spec.receiving ? { sourceResult: spec.item?.proposal?.sourceResult } : {}), bindGit, commandRunner, environment });
+      let preparation;
+      if (bound.sourceBinding !== undefined && !spec.receiving && sourcePreparationOf !== undefined) {
+        if (typeof sourcePreparationOf !== "function") throw new TypeError("source package preparation requires its trusted owner binding");
+        const declared = await sourcePreparationOf({ sourceBinding: bound.sourceBinding, item: spec.item });
+        if (declared !== undefined) preparation = await sourceOnlyPackagePreparation(bound.sourceBinding, declared, { bindGit });
+      }
+      const prepared = await prepareCarrierWorktree(dialect, { ...(preparation === undefined ? {} : { install: false }), cwd: source, taskId: spec.id, effects, reuse: true, sourceBinding: bound.sourceBinding, ...(spec.receiving ? { sourceResult: spec.item?.proposal?.sourceResult } : {}), bindGit, commandRunner, environment });
       return Object.freeze({ workspace: prepared.workspace, ...(bound.sourceBinding === undefined ? {} : { sourceBinding: bound.sourceBinding }) });
   };
   return Object.freeze({

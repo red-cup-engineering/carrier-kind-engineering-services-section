@@ -181,7 +181,7 @@ export function inferenceReceiver({ binding, identity, environment, repositoryRo
  * window spent out takes the carrier out of staffing until it turns. An allowance the house has not
  * read prices at the unit, since an unknown is never free.
  */
-function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession, onSourceBinding, onSourceResult, operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate }) {
+function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession, onSourceBinding, onSourceResult, operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }) {
   const carriers = [];
   const repositoryRoot = environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd();
   if (environment.METROPLAT_CODEX_WORKER) {
@@ -191,7 +191,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       adapter: codexAgencyWorkProvider({
         workerId: environment.METROPLAT_CODEX_WORKER,
         onSession, onReceivingSession, onSourceBinding, onSourceResult,
-        bindGit: bindSourceGit, publishSourceCandidate,
+        bindGit: bindSourceGit, publishSourceCandidate, sourcePreparationOf,
         dataRoot: codexNode.dataRoot,
         formerRoots: codexNode.formerRoots,
         toldRoot: codexNode.toldRoot,
@@ -200,7 +200,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         metroplatServer: environment.METROPLAT_CODEX_MCP_SERVER,
         characterName: environment.METROPLAT_CODEX_CHARACTER_NAME ?? "the Codex character",
         cwd: environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot,
-        repositoryOf: spec => configuredWorkSourceRepository(environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate }),
+        repositoryOf: spec => configuredWorkSourceRepository(environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }),
         // No deployment names the model: an allocation carries its derived carrier, and the session observes the one that ran.
         ...(environment.METROPLAT_CODEX_BIN ? { codex: environment.METROPLAT_CODEX_BIN } : {}),
       }),
@@ -214,7 +214,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       adapter: claudeCodeAgencyWorkProvider({
         workerId: environment.METROPLAT_CLAUDE_WORKER,
         onSession, onReceivingSession, onSourceBinding, onSourceResult,
-        bindGit: bindSourceGit, publishSourceCandidate,
+        bindGit: bindSourceGit, publishSourceCandidate, sourcePreparationOf,
         dataRoot: house,
         toldRoot: house,
         nodeName: identity.id,
@@ -223,7 +223,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         mcpConfig: environment.METROPLAT_CLAUDE_MCP_CONFIG ?? path.join(repositoryRoot, ".mcp.json"),
         characterName: environment.METROPLAT_CLAUDE_CHARACTER_NAME ?? "the Claude Code character",
         cwd: repositoryRoot,
-        repositoryOf: spec => configuredWorkSourceRepository(repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate }),
+        repositoryOf: spec => configuredWorkSourceRepository(repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }),
         officeAgent: (office) => officeAgentDefinition({ repoRoot: repositoryRoot, agency: agencyAt(firmPoolRoot), office }),
         ...(environment.METROPLAT_CLAUDE_BIN ? { claude: environment.METROPLAT_CLAUDE_BIN } : {}),
       }),
@@ -241,7 +241,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       adapter: antigravityAgencyWorkProvider({
         workerId: environment.METROPLAT_ANTIGRAVITY_WORKER,
         onSession, onReceivingSession, onSourceBinding, onSourceResult,
-        bindGit: bindSourceGit, publishSourceCandidate,
+        bindGit: bindSourceGit, publishSourceCandidate, sourcePreparationOf,
         dataRoot: house,
         toldRoot: house,
         nodeName: identity.id,
@@ -283,7 +283,7 @@ function journalStandingOf(environment) {
 
 /** The host composes agent execution, inference, and delegation for one installed organization. */
 export function enterpriseAgencyWorkOptions({
-  identity, dataRoot, environment, processConfig, operationOf, operationSurface, workBinding, enterprise, sourceBindingOf, bindSourceGit, publishSourceCandidate,
+  identity, dataRoot, environment, processConfig, operationOf, operationSurface, workBinding, enterprise, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding,
 }) {
   const rootName = identity.id;
   const binding = defaultFilesystemBinding(dataRoot);
@@ -352,7 +352,7 @@ export function enterpriseAgencyWorkOptions({
     if (item.execution !== undefined) Object.assign(item.execution, { receipt, session: session.id, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }) });
     return receipt;
   };
-  const carriers = hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, sourceBindingOf, bindSourceGit, publishSourceCandidate,
+  const carriers = hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding,
     onSourceBinding: recordHostedSource, onSourceResult: recordHostedSourceResult,
     operationOf: verb => operationSurface().operations.find(operation => operation.verb === verb),
     onSession: (item, session) => recordHostedStart(item, session),
@@ -469,12 +469,21 @@ export function enterpriseAgencyWorkOptions({
   const executeAgencyWork = carriers.length === 0 && executeInferredWork === undefined ? undefined : async (item) => {
     const carrier = carrierOf(item.delegation?.provider);
     if (carrier !== undefined) {
-      const outcome = await carrier.adapter({ ...item, methodResources: (item.requiresCapabilities ?? []).map(verb => {
+      const methodResources = (item.requiresCapabilities ?? []).map(verb => {
       const installed = operationSurface().operations.find(operation => operation.verb === verb && item.delegation.operations.includes(operation.ref));
       if (installed === undefined) throw new TypeError("allocated method resource is no longer installed: " + verb);
       const descriptor = operationDescriptor(installed);
       return { verb, ref: descriptor.ref, summary: descriptor.summary, description: descriptor.description, input: descriptor.domain };
-      }) });
+      });
+      // Acquisition is a trusted source-owner effect after current method/delegation admission.
+      // Recovery reads the captured original closure and never resolves a new latest copy.
+      if (item.sourceRepository !== undefined && item.execution?.sourceBinding === undefined && prepareSourceBinding !== undefined) {
+        if (typeof prepareSourceBinding !== "function" || typeof sourceBindingOf !== "function") throw new TypeError("source execution requires its trusted preparation and retained-binding ports");
+        const prepared = await prepareSourceBinding({ sourceRepository: item.sourceRepository, item });
+        const held = configuredWorkSourceRepository(environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd(), { item, sourceBinding: prepared }, { sourceBindingOf });
+        recordHostedSource(item, held.sourceBinding);
+      }
+      const outcome = await carrier.adapter({ ...item, methodResources });
       const plan = await publicationPlanForHostedOutcome({
         item,
         outcome,
