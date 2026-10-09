@@ -654,7 +654,8 @@ export function officeReading(agency, officeRef) {
   return Object.freeze({
     kind: "organizing.agency.office",
     authored: office.authored,
-    effective: office.effective,
+    // The office as the registry reads it: a formed office is its form applied; any other is its authored record.
+    effective: office.effective ?? office.authored,
     formation: office.formation,
     source: office.source,
     revision: office.revision,
