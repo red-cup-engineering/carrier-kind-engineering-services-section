@@ -9,6 +9,11 @@ import { admitJavascriptNodeCommandExecutionRequest } from "@red-cup-engineering
 
 const workScopePattern = "^(endeavor|campaign|project|plan|task|work-item):[^\\s:][^\\s]*$";
 
+/** Exact source value carried by execution/result receipts; it is never a custody grant. */
+export const workSourceClosureContract = schemaFrom(gitSourceClosureSchema);
+
+export const workSourceResultContract = schemaFrom(gitSourceResultSchema);
+
 /** Provider-neutral intent at the existing work-obligation boundary. Producer
  * identity and cited source spans are assay evidence, not part of the work
  * ontology. */
@@ -457,7 +462,9 @@ export const agencyWorkDelegatedSchema = {
   }, additionalProperties: false,
 };
 
-export const agencyWorkDelegatedContract = schemaFrom(agencyWorkDelegatedSchema);
+// The lazy declaration boundary has no ambient registry: carry its recursive
+// source-value dependencies explicitly with the owning work contract.
+export const agencyWorkDelegatedContract = schemaFrom(agencyWorkDelegatedSchema, [workSourceClosureContract, workSourceResultContract]);
 
 export const juralRelationSchema = {
   type: "object",
@@ -694,7 +701,3 @@ export function typedResultOf(returns, result) {
   });
 }
 
-/** Exact source value carried by execution/result receipts; it is never a custody grant. */
-export const workSourceClosureContract = schemaFrom(gitSourceClosureSchema);
-
-export const workSourceResultContract = schemaFrom(gitSourceResultSchema);
