@@ -18,6 +18,7 @@
     "./website": "./src/website.mjs",
     "./config": "./src/config.mjs",
     "./build": "./src/build.mjs",
+    "./neocities": "./src/neocities.mjs",
     "./workspace-graph": "./src/workspace-graph.mjs"
   },
   "dependencies": {
