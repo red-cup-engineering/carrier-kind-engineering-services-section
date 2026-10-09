@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { WORK_PEER_PRESENCES } from "./instance-config.mjs";
 
 const SPECIFIER = /^@[^/]+\/[^/]+(?:\/[A-Za-z0-9._-]+)*$/u;
 const EXPORT = /^[A-Za-z_$][A-Za-z0-9_$]*$/u;
@@ -30,8 +31,11 @@ export async function installedEnterpriseWeb(hostPath) {
     throw new TypeError("FeltOS enterprise host web declaration must be an object");
   }
   const web = host.web;
-  const unsupportedWeb = Object.keys(web).filter((key) => !["instructions", "cookiePrefix", "defaultPaths", "environmentAliases", "networkSources", "companions", "workPeerActor", "deliverWorkToPeer"].includes(key));
+  const unsupportedWeb = Object.keys(web).filter((key) => !["instructions", "cookiePrefix", "defaultPaths", "environmentAliases", "networkSources", "companions", "workPeerActor", "workPeerPresence", "deliverWorkToPeer"].includes(key));
   if (unsupportedWeb.length > 0) throw new TypeError(`Enterprise host web declaration has unsupported fields: ${unsupportedWeb.join(", ")}`);
+  if (web.workPeerPresence !== undefined && !WORK_PEER_PRESENCES.includes(web.workPeerPresence)) {
+    throw new TypeError(`Enterprise host web workPeerPresence must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+  }
   if (web.deliverWorkToPeer !== undefined && typeof web.deliverWorkToPeer !== "boolean") {
     throw new TypeError("Enterprise host web deliverWorkToPeer must be a boolean");
   }

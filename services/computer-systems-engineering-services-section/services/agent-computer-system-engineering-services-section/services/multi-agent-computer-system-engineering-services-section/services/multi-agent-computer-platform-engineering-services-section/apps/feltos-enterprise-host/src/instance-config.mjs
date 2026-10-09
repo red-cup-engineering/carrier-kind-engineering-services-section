@@ -1,6 +1,13 @@
 import { existsSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 
+/**
+ * How present a work peer is. A continuous peer answers whenever it is asked, so a delivery it does
+ * not take has failed. A known-intermittent peer (a colony in an ephemeral cloud environment, say) is
+ * away as a matter of course, so a delivery that could not reach it is held, not failed.
+ */
+export const WORK_PEER_PRESENCES = Object.freeze(["continuous", "known-intermittent"]);
+
 const present = (value) => typeof value === "string" && value.trim() ? value.trim() : undefined;
 const required = (value, name) => {
   const result = present(value);
@@ -143,6 +150,10 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     }
     workPeerActor = peer.href;
   }
+  const workPeerPresence = setting("METROPLAT_WORK_PEER_PRESENCE") ?? installed.web.workPeerPresence ?? "continuous";
+  if (!WORK_PEER_PRESENCES.includes(workPeerPresence)) {
+    throw new TypeError(`METROPLAT_WORK_PEER_PRESENCE must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+  }
   return Object.freeze({
     instance: Object.freeze({
       name: installed.identity.id,
@@ -170,6 +181,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     activityPub: activityPubConfig,
     activityPubProjection: projection,
     workPeerActor,
+    ...(workPeerActor === undefined ? {} : { workPeerPresence }),
     deliverWorkToPeer: installed.web.deliverWorkToPeer !== false,
   });
 }
