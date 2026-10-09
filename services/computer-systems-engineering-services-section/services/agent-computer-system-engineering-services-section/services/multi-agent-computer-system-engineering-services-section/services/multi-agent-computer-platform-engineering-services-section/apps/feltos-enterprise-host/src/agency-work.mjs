@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 import path from "node:path";
 import { operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
-import { configuredWorkSourceRepository } from "@red-cup-engineering/metroplat/source-repository";
+import { configuredWorkSourceRepository, configuredWorkSourceTask, sourceTaskSessionObservation } from "@red-cup-engineering/metroplat/source-repository";
 import { allocationSources } from "@red-cup-engineering/metroplat/allocation-sources";
 import { codexAgencyWorkProvider } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/codex/agency-work";
 import { codexNodeOptions } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/codex/operations";
@@ -320,7 +320,10 @@ export function enterpriseAgencyWorkOptions({
   const surfaceVerbs = () => [...new Set(operationSurface().operations.map(operation => operation.verb))].sort();
   const carrierOf = (character) => carriers.find((carrier) => carrier.workerId === character);
   const admitSession = (carrier, session, at = processIsoNow()) => {
-    admitHarnessCarriers({ dataRoot, date: at.slice(0, 10), carriers: [{ kind: "metroplat.harness-carrier", character: carrier.workerId, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }), harness: carrier.harness, session: session.id, capabilities: surfaceVerbs(), reading: "held", issuer: identity.id, at }] });
+    const observation = sourceTaskSessionObservation(dataRoot, carrier.workerId, session);
+    if (!observation.admit) return;
+    const sourceTask = observation.sourceTask;
+    admitHarnessCarriers({ dataRoot, date: at.slice(0, 10), carriers: [{ kind: "metroplat.harness-carrier", ...(sourceTask === undefined ? {} : { sourceTask }), character: carrier.workerId, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }), harness: carrier.harness, session: session.id, capabilities: surfaceVerbs(), reading: "held", issuer: identity.id, at }] });
     admitCharacterMasks({ dataRoot, date: at.slice(0, 10), masks: [{ kind: "metroplat.character-mask", account: `session:${session.id}`, character: carrier.workerId, reading: "held", issuer: identity.id, at }] });
   };
   const recordHostedSession = (item, outcome) => {
@@ -632,6 +635,9 @@ export function enterpriseAgencyWorkOptions({
   };
   return Object.freeze({
     ...sources,
+    sourceTaskOf: (scope, identity, execution) => configuredWorkSourceTask({ scope, identity, execution,
+      workBinding: owning, callerBinding: binding, repositoryRoot: environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd(),
+      carrierOf, authorizeReceiving: authorizeWorkDischargeReceiver, sourceBindingOf }),
     ...(readAgencyWorkReceiving === undefined ? {} : { readAgencyWorkReceiving, receiveAgencyWork }),
     readCarrierStanding,
     // Inside the entity a crossing is valued at its provider's witnessed cost (enterprise/crossings):

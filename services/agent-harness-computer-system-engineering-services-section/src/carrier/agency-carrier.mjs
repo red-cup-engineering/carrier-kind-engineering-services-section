@@ -169,11 +169,11 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
   const executableOption = executable === undefined ? {} : { executable };
   const taskId = item => `agency-${createHash("sha256").update(item.allocation).digest("hex").slice(0, 32)}`;
   const directory = item => harnessTaskArtifactDirectory(dialect, dataRoot, taskId(item), formerRoots);
-  const observedCarrier = (session, model, effort) => {
+  const observedCarrier = (session, model, effort, sourceTask) => {
     if (session.thread === undefined || session.model === undefined) throw new TypeError(`${dialect.label} session has no observed execution context`);
     if (model !== undefined && session.model !== model || effort !== undefined && session.reasoningEffort !== effort)
       throw new TypeError(`${dialect.label} session does not match its qualified model and effort`);
-    return { id: session.thread, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }), evidence: session.carrierEvidence };
+    return { ...(sourceTask === undefined ? {} : { sourceTask }), id: session.thread, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }), evidence: session.carrierEvidence };
   };
   const requiredEffort = item => item.staffing?.effort;
   const outcomeOf = (item, session) => {
@@ -205,6 +205,7 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     if (workspaceOf === undefined) return body(undefined);
     const opened = workspaceOf.openWithSource === undefined ? { workspace: await workspaceOf.open(spec) } : await workspaceOf.openWithSource(spec);
     const { workspace, sourceBinding } = opened;
+    const sourceTask = spec.observeSourceTask === true ? workspaceOf.sourceTask?.(spec, opened) : undefined;
     const original = { ...spec, ...(sourceBinding === undefined ? {} : { sourceBinding }),
       ...(sourceBinding === undefined || spec.receiving ? {} : { onSourceResult: value => onSourceResult(spec.item, value) }) };
     let session;
@@ -213,7 +214,7 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
         if (typeof onSourceBinding !== "function" || typeof onSourceResult !== "function") throw new TypeError("exact source execution requires its native source witness receivers before launch");
         await onSourceBinding(spec.item, sourceBinding);
       }
-      session = await body(workspace, sourceBinding);
+      session = await body(workspace, sourceBinding, sourceTask);
       // Exact-source publication may be unresolved after the inference completed. Account that
       // actual session before settling; recovery only resumes its retained source trace.
       if (sourceBinding !== undefined && !spec.receiving && spec.accountSession === true) recordCarrierAllowance({ dialect, session, consumer: `${dialect.name}:${spec.item.office}` });
@@ -239,12 +240,12 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
       const suitOf = sourceBinding => agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise, workspaceRule: workspaceOf?.rule?.({ item, id: taskId(item), receiving: false, sourceBinding }) ?? dialect.workspaceRule });
       const observed = readHarnessSessionArtifacts(dialect, directory(item));
       const prior = observed.exitCode === undefined ? undefined : observed;
-      const observe = onSession === undefined || selectedModel === undefined ? undefined : session => onSession(item, observedCarrier(session, selectedModel, requiredEffort(item)));
+      const observe = onSession === undefined || selectedModel === undefined ? undefined : (session, sourceTask) => onSession(item, observedCarrier(session, selectedModel, requiredEffort(item), sourceTask));
       if (prior?.thread !== undefined && prior.model !== undefined) await observe?.(prior);
-      const onObservedSession = async session => { await observe?.(session); await bindSession?.(session); };
+      const onObservedSession = async (session, sourceTask) => { await observe?.(session, sourceTask); await bindSession?.(session); };
       const settledPrior = prior !== undefined && item.execution?.sourceBinding !== undefined && item.execution?.sourceResult?.phase !== "named"
         ? await inWorkspace({ item, id: taskId(item), receiving: false }, () => prior) : prior;
-      const session = settledPrior ?? await inWorkspace({ item, id: taskId(item), receiving: false, accountSession: true }, (workspace, sourceBinding) => runHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), onSession: onObservedSession, prompt: suitOf(sourceBinding).text, artifactDir: directory(item), taskId: taskId(item),
+      const session = settledPrior ?? await inWorkspace({ item, id: taskId(item), receiving: false, accountSession: true, observeSourceTask: true }, (workspace, sourceBinding, sourceTask) => runHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), onSession: session => onObservedSession(session, sourceTask), prompt: suitOf(sourceBinding).text, artifactDir: directory(item), taskId: taskId(item),
         ...(selectedModel === undefined ? {} : { model: selectedModel }), ...(requiredEffort(item) === undefined ? {} : { reasoningEffort: requiredEffort(item) }) }));
       if (prior === undefined && item.execution?.sourceBinding === undefined) recordCarrierAllowance({ dialect, session, consumer: `${dialect.name}:${item.office}` });
       return outcomeOf(item, session);
@@ -292,11 +293,11 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
         const session = await inWorkspace({ item, id: taskId(item), receiving: false }, () => terminal);
         return outcomeOf(item, session);
       }
-      const session = await inWorkspace({ item, id: taskId(item), receiving: false }, workspace => recoverHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), artifactDir: directory(item), taskId: taskId(item),
+      const session = await inWorkspace({ item, id: taskId(item), receiving: false, observeSourceTask: true }, (workspace, _sourceBinding, sourceTask) => recoverHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), artifactDir: directory(item), taskId: taskId(item),
         thread: item.execution?.session, model: selectedModel,
         ...(requiredEffort(item) === undefined ? {} : { reasoningEffort: requiredEffort(item) }),
         ...(onSession === undefined || selectedModel === undefined ? {} : {
-          onSession: async session => { await onSession(item, observedCarrier(session, selectedModel, requiredEffort(item))); await bindSession?.(session); } }) }));
+          onSession: async session => { await onSession(item, observedCarrier(session, selectedModel, requiredEffort(item), sourceTask)); await bindSession?.(session); } }) }));
       if (session !== undefined) recordCarrierAllowance({ dialect, session, consumer: `${dialect.name}:${item.office}` });
       return session === undefined ? undefined : outcomeOf(item, session);
     };
@@ -327,6 +328,16 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     const { attempt } = receivingAttempt(review);
     return { taskId: receivingTaskId(review, attempt), artifactDir: attemptDirectory(review, attempt) };
   };
+  provider.verifySourceTask = async (item, task, sessionId) => {
+    const receiving = task.role === "receiving";
+    const selected = receiving ? receivingTask(item) : { taskId: taskId(item), artifactDir: directory(item) };
+    if (selected.taskId !== task.task) throw new TypeError("source task: current work no longer selects its original task or receiving attempt");
+    const observed = readHarnessSessionArtifacts(dialect, selected.artifactDir);
+    if (observed.thread !== sessionId || observed.exitCode !== undefined) throw new TypeError("source task: original observed session is absent or terminal");
+    observedCarrier(observed, receiving ? item.staffing?.carrier : item.allocatedModel ?? model, receiving ? item.staffing?.effort : requiredEffort(item));
+    if (typeof workspaceOf?.verifyTask !== "function") throw new TypeError("source task: private original workspace verification is unavailable");
+    return workspaceOf.verifyTask({ item, id: selected.taskId, receiving }, task);
+  };
   provider.receivingFinished = review => receivingAttempt(review).finished;
   // A finished attempt that judged (accepted or rejected) has a judgement the host must still admit
   // while the work awaits receipt: it is offered again for admission, never run again.
@@ -341,8 +352,8 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     const { proposal, office, staffing } = review;
     if (!staffing?.carrier || proposal.origin === undefined || office === proposal.origin.office) throw new TypeError("receiving needs distinct producing and receiving offices and a stated carrier");
     const { taskId: id, artifactDir } = receivingTask(review);
-    const observe = async session => {
-      await onReceivingSession?.(review, observedCarrier(session, staffing.carrier, staffing.effort));
+    const observe = async (session, sourceTask) => {
+      await onReceivingSession?.(review, observedCarrier(session, staffing.carrier, staffing.effort, sourceTask));
       await bindSession?.(session);
     };
     const prior = readHarnessSessionArtifacts(dialect, artifactDir);
@@ -368,8 +379,8 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
         `Review only this exact immutable proposal: ${JSON.stringify(proposal)}`,
       ],
     });
-    const session = await inWorkspace({ item: review, id, receiving: true }, async workspace => {
-    const sessionOptions = workspace === undefined ? sessionOptionsOf : { ...sessionOptionsOf, cwd: workspace };
+    const session = await inWorkspace({ item: review, id, receiving: true, observeSourceTask: true }, async (workspace, _sourceBinding, sourceTask) => {
+    const sessionOptions = { ...sessionOptionsOf, ...(workspace === undefined ? {} : { cwd: workspace }), onSession: session => observe(session, sourceTask) };
     let ended;
     if (prior.thread !== undefined || prior.exitCode !== undefined || existsSync(path.join(prior.artifactDir, "prompt.txt"))) {
       ended = prior.exitCode !== undefined

@@ -58,7 +58,8 @@ import { admitHookEnvelope } from "@red-cup-engineering/agent-harness-computer-s
 import { sessionContextImage } from "@red-cup-engineering/feltos/agents/context-image";
 import { readKnowledgeOf } from "@red-cup-engineering/computer-code-development-engine/knowledge/finding-hook-delivery";
 import { projectOperationAffordances } from "./operation-affordances.mjs";
-import { dutyWorktreeOperations } from "@red-cup-engineering/computer-code-development-engine/workspace/duty-worktree";
+import { workSourceTaskSchema } from "@red-cup-engineering/organizing/work/schema";
+import { dutyWorktreeOperations, resolveDutySourceTask } from "@red-cup-engineering/computer-code-development-engine/workspace/duty-worktree";
 import { bodyOperations, livedBodyAt, tellBodyRecords } from "./bodies.mjs";
 
 export const officeIncumbencyFeed = "office-incumbency";
@@ -119,6 +120,7 @@ export const harnessCarrierContract = claimContract("metroplat/harness-carrier",
   reasoningEffort: { type: "string", minLength: 1 },
   harness: { type: "string", minLength: 1 },
   session: { type: "string", minLength: 1 },
+  sourceTask: workSourceTaskSchema,
   capabilities: { type: "array", items: { type: "string", minLength: 1 } },
 }, ["character", "session", "capabilities"]);
 
@@ -682,6 +684,13 @@ export function dutyWorkspaceOperations(binding) {
   return dutyWorktreeOperations({
     repository: repositoryRootOf(binding),
     dataRoot: binding.dataRoot,
+    sourceTaskOf: async (input, execution, verb) => {
+      const task = await resolveDutySourceTask(binding, input, execution, verb);
+      if (task !== undefined) return task;
+      const read = readAgentWorkDispatchReadout(binding, (binding.now?.() ?? new Date().toISOString()).slice(0, 10), undefined);
+      if (read?.queue.some(item => item.scope === input.duty && item.execution?.sourceBinding !== undefined)) throw new TypeError("source task: original native task binding is unavailable");
+      return undefined;
+    },
     // Assignment removes a worker from the dispatch frontier, but its allocated
     // source resource must remain usable while that worker is in flight.
     isReadyDuty: (scope) => {

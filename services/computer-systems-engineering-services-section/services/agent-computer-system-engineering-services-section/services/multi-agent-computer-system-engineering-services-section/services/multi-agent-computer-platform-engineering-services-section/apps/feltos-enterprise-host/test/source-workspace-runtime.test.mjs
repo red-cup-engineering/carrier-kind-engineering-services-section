@@ -39,14 +39,14 @@ for(const malformed of [null,{}, {prepareSourceBinding:()=>{}}, {...ports(()=>{}
 });
 
 
-test("native source reads retain the existing private context and execute admission", async t => {
+test("non-duty source reads retain the existing private context and execute admission", async t => {
  const f=fixture(t),execution={invocation:{subject:'fixture:invoking-session'}},original={id:'fixture:read-effect',actor:'fixture:provider',session:'fixture:session',office:'fixture:office',subject:'fixture:original-work'};
  let contexts=0,executions=0;
- const sourceReadResource={context:(verb,input,observed)=>{contexts++;assert.equal(verb,'workspace-file-slice');assert.deepEqual({...input},{duty:'fixture:scope',path:'package.json'});assert.equal(observed,execution);return original;},execute:async wire=>{executions++;assert.deepEqual(JSON.parse(wire),{...original,operation:'workspace-file-slice',input:{duty:'fixture:scope',path:'package.json'}});return {kind:'host-resource.received',id:original.id,receipt:{id:original.id,terminated:true,result:{kind:'fixture:received-source',original:original.id}}};}};
+ const sourceReadResource={context:(verb,input,observed)=>{contexts++;assert.equal(verb,'workspace-file-slice');assert.deepEqual({...input},{scope:'repository',path:'package.json'});assert.equal(observed,execution);return original;},execute:async wire=>{executions++;assert.deepEqual(JSON.parse(wire),{...original,operation:'workspace-file-slice',input:{scope:'repository',path:'package.json'}});return {kind:'host-resource.received',id:original.id,receipt:{id:original.id,terminated:true,result:{kind:'fixture:received-source',original:original.id}}};}};
  const runtime=enterpriseOperationRuntime({...f,sourceReadResource});assert.equal(runtime.binding.sourceReadResource,sourceReadResource);
  const {workspaceReadOperations}=await import('@red-cup-engineering/computer-code-development-engine/workspace/readout');
  const read=workspaceReadOperations(runtime.binding).find(op=>op.verb==='workspace-file-slice');
- const result=await read.execute({duty:'fixture:scope',path:'package.json'},undefined,execution);
+ const result=await read.execute({scope:'repository',path:'package.json'},undefined,execution);
  assert.equal(result.original,original.id);assert.equal(contexts,1);assert.equal(executions,1);
 });
 test("source workspace ports cannot turn a missing native read admission into filesystem access",async t=>{

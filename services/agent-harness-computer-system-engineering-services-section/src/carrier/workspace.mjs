@@ -17,10 +17,41 @@
  * `~/.local/state/561-group/<name>-worktrees`, and its branches `<name>/<task id>`.
  */
 import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { canonicalJson } from "@red-cup-engineering/json-services-section";
+import { workSourceTaskContract } from "@red-cup-engineering/organizing/work/schema";
+import { prepareSourceResultWorktree, prepareSourceClosureWorktree } from "@red-cup-engineering/computer-code-development-engine/workspace/source-closure";
 import { homedir } from "node:os";
 import path from "node:path";
 
 import { assertSourceClosureWorktreeOwners, sourceOnlyPackagePreparation, finishBoundWorktree, removeBoundWorktree, assertWorktreeOwner, commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
+
+function taskCopies(sourceBinding, workspace) {
+  const copies = [];
+  const visit = (source, relative) => {
+    const held = path.join(workspace, relative), stat = lstatSync(held, { bigint: true });
+    if (!stat.isDirectory() || stat.isSymbolicLink()) throw new TypeError("source task: original task directory is unavailable");
+    copies.push(Object.freeze({ path: relative, device: String(stat.dev), inode: String(stat.ino) }));
+    for (const child of source.composed) visit(child.source, relative ? `${relative}/${child.path}` : child.path);
+  };
+  visit(sourceBinding, ""); return Object.freeze(copies);
+}
+/** A witness from a verified opened source tree; never construct this from a request path. */
+export function carrierSourceTask({ item, id, receiving = false }, { workspace, branch, sourceBinding, effects }) {
+  const work = receiving ? item.proposal : item;
+  const value = { kind: "metroplat.work.source-task", role: receiving ? "receiving" : "production", task: id,
+    workspace, branch, effects, sourceBinding: sourceBinding.id,
+    ...(receiving ? { proposal: work.receipt, sourceResult: work.sourceResult.id } : { allocation: item.allocation }),
+    scope: work.scope, subject: work.subject, office: item.office, copies: taskCopies(sourceBinding, workspace) };
+  const task = { ...value, id: `source-task:sha256:${createHash("sha256").update(JSON.stringify(value)).digest("hex")}` };
+  workSourceTaskContract.assert(task, "host-observed source task"); return Object.freeze(task);
+}
+function assertTaskWitness(task, spec, opened) {
+  workSourceTaskContract.assert(task, "retained source task");
+  const expected = carrierSourceTask(spec, opened);
+  if (canonicalJson(task) !== canonicalJson(expected)) throw new TypeError("source task: original observed task or physical workspace changed");
+  return task;
+}
 
 /** How many failed tasks' worktrees stay for inspection; older ones are removed. */
 export const FAILED_WORKTREES_KEPT = 10;
@@ -241,7 +272,7 @@ export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRu
         if (declared !== undefined) preparation = await sourceOnlyPackagePreparation(bound.sourceBinding, declared, { bindGit });
       }
       const prepared = await prepareCarrierWorktree(dialect, { ...(preparation === undefined ? {} : { install: false }), cwd: source, taskId: spec.id, effects, reuse: true, sourceBinding: bound.sourceBinding, ...(spec.receiving ? { sourceResult: spec.item?.proposal?.sourceResult } : {}), bindGit, commandRunner, environment });
-      return Object.freeze({ workspace: prepared.workspace, ...(bound.sourceBinding === undefined ? {} : { sourceBinding: bound.sourceBinding }) });
+      return Object.freeze({ workspace: prepared.workspace, effects, ...(bound.sourceBinding === undefined ? {} : { sourceBinding: bound.sourceBinding }) });
   };
   return Object.freeze({
     rule: spec => {
@@ -272,6 +303,23 @@ export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRu
     } }),
     pending: spec => existsSync(carrierTaskWorktree(dialect, spec.id, environment)) || existsSync(keptMarker(dialect, environment, spec.id)),
     openWithSource,
+    sourceTask: (spec, opened) => {
+      if (opened.sourceBinding === undefined) return undefined;
+      assertSourceClosureWorktreeOwners(opened.sourceBinding, opened.workspace, assertWorktreeOwner);
+      return carrierSourceTask(spec, { ...opened, branch: carrierTaskBranch(dialect, spec.id) });
+    },
+    verifyTask: async (spec, task) => {
+      const bound = repositoryOf === undefined ? undefined : await repositoryOf(spec);
+      if (bound?.sourceBinding === undefined) throw new TypeError("source task: original exact source binding is unavailable");
+      const workspace = carrierTaskWorktree(dialect, spec.id, environment), branch = carrierTaskBranch(dialect, spec.id);
+      assertSourceClosureWorktreeOwners(bound.sourceBinding, workspace, assertWorktreeOwner);
+      assertTaskWitness(task, spec, { workspace, branch, effects: effectsOf(spec), sourceBinding: bound.sourceBinding });
+      if (spec.receiving) await prepareSourceResultWorktree({ repository: bound.repository, workspace, branch,
+        sourceBinding: bound.sourceBinding, sourceResult: spec.item.proposal.sourceResult, bindGit, assertOwner: assertWorktreeOwner, existingOnly: true });
+      else await prepareSourceClosureWorktree({ repository: bound.repository, workspace, branch,
+        sourceBinding: bound.sourceBinding, bindGit, assertOwner: assertWorktreeOwner, existingOnly: true });
+      return task;
+    },
     open: async spec => (await openWithSource(spec)).workspace,
     close: async (spec) => {
       const { item, id, workspace, session } = spec;
