@@ -76,14 +76,14 @@ export const CARRIER_WORKSPACE_RULE = "Your working directory is a Git worktree 
  *  rejects, and no session starts. A worktree that already exists is the task's own earlier one and is
  *  reused as it stands when `reuse` is set (recovery), never reset. `commandRunner`, when given,
  *  replaces the house command executor for the worktree's steps. */
-export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "repository-write", reuse = false, sourceBinding, bindGit, commandRunner, environment = process.env }) {
+export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "repository-write", reuse = false, sourceBinding, sourceResult, bindGit, commandRunner, environment = process.env }) {
   const workspace = carrierTaskWorktree(dialect, taskId, environment);
   const branch = carrierTaskBranch(dialect, taskId);
   if (path.resolve(workspace) === path.resolve(cwd)) throw new TypeError(`a ${dialect.label} task worktree is never the repository it borrows from`);
   try {
     if (existsSync(workspace)) assertWorktreeOwner(cwd, workspace);
     if (sourceBinding === undefined && reuse && existsSync(path.join(workspace, ".git"))) return Object.freeze({ workspace, branch, reused: true });
-    const prepared = await prepareWorktree({ repository: cwd, workspace, branch, ...(sourceBinding === undefined ? {} : { sourceBinding, from: sourceBinding.copy.commit, bindGit }), install: effects !== "read-only", runner: commandRunner });
+    const prepared = await prepareWorktree({ repository: cwd, workspace, branch, ...(sourceBinding === undefined ? {} : { sourceBinding, sourceResult, from: sourceBinding.copy.commit, bindGit }), install: effects !== "read-only", runner: commandRunner });
     assertWorktreeOwner(cwd, prepared.workspace);
     assertNotSharedCheckout(dialect, prepared.workspace);
     return Object.freeze({ ...prepared, reused: prepared.reused ?? false });
@@ -232,8 +232,9 @@ export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRu
         return Object.freeze({ workspace, sourceBinding: bound.sourceBinding });
       }
       const effects = effectsOf(spec);
+      if (bound.sourceBinding !== undefined && spec.receiving && (effects !== "read-only" || spec.item?.proposal?.sourceResult === undefined)) throw new TypeError("source receiving requires the witnessed named result and read-only effects");
       if (bound.sourceBinding !== undefined && effects !== "read-only" && typeof publishSourceCandidate !== "function") throw new TypeError("source workspace: source-writing execution requires its bound candidate publisher before launch");
-      const prepared = await prepareCarrierWorktree(dialect, { cwd: source, taskId: spec.id, effects, reuse: true, sourceBinding: bound.sourceBinding, bindGit, commandRunner, environment });
+      const prepared = await prepareCarrierWorktree(dialect, { cwd: source, taskId: spec.id, effects, reuse: true, sourceBinding: bound.sourceBinding, ...(spec.receiving ? { sourceResult: spec.item?.proposal?.sourceResult } : {}), bindGit, commandRunner, environment });
       return Object.freeze({ workspace: prepared.workspace, ...(bound.sourceBinding === undefined ? {} : { sourceBinding: bound.sourceBinding }) });
   };
   return Object.freeze({
@@ -241,6 +242,7 @@ export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRu
       const bound = repositoryOf?.(spec);
       if (bound?.mode === "no-source") return SOURCE_FREE_WORKSPACE_RULE;
       const source = spec.sourceBinding ?? bound?.sourceBinding;
+      if (source !== undefined && spec.receiving) return `Your read-only receiving workspace contains the exact named result commits from native proposal ${spec.item.proposal.receipt}, verified against original source closure ${source.id}. Inspect those produced candidates without changing, fetching, installing, committing or publishing source.`;
       return source === undefined ? CARRIER_WORKSPACE_RULE : `Your task worktree is bound to original source commit ${source.copy.commit} and exact source closure ${source.id}. Keep that original task and source binding through completion and resume. Work only in this task tree. Do not fetch, change the source composition, rebase to latest, or publish yourself; the owning runtime retains and names exact review candidates.`;
     },
     // Recovery reads existing proof before opening anything. A retained worktree is equivalent
