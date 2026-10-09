@@ -14,6 +14,7 @@ import { DISCORD_CALLBACK_PATH, DISCORD_LOGIN_PATH, beginDiscordLogin, completeD
 import { acceptDiscordGatewayCommand, acceptDiscordInteraction, createDiscordCommandChallenge, defaultBotCalls, identifyDiscordCommandSession, pollDiscordCommandChallenge } from './discord-command.mjs';
 import { HIVE_CALLBACK_PATH, HIVE_LOGIN_PATH, createHiveLogin } from './hive.mjs';
 import { admissionPage } from './page.mjs';
+import { safeReturnTo } from './session.mjs';
 import { PASSWORD_LOGIN_PATH, createPasswordLogin } from './password.mjs';
 import { GOOGLE_CALLBACK_PATH, GOOGLE_LOGIN_PATH, GOOGLE_LOGOUT_PATH, beginGoogleLogin, completeGoogleLogin, defaultGoogleCalls, googleLogout, identifyGoogle } from './google.mjs';
 export const DISCORD_COMMAND_CHALLENGE_PATH = '/api/v1/discord/command-challenge';
@@ -245,6 +246,16 @@ export function createWebAdmissionApplication(options) {
         const links = choices.map(([label, href]) => `<li><a href="${escape(href)}">${escape(label)}</a></li>`).join('');
         return new Response(admissionPage({ title: `Sign in to ${title}`, place: title, body: `<h1>Sign in</h1><ul class="choices">${links}</ul><p class="aside"><a href="/">Back</a></p>` }), { status: 200, headers: [['content-type', 'text/html; charset=utf-8'], ['cache-control', 'no-store'], ['x-frame-options', 'DENY']] });
     };
+    async function logoutCookies(context) {
+        const cookies = [];
+        if (providers.google)
+            cookies.push(...(googleLogout(providers.google).cookies ?? []));
+        if (providers.discord)
+            cookies.push(...((await logoutDiscord(providers.discord, database, requestOf(context), discordCalls)).cookies ?? []));
+        for (const local of [password, hive])
+            cookies.push(...(local?.logoutCookies() ?? []));
+        return cookies;
+    }
     const resources = [
         resource('web-admission-sign-in', SIGN_IN_PATH, ['GET'], signIn),
         resource('web-admission-identity', IDENTITY_PATH, ['GET'], (context) => {
@@ -280,14 +291,7 @@ export function createWebAdmissionApplication(options) {
         resources.push(...hive.resources);
     if (providers.google || providers.discord || password || hive) {
         resources.push(resource('web-admission-logout', GOOGLE_LOGOUT_PATH, ['GET', 'POST'], async (context) => {
-            const cookies = [];
-            if (providers.google)
-                cookies.push(...(googleLogout(providers.google).cookies ?? []));
-            if (providers.discord)
-                cookies.push(...((await logoutDiscord(providers.discord, database, requestOf(context), discordCalls)).cookies ?? []));
-            for (const local of [password, hive])
-                cookies.push(...(local?.logoutCookies() ?? []));
-            return authResponse({ status: 302, redirect: '/', cookies });
+            return authResponse({ status: 302, redirect: '/', cookies: await logoutCookies(context) });
         }));
     }
     if (providers.discordCommand) {
@@ -315,6 +319,18 @@ export function createWebAdmissionApplication(options) {
         middlewares: Object.freeze([withPublic(gate, publicWithCommands, isPublic)]),
         resources: Object.freeze(resources),
         identify,
+        /** Called only after the owning authorization flow validates a subject-bound switch.
+         * Reuse the existing Google/Discord/password/Hive logout behavior, then sign in again.
+         * The enterprise entrance configures Google/password/Hive, not command sessions.
+         * This does not revoke this application's issued OAuth connector grants. */
+        switchAccount: async (context, returnTo) => new Response(null, {
+            status: 303,
+            headers: [
+                ['location', `${SIGN_IN_PATH}?return_to=${encodeURIComponent(safeReturnTo(returnTo))}`],
+                ['cache-control', 'no-store'],
+                ...(await logoutCookies(context)).map((cookie) => ['set-cookie', cookie]),
+            ],
+        }),
         /** The admitted principal of a request, or null: for applications that decide on their own routes. */
         identifyContext: async (context) => {
             const principal = context.locals?.principal ?? await identify(headersOf(context));

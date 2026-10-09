@@ -56,5 +56,8 @@
     "check:activitypub-node": "node scripts/check-activitypub-node.mjs",
     "test": "node --test test/*.test.mjs"
   },
-  "softwareKind": "service"
+  "softwareKind": "service",
+  "receivingTests": [
+    "test/account-selection.test.mjs"
+  ]
 }
