@@ -1,7 +1,6 @@
 import { parentPort, workerData } from "node:worker_threads";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
-import path from "node:path";
 import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
 import { enterpriseWebConfig } from "./instance-config.mjs";
 import { installedEnterpriseWeb } from "./installed-web.mjs";
@@ -34,7 +33,6 @@ async function openExecutionSurface() {
   const runtime = enterpriseOperationRuntime({ installed, config, environment, activityPubProvider: () => undefined, openWork: openOnHost });
   const metroplat = await openMetroplatMcp({
     dataRoot: config.metroplatDataRoot,
-    clockStateRoot: path.join(config.stateDir, "clock"),
     environment,
     instancePath,
     moduleBasePath: installed.web.hostPath,
