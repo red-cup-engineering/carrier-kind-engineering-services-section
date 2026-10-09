@@ -1,3 +1,4 @@
+import { workSourceClosureContract, workSourceResultContract } from "./schema.mjs";
 /**
  * running/work-item-observations — claim-session admit rows read as
  * `WorkItemObservation`s (`src/work/causal-set.mts`).
@@ -375,7 +376,10 @@ export function agencyWorkExecutionOfRow(row, event) {
   const allocation = recordAt(value, "allocation"), scope = recordAt(value, "scope");
   if (typeof allocation !== "string" || typeof scope !== "string" || typeof event?.id !== "string") return undefined;
   const sourceRepository = recordAt(value, "sourceRepository");
-  const source = typeof sourceRepository === "string" && sourceRepository.length > 0 ? { sourceRepository } : {};
+  const sourceBinding = recordAt(value, "sourceBinding"), sourceResult = recordAt(value, "sourceResult");
+  if (sourceResult !== undefined && (!workSourceResultContract.validate(sourceResult) || sourceResult.sourceBinding !== sourceBinding?.id)) return undefined;
+  if (sourceBinding !== undefined && !workSourceClosureContract.validate(sourceBinding)) return undefined;
+  const source = { ...(typeof sourceRepository === "string" && sourceRepository.length > 0 ? { sourceRepository } : {}), ...(sourceBinding === undefined ? {} : { sourceBinding }), ...(sourceResult === undefined ? {} : { sourceResult }) };
   if (role === "work-result-proposal") {
     const result = recordAt(value, "result");
     if (!["skill-result", "skill-error"].includes(recordAt(result, "kind"))) return undefined;

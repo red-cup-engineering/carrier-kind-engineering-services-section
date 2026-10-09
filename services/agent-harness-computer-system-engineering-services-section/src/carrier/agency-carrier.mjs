@@ -164,7 +164,7 @@ function optionalJudgement(message) {
  * methods beside it. `sessionOptions({ item, receiving })` gives the harness's own session options
  * (effects, MCP, office projection, output constraint) in its dialect's terms.
  */
-export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [], toldRoot = dataRoot, characterName, nodeName, mcpServer, enterprise, cwd, workspaceOf, model, executable, sessionOptions = () => ({}), onSession, onReceivingSession }) {
+export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [], toldRoot = dataRoot, characterName, nodeName, mcpServer, enterprise, cwd, workspaceOf, model, executable, sessionOptions = () => ({}), onSession, onReceivingSession, onSourceBinding, onSourceResult }) {
   if (typeof workerId !== "string" || workerId.length === 0) throw new TypeError(`${dialect.label} carrier: the character it serves is required`);
   const executableOption = executable === undefined ? {} : { executable };
   const taskId = item => `agency-${createHash("sha256").update(item.allocation).digest("hex").slice(0, 32)}`;
@@ -190,12 +190,12 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     const evidence = [
       ...(session.thread === undefined ? [] : [`${dialect.evidence}:${session.thread}`]),
       ...(session.carrierEvidence === undefined ? [] : [`${dialect.name}-session-context:${session.carrierEvidence}`]),
-      `${dialect.name}-exit:${session.exitCode}`, `${dialect.name}-prompt-sha256:${createHash("sha256").update(readFileSync(path.join(session.artifactDir, "prompt.txt"))).digest("hex")}`, `${dialect.name}-task:${taskId(item)}`,
+      `${dialect.name}-exit:${session.exitCode}`, `${dialect.name}-prompt-sha256:${createHash("sha256").update(readFileSync(path.join(session.artifactDir, existsSync(path.join(session.artifactDir, "prompt.txt")) ? "prompt.txt" : "resume-prompt.txt"))).digest("hex")}`, `${dialect.name}-task:${taskId(item)}`,
     ];
     // Its token usage is what the work consumed, a field of the proposal rather than an evidence string.
     const resources = tokenUsageResources(session.usage, carrier.model);
     return { producer, session: carrier, execution: session.ok ? `${dialect.evidence}:${session.thread ?? item.scope}` : `refused:${item.scope}`,
-      result, providerEvidence: evidence, ...(resources.length === 0 ? {} : { resources }) };
+      result, ...(item.execution?.sourceBinding === undefined ? {} : { sourceBinding: item.execution.sourceBinding }), ...(item.execution?.sourceResult === undefined ? {} : { sourceResult: item.execution.sourceResult }), providerEvidence: evidence, ...(resources.length === 0 ? {} : { resources }) };
   };
   const options = (item, receiving = false) => ({ cwd, ...executableOption, ...sessionOptions({ item, receiving }) });
   // A harness whose sessions must not share a tree gives each act its own workspace: `workspaceOf.open({ item, id, receiving })`
@@ -203,11 +203,30 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
   // `workspaceOf.close({ item, id, receiving, workspace, session })` settles it once the session ended.
   const inWorkspace = async (spec, body) => {
     if (workspaceOf === undefined) return body(undefined);
-    const workspace = await workspaceOf.open(spec);
+    const opened = workspaceOf.openWithSource === undefined ? { workspace: await workspaceOf.open(spec) } : await workspaceOf.openWithSource(spec);
+    const { workspace, sourceBinding } = opened;
+    const original = { ...spec, ...(sourceBinding === undefined ? {} : { sourceBinding }),
+      ...(sourceBinding === undefined || spec.receiving ? {} : { onSourceResult: value => onSourceResult(spec.item, value) }) };
     let session;
-    try { session = await body(workspace); }
-    catch (error) { await workspaceOf.close({ ...spec, workspace, session: undefined }).catch(() => undefined); throw error; }
-    await workspaceOf.close({ ...spec, workspace, session });
+    try {
+      if (sourceBinding !== undefined && !spec.receiving) {
+        if (typeof onSourceBinding !== "function" || typeof onSourceResult !== "function") throw new TypeError("exact source execution requires its native source witness receivers before launch");
+        await onSourceBinding(spec.item, sourceBinding);
+      }
+      session = await body(workspace, sourceBinding);
+      // Exact-source publication may be unresolved after the inference completed. Account that
+      // actual session before settling; recovery only resumes its retained source trace.
+      if (sourceBinding !== undefined && !spec.receiving && spec.accountSession === true) recordCarrierAllowance({ dialect, session, consumer: `${dialect.name}:${spec.item.office}` });
+    } catch (error) { await workspaceOf.close({ ...original, workspace, session: undefined }).catch(() => undefined); throw error; }
+    try { await workspaceOf.close({ ...original, workspace, session }); }
+    catch (error) {
+      if (sourceBinding !== undefined && !spec.receiving && session?.ok === true) {
+        // A completed inference still owns its original task while source settling is unresolved.
+        // The controller preserves the existing started receipt and recovers that terminal session.
+        throw Object.assign(new Error("exact source completion remains unresolved; recover the original task"), { sourcePending: true });
+      }
+      throw error;
+    }
     return session;
   };
   const provider = (item) => {
@@ -217,15 +236,17 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     }
     const run = async ({ onSession: bindSession } = {}) => {
       const selectedModel = item.allocatedModel ?? model;
-      const suit = agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise, workspaceRule: workspaceOf?.rule?.({ item, id: taskId(item), receiving: false }) ?? dialect.workspaceRule });
+      const suitOf = sourceBinding => agencyWorkSuit(item, { dialect, toldRoot, characterName, nodeName, mcpServer, enterprise, workspaceRule: workspaceOf?.rule?.({ item, id: taskId(item), receiving: false, sourceBinding }) ?? dialect.workspaceRule });
       const observed = readHarnessSessionArtifacts(dialect, directory(item));
       const prior = observed.exitCode === undefined ? undefined : observed;
       const observe = onSession === undefined || selectedModel === undefined ? undefined : session => onSession(item, observedCarrier(session, selectedModel, requiredEffort(item)));
       if (prior?.thread !== undefined && prior.model !== undefined) await observe?.(prior);
       const onObservedSession = async session => { await observe?.(session); await bindSession?.(session); };
-      const session = prior ?? await inWorkspace({ item, id: taskId(item), receiving: false }, workspace => runHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), onSession: onObservedSession, prompt: suit.text, artifactDir: directory(item), taskId: taskId(item),
+      const settledPrior = prior !== undefined && item.execution?.sourceBinding !== undefined && item.execution?.sourceResult?.phase !== "named"
+        ? await inWorkspace({ item, id: taskId(item), receiving: false }, () => prior) : prior;
+      const session = settledPrior ?? await inWorkspace({ item, id: taskId(item), receiving: false, accountSession: true }, (workspace, sourceBinding) => runHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), onSession: onObservedSession, prompt: suitOf(sourceBinding).text, artifactDir: directory(item), taskId: taskId(item),
         ...(selectedModel === undefined ? {} : { model: selectedModel }), ...(requiredEffort(item) === undefined ? {} : { reasoningEffort: requiredEffort(item) }) }));
-      if (prior === undefined) recordCarrierAllowance({ dialect, session, consumer: `${dialect.name}:${item.office}` });
+      if (prior === undefined && item.execution?.sourceBinding === undefined) recordCarrierAllowance({ dialect, session, consumer: `${dialect.name}:${item.office}` });
       return outcomeOf(item, session);
     };
     if (item.providerReservation !== undefined) return runReservedProviderTurn(dialect, item.providerReservation, (_slot, hooks) => run(hooks));
@@ -255,6 +276,8 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     const session = readHarnessSessionArtifacts(dialect, directory(item));
     if (session.exitCode === undefined) return undefined;
     workspaceOf?.verify?.({ item, id: taskId(item), receiving: false });
+    if (item.execution?.sourceBinding !== undefined && (item.execution?.sourceResult?.phase !== "named"
+      || workspaceOf?.pending?.({ item, id: taskId(item), receiving: false }) === true)) return undefined;
     return outcomeOf(item, session);
   };
   provider.recover = item => {
@@ -262,6 +285,13 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
     workspaceOf?.verify?.({ item, id: taskId(item), receiving: false });
     const run = async ({ onSession: bindSession } = {}) => {
       const selectedModel = item.allocatedModel ?? model;
+      const terminal = readHarnessSessionArtifacts(dialect, directory(item));
+      if (item.execution?.sourceBinding !== undefined && terminal.exitCode !== undefined) {
+        // Reconcile the original finished task's source, never launch inference again to obtain
+        // a fresh task ID or evade an unresolved publication.
+        const session = await inWorkspace({ item, id: taskId(item), receiving: false }, () => terminal);
+        return outcomeOf(item, session);
+      }
       const session = await inWorkspace({ item, id: taskId(item), receiving: false }, workspace => recoverHarnessSession(dialect, { ...options(item), ...(workspace === undefined ? {} : { cwd: workspace }), artifactDir: directory(item), taskId: taskId(item),
         thread: item.execution?.session, model: selectedModel,
         ...(requiredEffort(item) === undefined ? {} : { reasoningEffort: requiredEffort(item) }),

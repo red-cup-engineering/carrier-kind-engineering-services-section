@@ -181,7 +181,7 @@ export function inferenceReceiver({ binding, identity, environment, repositoryRo
  * window spent out takes the carrier out of staffing until it turns. An allowance the house has not
  * read prices at the unit, since an unknown is never free.
  */
-function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession, operationOf }) {
+function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession, onSourceBinding, onSourceResult, operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate }) {
   const carriers = [];
   const repositoryRoot = environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd();
   if (environment.METROPLAT_CODEX_WORKER) {
@@ -190,7 +190,8 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       workerId: environment.METROPLAT_CODEX_WORKER, harness: "codex", family: "openai",
       adapter: codexAgencyWorkProvider({
         workerId: environment.METROPLAT_CODEX_WORKER,
-        onSession, onReceivingSession,
+        onSession, onReceivingSession, onSourceBinding, onSourceResult,
+        bindGit: bindSourceGit, publishSourceCandidate,
         dataRoot: codexNode.dataRoot,
         formerRoots: codexNode.formerRoots,
         toldRoot: codexNode.toldRoot,
@@ -199,7 +200,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         metroplatServer: environment.METROPLAT_CODEX_MCP_SERVER,
         characterName: environment.METROPLAT_CODEX_CHARACTER_NAME ?? "the Codex character",
         cwd: environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot,
-        repositoryOf: spec => configuredWorkSourceRepository(environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot, spec, { operationOf }),
+        repositoryOf: spec => configuredWorkSourceRepository(environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate }),
         // No deployment names the model: an allocation carries its derived carrier, and the session observes the one that ran.
         ...(environment.METROPLAT_CODEX_BIN ? { codex: environment.METROPLAT_CODEX_BIN } : {}),
       }),
@@ -212,7 +213,8 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       workerId: environment.METROPLAT_CLAUDE_WORKER, harness: "claude-code", family: "anthropic", models: claudeModels, bounded: true, serves: listOf(environment.METROPLAT_CLAUDE_OFFICES),
       adapter: claudeCodeAgencyWorkProvider({
         workerId: environment.METROPLAT_CLAUDE_WORKER,
-        onSession, onReceivingSession,
+        onSession, onReceivingSession, onSourceBinding, onSourceResult,
+        bindGit: bindSourceGit, publishSourceCandidate,
         dataRoot: house,
         toldRoot: house,
         nodeName: identity.id,
@@ -221,7 +223,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         mcpConfig: environment.METROPLAT_CLAUDE_MCP_CONFIG ?? path.join(repositoryRoot, ".mcp.json"),
         characterName: environment.METROPLAT_CLAUDE_CHARACTER_NAME ?? "the Claude Code character",
         cwd: repositoryRoot,
-        repositoryOf: spec => configuredWorkSourceRepository(repositoryRoot, spec, { operationOf }),
+        repositoryOf: spec => configuredWorkSourceRepository(repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate }),
         officeAgent: (office) => officeAgentDefinition({ repoRoot: repositoryRoot, agency: agencyAt(firmPoolRoot), office }),
         ...(environment.METROPLAT_CLAUDE_BIN ? { claude: environment.METROPLAT_CLAUDE_BIN } : {}),
       }),
@@ -238,7 +240,8 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       serves: environment.METROPLAT_ANTIGRAVITY_OFFICES === undefined ? ANTIGRAVITY_DEFAULT_OFFICES : listOf(environment.METROPLAT_ANTIGRAVITY_OFFICES),
       adapter: antigravityAgencyWorkProvider({
         workerId: environment.METROPLAT_ANTIGRAVITY_WORKER,
-        onSession, onReceivingSession,
+        onSession, onReceivingSession, onSourceBinding, onSourceResult,
+        bindGit: bindSourceGit, publishSourceCandidate,
         dataRoot: house,
         toldRoot: house,
         nodeName: identity.id,
@@ -280,7 +283,7 @@ function journalStandingOf(environment) {
 
 /** The host composes agent execution, inference, and delegation for one installed organization. */
 export function enterpriseAgencyWorkOptions({
-  identity, dataRoot, environment, processConfig, operationOf, operationSurface, workBinding, enterprise,
+  identity, dataRoot, environment, processConfig, operationOf, operationSurface, workBinding, enterprise, sourceBindingOf, bindSourceGit, publishSourceCandidate,
 }) {
   const rootName = identity.id;
   const binding = defaultFilesystemBinding(dataRoot);
@@ -326,6 +329,19 @@ export function enterpriseAgencyWorkOptions({
     admitSession(carrier, outcome.session);
     return outcome;
   };
+  const recordHostedSource = (item, sourceBinding) => {
+    if (item.execution === undefined) throw new TypeError("agency work execution: source capture requires the original execution receipt");
+    if (item.execution.sourceBinding !== undefined && item.execution.sourceBinding.id !== sourceBinding.id) throw new TypeError("agency work execution: original source closure changed");
+    const receipt = admitAgencyWorkExecution(owning, { ...item, execution: { ...item.execution, sourceBinding } }, "started");
+    Object.assign(item.execution, { receipt, sourceBinding });
+    return receipt;
+  };
+  const recordHostedSourceResult = (item, sourceResult) => {
+    if (item.execution?.sourceBinding === undefined || sourceResult.sourceBinding !== item.execution.sourceBinding.id) throw new TypeError("agency work execution: source completion has no original captured closure");
+    const receipt = admitAgencyWorkExecution(owning, { ...item, execution: { ...item.execution, sourceResult } }, "started");
+    Object.assign(item.execution, { receipt, sourceResult });
+    return receipt;
+  };
   const recordHostedStart = (item, session) => {
     recordHostedSession(item, { session });
     if (item.requiredCarrier !== undefined && (session.model !== item.requiredCarrier.model
@@ -336,7 +352,8 @@ export function enterpriseAgencyWorkOptions({
     if (item.execution !== undefined) Object.assign(item.execution, { receipt, session: session.id, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }) });
     return receipt;
   };
-  const carriers = hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot,
+  const carriers = hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, sourceBindingOf, bindSourceGit, publishSourceCandidate,
+    onSourceBinding: recordHostedSource, onSourceResult: recordHostedSourceResult,
     operationOf: verb => operationSurface().operations.find(operation => operation.verb === verb),
     onSession: (item, session) => recordHostedStart(item, session),
     onReceivingSession: (review, session) => recordHostedSession(review, { session }) });

@@ -1,3 +1,4 @@
+import { gitSourceClosureSchema, gitSourceResultSchema } from "@red-cup-engineering/git-services-section/git-command-codec";
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { validateJsonSchemaDocument } from "@red-cup-engineering/json-schema-services-section/validation";
@@ -443,6 +444,8 @@ export const agencyWorkDelegatedSchema = {
         execution: { type: "object", required: ["state", "receipt"], properties: {
           state: { const: "started" }, receipt: { type: "string", minLength: 1 },
           sourceRepository: { type: "string", minLength: 1 },
+          sourceBinding: gitSourceClosureSchema,
+          sourceResult: gitSourceResultSchema,
           session: { type: "string", minLength: 1 }, model: { type: "string", minLength: 1 },
         }, additionalProperties: false },
         intent: { type: "string" }, subject: { type: "string" }, work: { type: "string" }, skill: { type: "string" },
@@ -690,3 +693,8 @@ export function typedResultOf(returns, result) {
       + (quoted === "" ? "" : `; it returned: ${quoted.length > RETURNED_EXCERPT ? `${quoted.slice(0, RETURNED_EXCERPT)}…` : quoted}`),
   });
 }
+
+/** Exact source value carried by execution/result receipts; it is never a custody grant. */
+export const workSourceClosureContract = schemaFrom(gitSourceClosureSchema);
+
+export const workSourceResultContract = schemaFrom(gitSourceResultSchema);

@@ -1,3 +1,4 @@
+import { assertRetainedSourceClosure } from "@red-cup-engineering/computer-code-development-engine/workspace/source-closure";
 /** A scoped source owner is a configured Git repository, never an arbitrary caller path. */
 import path from "node:path";
 import { existsSync, realpathSync } from "node:fs";
@@ -29,7 +30,7 @@ export function configuredSourceRepository(repositoryRoot, declaredOwner) {
 
 
 /** Resolve an allocated work source using host custody. Receiving retains the producing owner. */
-export function configuredWorkSourceRepository(repositoryRoot, { item, receiving = false }, { operationOf } = {}) {
+export function configuredWorkSourceRepository(repositoryRoot, { item, receiving = false, sourceBinding: captured }, { operationOf, sourceBindingOf } = {}) {
   const owner = receiving ? item?.proposal?.sourceRepository : item?.sourceRepository;
   if (owner === undefined) {
     if (item?.sourceRepository !== undefined || item?.execution?.sourceRepository !== undefined) throw new TypeError("source workspace: original sourceRepository is unresolved");
@@ -48,6 +49,17 @@ export function configuredWorkSourceRepository(repositoryRoot, { item, receiving
   }
   if (typeof owner !== "string" || owner.trim() === "") throw new TypeError("source workspace: admitted work sourceRepository is required");
   if (receiving && item.sourceRepository !== owner) throw new TypeError("source workspace: proposal sourceRepository no longer matches its admitted obligation");
+  const retained = captured ?? (receiving ? item?.proposal?.sourceBinding : item?.execution?.sourceBinding);
+  if (sourceBindingOf !== undefined) {
+    let resolved;
+    try { resolved = sourceBindingOf({ sourceRepository: owner, retained, item, receiving }); }
+    catch { throw new TypeError("source workspace: trusted exact source custody resolution failed"); }
+    if (resolved?.then !== undefined) throw new TypeError("source workspace: synchronous retained source custody resolution is required");
+    const sourceBinding = assertRetainedSourceClosure(resolved);
+    if (sourceBinding.copy.sourceRepository !== owner || retained !== undefined && sourceBinding.id !== retained.id) throw new TypeError("source workspace: original exact source closure changed");
+    return Object.freeze({ repository: sourceBinding.copy.repository, sourceRepository: owner, sourceBinding });
+  }
+  if (retained !== undefined) throw new TypeError("source workspace: original exact source closure requires its trusted host binding");
   try { return configuredSourceRepository(repositoryRoot, owner); }
   catch (cause) {
     throw new TypeError("source workspace: configured writable Git source custody is unavailable for the admitted sourceRepository; the immutable release is not a source workspace", { cause });
