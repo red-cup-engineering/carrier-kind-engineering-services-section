@@ -41,6 +41,11 @@
  * as its projection, which `schedules` reads. Definitions use metroplat.clock.schedule; invocation
  * outcomes keep metroplat.clock. Separating the carriers lets startup and every heartbeat read
  * the current definitions without verifying the entire invocation history.
+ *
+ * Reservations and outcomes live under one clock state root, the binding's, and are read by one
+ * function, `clockReading`: the heartbeat takes it through the `clock-due` derivation on the same
+ * surface it ticks through, and `run-due` reserves from it, so the clock cannot decide from one
+ * directory and start from another (specification 2026-10-09 rpc-witness-volume, RQ-1 to RQ-3).
  */
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, watch, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -69,37 +74,35 @@ const stateDir = (binding, ...parts) => path.join(binding.clockStateRoot ?? path
 const readJson = (file) => existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : undefined;
 
 /**
- * Wait for the clock's next reason to look: the earliest instant a current schedule is next due,
- * or a demand schedule's receipt being written (a run ending is the moment its reading changes),
- * whichever comes first; `intervalMs` is only the longest the clock goes without looking, which a
- * schedule admitted at run time may need. A node with nothing due and no run ending sleeps.
+ * Wait for the clock's next reason to look, as one reading named it: the earliest instant a blocked
+ * or future attempt can start (`wakeAt`), an in-flight attempt ending (a slot freeing), a change to
+ * a directory a demand schedule watches, or `intervalMs`, the longest the clock goes without
+ * looking. The wait is always longer than zero, so the loop cannot spin. Reads no clock state: what
+ * to wait for comes from the reading, which the heartbeat takes through the operation surface.
  */
-function waitForNextDue(binding, intervalMs, signal, now) {
+function waitForReading(reading, intervalMs, signal, now) {
   return new Promise((resolve) => {
     if (signal.aborted) return resolve();
-    const schedules = currentSchedules(binding);
     const at = Date.parse(now());
-    const soonest = schedules.reduce((earliest, schedule) => {
-      // A demand occurrence already taken is spent until its receipt changes, which the watch hears.
-      const occurrence = schedule.demand === undefined ? null : dueOccurrence(schedule, now());
-      if (occurrence !== null && nextAttempt(binding, schedule, occurrence, now(), { record: false }) === null) return earliest;
-      const next = Date.parse(nextDueAt(schedule, now()) ?? "");
-      return Number.isFinite(next) && next < earliest ? next : earliest;
-    }, at + intervalMs);
+    const wakeAt = Date.parse(reading?.wakeAt ?? "");
+    const timer = setTimeout(done, wakeDelay(Number.isFinite(wakeAt) ? wakeAt : Infinity, at, intervalMs));
     const watchers = [];
-    const timer = setTimeout(done, Math.max(0, soonest - at));
-    const demands = schedules.filter((schedule) => schedule.demand !== undefined);
-    for (const directory of new Set(demands.map((schedule) => path.dirname(schedule.demand)))) {
+    for (const directory of reading?.watch?.receipts ?? []) {
       try {
         mkdirSync(directory, { recursive: true });
         watchers.push(watch(directory, (_event, name) => { if (typeof name === "string" && name.endsWith(".json") && !name.endsWith(".demand.json")) done(); }));
       } catch { /* an unwatchable directory leaves its schedules to the timer */ }
     }
     // Where a demand job said new work arrives: any change there is a reason to look.
-    for (const directory of new Set(demands.flatMap((schedule) => readJson(schedule.demand)?.demand?.watch ?? []).filter((entry) => typeof entry === "string"))) {
+    for (const directory of reading?.watch?.arrivals ?? []) {
       try { watchers.push(watch(directory, () => done())); } catch { /* a directory not yet made is read at the next look */ }
     }
+    // A slot freeing (an in-flight attempt recording its outcome) can make a capacity-blocked attempt startable.
+    let settled = false;
+    if (inFlight.size > 0) Promise.race([...inFlight.values()].map((entry) => entry.promise)).then(done, done);
     function done() {
+      if (settled) return;
+      settled = true;
       clearTimeout(timer);
       for (const watcher of watchers) watcher.close();
       signal.removeEventListener("abort", done);
@@ -109,41 +112,82 @@ function waitForNextDue(binding, intervalMs, signal, now) {
   });
 }
 
+/** Milliseconds to wait from `at` until `wakeAt`, no longer than `intervalMs` and never less than one (P-wake). */
+export function wakeDelay(wakeAt, at, intervalMs) {
+  return Math.max(1, Math.min(wakeAt - at, intervalMs));
+}
+
+const obstructionKey = (schedule, occurrence) => `${schedule}::${occurrence}`;
+
 /**
  * Run this node's one recurring-work heartbeat through its governed surface until aborted.
- * A tick (`run-due`) reserves due attempts, starts them, and returns as soon as they're started;
- * it does not wait for them to finish, so one slow attempt never delays the next tick's other
- * schedules. Ticking itself stays serial (one `run-due` call at a time) so the interval is honest,
- * but the attempts a tick starts run concurrently, bounded process-wide by MAX_IN_FLIGHT.
+ * Each look takes the clock's reading (`clock-due`, a derivation that leaves no journal row)
+ * through the same surface as the tick, so what the heartbeat sees is what `run-due` reserves from:
+ * the heartbeat holds no clock state root of its own. It dispatches `run-due` only when the
+ * reading names an attempt that can be reserved now with a free in-flight slot; otherwise it
+ * sleeps until the reading's next reason to look. A tick (`run-due`) reserves due attempts,
+ * starts them, and returns as soon as they're started; it does not wait for them to finish.
+ * Ticking stays serial (one `run-due` call at a time); the attempts a tick starts run concurrently,
+ * bounded process-wide by MAX_IN_FLIGHT. A tick that starts nothing records one obstruction per
+ * (schedule, occurrence, reason) through `onObstruction`, and that occurrence is not ticked for
+ * again until its reason changes.
  * On abort, this function gives in-flight attempts SHUTDOWN_GRACE_MS to finish and record their
  * outcome the normal way; anything still running past the grace is left running, and the
  * reservation protocol covers it from there — if the process exits first, the next start finds
  * that attempt's pid dead and records it interrupted.
- * `surface` may be a function returning the surface, called only when a tick has work.
+ * `surface` may be a function returning the surface. `witness` and `coordinate` are the dispatch
+ * carriers the tick is witnessed and coordinated by.
  */
-export async function runClockHeartbeat(surface, { subject, dataRoot, clockStateRoot, rootName, intervalMs, signal, now = () => new Date().toISOString(), onObstruction = () => {} }) {
+export async function runClockHeartbeat(surface, { subject, witness, coordinate, intervalMs, signal, now = () => new Date().toISOString(), onObstruction = () => {} }) {
   if (typeof subject !== "string" || subject.length === 0) throw new TypeError("clock heartbeat subject is required");
   if (!Number.isInteger(intervalMs) || intervalMs < 1) throw new RangeError("clock heartbeat intervalMs must be a positive integer");
   if (signal === undefined || typeof signal.aborted !== "boolean") throw new TypeError("clock heartbeat signal is required");
-  const binding = Object.freeze({ dataRoot, ...(clockStateRoot === undefined ? {} : { clockStateRoot }) });
+  if (witness === undefined) throw new TypeError("clock heartbeat witness is required");
+  const options = (at) => ({ subject, caller: Object.freeze({ transport: "metroplat-clock" }), now: () => at, witness, ...(coordinate === undefined ? {} : { coordinate }) });
+  // Occurrences a tick did not start, by (schedule, occurrence), with the reason recorded for them.
+  const obstructed = new Map();
+  const obstruct = async (schedule, occurrence, reason, at, detail) => {
+    const key = obstructionKey(schedule, occurrence);
+    if (obstructed.get(key) === reason) return;
+    obstructed.set(key, reason);
+    await onObstruction(Object.freeze({ kind: "metroplat.clock.obstruction", schedule, occurrence, reason, at, ...(detail === undefined ? {} : { detail }) }));
+  };
   while (!signal.aborted) {
-    // A tick with nothing due does no work and is not witnessed: an idle heartbeat would otherwise
-    // write a witness every interval (about 14 KB each) for nothing.
-    if (!anyAttemptDue(binding, now())) {
-      await waitForNextDue(binding, intervalMs, signal, now);
+    const at = now();
+    const current = typeof surface === "function" ? await surface() : surface;
+    const looked = await dispatchProjectedSurface(current, ["clock-due"], JSON.stringify({ now: at }), options(at));
+    if (looked.code !== 0) {
+      await onObstruction(Object.freeze({ kind: "metroplat.clock.obstruction", reason: "unread", at, detail: looked.stderr.trim() }));
+      await waitForReading(undefined, intervalMs, signal, now);
       continue;
     }
-    const result = await dispatchProjectedSurface(typeof surface === "function" ? await surface() : surface, ["run-due"], "{}", {
-      subject,
-      caller: Object.freeze({ transport: "metroplat-clock" }),
-      now,
-      witness: journalRpcWitness(dataRoot, { namespace: rootName }),
-      coordinate: processLeaseCoordinator(dataRoot),
-    });
-    if (result.code !== 0) await onObstruction(result);
-    if (!signal.aborted) await waitForNextDue(binding, intervalMs, signal, now);
+    const reading = looked.receipt.value;
+    // An obstruction holds while its occurrence still reads startable for the same reason; any other reading releases it.
+    const startableKeys = new Set(reading.startable.map((entry) => obstructionKey(entry.schedule, entry.occurrence)));
+    for (const key of obstructed.keys()) if (!startableKeys.has(key)) obstructed.delete(key);
+    const startable = reading.startable.filter((entry) => !obstructed.has(obstructionKey(entry.schedule, entry.occurrence)));
+    if (startable.length === 0) {
+      await waitForReading(reading, intervalMs, signal, now);
+      continue;
+    }
+    const tick = await dispatchProjectedSurface(current, ["run-due"], JSON.stringify({ now: at }), options(at));
+    const started = tick.code === 0 ? tick.receipt.value.started : [];
+    if (started.length > 0) continue;
+    // The tick and the reading disagreed, or the tick was refused: say why once per occurrence and reason.
+    let reasons = new Map();
+    if (tick.code === 0) {
+      const after = await dispatchProjectedSurface(current, ["clock-due"], JSON.stringify({ now: at }), options(at));
+      if (after.code === 0) reasons = new Map(after.receipt.value.blocked.map((entry) => [obstructionKey(entry.schedule, entry.occurrence), entry.reason]));
+    }
+    for (const entry of startable) {
+      const reason = tick.code !== 0 ? "refused" : reasons.get(obstructionKey(entry.schedule, entry.occurrence)) ?? "not-started";
+      await obstruct(entry.schedule, entry.occurrence, reason, at, tick.code !== 0 ? tick.stderr.trim() : undefined);
+      // Only an occurrence that still reads startable is held; one that now reads blocked is released as soon as it reads startable again.
+      if (reason !== "refused" && reason !== "not-started") obstructed.delete(obstructionKey(entry.schedule, entry.occurrence));
+    }
+    if (!signal.aborted) await waitForReading(reading, intervalMs, signal, now);
   }
-  await drainInFlight(dataRoot, SHUTDOWN_GRACE_MS);
+  await drainInFlight(SHUTDOWN_GRACE_MS);
 }
 
 const rules = new Map();
@@ -268,12 +312,66 @@ export function currentSchedules(binding) {
   return [...byId.values()].filter((schedule) => !schedule.retired).sort((a, b) => a.id.localeCompare(b.id));
 }
 
-/** Whether any current schedule has an attempt to run at `now`; reads only, records nothing. */
-export function anyAttemptDue(binding, now) {
-  return currentSchedules(binding).some((schedule) => {
+// The longest a reading lets the clock go without looking when nothing names a later instant.
+const SAFETY_INTERVAL_MS = 300_000;
+
+/**
+ * The clock's one reading of its state root at `now`, taken by the heartbeat (through `clock-due`)
+ * and by the tick (`run-due`) alike, so the two cannot read different directories or differ on
+ * capacity. Writes nothing.
+ * - startable: the attempts reservable now, in the tick's rotating order, at most MAX_PER_TICK and
+ *   at most the free in-flight slots;
+ * - blocked: due occurrences that cannot start now, with why: capacity (no free slot), retry-wait,
+ *   running (an attempt's process is alive) or exhausted (no attempt left, or a demand reading that
+ *   names no later instant);
+ * - wakeAt: the earliest instant strictly after `now` that a blocked or future attempt can start
+ *   (each schedule's next occurrence, each retry wait's end, a demand schedule's nextAt), or now plus
+ *   the safety interval when none is named;
+ * - freeSlots: the in-flight slots free now (the in-flight map is read once);
+ * - watch: the directories whose change can make a demand schedule due (its receipt's directory, and
+ *   the directories its last reading named), so the heartbeat can wait on them without a binding.
+ * The schedules themselves ride on a non-enumerable `schedules` map for the tick.
+ */
+export function clockReading(binding, now, { safetyIntervalMs = SAFETY_INTERVAL_MS } = {}) {
+  const at = Date.parse(now);
+  const schedules = currentSchedules(binding);
+  const freeSlots = Math.max(0, MAX_IN_FLIGHT - inFlight.size);
+  const room = Math.min(MAX_PER_TICK, freeSlots);
+  const offset = schedules.length === 0 ? 0 : Math.floor(at / 60_000) % schedules.length;
+  const startable = [];
+  const blocked = [];
+  let wakeAt = Infinity;
+  const later = (instant) => { if (Number.isFinite(instant) && instant > at && instant < wakeAt) wakeAt = instant; };
+  for (const schedule of [...schedules.slice(offset), ...schedules.slice(0, offset)]) {
     const occurrence = dueOccurrence(schedule, now);
-    return occurrence !== null && nextAttempt(binding, schedule, occurrence, now, { record: false }) !== null;
-  });
+    const state = occurrence === null ? null : attemptState(binding, schedule, occurrence, now, { record: false });
+    if (state?.attempt !== undefined) {
+      if (startable.length < room) startable.push({ schedule: schedule.id, occurrence, attempt: state.attempt });
+      else blocked.push({ schedule: schedule.id, occurrence, reason: "capacity" });
+    } else if (state?.reason !== undefined && state.reason !== "succeeded") {
+      blocked.push({ schedule: schedule.id, occurrence, reason: state.reason });
+      if (state.reason === "retry-wait") later(state.at);
+    }
+    const next = Date.parse(nextDueAt(schedule, now) ?? "");
+    if (Number.isFinite(next) && next > at) later(next);
+    else if (Number.isFinite(next) && state?.attempt === undefined && !blocked.some((entry) => entry.schedule === schedule.id)) {
+      // An instant not later than now with nothing to start: spent until its reading changes.
+      blocked.push({ schedule: schedule.id, occurrence, reason: "exhausted" });
+    }
+  }
+  const demands = schedules.filter((schedule) => schedule.demand !== undefined);
+  const reading = {
+    startable,
+    blocked,
+    wakeAt: new Date(Number.isFinite(wakeAt) ? wakeAt : at + safetyIntervalMs).toISOString(),
+    freeSlots,
+    watch: {
+      receipts: [...new Set(demands.map((schedule) => path.dirname(schedule.demand)))],
+      arrivals: [...new Set(demands.flatMap((schedule) => readJson(schedule.demand)?.demand?.watch ?? []).filter((entry) => typeof entry === "string"))],
+    },
+  };
+  Object.defineProperty(reading, "schedules", { value: new Map(schedules.map((schedule) => [schedule.id, schedule])) });
+  return reading;
 }
 
 // Attempt k of occurrence n is reserved at <n>.json (k = 0) or <n>.<k>.json, its outcome beside it.
@@ -304,27 +402,30 @@ function recordOutcome(binding, schedule, outcome) {
 }
 
 /**
- * The attempt of a due occurrence to run at `now`, or null. Attempts already taken are read in
- * order: one still running (its process alive) or succeeded ends the occurrence's turn; one whose
- * process died unrecorded is recorded interrupted (unless `record` is false); a failed one admits
- * the next attempt once its retry wait has passed and the policy allows another.
+ * The state of a due occurrence at `now`: { attempt } when one can run, else why not. Attempts
+ * already taken are read in order: one still running (its process alive: reason running) or
+ * succeeded (reason succeeded) ends the occurrence's turn; one whose process died unrecorded is
+ * recorded interrupted (unless `record` is false, when it is named as the attempt for the tick to
+ * record); a failed one admits the next attempt once its retry wait has passed (until then reason
+ * retry-wait, `at` its end) and the policy allows another (else reason exhausted).
  */
-function nextAttempt(binding, schedule, occurrence, now, { record = true } = {}) {
+function attemptState(binding, schedule, occurrence, now, { record = true } = {}) {
   const maxAttempts = schedule.maxAttempts ?? 1;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const reservation = readJson(attemptFile(binding, schedule, occurrence, attempt));
-    if (reservation === undefined) return attempt;
+    if (reservation === undefined) return { attempt };
     let outcome = readJson(attemptFile(binding, schedule, occurrence, attempt, ".outcome"));
     if (outcome === undefined) {
-      if (reservation.pid !== undefined && alive(reservation.pid)) return null;
+      if (reservation.pid !== undefined && alive(reservation.pid)) return { reason: "running" };
       outcome = { schedule: schedule.id, occurrence, attempt, verb: schedule.verb, account: schedule.account, ranAt: now, ok: false, interrupted: true, error: "the attempt's process ended before its outcome was recorded" };
-      if (!record) return attempt;
+      if (!record) return { attempt };
       recordOutcome(binding, schedule, outcome);
     }
-    if (outcome.ok) return null;
-    if (Date.parse(now) < Date.parse(outcome.ranAt) + (schedule.retryAfterSeconds ?? 0) * 1000) return null;
+    if (outcome.ok) return { reason: "succeeded" };
+    const retryAt = Date.parse(outcome.ranAt) + (schedule.retryAfterSeconds ?? 0) * 1000;
+    if (Date.parse(now) < retryAt) return { reason: "retry-wait", at: retryAt };
   }
-  return null;
+  return { reason: "exhausted" };
 }
 
 // Attempts a tick has started but not yet recorded the outcome of, process-wide (send, don't
@@ -334,16 +435,12 @@ function nextAttempt(binding, schedule, occurrence, now, { record = true } = {})
 const inFlight = new Map();
 const inFlightKey = (dataRoot, scheduleId, occurrence, attempt) => `${dataRoot}::${scheduleId}::${occurrence}::${attempt}`;
 
-/** This data root's in-flight attempts, for a tick's result and for the shutdown drain. */
-function inFlightFor(dataRoot) {
-  return [...inFlight.values()].filter((entry) => entry.dataRoot === dataRoot);
-}
-
-/** Give this data root's in-flight attempts up to graceMs to finish and record their outcome the
- * normal way before a shutting-down heartbeat returns. Anything still running past the grace is
- * left running: the reservation protocol picks it up from there. */
-async function drainInFlight(dataRoot, graceMs) {
-  const pending = inFlightFor(dataRoot).map((entry) => entry.promise);
+/** Give in-flight attempts up to graceMs to finish and record their outcome the normal way before
+ * a shutting-down heartbeat returns. The heartbeat holds no data root, so this waits on the process's
+ * attempts, as MAX_IN_FLIGHT counts them. Anything still running past the grace is left running:
+ * the reservation protocol picks it up from there. */
+async function drainInFlight(graceMs) {
+  const pending = [...inFlight.values()].map((entry) => entry.promise);
   if (pending.length === 0) return;
   await Promise.race([Promise.allSettled(pending), new Promise((resolve) => setTimeout(resolve, graceMs))]);
 }
@@ -443,25 +540,31 @@ export function clockOperations(binding, operations, authorize) {
       },
     }),
     operation({
+      verb: "clock-due",
+      summary: "The clock's reading: the attempts startable now, the due occurrences blocked and why, and when the clock next has a reason to look.",
+      description: "A derivation over the clock's state root (it records nothing): the same reading run-due reserves from, so a heartbeat that looks through it ticks only when a tick can start something.",
+      domain: schemaFrom({ $id: "metroplat/clock/clock-due", title: "ClockDue", type: "object", properties: { now: { type: "string" } }, additionalProperties: false }),
+      reads: ["metroplat/clock"],
+      effects: { class: "host-read", replay: "safe", coordination: "coordination-free", deterministic: "unmeasured", totality: "unmeasured" },
+      run: (input = {}) => JSON.parse(JSON.stringify({ kind: "metroplat.clock.reading", now: input.now ?? binding.now(), ...clockReading(binding, input.now ?? binding.now()) })),
+    }),
+    operation({
       verb: "run-due",
       summary: "The clock's tick: reserve and start each schedule's due attempt, as its account, through the catalog.",
-      description: "A tick returns once due attempts are reserved and started; it does not wait for them to finish. At most MAX_IN_FLIGHT attempts run at once, process-wide, so one slow attempt never stalls another schedule; a tick beyond that budget reserves nothing further and leaves the rest for a later tick.",
+      description: "A tick reserves from the same reading clock-due gives and returns once those attempts are reserved and started; it does not wait for them to finish. At most MAX_IN_FLIGHT attempts run at once, process-wide, so one slow attempt never stalls another schedule; a tick beyond that budget reserves nothing further and leaves the rest for a later tick. Its result names the attempts it started.",
       domain: schemaFrom({ $id: "metroplat/clock/run-due", title: "RunDue", type: "object", properties: { now: { type: "string" } }, additionalProperties: false }),
       writes: ["metroplat/clock"],
       effects: { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "unmeasured" },
       run: async (input = {}) => {
         const now = input.now ?? binding.now();
         const catalog = createOperationCatalog(operations());
-        const schedules = currentSchedules(binding);
-        const offset = schedules.length === 0 ? 0 : Math.floor(Date.parse(now) / 60_000) % schedules.length;
+        const reading = clockReading(binding, now);
         const due = [];
-        for (const schedule of [...schedules.slice(offset), ...schedules.slice(0, offset)]) {
-          if (due.length === MAX_PER_TICK) break;
-          if (inFlight.size + due.length >= MAX_IN_FLIGHT) break;
-          const occurrence = dueOccurrence(schedule, now);
-          if (occurrence === null) continue;
-          const attempt = nextAttempt(binding, schedule, occurrence, now);
-          if (attempt !== null && reserve(binding, schedule, occurrence, attempt, now)) due.push({ schedule, occurrence, attempt });
+        for (const named of reading.startable) {
+          const schedule = reading.schedules.get(named.schedule);
+          // Recording an interrupted attempt stays here, in the tick; the reading only names it.
+          const { attempt } = attemptState(binding, schedule, named.occurrence, now);
+          if (attempt !== undefined && reserve(binding, schedule, named.occurrence, attempt, now)) due.push({ schedule, occurrence: named.occurrence, attempt });
         }
         // Send, don't wait: each reserved attempt records its own outcome when it ends.
         const started = due.map(({ schedule, occurrence, attempt }) => {
@@ -484,8 +587,8 @@ export function clockOperations(binding, operations, authorize) {
           inFlight.set(key, { dataRoot: binding.dataRoot, schedule: schedule.id, occurrence, attempt, startedAt, promise });
           return { schedule: schedule.id, occurrence, attempt, startedAt };
         });
-        const stillInFlight = inFlightFor(binding.dataRoot).map(({ schedule, occurrence, attempt, startedAt }) => ({ schedule, occurrence, attempt, startedAt }));
-        return JSON.parse(JSON.stringify({ kind: "metroplat.clock.tick", now, started, inFlight: stillInFlight }));
+        // The witness carries what this tick started, not what was already in flight.
+        return JSON.parse(JSON.stringify({ kind: "metroplat.clock.tick", now, started }));
       },
     }),
   ]);

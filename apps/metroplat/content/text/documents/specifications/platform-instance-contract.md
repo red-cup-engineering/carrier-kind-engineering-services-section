@@ -136,3 +136,26 @@ through cold-red-gate; verify current deployment before stating which host
 serves the OPS declaration. Federation
 between Koios and OPS, authority-root admission, witnessed installation,
 and retirement of the old `metroplat-serve` route remain implementation work.
+
+## Office placement in the world
+
+The world names and places an office through its current native `office-key`
+and `located-in` claims. That relation applies to offices at a house root, in
+an app, and in an ordinary services section alike. A display path is not a
+replacement for the office's actual location. Moving an office changes the hall
+used in its name and its default placement when no work section resolves.
+Existing section-based work placement takes precedence, including a section
+derived from an opening office's key; relocating that office does not rewrite
+the section its work concerns.
+
+When a native office binding is duplicated, contested, withdrawn, or does
+not locate the office in one settled room, the world must not invent a hall
+from an older section path. The existing unplaced-work fallback is the plaza;
+the existing unavailable-hall name is “the house.” A legacy office without a
+native binding may still use section placement. An absent hall is not a
+semiotic subject and must not be queried as `undefined`.
+
+The existing live-carrier receiving tests exercise a complete typed first
+and repeated `look`, normal authored office construction, relocation, and
+unresolved bindings using the selected FeltOS and SignCraft implementations.
+

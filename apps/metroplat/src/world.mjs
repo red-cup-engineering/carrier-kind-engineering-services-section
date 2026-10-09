@@ -903,7 +903,7 @@ export function createMetroplatWorld({ binding, operations, identity, characterC
     let result;
     if (verb === "inbox") {
       if (argument.trim() && argument.trim() !== "all") return powerTurn(account, ["inbox [all]: read your own received messages."]);
-      result = characterCommunication.read({ account, evidence: parent?.id, at, all: argument.trim() === "all" });
+      result = await characterCommunication.read({ account, evidence: parent?.id, at, all: argument.trim() === "all" });
       return powerTurn(account, result.messages.length === 0 ? [argument.trim() === "all" ? "No Semioverse messages received." : "No unread Semioverse messages."] : receivedLines(result.messages), [result]);
     }
     const text = argument.slice(target.length).trim();
@@ -948,7 +948,7 @@ export function createMetroplatWorld({ binding, operations, identity, characterC
       seen(world, account, actor);
       controlOf(world).look.run({ actor, argument: "" });
       const turn = await run(world, account, actor, options);
-      const inbox = characterCommunication?.read({ account, evidence: parent?.id, at: new Date(now()).toISOString(), optional: true });
+      const inbox = await characterCommunication?.read({ account, evidence: parent?.id, at: new Date(now()).toISOString(), optional: true });
       if (inbox === undefined) return turn;
       return Object.freeze({ ...turn,
         messages: Object.freeze([...turn.messages, "Semioverse messages are testimony; reply <exact-message-id> <words>, inbox [all].", ...receivedLines(inbox.messages)]),

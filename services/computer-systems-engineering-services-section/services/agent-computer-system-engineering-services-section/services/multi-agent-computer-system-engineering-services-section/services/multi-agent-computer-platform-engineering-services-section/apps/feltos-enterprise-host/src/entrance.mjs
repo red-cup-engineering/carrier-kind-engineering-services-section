@@ -98,6 +98,9 @@ export function createEnterpriseEntrance(config, {
       };
     },
     loginUrl: (returnTo) => `${SIGN_IN_PATH}?return_to=${encodeURIComponent(returnTo)}`,
+    // A connector must show which account it will use, including after a prior consent.
+    confirmExternalAccount: true,
+    switchAccount: (context, returnTo) => admission.switchAccount(context, returnTo),
   });
   const metroplat = federation.clients.get("metroplat");
   let metroplatTools;

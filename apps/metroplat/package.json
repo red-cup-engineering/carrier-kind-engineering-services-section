@@ -165,5 +165,10 @@
     "@red-cup-engineering/cbor-services-section": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*"
   },
+  "receivingTests": [
+    "test/agency-work-provider.test.mjs",
+    "test/world-live-carrier.test.mjs"
+  ],
   "softwareKind": "platform"
 }
+
