@@ -29,7 +29,7 @@ import { claimSessionObservationContract, claimSessionRegimeAt } from "./session
 import { omegaOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { ofNat } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/ordinal-closure";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinReading, isReading, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { knowledgeJoinReading, isReading, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
 
 /** An uttered claim's reflexive SignCell and its address. */
 const utteredCell = (token, claim) => { const told = utteranceCell(token, claim); return Object.freeze({ cell: told, address: address(told) }); };

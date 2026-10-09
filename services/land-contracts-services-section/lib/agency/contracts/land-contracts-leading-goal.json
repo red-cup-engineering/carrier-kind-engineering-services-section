@@ -1,0 +1,23 @@
+{
+  "id": "land-contracts-leading-goal",
+  "type": "value-adjustment",
+  "enterprise": "land-contracts",
+  "leadingGoal": "Work at the pace and fee of the best of the trade: a signed contract for every 800 dials, four closed assignments a month, at the trade's surveyed average fee.",
+  "benchmark": {
+    "source": "science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/economics-science-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-minnesota-property-resale-market.md",
+    "values": { "dialsPerContract": "800 to 1,500 (the best of the range is 800)", "averageAssignmentFeeUsd": 13000 }
+  },
+  "period": { "from": "2026-10-01", "to": "2027-04-01" },
+  "measures": [
+    { "id": "dials-per-contract", "reading": "contacts-per-contract", "target": 800, "better": "lower", "unit": "dials", "means": "dials logged for each order that reached contracted" },
+    { "id": "closed-per-month", "reading": "closed-orders-per-month", "target": 4, "unit": "assignments", "means": "orders closed each month of the period" },
+    { "id": "average-fee", "reading": "average-fee", "target": 13000, "unit": "USD", "means": "fee received per settlement" },
+    { "id": "value-captured", "reading": "value-captured", "target": 312000, "unit": "USD", "means": "fees received over the period (four a month at the average fee); what is captured above it is the value-added pool" }
+  ],
+  "parties": ["land-acquisitions-lead"],
+  "exposure": {
+    "upside": "value captured above the target is shared under the owner-household chain-group contract",
+    "downside": "a shortfall leaves no pool to share, and a sustained shortfall reopens the acquisitions lead office to bids"
+  },
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "engineering-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-enterprise-layer.md" }
+}

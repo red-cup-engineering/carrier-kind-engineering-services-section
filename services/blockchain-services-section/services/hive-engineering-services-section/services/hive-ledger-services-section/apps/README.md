@@ -21,5 +21,3 @@ export async function runHiveAutoLedger(options, deps)
 ~~~
 
 `deriveLedgerForAccount` and `runHiveAutoLedger` accept an injectable `waggleFactory`/`readHiveHistoryImpl`/`readHiveEngineHistoryImpl`/`fetchHiveEngineBalancesImpl`/`runBeanCheckImpl`/`writeFileTextImpl` for tests; production use defaults to the real network reads.
-
-`--out` is required for file-producing calls. The receiving personal service or caller selects custody explicitly; installation paths never establish ownership of an account's records. Existing calls that omitted `out` must supply their actual receiving path. `deriveLedgerForAccount` remains a pure receiving result without selecting a file destination.

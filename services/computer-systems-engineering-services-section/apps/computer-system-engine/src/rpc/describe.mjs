@@ -17,9 +17,10 @@ export function describe(
       ...(operation.domain === undefined ? {} : { inputSchema: operation.domain.schema }),
       ...(operation.codomain === undefined ? {} : { codomain: operation.codomain.id }),
       ...(operation.relation === undefined ? {} : { relation: operation.relation }),
-      body: operation.runTerm === undefined
+      ...(operation.locus === undefined ? {} : { locus: operation.locus }),
+      body: operation.body ?? (operation.runTerm === undefined
         ? Object.freeze({ kind: "host", declaration: operation.verb })
-        : Object.freeze({ kind: "sen", term: operation.runTerm }),
+        : Object.freeze({ kind: "sen", term: operation.runTerm })),
       effects: operation.effects,
       standing: standing.get(operation.ref) ?? "unknown",
       ...(operation.summary === undefined ? {} : { summary: operation.summary }),

@@ -1,10 +1,11 @@
 /** The sole governed execution path for canonical RPC invocations. */
 
+import { invocation as semanticInvocation, rejectedInvocationReference } from "./invocation.mjs";
 import { executionReceipt } from "./receipt.mjs";
 
 import { isOperationHandlerResult } from "./execution-context.mjs";
 
-import { isReading, readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { isReading, readingAs } from "@red-cup-engineering/computer-data-services-section/four";
 import { can, capabilityGrant, locusResource } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 
 /** Whether a settled standing is held: told for and not against, in whatever family it is named. */
@@ -129,7 +130,26 @@ const isDerivation = (operation) => operation.effects.class === "pure" || operat
  */
 export async function dispatch(runtime, invocation) {
   const operation = runtime.catalog.byReference.get(invocation.operation);
-  if (operation === undefined || operation.verb !== invocation.verb || !isDerivation(operation)
+  // CLI options select the same parameter the body reads. Authorization and its
+  // witness must use that semantic input, not an overridden JSON spelling.
+  const locus = operation?.locus;
+  const argument = locus === undefined || !operation.options.includes(locus) ? undefined : invocation.arguments[locus];
+  if (typeof argument === "string" && argument.trim() !== "" && (invocation.input === null || typeof invocation.input === "object" && !Array.isArray(invocation.input))
+    && invocation.input?.[locus] !== argument.trim()) {
+    invocation = semanticInvocation({ ...invocation, input: { ...invocation.input, [locus]: argument.trim() } });
+  }
+  // Resolve and validate before accepting a raw body into the durable attempt carrier.
+  // Undeclared domains retain their existing permissive contract. This boundary does not
+  // replace authorization, coordination or the handler's normal domain/codomain checks.
+  if (operation === undefined || operation.verb !== invocation.verb) {
+    return rejectUnadmittedInvocation(runtime, invocation, operation, "resolution",
+      operation === undefined ? "unknown operation reference" : "operation verb does not match its content reference");
+  }
+  if (operation.domain !== undefined) {
+    try { operation.domain.assert(invocation.input, `operation ${operation.verb} input`); }
+    catch { return rejectUnadmittedInvocation(runtime, invocation, operation, "input", "operation input does not satisfy its declared domain"); }
+  }
+  if (!isDerivation(operation)
     || operation.effects.coordination === "coordination-required") return witnessedDispatch(runtime, invocation);
   const startedAt = runtime.now();
   // An unwitnessed derivation becomes witnessed the moment it refuses, fails or writes: its
@@ -160,6 +180,8 @@ export async function dispatch(runtime, invocation) {
   if (!decision.ok) return witnessAct(decision, obstruction(invocation, operation.ref, "authorization", startedAt, runtime.now(), decision.reasons, [], decision));
   let handled;
   try {
+    if(runtime.beforeExecute!==undefined)operation.domain?.assert(invocation.input, `operation ${operation.verb} input`);
+    await runtime.beforeExecute?.(invocation, operation, decision);
     handled = await operation.execute(invocation.input, invocation.arguments, Object.freeze({
       kind: "metroplat.rpc.execution-context",
       invocation,
@@ -186,6 +208,27 @@ export async function dispatch(runtime, invocation) {
   if ((result?.evidence.length ?? 0) === 0 && (result?.artifacts.length ?? 0) === 0) return receipt;
   // It declared itself a derivation but wrote: witness it as the act it was.
   return witnessAct(decision, receipt, result.artifacts);
+}
+
+/** An unadmitted body is witnessed as a distinct rejection reference. No policy/handler effect
+ * runs, and no raw input is passed to the witness or returned inside its obstruction receipt. */
+async function rejectUnadmittedInvocation(runtime, candidate, operation, phase, reason) {
+  const startedAt = runtime.now();
+  const reference = rejectedInvocationReference(candidate, operation);
+  const operationRef = operation?.ref ?? "unresolved-operation";
+  const evidence = [];
+  try {
+    evidence.push(runtime.witness.admit(Object.freeze({ kind: "metroplat.rpc.attempt", invocation: reference, at: startedAt })));
+  } catch {
+    return obstruction(reference, operationRef, "admission", startedAt, runtime.now(), ["rejected invocation reference could not be witnessed"], []);
+  }
+  const receipt = obstruction(reference, operationRef, phase, startedAt, runtime.now(), [reason], evidence);
+  try {
+    runtime.witness.admit(Object.freeze({ kind: "metroplat.rpc.outcome", invocation: reference.id, receipt, at: receipt.completedAt }));
+  } catch {
+    return obstruction(reference, operationRef, "witnessing", startedAt, runtime.now(), ["rejected invocation outcome could not be witnessed"], evidence);
+  }
+  return receipt;
 }
 
 /**
@@ -307,6 +350,8 @@ async function witnessedDispatch(runtime, invocation) {
     const arguments_ = operation.effects.replay === "idempotency-key"
       ? { ...invocation.arguments, "idempotency-key": invocation.id }
       : invocation.arguments;
+    if(runtime.beforeExecute!==undefined)operation.domain?.assert(invocation.input, `operation ${operation.verb} input`);
+    await runtime.beforeExecute?.(invocation, operation, decision);
     const handled = await operation.execute(invocation.input, arguments_, Object.freeze({
       kind: "metroplat.rpc.execution-context",
       invocation,

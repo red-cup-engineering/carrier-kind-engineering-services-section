@@ -22,12 +22,12 @@
  * has been told, the order evidence grows in.
  */
 import { cell, cellSet, evidence, evidenced, hasTriple, sameCell, valueOf } from "@red-cup-engineering/signcell/cell";
-import { conflateReading, knowledgeJoinAll, readingSchema, knowledgeJoinReading, knowledgeMeetReading, knowledgeTop, negateReading, readingOfSides, samePoint, sidesOfReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
-import { semanticBytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { conflateReading, knowledgeJoinAll, readingSchema, knowledgeJoinReading, knowledgeMeetReading, knowledgeTop, negateReading, readingOfSides, samePoint, sidesOfReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { bytesToHex, semanticBytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
 // — the bilattice on cells: values combined, evidence accumulated —
 
-const key = (witness) => semanticBytes(witness).toString("hex");
+const key = (witness) => bytesToHex(semanticBytes(witness));
 const includes = (small, large) => { const has = new Set(large.map(key)); return small.every((w) => has.has(key(w))); };
 
 const sameShape = (left, right) => {

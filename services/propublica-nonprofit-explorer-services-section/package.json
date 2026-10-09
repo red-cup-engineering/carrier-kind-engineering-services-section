@@ -1,0 +1,22 @@
+{
+  "name": "@red-cup-engineering/propublica-nonprofit-explorer-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "ProPublica's Nonprofit Explorer API: searching the IRS exempt-organization list by name/keyword and reading one organization's address and filings by EIN.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs"
+  },
+  "exports": {
+    "./client": "./src/client.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "package.json",
+    "src"
+  ],
+  "sideEffects": false
+}

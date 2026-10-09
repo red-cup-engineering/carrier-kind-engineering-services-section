@@ -1,0 +1,344 @@
+;;; The only deployment writer. Run through the machine's pinned Guix.
+(use-modules (ice-9 match) (ice-9 popen) (ice-9 rdelim) (ice-9 ftw) (ice-9 textual-ports)
+             (ice-9 format) (json) (srfi srfi-1))
+(umask #o077)
+
+(define (run . args)
+  (unless (zero? (apply system* args)) (error "deployment command failed" (car args))))
+(define (capture . args)
+  (let* ((port (apply open-pipe* OPEN_READ args))
+         (body (let loop ((lines '()))
+                 (let ((line (read-line port)))
+                   (if (eof-object? line) (string-join (reverse lines) "\n")
+                       (loop (cons line lines))))))
+         (status (close-pipe port)))
+    (unless (zero? status) (error "deployment command failed" (car args)))
+    body))
+(define (read-json file) (call-with-input-file file json->scm))
+(define (field value key) (or (assoc-ref value key) (error "required machine field absent" key)))
+(define (atomic-link file target)
+  (let ((next (string-append file ".next-" (number->string (getpid)))))
+    (symlink target next) (rename-file next file)))
+(define* (atomic-copy source target #:optional (mode #o600))
+  (let ((next (string-append target ".next-" (number->string (getpid)))))
+    (copy-file source next) (chmod next mode) (rename-file next target)))
+(define (receipt root outcome value)
+  (let ((path (string-append root "/" (number->string (current-time)) "-" outcome ".json")))
+    (call-with-output-file path (lambda (p) (scm->json value p) (newline p)))
+    (let ((latest (string-append root "/latest.json"))
+          (next (string-append root "/.latest-" (number->string (getpid)))))
+      (copy-file path next) (rename-file next latest))
+    path))
+(define (admitted-health-reading? value expected-artifact)
+  (and (eq? (assoc-ref value "ok") #t)
+       (or (not expected-artifact) (equal? (assoc-ref value "artifact") expected-artifact))))
+(define* (health url #:optional expected-artifact)
+  ;; Bound elapsed time even when curl itself reaches its three-second timeout.
+  (let ((deadline (+ (get-internal-real-time) (* 600 internal-time-units-per-second))))
+    (let loop ()
+      (catch #t
+        (lambda ()
+          (let ((value (json-string->scm (capture "curl" "--fail" "--silent" "--show-error" "--max-time" "3" url))))
+          ;; The owning health endpoint checks loaded/linked families and
+          ;; permits a usable degraded node. Do not replace that proof with
+          ;; a second, conflicting supervisor-state interpretation.
+          (if (admitted-health-reading? value expected-artifact) #t
+                (error "candidate is not ready"))))
+        (lambda args
+          (if (< (get-internal-real-time) deadline)
+              (begin (sleep 3) (loop))
+              (apply throw args)))))))
+
+(define (configuration-commands config action store)
+  (for-each
+    (lambda (spec)
+      (let ((command (assoc-ref spec action)))
+        (when command
+          (apply run (map (lambda (word)
+            (let ((position (string-contains word "{release}")))
+              (if position (string-append (substring word 0 position) store
+                                          (substring word (+ position 9))) word)))
+                         (vector->list command))))))
+    (vector->list (or (assoc-ref config "configurationFiles") #()))))
+
+(define (root-release-generations config store current previous)
+  (let* ((root (field config "gcRoot"))
+         (script (string-append store "/.controller/scripts/register-candidate-root.scm")))
+    (run "guix" "repl" "--" script store root)
+    (when (and current (string-prefix? "/gnu/store/" current))
+      (run "guix" "repl" "--" script current (string-append root "-current")))
+    (when (and previous (string-prefix? "/gnu/store/" previous))
+      (run "guix" "repl" "--" script previous (string-append root "-previous")))
+    ;; Completed build/stage roots are superseded only under the writer lease.
+    ;; Current and previous have stable public roots before any root is retired.
+    (for-each
+      (lambda (name)
+        (let ((file (string-append (dirname root) "/" name)))
+          (when (and (string-prefix? (string-append (basename root) "-") name)
+                     (not (member name (list (string-append (basename root) "-current")
+                                             (string-append (basename root) "-previous"))))
+                     (eq? (stat:type (lstat file)) 'symlink))
+            (delete-file file))))
+      (scandir (dirname root)))))
+
+(define (reconcile-release-roots config)
+  ;; Failed promotion may leave the auxiliary Guix profile on its candidate.
+  ;; The application links remain authoritative; protect both before retiring
+  ;; obsolete candidate/profile roots. This operation never switches code.
+  (let* ((root (field config "releaseRoot"))
+         (current-link (string-append root "/current"))
+         (previous-link (string-append root "/previous"))
+         (current (and (file-exists? current-link) (canonicalize-path current-link)))
+         (previous (and (file-exists? previous-link) (canonicalize-path previous-link))))
+    (when (and current (string-prefix? "/gnu/store/" current))
+      (root-release-generations config current current previous)
+      (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" current)
+      (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--delete-generations"))
+    ;; Sealing temporarily holds both the checked closure and its store input.
+    ;; Collect before assembly so a native build can retain current/previous.
+    (run "guix" "gc" "--free-space=4GiB")))
+
+(define (retain-release-roots config store current previous)
+    (root-release-generations config store current previous)
+    ;; Guix deduplicates immutable files and collects only unrooted store items.
+    (let ((free (string->number (car (reverse (string-tokenize
+                  (capture "df" "--output=avail" "--block-size=1" "/gnu/store")))))))
+      (when (< free 2147483648)
+        (system* "guix" "gc" "--optimize")
+        (system* "guix" "gc" "--free-space=2GB"))))
+
+(define (receive config store failure-test? stage-only?)
+  (let* ((name (field config "name")) (root (field config "releaseRoot"))
+         (profile (string-append root "/current"))
+         (unit (field config "unit")) (env-file (field config "environmentFile"))
+         (previous (and (file-exists? profile) (readlink profile)))
+         (previous-link (string-append root "/previous"))
+         (held-previous (and (file-exists? previous-link) (readlink previous-link)))
+         (unit-file (string-append (getenv "HOME") "/.config/systemd/user/" unit))
+         (old-unit-link (and (eq? (stat:type (lstat unit-file)) 'symlink) (readlink unit-file)))
+         (was-running? (zero? (system* "systemctl" "--user" "is-active" "--quiet" unit)))
+         (receipts (field config "receiptRoot"))
+         (scratch (mkdtemp (string-append root "/.probe-XXXXXX")))
+         (unit-backup (string-append scratch "/main.unit"))
+         (probe-env (string-append scratch "/probe.env"))
+         (probe (string-append name "-guix-probe-" (basename scratch)))
+         (probe-listen
+           (string-append "127.0.0.1:"
+             (string-trim-both
+               (capture (string-append store "/bin/node") "--input-type=module" "--eval"
+                 "import {createServer} from 'node:net'; const s=createServer(); s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>console.log(p));});"))))
+         (stage "staging")
+         (identity (read-json (string-append store "/.metadata/release.json")))
+         (revision (assoc-ref identity "machineCommit"))
+         (repository (assoc-ref identity "machineRepository"))
+         (run-url (and (getenv "GITHUB_REPOSITORY") (getenv "GITHUB_RUN_ID")
+                    (string-append "https://github.com/" (getenv "GITHUB_REPOSITORY")
+                                   "/actions/runs/" (getenv "GITHUB_RUN_ID"))))
+         (stopped? #f)
+         (activated-units (vector->list (or (assoc-ref config "restartAuxiliaryUnits") #())))
+         (held-unit-actives (map (lambda (name) (cons name (zero? (system* "systemctl" "--user" "is-active" "--quiet" name)))) activated-units))
+         (managed-files
+           (append
+             (map (lambda (name) (cons (string-append (getenv "HOME") "/.config/systemd/user/" name)
+                                     (string-append store "/.guix-systemd/" name)))
+                  (vector->list (or (assoc-ref config "auxiliaryUnits") #())))
+             (map (lambda (spec) (cons (field spec "path") (string-append store "/bin/owning-repository-release-only")))
+                  (vector->list (or (assoc-ref config "retiredDeployers") #())))
+             (map (lambda (spec) (cons (field spec "path") (string-append store "/" (field spec "source"))))
+                  (vector->list (or (assoc-ref config "configurationFiles") #())))))
+         (managed-backups '())
+         (managed-changed? #f))
+    (unless (and (equal? repository (field config "repository"))
+                 (string? revision) (= (string-length revision) 40)
+                 (equal? (field config "stateCompatibility") "preserve-existing"))
+      (error "candidate identity or state contract is not admitted"))
+    (run "mkdir" "-p" receipts)
+    (retain-release-roots config store previous held-previous)
+    (catch #t
+      (lambda ()
+        (set! stage "host-check")
+        (run (string-append store "/bin/node")
+             (string-append store "/.controller/scripts/check-host.mjs") store
+             (or (getenv "GUIX_MACHINE_SNAPSHOT") (string-append store "/.controller")))
+        (set! stage "staging")
+        ;; The app's probe mode suppresses clocks, remote delivery and companions.
+        ;; It gets empty state and does not inherit the live data root.
+        ;; EnvironmentFile wins over systemd Environment settings. Append probe
+        ;; overrides to a private scratch file so the live roots cannot win.
+        (call-with-output-file probe-env
+          (lambda (p)
+            (display (call-with-input-file env-file get-string-all) p)
+            (newline p)
+            (display (call-with-input-file (string-append store "/.guix-systemd/environment") get-string-all) p)
+            (newline p)
+            (for-each (lambda (pair) (format p "~a=~s~%" (car pair) (cdr pair)))
+              `(("METROPLAT_PROBE" . "1")
+                ("METROPLAT_PROBE_LISTEN" . ,probe-listen)
+                ("GUIX_MACHINE_ARTIFACT" . ,store)
+                ("NODE_OPTIONS" . "--max-old-space-size=384 --disable-sigusr1")
+                ("FELTOS_ENTERPRISE_HOST" . ,(string-append store "/deployment/host.json"))
+                ("METROPLAT_REPOSITORY_ROOT" . ,store)
+                ("METROPLAT_WEB_STATE_DIR" . ,(string-append scratch "/state"))
+                ("METROPLAT_WEB_DATA_DIR" . ,(string-append scratch "/data"))
+                ("METROPLAT_DATA_ROOT" . ,(string-append scratch "/settlement"))
+                ("ACTIVITYPUB_SQLITE_PATH" . ,(string-append scratch "/activitypub.sqlite"))
+                ("AGENCY_ACTS_LOG" . ,(string-append scratch "/acts.jsonl"))))))
+        ;; Cancellation can leave the preceding transient probe loaded. The
+        ;; writer lease makes its isolated unit ours to reconcile before reuse.
+        (system* "systemctl" "--user" "stop" probe)
+        (system* "systemctl" "--user" "reset-failed" probe)
+        (run "systemd-run" "--user" "--collect" "--quiet" "--nice=0"
+             (string-append "--unit=" probe)
+             (string-append "--property=EnvironmentFile=" probe-env)
+             "--property=CPUWeight=100" "--property=IOWeight=100"
+             "--property=MemoryMax=640M" "--property=OOMScoreAdjust=1000"
+             "--setenv=METROPLAT_PROBE=1" (string-append "--setenv=METROPLAT_PROBE_LISTEN=" probe-listen)
+             (string-append "--setenv=FELTOS_ENTERPRISE_HOST=" store "/deployment/host.json")
+             (string-append "--setenv=METROPLAT_REPOSITORY_ROOT=" store)
+             (string-append "--setenv=METROPLAT_WEB_STATE_DIR=" scratch "/state")
+             (string-append "--setenv=METROPLAT_WEB_DATA_DIR=" scratch "/data")
+             (string-append "--setenv=METROPLAT_DATA_ROOT=" scratch "/settlement")
+             (string-append store "/bin/" name))
+        (health (string-append "http://" probe-listen "/healthz") store)
+        (set! stage "auxiliary-check")
+        (for-each
+          (lambda (check)
+            (let* ((aux-unit (field check "unit"))
+                   (unit-text (call-with-input-file (string-append store "/.guix-systemd/" aux-unit) get-string-all))
+                   (files (filter-map (lambda (line)
+                            (and (string-prefix? "EnvironmentFile=" line)
+                                 (substring line (string-length "EnvironmentFile="))))
+                            (string-split unit-text #\newline))))
+              (apply run "systemd-run" "--user" "--wait" "--pipe" "--collect" "--quiet"
+                         "--property=MemoryMax=640M"
+                         (append (map (lambda (file) (string-append "--property=EnvironmentFile=" file)) files)
+                                 (list (string-append store "/bin/node")
+                                       (string-append store "/" (field check "program")))))))
+          (vector->list (or (assoc-ref config "auxiliaryChecks") #())))
+        (configuration-commands config "validate" store)
+        (set! stage "pre-switch-check")
+        (if stage-only?
+          (begin
+          (run "systemctl" "--user" "stop" probe)
+          (delete-file probe-env)
+          (receipt receipts "staged" `(("outcome" . "staged") ("storePath" . ,store)
+                                      ("retained" . ,previous) ("machine" . ,name)
+                                      ("revision" . ,revision) ("repository" . ,repository)
+                                      ("run" . ,run-url) ("stage" . "pre-switch-check")
+                                      ("at" . ,(strftime "%FT%TZ" (gmtime (current-time))))))
+          )
+          (begin
+        (when failure-test? (error "deliberate pre-switch check failure"))
+        (run "systemctl" "--user" "stop" probe)
+        (delete-file probe-env)
+        (unless old-unit-link (copy-file unit-file unit-backup))
+        (set! stage "switch")
+        (run "systemctl" "--user" "stop" unit)
+        (set! stopped? #t)
+        ;; Releases use the existing state contract. Journals and databases stay
+        ;; in their original custody; code rollback never erases newly received work.
+        (unless (equal? (field config "stateCompatibility") "preserve-existing")
+          (error "state migration requires a separately reviewed recovery procedure"))
+        (when previous (atomic-link (string-append root "/previous") previous))
+        (when (and previous (not (string-prefix? "/gnu/store/" previous)))
+          (unless (file-exists? (string-append profile ".before-guix"))
+            (atomic-link (string-append profile ".before-guix") previous)))
+        ;; Guix retains generations as GC roots; current/previous name the exact
+        ;; application outputs, never a mutable machine checkout.
+        (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--install" store)
+        (atomic-link profile store)
+        (atomic-copy (string-append store "/.guix-systemd/" unit) unit-file)
+        ;; Save and install every managed controller/unit atomically. Ongoing
+        ;; newsroom jobs keep their old immutable programs until they finish;
+        ;; timers use the new generation on their next invocation.
+        (set! managed-backups
+          (map (lambda (file)
+                 (let* ((path (car file)) (backup (string-append scratch "/managed-" (number->string (length managed-backups)) "-" (basename path)))
+                        (exists? (file-exists? path))
+                        (link (and exists? (eq? (stat:type (lstat path)) 'symlink) (readlink path))))
+                   (when (and exists? (not link)) (copy-file path backup))
+                   (list path backup exists? link))) managed-files))
+        (set! managed-changed? #t)
+        (for-each (lambda (file)
+                    (atomic-copy (cdr file) (car file) (if (string-contains (cdr file) "/bin/") #o555 #o600))) managed-files)
+        (run "systemctl" "--user" "daemon-reload")
+        (run "systemctl" "--user" "restart" unit)
+        (for-each (lambda (name) (run "systemctl" "--user" "restart" name)) activated-units)
+        (configuration-commands config "reload" store)
+        (set! stage "live-check")
+        (health (field config "health") store)
+        ;; Successor receiving is separate from idempotent configuration reload.
+        ;; Recovery reloads the held configuration without asserting new capability.
+        (configuration-commands config "receive" store)
+        ;; Stable roots retain both rollback targets; older profile generations
+        ;; no longer retain every historical build forever.
+        (root-release-generations config store store previous)
+        (run "guix" "package" (string-append "--profile=" (field config "guixProfile")) "--delete-generations")
+        (system* "guix" "gc" "--free-space=2GB")
+        (receipt receipts "success" `(("outcome" . "success") ("storePath" . ,store)
+                                      ("previous" . ,previous) ("machine" . ,name)
+                                      ("revision" . ,revision) ("repository" . ,repository)
+                                      ("run" . ,run-url) ("stage" . "live-check")
+                                      ("at" . ,(strftime "%FT%TZ" (gmtime (current-time)))))))))
+      (lambda args
+        (system* "systemctl" "--user" "stop" probe)
+        (when (file-exists? probe-env) (delete-file probe-env))
+        (when managed-changed?
+          (for-each (lambda (name) (system* "systemctl" "--user" "stop" name)) activated-units)
+          (for-each (lambda (saved)
+                      (match saved
+                        ((path backup exists? link)
+                         (cond (link (atomic-link path link))
+                               (exists? (atomic-copy backup path (stat:perms (stat backup))))
+                               ((file-exists? path) (delete-file path)))))) managed-backups))
+        (when (and previous stopped?)
+          ;; A failed Guix command may already have changed its profile.
+          ;; Always restore the exact held generation before restarting.
+          (atomic-link profile previous)
+          (if held-previous (atomic-link previous-link held-previous)
+              (when (file-exists? previous-link) (delete-file previous-link)))
+          (if old-unit-link (atomic-link unit-file old-unit-link)
+            (atomic-copy unit-backup unit-file))
+          (system* "systemctl" "--user" "daemon-reload")
+          (configuration-commands config "reload" store)
+          (for-each (lambda (held) (when (cdr held) (run "systemctl" "--user" "restart" (car held)))) held-unit-actives)
+          (when was-running?
+            (run "systemctl" "--user" "restart" unit)
+            (catch #t
+              (lambda () (health (field config "health")))
+              (lambda recovery-args
+                (receipt receipts "recovery-failure"
+                  `(("outcome" . "recovery-failure") ("storePath" . ,store)
+                    ("retained" . ,previous) ("machine" . ,name)
+                    ("revision" . ,revision) ("repository" . ,repository)
+                    ("run" . ,run-url) ("stage" . "restore-live-check")
+                    ("at" . ,(strftime "%FT%TZ" (gmtime (current-time))))
+                    ("reason" . "Prior generation restored, but its live check failed; inspect the linked job and service log.")))
+                (apply throw recovery-args)))))
+        (receipt receipts "failure" `(("outcome" . "failure") ("storePath" . ,store)
+                                      ("retained" . ,previous) ("machine" . ,name)
+                                      ("revision" . ,revision) ("repository" . ,repository)
+                                      ("run" . ,run-url) ("stage" . ,stage)
+                                      ("at" . ,(strftime "%FT%TZ" (gmtime (current-time))))
+                                      ("reason" . ,(if failure-test? "Deliberate pre-switch rejection; working release retained."
+                                          (string-append "Candidate failed at " stage "; inspect the linked GitHub job and candidate service log.")))))
+        (apply throw args)))))
+
+(match (cdr (command-line))
+  ((config-file store . options)
+   (let* ((config (read-json config-file)) (root (field config "releaseRoot"))
+          (lease (string-append root "/.release.lock/lease")))
+     (unless (or (equal? store "previous") (equal? store "current") (string-prefix? "/gnu/store/" store))
+       (error "candidate must be a Guix store output"))
+     (run "mkdir" "-p" (dirname lease))
+     (if (equal? (getenv "GUIX_MACHINE_RELEASE_LOCKED") "1")
+         (if (and (equal? store "current") (member "--reconcile" options))
+           (reconcile-release-roots config)
+         (let ((candidate (if (equal? store "previous") (canonicalize-path (string-append root "/previous")) store)))
+           (unless (string-prefix? "/gnu/store/" candidate) (error "rollback requires a retained Guix generation"))
+           (display (receive config candidate (member "--check-failure" options) (member "--stage-only" options))) (newline)))
+         (begin
+           (setenv "GUIX_MACHINE_RELEASE_LOCKED" "1")
+           (apply run "flock" "--exclusive" "--wait" "900" lease "guix" "repl" "--"
+                  (car (command-line)) config-file store options)))))
+  (_ (error "usage: receive.scm MACHINE.json STORE [--check-failure]")))

@@ -1,0 +1,193 @@
+{
+  "kind": "signcraft.settlement",
+  "site": {
+    "kind": "signgraph.site",
+    "cells": [
+      {
+        "subject": "job",
+        "predicate": "has",
+        "object": "input"
+      }
+    ],
+    "entities": [
+      "job",
+      "input"
+    ],
+    "predicates": [
+      "has"
+    ],
+    "specializations": [],
+    "base": {
+      "kind": "signgraph.base",
+      "objects": [
+        {
+          "sort": "entity",
+          "term": "job"
+        },
+        {
+          "sort": "entity",
+          "term": "input"
+        },
+        {
+          "sort": "predicate",
+          "term": "has"
+        }
+      ],
+      "specialization": [],
+      "converse": [
+        {
+          "domain": [
+            "job",
+            "has",
+            "input"
+          ],
+          "codomain": [
+            "input",
+            "has",
+            "job"
+          ]
+        }
+      ],
+      "subjectProjection": [
+        {
+          "domain": [
+            "job",
+            "has",
+            "input"
+          ],
+          "codomain": "job"
+        }
+      ],
+      "objectProjection": [
+        {
+          "domain": [
+            "job",
+            "has",
+            "input"
+          ],
+          "codomain": "input"
+        }
+      ]
+    }
+  },
+  "rules": [
+    {
+      "kind": "signchain.rule",
+      "name": "advance",
+      "antecedent": [
+        {
+          "cell": {
+            "subject": "job",
+            "predicate": "has",
+            "object": "input"
+          },
+          "atLeast": "potential"
+        }
+      ],
+      "consequent": {
+        "cell": {
+          "subject": "job",
+          "predicate": "can",
+          "object": "plan"
+        },
+        "reading": "potential"
+      }
+    }
+  ],
+  "stages": [
+    {
+      "stage": 0,
+      "valuation": [
+        {
+          "subject": "job",
+          "predicate": "has",
+          "object": "input",
+          "for": [
+            "observed"
+          ],
+          "against": [
+            "disputed"
+          ]
+        }
+      ],
+      "designated": [
+        {
+          "subject": "job",
+          "predicate": "has",
+          "object": "input"
+        }
+      ]
+    },
+    {
+      "stage": 1,
+      "valuation": [
+        {
+          "subject": "job",
+          "predicate": "has",
+          "object": "input",
+          "for": [
+            "observed"
+          ],
+          "against": [
+            "disputed"
+          ]
+        },
+        {
+          "subject": "job",
+          "predicate": "can",
+          "object": "plan",
+          "for": [
+            {
+              "rule": "advance",
+              "from": [
+                "ni:///sha-256;9ADuJw9AyKxvbSS3lQhh2Fiynk789CJ_g4216VsUqL8"
+              ]
+            }
+          ],
+          "against": []
+        }
+      ],
+      "designated": [
+        {
+          "subject": "job",
+          "predicate": "has",
+          "object": "input"
+        },
+        {
+          "subject": "job",
+          "predicate": "can",
+          "object": "plan"
+        }
+      ]
+    }
+  ],
+  "settled": [
+    {
+      "subject": "job",
+      "predicate": "has",
+      "object": "input",
+      "for": [
+        "observed"
+      ],
+      "against": [
+        "disputed"
+      ]
+    },
+    {
+      "subject": "job",
+      "predicate": "can",
+      "object": "plan",
+      "for": [
+        {
+          "rule": "advance",
+          "from": [
+            "ni:///sha-256;9ADuJw9AyKxvbSS3lQhh2Fiynk789CJ_g4216VsUqL8"
+          ]
+        }
+      ],
+      "against": []
+    }
+  ],
+  "settledAt": 1,
+  "regime": "strict"
+}

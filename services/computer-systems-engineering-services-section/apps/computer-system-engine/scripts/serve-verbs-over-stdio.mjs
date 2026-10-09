@@ -47,8 +47,8 @@
 //                                    maintain.
 
 import { createInterface } from "node:readline";
-import { defineType, collectTypeSystem, admit } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
-import { typeSystemDocument } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/document";
+import { defineType, collectTypeSystem, admit } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { typeSystemDocument } from "@red-cup-engineering/computer-data-services-section/type-system/document";
 import { REFUSAL_SCHEMA } from "../src/verb-refusal-schema.mjs";
 
 // Re-exported for convenience (this is the path most of the tree already imported it from, back

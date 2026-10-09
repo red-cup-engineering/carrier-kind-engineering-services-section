@@ -1,0 +1,48 @@
+{
+  "name": "@coesite-operations/scheduled-activity-delivery-service",
+  "version": "0.2.1",
+  "type": "module",
+  "description": "Portable ScheduleDelivery service for colony-owned, contracted, idempotent ActivityStreams delivery.",
+  "exports": {
+    ".": "./src/service.mjs"
+  },
+  "files": [
+    "src/",
+    "scripts/",
+    "content/",
+    "lib/ownership.json",
+    "README.md"
+  ],
+  "bin": {
+    "solicit-service": "./src/service.mjs",
+    "invoke-service": "./src/service.mjs",
+    "renew-schedule": "./src/service.mjs",
+    "retire-schedule": "./src/service.mjs",
+    "run-due": "./src/service.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check scripts/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "preflight:cold-red-gate": "node scripts/cold-red-gate-preflight.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/data-custody-directory-service": "0.1.1",
+    "@red-cup-engineering/expand-recurrence-rule-service": "0.1.0",
+    "@red-cup-engineering/relation-model-notation-cbor-codec": "0.1.2",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.2.1",
+    "@red-cup-engineering/relation-model-notation-runtime": "0.2.0",
+    "@red-cup-engineering/relational-value-graph-service": "0.1.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.7",
+    "@red-cup-engineering/semantic-record-journal-service": "0.4.0",
+    "@red-cup-engineering/witness-journal-entry-service": "0.3.0",
+    "@red-cup-engineering/witness-journal-log-service": "0.3.0"
+  },
+  "overrides": {
+    "@red-cup-engineering/relation-model-notation": "0.2.1",
+    "@red-cup-engineering/relation-model-notation-typing": "0.2.1",
+    "@red-cup-engineering/canonicalize-semiotic-json-service": "0.0.2",
+    "@red-cup-engineering/cbor-codec-service": "0.1.1",
+    "@red-cup-engineering/relation-model-notation-cbor-codec": "0.1.2"
+  }
+}

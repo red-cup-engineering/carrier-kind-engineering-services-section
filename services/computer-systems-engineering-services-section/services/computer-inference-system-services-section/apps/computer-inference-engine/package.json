@@ -88,6 +88,8 @@
     "./dispatch/inference-model": "./src/dispatch/inference-model.mjs",
     "./dispatch/inference-source-kind": "./src/dispatch/inference-source-kind.mjs",
     "./dispatch/source-selection": "./src/dispatch/source-selection.mjs",
+    "./dispatch/accepted-work-outcome": "./src/dispatch/accepted-work-outcome.mjs",
+    "./dispatch/work-inference-coordinate": "./src/dispatch/work-inference-coordinate.mjs",
     "./dispatch/provider-model-catalog": "./src/dispatch/provider-model-catalog.mjs",
     "./dispatch/provider-availability": "./src/dispatch/provider-availability.mjs",
     "./dispatch/tools": "./src/dispatch/tools.mjs",
@@ -116,8 +118,7 @@
     "./tokens/usage-observations": "./src/tokens/usage-observations.mjs",
     "./openai/compatible-http-client": "./src/openai/compatible-http-client.mjs",
     "./openai/pricing/operations": "./src/openai/pricing/operations.mjs",
-    "./dispatch/operations": "./src/dispatch/operations.mjs",
-    "./dispatch/work-inference-coordinate": "./src/dispatch/work-inference-coordinate.mjs"
+    "./dispatch/operations": "./src/dispatch/operations.mjs"
   },
   "bin": {
     "dispatch-chat-completion": "./scripts/openai/dispatch-chat-completion.mjs",
@@ -152,18 +153,17 @@
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
-    "@red-cup-engineering/computer-media-content-services-section": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-system-platform": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
     "@red-cup-engineering/data-custody-directory-service": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
     "@red-cup-engineering/energy-bank": "workspace:*",
     "@red-cup-engineering/ethereum-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/file-services": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
@@ -177,13 +177,15 @@
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/playing": "workspace:*",
     "@red-cup-engineering/read-javascript-file-export-documentation-service": "workspace:*",
+    "@red-cup-engineering/relating": "workspace:*",
     "@red-cup-engineering/uri-services-section": "workspace:*",
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
     "@red-cup-engineering/x402-services-section": "workspace:*",
-    "sharp": "0.35.4"
+    "sharp": "0.35.5",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "devDependencies": {
-    "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/signgraph": "workspace:*"
   }
 }

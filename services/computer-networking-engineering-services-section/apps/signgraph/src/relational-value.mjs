@@ -1,11 +1,11 @@
 // A JSON value as a canonical Entity/Ground graph: its nodes and grounding
 // edges as one SEN term of RELATIONAL_VALUE_TYPE, identified by the semantic
 // content address of its ascription.
-import { canonicalizeSemioticJson, decodeSemantic as decodeCanonical, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { base64ToBytes, bytesCompare, bytesEqual, bytesToBase64, canonicalizeSemioticJson, concatBytes, decodeSemantic as decodeCanonical, ownedBytes, semanticBytes, semanticId, utf8Bytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
-import { validateSenTerm, validateSenType } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { judgeSen } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
-import { typedListItems, typedListTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { validateSenTerm, validateSenType } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { judgeSen } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+import { typedListItems, typedListTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 import { NI_URI_PATTERN } from "@red-cup-engineering/uri-services-section/ni-uri";
 
 // A mark is a textual term; it does not introduce a nominal type.
@@ -50,7 +50,7 @@ export const RELATIONAL_VALUE_TYPE = ["prod", ENTITY, ["prod", ["list", NODE], [
 
 function normalizeValue(source) {
   if (typeof source === "string") return source.normalize("NFC");
-  if (Buffer.isBuffer(source) || source instanceof Uint8Array) return Buffer.from(source);
+  if (source instanceof Uint8Array) return ownedBytes(source);
   if (typeof source === "number" && !Number.isSafeInteger(source)) {
     canonicalDecimal(source);
     return source;
@@ -73,7 +73,7 @@ function scalar(value) {
   if (typeof value === "number") return Number.isSafeInteger(value) ? ["integer", String(value)] : ["decimal", canonicalDecimal(value)];
   if (typeof value === "bigint") return ["integer", String(value)];
   if (typeof value === "string") return ["text", value];
-  if (Buffer.isBuffer(value) || value instanceof Uint8Array) return ["bytes", Buffer.from(value).toString("base64")];
+  if (value instanceof Uint8Array) return ["bytes", bytesToBase64(value)];
   return null;
 }
 
@@ -85,10 +85,10 @@ function assertRelationalClaim(type, term) {
 
 export function encodeRelationalValue(source) {
   const value = normalizeValue(source), seed = makeNiUri(semanticBytes(["mark", makeNiUri(semanticBytes(["mark", String(value?.constructor?.name ?? typeof value)]))]));
-  const carrierSeed = makeNiUri(Buffer.concat([Buffer.from(seed, "utf8"), semanticBytes(["mark", structuralLexeme(value)])]));
+  const carrierSeed = makeNiUri(concatBytes(utf8Bytes(seed), semanticBytes(["mark", structuralLexeme(value)])));
   const nodes = [], edges = [];
   function visit(member, path) {
-    const id = makeNiUri(Buffer.from(`${carrierSeed}\0${path}`, "utf8"));
+    const id = makeNiUri(utf8Bytes(`${carrierSeed}\0${path}`));
     const primitive = scalar(member);
     let kind; let lexical = "";
     if (primitive) [kind, lexical] = primitive;
@@ -97,7 +97,7 @@ export function encodeRelationalValue(source) {
     else fail(`unsupported relational value ${Object.prototype.toString.call(member)}`);
     nodes.push(tuple([constant(id), kindTerm(kind), mark(lexical)]));
     if (kind === "sequence") member.forEach((child, index) => connect(id, `index:${index}`, child, `${path}/i:${index}`));
-    if (kind === "record") for (const key of Object.keys(member).sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))) connect(id, `field:${key}`, member[key], `${path}/f:${Buffer.byteLength(key)}:${key}`);
+    if (kind === "record") for (const key of Object.keys(member).sort((left, right) => bytesCompare(utf8Bytes(left), utf8Bytes(right)))) connect(id, `field:${key}`, member[key], `${path}/f:${utf8Bytes(key).length}:${key}`);
     return id;
   }
   function connect(parent, label, child, path) {
@@ -124,7 +124,7 @@ function structuralLexeme(value) {
   const primitive = scalar(value);
   if (primitive) return `${primitive[0]}:${primitive[1]}`;
   if (Array.isArray(value)) return `sequence(${value.map(structuralLexeme).join("|")})`;
-  return `record(${Object.keys(value).sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right))).map((key) => `${Buffer.byteLength(key)}:${key}=${structuralLexeme(value[key])}`).join("|")})`;
+  return `record(${Object.keys(value).sort((left, right) => bytesCompare(utf8Bytes(left), utf8Bytes(right))).map((key) => `${utf8Bytes(key).length}:${key}=${structuralLexeme(value[key])}`).join("|")})`;
 }
 
 export function decodeRelationalValue(type, term) {
@@ -157,7 +157,7 @@ export function decodeRelationalValue(type, term) {
       return value;
     }
     if (node.kind === "text") { if (outgoing.length) fail("text node has outgoing edges"); return node.lexical; }
-    if (node.kind === "bytes") { if (outgoing.length) fail("bytes node has outgoing edges"); return Buffer.from(node.lexical, "base64"); }
+    if (node.kind === "bytes") { if (outgoing.length) fail("bytes node has outgoing edges"); return ownedBytes(base64ToBytes(node.lexical)); }
     if (node.lexical !== "") fail("structural relational node has a lexical payload");
     if (node.kind === "sequence") {
       const indexed = outgoing.map(({ label, object }) => { const match = /^index:(0|[1-9][0-9]*)$/u.exec(label); if (!match) fail("sequence edge lacks a canonical index"); return [Number(match[1]), object]; }).sort((left, right) => left[0] - right[0]);
@@ -166,7 +166,7 @@ export function decodeRelationalValue(type, term) {
     }
     if (node.kind === "record") {
       const result = {};
-      for (const { label, object } of outgoing.sort((left, right) => Buffer.compare(Buffer.from(left.label), Buffer.from(right.label)))) {
+      for (const { label, object } of outgoing.sort((left, right) => bytesCompare(utf8Bytes(left.label), utf8Bytes(right.label)))) {
         if (!label.startsWith("field:")) fail("record edge lacks a field predicate");
         const key = label.slice("field:".length); if (Object.hasOwn(result, key)) fail(`duplicate relational field ${key}`); result[key] = build(object);
       }
@@ -208,7 +208,7 @@ function decodeRelationalAscription(bytes) {
   const value = decodeRelationalValue(ascription[1], ascription[2]);
   const canonical = encodeRelationalValue(value);
   const canonicalBytes = semanticBytes(["ascribe", canonical.type, canonical.term]);
-  if (!canonicalBytes.equals(bytes)) fail("relational value graph carrier is not canonical");
+  if (!bytesEqual(canonicalBytes, bytes)) fail("relational value graph carrier is not canonical");
   return { canonical, canonicalBytes };
 }
 
@@ -233,7 +233,7 @@ export function identifyRelationalValuePayload(source) {
  */
 export function admitRelationalValuePayload({ bytes, token } = {}) {
   if (!(bytes instanceof Uint8Array)) fail("relational value payload bytes must be a Uint8Array");
-  const transportedBytes = Buffer.from(bytes);
+  const transportedBytes = Uint8Array.from(bytes);
   if (makeNiUri(transportedBytes) !== token) fail("relational value payload token does not match its bytes");
   const { canonical, canonicalBytes } = decodeRelationalAscription(transportedBytes);
   return Object.freeze({

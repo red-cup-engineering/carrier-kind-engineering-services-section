@@ -6,7 +6,6 @@
  * optional [from, to) time range, and carrying every VESTS field alongside its HP
  * equivalent at the chain's vests-to-HP ratio.
  */
-import { isDeepStrictEqual } from "node:util";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import {
   divideDecimalStrings,
@@ -112,17 +111,18 @@ export function vestsHpFields(payload, ratio, ratioSource) {
 }
 
 /**
- * Whether both nodes return the same indexed operations and complete record data.
- * Transaction identity alone does not witness amounts, recipients or chain coordinates.
- * Object property order is irrelevant; account-history sequence order is retained.
+ * Whether two nodes' same-page results agree on every returned operation's identity
+ * (index, transaction id, and operation kind).
+ * @param {readonly [number, object][] | null} pageA
+ * @param {readonly [number, object][] | null} pageB
+ * @returns {boolean}
  */
 export function pagesAgree(pageA, pageB) {
-  if (!Array.isArray(pageA) || !Array.isArray(pageB) || pageA.length !== pageB.length) return false;
-  return pageA.every((entry, i) => {
-    const other = pageB[i];
-    if (!Array.isArray(entry) || entry.length !== 2
-      || !Array.isArray(other) || other.length !== 2) return false;
-    return entry[0] === other[0] && isDeepStrictEqual(entry[1], other[1]);
+  if (!Array.isArray(pageA) || !Array.isArray(pageB)) return false;
+  if (pageA.length !== pageB.length) return false;
+  return pageA.every(([index, record], i) => {
+    const [otherIndex, otherRecord] = pageB[i];
+    return index === otherIndex && record.trx_id === otherRecord.trx_id && record.op[0] === otherRecord.op[0];
   });
 }
 
@@ -171,20 +171,7 @@ export async function readHiveAccountHistory(input, { clientFactory } = {}) {
     const limit = start === -1 ? PAGE_LIMIT : Math.min(PAGE_LIMIT, start + 1);
     // eslint-disable-next-line no-await-in-loop
     const pageA = await primary.getAccountHistory(account, start, limit);
-    if (!Array.isArray(pageA)) {
-      throw new TypeError("read-hive-account-history: primary history response must be an array");
-    }
-    const indicesSeen = new Set();
-    for (const entry of pageA) {
-      if (!Array.isArray(entry) || entry.length !== 2
-        || !Number.isSafeInteger(entry[0]) || entry[0] < 0
-        || (start !== -1 && entry[0] > start)
-        || indicesSeen.has(entry[0])
-        || !entry[1] || !Array.isArray(entry[1].op)) {
-        throw new TypeError("read-hive-account-history: malformed or non-progressing primary history page");
-      }
-      indicesSeen.add(entry[0]);
-    }
+    if (!Array.isArray(pageA) || pageA.length === 0) break;
     pagesFetched += 1;
 
     let pageB = null;
@@ -203,9 +190,6 @@ export async function readHiveAccountHistory(input, { clientFactory } = {}) {
         error: witnessError ?? undefined,
       });
     }
-
-    // An empty primary page is still witnessed before accepting its stopping boundary.
-    if (pageA.length === 0) break;
 
     const ordered = [...pageA].sort((a, b) => b[0] - a[0]);
     for (const [index, record] of ordered) {

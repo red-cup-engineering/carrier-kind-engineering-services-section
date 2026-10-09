@@ -1,6 +1,6 @@
 # @red-cup-engineering/read-hive-engine-fill-service
 
-Reads one Hive-Engine `marketpools.swapTokens`, `market.sell`, or `market.buy` fill by transaction id from at least two public nodes, read-only, shaping it into the standard venue-fill record or refusing (never shaping a fill) when the nodes lack a non-empty `databaseHash` or disagree on it, the operation cannot be resolved unambiguously, its contract/action is unsupported, or its logs carry no completed transfer to and from the queried account.
+Reads one Hive-Engine `marketpools.swapTokens`, `market.sell`, or `market.buy` fill by transaction id from at least two public nodes, read-only, shaping it into the standard venue-fill record or refusing (never shaping a fill) when the nodes disagree on `databaseHash`, the operation cannot be resolved unambiguously, its contract/action is unsupported, or its logs carry no completed transfer to and from the queried account.
 
 ## Operation
 
@@ -19,8 +19,7 @@ export async function readHiveEngineFill(input)
 ### Refusals
 
 - TypeError: When `input.nodes` has fewer than two entries or a required field is missing.
-- `{ ok: false, refusal: { reason: "ambiguous-result" } }`: when a node's result, whether a single operation or an array, does not contain exactly one operation whose `transactionId` matches the request.
-- `{ ok: false, refusal: { reason: "missing-witness-hash" } }`: when a queried node supplies no non-empty string `databaseHash`; absent evidence is never treated as agreement.
+- `{ ok: false, refusal: { reason: "ambiguous-result" } }`: when a node's result is an array of operations and none (or more than one) carries a `transactionId` exactly matching the request.
 - `{ ok: false, refusal: { reason: "witness-disagreement" } }`: when the queried nodes' `databaseHash` values disagree.
 - `{ ok: false, refusal: { reason: "unsupported-contract-action" } }`: for any contract/action other than `marketpools.swapTokens`, `market.sell`, or `market.buy`.
 - `{ ok: false, refusal: { reason: "no-completed-transfer" } }`: when the resolved operation's logs carry no paid-and-received transfer pair for `input.account`.

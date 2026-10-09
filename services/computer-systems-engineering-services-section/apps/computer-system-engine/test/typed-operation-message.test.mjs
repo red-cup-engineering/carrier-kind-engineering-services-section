@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { admit } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { admit } from "@red-cup-engineering/computer-data-services-section/type-system";
 import { TYPED_OPERATION_MESSAGE_VERSION, TYPED_OPERATION_REQUEST_KIND, typedOperationRefusalType, typedOperationRequestType, typedOperationResultType } from "../src/typed-operation-message.mjs";
 test("typed operation messages have one admitted request, result, and refusal contract", () => {
     assert.equal(admit(typedOperationRequestType, { version: TYPED_OPERATION_MESSAGE_VERSION, kind: TYPED_OPERATION_REQUEST_KIND, requestId: "r", operationId: "op", inputCodec: "json", input: "1", outputCodec: "json", actorResourceCatalog: {} }).ok, true);

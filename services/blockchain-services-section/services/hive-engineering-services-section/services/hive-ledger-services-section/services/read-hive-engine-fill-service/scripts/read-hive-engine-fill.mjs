@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
-import { resolveOperation, witnessHashRefusal } from "./fill-witness.mjs";
 const SUPPORTED_ACTIONS = new Set(["marketpools:swapTokens", "market:sell", "market:buy"]);
 
 function queryNode(node, transactionId, fetchImpl) {
   return new EngineClient({ nodes: [node], fetch: fetchImpl }).getTransactionInfo(transactionId);
+}
+
+function resolveOperation(result, transactionId) {
+  const candidates = Array.isArray(result) ? result : [result];
+  if (candidates.length === 1) return candidates[0];
+  const matched = candidates.filter((c) => c && c.transactionId === transactionId);
+  return matched.length === 1 ? matched[0] : null;
 }
 
 function parseLogs(operation) {
@@ -15,7 +21,7 @@ function parseLogs(operation) {
 /**
  * Read one Hive-Engine `marketpools.swapTokens`, `market.sell`, or `market.buy` fill by
  * transaction id from at least two public nodes, refusing without shaping a fill when the nodes
- * lack a non-empty `databaseHash` or disagree on it, the operation cannot be resolved unambiguously, its contract/action
+ * disagree on `databaseHash`, the operation cannot be resolved unambiguously, its contract/action
  * is not one of the supported market actions, or its logs carry no completed token transfer
  * to and from `input.account`.
  * @param {{ transactionId: string, account: string, date: string, nodes: readonly string[],
@@ -48,9 +54,9 @@ export async function readHiveEngineFill(input) {
     witnesses.push({ node, databaseHash: operation.databaseHash });
     resolvedOperation = resolvedOperation ?? operation;
   }
-  const witnessRefusal = witnessHashRefusal(witnesses);
-  if (witnessRefusal) {
-    return { ok: false, refusal: { transactionId: input.transactionId, reason: witnessRefusal, witnesses } };
+  const firstHash = witnesses[0].databaseHash;
+  if (!witnesses.every((w) => w.databaseHash === firstHash)) {
+    return { ok: false, refusal: { transactionId: input.transactionId, reason: "witness-disagreement", witnesses } };
   }
   const actionKey = `${resolvedOperation.contract}:${resolvedOperation.action}`;
   if (!SUPPORTED_ACTIONS.has(actionKey)) {
@@ -88,6 +94,6 @@ export async function readHiveEngineFill(input) {
 }
 
 if (import.meta.main) {
-  const result = await runJavascriptNodeOperation({ name: "read-hive-engine-fill", description: "Read one Hive-Engine `marketpools.swapTokens`, `market.sell`, or `market.buy` fill by transaction id from at least two public nodes, refusing without shaping a fill when the nodes lack a non-empty `databaseHash` or disagree on it, the operation cannot be resolved unambiguously, its contract/action is not one of the supported market actions, or its logs carry no completed token transfer to and from `input.account`.", operation: readHiveEngineFill }, { arguments: process.argv.slice(2), standardInput: process.stdin, standardOutput: process.stdout });
+  const result = await runJavascriptNodeOperation({ name: "read-hive-engine-fill", description: "Read one Hive-Engine `marketpools.swapTokens`, `market.sell`, or `market.buy` fill by transaction id from at least two public nodes, refusing without shaping a fill when the nodes disagree on `databaseHash`, the operation cannot be resolved unambiguously, its contract/action is not one of the supported market actions, or its logs carry no completed token transfer to and from `input.account`.", operation: readHiveEngineFill }, { arguments: process.argv.slice(2), standardInput: process.stdin, standardOutput: process.stdout });
   process.exitCode = result.exitCode;
 }

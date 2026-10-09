@@ -3,12 +3,14 @@ import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 import path from "node:path";
 import { operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { configuredWorkSourceRepository, configuredWorkSourceTask, sourceTaskSessionObservation } from "@red-cup-engineering/metroplat/source-repository";
 import { allocationSources } from "@red-cup-engineering/metroplat/allocation-sources";
 import { codexAgencyWorkProvider } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/codex/agency-work";
 import { codexNodeOptions } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/codex/operations";
 import { claudeCodeAgencyWorkProvider, officeAgentDefinition } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/claude-code/agency-work";
 import { antigravityAgencyWorkProvider } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/antigravity/agency-work";
 import { BOUNDED_INFERENCE_SERVICE_MODEL } from "@red-cup-engineering/computer-inference-engine/dispatch/inference-work-lot-source";
+import { recordAcceptedWorkInferenceOutcome } from "@red-cup-engineering/computer-inference-engine/dispatch/accepted-work-outcome";
 import { workInferenceCoordinate } from "@red-cup-engineering/computer-inference-engine/dispatch/work-inference-coordinate";
 import { allowanceLedgerPath, readAllowanceLedger } from "@red-cup-engineering/computer-inference-engine/media/allowance-ledger";
 import { subscriptionAllowance } from "@red-cup-engineering/computer-inference-engine/media/subscription-allowances";
@@ -180,7 +182,7 @@ export function inferenceReceiver({ binding, identity, environment, repositoryRo
  * window spent out takes the carrier out of staffing until it turns. An allowance the house has not
  * read prices at the unit, since an unknown is never free.
  */
-function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession }) {
+function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession, onSourceBinding, onSourceResult, operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }) {
   const carriers = [];
   const repositoryRoot = environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd();
   if (environment.METROPLAT_CODEX_WORKER) {
@@ -189,7 +191,8 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       workerId: environment.METROPLAT_CODEX_WORKER, harness: "codex", family: "openai",
       adapter: codexAgencyWorkProvider({
         workerId: environment.METROPLAT_CODEX_WORKER,
-        onSession, onReceivingSession,
+        onSession, onReceivingSession, onSourceBinding, onSourceResult,
+        bindGit: bindSourceGit, publishSourceCandidate, sourcePreparationOf,
         dataRoot: codexNode.dataRoot,
         formerRoots: codexNode.formerRoots,
         toldRoot: codexNode.toldRoot,
@@ -198,6 +201,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         metroplatServer: environment.METROPLAT_CODEX_MCP_SERVER,
         characterName: environment.METROPLAT_CODEX_CHARACTER_NAME ?? "the Codex character",
         cwd: environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot,
+        repositoryOf: spec => configuredWorkSourceRepository(environment.METROPLAT_CODEX_WORKSPACE ?? repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }),
         // No deployment names the model: an allocation carries its derived carrier, and the session observes the one that ran.
         ...(environment.METROPLAT_CODEX_BIN ? { codex: environment.METROPLAT_CODEX_BIN } : {}),
       }),
@@ -210,7 +214,8 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       workerId: environment.METROPLAT_CLAUDE_WORKER, harness: "claude-code", family: "anthropic", models: claudeModels, bounded: true, serves: listOf(environment.METROPLAT_CLAUDE_OFFICES),
       adapter: claudeCodeAgencyWorkProvider({
         workerId: environment.METROPLAT_CLAUDE_WORKER,
-        onSession, onReceivingSession,
+        onSession, onReceivingSession, onSourceBinding, onSourceResult,
+        bindGit: bindSourceGit, publishSourceCandidate, sourcePreparationOf,
         dataRoot: house,
         toldRoot: house,
         nodeName: identity.id,
@@ -219,6 +224,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         mcpConfig: environment.METROPLAT_CLAUDE_MCP_CONFIG ?? path.join(repositoryRoot, ".mcp.json"),
         characterName: environment.METROPLAT_CLAUDE_CHARACTER_NAME ?? "the Claude Code character",
         cwd: repositoryRoot,
+        repositoryOf: spec => configuredWorkSourceRepository(repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }),
         officeAgent: (office) => officeAgentDefinition({ repoRoot: repositoryRoot, agency: agencyAt(firmPoolRoot), office }),
         ...(environment.METROPLAT_CLAUDE_BIN ? { claude: environment.METROPLAT_CLAUDE_BIN } : {}),
       }),
@@ -235,7 +241,8 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
       serves: environment.METROPLAT_ANTIGRAVITY_OFFICES === undefined ? ANTIGRAVITY_DEFAULT_OFFICES : listOf(environment.METROPLAT_ANTIGRAVITY_OFFICES),
       adapter: antigravityAgencyWorkProvider({
         workerId: environment.METROPLAT_ANTIGRAVITY_WORKER,
-        onSession, onReceivingSession,
+        onSession, onReceivingSession, onSourceBinding, onSourceResult,
+        bindGit: bindSourceGit, publishSourceCandidate, sourcePreparationOf,
         dataRoot: house,
         toldRoot: house,
         nodeName: identity.id,
@@ -277,7 +284,7 @@ function journalStandingOf(environment) {
 
 /** The host composes agent execution, inference, and delegation for one installed organization. */
 export function enterpriseAgencyWorkOptions({
-  identity, dataRoot, environment, processConfig, operationOf, operationSurface, workBinding, enterprise,
+  identity, dataRoot, environment, processConfig, operationOf, operationSurface, workBinding, enterprise, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding,
 }) {
   const rootName = identity.id;
   const binding = defaultFilesystemBinding(dataRoot);
@@ -314,7 +321,10 @@ export function enterpriseAgencyWorkOptions({
   const surfaceVerbs = () => [...new Set(operationSurface().operations.map(operation => operation.verb))].sort();
   const carrierOf = (character) => carriers.find((carrier) => carrier.workerId === character);
   const admitSession = (carrier, session, at = processIsoNow()) => {
-    admitHarnessCarriers({ dataRoot, date: at.slice(0, 10), carriers: [{ kind: "metroplat.harness-carrier", character: carrier.workerId, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }), harness: carrier.harness, session: session.id, capabilities: surfaceVerbs(), reading: "held", issuer: identity.id, at }] });
+    const observation = sourceTaskSessionObservation(dataRoot, carrier.workerId, session);
+    if (!observation.admit) return;
+    const sourceTask = observation.sourceTask;
+    admitHarnessCarriers({ dataRoot, date: at.slice(0, 10), carriers: [{ kind: "metroplat.harness-carrier", ...(sourceTask === undefined ? {} : { sourceTask }), character: carrier.workerId, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }), harness: carrier.harness, session: session.id, capabilities: surfaceVerbs(), reading: "held", issuer: identity.id, at }] });
     admitCharacterMasks({ dataRoot, date: at.slice(0, 10), masks: [{ kind: "metroplat.character-mask", account: `session:${session.id}`, character: carrier.workerId, reading: "held", issuer: identity.id, at }] });
   };
   const recordHostedSession = (item, outcome) => {
@@ -322,6 +332,19 @@ export function enterpriseAgencyWorkOptions({
     if (outcome?.session === undefined || carrier === undefined) return outcome;
     admitSession(carrier, outcome.session);
     return outcome;
+  };
+  const recordHostedSource = (item, sourceBinding) => {
+    if (item.execution === undefined) throw new TypeError("agency work execution: source capture requires the original execution receipt");
+    if (item.execution.sourceBinding !== undefined && item.execution.sourceBinding.id !== sourceBinding.id) throw new TypeError("agency work execution: original source closure changed");
+    const receipt = admitAgencyWorkExecution(owning, { ...item, execution: { ...item.execution, sourceBinding } }, "started");
+    Object.assign(item.execution, { receipt, sourceBinding });
+    return receipt;
+  };
+  const recordHostedSourceResult = (item, sourceResult) => {
+    if (item.execution?.sourceBinding === undefined || sourceResult.sourceBinding !== item.execution.sourceBinding.id) throw new TypeError("agency work execution: source completion has no original captured closure");
+    const receipt = admitAgencyWorkExecution(owning, { ...item, execution: { ...item.execution, sourceResult } }, "started");
+    Object.assign(item.execution, { receipt, sourceResult });
+    return receipt;
   };
   const recordHostedStart = (item, session) => {
     recordHostedSession(item, { session });
@@ -333,7 +356,9 @@ export function enterpriseAgencyWorkOptions({
     if (item.execution !== undefined) Object.assign(item.execution, { receipt, session: session.id, model: session.model, ...(session.reasoningEffort === undefined ? {} : { reasoningEffort: session.reasoningEffort }) });
     return receipt;
   };
-  const carriers = hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot,
+  const carriers = hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding,
+    onSourceBinding: recordHostedSource, onSourceResult: recordHostedSourceResult,
+    operationOf: verb => operationSurface().operations.find(operation => operation.verb === verb),
     onSession: (item, session) => recordHostedStart(item, session),
     onReceivingSession: (review, session) => recordHostedSession(review, { session }) });
   // A carrier with declared models stands ready before its first run: each model is admitted under
@@ -448,12 +473,21 @@ export function enterpriseAgencyWorkOptions({
   const executeAgencyWork = carriers.length === 0 && executeInferredWork === undefined ? undefined : async (item) => {
     const carrier = carrierOf(item.delegation?.provider);
     if (carrier !== undefined) {
-      const outcome = await carrier.adapter({ ...item, methodResources: (item.requiresCapabilities ?? []).map(verb => {
+      const methodResources = (item.requiresCapabilities ?? []).map(verb => {
       const installed = operationSurface().operations.find(operation => operation.verb === verb && item.delegation.operations.includes(operation.ref));
       if (installed === undefined) throw new TypeError("allocated method resource is no longer installed: " + verb);
       const descriptor = operationDescriptor(installed);
       return { verb, ref: descriptor.ref, summary: descriptor.summary, description: descriptor.description, input: descriptor.domain };
-      }) });
+      });
+      // Acquisition is a trusted source-owner effect after current method/delegation admission.
+      // Recovery reads the captured original closure and never resolves a new latest copy.
+      if (item.sourceRepository !== undefined && item.execution?.sourceBinding === undefined && prepareSourceBinding !== undefined) {
+        if (typeof prepareSourceBinding !== "function" || typeof sourceBindingOf !== "function") throw new TypeError("source execution requires its trusted preparation and retained-binding ports");
+        const prepared = await prepareSourceBinding({ sourceRepository: item.sourceRepository, item });
+        const held = configuredWorkSourceRepository(environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd(), { item, sourceBinding: prepared }, { sourceBindingOf });
+        recordHostedSource(item, held.sourceBinding);
+      }
+      const outcome = await carrier.adapter({ ...item, methodResources });
       const plan = await publicationPlanForHostedOutcome({
         item,
         outcome,
@@ -487,6 +521,10 @@ export function enterpriseAgencyWorkOptions({
   const hostedCharacter = character => !hosts(character) ? character : {
     ...character, capabilities: surfaceVerbs(),
   };
+  const onAcceptedWork = workerId === undefined || !environment.EXPECTED_RESOLUTION_PRICING_ROOT ? undefined
+    : ({ proposal, discharge }) => recordAcceptedWorkInferenceOutcome({
+      proposal, discharge, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
+    });
   // Receiving is the power to admit a work discharge. The host admits the receiver's judgement
   // into the root that owns the proposal, as it admits execution's proposal there: every
   // micro-enterprise's work is received in its own root. Any carrier whose character holds an
@@ -503,9 +541,16 @@ export function enterpriseAgencyWorkOptions({
   const tellReceivedOutcome = ({ proposal, discharge, office, at }) => {
     try {
       if (proposal?.origin?.office === undefined || discharge.result?.kind !== "skill-result") return;
-      const market = workInferenceCoordinate({
-        proposal, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
-      });
+      // The delivery coordinate is optional provenance. An unavailable pricing
+      // record must not prevent telling the independently received native outcome.
+      let market;
+      try {
+        market = workInferenceCoordinate({
+          proposal, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
+        });
+      } catch (error) {
+        console.error("[work-discharge] inference coordinate remains unlinked:", error instanceof Error ? error.message : String(error));
+      }
       outcomeJournalOf(binding.dataRoot).record(outcomeOf({
         ...receivedOutcomeFields({ proposal, discharge, office, at }),
         ...(market === undefined ? {} : { market }), resources: proposalResources(proposal),
@@ -547,7 +592,8 @@ export function enterpriseAgencyWorkOptions({
           carriers: authority.models, standing, price: Math.min(1, authority.carrier.pricing().price) });
         if (staffing?.exhausted === true) continue;
         const review = { agent: authority.carrier.workerId, allocatedModel: staffing.carrier, scope: proposal.scope,
-          delegation: { provider: authority.carrier.workerId }, office: authority.office, proposal, staffing, root: owningBinding.dataRoot };
+          delegation: { provider: authority.carrier.workerId }, office: authority.office, proposal, staffing, root: owningBinding.dataRoot,
+          ...(item.sourceRepository === undefined ? {} : { sourceRepository: item.sourceRepository }) };
         if (authority.carrier.adapter.receivingExhausted?.(review) === true) continue;
         // Ended agent turns remain terminal. Only the provider's bounded,
         // evidenced transport/capacity recovery can reopen a failed start.
@@ -584,6 +630,10 @@ export function enterpriseAgencyWorkOptions({
       scope: discharge.scope, operation: receivingVerb, at });
     const { proposal } = admitWorkDischargeWithProposal(owning, discharge, { at: at.slice(0, 10), receiverAuthorization });
     tellReceivedOutcome({ proposal, discharge, office: review.office, at });
+    if (onAcceptedWork !== undefined && discharge.result.kind === "skill-result" && discharge.decision !== "rejected") {
+      try { await onAcceptedWork({ proposal, discharge }); }
+      catch (error) { console.error("[work-discharge] derived inference outcome remains unrecorded:", error instanceof Error ? error.message : String(error)); }
+    }
     const received = prior(outcome.session.id);
     if (received === undefined) throw new TypeError(`independent receiving recorded no native admission (${outcome.task})`);
     return { ...received, task: outcome.task, usage: outcome.usage };
@@ -599,6 +649,9 @@ export function enterpriseAgencyWorkOptions({
   };
   return Object.freeze({
     ...sources,
+    sourceTaskOf: (scope, identity, execution) => configuredWorkSourceTask({ scope, identity, execution,
+      workBinding: owning, callerBinding: binding, repositoryRoot: environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd(),
+      carrierOf, authorizeReceiving: authorizeWorkDischargeReceiver, sourceBindingOf }),
     ...(readAgencyWorkReceiving === undefined ? {} : { readAgencyWorkReceiving, receiveAgencyWork }),
     readCarrierStanding,
     // Inside the entity a crossing is valued at its provider's witnessed cost (enterprise/crossings):
@@ -667,7 +720,7 @@ export function enterpriseAgencyWorkOptions({
       finally { await carrier.adapter.release(lease); }
     },
     ...(authorizeWorkDischargeReceiver === undefined ? {} : { authorizeWorkDischargeReceiver }),
-    onWorkDischarged: tellReceivedOutcome,
+    ...(onAcceptedWork === undefined ? {} : { onAcceptedWork }),
     agencyWorkProviders,
     // Carriers expose a cross-process atomic provider reservation. Other
     // adapters keep the existing same-carrier admission gate until they do.
@@ -690,10 +743,10 @@ export function enterpriseAgencyWorkOptions({
       return recordHostedSession(item, await carrier.adapter.recover(item));
     },
     providersOfSubject: (subject) => providersOfAccount(binding, subject),
-    // Pump within admitted capacity to quiescence, bounded to 32 attempts per
-    // tick by default. An explicit positive operator limit changes that bound.
-    agencyWorkPumpMaxPerTick: environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK === undefined || environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK.trim() === ""
-      ? 32 : positiveInteger(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK, "METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK"),
+    // A tick takes every ready item admitted capacity allows; only an explicit
+    // operator allocation cuts it.
+    ...(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK === undefined || environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK.trim() === "" ? {}
+      : { agencyWorkPumpMaxPerTick: positiveInteger(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK, "METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK") }),
     ...(executeAgencyWork === undefined ? {} : { executeAgencyWork }),
   });
 }

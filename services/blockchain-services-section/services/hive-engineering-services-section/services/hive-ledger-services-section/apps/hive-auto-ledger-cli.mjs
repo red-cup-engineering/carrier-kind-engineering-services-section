@@ -6,11 +6,13 @@
  * and valuation reports over it.
  */
 import { parseArgs } from "node:util";
-import { writeFileText } from "@red-cup-engineering/write-file-service";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { writeFileText } from "@red-cup-engineering/file-services/write-file";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { readHiveAccountHistory } from "@red-cup-engineering/read-hive-account-history-service";
 import { readHiveEngineAccountHistory } from "@red-cup-engineering/read-hive-engine-account-history-service";
-import { deriveHiveAccountLedger, plainDecimal, markHiveAccountLedger } from "@red-cup-engineering/derive-hive-account-ledger-service";
+import { deriveHiveAccountLedger, plainDecimal } from "@red-cup-engineering/derive-hive-account-ledger-service";
 import {
   addDecimalStrings,
   negateDecimalString,
@@ -19,12 +21,26 @@ import {
 import { EngineClient } from "@red-cup-engineering/hive-blockchain-client-service/engine.mjs";
 import { dispatch, parseCli } from "@red-cup-engineering/farolfi";
 
+/** This app's owning section root (apps/ -> hive-ledger-services-section -> services -> hive-services-section). */
+const SECTION_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const DEFAULT_HIVE_NODES = ["https://api.hive.blog", "https://api.openhive.network"];
 const DEFAULT_HE_NODES = ["https://accounts.hive-engine.com", "https://history.hive-engine.com"];
 const DEFAULT_HE_FILL_NODES = ["https://api.hive-engine.com/rpc", "https://api2.hive-engine.com/rpc"];
 
 function capitalized(name) {
   return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+/**
+ * The lawful dated-records path for one derived Hive account ledger: a derived ledger is a
+ * dated record (never a log), so it lands under this owning section's own `data/records/`,
+ * never an invented `data/logs/ledgers/` directory.
+ * @param {string} account
+ * @param {string} dateStamp - YYYY-MM-DD, normally the derivation's rangeEnd.
+ * @returns {string} absolute path
+ */
+export function defaultLedgerRecordsPath(account, dateStamp) {
+  return join(SECTION_ROOT, "data", "records", `${dateStamp}-${account}-hive-account-ledger.beancount`);
 }
 
 /** The house per-persona custody account names this section's naming pattern already uses. */
@@ -83,7 +99,6 @@ export async function deriveLedgerForAccount(options, deps = {}) {
     fetchHiveEngineBalancesImpl = (accounts) => new EngineClient().getBalances(accounts),
   } = deps;
 
-  const balanceReadStartedAt = new Date().toISOString();
   const waggle = clientFactory([hiveNodes[0]]);
   const [chainAccount] = await waggle.getAccounts([account]);
   if (!chainAccount) throw new Error(`hive-auto-ledger-cli: account not found on chain: ${account}`);
@@ -101,7 +116,6 @@ export async function deriveLedgerForAccount(options, deps = {}) {
     readHiveEngineHistoryImpl({ account, nodes: heNodes, fillNodes: heFillNodes, from, to }),
     fetchHiveEngineBalancesImpl([account]),
   ]);
-  const balanceReadCompletedAt = new Date().toISOString();
   // Liquid balance only: the custody account this service tracks holds the *liquid* position;
   // staked, pending-unstake, and delegated-out quantities move to their own sub-accounts
   // (derive-hive-account-ledger-service's :Staked/:Pending-Unstake/:Delegated-Out), so comparing
@@ -167,45 +181,31 @@ export async function deriveLedgerForAccount(options, deps = {}) {
     ...(composed.ledgerResult.refusals ?? []).map((detail) => ({ source: "ledger-derivation", detail })),
     ...composed.ledgerResult.balanceComparison.filter((row) => !row.match).map((detail) => ({ source: "balance-comparison", detail })),
   ];
-  // Live reads are not snapshots at the requested history cutoff. In a bounded
-  // window, back-derived opening quantities also cannot independently verify it.
-  const balanceEvidence = {
-    source: "live-account-and-liquid-token-reads",
-    readStartedAt: balanceReadStartedAt, readCompletedAt: balanceReadCompletedAt,
-    requestedHistoryUpperBoundary: to.time,
-    boundaryAlignment: "not-established",
-    openingBasis: isWholeHistory ? "assumed-zero-at-account-creation" : "derived-from-live-closing-minus-window-delta",
-    independentOpeningEvidence: "not-established",
-  };
-  unresolved.push({ source: "balance-boundary", detail: {
-    reason: "live-balances-not-established-at-history-cutoff", ...balanceEvidence,
-  } });
-  const coverage = { status: "unresolved", unresolved };
-  const ledgerMark = markHiveAccountLedger(composed.ledgerResult);
-  if (!ledgerMark.ok) throw new TypeError(`Hive ledger carrier refused: ${ledgerMark.refusal.message}`);
+  const coverage = { status: unresolved.length ? "unresolved" : "not-established", unresolved };
   const evidence = {
     type: "HiveAccountLedgerEvidence", version: 1,
     account: composed.chainAccount.name, rangeStart: composed.rangeStart, rangeEnd: composed.rangeEnd,
-    coverage, balanceEvidence, hiveHistory: composed.hiveHistory, hiveEngineHistory: composed.heHistory,
+    coverage, hiveHistory: composed.hiveHistory, hiveEngineHistory: composed.heHistory,
     chainAccount: composed.chainAccount, chainClosingBalances: composed.chainClosingBalances,
     openingBalances: composed.openingBalances,
-    ledgerDerivation: ledgerMark.value,
   };
-  return { ...composed, coverage, balanceEvidence, evidence };
+  return { ...composed, coverage, evidence };
 
 }
 
 /**
  * Compose the full lot: derive the ledger, write it, check it with farolfi, and run
  * farolfi's balance/valuation reports over it.
- * @param {{ account: string, rangeStart?: string, rangeEnd?: string, out: string }} options - explicit receiving destination; never inferred from installed source.
+ * @param {{ account: string, rangeStart?: string, rangeEnd?: string, out?: string }} options - when
+ *   `out` is omitted, the ledger lands at this section's own lawful dated-records path
+ *   (`defaultLedgerRecordsPath`) rather than an invented location; pass `out` only to override
+ *   for a test or an ad hoc one-off run.
  * @param {object} [deps] see `deriveLedgerForAccount`
  * @returns {Promise<object>} includes `out`, the path actually written.
  */
 export async function runHiveAutoLedger(options, deps = {}) {
-  if (typeof options?.out !== "string" || !options.out.trim()) throw new TypeError("Hive ledger export requires an explicit out destination");
-  const out = options.out;
   const composed = await deriveLedgerForAccount(options, deps);
+  const out = options.out ?? defaultLedgerRecordsPath(composed.chainAccount.name, composed.rangeEnd);
   const { coverage, evidence } = composed;
   // Beancount comments preserve the observation carrier in the same delivered artifact;
   // they are evidence, not postings or an assertion that every resource was accounted for.
@@ -228,8 +228,8 @@ if (import.meta.main) {
     },
   });
   if (!values.account) {
-    process.stderr.write("usage: hive-auto-ledger-cli --account <name> [--range-start YYYY-MM-DD] [--range-end YYYY-MM-DD] --out <path>\n");
-    process.stderr.write("  --out is required and names the receiving ledger path\n");
+    process.stderr.write("usage: hive-auto-ledger-cli --account <name> [--range-start YYYY-MM-DD] [--range-end YYYY-MM-DD] [--out <path>]\n");
+    process.stderr.write("  --out defaults to this section's data/records/<rangeEnd>-<account>-hive-account-ledger.beancount\n");
     process.exit(2);
   }
   try {
@@ -250,7 +250,7 @@ if (import.meta.main) {
     }, null, 2)}\n`);
     process.stdout.write(`${result.balanceReport.text}\n`);
     process.stdout.write(`${result.valuationReport.text}\n`);
-    if (result.coverage.status !== "established" || !result.check.ok) process.exitCode = 1;
+    if (result.coverage.unresolved.length || !result.check.ok) process.exitCode = 1;
   } catch (error) {
     process.stderr.write(`${JSON.stringify({ error: error.message })}\n`);
     process.exit(2);

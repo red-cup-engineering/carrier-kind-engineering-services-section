@@ -1,0 +1,14 @@
+{
+  "id": "structural-claims-register",
+  "name": "Structural Claims Register",
+  "kind": "market",
+  "entity": "561-group-llc",
+  "faces": "Tribal nations, counties and communities holding claims against data-center, transmission and pipeline projects, and the developers who need to know which claims to settle first.",
+  "offices": ["claims-caller", "claims-analyst", "claims-engagement-lead"],
+  "contracts": [],
+  "settings": [
+    { "axis": "caller-share", "means": "the originating caller's share of each engagement's fee", "poles": [0, 1], "unit": "share", "default": 0.3 },
+    { "axis": "quiet-days", "means": "days before a party not reached is called again", "poles": [1, 120], "unit": "days", "default": 14 }
+  ],
+  "x-provenance": { "recorded-by": "claude-opus-5-5", "recorded-on": "2026-09-26", "source": "engineering-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-enterprise-layer.md" }
+}

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe.software.placement.v2",
+  "title": "aoe.software.placement.v2",
+  "description": "A declared capability placement for software-change work",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "capability",
+    "effect",
+    "carrier",
+    "ownerBefore",
+    "ownerBeforeKind",
+    "ownerAfter",
+    "ownerAfterKind",
+    "reason",
+    "consumers",
+    "observation"
+  ],
+  "properties": {
+    "capability": {
+      "type": "string",
+      "minLength": 1
+    },
+    "effect": {
+      "type": "string",
+      "minLength": 1
+    },
+    "carrier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerBefore": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerBeforeKind": {
+      "type": "string",
+      "enum": [
+        "engine",
+        "component",
+        "module",
+        "application",
+        "platform",
+        "service",
+        "instance"
+      ]
+    },
+    "ownerAfter": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerAfterKind": {
+      "type": "string",
+      "enum": [
+        "engine",
+        "component",
+        "module",
+        "application",
+        "platform",
+        "service"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consumers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "observation": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "x-codegen": {
+    "exportName": "placementSchema",
+    "typeName": "Placement",
+    "runtimeName": "placementType"
+  }
+}

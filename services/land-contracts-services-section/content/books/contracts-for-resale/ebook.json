@@ -1,0 +1,9 @@
+{
+  "slug": "contracts-for-resale",
+  "title": "Contracts for Resale",
+  "subtitle": "The 561 Group's Field Manual for Finding Property, Putting It Under Contract, and Assigning It to a Buyer",
+  "author": "561 Group",
+  "bookDir": ".",
+  "distDir": "../../../dist/contracts-for-resale",
+  "style": { "division": "Land Contracts" }
+}

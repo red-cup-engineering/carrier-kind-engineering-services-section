@@ -1,0 +1,8 @@
+{
+  "objects": ["o1", "o2"],
+  "attributes": ["mammal", "warm", "fur"],
+  "pairs": [
+    ["o1", "mammal"], ["o1", "warm"], ["o1", "fur"],
+    ["o2", "warm"], ["o2", "fur"]
+  ]
+}

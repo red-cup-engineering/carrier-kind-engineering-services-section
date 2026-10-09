@@ -1,0 +1,165 @@
+{
+  "module": "cdrama-subtitles",
+  "compiledFrom": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms",
+  "partOf": "micro-drama",
+  "entries": [
+    {
+      "source": "契约妻子",
+      "target": "contract wife",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/qiyue-qizi.md"
+    },
+    {
+      "source": "契约婚姻",
+      "target": "contract marriage",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/qiyue-hunyin.md"
+    },
+    {
+      "source": "离婚协议",
+      "target": "divorce agreement",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/lihun-xieyi.md"
+    },
+    {
+      "source": "霸道总裁",
+      "target": "domineering CEO",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/badao-zongcai.md"
+    },
+    {
+      "source": "大小姐",
+      "target": "Eldest Miss",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/da-xiaojie.md"
+    },
+    {
+      "source": "大少爷",
+      "target": "Eldest Young Master",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/da-shaoye.md"
+    },
+    {
+      "source": "少奶奶",
+      "target": "Young Madam",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/shao-nainai.md"
+    },
+    {
+      "source": "掌门人",
+      "target": "head (of a family or clan business)",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/zhangmenren.md"
+    },
+    {
+      "source": "白月光",
+      "target": "first love (the idealized one)",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/bai-yueguang.md"
+    },
+    {
+      "source": "私生子",
+      "target": "illegitimate son",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/sishengzi.md"
+    },
+    {
+      "source": "老夫人",
+      "target": "Madam (the family matriarch)",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/lao-furen.md"
+    },
+    {
+      "source": "董事长",
+      "target": "Chairman",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/dongshizhang.md"
+    },
+    {
+      "source": "千金",
+      "target": "heiress",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/qianjin.md"
+    },
+    {
+      "source": "夫人",
+      "target": "Madam; Mrs. <surname>",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/furen.md"
+    },
+    {
+      "source": "嫂子",
+      "target": "sister-in-law",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/saozi.md"
+    },
+    {
+      "source": "少爷",
+      "target": "Young Master",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/shaoye.md"
+    },
+    {
+      "source": "师父",
+      "target": "Master (a teacher)",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/shifu.md"
+    },
+    {
+      "source": "徒儿",
+      "target": "your disciple",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/tuer.md"
+    },
+    {
+      "source": "总裁",
+      "target": "CEO",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/zongcai.md"
+    },
+    {
+      "source": "战神",
+      "target": "God of War",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/zhanshen.md"
+    },
+    {
+      "source": "神医",
+      "target": "miracle doctor",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/shenyi.md"
+    },
+    {
+      "source": "穿越",
+      "target": "transmigrated",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/chuanyue.md"
+    },
+    {
+      "source": "继母",
+      "target": "stepmother",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/jimu.md"
+    },
+    {
+      "source": "老爷",
+      "target": "Sir (the family patriarch)",
+      "kind": "form-of-address",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/laoye.md"
+    },
+    {
+      "source": "赘婿",
+      "target": "live-in son-in-law",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/zhuixu.md"
+    },
+    {
+      "source": "重生",
+      "target": "reborn",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/chongsheng.md"
+    },
+    {
+      "source": "闪婚",
+      "target": "whirlwind marriage",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/shanhun.md"
+    },
+    {
+      "source": "集团",
+      "target": "Group (in a company name)",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/jituan.md"
+    },
+    {
+      "source": "龙王",
+      "target": "Dragon King",
+      "term": "science-services-section/services/information-science-services-section/services/communication-science-services-section/services/media-science-services-section/content/text/glossary/terms/longwang.md"
+    }
+  ]
+}

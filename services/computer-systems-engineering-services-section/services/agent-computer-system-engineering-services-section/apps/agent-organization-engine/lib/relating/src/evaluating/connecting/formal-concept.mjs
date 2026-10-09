@@ -24,8 +24,8 @@
  *   RelMath.FCA.closeA_closure          (closeA is a closure operator)
  *   RelMath.FCA.primeA_primeB_primeA    (A′ = A‴ cancellation)
  */
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { arrayTerm, stringTerm, objectTerm, jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { arrayTerm, stringTerm, objectTerm, jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 
 
 const boolFalse = tm.bool(false);

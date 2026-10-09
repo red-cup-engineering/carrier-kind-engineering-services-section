@@ -1,0 +1,21 @@
+{
+  "id": "land-acquisitions-lead",
+  "name": "Land Acquisitions Lead",
+  "kind": "office",
+  "normative-structure": "The office answers for making offers to interested owners within the matched buyers' prices, signing assignable purchase agreements with the Group's licensed representation named, and depositing earnest money.",
+  "deontic-profile": {
+    "acquiring-land-contracts": "duty"
+  },
+  "authority-scope": [
+    "./"
+  ],
+  "jurisdiction": "land-contracts",
+  "supersedes": [
+    "emsenn/services/561-group/services/public-services-section/services/public-economic-services-section/services/duluth-infill-land-services-section#land-acquisitions-lead"
+  ],
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26",
+    "source": "content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-the-land-contracts-business-plan.md"
+  }
+}

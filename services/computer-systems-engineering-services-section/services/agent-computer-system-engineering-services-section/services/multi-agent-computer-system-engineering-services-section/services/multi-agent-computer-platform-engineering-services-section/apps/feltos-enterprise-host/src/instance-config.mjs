@@ -95,9 +95,8 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     throw new TypeError("MetroPlat instance origin differs from PUBLIC_BASE_URL");
   }
   const stateDir = resolve(required(setting("METROPLAT_WEB_STATE_DIR"), "METROPLAT_WEB_STATE_DIR"));
-  const googleClientId = present(environment.GOOGLE_CLIENT_ID);
-  const googleClientSecret = present(environment.GOOGLE_CLIENT_SECRET);
-  if ((googleClientId === undefined) !== (googleClientSecret === undefined)) throw new TypeError("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are all-or-none");
+  const googleClientId = required(environment.GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID for MetroPlat Google sign-in");
+  const googleClientSecret = required(environment.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET for MetroPlat Google sign-in");
   const defaults = installed.web.defaultPaths ?? {};
   const pathSetting = (key, fallback, base = repository) => {
     const value = setting(key);
@@ -143,7 +142,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     stateDir,
     sessionSecret: required(environment.SESSION_SECRET, "SESSION_SECRET"),
     allowedEmail: setting("METROPLAT_ALLOWED_EMAIL")?.toLowerCase(),
-    google: googleClientId === undefined ? undefined : Object.freeze({ clientId: googleClientId, clientSecret: googleClientSecret }),
+    google: Object.freeze({ clientId: googleClientId, clientSecret: googleClientSecret }),
     dataDir: present(setting("METROPLAT_WEB_DATA_DIR")) === undefined ? undefined : resolve(setting("METROPLAT_WEB_DATA_DIR")),
     metroplatSubject: present(setting("METROPLAT_MCP_SUBJECT")) ?? installed.identity.id,
     metroplatCapabilities: installed.capabilities ?? Object.freeze([]),

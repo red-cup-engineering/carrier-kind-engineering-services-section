@@ -17,7 +17,7 @@
           "required": ["transactionId", "reason"],
           "properties": {
             "transactionId": { "type": "string" },
-            "reason": { "enum": ["ambiguous-result", "missing-witness-hash", "witness-disagreement", "unsupported-contract-action", "no-completed-transfer"] }
+            "reason": { "enum": ["ambiguous-result", "witness-disagreement", "unsupported-contract-action", "no-completed-transfer"] }
           }
         }
       },

@@ -1,4 +1,12 @@
 import { fact, operation, isOperation, operationUtterances, operationIrAudit, nonportableOperations, programObject, compose, composes } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { composes } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { compose } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { programObject } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { nonportableOperations } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operationIrAudit } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operationUtterances } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { isOperation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { createMarkdownDocument } from "@red-cup-engineering/markdown-engineering-services-section/create-markdown-document";
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
@@ -6,10 +14,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { wireOf, wireCodec, wireByMediaType, stringCodec, jsonCodec, eavtCodec, senCodec, svgCodec, mermaidCodec, xmiCodec, plantUmlCodec, formCodec, WIRE_CODEC_NAMES } from "@red-cup-engineering/computer-system-engine/wire";
-import { sha256Hex, sha1Base64, hmacSha256Base64Url, timingSafeStringEqual } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
-import { toNumber } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
-import { parseDecimal } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { toCount, fromCount, toInt, fromInt, ratFromInt, fromRatio, fromInts } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { sha256Hex, sha1Base64, hmacSha256Base64Url, timingSafeStringEqual } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { toNumber } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { parseDecimal } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { toCount, fromCount, toInt, fromInt, ratFromInt, fromRatio, fromInts } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { ASSERT, RETRACT } from "@red-cup-engineering/datom";
 import { toDatom } from "@red-cup-engineering/datom/admit-datom";
 import { isDatomShape } from "@red-cup-engineering/datom/is-datom";
@@ -128,7 +136,7 @@ import { normalizePath as normalizePath_2, pathParent as pathParent_2, pathBasen
 import { entropyBitsAtBoundary as entropyBitsAtBoundary_2, klBitsAtBoundary as klBitsAtBoundary_2, mutualInformationBitsAtBoundary as mutualInformationBitsAtBoundary_2 } from "@red-cup-engineering/metrologic/number/evidence-bits";
 import { otlpSpanSchema as otlpSpanSchema_2, otlpTracesSchema as otlpTracesSchema_2, agentEventChronicleSchema as agentEventChronicleSchema_2, otlpSpanContract as otlpSpanCarrier_2, otlpTracesContract as otlpTracesCarrier_2, agentEventChronicleContract as agentEventChronicleCarrier_2 } from "@red-cup-engineering/computer-networking-engineering-services-section/otlp";
 import { spanFromStatement as spanFromWitness_2, statementFromSpan as witnessFromSpan_2, otlpFromStatements as otlpFromWitnesses_2, otlpFromAgentEventChronicle as otlpFromAgentEventChronicle_2, statementsFromOtlp as witnessesFromOtlp_2, agentEventStatementsFromOtlp as agentEventWitnessesFromOtlp_2, otlpBulkCells as otlpBulkCells_2 } from "@red-cup-engineering/computer-networking-engineering-services-section/otlp";
-import { quadraticToNumber } from "@red-cup-engineering/computer-data-engineering-services-section/number/quadratic";
+import { quadraticToNumber } from "@red-cup-engineering/exact-number-data-service/quadratic";
 import { printType, generateDeclaration } from "@red-cup-engineering/relating/typing";
 import { decodeLeanGoldenVectorLine, decodeLeanGoldenVectorJsonl, encodeLeanGoldenVectorJsonl, leanGoldenVectorsByAction, LeanGoldenVectorSchema } from "@red-cup-engineering/lean-system-services-section/golden-vector/codec";
 import { assertTriple, tripleId, dedupeTriples, tripleFromEavt, tripleFromDatom } from "@red-cup-engineering/eavt/triple";
@@ -137,7 +145,7 @@ import { eavtToCell, cellToEavt } from "@red-cup-engineering/computer-code-engin
 import { jsonResource, jsonResource as jsonResource_2, jsonResource as jsonResource_3 } from "@red-cup-engineering/json-services-section";
 import { jsonProjector } from "@red-cup-engineering/computer-content-engineering-services-section/json-projector";
 import { jsonlProjector } from "@red-cup-engineering/jsonl-services-section/jsonl-projector";
-import { integerToDecimalString, ratToExactString, fromDecimalString, toDecimalString } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number-host";
+import { integerToDecimalString, ratToExactString, fromDecimalString, toDecimalString } from "@red-cup-engineering/exact-number-data-service/exact-number-host";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 

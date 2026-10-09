@@ -1,0 +1,35 @@
+{
+  "name": "@red-cup-engineering/attention-allocation-readout-service",
+  "version": "0.1.4",
+  "type": "module",
+  "description": "Union-facing OSS boundary for a qualified executable projection of the monotone-budget greedy attention allocation, grounded in Obsmetrologia mathematics.",
+  "keywords": [
+    "activitystreams",
+    "attention-allocation",
+    "micro-enterprise",
+    "red-cup-engineering"
+  ],
+  "bin": {
+    "solicit-service": "./src/contract-attention-allocation.mjs",
+    "invoke-service": "./src/contract-attention-allocation.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/activitypub-services-section": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/witness-journal-document-service": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*"
+  },
+  "license": "UNLICENSED",
+  "exports": {
+    "./operations": "./src/operations.mjs",
+    "./package.json": "./package.json"
+  }
+}

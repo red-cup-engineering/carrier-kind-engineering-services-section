@@ -811,6 +811,31 @@ test("a real client abort still terminates a pending incoming body read", async 
     request.destroy();
     await observed;
 });
+
+test("a disconnected client cannot crash a response before its headers arrive", {timeout:15000}, async (t)=>{
+    let seen, release, aborted, cancelled;
+    const received=new Promise(resolve=>seen=resolve);
+    const resume=new Promise(resolve=>release=resolve);
+    const disconnect=new Promise(resolve=>aborted=resolve);
+    const stopped=new Promise(resolve=>cancelled=resolve);
+    const handle=createFetchHandler({resources:[
+        {match:"/slow",handler:async ctx=>{
+            ctx.signal.addEventListener("abort",aborted,{once:true});seen();
+            await resume;
+            return new Response(new ReadableStream({cancel:()=>cancelled()}),{headers:{"content-type":"text/plain"}});
+        }},
+        {match:"/health",handler:()=>new Response("healthy",{headers:{"content-type":"text/plain"}})}
+    ]});
+    const server=await start(handle.engine,{port:0,host:"127.0.0.1"});
+    t.after(()=>server.close());
+    const request=nodeRequest(`http://127.0.0.1:${server.port}/slow`);
+    request.on("error",()=>{});request.end();await received;
+    request.destroy();await disconnect;release();await stopped;
+    await new Promise(resolve=>setImmediate(resolve));
+    const response=await fetch(`http://127.0.0.1:${server.port}/health`);
+    assert.equal(response.status,200);assert.equal(await response.text(),"healthy");
+});
+
 test("HTTP/2 refusal closes only the unfinished upload after delivering its response", {
     timeout: 3000
 }, async (t)=>{
@@ -962,4 +987,62 @@ test("createNodeServer builds a managed server that is not yet listening", ()=>{
     }));
     assert.equal(typeof managed.closeGracefully, "function");
     assert.equal(managed.address(), null);
+});
+
+test('compressed response body failure rejects delivery and leaves the HTTP server usable', {timeout: 5000}, async (t) => {
+    const {createServer} = await import('node:http');
+    const {sendWebResponse} = await import('../src/web-bridge.mjs');
+    const original = new Error('response producer failed');
+    const failures = [];
+    const server = createServer((req, res) => {
+        const response = req.url === '/fails'
+            ? new Response(new ReadableStream({pull(controller) {controller.error(original);}}), {headers: {'content-type': 'text/plain'}})
+            : new Response('next response retained', {headers: {'content-type': 'text/plain'}});
+        void sendWebResponse(res, response, {acceptEncoding: 'gzip'}).catch(error => {
+            failures.push(error);
+            if (!res.destroyed) res.destroy();
+        });
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise(resolve => server.close(resolve)));
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    await assert.rejects(async () => {
+        const response = await fetch(origin + '/fails');
+        await response.text();
+    });
+    assert.deepEqual(failures, [original]);
+    const response = await fetch(origin + '/healthy');
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-encoding'), 'gzip');
+    assert.equal(await response.text(), 'next response retained');
+});
+
+test('late response after client disconnect retains its abort without crashing the HTTP server', {timeout: 5000}, async (t) => {
+    const {createServer} = await import('node:http');
+    const {sendWebResponse} = await import('../src/web-bridge.mjs');
+    const {requestAbortSignal} = await import('../src/node-request.mjs');
+    let finish, original;
+    const delivered = new Promise(resolve => {finish = resolve;});
+    const server = createServer((req, res) => {
+        if (req.url === '/healthy') {
+            void sendWebResponse(res, new Response('still serving'));
+            return;
+        }
+        const signal = requestAbortSignal(req, res);
+        res.once('close', () => {
+            original = signal.reason;
+            const body = new ReadableStream({start(controller) {controller.error(original);}});
+            void sendWebResponse(res, new Response(body)).then(
+                () => finish({accepted: true}), error => finish({error}));
+        });
+        res.destroy();
+    });
+    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise(resolve => server.close(resolve)));
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    await assert.rejects(fetch(origin + '/disconnect'));
+    assert.equal((await delivered).error, original);
+    assert(original instanceof Error);
+    const response = await fetch(origin + '/healthy');
+    assert.equal(await response.text(), 'still serving');
 });

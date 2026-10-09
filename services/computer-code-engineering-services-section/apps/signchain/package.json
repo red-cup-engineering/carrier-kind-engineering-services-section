@@ -28,13 +28,17 @@
   },
   "dependencies": {
     "@red-cup-engineering/signcell": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/metrologic": "workspace:*"
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "scripts": {
     "test": "node --test \"test/**/*.test.mjs\""
-  }
+  },
+  "receivingTests": [
+    "test/phase-certificate.test.mjs"
+  ]
 }

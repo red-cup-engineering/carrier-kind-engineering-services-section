@@ -47,9 +47,12 @@ export function defaultFilesystemBinding(
     readFile,
     writeFile,
     dataRoot: resolvedRoot,
+    ...(options.agencyRoot===undefined?{}:{agencyRoot:path.resolve(options.agencyRoot)}),
+    ...(options.resolveActorSubject===undefined?{}:{resolveActorSubject:options.resolveActorSubject}),
     // Preserve the host owner's admitted source transport; never manufacture
     // an executor or derive new source custody from the filesystem defaults.
     ...(options.sourceReadResource === undefined ? {} : { sourceReadResource: options.sourceReadResource }),
+    ...(options.sourceTaskOf === undefined ? {} : { sourceTaskOf: options.sourceTaskOf }),
     ...(options.repositoryRoot === undefined ? {} : { repositoryRoot: path.resolve(options.repositoryRoot) }),
     ...(options.clockStateRoot === undefined ? {} : { clockStateRoot: path.resolve(options.clockStateRoot) }),
     claudeSessionRoot: options.claudeSessionRoot ?? path.join(homedir(), ".claude", "projects", resolvedRoot.split(path.sep).join("-")),

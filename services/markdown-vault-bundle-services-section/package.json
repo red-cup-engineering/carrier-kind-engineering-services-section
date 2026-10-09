@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/markdown-vault-bundle-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Concatenates a Markdown vault subtree's admitted carriers into a small number of deterministic aggregate Markdown files, sized and capped for bulk ingestion (e.g. Google Gemini Notebook).",
+  "exports": {
+    ".": {
+      "import": "./src/bundle-markdown-vault-carriers.mjs"
+    },
+    "./bundle-markdown-vault-carriers": "./scripts/bundle-markdown-vault-carriers.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/witness-journal-document-service": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "types"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

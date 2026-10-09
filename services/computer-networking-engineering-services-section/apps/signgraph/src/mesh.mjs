@@ -13,7 +13,7 @@
  */
 import { extent, intent, makeContext } from "@red-cup-engineering/metrologic/closure/formal-context";
 import { knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { census } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { census } from "@red-cup-engineering/computer-data-services-section/four";
 
 const text = (value) => JSON.stringify(value);
 

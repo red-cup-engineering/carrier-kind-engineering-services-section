@@ -11,8 +11,8 @@
  * term data. Counting can therefore appear inside reader terms and action
  * bodies without becoming an opaque TypeScript helper.
  */
-import { tm, } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { objectTerm, arrayTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm, } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { objectTerm, arrayTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
 
 /** The von Neumann zero `{ kind: "vonNeumann.natural", members: [] }`. */
 export const natZeroTerm = objectTerm([

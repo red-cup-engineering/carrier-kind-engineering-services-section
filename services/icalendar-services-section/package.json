@@ -1,0 +1,17 @@
+{
+  "name": "@red-cup-engineering/icalendar-services-section",
+  "version": "0.1.0",
+  "description": "Owns iCalendar (RFC 5545) scheduling data -- VEVENT recurrence rules, DTSTART/EXDATE/RDATE, and due-event derivation -- shared across the tree's separately implemented schedulers.",
+  "type": "module",
+  "keywords": [
+    "engineering"
+  ],
+  "exports": {
+    "./derive-set-of-due-events": "./scripts/derive-set-of-due-events.mjs",
+    "./expand-recurrence-rule": "./scripts/expand-recurrence-rule.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {}
+}

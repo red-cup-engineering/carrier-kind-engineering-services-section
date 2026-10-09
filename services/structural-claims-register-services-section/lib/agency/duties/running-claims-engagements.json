@@ -1,0 +1,20 @@
+{
+  "id": "running-claims-engagements",
+  "name": "run claims engagements",
+  "authority": "emsenn",
+  "work": "running-claims-engagements",
+  "from": "parties with a discovery call set",
+  "to": "proposals, deposits, delivered registers and readings, paid engagements with the caller's share recorded",
+  "cost": "the lead's time and the analyst's delivery work",
+  "otherwise": "interested parties go unserved and callers go unpaid",
+  "claim": "founder",
+  "delegation": true,
+  "skills": [
+    "running-claims-engagements"
+  ],
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26",
+    "source": "561-group-services-section notes, 2026-09-05-note-on-collapse-aware-financial-enterprises.md, sections 5 and 8"
+  }
+}

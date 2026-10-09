@@ -1,10 +1,14 @@
+import {createProviderAccountEntitlementResolver} from "./provider-account-entitlement.mjs";
+import {isZeroCashProvider} from "../openai/openai-compatible-chat-completion.mjs";
+const accountEntitlementVerifiers=new WeakMap();
+const CATALOG_ROW=Symbol("provider-catalog-row");
 import { allocateProviderOutputTokens } from "../openai/provider-runtime.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { nonnegativeHostRatio as exactNonnegativeAmount, positiveHostRatio as exactAmount } from "@red-cup-engineering/metrologic/number/wire-ratio";
 import { executionConfigurationIdentity } from "./sen-carrier.mjs";
 import { isCommandEndpoint } from "../command/exchange.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 import { pricingRootOf, appendProviderAvailability, latestProviderAvailability, loadObservations } from "./expected-resolution-pricing.mjs";
 import { perishablePrice } from "@red-cup-engineering/organizing/enterprise";
 import { allowanceLedgerPath, readAllowanceLedger, recordAllowanceEvidence } from "../media/allowance-ledger.mjs";
@@ -51,6 +55,7 @@ function withCatalogFacts(entry, catalogRowsById) {
   if (!row) return entry;
   return {
     ...entry,
+    [CATALOG_ROW]:row,
     endpoint: entry.endpoint ?? row.chatCompletionsUrl,
     apiKeyEnv: entry.apiKeyEnv ?? row.apiKeyEnvVar,
     model: entry.model ?? row.defaultModel,
@@ -176,7 +181,7 @@ function exactDimensions(value, category) {
  *   considerationAmount: { numerator: string, denominator: string },
  * }}
  */
-export function loadDirectEndpointProviderDescriptor(env = process.env, { pricingRoot = pricingRootOf(env), availabilityObservations } = {}) {
+export function loadDirectEndpointProviderDescriptor(env = process.env, { resolveAccountEntitlement, pricingRoot = pricingRootOf(env), availabilityObservations } = {}) {
   return normalizeDirectEndpointDescriptor({
     provider: env.DIRECT_ENDPOINT_PROVIDER_ACTOR,
     endpoint: env.DIRECT_ENDPOINT_PROVIDER_ENDPOINT,
@@ -198,7 +203,7 @@ export function loadDirectEndpointProviderDescriptor(env = process.env, { pricin
     considerationUnit: env.DIRECT_ENDPOINT_PROVIDER_CONSIDERATION_UNIT,
     considerationNumerator: env.DIRECT_ENDPOINT_PROVIDER_CONSIDERATION_NUMERATOR,
     considerationDenominator: env.DIRECT_ENDPOINT_PROVIDER_CONSIDERATION_DENOMINATOR,
-  }, env, pricingRoot, availabilityObservations);
+  }, env, resolveAccountEntitlement, pricingRoot, availabilityObservations);
 }
 
 /**
@@ -211,7 +216,7 @@ export function loadDirectEndpointProviderDescriptor(env = process.env, { pricin
  * @param {Record<string, unknown>} entry
  * @param {Record<string, string|undefined>} env
  */
-function normalizeDirectEndpointDescriptor(entry, env = process.env, pricingRoot = pricingRootOf(env), availabilityObservations) {
+function normalizeDirectEndpointDescriptor(entry, env = process.env, resolveAccountEntitlement, pricingRoot = pricingRootOf(env), availabilityObservations) {
   if (!entry || typeof entry !== "object") return null;
   const provider = nonEmpty(entry.provider ?? entry.actor);
   const transport = nonEmpty(entry.transport);
@@ -228,6 +233,7 @@ function normalizeDirectEndpointDescriptor(entry, env = process.env, pricingRoot
   const availableResources = entry.availableResources === undefined
     ? undefined
     : exactDimensions(entry.availableResources, "resources");
+  const accountEntitlement = resolveAccountEntitlement?.({provider,endpoint,model,apiKey}) ?? null;
   const credentialSha256 = apiKey ? sha256Hex(apiKey) : null;
   const identity = credentialSha256 ? `${provider}:${credentialSha256}` : provider;
   if (pricingRoot) restoreProviderAvailability(provider,
@@ -246,6 +252,8 @@ function normalizeDirectEndpointDescriptor(entry, env = process.env, pricingRoot
     ...(credentialSha256 ? { credentialSha256 } : {}),
     model,
     ...(entry.capabilityModels ? { capabilityModels: Object.freeze(structuredClone(entry.capabilityModels)) } : {}),
+    zeroCashEligible: accountEntitlement !== null || (entry[CATALOG_ROW]?.chatCompletionsUrl === endpointTemplate && isZeroCashProvider(entry[CATALOG_ROW],model)),
+    ...(accountEntitlement ? {accountEntitlement} : {}),
     endpointClass: nonEmpty(entry.endpointClass) ?? DEFAULT_ENDPOINT_CLASS,
     // Advertise the same allocation enforced by the provider boundary, even
     // when the endpoint was configured without its catalog identity.
@@ -279,6 +287,7 @@ function normalizeDirectEndpointDescriptor(entry, env = process.env, pricingRoot
     ...descriptor,
     configurationIdentity: directEndpointConfigurationIdentity(descriptor),
   });
+  if(accountEntitlement) accountEntitlementVerifiers.set(admitted,resolveAccountEntitlement);
   return admitted;
 }
 
@@ -326,9 +335,17 @@ function pricedConsideration(numerator, denominator, price) {
 }
 
 /** Admission facts shared by planning inspection and the actual direct lane. */
-export function directEndpointAdmissionReasons(descriptor) {
+export function isDirectEndpointZeroCashEligible(descriptor) {
+  if (isCommandEndpoint(descriptor)) return false;
+  if (descriptor?.accountEntitlement) return accountEntitlementVerifiers.get(descriptor)?.(descriptor) != null;
+  return descriptor?.zeroCashEligible === true;
+}
+
+export function directEndpointAdmissionReasons(descriptor, { zeroCashOnly = false } = {}) {
   const reasons = [];
   if (descriptor.availableCapacity < 1) reasons.push("no-available-capacity");
+  if (zeroCashOnly && isCommandEndpoint(descriptor)) reasons.push("subscription-provider-excluded-from-zero-cash-market");
+  else if (zeroCashOnly && !isDirectEndpointZeroCashEligible(descriptor)) reasons.push("zero-cash-entitlement-not-admitted");
   if (descriptor.availabilityEvidence?.available === false) reasons.push("provider-observed-unavailable");
   return reasons;
 }
@@ -446,9 +463,11 @@ function optionalOutputTokens(value) {
 
 export const DEFAULT_DIRECT_ENDPOINT_PROVIDER_CONFIG = fileURLToPath(new URL("../../content/dispatch/provider-admissions/direct-endpoint-providers.json", import.meta.url));
 
-export function loadDirectEndpointProviderDescriptors(env = process.env, { configPath, catalogPath, pricingRoot = pricingRootOf(env) } = {}) {
+export function loadDirectEndpointProviderDescriptors(env = process.env, { configPath, catalogPath, accountEntitlements, accountEntitlementsPath = env.DIRECT_ENDPOINT_ACCOUNT_ENTITLEMENTS, pricingRoot = pricingRootOf(env), now } = {}) {
   const descriptors = [];
   const availabilityObservations = pricingRoot ? loadObservations({ dataRoot: pricingRoot }) : [];
+  const observations = accountEntitlements ?? (accountEntitlementsPath ? JSON.parse(readFileSync(accountEntitlementsPath, "utf8")) : []);
+  const resolveAccountEntitlement = createProviderAccountEntitlementResolver(observations, { now });
   const catalogRowsById = providerCatalogRowsById(catalogPath);
   const explicitList = nonEmpty(env.DIRECT_ENDPOINT_PROVIDERS) !== null;
   if (configPath === undefined && !explicitList) configPath = DEFAULT_DIRECT_ENDPOINT_PROVIDER_CONFIG;
@@ -457,7 +476,7 @@ export function loadDirectEndpointProviderDescriptors(env = process.env, { confi
     const entries = Array.isArray(carrier) ? carrier : carrier?.providers;
     if (!Array.isArray(entries)) throw new Error("direct endpoint provider config must contain one providers array");
     for (const entry of entries) {
-      const descriptor = normalizeDirectEndpointDescriptor(withCatalogFacts(entry, catalogRowsById), env, pricingRoot, availabilityObservations);
+      const descriptor = normalizeDirectEndpointDescriptor(withCatalogFacts(entry, catalogRowsById), env, resolveAccountEntitlement, pricingRoot, availabilityObservations);
       if (descriptor) descriptors.push(descriptor);
     }
   }
@@ -469,11 +488,11 @@ export function loadDirectEndpointProviderDescriptors(env = process.env, { confi
     }
     if (!Array.isArray(entries)) throw new Error("DIRECT_ENDPOINT_PROVIDERS must be one JSON array of direct endpoint descriptor entries");
     for (const entry of entries) {
-      const descriptor = normalizeDirectEndpointDescriptor(withCatalogFacts(entry, catalogRowsById), env, pricingRoot, availabilityObservations);
+      const descriptor = normalizeDirectEndpointDescriptor(withCatalogFacts(entry, catalogRowsById), env, resolveAccountEntitlement, pricingRoot, availabilityObservations);
       if (descriptor) descriptors.push(descriptor);
     }
   }
-  const single = loadDirectEndpointProviderDescriptor(env, { pricingRoot, availabilityObservations });
+  const single = loadDirectEndpointProviderDescriptor(env, { resolveAccountEntitlement, pricingRoot, availabilityObservations });
   if (single && !descriptors.some((descriptor) => descriptor.configurationIdentity === single.configurationIdentity)) descriptors.push(single);
   return Object.freeze(descriptors);
 }
@@ -544,6 +563,7 @@ export async function dispatchDirectEndpointOffer(descriptor, demand, { invoke }
   if (!isCommandEndpoint(descriptor) && typeof invoke !== "function") throw new Error("dispatching a direct endpoint offer requires one injected transport function");
   if (!Array.isArray(demand?.messages) || demand.messages.length === 0) throw new Error("one nonempty message sequence is required to dispatch a direct endpoint offer");
   const execution = demand.execution ?? {};
+  if(execution.zeroCashOnly && !isDirectEndpointZeroCashEligible(descriptor)) throw new Error("zero-cash-entitlement-not-admitted");
   for (const field of ["provider", "endpoint", "apiKey", "auth", "model", "reasoningEffort"]) {
     if (execution[field] !== undefined) throw new Error(`direct endpoint execution cannot override selected ${field}`);
   }
@@ -554,6 +574,7 @@ export async function dispatchDirectEndpointOffer(descriptor, demand, { invoke }
     const maximumOutputTokens = directEndpointExecutionConfiguration(descriptor, execution).maximumOutputTokens;
     // A command provider decodes under the response format's schema through its own schema argument.
     const outputSchema = demand.responseFormat?.type === "json_schema" ? demand.responseFormat.json_schema?.schema : undefined;
+    if(execution.zeroCashOnly && !isDirectEndpointZeroCashEligible(descriptor)) throw new Error("zero-cash-entitlement-not-admitted");
     const exchange = await runProviderExchange(descriptor.providerId, { model: descriptor.model, messages, ...(maximumOutputTokens === undefined ? {} : { "max-tokens": maximumOutputTokens }), ...(outputSchema === undefined ? {} : { params: { outputSchema } }) });
     if (exchange.outcome !== "completion") return Object.freeze({ disposition: "refused", provider: descriptor.provider, model: descriptor.model, reason: exchange.refusal?.grounds ?? "provider-refusal", cause: { kind: "command", reason: exchange.refusal?.unmet?.[0] ?? "provider-refusal" }, durationMs: null, toolInvocations: Object.freeze([]), exchanges: Object.freeze([]) });
     const text = exchange.completion.text;

@@ -2,6 +2,7 @@ import { assertNonemptyString as nonempty } from "@red-cup-engineering/json-serv
 /** Canonical, protocol-neutral RPC invocation material. */
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
+import { isNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 
 /** Construct and content-address one semantic invocation after wire decoding. */
 export function invocation(draft) {
@@ -34,4 +35,21 @@ export function invocation(draft) {
     ...material,
     id: artifactId(identity),
   });
+}
+
+/** A rejected body's reference, never a rewritten invocation under its former identity.
+ * Unaccepted input, arguments, caller material and transport request strings are omitted.
+ * The original content address is retained only as a reference. An address is not encryption
+ * and does not make guessable private material safe; this is bounded raw-payload minimization. */
+export function rejectedInvocationReference(candidate, operation) {
+  const material = Object.freeze({
+    kind: "metroplat.rpc.rejected-invocation-reference",
+    invocation: candidate.id,
+    subject: candidate.subject,
+    verb: operation?.verb ?? "unresolved-operation",
+    ...(operation === undefined ? {} : { operation: operation.ref, ...(operation.domain === undefined ? {} : { domain: operation.domain.id }) }),
+    // Preserve canonical causal references without retaining arbitrary cause strings.
+    causes: Object.freeze((candidate.causes ?? []).filter(isNiUri)),
+  });
+  return Object.freeze({ ...material, id: artifactId(material) });
 }

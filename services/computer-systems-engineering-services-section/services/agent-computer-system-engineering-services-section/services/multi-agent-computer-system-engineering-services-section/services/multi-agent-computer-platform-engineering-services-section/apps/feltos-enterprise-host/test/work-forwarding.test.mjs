@@ -146,3 +146,120 @@ test("a decision for a thread homed here, asserted by the peer, is never counted
     assert.ok(board.refused.some(({ why }) => /not home/.test(why)));
   } finally { c.drop(); }
 });
+
+const reportAt = (at, evidence = ["fixture:original-evidence"]) => ({
+  move: "report", by: "enterprise:alpha", hand: "fixture:first-hand",
+  law: "fixture-source-open", subject: "https://github.com/owner/public/issues/2",
+  observation: "The reported condition stands open.", evidence,
+  context: "The first admitted interpretation.", scope: ["section:services/beta-section"], at,
+});
+const sayingsOf = thread => [...thread.corroborations, ...(thread.restatements ?? [])];
+
+test("an exact report opening replay does not manufacture a restatement on either node", async () => {
+  const c = city();
+  try {
+    const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"];
+    const input = reportAt("2026-10-03T09:00:00Z");
+    const first = await bare.open(input), again = await bare.open(input);
+    assert.equal(again.id, first.id);
+    for (const node of [bare, cold]) {
+      const thread = node.board().threads.find(value => value.id === first.id);
+      assert.equal(sayingsOf(thread).length, 0);
+    }
+  } finally { c.drop(); }
+});
+
+test("same-condition new evidence reaches both native boards as the emitted telling", async () => {
+  const c = city();
+  try {
+    const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"], shipped = [];
+    const open = hostedWorkOpening({ config: bare.config, binding: bare.binding, provider: bare.provider,
+      enterprises: () => ENTERPRISES, deliver: async (provider, request) => {
+        shipped.push(extractSignCellEvidenceActivity({ ...request.activity, actor: actorOf(bare.host) }, { expectedActor: actorOf(bare.host), expectedRecipient: actorOf(cold.host) }));
+        return bare.deliver(provider, request);
+      } });
+    const first = await open(reportAt("2026-10-03T09:00:00Z"));
+    assert.equal(shipped[0].value.edition, first.edition, "the opening travels under the law that actually admitted it");
+    const revised = await open(reportAt("2026-10-03T10:00:00Z", ["fixture:original-evidence", "fixture:new-source-document"]));
+    assert.equal(revised.move, "corroborate"); assert.equal(revised.thread, first.id);
+    assert.equal(shipped.at(-1).objectKind, "metroplat.work.arena-telling");
+    assert.deepEqual(shipped.at(-1).value, Object.fromEntries(Object.entries(revised).filter(([key]) => key !== "peerHandoff")));
+    for (const node of [bare, cold]) {
+      const thread = node.board().threads.find(value => value.id === first.id);
+      assert.equal(node.board().threads.length, 1);
+      assert.ok(sayingsOf(thread).some(value => value.evidence.includes("fixture:new-source-document")));
+    }
+  } finally { c.drop(); }
+});
+
+test("new report testimony does not overwrite the first opening's authority or scope", async () => {
+  const c = city();
+  try {
+    const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"];
+    const initial = reportAt("2026-10-03T09:00:00Z"); const first = await bare.open(initial);
+    await bare.open({ ...reportAt("2026-10-03T10:00:00Z", ["fixture:other-witness"]),
+      by: "enterprise:beta", hand: "fixture:other-hand", scope: ["section:services/alpha-section"], context: "A different claimed interpretation." });
+    for (const node of [bare, cold]) {
+      const thread = node.board().threads.find(value => value.id === first.id);
+      assert.equal(thread.opening.by, initial.by); assert.equal(thread.opening.hand, initial.hand);
+      assert.deepEqual(thread.opening.scope, initial.scope); assert.equal(thread.opening.context, initial.context);
+      assert.ok(sayingsOf(thread).some(value => value.player === "enterprise:beta" && value.evidence.includes("fixture:other-witness")));
+    }
+  } finally { c.drop(); }
+});
+
+test("lost telling acknowledgement retries the same native evidence without another contribution", async () => {
+  const c = city();
+  try {
+    const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"]; let fail = true;
+    const open = hostedWorkOpening({ config: bare.config, binding: bare.binding, provider: bare.provider,
+      enterprises: () => ENTERPRISES, deliver: async (provider, request) => {
+        const projection = extractSignCellEvidenceActivity({ ...request.activity, actor: actorOf(bare.host) }, { expectedActor: actorOf(bare.host), expectedRecipient: actorOf(cold.host) });
+        const result = await bare.deliver(provider, request);
+        if (projection.objectKind === "metroplat.work.arena-telling" && fail) { fail = false; throw new Error("acknowledgement lost"); }
+        return result;
+      } });
+    const first = await open(reportAt("2026-10-03T09:00:00Z"));
+    const changed = reportAt("2026-10-03T10:00:00Z", ["fixture:changed-evidence"]);
+    assert.equal((await open(changed)).peerHandoff, "failed");
+    assert.equal((await open(changed)).peerHandoff, "queued");
+    for (const node of [bare, cold]) assert.equal(sayingsOf(node.board().threads.find(value => value.id === first.id)).length, 1);
+  } finally { c.drop(); }
+});
+
+test("new report telling can arrive before its original opening and duplicate delivery converges", async () => {
+  const c = city();
+  try {
+    const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"], queued = [];
+    const open = hostedWorkOpening({ config: bare.config, binding: bare.binding, provider: bare.provider,
+      enterprises: () => ENTERPRISES, deliver: async (_provider, request) => { queued.push(request); } });
+    const first = await open(reportAt("2026-10-03T09:00:00Z"));
+    await open(reportAt("2026-10-03T10:00:00Z", ["fixture:later-evidence"]));
+    await bare.deliver(undefined, queued.at(-1));
+    assert.equal(cold.board().threads.length, 0); assert.equal(cold.board().awaiting.length, 1);
+    await bare.deliver(undefined, queued[0]);
+    await bare.deliver(undefined, queued.at(-1));
+    await bare.deliver(undefined, queued[0]);
+    const thread = cold.board().threads.find(value => value.id === first.id);
+    assert.ok(thread); assert.equal(sayingsOf(thread).length, 1);
+    assert.ok(sayingsOf(thread)[0].evidence.includes("fixture:later-evidence"));
+  } finally { c.drop(); }
+});
+
+
+test("losing the peer binding after opening delivery reports a failed telling handoff", async () => {
+  const c = city();
+  try {
+    const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"];
+    const first = await bare.open(reportAt("2026-10-03T09:00:00Z"));
+    const open = hostedWorkOpening({ config: bare.config, binding: bare.binding, provider: bare.provider,
+      enterprises: () => ENTERPRISES, deliver: async (provider, request) => {
+        await bare.deliver(provider, request);
+        bare.config.deliverWorkToPeer = false;
+      } });
+    const result = await open(reportAt("2026-10-03T10:00:00Z", ["fixture:not-delivered"]));
+    assert.equal(result.peerHandoff, "failed");
+    assert.equal(sayingsOf(bare.board().threads.find(value => value.id === first.id)).length, 1);
+    assert.equal(sayingsOf(cold.board().threads.find(value => value.id === first.id)).length, 0);
+  } finally { c.drop(); }
+});

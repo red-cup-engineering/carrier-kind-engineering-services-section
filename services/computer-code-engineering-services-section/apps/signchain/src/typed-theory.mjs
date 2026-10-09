@@ -9,7 +9,7 @@
  * over predication coincidence and the exact `count`/`natZero`.
  */
 import { baseObjectCoincides, predicateCoincides, termCoincides, isSpecializationMorphism, } from "@red-cup-engineering/signcell/predication";
-import { count, natZero } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
+import { count, natZero } from "@red-cup-engineering/exact-number-data-service/exact-number";
 /** Build a cell from subject, predicate, object. */
 export const cellOf = (subject, predicate, object) => ({ subject, predicate, object });
 const inferenceRule = (morphism, domain, codomain, trace = inferenceTrace([morphism])) => Object.freeze({ kind: "typedTheory.inferenceRule", domain, trace, codomain });

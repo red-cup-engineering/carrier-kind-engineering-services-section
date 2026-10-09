@@ -15,7 +15,7 @@
  * package's schemas declares x-codegen, and its cross-package references need explicit
  * input identities. It was retired; this file remains a hand-maintained compatibility
  * carrier until those references are specified and generated through AOE work. */
-import { defineSchemaType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type";
+import { defineSchemaType } from "@red-cup-engineering/computer-data-services-section/type-system/schema-type";
 
 const evidenceSchema = Object.freeze({
     "$schema": "https://json-schema.org/draft/2020-12/schema",

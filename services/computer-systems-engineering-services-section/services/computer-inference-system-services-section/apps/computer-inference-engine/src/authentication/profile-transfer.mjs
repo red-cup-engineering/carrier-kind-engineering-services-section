@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
-import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
-import { openSecret, sealSecret } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/seal";
+import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { openSecret, sealSecret } from "@red-cup-engineering/cryptographic-data-service/seal";
 import { writeFileAtomic } from "@red-cup-engineering/computer-system-engine/filesystem";
 
 function validateValue(text, validate, label) {

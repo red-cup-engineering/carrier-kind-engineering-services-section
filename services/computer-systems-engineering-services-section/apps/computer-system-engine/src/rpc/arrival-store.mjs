@@ -1,5 +1,5 @@
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
 
 import { admitCloudEventArrival, arrivalDispatchClaimFromCloudEvent, arrivalReceiptWithAdmission, ARRIVAL_ADMISSION_TERM, ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { } from "@red-cup-engineering/json-services-section";
@@ -57,7 +57,7 @@ function bytesOf(value) {
 
 function boundaryOperation(materialKind, endpoint) {
   if (materialKind === "metroplat.dispatch.arrival-material") return "dispatch";
-  if (materialKind === "metroplat.mcp.arrival-material") return "mcp";
+  if (materialKind === "metroplat.mcp.arrival-material" || materialKind === "metroplat.mcp.projected-arrival-material") return "mcp";
   if (materialKind === "metroplat.http.arrival-material") return "http";
   if (materialKind === "metroplat.hook.arrival-material") return "hook";
   const verb = endpoint !== undefined && endpoint !== null && typeof endpoint === "object" && !Array.isArray(endpoint)

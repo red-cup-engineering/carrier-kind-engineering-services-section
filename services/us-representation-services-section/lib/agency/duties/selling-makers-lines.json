@@ -1,0 +1,20 @@
+{
+  "id": "selling-makers-lines",
+  "name": "sell represented makers' lines to US buyers",
+  "authority": "emsenn",
+  "work": "selling-makers-lines",
+  "from": "signed sales representative agreements and makers' product lines",
+  "to": "sales closed with US buyers and commissions recorded",
+  "cost": "representative time, samples, show days",
+  "otherwise": "makers' lines have no one selling them in the US",
+  "claim": "founder",
+  "delegation": true,
+  "skills": [
+    "selling-makers-lines"
+  ],
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26",
+    "source": "561-group-services-section/content/text/documents/articles/notes/2026/09/26/2026-09-26-note-on-doing-business-with-chinese-businesses.md"
+  }
+}

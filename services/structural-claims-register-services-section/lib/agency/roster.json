@@ -1,0 +1,18 @@
+{
+  "node": "structural-claims-register",
+  "offices": [
+    "lib/agency/offices/claims-caller.json",
+    "lib/agency/offices/claims-analyst.json",
+    "lib/agency/offices/claims-engagement-lead.json"
+  ],
+  "duties": [
+    "lib/agency/duties/calling-parties-to-projects.json",
+    "lib/agency/duties/keeping-the-claims-register.json",
+    "lib/agency/duties/running-claims-engagements.json"
+  ],
+  "works": [
+    "lib/agency/works/calling-parties-to-projects.json",
+    "lib/agency/works/keeping-the-claims-register.json",
+    "lib/agency/works/running-claims-engagements.json"
+  ]
+}

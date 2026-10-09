@@ -7,8 +7,8 @@
 import { NI_URI_PATTERN as NI } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { canonicalEqual } from "@red-cup-engineering/cbor-services-section";
 import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE, relationalValueId } from "./relational-value.mjs";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { FOUR, four, isKnowledgeCover, joinKnowledgeWire, knowledgeLeqWire, validateFour, witnessBit } from "@red-cup-engineering/computer-data-engineering-services-section/four";
+import { bytesCompare, semanticId, utf8Bytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { FOUR, four, isKnowledgeCover, joinKnowledgeWire, knowledgeLeqWire, validateFour, witnessBit } from "@red-cup-engineering/computer-data-services-section/four";
 
 
 const joinFour = joinKnowledgeWire;
@@ -39,7 +39,7 @@ function text(value, field) {
 }
 function ni(value, field) { if (typeof value !== "string" || !NI.test(value)) fail("malformed-circuit", `${field} must be a SHA-256 ni URI`); return value; }
 function caip10(value, field) { if (typeof value !== "string" || !CAIP10.test(value)) fail("malformed-circuit", `${field} must be a CAIP-10 account`); return value.toLowerCase(); }
-function utf8Compare(left, right) { return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8")); }
+function utf8Compare(left, right) { return bytesCompare(utf8Bytes(left), utf8Bytes(right)); }
 function fourKey(value) { const checked = validateFour(value); return `${Number(checked.positiveEvidence)}${Number(checked.negativeEvidence)}`; }
 
 function normalizePort(source) {

@@ -1,0 +1,8 @@
+{
+  "rows": ["ada", "ben", "cara", "dan"],
+  "inputs": ["parent-of-cara", "parent-of-dan", "parent-of-eve"],
+  "outputs": ["grandparent-of-eve", "grandparent-of-gus"],
+  "x": { "pos": [["ada", "parent-of-cara"], ["ben", "parent-of-cara"], ["cara", "parent-of-eve"], ["dan", "parent-of-eve"]], "neg": [] },
+  "y": { "pos": [["ada", "grandparent-of-eve"], ["ben", "grandparent-of-eve"]], "neg": [] },
+  "maxIters": 16
+}

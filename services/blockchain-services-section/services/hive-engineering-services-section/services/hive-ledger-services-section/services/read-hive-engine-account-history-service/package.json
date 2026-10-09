@@ -26,10 +26,5 @@
   },
   "engines": {
     "node": ">=24.2.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/computer-services-section.git",
-    "directory": "services/blockchain-services-section/services/hive-engineering-services-section/services/hive-ledger-services-section/services/read-hive-engine-account-history-service"
   }
 }

@@ -37,10 +37,12 @@ const withinTimeout = (promise, what) => Promise.race([
  * may see, and the entrance admits it on that word, for reads only. */
 export function createEnterpriseEntrance(config, {
   federation, tools = [], activityPubProvider, applications = [], rootRoutes = [],
-  publicRoute = enterprisePublicRoute, sessionCookiePrefix = "metroplat", calls,
+  publicRoute = enterprisePublicRoute, sessionCookiePrefix = "metroplat", calls, resolveGitHubReceivingBinding, grantStoreProfile,
 } = {}) {
   const base = config.publicBaseUrl;
   const resource = `${base}/mcp`;
+  const grantStore = createJsonFileGrantStore(join(config.stateDir, "oauth"), { profile: grantStoreProfile });
+  if (grantStoreProfile !== undefined && grantStore.profile !== grantStoreProfile) throw new TypeError("requested OAuth grant custody profile is unavailable");
   const registry = createPrincipalRegistry({ stateDir: config.stateDir, allowedEmail: config.allowedEmail });
   const readerAccess = [];
   const emailOf = principal => principal?.email ?? principal?.principal?.email;
@@ -85,7 +87,7 @@ export function createEnterpriseEntrance(config, {
     issuer: base,
     name: config.instance.name,
     resources: [resource],
-    store: createJsonFileGrantStore(join(config.stateDir, "oauth")),
+    store: grantStore,
     authenticate: async (context) => {
       const principal = await admission.identifyContext(context);
       if (principal === null || principal.provider === "bearer") return undefined;
@@ -133,7 +135,8 @@ export function createEnterpriseEntrance(config, {
       tools: federation.tools.length, unavailable: federation.unavailable,
     }, { cacheControl: { noStore: true } }),
   }] };
-  const context = Object.freeze({ config, run, runAs, registry, admission, authorization });
+  const context = Object.freeze({ config, run, runAs, registry, admission, authorization,
+    ...(resolveGitHubReceivingBinding === undefined ? {} : { resolveGitHubReceivingBinding }) });
   const selected = typeof applications === "function" ? applications(context) : applications;
   if (!Array.isArray(selected)) throw new TypeError("MetroPlat applications must provide an array");
   const installedApps = [];

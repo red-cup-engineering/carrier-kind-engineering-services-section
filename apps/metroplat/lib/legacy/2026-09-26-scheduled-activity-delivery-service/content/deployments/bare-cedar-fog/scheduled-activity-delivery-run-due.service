@@ -1,0 +1,37 @@
+[Unit]
+Description=Bare Cedar Fog contracted sovereign-service delivery tick
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/info/lib/emsenn/services/561-group/services/operations-services-section/services/agent-operations-services-section/services/scheduled-activity-delivery-service
+Environment=PATH=%h/.config/nvm/versions/node/v24.13.1/bin:/usr/local/bin:/usr/bin:/bin
+EnvironmentFile=-%h/.config/emsenn/improvement-game-design-supplier.env
+Environment=SCHEDULED_ACTIVITY_DELIVERY_ACTOR=urn:ame:scheduled-activity-delivery-service
+Environment=SCHEDULED_ACTIVITY_DELIVERY_DATA_ROOT=%h/info/lib/emsenn/services/561-group/services/operations-services-section/services/agent-operations-services-section/services/scheduled-activity-delivery-service/data
+Environment=WITNESS_JOURNAL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
+Environment=IMPROVEMENT_BOARD_SETTLEMENT=eip155:31337:0xa0c84cb82405996dddb141bebd6647d02fee0ee3
+Environment=RMN_CONFORMANCE_AGENT=http://127.0.0.1:8786/.well-known/agent-card.json
+Environment=WIT_TRANSITION_ASSAY_AGENT=http://127.0.0.1:19827/.well-known/agent-card.json
+Environment=INFERENCE_WORK_LOT_AGENT_CARD_URL=https://inference-work-lot-service-1019481907460.us-central1.run.app/.well-known/agent-card.json
+Environment=CLOUD_COMPUTE_ACTIVITYPUB_ORIGIN=https://bare-cedar-fog.561.group
+Environment=CLOUD_COMPUTE_ACTIVITYPUB_IDENTIFIER=cloud-compute-services-section
+Environment=IMPROVEMENT_MARKET_SUPPLIER_AGENT_CARD_URL=https://bare-cedar-fog.561.group/a2a/improvement-market-supplier/.well-known/agent-card.json
+Environment=IMPROVEMENT_MARKET_SUPPLIER_BEARER_TOKEN_FILE=/home/emsenn/info/lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/data/runtime/share/emsenn/a2a/cloud-compute-services-section-improvement-market-supplier.token
+Environment=ACCEPTANCE_CAPSULE_PROCUREMENT_AGENT_CARD_URL=http://127.0.0.1:19842/.well-known/agent-card.json
+Environment=SOFTWARE_MISSION_EXECUTION_AGENT_CARD_URL=https://bare-cedar-fog.561.group/a2a/software-mission-execution/.well-known/agent-card.json
+Environment=SCHEDULED_ACTIVITY_DELIVERY_AGENT_CARD_URL=http://127.0.0.1:8807/.well-known/agent-card.json
+Environment=SCHEDULED_ACTIVITY_DELIVERY_PROVIDER_ACTOR=urn:ame:scheduled-activity-delivery-service
+Environment=SCHEDULED_ACTIVITY_DELIVERY_BEARER_TOKEN_FILE=/home/emsenn/info/lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-services-section/services/computer-machine-services-section/services/persistent-computer-machine-services-section/services/bare-cedar-fog-services-section/data/runtime/share/emsenn/a2a/scheduled-activity-delivery-cloud-compute-services-section.token
+Environment=SCHEDULED_ACTIVITY_DELIVERY_TARGET_ENV_ALLOWLIST=WITNESS_JOURNAL_RDF_AGENT,IMPROVEMENT_BOARD_SETTLEMENT,RMN_CONFORMANCE_AGENT,WIT_TRANSITION_ASSAY_AGENT,INFERENCE_WORK_LOT_AGENT_CARD_URL,CLOUD_COMPUTE_ACTIVITYPUB_ORIGIN,CLOUD_COMPUTE_ACTIVITYPUB_IDENTIFIER,IMPROVEMENT_MARKET_SUPPLIER_AGENT_CARD_URL,IMPROVEMENT_MARKET_SUPPLIER_BEARER_TOKEN_FILE,ACCEPTANCE_CAPSULE_PROCUREMENT_AGENT_CARD_URL,SOFTWARE_MISSION_EXECUTION_AGENT_CARD_URL,SCHEDULED_ACTIVITY_DELIVERY_AGENT_CARD_URL,SCHEDULED_ACTIVITY_DELIVERY_PROVIDER_ACTOR,SCHEDULED_ACTIVITY_DELIVERY_BEARER_TOKEN_FILE,GAME_DESIGN_ACTIVITYPUB_ORIGIN,GAME_DESIGN_ACTIVITYPUB_IDENTIFIER,GAME_DESIGN_A2A_AGENT_CARD,GAME_DESIGN_ACTIVITYPUB_KEYS_PATH
+TimeoutStartSec=65min
+Nice=10
+CPUWeight=50
+IOWeight=50
+MemoryHigh=70%
+MemoryMax=85%
+MemorySwapMax=0
+TasksMax=256
+OOMPolicy=stop
+ExecStart=/usr/bin/env node src/service.mjs --operation run-due
