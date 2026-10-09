@@ -55,6 +55,8 @@
     "./accounting/tally-credit": "./src/accounting/tally-credit.mjs",
     "./accounting/treasury": "./src/accounting/treasury.mjs",
     "./corporate-authority": "./src/corporate-authority.mjs",
+    "./cells": "./src/cells/index.mjs",
+    "./cells/*": "./src/cells/*.mjs",
     "./mash": "./src/mash.mjs",
     "./jupyter": "./src/jupyter.mjs",
     "./casting": "./src/casting/index.mjs",
