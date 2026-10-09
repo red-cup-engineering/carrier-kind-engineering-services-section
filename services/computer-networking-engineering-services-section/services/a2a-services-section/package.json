@@ -7,6 +7,7 @@
   "exports": {
     "./a2a-client": "./scripts/a2a-client.mjs",
     "./a2a-server": "./scripts/a2a-server.mjs",
+    "./v1-core": "./scripts/v1-core.mjs",
     "./agent-card-signing": "./scripts/agent-card-signing.mjs",
     "./sen-part": "./scripts/sen-part.mjs",
     "./durable-task-store": "./scripts/durable-task-store.mjs",
