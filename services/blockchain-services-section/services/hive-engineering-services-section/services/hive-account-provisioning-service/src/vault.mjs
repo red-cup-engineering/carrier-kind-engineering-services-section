@@ -2,7 +2,7 @@ import { execFile } from "node:child_process";
 import { access, chmod, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { openWithPassphrase, sealWithPassphrase } from "@red-cup-engineering/cryptographic-data-service/seal";
+import { openWithPassphrase, sealWithPassphrase } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/seal";
 
 /**
  * The Hive key vault: one 0700 directory per account, secret files 0600, never

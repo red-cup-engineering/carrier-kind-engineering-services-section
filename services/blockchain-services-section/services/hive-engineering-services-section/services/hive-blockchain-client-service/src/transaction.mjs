@@ -1,7 +1,7 @@
 // transaction — build the signing digest, sign, and id a Hive transaction. Ties the pure
 // serializer (lib/serialize.mjs) to the keys (lib/keys.mjs) via the chain_id-prefixed sha256
 // digest. See docs/dev/notes/01-crypto-signing-spec.md §4 and 02-serialization-spec.md §5.
-import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 import { PublicKey } from "./keys.mjs";
 import { serializeTransaction } from "./serialize.mjs";
 
