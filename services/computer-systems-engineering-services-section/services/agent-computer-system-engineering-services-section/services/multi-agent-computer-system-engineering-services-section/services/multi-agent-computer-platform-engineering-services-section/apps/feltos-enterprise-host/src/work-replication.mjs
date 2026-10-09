@@ -123,13 +123,37 @@ export function mergeMoves(local, remote) {
  */
 export const decidedMovesOf = (moves, { homedHere, among = moves }) => Object.freeze(coordinatedMovesOf(moves, { among }).filter(({ record }) => homedHere(record.thread)));
 
+/** What a gateway answers when the node behind it is not there (Cloudflare's origin errors among them). */
+const AWAY_STATUSES = new Set([502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 530]);
+/** What the network says when nothing answers at all. */
+const AWAY_CODES = new Set(["ECONNREFUSED", "ECONNRESET", "ENOTFOUND", "EAI_AGAIN", "ETIMEDOUT", "EHOSTUNREACH", "ENETUNREACH", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_SOCKET"]);
+
+/**
+ * Whether a failed delivery says the peer was away rather than that it refused. Away is no answer at
+ * all, or a gateway's answer that the node behind it is not there: the peer's reading is unknown (⊥).
+ * A refusal is an answer from the peer itself, which reads false. A transport failure is read by its
+ * cause (Fedify keeps it as the cause of its FetchError), so a certificate or redirect fault is not
+ * excused as absence: an error of neither shape stays a failure.
+ */
+export function deliveryAway(error) {
+  // A handoff to several peers that failed for more than one is away only if every one of them was.
+  if (error instanceof AggregateError) return error.errors.length > 0 && error.errors.every(deliveryAway);
+  const status = error?.statusCode ?? error?.response?.status;
+  if (typeof status === "number") return AWAY_STATUSES.has(status);
+  for (let cause = error; cause !== undefined && cause !== null; cause = cause.cause) {
+    if (AWAY_CODES.has(cause.code) || cause.name === "AbortError" || cause.name === "TimeoutError") return true;
+  }
+  return false;
+}
+
 /**
  * Ship what the peer is not yet known to hold, through `ship(entry)` (async, throws on failure): the
  * entries of `entries` not in `shipped` (the set of addresses the peer has received). The cursor is
  * the ledger of received addresses, not a time: the journal orders by when a move was played, so a
  * move recorded late with an early time (an old-dated arrival, a corrected clock) still ships. A
  * failed move stays out of the ledger and is sent again; the others go on.
- * Returns { shipped, failed } as entries.
+ * Returns { shipped, failed } as entries; a failed entry keeps `why` it failed and whether the peer
+ * was `away` (`deliveryAway`).
  */
 export async function shipWorkSince({ entries, shipped = new Set(), ship }) {
   const done = [];
@@ -139,7 +163,7 @@ export async function shipWorkSince({ entries, shipped = new Set(), ship }) {
       await ship(entry);
       done.push(entry);
     } catch (error) {
-      failed.push(Object.freeze({ ...entry, why: String(error?.message ?? error) }));
+      failed.push(Object.freeze({ ...entry, why: String(error?.message ?? error), away: deliveryAway(error) }));
     }
   }
   return Object.freeze({ shipped: Object.freeze(done), failed: Object.freeze(failed) });
@@ -205,6 +229,19 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
   return result;
 }
 
+/**
+ * What a catch-up run says. A run that left a move undelivered fails, so the schedule's own retry
+ * sends it again. A peer known to be intermittent is away as a matter of course: the moves it could
+ * not be reached for are held in place of failing the run (the ledger sends them again next run
+ * anyway), and the run says the peer was away. A refusal still fails it.
+ */
+export function catchUpOutcome({ shipped, failed }, presence = "continuous") {
+  const held = presence === "known-intermittent" ? failed.filter(({ away }) => away) : [];
+  const undelivered = failed.filter((entry) => !held.includes(entry));
+  if (undelivered.length > 0) throw new TypeError(`work-peer-catch-up: ${undelivered.length} of ${shipped.length + failed.length} moves were not delivered: ${failuresSaid(undelivered)}`);
+  return Object.freeze({ shipped: shipped.length, ...(held.length === 0 ? {} : { held: held.length, peer: "away" }) });
+}
+
 /** The operation a node schedule runs to keep the work peer current (MetroPlat instance `schedules`). */
 export function workReplicationOperations({ config, binding, provider, host }) {
   return Object.freeze([operation({
@@ -214,11 +251,6 @@ export function workReplicationOperations({ config, binding, provider, host }) {
     description: "Domain: {}. Ships this board's told moves (openings and tellings) the peer has not received, and the coordinated moves this node decided on threads homed here. Idempotent; a failed delivery is sent again on the next run.",
     relation: "boundary",
     effects: { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "schema-bounded" },
-    run: async () => {
-      const { shipped, failed } = await catchUpWorkPeer({ config, provider: provider(), binding, host });
-      // A run that left a move undelivered fails, so the schedule's own retry sends it again.
-      if (failed.length > 0) throw new TypeError(`work-peer-catch-up: ${failed.length} of ${shipped.length + failed.length} moves were not delivered: ${failuresSaid(failed)}`);
-      return Object.freeze({ shipped: shipped.length });
-    },
+    run: async () => catchUpOutcome(await catchUpWorkPeer({ config, provider: provider(), binding, host }), config.workPeerPresence),
   })]);
 }

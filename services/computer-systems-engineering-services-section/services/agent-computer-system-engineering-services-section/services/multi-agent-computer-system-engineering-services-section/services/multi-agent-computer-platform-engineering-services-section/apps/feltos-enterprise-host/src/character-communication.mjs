@@ -19,12 +19,12 @@ export function characterActorAddress(address) {
 /** MetroPlat character communication uses the node's existing signed, durable AP transport.
  * A message is testimony, never an allocation, an office appointment or permission to execute. */
 export function hostedCharacterCommunication({ config, binding, provider, resolveRecipient = resolveActivityPubRecipient, deliver = deliverActivity }) {
-  function ownCharacter(account, { optional = false } = {}) {
+  async function ownCharacter(account, { optional = false } = {}) {
     if (config.activityPub?.nodeHost === undefined) {
       if (optional) return undefined;
       throw new TypeError("this node has no installed character federation resource");
     }
-    const actors = activityPubActorsAtHost({ agencyRoot: config.agencyRoot, host: config.activityPub.nodeHost,
+    const actors = await activityPubActorsAtHost({ agencyRoot: config.agencyRoot, host: config.activityPub.nodeHost,
       keysDirectory: config.activityPub.keysDirectory, instanceActor: config.activityPub.instanceActor });
     const held = new Set(providersOfAccount({ ...binding, agencyRoot: config.agencyRoot }, account));
     const own = actors.filter(actor => actor.character !== undefined && held.has(actor.character.id));
@@ -32,15 +32,15 @@ export function hostedCharacterCommunication({ config, binding, provider, resolv
     if (own.length !== 1) throw new TypeError("the authenticated account must act for exactly one public character on this node");
     return own[0];
   }
-  const read = ({ account, evidence, at, all = false, optional = false }) => {
-    const own = ownCharacter(account, { optional });
+  const read = async ({ account, evidence, at, all = false, optional = false }) => {
+    const own = await ownCharacter(account, { optional });
     if (own === undefined) return undefined;
     const character = own.character.id;
     const unread = readCharacterInbox(binding.dataRoot, character, evidence, at, { transport: "world", account, evidence });
     return Object.freeze({ kind: "metroplat.character-inbox", character, messages: all ? characterInbox(binding.dataRoot, character, { unread: false }) : unread });
   };
   const tell = async ({ account, recipient, text, inReplyTo, at }) => {
-    const own = ownCharacter(account);
+    const own = await ownCharacter(account);
     if (typeof text !== "string" || !text.trim() || text.length > 16_384) throw new TypeError("a telling needs 1–16384 characters");
     const installed = provider();
     if (installed === undefined) throw new TypeError("the node's signed ActivityPub transport is unavailable");
@@ -56,7 +56,7 @@ export function hostedCharacterCommunication({ config, binding, provider, resolv
       ...(inReplyTo === undefined ? {} : { inReplyTo }) });
   };
   const reply = async ({ account, id, text, at }) => {
-    const character = ownCharacter(account).character.id;
+    const character = (await ownCharacter(account)).character.id;
     const original = characterInbox(binding.dataRoot, character, { unread: false }).find(message => message.id === id);
     if (original === undefined) throw new TypeError("reply must name an exact message received by this character");
     return tell({ account, recipient: original.sender, inReplyTo: original.id, text, at });

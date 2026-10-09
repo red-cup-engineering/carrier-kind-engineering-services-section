@@ -16,8 +16,8 @@ const predicateOfClaim = (claimCarrier) => ({ kind: "predication.predicate", cla
 // independent of its witness set; the new evidence-derived reading has no separate declared
 // value, so a single witness on the for-side (witnessedReading("potential", witness)) is its
 // direct replacement: the least evidence a single witness can give that reads as "potential".
-import { witnessedReading } from "@red-cup-engineering/signchain/bilattice";
-import { actionResearchCycleAction, actionResearchSequenceAction, aperiodicActionResearchCycle, aperiodicActionResearchCycles, aperiodicActionResearchSequence, aperiodicDream, aperiodicDreamAction, aperiodicDreamConjectures, aperiodicDiscoveryLedger, aperiodicConjuncturalPraxis, aperiodicHologram, aperiodicHologramAction, aperiodicHolographicPraxis, aperiodicMetastableTrajectory, aperiodicFrontierAgenda, aperiodicPraxisFeedback, aperiodicPraxisFrontier, aperiodicPraxisProbes, aperiodicResidue, aperiodicResidueAction, aperiodicResearchProgramAudit, aperiodicWorldMethodBraid, aperiodicWorldMethodConstellation, aperiodicWorldMethodEcology, aperiodicWorldMethodFeedback, aperiodicWorldMethodInterventionPlan, aperiodicWorldMethodRepertoire, aperiodicWorldMethodWayfinding, conjuncturalPraxisAction, discoveryLedgerAction, frontierAgendaAction, holographicPraxisAction, metastableTrajectoryAction, praxisFeedbackAction, praxisFrontierAction, praxisProbesAction, researchProgramAuditAction, worldMethodBraidAction, worldMethodConstellationAction, worldMethodEcologyAction, worldMethodFeedbackAction, worldMethodInterventionPlanAction, worldMethodRepertoireAction, worldMethodWayfindingAction, scottContinuousDream, strictFiniteDream, transfiniteDream } from "../src/dreaming/index.mjs";
+import { noEvidence, witnessedReading } from "@red-cup-engineering/signchain/bilattice";
+import { actionResearchCycleAction, actionResearchSequenceAction, aperiodicActionResearchCycle, aperiodicActionResearchCycles, aperiodicActionResearchSequence, aperiodicDream, aperiodicDreamAction, aperiodicDreamConjectures, aperiodicDiscoveryLedger, aperiodicConjuncturalPraxis, aperiodicHologram, aperiodicHologramAction, aperiodicHolographicPraxis, aperiodicMetastableTrajectory, aperiodicFrontierAgenda, aperiodicPraxisFeedback, aperiodicPraxisFrontier, aperiodicPraxisProbes, aperiodicResidue, aperiodicResidueAction, aperiodicResearchProgramAudit, aperiodicWorldMethodBraid, aperiodicWorldMethodConstellation, aperiodicWorldMethodEcology, aperiodicWorldMethodFeedback, aperiodicWorldMethodInterventionPlan, aperiodicWorldMethodRepertoire, aperiodicWorldMethodWayfinding, conjuncturalPraxisAction, latentCellDream, discoveryLedgerAction, frontierAgendaAction, holographicPraxisAction, metastableTrajectoryAction, praxisFeedbackAction, praxisFrontierAction, praxisProbesAction, researchProgramAuditAction, worldMethodBraidAction, worldMethodConstellationAction, worldMethodEcologyAction, worldMethodFeedbackAction, worldMethodInterventionPlanAction, worldMethodRepertoireAction, worldMethodWayfindingAction, scottContinuousDream, strictFiniteDream, transfiniteDream } from "../src/dreaming/index.mjs";
 import { observation } from "../src/dreaming/observation.mjs";
 import { task } from "../src/dreaming/task.mjs";
 
@@ -640,4 +640,61 @@ test("research-program-audit judges progressive open and degenerating aperiodic 
   const projected = researchProgramAuditAction.execute({ before, batches, window: 3, stride: 1, cycleLimit: 1 }, {});
   assert.equal(projected.kind, "knowing.dream.research-program-audit");
   assert.equal(projected.heuristics.next, "feed-the-agenda-back-into-action-research");
+});
+
+// latentCellDream ports the four tests of the held finite-corner dream (the 2026-06-05
+// memory-dreaming seam): latent cells surface with their witnesses, the window is untouched,
+// singletons and named topics stay closed, and a prefix of the window dreams as of its mark.
+const remembered = (subject, topics) => observation({
+  observer: term("memory"),
+  task: task({ subject: term(subject), predicate: predicate("remembers"), object: topics }),
+  evidence: witnessedReading("potential", mark(subject)),
+});
+
+const memoryWindow = () => [
+  remembered("alpha", ["sheaf", "memory"]),
+  remembered("beta", ["sheaf", "dreaming"]),
+  remembered("gamma", ["memory", "sheaf"]),
+];
+
+test("latent-cell dream surfaces shared topics as open questions carrying their witness terms", () => {
+  const agent = term("dreamer");
+  const result = latentCellDream(memoryWindow(), { agent });
+
+  assert.equal(result.regime, strictFiniteDream([]).regime, "the finite corner");
+  assert.deepEqual(result.observations.map((obs) => obs.task.object), ["sheaf", "memory"], "support descending");
+  const [sheaf, memory] = result.observations;
+  assert.deepEqual(sheaf.task.subject, agent);
+  assert.equal(sheaf.task.predicate, "open-question");
+  assert.deepEqual(sheaf.evidence, noEvidence, "asked, neither supported nor refuted");
+  assert.deepEqual(sheaf.note.slice(2), ["strict-latent-cell", "support:3", term("alpha"), term("beta"), term("gamma")]);
+  assert.deepEqual(memory.note.slice(2), ["strict-latent-cell", "support:2", term("alpha"), term("gamma")]);
+  assert.deepEqual(latentCellDream(memoryWindow(), { agent }), result, "deterministic from the window");
+  assert.equal(latentCellDream(memoryWindow(), { agent, maxProposals: 1 }).observations.length, 1);
+});
+
+test("latent-cell dream is inert: the window it reads is byte-identical after the dream", () => {
+  const window = memoryWindow();
+  const before = JSON.stringify(window);
+  latentCellDream(window, { minSupport: 2 });
+  latentCellDream(window, { minSupport: 3 });
+  assert.equal(JSON.stringify(window), before);
+});
+
+test("latent-cell dream suppresses singletons and topics that already have a term of their own", () => {
+  const singletons = [remembered("alpha", ["sheaf"]), remembered("beta", ["dreaming"])];
+  assert.equal(latentCellDream(singletons).observations.length, 0, "recombination, not invention");
+
+  const named = [...memoryWindow(), remembered("sheaf", ["topology"])];
+  assert.deepEqual(latentCellDream(named).observations.map((obs) => obs.task.object), ["memory"], "a named topic is not latent");
+  assert.deepEqual(latentCellDream(memoryWindow(), { minSupport: 3 }).observations.map((obs) => obs.task.object), ["sheaf"]);
+});
+
+test("latent-cell dream over a prefix of the window dreams the memory as of that mark", () => {
+  const log = [...memoryWindow(), remembered("memory", ["recall"]), remembered("delta", ["recall"])];
+  const asOf = (mark) => latentCellDream(log.slice(0, mark)).observations.map((obs) => obs.task.object);
+
+  assert.deepEqual(asOf(3), ["sheaf", "memory"], "as of the third term, memory is latent");
+  assert.deepEqual(asOf(5), ["sheaf", "recall"], "the later trace names memory and raises recall");
+  assert.deepEqual(asOf(3), ["sheaf", "memory"], "the earlier prefix still dreams what it did");
 });

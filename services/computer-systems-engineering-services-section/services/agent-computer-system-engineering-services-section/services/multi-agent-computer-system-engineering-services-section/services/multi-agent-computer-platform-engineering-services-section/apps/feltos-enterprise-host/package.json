@@ -59,6 +59,7 @@
   "softwareKind": "service",
   "receivingTests": [
     "test/account-selection.test.mjs",
+    "test/character-inbox-async.test.mjs",
     "test/work-peer-standing.test.mjs"
   ]
 }

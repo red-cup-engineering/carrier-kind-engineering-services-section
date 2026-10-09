@@ -415,8 +415,11 @@ function preparePeerDelivery({ config, provider, deliver, activityOf }) {
     const settled = await Promise.allSettled(deliveries.map(({ peerActor, activity }) => deliver(provider, {
       identifier, recipient: peerActor, inbox: `${peerActor.replace(/\/$/u, "")}/inbox`, activity,
     })));
-    const failed = settled.flatMap((result, index) => (result.status === "rejected" ? [`${deliveries[index].peerActor}: ${result.reason?.message ?? result.reason}`] : []));
-    if (failed.length > 0) throw new TypeError(`work handoff failed for ${failed.join("; ")}`);
+    const failed = settled.flatMap((result, index) => (result.status === "rejected" ? [{ peerActor: deliveries[index].peerActor, reason: result.reason }] : []));
+    // One failure is thrown as it came, so its cause is still read (away or refused); several are
+    // thrown together, each kept as it came.
+    if (failed.length === 1) throw failed[0].reason;
+    if (failed.length > 1) throw new AggregateError(failed.map(({ reason }) => reason), `work handoff failed for ${failed.map(({ peerActor, reason }) => `${peerActor}: ${reason?.message ?? reason}`).join("; ")}`);
     return Object.freeze(settled.map((result) => result.value));
   };
 }
