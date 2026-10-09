@@ -6,7 +6,7 @@ import path from "node:path";
 import { workInferenceCoordinate } from "../../src/dispatch/work-inference-coordinate.mjs";
 import { appendDelivery, loadDeliveries, loadObservations } from "../../src/dispatch/expected-resolution-pricing.mjs";
 import { executionConfigurationIdentity } from "../../src/dispatch/sen-carrier.mjs";
-import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "../../src/dispatch/inference-work-lot-source.mjs";
+import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "../../src/dispatch/office-work-inference-contract.mjs";
 
 // Synthetic delivery/proposal inputs to the genuine lookup and pricing APIs.
 // These tests do not claim office authority, native receiving or customer acceptance.
