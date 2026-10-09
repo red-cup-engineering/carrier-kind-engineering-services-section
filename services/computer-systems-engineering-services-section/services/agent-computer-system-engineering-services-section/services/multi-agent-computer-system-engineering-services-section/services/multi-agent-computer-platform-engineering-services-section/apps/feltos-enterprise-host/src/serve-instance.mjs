@@ -22,6 +22,8 @@ import { processAdmittedActorRequest, actorPaymentMetadata } from '@red-cup-engi
 import { agentSenMessage } from '@red-cup-engineering/a2a-services-section/sen-part';
 import { deliverActivity } from '@red-cup-engineering/activitypub-services-section';
 import { reconcileDeclaredSchedules, runClockHeartbeat } from "@red-cup-engineering/organizing/work/recurring";
+import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
+import { processLeaseCoordinator } from "@red-cup-engineering/computer-system-engine/rpc/coordination";
 import { parseEnvFileText } from "@red-cup-engineering/key-management-services-section/env-file";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
 import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
@@ -283,7 +285,6 @@ export function createEnterpriseServicePlatform({
   // A probe runs none of it: the live node it stands beside owns the clock.
   const configuredClock = probe !== undefined ? undefined : clockConfiguration(environment, schedules.length === 0 ? undefined
     : Object.freeze({ subject: installed.identity.id, intervalMs: 30_000 }));
-  const clockStateRoot = path.join(config.stateDir, "clock");
   let entrance;
   let bootstrapFederation;
 
@@ -352,7 +353,7 @@ export function createEnterpriseServicePlatform({
     start: async () => {
       if (probe === undefined) reconcileDeclaredSchedules(runtime.binding, installed.identity.id, schedules);
       const host = await openHost({
-        dataRoot: config.metroplatDataRoot, clockStateRoot, environment,
+        dataRoot: config.metroplatDataRoot, environment,
         instancePath: config.instance.manifest, moduleBasePath: installed.web.hostPath,
         operationSources: runtime.operationSources,
         createWorkOptions: runtime.createWorkOptions,
@@ -474,11 +475,12 @@ export function createEnterpriseServicePlatform({
       const abort = new AbortController();
       const run = runClockHeartbeat(() => capabilities["metroplat-host"].operationSurface(), {
         ...configuredClock,
-        dataRoot: config.metroplatDataRoot,
-        clockStateRoot,
-        rootName: installed.identity.id,
+        // The clock's state root is the surface's binding (data/state/clock under the data root); the
+        // heartbeat reads it only through the surface, so it holds no root of its own.
+        witness: journalRpcWitness(config.metroplatDataRoot, { namespace: installed.identity.id }),
+        coordinate: processLeaseCoordinator(config.metroplatDataRoot),
         signal: abort.signal,
-        onObstruction: (result) => process.stderr.write(`[feltos-enterprise-host] clock tick was not admitted: ${result.stderr.trim()}\n`),
+        onObstruction: (obstruction) => process.stderr.write(`[feltos-enterprise-host] clock obstruction: ${JSON.stringify(obstruction)}\n`),
       }).catch((error) => process.stderr.write(`[feltos-enterprise-host] clock stopped: ${error instanceof Error ? error.message : String(error)}\n`));
       return Object.freeze({ close: async () => { abort.abort(); await run; } });
     },
