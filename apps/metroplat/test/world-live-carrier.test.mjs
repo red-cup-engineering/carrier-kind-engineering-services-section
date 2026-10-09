@@ -207,3 +207,10 @@ test("atlas, enterprise work placement, hearing, and office pulse share the curr
   assert.equal(site()({ subject: "alice" }).rest, "other-lab");
 });
 
+test("an office whose section no room stands over is named as of the house, not an unreadable hall", () => {
+  const engine = authored();
+  const homeless = { enterprises: new Map(), offices: new Map([["clerk", { id: "clerk", name: "Clerk", sectionPath: "services/nowhere" }]]) };
+  const { nameOf } = worldPlaces({ world: engine.world, agency: homeless, plaza: "plaza" });
+  assert.equal(nameOf("services/nowhere#clerk"), "the Clerk of the house");
+});
+

@@ -191,6 +191,7 @@ export function worldPlaces({ world, agency, plaza, characterName = () => undefi
     if (player === "market") return "the market";
     if (enterprises.has(player)) return enterprises.get(player).name ?? player;
     const office = officeOf(player);
+    // An office whose section no room stands over has no hall to name: it is of the house.
     if (office !== undefined) {
       const hall = hallOf(player);
       return `the ${office.name} of ${(hall === undefined ? undefined : certainValue(world, hall, "name")) ?? "the house"}`;
