@@ -16,11 +16,11 @@
  * A dialect names itself (`name`, `label`); its root is `METROPLAT_<NAME>_WORKTREES`, default
  * `~/.local/state/561-group/<name>-worktrees`, and its branches `<name>/<task id>`.
  */
-import { existsSync, lstatSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
 
-import { assertWorktreeOwner, commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
+import { assertSourceClosureWorktreeOwners, finishBoundWorktree, removeBoundWorktree, assertWorktreeOwner, commitWorktree, integrateWorktree, prepareWorktree, removeWorktree, worktreeChanges, worktreeDirty, worktreeHead } from "@red-cup-engineering/computer-code-development-engine/workspace/worktree";
 
 /** How many failed tasks' worktrees stay for inspection; older ones are removed. */
 export const FAILED_WORKTREES_KEPT = 10;
@@ -76,17 +76,17 @@ export const CARRIER_WORKSPACE_RULE = "Your working directory is a Git worktree 
  *  rejects, and no session starts. A worktree that already exists is the task's own earlier one and is
  *  reused as it stands when `reuse` is set (recovery), never reset. `commandRunner`, when given,
  *  replaces the house command executor for the worktree's steps. */
-export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "repository-write", reuse = false, commandRunner, environment = process.env }) {
+export async function prepareCarrierWorktree(dialect, { cwd, taskId, effects = "repository-write", reuse = false, sourceBinding, sourceResult, bindGit, commandRunner, environment = process.env }) {
   const workspace = carrierTaskWorktree(dialect, taskId, environment);
   const branch = carrierTaskBranch(dialect, taskId);
   if (path.resolve(workspace) === path.resolve(cwd)) throw new TypeError(`a ${dialect.label} task worktree is never the repository it borrows from`);
   try {
     if (existsSync(workspace)) assertWorktreeOwner(cwd, workspace);
-    if (reuse && existsSync(path.join(workspace, ".git"))) return Object.freeze({ workspace, branch, reused: true });
-    const prepared = await prepareWorktree({ repository: cwd, workspace, branch, install: effects !== "read-only", runner: commandRunner });
+    if (sourceBinding === undefined && reuse && existsSync(path.join(workspace, ".git"))) return Object.freeze({ workspace, branch, reused: true });
+    const prepared = await prepareWorktree({ repository: cwd, workspace, branch, ...(sourceBinding === undefined ? {} : { sourceBinding, sourceResult, from: sourceBinding.copy.commit, bindGit }), install: effects !== "read-only", runner: commandRunner });
     assertWorktreeOwner(cwd, prepared.workspace);
     assertNotSharedCheckout(dialect, prepared.workspace);
-    return Object.freeze({ ...prepared, reused: false });
+    return Object.freeze({ ...prepared, reused: prepared.reused ?? false });
   } catch (error) {
     throw new Error(`the ${dialect.label} task worktree ${workspace} could not be opened, so the task does not run: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
   }
@@ -105,6 +105,7 @@ export async function releaseCarrierWorktree(dialect, { cwd, workspace, taskId, 
     const marked = readdirSync(root).filter((name) => name.endsWith(".kept"))
       .map((name) => ({ name, mtime: statSync(path.join(root, name)).mtimeMs }))
       .filter(({ name }) => {
+        try { if (JSON.parse(readFileSync(path.join(root,name),"utf8")).sourceBinding !== undefined) return false; } catch { return false; }
         const held = path.join(root, name.slice(0, -".kept".length));
         if (!existsSync(held)) return false;
         try { assertWorktreeOwner(cwd, held); return true; } catch { return false; }
@@ -206,11 +207,44 @@ function sourceFreeWorkspace(dialect, spec, environment) {
  * act writes (`repository-write`) or only reads (`read-only`). `retired` names shared roots this
  * policy replaces, pruned once when the first tree opens.
  */
-export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRunner, environment = process.env, effectsOf = defaultEffects, retired = [] }) {
+export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRunner, environment = process.env, effectsOf = defaultEffects, retired = [], bindGit, publishSourceCandidate }) {
   const prune = async repository => { for (const root of retired) await pruneRetiredWorktreeRoot({ root, repository, commandRunner }).catch(() => undefined); };
   const pruning = new Map();
+  const openWithSource = async (spec) => {
+      const bound = repositoryOf === undefined ? { repository } : await repositoryOf(spec);
+      if (bound.mode === "no-source") {
+        if (effectsOf(spec) !== "read-only") throw new TypeError("source workspace: source-free sessions require read-only effects");
+        const workspace = sourceFreeWorkspace(dialect, spec, environment);
+        mkdirSync(workspace, { recursive: true, mode: 0o700 });
+        return Object.freeze({ workspace });
+      }
+      const source = bound.repository;
+      if (typeof source !== "string" || source.length === 0) throw new TypeError("source workspace: a configured source repository is required");
+      if (bound.sourceBinding === undefined) {
+        if (!pruning.has(source)) pruning.set(source, prune(source));
+        await pruning.get(source);
+      }
+      if (bound.sourceBinding !== undefined && !spec.receiving && spec.item?.execution?.sourceResult?.phase === "named") {
+        // The native trace already names every result. Reconcile cleanup of the same task,
+        // including a composition whose leaves were removed before an interruption.
+        const workspace = carrierTaskWorktree(dialect, spec.id, environment);
+        assertSourceClosureWorktreeOwners(bound.sourceBinding, workspace, assertWorktreeOwner, { allowAbsent: true });
+        return Object.freeze({ workspace, sourceBinding: bound.sourceBinding });
+      }
+      const effects = effectsOf(spec);
+      if (bound.sourceBinding !== undefined && spec.receiving && (effects !== "read-only" || spec.item?.proposal?.sourceResult === undefined)) throw new TypeError("source receiving requires the witnessed named result and read-only effects");
+      if (bound.sourceBinding !== undefined && effects !== "read-only" && typeof publishSourceCandidate !== "function") throw new TypeError("source workspace: source-writing execution requires its bound candidate publisher before launch");
+      const prepared = await prepareCarrierWorktree(dialect, { cwd: source, taskId: spec.id, effects, reuse: true, sourceBinding: bound.sourceBinding, ...(spec.receiving ? { sourceResult: spec.item?.proposal?.sourceResult } : {}), bindGit, commandRunner, environment });
+      return Object.freeze({ workspace: prepared.workspace, ...(bound.sourceBinding === undefined ? {} : { sourceBinding: bound.sourceBinding }) });
+  };
   return Object.freeze({
-    rule: spec => repositoryOf?.(spec)?.mode === "no-source" ? SOURCE_FREE_WORKSPACE_RULE : CARRIER_WORKSPACE_RULE,
+    rule: spec => {
+      const bound = repositoryOf?.(spec);
+      if (bound?.mode === "no-source") return SOURCE_FREE_WORKSPACE_RULE;
+      const source = spec.sourceBinding ?? bound?.sourceBinding;
+      if (source !== undefined && spec.receiving) return `Your read-only receiving workspace contains the exact named result commits from native proposal ${spec.item.proposal.receipt}, verified against original source closure ${source.id}. Inspect those produced candidates without changing, fetching, installing, committing or publishing source.`;
+      return source === undefined ? CARRIER_WORKSPACE_RULE : `Your task worktree is bound to original source commit ${source.copy.commit} and exact source closure ${source.id}. Keep that original task and source binding through completion and resume. Work only in this task tree. Do not fetch, change the source composition, rebase to latest, or publish yourself; the owning runtime retains and names exact review candidates.`;
+    },
     // Recovery reads existing proof before opening anything. A retained worktree is equivalent
     // owner evidence for older sessions; an absent receipt field alone does not invalidate it.
     ...(repositoryOf === undefined ? {} : { verify: (spec) => {
@@ -219,25 +253,20 @@ export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRu
       if (spec.item?.execution?.sourceRepository !== undefined && spec.item.execution.sourceRepository !== source.sourceRepository) throw new TypeError("source workspace: execution sourceRepository differs from its admitted obligation");
       if (source.mode === "no-source") { sourceFreeWorkspace(dialect, spec, environment); return source; }
       const workspace = carrierTaskWorktree(dialect, spec.id, environment);
+      if (source.sourceBinding !== undefined) {
+        const retained = spec.sourceBinding ?? (spec.receiving ? spec.item?.proposal?.sourceBinding : spec.item?.execution?.sourceBinding);
+        if (retained === undefined) throw new TypeError("source workspace: original exact execution witness is unresolved");
+        if (existsSync(workspace)) assertSourceClosureWorktreeOwners(source.sourceBinding, workspace, assertWorktreeOwner,
+          { allowAbsent: !spec.receiving && spec.item?.execution?.sourceResult?.phase === "named" });
+        return source;
+      }
       if (existsSync(workspace)) { assertWorktreeOwner(source.repository, workspace); return source; }
       if (spec.item?.execution?.sourceRepository === source.sourceRepository) return source;
       throw new TypeError("source workspace: execution owner is unresolved; retain its source worktree or reconcile its source-owner execution witness before resuming");
     } }),
-    open: async (spec) => {
-      const bound = repositoryOf === undefined ? { repository } : await repositoryOf(spec);
-      if (bound.mode === "no-source") {
-        if (effectsOf(spec) !== "read-only") throw new TypeError("source workspace: source-free sessions require read-only effects");
-        const workspace = sourceFreeWorkspace(dialect, spec, environment);
-        mkdirSync(workspace, { recursive: true, mode: 0o700 });
-        return workspace;
-      }
-      const source = bound.repository;
-      if (typeof source !== "string" || source.length === 0) throw new TypeError("source workspace: a configured source repository is required");
-      if (!pruning.has(source)) pruning.set(source, prune(source));
-      await pruning.get(source);
-      const effects = effectsOf(spec);
-      return (await prepareCarrierWorktree(dialect, { cwd: source, taskId: spec.id, effects, reuse: true, commandRunner, environment })).workspace;
-    },
+    pending: spec => existsSync(carrierTaskWorktree(dialect, spec.id, environment)) || existsSync(keptMarker(dialect, environment, spec.id)),
+    openWithSource,
+    open: async spec => (await openWithSource(spec)).workspace,
     close: async (spec) => {
       const { item, id, workspace, session } = spec;
       const bound = repositoryOf === undefined ? { repository } : await repositoryOf(spec);
@@ -247,6 +276,26 @@ export function carrierWorkspaces(dialect, { repository, repositoryOf, commandRu
         return;
       }
       const source = bound.repository;
+      if (bound.sourceBinding !== undefined) {
+        const retained = spec.sourceBinding ?? (spec.receiving ? item.proposal?.sourceBinding : item.execution?.sourceBinding);
+        if (retained?.id !== bound.sourceBinding.id) throw new TypeError("source workspace: exact completion changed its original source closure");
+        const alreadyNamed = !spec.receiving && item.execution?.sourceResult?.phase === "named"
+          && item.execution.sourceResult.sourceBinding === retained.id;
+        assertSourceClosureWorktreeOwners(retained, workspace, assertWorktreeOwner, { allowAbsent: alreadyNamed });
+        let sourceResult = alreadyNamed ? item.execution.sourceResult : undefined;
+        try {
+          if (session?.ok === true && !spec.receiving && !alreadyNamed) sourceResult = await finishBoundWorktree({ workspace, branch: carrierTaskBranch(dialect,id), sourceBinding: retained, bindGit,
+            publish: publishSourceCandidate, readOnly: effectsOf(spec) === "read-only", onTrace: spec.onSourceResult, message: [`${item.office ?? "office"} duty ${item.scope ?? id}`, `${dialect.label} task ${id}`] });
+          if (session?.ok === true) {
+            await removeBoundWorktree({ workspace, sourceBinding: retained, bindGit });
+            rmSync(keptMarker(dialect, environment, id), { force: true });
+          } else writeFileSync(keptMarker(dialect, environment, id), `${JSON.stringify({ taskId:id, workspace, sourceBinding:retained, kept:new Date().toISOString() })}\n`, { mode:0o600 });
+        } catch (error) {
+          writeFileSync(keptMarker(dialect, environment, id), `${JSON.stringify({ taskId:id, workspace, sourceBinding:retained, kept:new Date().toISOString() })}\n`, { mode:0o600 });
+          throw error;
+        }
+        return sourceResult;
+      }
       assertWorktreeOwner(source, workspace);
       let named = false;
       if (session?.ok === true) {
