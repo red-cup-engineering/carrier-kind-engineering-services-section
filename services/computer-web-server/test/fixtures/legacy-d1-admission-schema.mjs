@@ -1,6 +1,6 @@
-// The tables Discord admission keeps, as forward-only migrations for the D1
-// migration applier. Review state and every other application's tables belong
-// to those applications; this is only what admission itself remembers.
+// The tables Discord admission kept in D1 before its journal store (src/admission/discord-store.mjs),
+// as the forward-only migrations that created them. Retired from src/: only tests use it, to write
+// a legacy-format database for the read-once import (src/admission/import-sql-discord-admission.mjs).
 export const ADMISSION_MIGRATIONS = Object.freeze([
     Object.freeze({
         name: '0001_discord_oauth_sessions',
