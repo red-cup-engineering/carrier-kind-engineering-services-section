@@ -1,6 +1,7 @@
 import { skillResultCarrier } from "@red-cup-engineering/animating/becoming/doing/working/governing/carriers";
 import { skillError } from "@red-cup-engineering/animating/becoming/doing/working/governing/skill";
 import { skillResultRouting } from "../work.mjs";
+import { gitSourceClosureSchema, gitSourceResultSchema } from "@red-cup-engineering/git-services-section/git-command-codec";
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { validateJsonSchemaDocument } from "@red-cup-engineering/json-schema-services-section/validation";
@@ -106,6 +107,33 @@ export function workResultSkillContext(value) {
 }
 
 const workScopePattern = "^(endeavor|campaign|project|plan|task|work-item):[^\\s:][^\\s]*$";
+
+/** Exact source value carried by execution/result receipts; it is never a custody grant. */
+export const workSourceClosureContract = schemaFrom(gitSourceClosureSchema);
+
+export const workSourceResultContract = schemaFrom(gitSourceResultSchema);
+
+/** Host-observed task coordinates in existing harness testimony, never a source grant. */
+export const workSourceTaskSchema = {
+  $id: "metroplat/work/source-task", type: "object", additionalProperties: false,
+  required: ["kind", "id", "role", "task", "workspace", "branch", "sourceBinding", "scope", "subject", "office", "effects", "copies"],
+  properties: {
+    kind: { const: "metroplat.work.source-task" }, id: { type: "string", minLength: 1 },
+    role: { enum: ["production", "receiving"] }, effects: { enum: ["read-only", "repository-write"] }, task: { type: "string", minLength: 1, maxLength: 128 },
+    workspace: { type: "string", minLength: 1, maxLength: 4096 }, branch: { type: "string", minLength: 1, maxLength: 1024 },
+    sourceBinding: { type: "string", minLength: 1 }, sourceResult: { type: "string", minLength: 1 },
+    allocation: { type: "string", minLength: 1 }, proposal: { type: "string", minLength: 1 },
+    scope: { type: "string", minLength: 1 }, subject: { type: "string", minLength: 1 }, office: { type: "string", minLength: 1 },
+    copies: { type: "array", minItems: 1, maxItems: 128, items: { type: "object", additionalProperties: false, required: ["path", "device", "inode"], properties: {
+      path: { type: "string", maxLength: 1024 }, device: { type: "string", minLength: 1 }, inode: { type: "string", minLength: 1 },
+    } } },
+  },
+  oneOf: [
+    { properties: { role: { const: "production" } }, required: ["allocation"], not: { anyOf: [{ required: ["proposal"] }, { required: ["sourceResult"] }] } },
+    { properties: { role: { const: "receiving" } }, required: ["proposal", "sourceResult"], not: { required: ["allocation"] } },
+  ],
+};
+export const workSourceTaskContract = schemaFrom(workSourceTaskSchema);
 
 /** Provider-neutral intent at the existing work-obligation boundary. Producer
  * identity and cited source spans are assay evidence, not part of the work
@@ -536,6 +564,9 @@ export const agencyWorkDelegatedSchema = {
         resources: { type: "array", items: delegatedOperationResourceSchema },
         execution: { type: "object", required: ["state", "receipt"], properties: {
           state: { const: "started" }, receipt: { type: "string", minLength: 1 },
+          sourceRepository: { type: "string", minLength: 1 },
+          sourceBinding: gitSourceClosureSchema,
+          sourceResult: gitSourceResultSchema,
           session: { type: "string", minLength: 1 }, model: { type: "string", minLength: 1 },
         }, additionalProperties: false },
         intent: { type: "string" }, subject: { type: "string" }, work: { type: "string" }, skill: { type: "string" },
@@ -547,7 +578,9 @@ export const agencyWorkDelegatedSchema = {
   }, additionalProperties: false,
 };
 
-export const agencyWorkDelegatedContract = schemaFrom(agencyWorkDelegatedSchema);
+// The lazy declaration boundary has no ambient registry: carry its recursive
+// source-value dependencies explicitly with the owning work contract.
+export const agencyWorkDelegatedContract = schemaFrom(agencyWorkDelegatedSchema, [workSourceClosureContract, workSourceResultContract]);
 
 export const juralRelationSchema = {
   type: "object",

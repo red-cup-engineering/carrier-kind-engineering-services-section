@@ -40,7 +40,8 @@
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/signcraft": "workspace:*",
-    "@red-cup-engineering/signgraph": "workspace:*"
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/git-services-section": "workspace:*"
   },
   "exports": {
     ".": "./src/index.mjs",
