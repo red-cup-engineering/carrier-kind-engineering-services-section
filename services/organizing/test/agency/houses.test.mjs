@@ -100,3 +100,16 @@ test("a cross-house presides-over edge grants only when the other house's record
     { to: `${ENGINEERING}#engineering-lead`, reading: "resolved", grants: false },
   ]);
 });
+
+test("the estate is the configured root when one is set, else the repository's own lib even under a /var/lib-style path", async () => {
+  const top = await mkdtemp("/var/tmp/houses-");
+  const checkout = path.join(top, "var", "lib", "checkout");
+  const lib = path.join(checkout, "lib");
+  const root = path.join(lib, GROUP, "lib", "agency");
+  await mkdir(root, { recursive: true });
+  await mkdir(path.join(checkout, ".git"));
+  assert.equal(estateRootOf(root, { configured: "" }), lib);
+  assert.equal(estateRootOf(root, { configured: lib }), lib);
+  assert.equal(estateRootOf(root, { configured: path.join(top, "elsewhere") }), undefined);
+  assert.equal(estateRootOf(root, { configured: "", exists: () => false }), path.join(top, "var", "lib"));
+});
