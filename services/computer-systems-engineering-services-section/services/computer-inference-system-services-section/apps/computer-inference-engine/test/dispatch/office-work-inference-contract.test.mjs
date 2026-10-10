@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "../../src/dispatch/office-work-inference-contract.mjs";
+import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "../../src/dispatch/inference-work-lot-source.mjs";
 
 const ERROR = "office work inference requires a canonical work identifier";
 const refuses = value => assert.throws(() => officeWorkInferenceTaskClass(value),

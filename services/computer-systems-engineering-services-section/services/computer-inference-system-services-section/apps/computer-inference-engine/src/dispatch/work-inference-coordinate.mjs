@@ -1,6 +1,6 @@
 /** Resolve supplier provenance; only the independent receiver supplies a judgment. */
 import { loadDeliveries } from "./expected-resolution-pricing.mjs";
-import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "./office-work-inference-contract.mjs";
+import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "./inference-work-lot-source.mjs";
 
 export function workInferenceCoordinate({
   proposal, pricingRoot, workProvider,

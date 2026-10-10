@@ -6,7 +6,7 @@ import path from "node:path";
 import { workInferenceCoordinate } from "../../src/dispatch/work-inference-coordinate.mjs";
 import { appendDelivery, loadDeliveries, loadObservations } from "../../src/dispatch/expected-resolution-pricing.mjs";
 import { executionConfigurationIdentity } from "../../src/dispatch/sen-carrier.mjs";
-import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "../../src/dispatch/office-work-inference-contract.mjs";
+import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "../../src/dispatch/inference-work-lot-source.mjs";
 
 // Every file under ROOT with its bytes: the pricing book is a journal (the one log, 8cf10144), so the
 // lookup writing nothing is shown on the whole data root, whatever the journal's own layout. A read
