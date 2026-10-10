@@ -28,6 +28,7 @@ import { capabilityGrant, grantAssertion } from "@red-cup-engineering/computer-n
 import { firmPoolAuthorityResolver } from "@red-cup-engineering/metroplat/firm-pool-authority";
 import { agencyAt, admitCharacterMasks, admitHarnessCarriers, coordinatingOffice, coordinatingOfficeSession, currentHarnessCarrier, currentHarnessCarriers, delegatingOffice, harnessModelCharacterResolver, isMaskedCharacter, officeServiceSession, officesOfAccount, providerDelegationOffices, providersOfAccount } from "@red-cup-engineering/metroplat/offices";
 import { resolve } from "@red-cup-engineering/organizing/agency";
+import { addressFrom, estateRootOf, houseReference, houseResolver, reciprocates } from "@red-cup-engineering/organizing/agency/houses";
 import { workResultProposalByReceipt } from "@red-cup-engineering/feltos/work/work-result-proposal";
 import { admitWorkDischargeWithProposal, resolveWorkDischarge, workResultReceivingBySession } from "@red-cup-engineering/feltos/work/work-discharge";
 import { bestStaffing, joinStandings, thompsonDraw } from "@red-cup-engineering/organizing/work/staffing";
@@ -78,13 +79,25 @@ export function servedOfficesOf(agency, serves = []) {
 
 /** The offices a character's carrier may serve when it is bounded to its reach: the offices the
  *  character holds or its deployment declares it serves (a carrier that holds no seat serves by
- *  allocation, so its reach is what the host declares for it), and every office those preside over. */
-export function officeReach(binding, agency, character, serves = []) {
+ *  allocation, so its reach is what the host declares for it), and every office those preside over.
+ *  An office in another house (`<house-section-path>#<id>`, resolved through that house's mounted
+ *  pool) joins only when its own record names the edge back: `reports-to` the presiding office, or
+ *  `served-by` an office the character holds. Without that it resolves and is shown
+ *  (organizing/agency/houses crossHouseEdges) but grants nothing. */
+export function officeReach(binding, agency, character, serves = [], { estateRoot = agency?.root ? estateRootOf(agency.root) : undefined } = {}) {
   const reach = new Set();
-  const pending = [
-    ...officesOfAccount(binding, character, agency).map(({ office }) => office),
-    ...servedOfficesOf(agency, serves),
-  ];
+  const held = officesOfAccount(binding, character, agency).map(({ office }) => office);
+  const pending = [...held, ...servedOfficesOf(agency, serves)];
+  // An office in another house joins the reach only when that house's own record names the edge back:
+  // one house never grants itself standing over another's offices on its own say-so (organizing/agency/houses).
+  const across = estateRoot ? houseResolver(estateRoot) : undefined;
+  const crossHouse = (ref, fromSectionPath, kind, granters) => {
+    if (!across || houseReference(ref) === undefined || resolve(agency, "offices", ref, fromSectionPath) !== undefined) return;
+    const reading = across(agency, "offices", ref, fromSectionPath);
+    if (reading.reading !== "resolved" || reading.house === null) return;
+    if (granters.some((record) => record && reciprocates(reading.record, kind, addressFrom(estateRoot, agency, record)))) reach.add(`${reading.house}#${reading.record.id}`);
+  };
+  for (const entry of serves) crossHouse(entry, "", "serves", held.map((key) => agency.offices.get(key)));
   while (pending.length > 0) {
     const key = pending.pop();
     if (reach.has(key)) continue;
@@ -93,6 +106,7 @@ export function officeReach(binding, agency, character, serves = []) {
     for (const ref of record?.presidesOver ?? []) {
       const presided = resolve(agency, "offices", ref, record.sectionPath)?.key;
       if (presided !== undefined) pending.push(presided);
+      else crossHouse(ref, record.sectionPath, "presides-over", [record]);
     }
   }
   return reach;

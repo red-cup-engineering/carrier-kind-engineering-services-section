@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdtempSync } from "node:fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { agencyAt, coordinatingOffice } from "@red-cup-engineering/metroplat/offices";
+import { agencyPools, readAgency } from "@red-cup-engineering/organizing/agency";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { ANTIGRAVITY_DEFAULT_OFFICES, officeReach, servedOfficesOf } from "../src/agency-work.mjs";
 
@@ -53,4 +54,20 @@ test("a carrier may serve offices by the role they bear: every verifier office, 
 test("served offices named by key resolve to themselves, so a resolved service reads the same again", () => {
   const keys = servedOfficesOf(agency, ANTIGRAVITY_DEFAULT_OFFICES);
   assert.deepEqual([...servedOfficesOf(agency, keys)].sort(), [...keys].sort());
+});
+
+test("an office in another house joins the reach only when that house's record names the edge back", () => {
+  const lib = path.join(mkdtempSync(path.join(tmpdir(), "cross-house-reach-")), "lib");
+  const GROUP = "emsenn/services/561-group/services/561-group-services-section";
+  const ENGINEERING = "emsenn/services/561-group/services/engineering-services-section";
+  const seat = (house, id, body) => { const dir = path.join(lib, house, "lib", "agency", "offices"); mkdirSync(dir, { recursive: true }); writeFileSync(path.join(dir, `${id}.json`), JSON.stringify({ id, name: id, kind: "office", ...body })); };
+  seat(GROUP, "chief-engineering-officer", { "presides-over": [`${ENGINEERING}#senior-engineer`, `${ENGINEERING}#engineering-lead`] });
+  seat(ENGINEERING, "senior-engineer", { "reports-to": `${GROUP}#chief-engineering-officer` });
+  seat(ENGINEERING, "engineering-lead", {});
+  const root = path.join(lib, GROUP);
+  const firm = readAgency(root, { acts: [], pools: agencyPools(root) });
+  const reach = officeReach(binding, firm, character, ["chief-engineering-officer"]);
+  assert.ok(reach.has(`${ENGINEERING}#senior-engineer`), "named back in reports-to: reached");
+  assert.ok(!reach.has(`${ENGINEERING}#engineering-lead`), "not named back: resolved, but grants nothing");
+  assert.ok(!officeReach(binding, firm, character, [`${ENGINEERING}#engineering-lead`]).has(`${ENGINEERING}#engineering-lead`), "a cross-house serves entry with no office named back in served-by grants nothing");
 });
