@@ -5,6 +5,7 @@ import { SIGN_IN_PATH, createWebAdmissionApplication, defaultPublicRoute } from 
 import { createPrincipalRegistry } from "@red-cup-engineering/computer-web-server/admission/principals";
 import { activityPubApplication } from "@red-cup-engineering/activitypub-services-section/app";
 import { jsonRepr } from "@red-cup-engineering/http-services-section/representation";
+import { toWebRequest } from "@red-cup-engineering/http-services-section/web-bridge";
 import { mcpToolValue } from "@red-cup-engineering/mcp-engineering-services-section/client";
 import { mcpResource } from "@red-cup-engineering/mcp-engineering-services-section/http";
 import { createAuthorizationServer, createJsonFileGrantStore } from "@red-cup-engineering/oauth-services-section/authorization-server";
@@ -13,6 +14,34 @@ const GOOGLE_CALLBACK_PATH = "/oauth/google/callback";
 const SELF_ADMITTING = new Set(["/mcp", "/oauth/authorize", "/oauth/token", "/oauth/register", "/oauth/revoke", "/healthz"]);
 const METROPLAT_READ_TIMEOUT_MS = 30_000;
 const EXACT_MATCH = /^\/[^:*{}()?]*$/u;
+const HOSTNAME = /^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/u;
+
+// The Host a request named. Behind a configured base the context URL carries the instance's own
+// origin, so a hosted application is chosen from the header, never from that URL.
+const firstHeader = (value) => (Array.isArray(value) ? value[0] : value);
+const requestHost = (ctx) => String(ctx.request?.headers.get("host") ?? firstHeader(ctx.req?.headers?.host) ?? ctx.url.host)
+  .toLowerCase().replace(/:\d+$/u, "");
+const forwardedProto = (ctx) => String(ctx.request?.headers.get("x-forwarded-proto") ?? firstHeader(ctx.req?.headers?.["x-forwarded-proto"]) ?? "")
+  .split(",")[0].trim().toLowerCase();
+
+/** Hosted applications answer every request whose Host they name, ahead of the instance's own
+ * admission and routes: an application with its own principals and paths (an app at its own
+ * hostname) shares the listener without sharing MetroPlat's sign-in or path space. */
+function hostedApplications(hosted, base) {
+  if (hosted.size === 0) return {};
+  const origin = new URL(base);
+  return {
+    onRequest: (ctx) => {
+      const host = requestHost(ctx);
+      const target = hosted.get(host);
+      if (target === undefined) return undefined;
+      const proto = ["http", "https"].includes(forwardedProto(ctx)) ? forwardedProto(ctx) : origin.protocol.slice(0, -1);
+      const url = new URL(`${ctx.url.pathname}${ctx.url.search}`, `${proto}://${host}`);
+      const request = ctx.request !== undefined ? new Request(url, ctx.request) : toWebRequest(ctx.req, { url, signal: ctx.signal });
+      return target.fetch(request, { remoteAddress: ctx.remoteAddress ?? ctx.req?.socket?.remoteAddress });
+    },
+  };
+}
 
 export const enterprisePublicRoute = (path, method) =>
   SELF_ADMITTING.has(path) || (path === GOOGLE_CALLBACK_PATH && method === "GET")
@@ -144,6 +173,8 @@ export function createEnterpriseEntrance(config, {
   const selected = typeof applications === "function" ? applications(context) : applications;
   if (!Array.isArray(selected)) throw new TypeError("MetroPlat applications must provide an array");
   const installedApps = [];
+  const hosted = new Map();
+  const ownHost = new URL(base).hostname;
   const installedTools = [...tools];
   const installedRoutes = [...rootRoutes];
   for (const entry of selected) {
@@ -153,6 +184,18 @@ export function createEnterpriseEntrance(config, {
       throw new TypeError("MetroPlat application factory must synchronously provide its surfaces");
     }
     if (supplied.readerAccess) readerAccess.push(supplied.readerAccess);
+    if (supplied.hosts !== undefined) {
+      if (!Array.isArray(supplied.hosts) || supplied.hosts.length === 0 || typeof supplied.fetch !== "function") {
+        throw new TypeError("a hosted MetroPlat application names its hosts and supplies fetch");
+      }
+      for (const host of supplied.hosts) {
+        if (typeof host !== "string" || !HOSTNAME.test(host)) throw new TypeError(`a hosted application names a lowercase hostname, not ${String(host)}`);
+        if (host === ownHost) throw new TypeError(`${host} is this instance's own host`);
+        if (hosted.has(host)) throw new TypeError(`${host} is named by two hosted applications`);
+        hosted.set(host, supplied);
+      }
+      continue;
+    }
     if (Array.isArray(supplied.applications)) {
       installedApps.push(...supplied.applications);
       installedTools.push(...(supplied.tools ?? []));
@@ -189,6 +232,7 @@ export function createEnterpriseEntrance(config, {
     verifyToken: (token) => authorization.verifyToken(token, { resource }),
   });
   const app = mergeApps(
+    hostedApplications(hosted, base),
     admission, authorization.app, health, { resources: [mcp] },
     ...(activityPubProvider === undefined ? [] : [activityPubApplication(activityPubProvider)]),
     { resources: installedRoutes },
