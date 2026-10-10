@@ -20,6 +20,7 @@ import { expressionsRoot, projectExpressions } from "./expressions.mjs";
 import { beginRoutineCandidateSubmission, completeRoutineCandidateSubmission, recordRoutineCandidateFieldUpdate, recordRoutineCandidateIntake, routineCandidateForAuthor, routineCandidateInboxForAuthor, routineCandidateObservation, routineCandidateSubmitHandle, routineCandidateUpdateCommand } from "./civic-routine-candidates.mjs";
 import { beginProposalSubmission, completeProposalSubmission, proposalDraftForAuthor, proposalDraftInboxForAuthor, proposalDraftRequestedAct, proposalDraftSubmitHandle, proposalDraftUpdateCommand, recordProposalDraftFieldUpdate, recordProposalDraftIntake } from "./civic-proposal-drafts.mjs";
 import { runCivicScheduledRoutines } from "./civic-scheduled-routines.mjs";
+import * as civicModule from "./zelo-civic-service.mjs";
 import { buildCivicDocket, formatCivicDocket } from "./civic-docket.mjs";
 import { env, integerEnv, loadRuntimeEnv, packageRoot, publicTurntideRoot } from "./env.mjs";
 import {
@@ -862,9 +863,7 @@ export async function civicAnswerForMessage(channel, message, source = process.e
     || /\bdecision procedure\b|\bwhat procedure\b|\bhow (?:would|does|should) turntide decide\b|\bdoes (?:this|it) need (?:a )?vote\b|\bneed(?:s)? (?:a )?vote\b|\bwho decides\b|\bwhat kind of governance\b/u.test(text);
   if (!civicCue) return null;
 
-  const civicRoot = publicTurntideRoot(source);
-  const civicModule = await import(pathToFileURL(path.join(civicRoot, "lib", "zelo-civic-service.mjs")).href);
-  const context = await civicModule.loadZeloCivicContext(civicRoot);
+  const context = await civicModule.loadZeloCivicContext(publicTurntideRoot(source));
 
   let result;
   const dataRoot = env("TTI_AGENT_DATA_ROOT", source) ?? path.join(packageRoot, "data", "agent");

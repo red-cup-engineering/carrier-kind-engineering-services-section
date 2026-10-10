@@ -74,6 +74,9 @@
     "./expressions": {
       "import": "./src/turntide-software-system/expressions.mjs"
     },
+    "./zelo-civic-service": {
+      "import": "./src/turntide-software-system/zelo-civic-service.mjs"
+    },
     "./steward": {
       "import": "./src/turntide-software-system/steward.mjs"
     },

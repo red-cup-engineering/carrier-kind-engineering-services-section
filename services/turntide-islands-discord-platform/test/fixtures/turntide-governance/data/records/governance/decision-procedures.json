@@ -1,0 +1,38 @@
+{
+  "type": "TurntideDecisionProcedures",
+  "version": 1,
+  "status": "synthetic test fixture; not a Turntide record",
+  "authorityDomain": "turntide-governance",
+  "procedures": [
+    {
+      "id": "ordinary-governance-act",
+      "title": "Fixture ordinary act",
+      "appliesWhen": "a fixture ordinary change",
+      "decisionMode": "fixture recorded decision",
+      "whoMayAuthorize": [
+        "recorded-governance-standing"
+      ],
+      "executor": "fixture executor",
+      "receiving": "fixture receipt"
+    },
+    {
+      "id": "structural-governance-act",
+      "title": "Fixture structural act",
+      "appliesWhen": "a fixture structural change",
+      "decisionMode": "fixture structural decision",
+      "whoMayAuthorize": [
+        "turntide-wide recorded-governance-standing"
+      ],
+      "executor": "fixture executor",
+      "receiving": "fixture receipt"
+    }
+  ],
+  "foreignAuthorityRoutes": [
+    {
+      "id": "tidepool-financial-governance",
+      "appliesWhen": "a fixture Tidepool financial matter",
+      "routeTo": "fixture Tidepool authority",
+      "note": "fixture foreign route"
+    }
+  ]
+}
