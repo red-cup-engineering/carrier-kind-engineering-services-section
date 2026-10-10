@@ -95,6 +95,8 @@
     "./agency/jural": "./src/agency/jural.mjs",
     "./agency/governing": "./src/agency/governing.mjs",
     "./agency/band": "./src/agency/band.mjs",
-    "./agency/band-realization": "./src/agency/band-realization.mjs"
+    "./agency/band-realization": "./src/agency/band-realization.mjs",
+    "./enterprise/resources": "./src/enterprise/resources.mjs",
+    "./enterprise/allowances": "./src/enterprise/allowances.mjs"
   }
 }

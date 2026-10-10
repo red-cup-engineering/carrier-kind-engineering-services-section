@@ -1,10 +1,109 @@
+import { skillResultCarrier } from "@red-cup-engineering/animating/becoming/doing/working/governing/carriers";
+import { skillError } from "@red-cup-engineering/animating/becoming/doing/working/governing/skill";
+import { skillResultRouting } from "../work.mjs";
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { validateJsonSchemaDocument } from "@red-cup-engineering/json-schema-services-section/validation";
-import { isJsonRecord, jsonValuesOfText } from "@red-cup-engineering/json-services-section";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { canonicalJson, canonicalizeJson, JSON_RESOURCE_ENVELOPE, parseJsonValue, requireJsonValue, isJsonRecord, jsonValuesOfText } from "@red-cup-engineering/json-services-section";
+import { canonicalCarrier, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { JURAL_KINDS } from "@red-cup-engineering/socializing/jural";
 import { admitJavascriptNodeCommandExecutionRequest } from "@red-cup-engineering/javascript-node-services-section/admit-javascript-node-command-execution-request";
+
+/** The office-work result keeps its historical outer sum while retaining an optional
+ * producer-native outcome. A later codomain assay and independent acceptance are distinct. */
+const codomainAssaySchema = {
+  type: "object", required: ["source", "returns"], additionalProperties: false,
+  properties: { source: { type: "string", minLength: 1 }, returns: { type: "object" } },
+};
+
+export const agencyWorkResultSchema = {
+  $id: "metroplat/work/agency-work-result",
+  oneOf: [
+    { type: "object", required: ["kind", "value"], properties: {
+      kind: { const: "skill-result" }, value: {},
+      skillOutcome: { $ref: "animating/becoming/doing/working/governing/skill-result" },
+      codomainAssay: codomainAssaySchema,
+    }, additionalProperties: false },
+    { type: "object", required: ["kind", "error"], properties: {
+      kind: { const: "skill-error" }, error: { type: "string", minLength: 1 },
+      skillOutcome: { $ref: "animating/becoming/doing/working/governing/skill-result" },
+      codomainAssay: codomainAssaySchema,
+    }, additionalProperties: false },
+  ],
+};
+export const agencyWorkResultContract = schemaFrom(agencyWorkResultSchema, [skillResultCarrier]);
+
+/** Admit the native subobject using its owning carrier and execution contract. */
+function nativeSkillOutcome(value) {
+  // This work rail persists JSON values even though SCA itself also names bigint/bytes.
+  // Validate with the actual JSON codec before SCA canonicalization can omit a field.
+  const snapshot = canonicalizeJson(value, JSON_RESOURCE_ENVELOPE).value;
+  requireJsonValue(snapshot, "native skill outcome");
+  if (semanticId(canonicalCarrier(value)) !== semanticId(canonicalCarrier(snapshot))) {
+    throw new TypeError("native skill outcome is not stable through the work result JSON codec");
+  }
+  const native = skillResultCarrier.assert(canonicalCarrier(snapshot), "native skill outcome");
+  if (semanticId(native) !== semanticId(parseJsonValue(canonicalJson(native)))) {
+    throw new TypeError("native skill outcome is not stable through the work result JSON codec");
+  }
+  if (native.ok) {
+    if (!Object.hasOwn(native, "output") || native.error !== undefined
+      || !["potential", "active"].includes(native.reading)) {
+      throw new TypeError("native skill success requires output and a classical reading without an error");
+    }
+  } else if (native.error === undefined || native.output !== undefined
+    || native.reading !== skillError(native.error.errorClass, native.error.message, native.error.context).reading) {
+    throw new TypeError("native skill error requires its structured error and matching error reading without output");
+  }
+  return native;
+}
+
+/** Validate before persistence. A native error can never masquerade as outer success. */
+export function admitAgencyWorkResult(value) {
+  // Preserve the legacy domain. New native-bearing records use the existing bounded
+  // transport codec and a frozen snapshot before schema checks or assay recomputation.
+  const carriesNative = isJsonRecord(value)
+    && (Object.hasOwn(value, "skillOutcome") || Object.hasOwn(value, "codomainAssay"));
+  const snapshot = carriesNative ? canonicalizeJson(value, JSON_RESOURCE_ENVELOPE).value : value;
+  const result = agencyWorkResultContract.assert(snapshot, "agency work result");
+  if (result.skillOutcome === undefined) {
+    if (result.codomainAssay !== undefined) throw new TypeError("result codomain assay requires a native source outcome");
+    return result;
+  }
+  const native = nativeSkillOutcome(result.skillOutcome);
+  const actual = result.kind === "skill-result" ? { kind: result.kind, value: result.value }
+    : { kind: result.kind, error: result.error };
+  let expected = native.ok ? { kind: "skill-result", value: native.output }
+    : { kind: "skill-error", error: native.error.message };
+  if (result.codomainAssay !== undefined) {
+    if (!native.ok || result.codomainAssay.source !== semanticId(native)) {
+      throw new TypeError("result codomain assay does not name its native success source");
+    }
+    validateResultCodomain(result.codomainAssay.returns);
+    expected = typedValueResultOf(result.codomainAssay.returns, native.output);
+  }
+  if (semanticId(actual) !== semanticId(expected)) {
+    throw new TypeError("office result does not match its native outcome projection or codomain assay");
+  }
+  return canonicalCarrier({ ...result, skillOutcome: native });
+}
+
+/** Native SkillResult -> legacy-compatible office result, preserving the exact native value. */
+export function workResultFromSkillResult(value) {
+  const native = nativeSkillOutcome(value);
+  return admitAgencyWorkResult(Object.freeze(native.ok
+    ? { kind: "skill-result", value: native.output, skillOutcome: native }
+    : { kind: "skill-error", error: native.error.message, skillOutcome: native }));
+}
+
+/** Producer-native context for execution and receiving; never an acceptance decision. */
+export function workResultSkillContext(value) {
+  const result = admitAgencyWorkResult(value);
+  if (result.skillOutcome === undefined) return undefined;
+  const native = result.skillOutcome;
+  return Object.freeze({ reading: native.reading, routing: skillResultRouting(native),
+    ...(native.ok ? {} : { errorClass: native.error.errorClass }) });
+}
 
 const workScopePattern = "^(endeavor|campaign|project|plan|task|work-item):[^\\s:][^\\s]*$";
 
@@ -202,12 +301,7 @@ export const workDischargeSchema = {
     },
     scope: { type: "string", pattern: workScopePattern },
     text: { type: "string", minLength: 1 },
-    result: {
-      oneOf: [
-        { type: "object", required: ["kind", "value"], properties: { kind: { const: "skill-result" }, value: {} }, additionalProperties: false },
-        { type: "object", required: ["kind", "error"], properties: { kind: { const: "skill-error" }, error: { type: "string", minLength: 1 } }, additionalProperties: false },
-      ],
-    },
+    result: agencyWorkResultSchema,
     decision: { enum: ["accepted", "rejected"], description: "Independent receipt; rejection preserves the open obligation." },
     resultReceipt: { type: "string", minLength: 1 },
     receiver: { type: "object", required: ["id", "evidence"], properties: { id: { type: "string", minLength: 1 }, office: { type: "string", minLength: 1 }, session: { type: "string", minLength: 1 }, evidence: { type: "array", minItems: 1, items: { type: "string", minLength: 1 }, uniqueItems: true } }, additionalProperties: false },
@@ -216,7 +310,7 @@ export const workDischargeSchema = {
   additionalProperties: false,
 };
 
-export const workDischargeContract = schemaFrom(workDischargeSchema);
+export const workDischargeContract = schemaFrom(workDischargeSchema, [skillResultCarrier]);
 
 // The receiver judges a witnessed proposal; it does not reproduce the producer's
 // immutable tuple. That tuple remains the server's resolved ledger material.
@@ -352,12 +446,12 @@ export const agencyWorkExecutionProposalSchema = {
   properties: {
     kind: { const: "metroplat.work.agency-work-execution-proposal" }, execution: { type: "string", minLength: 1 }, intent: { type: "string", minLength: 1 }, scope: { type: "string", pattern: workScopePattern },
     producer: { type: "object", required: ["id", "revision"], properties: { id: { type: "string", minLength: 1 }, revision: { type: "string", minLength: 1 } }, additionalProperties: false },
-    result: { oneOf: [{ type: "object", required: ["kind", "value"], properties: { kind: { const: "skill-result" }, value: {} }, additionalProperties: false }, { type: "object", required: ["kind", "error"], properties: { kind: { const: "skill-error" }, error: { type: "string", minLength: 1 } }, additionalProperties: false }] },
+    result: agencyWorkResultSchema,
     receipt: { type: "string", minLength: 1 }, evidence: { type: "array", minItems: 1, items: { type: "string", minLength: 1 }, uniqueItems: true },
   }, additionalProperties: false,
 };
 
-export const agencyWorkExecutionProposalContract = schemaFrom(agencyWorkExecutionProposalSchema);
+export const agencyWorkExecutionProposalContract = schemaFrom(agencyWorkExecutionProposalSchema, [skillResultCarrier]);
 
 /** A connected provider's result for one duty delegated to it. The producer is the
  * authenticated caller, never a field of this payload. */
@@ -385,7 +479,7 @@ export const agencyWorkProposalSchema = {
   }, additionalProperties: false,
 };
 
-export const agencyWorkProposalContract = schemaFrom(agencyWorkProposalSchema);
+export const agencyWorkProposalContract = schemaFrom(agencyWorkProposalSchema, [skillResultCarrier]);
 
 export const agencyWorkDelegatedInputContract = schemaFrom({
   $id: "metroplat/work/agency-work-delegated-input", type: "object", additionalProperties: false,
@@ -670,9 +764,20 @@ export function validateResultCodomain(value) {
  * returned. A skill error, or an item declaring no codomain, is the result as it was.
  */
 export function typedResultOf(returns, result) {
-  if (returns === undefined || result?.kind !== "skill-result") return result;
+  result = admitAgencyWorkResult(result);
+  if (returns === undefined || result.kind !== "skill-result") return result;
+  const native = result.skillOutcome;
+  const declaredCodomain = native === undefined ? returns : canonicalizeJson(returns, JSON_RESOURCE_ENVELOPE).value;
+  validateResultCodomain(declaredCodomain);
+  const projected = typedValueResultOf(declaredCodomain, native === undefined ? result.value : native.output);
+  if (native === undefined) return projected;
+  return admitAgencyWorkResult({ ...projected, skillOutcome: native,
+    codomainAssay: { source: semanticId(native), returns: declaredCodomain } });
+}
+
+/** The existing declared-codomain projection, independently replayable from its native source. */
+function typedValueResultOf(returns, value) {
   const codomain = schemaFrom(returns);
-  const value = result.value;
   const text = typeof value === "string" ? value : typeof value?.output === "string" ? value.output : undefined;
   const carried = text === undefined ? [] : jsonValuesOfText(text);
   const candidates = [...(isJsonRecord(value) && Object.hasOwn(value, "returned") ? [value.returned] : []), value, ...carried]
