@@ -1,4 +1,3 @@
-import { EMPTY_WITNESS_ROOT, identifyBytesSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { articulate, mark, utterance } from "@lenticule-science/articulating";
 import { predicate, presentPredicationSite } from "@lenticule-science/articulating/predicating";
 import {
@@ -10,6 +9,7 @@ import { createSchema, validateInstance } from "@red-cup-engineering/json-schema
 import {
   EMPTY_WITNESS_ROOT,
   IDENTITY_SETTLEMENT_PROFILE,
+  identifyBytesSemanticContent,
   identifyJsonSemanticContent,
 } from "@red-cup-engineering/semantic-content-identify-service";
 
