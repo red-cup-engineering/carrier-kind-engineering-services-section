@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFileSync } from "node:fs";
 import { startNativeActorService, nativeActorReadiness, superviseRequiredNativeActor } from "../src/native-actor-service.mjs";
 
 function owner(events = []) {
@@ -153,4 +154,12 @@ test("graceful actor release causes no restart and an existing drain suppresses 
 test("required actor supervision refuses a service without a real failure signal", () => {
   assert.throws(() => superviseRequiredNativeActor({ state: () => "running" }, { draining: false }, () => {}), /failure signal/);
   assert.equal(superviseRequiredNativeActor(undefined, { draining: false }, () => {}), undefined);
+});
+
+test("the installed server executable binds actor loss to a nonzero supervised restart", () => {
+  const executable = readFileSync(new URL("../scripts/feltos-enterprise-serve.mjs", import.meta.url), "utf8");
+  assert.match(executable, /superviseRequiredNativeActor\\(/u);
+  assert.match(executable, /process\\.kill\\(process\\.pid, "SIGTERM"\\)/u);
+  assert.match(executable, /process\\.exit\\(actorRestart \\? 1 : 0\\)/u);
+  assert.match(executable, /const lifecycle = await serveEnterpriseInstance/u);
 });
