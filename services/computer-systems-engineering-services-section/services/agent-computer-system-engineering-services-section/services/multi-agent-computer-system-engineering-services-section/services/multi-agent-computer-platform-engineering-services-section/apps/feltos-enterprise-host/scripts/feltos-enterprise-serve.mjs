@@ -21,7 +21,8 @@ await runMain(async () => {
     // A fast event-loop drain can beat the self-sent signal; preserve failure at once.
     process.exitCode = 1;
     process.stderr.write("[feltos-enterprise-host] required native actor stopped; restarting service\n");
-    process.kill(process.pid, "SIGTERM");
+    // Use the installed lifecycle, not a self-sent signal that can be lost as the loop empties.
+    void lifecycle.shutdown.drain("required-native-actor-stopped");
   });
   return lifecycle;
 }, {
