@@ -1,4 +1,4 @@
-import { TYPED_INFERENCE_OPERATION_TYPE } from "@red-cup-engineering/computer-inference-system-services-section";
+import { TYPED_INFERENCE_OPERATION_TYPE } from "@red-cup-engineering/computer-inference-engine/fabric/execute-typed-inference-effect";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mkdtempSync, rmSync } from "node:fs";
