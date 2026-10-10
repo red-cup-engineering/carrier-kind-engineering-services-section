@@ -100,16 +100,22 @@ function clockConfiguration(environment, declaredClock) {
   return Object.freeze({ subject, intervalMs });
 }
 
+export function companionListenOptions(companion, settings = {}, environment = {}) {
+  const host = settings.HOST ?? companion.host ?? environment.HOST ?? "127.0.0.1";
+  const port = Number(settings.PORT ?? companion.port);
+  if (typeof host !== "string" || host.trim() === "") throw new TypeError("Enterprise host companion host must be a nonempty string");
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) throw new TypeError("Enterprise host companion port must be an integer from 1 to 65535");
+  return Object.freeze({ host, port });
+}
+
 async function startCompanion(companion, environment) {
   const file = environment[companion.environmentFileKey]?.trim();
   if (!file) return Object.freeze({ skipped: true, close: async () => undefined });
   const settings = parseEnvFileText(readFileSync(file, "utf8"));
   const app = await companion.factory(settings);
-  const service = await startNativeApplication(app, {
-    host: settings.HOST ?? "127.0.0.1",
-    port: Number(settings.PORT ?? companion.port),
-  });
-  process.stderr.write(`[feltos-enterprise-host] companion ${companion.module} on ${settings.HOST ?? "127.0.0.1"}:${service.port}\n`);
+  const listen = companionListenOptions(companion, settings, environment);
+  const service = await startNativeApplication(app, listen);
+  process.stderr.write(`[feltos-enterprise-host] companion ${companion.module} on ${listen.host}:${service.port}\n`);
   return service;
 }
 
