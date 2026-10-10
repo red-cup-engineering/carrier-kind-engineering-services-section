@@ -10,16 +10,18 @@
  * from the latest balance: what each grant has left, when it lapses, how many of each generation
  * still fit, and the pace that spends the month's grant by renewal.
  *
- * The journal keeps each reading's renewal instant, which anchors the monthly meter. Each balance is
+ * The journal (the one log: a semantic-record journal beside the reading path, see
+ * `creditJournalRoot`) keeps each reading's renewal instant, which anchors the monthly meter. Each balance is
  * also recorded as evidence in the host's allowance ledger, where generation jobs hold credits
  * before they spend them, so a reading and a job's spends are read against one another. A balance
  * stands for every spend before it; successive balances are what show when the day turns.
  */
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { admitAllowance, admitAllowanceEvidence, readAllowance } from '@red-cup-engineering/organizing/enterprise';
 import { allowanceLedgerLapses, allowanceLedgerPath, recordAllowanceEvidence } from '@red-cup-engineering/computer-inference-engine/media/allowance-ledger';
+import { openLedgerJournal } from '@red-cup-engineering/computer-inference-engine/media/ledger-journal';
 import { openGoogleFlow } from './google-flow-client.mjs';
 
 export const FLOW_ALLOWANCE_PATH = new URL('../content/config/flow-allowance.json', import.meta.url);
@@ -48,15 +50,44 @@ export function flowAllowance(config, { renewsAt, catalog }) {
   return admitAllowance({ ...config, meters, costs });
 }
 
-/** Every reading in the journal, oldest first; none if it does not exist yet. */
+/** The kind credit readings are kept under in the one log. */
+export const FLOW_CREDIT_READING_OBJECT_KIND = 'google-flow.credit-reading';
+
+/** The journal a reading path names: `credit-readings.jsonl` keeps its readings at `credit-readings.journal`. */
+export const creditJournalRoot = (path = creditJournalPath()) => `${path.replace(/\.jsonl$/u, '')}.journal`;
+
+/**
+ * The credit journal: readings kept as held records in append order. A JSONL file of readings an
+ * earlier release left at `path` is admitted once, read only, skipping readings already held, and
+ * `jsonl-admission.json` in the journal marks that so it never repeats.
+ */
+function creditJournal(path) {
+  const journal = openLedgerJournal(`${path.replace(/\.jsonl$/u, '')}`, FLOW_CREDIT_READING_OBJECT_KIND);
+  const admission = `${journal.root}/jsonl-admission.json`;
+  if (!existsSync(admission)) journal.exclusively(() => {
+    if (existsSync(admission)) return;
+    let admitted = 0;
+    if (existsSync(path)) {
+      const held = new Set(journal.read('reading').map((reading) => JSON.stringify(reading)));
+      for (const line of readFileSync(path, 'utf8').split('\n').filter(Boolean)) {
+        const reading = JSON.parse(line);
+        if (held.has(JSON.stringify(reading))) continue;
+        journal.record('reading', reading);
+        admitted += 1;
+      }
+    }
+    writeFileSync(admission, `${JSON.stringify({ type: 'FlowCreditJsonlAdmission', version: 1, from: path, at: new Date().toISOString(), admitted })}\n`, { flag: 'wx' });
+  });
+  return journal;
+}
+
+/** Every reading in the journal, oldest first; none if there are none yet. */
 export function readCreditJournal(path = creditJournalPath()) {
-  if (!existsSync(path)) return [];
-  return readFileSync(path, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line));
+  return creditJournal(path).read('reading');
 }
 
 export function appendCreditReading(reading, path = creditJournalPath()) {
-  mkdirSync(dirname(path), { recursive: true });
-  appendFileSync(path, `${JSON.stringify(reading)}\n`);
+  creditJournal(path).record('reading', reading);
 }
 
 /**
