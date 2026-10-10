@@ -38,7 +38,9 @@ import { agencyActsLog, foldAgencyActs, readAgencyActs, revisionOf } from "./act
 import { instantiateAgencyForm } from "./forms.mjs";
 
 export const AGENCY_POOLS = Object.freeze(["forms", "offices", "duties", "works", "skills", "characters", "masks", "bodies", "organs", "incumbencies", "rules", "enterprises", "contracts", "entities", "principals", "requirements", "deontic-powers", "deontic-immunities", "liberties", "axioms", "directives", "policies", "packets"]);
-const SKIP = new Set(["node_modules", ".git", "legacy", "_archive", "dist", ".cache", ".tmp", "coverage"]);
+// `vendor` holds copies of other packages' records, which are authored in the package that owns
+// them; reading the copy seats the same office or skill twice.
+const SKIP = new Set(["node_modules", ".git", "legacy", "_archive", "vendor", "dist", ".cache", ".tmp", "coverage"]);
 const POOL_PARENT = /(?:^|\/)lib\/agency$/u;
 const SECTION_DIR = /-(?:section|service)$/u;
 const DUTY_PREFIX = /^(?:[a-z0-9-]+\/)?duty\//u;
@@ -657,7 +659,8 @@ export function officeReading(agency, officeRef) {
   return Object.freeze({
     kind: "organizing.agency.office",
     authored: office.authored,
-    effective: office.effective,
+    // The office as the registry reads it: a formed office is its form applied; any other is its authored record.
+    effective: office.effective ?? office.authored,
     formation: office.formation,
     source: office.source,
     revision: office.revision,
