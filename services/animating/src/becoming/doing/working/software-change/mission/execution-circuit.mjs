@@ -1,5 +1,5 @@
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { FOUR as WIRES, readingOfWire, truthMeetReading, wireOfReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { FOUR as WIRES, readingOfWire, truthMeetReading, wireOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { CIRCUIT_ASSEMBLY_PROFILE, HIERARCHICAL_CIRCUIT_PROFILE, circuitAssemblyId, hierarchicalCircuitId, normalizeHierarchicalCircuit, verifyCircuitAssembly } from "@red-cup-engineering/signgraph/hierarchical-circuit";
 
 const PROFILE = "org.emsenn.software-program-synthesis.execution-manifold-circuit.v1";

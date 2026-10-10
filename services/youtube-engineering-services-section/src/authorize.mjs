@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import { randomBytes } from "node:crypto";
 import { createYouTube } from './youtube-api.mjs';
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 const SCOPES='https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/yt-analytics.readonly';
 /** One PKCE consent request for a loopback redirect. The caller keeps state and verifier until the consent returns. */
 export function consentRequest({ clientId, port = 8765 }) {

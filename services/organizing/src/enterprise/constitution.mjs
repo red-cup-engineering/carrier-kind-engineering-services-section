@@ -10,7 +10,7 @@
  * withdrew, `withdrawn` when a party withdrew without having entered.
  * @packageDocumentation
  */
-import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { cell, knowledgeReading } from "@red-cup-engineering/signcell/cell";
 import { checkSetting } from "./settings.mjs";
 import { takingPolicyOf, WORK_AXES } from "./work-arena.mjs";

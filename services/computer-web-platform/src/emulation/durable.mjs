@@ -1,6 +1,6 @@
 import { Readable } from "node:stream";
 import { sendWebResponse, toWebRequest } from "@red-cup-engineering/http-services-section/web-bridge";
-import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 import { memoryStore } from "./store.mjs";
 import { realClock } from "./clock.mjs";
 const ALARM_KEY = "\u0000durable.alarm";

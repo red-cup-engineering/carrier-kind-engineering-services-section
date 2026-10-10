@@ -51,6 +51,8 @@ export function defaultFilesystemBinding(
     ...(options.resolveActorSubject===undefined?{}:{resolveActorSubject:options.resolveActorSubject}),
     // Preserve the host owner's admitted source transport; never manufacture
     // an executor or derive new source custody from the filesystem defaults.
+    // Supplied only by the owning host, never by an operation request. The workspace read
+    // operations delegate to it when it is present.
     ...(options.sourceReadResource === undefined ? {} : { sourceReadResource: options.sourceReadResource }),
     ...(options.sourceTaskOf === undefined ? {} : { sourceTaskOf: options.sourceTaskOf }),
     ...(options.repositoryRoot === undefined ? {} : { repositoryRoot: path.resolve(options.repositoryRoot) }),

@@ -6,8 +6,8 @@
  * `@red-cup-engineering/relating`, over the meme as a SignCell (subject, predicate,
  * object, and its evidence for and against).
  */
-import { arrayTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { arrayTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 
 // ── the meme: a SignCell, its evidence on two sides ──────────────────────────
 

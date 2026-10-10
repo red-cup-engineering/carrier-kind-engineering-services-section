@@ -37,7 +37,7 @@
 import { tellMembrane } from "@red-cup-engineering/signcraft/membrane";
 import { tokenValue } from "@red-cup-engineering/signcell/cell";
 import { foldSection, orbitRegime, reflexiveMeme, standingOf } from "./cognizing/index.mjs";
-import { census, knowledgeJoinOfCensus } from "@red-cup-engineering/computer-data-services-section/four";
+import { census, knowledgeJoinOfCensus } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** A FOUR knowledge-order standing (the ≤_k lattice: ⊥ absurd … ⊤ stable). */
 

@@ -19,7 +19,7 @@
  * Witnesses are semantic records in the node's own journal (`record-semantic-record`), told for,
  * against or neither, so liveness is substrate content a peer can federate and an audit can read.
  */
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** The journal object kind and category liveness witnesses are kept under. */
 export const PEER_LIVENESS_KIND = "peer-liveness";

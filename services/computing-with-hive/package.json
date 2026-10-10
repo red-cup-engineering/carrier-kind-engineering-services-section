@@ -25,7 +25,7 @@
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/relating": "workspace:*",

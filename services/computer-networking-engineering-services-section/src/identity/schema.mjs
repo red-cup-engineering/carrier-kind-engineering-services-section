@@ -1,4 +1,4 @@
-import { readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const didContext = "https://www.w3.org/ns/did/v1";
 const jsonValueSchema = {};

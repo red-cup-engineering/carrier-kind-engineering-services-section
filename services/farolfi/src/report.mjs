@@ -19,7 +19,7 @@ import {
 import { detectJournalFormat, parseJournalFile, parseJournalText } from "./journal.mjs";
 
 import { compileJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export const LEDGER_REPORT_NAMES = Object.freeze(["balance", "balance-sheet", "income-statement", "cashflow", "register", "accounts", "stats", "lots", "valuation", "reconcile", "check"]);
 

@@ -10,7 +10,7 @@ import { FLEET_DATA_DIR } from "../src/core/journal.mjs";
 
 import { pathToFileURL } from "node:url";
 import { resolve } from "node:path";
-import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 import { recordHolozingWildsSession } from "../src/core/holozingWildsSettlement.mjs";
 import { loadVerifiedHiveKey } from "@red-cup-engineering/key-management-services-section/hive-keystore";
 
