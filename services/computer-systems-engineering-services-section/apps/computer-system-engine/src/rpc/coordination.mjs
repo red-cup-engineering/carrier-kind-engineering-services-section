@@ -6,7 +6,7 @@
  * only under it.
  */
 import { closeSync, mkdirSync, openSync, readFileSync, unlinkSync, writeSync } from "node:fs";
-import { join } from "node:path";
+import { resolve } from "node:path";
 
 function holderAlive(pid) {
   try { process.kill(pid, 0); return true; } catch (error) { return error.code === "EPERM"; }
@@ -16,11 +16,25 @@ function holderAlive(pid) {
 // or per attempt, and each must find the process's lease held rather than take it again (once
 // re-taking it registered one more exit listener per tick).
 const heldLeases = new Set();
+let cleanupInstalled = false;
+function releaseHeldLeases() {
+  for (const leasePath of heldLeases) {
+    try {
+      if (readFileSync(leasePath, "utf8") === String(process.pid)) unlinkSync(leasePath);
+    } catch { /* unavailable or already released; never delete an unknown holder */ }
+  }
+  heldLeases.clear();
+}
 
 /** A coordinate(invocation, operation, decidedAt) function over `dataRoot` for this process. */
 export function processLeaseCoordinator(dataRoot, { pid = process.pid } = {}) {
-  const leasePath = join(dataRoot, ".coordination.lease");
-  const held = () => pid === process.pid && heldLeases.has(leasePath);
+  const leasePath = resolve(dataRoot, ".coordination.lease");
+  const held = () => {
+    if (pid !== process.pid || !heldLeases.has(leasePath)) return false;
+    try { if (readFileSync(leasePath, "utf8") === String(pid)) return true; } catch {}
+    heldLeases.delete(leasePath);
+    return false;
+  };
   const acquire = () => {
     mkdirSync(dataRoot, { recursive: true });
     for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -30,7 +44,10 @@ export function processLeaseCoordinator(dataRoot, { pid = process.pid } = {}) {
         closeSync(fd);
         if (pid === process.pid) {
           heldLeases.add(leasePath);
-          process.once("exit", () => { try { unlinkSync(leasePath); } catch { /* already released */ } });
+          if (!cleanupInstalled) {
+            process.once("exit", releaseHeldLeases);
+            cleanupInstalled = true;
+          }
         }
         return null;
       } catch (error) {
