@@ -8,6 +8,7 @@ import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/co
 import { grantAssertion, revokeAssertion, locusResource } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 import { projectOperationAffordances } from "../src/operation-affordances.mjs";
 import { createMetroplatWorld } from "../src/world.mjs";
+import { agencyRecordProjection } from "../src/offices.mjs";
 
 const domain = schemaFrom({ $id: "metroplat/test/input", type: "object", required: ["duty"], properties: { duty: { type: "string" } } });
 const codomain = schemaFrom({ $id: "metroplat/test/output", type: "object", required: ["receipt"], properties: { receipt: { type: "string" } } });
@@ -65,6 +66,27 @@ test("public world command dispatches catalog powers without constructing a game
     rmSync(dataRoot, { recursive: true, force: true });
     rmSync(worldRoot, { recursive: true, force: true });
   }
+});
+
+test("agency record projection omits absent optional names and remains JSON-safe", () => {
+  const nameless = agencyRecordProjection("incumbencies", {
+    key: "office#incumbent",
+    id: "incumbent",
+    source: "lib/agency/incumbencies/incumbent.json",
+    revision: "r1",
+  });
+  assert.equal(Object.hasOwn(nameless, "name"), false);
+  assert.doesNotThrow(() => JSON.stringify(nameless));
+
+  const named = agencyRecordProjection("offices", {
+    key: "section#office",
+    id: "office",
+    name: "Office",
+    source: "lib/agency/offices/office.json",
+    revision: "r2",
+  });
+  assert.equal(named.name, "Office");
+  assert.doesNotThrow(() => JSON.stringify(named));
 });
 
 test("account and help affordances project installed descriptor contracts through current categorized standing", () => {

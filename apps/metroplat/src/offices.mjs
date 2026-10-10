@@ -920,6 +920,13 @@ function participateHarnessHookEvent(binding, sources, { payload, subject, parti
   });
 }
 
+/** A JSON-safe projection of one agency record for broad readout. */
+export function agencyRecordProjection(pool, record) {
+  return { pool, key: record.key, id: record.id,
+    ...(record.name === undefined ? {} : { name: record.name }),
+    source: record.source, revision: record.revision };
+}
+
 /** The offices family. `sources` is read lazily: this family is itself one of the catalog's. */
 export function officeOperations(binding, sources) {
   const agency = () => agencyAt(agencyRootOf(binding));
@@ -951,7 +958,7 @@ export function officeOperations(binding, sources) {
         const reading = { kind: "metroplat.agency", pools: Object.fromEntries(AGENCY_POOLS.map((pool) => [pool, a[pool].size])),
           records: (input.pool ? [input.pool] : AGENCY_POOLS).flatMap((pool) => [...a[pool].values()]
             .filter((r) => !input.section || r.sectionPath === input.section)
-            .map((r) => ({ pool, key: r.key, id: r.id, name: r.name, source: r.source, revision: r.revision }))),
+            .map((r) => agencyRecordProjection(pool, r))),
           problems: a.problems };
         if (input.pool !== undefined || input.section !== undefined) return reading;
         const model = governanceOf(a);
