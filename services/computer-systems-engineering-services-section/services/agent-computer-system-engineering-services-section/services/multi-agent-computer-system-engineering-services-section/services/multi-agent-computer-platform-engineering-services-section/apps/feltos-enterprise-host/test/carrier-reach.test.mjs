@@ -71,3 +71,17 @@ test("an office in another house joins the reach only when that house's record n
   assert.ok(!reach.has(`${ENGINEERING}#engineering-lead`), "not named back: resolved, but grants nothing");
   assert.ok(!officeReach(binding, firm, character, [`${ENGINEERING}#engineering-lead`]).has(`${ENGINEERING}#engineering-lead`), "a cross-house serves entry with no office named back in served-by grants nothing");
 });
+
+test("a reached office in a section of the other house is keyed by its full address, section included", () => {
+  const lib = path.join(mkdtempSync(path.join(tmpdir(), "cross-house-section-")), "lib");
+  const GROUP = "emsenn/services/561-group/services/561-group-services-section";
+  const ENGINEERING = "emsenn/services/561-group/services/engineering-services-section";
+  const seat = (dir, id, body) => { mkdirSync(dir, { recursive: true }); writeFileSync(path.join(dir, `${id}.json`), JSON.stringify({ id, name: id, kind: "office", ...body })); };
+  seat(path.join(lib, GROUP, "lib", "agency", "offices"), "chief-engineering-officer", { "presides-over": [`${ENGINEERING}/services/release-section#lead`] });
+  seat(path.join(lib, ENGINEERING, "lib", "agency", "offices"), "lead", {});
+  seat(path.join(lib, ENGINEERING, "services", "release-section", "lib", "agency", "offices"), "lead", { "reports-to": `${GROUP}#chief-engineering-officer` });
+  const root = path.join(lib, GROUP);
+  const reach = officeReach(binding, readAgency(root, { acts: [], pools: agencyPools(root) }), character, ["chief-engineering-officer"]);
+  assert.ok(reach.has(`${ENGINEERING}/services/release-section#lead`));
+  assert.ok(!reach.has(`${ENGINEERING}#lead`), "the same id at the house root is a different office, and it is not reached");
+});

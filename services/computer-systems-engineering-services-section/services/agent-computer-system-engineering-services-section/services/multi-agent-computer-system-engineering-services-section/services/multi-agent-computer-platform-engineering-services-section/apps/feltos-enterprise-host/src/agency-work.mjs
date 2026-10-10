@@ -95,7 +95,9 @@ export function officeReach(binding, agency, character, serves = [], { estateRoo
     if (!across || houseReference(ref) === undefined || resolve(agency, "offices", ref, fromSectionPath) !== undefined) return;
     const reading = across(agency, "offices", ref, fromSectionPath);
     if (reading.reading !== "resolved" || reading.house === null) return;
-    if (granters.some((record) => record && reciprocates(reading.record, kind, addressFrom(estateRoot, agency, record)))) reach.add(`${reading.house}#${reading.record.id}`);
+    // Keyed by the full cross-house address, section included, so same-id offices in different sections of one house never collide.
+    const at = reading.record.sectionPath ? `${reading.house}/${reading.record.sectionPath}#${reading.record.id}` : `${reading.house}#${reading.record.id}`;
+    if (granters.some((record) => record && reciprocates(reading.record, kind, addressFrom(estateRoot, agency, record)))) reach.add(at);
   };
   for (const entry of serves) crossHouse(entry, "", "serves", held.map((key) => agency.offices.get(key)));
   while (pending.length > 0) {
