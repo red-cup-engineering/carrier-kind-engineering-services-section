@@ -295,7 +295,7 @@ export function foundingOf(agency, enterprise, { office, duty, work, skill }) {
   }
   const officeRecord = {
     id: office.id, name: office.name, kind: "office",
-    "reports-to": reporting.key,
+    "reports-to": resolve(agency, "offices", reporting.id, section)?.key === reporting.key ? reporting.id : reporting.key,
     ...(rank === undefined ? {} : { rank }),
     jurisdiction: line.jurisdiction,
     "bears-duty": [dutyId], "provides-skill": [skillRecord.id],
