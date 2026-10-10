@@ -7,7 +7,7 @@ import { holderOf, settlementIntake, workBoardStore } from "@red-cup-engineering
 import { admitCapabilityAssertions, readCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
 import { authorizationFromCapabilityAssertions, authorizationFromStanding } from "@red-cup-engineering/computer-system-engine/rpc/dispatch";
 import { can, capabilityGrant, grantAssertion, PUBLIC_HOLDER } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
-import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** An opening move of the work arena, carried between peer settlements as SignCell evidence. */
 export const WORK_OPENING_OBJECT_KIND = "metroplat.work.arena-opening";
