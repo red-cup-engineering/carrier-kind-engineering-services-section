@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/computer-services-section.git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
     "directory": "services/blockchain-services-section/services/hive-engineering-services-section/services/hive-ledger-services-section"
   }
 }
