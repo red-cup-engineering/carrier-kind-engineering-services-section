@@ -6,6 +6,7 @@ import test from "node:test";
 
 import { civicAnswerForMessage, executeProposalSubmissionIntent, executeRoutineCandidateSubmissionIntent } from "../src/turntide-software-system/steward.mjs";
 import { runCivicScheduledRoutines } from "../src/turntide-software-system/civic-scheduled-routines.mjs";
+import { auditCivicKernel, classifyDecisionProcedure, delegationWayfinding, loadZeloCivicContext } from "../src/turntide-software-system/zelo-civic-service.mjs";
 
 const message = (content) => ({ content });
 const channel = (name) => ({ name });
@@ -525,7 +526,24 @@ integration("scheduled civic adapter reads proposal submission receipts and anno
     now: "2026-10-04T13:00:00.000Z",
   });
   assert.equal(replay.outputs.some((entry) => entry.routine === "proposal-intake-review"), false);
-  assert.equal(sent.filter((entry) => entry.channelId === "gp").length, 1);
+  const announcements = () => sent.filter((entry) => entry.channelId === "gp" && /new public proposal submission receipt/u.test(entry.payload.content));
+  assert.equal(announcements().length, 1);
+  // Turntide's runtime schedules the next-move nudge: a proposal seen at an earlier review that is still
+  // proposed gets one bounded nudge in its lane, and not again while its state is unchanged.
+  const nudges = () => sent.filter((entry) => entry.channelId === "gp" && /remains proposed\. Smallest lawful next move/u.test(entry.payload.content));
+  assert.deepEqual(replay.outputs.filter((entry) => entry.routine === "next-move-nudge").map((entry) => entry.subjectId), ["ni:///sha-256;adapter-proposal"]);
+  assert.equal(nudges().length, 1);
+
+  await runCivicScheduledRoutines({
+    transport,
+    channels,
+    source: { ...civicSource(), TTI_AGENT_DATA_ROOT: dataRoot },
+    dataRoot,
+    now: "2026-10-05T13:00:00.000Z",
+  });
+  assert.equal(announcements().length, 1);
+  assert.equal(nudges().length, 1);
+  assert.equal(sent.filter((entry) => entry.channelId === "gp").length, 2);
 });
 
 
@@ -731,4 +749,27 @@ integration("ambiguous routine-candidate submission stays pending and is not bli
   const second = await executeRoutineCandidateSubmissionIntent(transport, request, source);
   assert.match(second, /already pending/u);
   assert.equal(attempts, 1);
+});
+
+integration("the civic kernel tolerates the civic-kernel laws Turntide has not recorded in its governance journal", async () => {
+  const context = await loadZeloCivicContext(process.env.TURNTIDE_PUBLIC_ROOT);
+  // Turntide's records hold none of these yet; each reads as absent rather than failing the kernel.
+  assert.equal(context.decisionClassification, null);
+  assert.equal(context.delegationLaw, null);
+  assert.equal(context.conformanceLaw, null);
+  assert.equal(context.delegations, null);
+
+  const report = auditCivicKernel(context);
+  assert.equal(report.ok, false);
+  assert.deepEqual(report.violations.map((entry) => entry.code), ["conformance-law-unavailable"]);
+  assert.equal(report.authorityEffect, "none");
+
+  const classification = classifyDecisionProcedure(context, { consequences: ["projection"] });
+  assert.equal(classification.state, "refused");
+  assert.equal(classification.reason, "classification-law-unavailable");
+  assert.equal(classification.authorizationCreated, false);
+
+  const delegations = delegationWayfinding(context);
+  assert.equal(delegations.registryAvailable, false);
+  assert.deepEqual(delegations.unmatchedStanding, []);
 });

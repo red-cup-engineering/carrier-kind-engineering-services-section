@@ -2,18 +2,76 @@ import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+
+import { activeDelegationOf, deriveDelegationRegistry } from "./delegation-registry.mjs";
+
 const GOVERNANCE = "data/records/governance";
+
+/**
+ * The kind of Turntide's governance journal and the categories of the records the kernel reads from it.
+ * The civic-kernel laws and the delegation events are signed, cell-typed semantic records, each carrying
+ * its own for/against evidence, kept in Turntide's semantic record journal; they are not files of a new
+ * JSON record format. The journal belongs to Turntide's public records like the governance directory does.
+ */
+export const TURNTIDE_GOVERNANCE_JOURNAL_KIND = "turntide-governance";
+export const TURNTIDE_GOVERNANCE_JOURNAL_CATEGORIES = Object.freeze({
+  decisionClassification: "decision-classification-law",
+  delegationLaw: "delegation-event-law",
+  conformanceLaw: "civic-kernel-conformance-law",
+  delegationEvent: "delegation-event",
+});
+const LAW_TYPES = Object.freeze({
+  decisionClassification: "TurntideDecisionClassificationLaw",
+  delegationLaw: "TurntideDelegationEventLaw",
+  conformanceLaw: "TurntideCivicKernelConformanceLaw",
+});
 
 async function readJson(path) {
   return JSON.parse(await readFile(path, "utf8"));
+}
+
+function held(row) {
+  return row.told?.for === true && row.told?.against === false;
+}
+
+/**
+ * The law a journal category currently holds: its latest record, when that record is told for and not
+ * against. A newer record that is denied or contested leaves the law unheld rather than falling back to an
+ * older version, and a category with no record leaves it absent; either way the kernel reads null.
+ */
+function heldLaw(journal, key) {
+  const rows = journal.query({ category: TURNTIDE_GOVERNANCE_JOURNAL_CATEGORIES[key] });
+  const latest = rows.at(-1);
+  if (latest === undefined || !held(latest)) return null;
+  if (latest.record?.type !== LAW_TYPES[key]) {
+    throw new TypeError(`Turntide governance journal ${TURNTIDE_GOVERNANCE_JOURNAL_CATEGORIES[key]} record ${latest.id} is not a ${LAW_TYPES[key]}`);
+  }
+  return Object.freeze(structuredClone(latest.record));
+}
+
+/**
+ * Every delegation event in the journal. An event that is denied or contested cannot be read back either way
+ * (dropping a contested revocation would leave a grant looking active), so the kernel refuses the history.
+ */
+function delegationEventsOf(journal) {
+  return Object.freeze(journal.query({ category: TURNTIDE_GOVERNANCE_JOURNAL_CATEGORIES.delegationEvent }).map((row) => {
+    if (!held(row)) throw new TypeError(`delegation-event: journal record ${row.id} is not held (told for and not against); a denied or contested event cannot be read back`);
+    return Object.freeze(structuredClone(row.record));
+  }));
 }
 
 /**
  * Load the Turntide governance records the civic kernel reads. The records live
  * in the Turntide public checkout, not beside this code, so the caller names
  * that root (the steward passes TURNTIDE_PUBLIC_ROOT); no location is guessed.
+ *
+ * The civic-kernel laws (decision classification, delegation events, kernel conformance) and the delegation
+ * events are read from Turntide's governance journal at `journalRoot` (the public root unless named). Each is
+ * optional: a law Turntide has not recorded reads as null and the logic that needs it says so or stays quiet,
+ * and no delegation registry is derived unless the delegation-event law is held.
  */
-export async function loadZeloCivicContext(root) {
+export async function loadZeloCivicContext(root, { journalRoot = root } = {}) {
   if (typeof root !== "string" || root.trim() === "") {
     throw new TypeError("loadZeloCivicContext requires the Turntide public root (TURNTIDE_PUBLIC_ROOT) holding data/records/governance");
   }
@@ -37,7 +95,18 @@ export async function loadZeloCivicContext(root) {
   for (const name of (await readdir(actsRoot)).filter((name) => name.endsWith(".json")).sort()) {
     acts.push(await readJson(resolve(actsRoot, name)));
   }
-  return Object.freeze({ root, standing, protocol, mandate, routines, runtime, routinePatterns, civicPlaces, standingPathways, tidepoolStatus, tidepoolParticipantGovernance, contestability, decisionProcedures, acts: Object.freeze(acts) });
+  const journal = createSemanticRecordJournal({ root: resolve(journalRoot), objectKind: TURNTIDE_GOVERNANCE_JOURNAL_KIND });
+  const decisionClassification = heldLaw(journal, "decisionClassification");
+  const delegationLaw = heldLaw(journal, "delegationLaw");
+  const conformanceLaw = heldLaw(journal, "conformanceLaw");
+  const delegationEvents = delegationLaw === null ? Object.freeze([]) : delegationEventsOf(journal);
+  const delegations = delegationLaw === null ? null : deriveDelegationRegistry(delegationEvents, acts);
+  return Object.freeze({
+    root, standing, protocol, mandate, routines, runtime, routinePatterns, civicPlaces, standingPathways,
+    tidepoolStatus, tidepoolParticipantGovernance, contestability, decisionProcedures, decisionClassification,
+    delegationLaw, delegations, delegationEvents, conformanceLaw,
+    acts: Object.freeze(acts),
+  });
 }
 
 function artifact(context, kind) {
@@ -45,6 +114,157 @@ function artifact(context, kind) {
   if (!value) throw new TypeError(`unknown Turntide civic artifact kind ${JSON.stringify(kind)}`);
   return value;
 }
+
+function duplicateValues(values) {
+  return [...new Set(values.filter((value, index) => values.indexOf(value) !== index))].sort();
+}
+
+function transitionKey(value) {
+  return `${value.artifactKind}:${value.from}->${value.to}`;
+}
+
+/**
+ * Audit the executable civic runtime against Turntide's enacted standing, protocol, mandate, routine and
+ * runtime records, and against the civic-kernel conformance law when Turntide's governance journal holds
+ * one. Without that law the audit still checks what the base records say, and reports the law's absence as
+ * a violation: conformance to a law Turntide has not recorded cannot be claimed. The report grants nothing.
+ */
+export function auditCivicKernel(context) {
+  const violations = [];
+  const require = (ok, code, detail) => {
+    if (!ok) violations.push(Object.freeze({ code, detail }));
+  };
+
+  for (const [name, record] of [
+    ["standing", context.standing],
+    ["protocol", context.protocol],
+    ["mandate", context.mandate],
+    ["routines", context.routines],
+    ["runtime", context.runtime],
+    ["standing-pathways", context.standingPathways],
+    ["place-affordances", context.civicPlaces],
+  ]) require(record?.status === "enacted", "kernel-record-not-enacted", name);
+  for (const [name, law] of [
+    ["decision-classification-law", context.decisionClassification],
+    ["delegation-event-law", context.delegationLaw],
+    ["conformance-law", context.conformanceLaw],
+  ]) if (law) require(law.status === "enacted", "kernel-record-not-enacted", name);
+  require(Boolean(context.conformanceLaw), "conformance-law-unavailable",
+    `no ${TURNTIDE_GOVERNANCE_JOURNAL_CATEGORIES.conformanceLaw} record is held in Turntide's governance journal`);
+
+  const routineIds = context.routines.routines.map((routine) => routine.id);
+  const runtimeIds = context.runtime.routineExecution.map((entry) => entry.routine);
+  require(duplicateValues(routineIds).length === 0, "duplicate-routine-id", duplicateValues(routineIds));
+  require(duplicateValues(runtimeIds).length === 0, "duplicate-runtime-routine-id", duplicateValues(runtimeIds));
+
+  const routineSet = new Set(routineIds);
+  const runtimeSet = new Set(runtimeIds);
+  require(routineIds.every((id) => runtimeSet.has(id)), "routine-missing-runtime-binding", routineIds.filter((id) => !runtimeSet.has(id)));
+  require(runtimeIds.every((id) => routineSet.has(id)), "runtime-orphan-routine", runtimeIds.filter((id) => !routineSet.has(id)));
+
+  const allowedEffects = new Set(context.conformanceLaw?.allowedAutonomousEffects ?? []);
+  for (const entry of context.runtime.routineExecution) {
+    if (context.conformanceLaw) {
+      require(allowedEffects.has(entry.autonomousEffect), "autonomous-effect-not-admitted", {
+        routine: entry.routine,
+        autonomousEffect: entry.autonomousEffect,
+      });
+    }
+    if (entry.mode === "scheduled") {
+      require(entry.silenceWhenEmpty === true, "scheduled-routine-must-be-silent-when-empty", entry.routine);
+    }
+  }
+
+  for (const routine of context.routines.routines) {
+    if (routine.mayExecuteAutonomously === true) {
+      require(runtimeSet.has(routine.id), "autonomous-routine-missing-runtime", routine.id);
+    }
+  }
+
+  // A scheduled routine the runtime declares but the kernel does not interpret would silently never run. The
+  // kernel runs a routine it supports only when the runtime declares it, so support beyond the declaration
+  // is not drift.
+  const unsupportedScheduled = context.runtime.routineExecution
+    .filter((entry) => entry.mode === "scheduled" && !SCHEDULED_CIVIC_ROUTINES.has(entry.routine))
+    .map((entry) => entry.routine)
+    .sort();
+  require(unsupportedScheduled.length === 0, "scheduled-runtime-interpreter-drift", {
+    unsupported: unsupportedScheduled,
+    supported: [...SCHEDULED_CIVIC_ROUTINES].sort(),
+  });
+
+  require(context.runtime.rules?.runtimeMayExpandAuthority === false, "runtime-may-expand-authority", context.runtime.rules?.runtimeMayExpandAuthority);
+  require(context.runtime.rules?.deliveryAdapterIsAuthority === false, "delivery-adapter-is-authority", context.runtime.rules?.deliveryAdapterIsAuthority);
+  require(context.runtime.rules?.runtimeMayInferVoteFromDiscord === false, "runtime-may-infer-discord-vote", context.runtime.rules?.runtimeMayInferVoteFromDiscord);
+  require(context.runtime.rules?.runtimeMayCreateBindingActFromRehearsal === false, "rehearsal-may-create-binding-act", context.runtime.rules?.runtimeMayCreateBindingActFromRehearsal);
+  require(context.standing.principles?.standingRequiresRecord === true, "standing-no-longer-requires-record", context.standing.principles?.standingRequiresRecord);
+  require(context.standing.principles?.tidepoolMembershipCreatesTurntideStanding === false, "tidepool-membership-creates-turntide-standing", context.standing.principles?.tidepoolMembershipCreatesTurntideStanding);
+
+  if (context.delegationLaw) {
+    require(context.delegations?.type === "TurntideDelegationRegistry", "delegation-registry-unavailable", context.delegations?.type);
+    require(context.delegations?.authorityEffect === "readback-only", "delegation-registry-claims-authority", context.delegations?.authorityEffect);
+    require(context.delegationLaw.invariants?.derivedRegistryIsProjectionNotAuthoritySource === true,
+      "delegation-law-allows-registry-authority", context.delegationLaw.invariants?.derivedRegistryIsProjectionNotAuthoritySource);
+
+    const delegationTransitions = context.protocol.artifactKinds?.delegation?.transitions ?? [];
+    const requiredDelegationEvidence = new Map([
+      ["requested->active", "append-only activation event in the public delegation carrier"],
+      ["active->revoked", "append-only revocation event"],
+      ["active->expired", "append-only expiry event carrying the matching condition witness"],
+      ["active->superseded", "append-only supersession event"],
+    ]);
+    for (const transition of delegationTransitions) {
+      const key = `${transition.from}->${transition.to}`;
+      if (!requiredDelegationEvidence.has(key)) continue;
+      require((transition.requires ?? []).includes(requiredDelegationEvidence.get(key)),
+        "delegation-transition-missing-event-evidence", { key, required: requiredDelegationEvidence.get(key) });
+    }
+  }
+  if (context.decisionClassification) {
+    require(context.decisionClassification.rules?.delegationShortcutRequiresIndependentActiveReadback === true,
+      "classifier-no-longer-requires-delegation-readback", context.decisionClassification.rules?.delegationShortcutRequiresIndependentActiveReadback);
+  }
+
+  const actualTransitions = [];
+  for (const [artifactKind, spec] of Object.entries(context.protocol.artifactKinds ?? {})) {
+    for (const transition of spec.transitions ?? []) {
+      if ((transition.mayBePerformedBy ?? []).includes("zelo-civic-steward")) {
+        actualTransitions.push({ artifactKind, from: transition.from, to: transition.to });
+      }
+    }
+  }
+  if (context.conformanceLaw) {
+    const admittedTransitions = context.conformanceLaw.allowedZeloProtocolTransitions ?? [];
+    const actualKeys = actualTransitions.map(transitionKey).sort();
+    const admittedKeys = admittedTransitions.map(transitionKey).sort();
+    require(JSON.stringify(actualKeys) === JSON.stringify(admittedKeys), "zelo-protocol-transition-drift", {
+      actual: actualKeys,
+      admitted: admittedKeys,
+    });
+  }
+
+  return Object.freeze({
+    type: "TurntideCivicKernelConformanceReport",
+    version: 1,
+    ok: violations.length === 0,
+    violations: Object.freeze(violations),
+    laws: Object.freeze({
+      decisionClassification: context.decisionClassification !== null && context.decisionClassification !== undefined,
+      delegationEvents: context.delegationLaw !== null && context.delegationLaw !== undefined,
+      conformance: context.conformanceLaw !== null && context.conformanceLaw !== undefined,
+    }),
+    counts: Object.freeze({
+      routines: routineIds.length,
+      runtimeBindings: runtimeIds.length,
+      autonomousEffects: allowedEffects.size,
+      delegationEvents: context.delegations?.eventCount ?? 0,
+      activeDelegations: context.delegations?.active.length ?? 0,
+      zeloProtocolTransitions: actualTransitions.length,
+    }),
+    authorityEffect: "none",
+  });
+}
+
 
 export function civicState(context, { artifactKind, state }) {
   const spec = artifact(context, artifactKind);
@@ -228,6 +448,220 @@ export function contestWayfinding(context, { kind = null } = {}) {
   });
 }
 
+function normalizedDecisionToken(value) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function uniqueDecisionTokens(values) {
+  return [...new Set((Array.isArray(values) ? values : []).map(normalizedDecisionToken).filter(Boolean))].sort();
+}
+
+function decisionProcedureRecord(context, id) {
+  return context.decisionProcedures.procedures.find((entry) => entry.id === id) ?? null;
+}
+
+function requestedProcedureAssessment(context, requestedProcedure, minimumProcedure) {
+  if (requestedProcedure === undefined || requestedProcedure === null || String(requestedProcedure).trim() === "") return null;
+  const requested = normalizedDecisionToken(requestedProcedure);
+  const floors = context.decisionClassification.procedureFloors ?? {};
+  if (!Object.hasOwn(floors, requested)) {
+    return Object.freeze({
+      requested,
+      state: "refused-nonterminal-or-unknown-procedure",
+      note: "The requested procedure is not one of the terminal procedure floors admitted by the classification law.",
+    });
+  }
+  const requestedRank = floors[requested];
+  const minimumRank = floors[minimumProcedure];
+  return Object.freeze({
+    requested,
+    state: requestedRank < minimumRank ? "refused-below-minimum" : "not-below-minimum",
+    requestedRank,
+    minimumRank,
+    note: requestedRank < minimumRank
+      ? "Turntide refuses procedural downgrade below the consequence-derived minimum."
+      : "This comparison only proves the requested procedure is not below the minimum; it does not grant authority or satisfy that procedure's own conditions.",
+  });
+}
+
+/**
+ * Derive a conservative minimum decision procedure from typed civic facts.
+ * This is a procedure-floor classifier, never an authorizer or natural-language
+ * policy oracle. Unknown consequence labels fail closed; structural effects
+ * dominate convenience claims; foreign financial authority routes out of Turntide.
+ */
+export function classifyDecisionProcedure(context, input = {}) {
+  const law = context.decisionClassification;
+  const domain = normalizedDecisionToken(input.authorityDomain || "turntide-governance");
+  const consequences = uniqueDecisionTokens(input.consequences);
+  const base = {
+    type: "ZeloDecisionProcedureClassification",
+    version: 1,
+    authorityDomain: domain,
+    consequences: Object.freeze(consequences),
+    authorizationCreated: false,
+    bindingEffect: "informational-only",
+  };
+  if (!law) {
+    return Object.freeze({
+      ...base,
+      state: "refused",
+      minimumProcedure: null,
+      reason: "classification-law-unavailable",
+      requestedProcedure: null,
+    });
+  }
+  const classes = law.consequenceClasses ?? {};
+  const knownConsequences = new Set(Object.values(classes).flat());
+  const unknownConsequences = consequences.filter((value) => !knownConsequences.has(value));
+
+  if (unknownConsequences.length > 0) {
+    return Object.freeze({
+      ...base,
+      state: "refused",
+      minimumProcedure: null,
+      reason: "unknown-consequence",
+      unknownConsequences: Object.freeze(unknownConsequences),
+      requestedProcedure: null,
+    });
+  }
+
+  const foreignDomains = new Set(law.foreignAuthorityDomains ?? []);
+  if (foreignDomains.has(domain)) {
+    const foreign = context.decisionProcedures.foreignAuthorityRoutes.find((entry) => entry.id === "tidepool-financial-governance") ?? null;
+    return Object.freeze({
+      ...base,
+      state: "foreign-authority",
+      minimumProcedure: null,
+      foreignAuthority: foreign === null ? null : Object.freeze(structuredClone(foreign)),
+      reason: "Tidepool financial authority is outside Turntide decision authority.",
+      requestedProcedure: null,
+    });
+  }
+  if (domain !== "turntide-governance") {
+    return Object.freeze({
+      ...base,
+      state: "refused",
+      minimumProcedure: null,
+      reason: "unknown-authority-domain",
+      requestedProcedure: null,
+    });
+  }
+  if (consequences.length === 0) {
+    return Object.freeze({
+      ...base,
+      state: "incomplete",
+      minimumProcedure: null,
+      reason: "consequences-required",
+      missing: Object.freeze(["consequences"]),
+      requestedProcedure: null,
+    });
+  }
+
+  const structural = consequences.filter((value) => (classes.structural ?? []).includes(value));
+  const ordinary = consequences.filter((value) => (classes.ordinary ?? []).includes(value));
+  const clericalOnly = consequences.every((value) => (classes.clerical ?? []).includes(value));
+  const currentRecordEvidence = uniqueDecisionTokens(input.currentRecordEvidence);
+  const prior = input.priorAuthority && typeof input.priorAuthority === "object"
+    ? { kind: normalizedDecisionToken(input.priorAuthority.kind), id: String(input.priorAuthority.id ?? "").trim() }
+    : { kind: "", id: "" };
+
+  let state = "classified";
+  let minimumProcedure;
+  const reasons = [];
+  let missing = [];
+
+  if (structural.length > 0) {
+    minimumProcedure = "structural-governance-act";
+    reasons.push(`structural consequence: ${structural.join(", ")}`);
+  } else if (input.contested === true || input.createsNewPolicy === true || ordinary.length > 0) {
+    minimumProcedure = "ordinary-governance-act";
+    if (input.contested === true) reasons.push("contested matter cannot use a clerical shortcut");
+    if (input.createsNewPolicy === true) reasons.push("new policy requires an explicit governance act");
+    if (ordinary.length > 0) reasons.push(`ordinary governance consequence: ${ordinary.join(", ")}`);
+  } else if (prior.kind === "enacted-routine") {
+    const knownRoutine = context.routines.routines.some((routine) => routine.id === prior.id);
+    if (!knownRoutine) {
+      return Object.freeze({
+        ...base,
+        state: "refused",
+        minimumProcedure: null,
+        reason: "unknown-enacted-routine",
+        priorAuthority: Object.freeze(prior),
+        requestedProcedure: null,
+      });
+    }
+    if (input.withinPriorAuthority === true && clericalOnly) {
+      minimumProcedure = "enacted-routine-instance";
+      reasons.push(`known enacted routine ${prior.id}; exact-scope claim still requires runtime/receiver enforcement`);
+    } else {
+      minimumProcedure = "ordinary-governance-act";
+      reasons.push("routine shortcut not proven wholly inside the enacted routine's authority boundary");
+    }
+  } else if (prior.kind === "active-delegation") {
+    const delegation = context.delegations ? activeDelegationOf(context.delegations, prior.id) : null;
+    if (delegation === null) {
+      minimumProcedure = "ordinary-governance-act";
+      state = "needs-authority-readback";
+      missing = ["independent active delegation readback"];
+      reasons.push(context.delegations
+        ? `no active delegation event readback exists for ${prior.id}; caller assertion cannot establish authority`
+        : `Turntide's governance journal holds no delegation-event law, so ${prior.id} cannot be read back; caller assertion cannot establish authority`);
+    } else {
+      const requestedAction = String(input.requestedAction ?? "").trim();
+      const requestedScope = String(input.requestedScope ?? "").trim();
+      if (requestedAction === "" || requestedScope === "") {
+        minimumProcedure = "ordinary-governance-act";
+        state = "needs-authority-match";
+        missing = [
+          ...(requestedAction === "" ? ["requestedAction"] : []),
+          ...(requestedScope === "" ? ["requestedScope"] : []),
+        ];
+        reasons.push("delegated-clerical classification requires an explicit requested action and scope to compare against the active delegation");
+      } else {
+        const actionAllowed = delegation.grantedActions.includes(requestedAction);
+        const scopeMatches = delegation.scope === requestedScope;
+        if (clericalOnly && actionAllowed && scopeMatches) {
+          minimumProcedure = "delegated-clerical";
+          reasons.push(`active delegation ${prior.id} independently read back; requested action and scope match its bounded grant`);
+        } else {
+          minimumProcedure = "ordinary-governance-act";
+          if (!clericalOnly) reasons.push("delegation cannot downgrade non-clerical consequences");
+          if (!actionAllowed) reasons.push(`requested action ${JSON.stringify(requestedAction)} is not in the delegation's grantedActions`);
+          if (!scopeMatches) reasons.push(`requested scope ${JSON.stringify(requestedScope)} does not exactly match delegated scope ${JSON.stringify(delegation.scope)}`);
+        }
+      }
+    }
+  } else if (clericalOnly && currentRecordEvidence.length > 0) {
+    minimumProcedure = "record-grounded-correction";
+    reasons.push("clerical-only correction carries checkable current-record evidence and creates no new policy");
+  } else {
+    minimumProcedure = "ordinary-governance-act";
+    reasons.push(clericalOnly
+      ? "clerical-looking change lacks the record evidence or admitted prior authority required for a shortcut"
+      : "no lower-constraint admitted prior authority establishes the requested change");
+  }
+
+  const procedure = decisionProcedureRecord(context, minimumProcedure);
+  if (procedure === null) throw new TypeError(`decision classification law names missing procedure ${minimumProcedure}`);
+  const requestedProcedure = requestedProcedureAssessment(context, input.requestedProcedure, minimumProcedure);
+
+  return Object.freeze({
+    ...base,
+    state,
+    minimumProcedure,
+    procedure: Object.freeze(structuredClone(procedure)),
+    reasons: Object.freeze(reasons),
+    ...(missing.length === 0 ? {} : { missing: Object.freeze(missing) }),
+    priorAuthority: prior.kind === "" ? null : Object.freeze(prior),
+    ...(prior.kind === "active-delegation"
+      ? { delegationReadback: context.delegations ? activeDelegationOf(context.delegations, prior.id) : null }
+      : {}),
+    currentRecordEvidence: Object.freeze(currentRecordEvidence),
+    requestedProcedure,
+  });
+}
+
 
 export function decisionProcedureWayfinding(context, { kind = null } = {}) {
   const selected = kind === null
@@ -261,6 +695,48 @@ export function decisionProcedureWayfinding(context, { kind = null } = {}) {
   });
 }
 
+
+export function delegationWayfinding(context, { delegationId = null, delegate = null } = {}) {
+  if (!context.delegations) {
+    return Object.freeze({
+      type: "ZeloDelegationWayfinding",
+      version: 1,
+      registryAvailable: false,
+      eventCount: 0,
+      states: Object.freeze([]),
+      active: Object.freeze([]),
+      unmatchedStanding: Object.freeze([]),
+      note: "Turntide's governance journal holds no delegation-event law, so Zelo derives no delegation registry and cannot independently read a delegation back. Standing remains as recorded; a caller's claim of delegation is not readback.",
+      bindingEffect: "informational-only",
+    });
+  }
+  const wantedId = delegationId === null ? null : String(delegationId).trim();
+  const wantedDelegate = delegate === null ? null : String(delegate).trim();
+  let states = context.delegations.states;
+  if (wantedId) states = states.filter((entry) => entry.delegationId === wantedId);
+  if (wantedDelegate) states = states.filter((entry) => entry.delegate === wantedDelegate);
+  const active = states.filter((entry) => entry.state === "active");
+  const standingClaims = context.standing.entries.filter((entry) => String(entry.state).includes("delegated"));
+  const unmatchedStanding = standingClaims.filter((entry) =>
+    !context.delegations.active.some((delegation) => delegation.delegate === entry.id));
+  return Object.freeze({
+    type: "ZeloDelegationWayfinding",
+    version: 1,
+    registryAvailable: true,
+    eventCount: context.delegations.eventCount,
+    states: Object.freeze(states.map((entry) => Object.freeze(structuredClone(entry)))),
+    active: Object.freeze(active.map((entry) => Object.freeze(structuredClone(entry)))),
+    unmatchedStanding: Object.freeze(unmatchedStanding.map((entry) => Object.freeze({
+      id: entry.id,
+      state: entry.state,
+      scope: entry.scope,
+      basis: entry.basis,
+      problem: "standing says delegated but no conforming active delegation event independently proves that modern bounded grant",
+    }))),
+    note: "The delegation registry is derived from the append-only delegation events in Turntide's governance journal. It is readback, not a grant. Missing event history does not auto-revoke older standing; it is a conformance exception to repair through governance.",
+    bindingEffect: "informational-only",
+  });
+}
 
 export function standingWayfinding(context) {
   return Object.freeze({
@@ -658,12 +1134,35 @@ export function receivedTeachingExamples(context) {
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WEEK_MS = 7 * DAY_MS;
 const MONTH_MS = 30 * DAY_MS;
+// The scheduled routines this kernel interprets. A routine added by PR to this set runs only where Turntide's
+// runtime record declares it scheduled (see runtimeSchedules); the set never admits a routine on its own.
+const SCHEDULED_CIVIC_ROUTINES = new Set([
+  "governance-rock-sweep",
+  "decision-action-reconciliation",
+  "next-move-nudge",
+  "island-routine-discovery",
+  "standing-delegation-review",
+  "routine-retirement-review",
+  "proposal-intake-review",
+  "constitutional-conformance-review",
+]);
+
+function runtimeSchedules(context, routine) {
+  return context.runtime.routineExecution.some((entry) => entry.routine === routine && entry.mode === "scheduled");
+}
 
 function civicSnapshot(context) {
   return Object.freeze({
     standing: Object.freeze(context.standing.entries
       .map((entry) => `${entry.id}|${entry.state}|${entry.scope ?? ""}`)
       .sort()),
+    // Present only with a derived registry, so a Turntide without the delegation-event law keeps the digest
+    // it had before delegation readback existed.
+    ...(context.delegations ? {
+      delegations: Object.freeze(context.delegations.states
+        .map((entry) => `${entry.delegationId}|${entry.state}|${entry.delegate}|${entry.scope}`)
+        .sort()),
+    } : {}),
     acts: Object.freeze(context.acts
       .map((act) => `${act.id}|${act.state ?? ""}|${act.decision?.state ?? ""}|${act.execution?.state ?? ""}|${act.receiving?.state ?? ""}`)
       .sort()),
@@ -698,21 +1197,65 @@ function reconciliationExceptions(context) {
   return Object.freeze(exceptions);
 }
 
+function nextMoveCandidates(context, proposalSubmissions, previouslySeenProposalIds = []) {
+  const candidates = reconciliationExceptions(context).map((entry) => Object.freeze({
+    key: `act:${entry.id}:${entry.state}`,
+    subjectId: entry.id,
+    channel: "governance-action",
+    content: `${entry.id} is still ${entry.state}. Smallest next move: ${entry.next}.`,
+  }));
+
+  const seenProposals = new Set(previouslySeenProposalIds);
+  for (const submission of proposalSubmissions) {
+    if (submission?.state !== "proposed" || typeof submission.proposalId !== "string" || !seenProposals.has(submission.proposalId)) continue;
+    candidates.push(Object.freeze({
+      key: `proposal:${submission.proposalId}:proposed`,
+      subjectId: submission.proposalId,
+      channel: "governance-proposals",
+      content: `${submission.proposalId} remains proposed. Smallest lawful next move: current recorded governance may enact, refuse, or supersede it; participants can add questions, evidence, objections, alternatives, or execution offers without those becoming votes.`,
+    }));
+  }
+  return Object.freeze(candidates.sort((left, right) => left.key.localeCompare(right.key)));
+}
+
 function standingExceptions(context) {
-  return Object.freeze(context.standing.entries
-    .filter((entry) => String(entry.state).includes("active") && (
+  const exceptions = [];
+  for (const entry of context.standing.entries) {
+    if (String(entry.state).includes("active") && (
       typeof entry.basis !== "string" || entry.basis.trim() === ""
       || typeof entry.scope !== "string" || entry.scope.trim() === ""
-    ))
-    .map((entry) => Object.freeze({ id: entry.id, state: entry.state, problem: "active standing lacks an explicit basis or scope" })));
+    )) {
+      exceptions.push(Object.freeze({
+        id: entry.id,
+        state: entry.state,
+        problem: "active standing lacks an explicit basis or scope",
+      }));
+    }
+    // Delegated standing is checked against delegation readback only where Turntide holds the delegation-event
+    // law; without it there is no registry, and the absence of an event is not evidence of anything.
+    if (context.delegations && String(entry.state).includes("delegated")) {
+      const active = context.delegations.active.filter((delegation) => delegation.delegate === entry.id);
+      if (active.length === 0) {
+        exceptions.push(Object.freeze({
+          id: entry.id,
+          state: entry.state,
+          problem: "standing says delegated but the append-only delegation event ledger in Turntide's governance journal contains no conforming active activation",
+          next: "restatement requires a governance act with the modern bounded delegation fields; do not fabricate retroactive authority or auto-revoke the older standing record",
+        }));
+      }
+    }
+  }
+  return Object.freeze(exceptions);
 }
 
 function snapshotChanges(previous, current) {
   const priorStanding = new Set(previous?.standing ?? []);
+  const priorDelegations = new Set(previous?.delegations ?? []);
   const priorActs = new Set(previous?.acts ?? []);
   const priorRoutines = new Set(previous?.routines ?? []);
   return Object.freeze({
     standing: current.standing.filter((entry) => !priorStanding.has(entry)),
+    delegations: (current.delegations ?? []).filter((entry) => !priorDelegations.has(entry)),
     acts: current.acts.filter((entry) => !priorActs.has(entry)),
     routines: current.routines.filter((entry) => !priorRoutines.has(entry)),
   });
@@ -752,13 +1295,16 @@ export function scheduledCivicReview(context, { state = {}, routineCandidates = 
         taughtActIds: Object.freeze([]),
         seenRoutineCandidateIds: Object.freeze(candidateIds),
         seenProposalIds: Object.freeze(proposalIds),
+        nudgedArtifactStates: Object.freeze(nextMoveCandidates(context, proposalSubmissions, proposalIds).map((entry) => entry.key)),
         lastRunAt: Object.freeze({
           "governance-rock-sweep": now,
           "decision-action-reconciliation": now,
+          "next-move-nudge": now,
           "island-routine-discovery": now,
           "proposal-intake-review": now,
           "standing-delegation-review": now,
           "routine-retirement-review": now,
+          "constitutional-conformance-review": now,
         }),
       }),
       bindingEffect: "informational-only",
@@ -782,6 +1328,7 @@ export function scheduledCivicReview(context, { state = {}, routineCandidates = 
     if (state.reportedDigest !== digest) {
       const labels = [];
       if (changes.standing.length > 0) labels.push(`${changes.standing.length} standing change(s)`);
+      if (changes.delegations.length > 0) labels.push(`${changes.delegations.length} delegation-state change(s)`);
       if (changes.acts.length > 0) labels.push(`${changes.acts.length} governance-act change(s)`);
       if (changes.routines.length > 0) labels.push(`${changes.routines.length} routine-catalog change(s)`);
       outputs.push(Object.freeze({
@@ -792,6 +1339,39 @@ export function scheduledCivicReview(context, { state = {}, routineCandidates = 
       }));
     }
     lastRunAt["governance-rock-sweep"] = now;
+  }
+
+  if (runtimeSchedules(context, "next-move-nudge") && due(lastRunAt["next-move-nudge"], DAY_MS, nowMs)) {
+    const candidates = nextMoveCandidates(context, proposalSubmissions, state.seenProposalIds ?? []);
+    // State kept before this routine ran has no nudge memory; it baselines silently like a first observation.
+    const baselining = state.nudgedArtifactStates === undefined;
+    const nudged = new Set(baselining ? candidates.map((entry) => entry.key) : state.nudgedArtifactStates);
+    const next = candidates.find((entry) => !nudged.has(entry.key));
+    if (next) {
+      outputs.push(Object.freeze({
+        routine: "next-move-nudge",
+        channel: next.channel,
+        subjectId: next.subjectId,
+        content: `${next.content} Zelo will not repeat this nudge until the artifact state or evidence changes.`,
+        bindingEffect: "one-bounded-nudge",
+      }));
+      nudged.add(next.key);
+    }
+    state = { ...state, nudgedArtifactStates: [...nudged] };
+    lastRunAt["next-move-nudge"] = now;
+  }
+
+  if (runtimeSchedules(context, "constitutional-conformance-review") && due(lastRunAt["constitutional-conformance-review"], DAY_MS, nowMs)) {
+    const conformance = auditCivicKernel(context);
+    if (!conformance.ok) {
+      outputs.push(Object.freeze({
+        routine: "constitutional-conformance-review",
+        channel: "governance-action",
+        content: `Turntide civic-kernel conformance found ${conformance.violations.length} violation(s): ${conformance.violations.map((entry) => entry.code).join(", ")}. This is a constitutional-drift exception, not authority to auto-repair or expand Zelo powers.`,
+        bindingEffect: "review-only",
+      }));
+    }
+    lastRunAt["constitutional-conformance-review"] = now;
   }
 
   if (due(lastRunAt["decision-action-reconciliation"], DAY_MS, nowMs)) {
@@ -843,7 +1423,9 @@ export function scheduledCivicReview(context, { state = {}, routineCandidates = 
       outputs.push(Object.freeze({
         routine: "standing-delegation-review",
         channel: "governance-action",
-        content: `Standing review found ${exceptions.length} active record(s) missing an explicit basis or scope: ${exceptions.map((entry) => entry.id).join(", ")}. This is a record-integrity exception, not an automatic revocation.`,
+        content: context.delegations
+          ? `Standing/delegation review found ${exceptions.length} exception(s): ${exceptions.map((entry) => `${entry.id} [${entry.problem}]`).join("; ")}. These are record/authority conformance findings, not automatic revocations or grants.`
+          : `Standing review found ${exceptions.length} active record(s) missing an explicit basis or scope: ${exceptions.map((entry) => entry.id).join(", ")}. This is a record-integrity exception, not an automatic revocation.`,
         bindingEffect: "review-only",
       }));
     }
@@ -884,6 +1466,7 @@ export function scheduledCivicReview(context, { state = {}, routineCandidates = 
       taughtActIds: Object.freeze([...taught].sort()),
       seenRoutineCandidateIds: Object.freeze(candidateIds),
       seenProposalIds: Object.freeze(seenProposalIds),
+      ...(state.nudgedArtifactStates === undefined ? {} : { nudgedArtifactStates: Object.freeze([...state.nudgedArtifactStates].sort()) }),
       lastRunAt: Object.freeze(lastRunAt),
     }),
     bindingEffect: "informational-only",
@@ -916,6 +1499,12 @@ export function routineIntent(context, { routineId, subjectId = null, evidenceDi
 }
 
 export function formatZelo(value) {
+  if (value.type === "TurntideCivicKernelConformanceReport") {
+    return value.ok
+      ? `Turntide civic kernel conforms: ${value.counts.routines} routines, ${value.counts.runtimeBindings} runtime bindings, ${value.counts.zeloProtocolTransitions} Zelo protocol transitions.`
+      : `Turntide civic kernel does not conform: ${value.violations.map((entry) => entry.code).join(", ")}`;
+  }
+
   if (value.type === "ZeloCivicOrientation") {
     return [
       "Turntide is a DAO whose authority lives in recorded standing, delegations, and governing acts — not in Discord roles or whoever has credentials.",
@@ -943,6 +1532,17 @@ export function formatZelo(value) {
     ].join("\n")).join("\n");
     return `${value.note}\n${paths}\nUseful evidence: subject, current claim, specific contradiction or missing receipt, checkable source, and the requested next move.`;
   }
+  if (value.type === "ZeloDecisionProcedureClassification") {
+    if (value.state === "foreign-authority") {
+      return `${value.reason} Route: ${value.foreignAuthority?.routeTo ?? "the applicable foreign authority"}.`;
+    }
+    if (value.state === "refused" || value.state === "incomplete") {
+      return `Decision procedure classification ${value.state}: ${value.reason}.`;
+    }
+    const request = value.requestedProcedure === null ? "" : ` Requested procedure ${value.requestedProcedure.requested}: ${value.requestedProcedure.state}.`;
+    const missing = value.missing === undefined ? "" : ` Missing: ${value.missing.join(", ")}.`;
+    return `Minimum Turntide procedure: ${value.minimumProcedure}. ${value.reasons.join("; ")}.${request}${missing} Classification creates no authority.`;
+  }
   if (value.type === "ZeloDecisionProcedureWayfinding") {
     if (value.foreignAuthority) {
       return `${value.note}\n${value.foreignAuthority.appliesWhen}\nRoute: ${value.foreignAuthority.routeTo}. ${value.foreignAuthority.note}`;
@@ -956,6 +1556,16 @@ export function formatZelo(value) {
       `  Receiving: ${procedure.receiving}`,
     ].join("\n")).join("\n");
     return `${value.note}\nNumeric voting weights currently established: ${value.numericVotingWeightsEstablished ? "yes" : "no"}.\n${lines}`;
+  }
+  if (value.type === "ZeloDelegationWayfinding") {
+    if (value.registryAvailable === false) return value.note;
+    const active = value.active.length === 0
+      ? "No conforming active delegation events are currently read back."
+      : value.active.map((entry) => `- ${entry.delegationId}: ${entry.delegate} may ${entry.grantedActions.join(", ")} within ${entry.scope}`).join("\n");
+    const mismatch = value.unmatchedStanding.length === 0
+      ? ""
+      : `\nMigration/conformance exception(s): ${value.unmatchedStanding.map((entry) => `${entry.id} — ${entry.problem}`).join("; ")}`;
+    return `${active}${mismatch}\n${value.note}`;
   }
   if (value.type === "ZeloStandingWayfinding") {
     const lines = value.pathways.map((path) => [

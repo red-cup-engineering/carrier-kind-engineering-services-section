@@ -34,12 +34,21 @@
       "cadence": "daily",
       "preferredDelivery": "governance-action",
       "dedupe": "act-state",
-      "autonomousEffect": "reconciliation-only"
+      "autonomousEffect": "reconciliation-only",
+      "silenceWhenEmpty": true
+    },
+    {
+      "routine": "next-move-nudge",
+      "mode": "scheduled",
+      "cadence": "daily",
+      "preferredDelivery": "governance-action",
+      "dedupe": "artifact-state",
+      "silenceWhenEmpty": true,
+      "autonomousEffect": "one-bounded-nudge"
     },
     {
       "routine": "received-act-teaching-example",
-      "mode": "scheduled",
-      "cadence": "weekly",
+      "mode": "receipt",
       "preferredDelivery": "governance-questions",
       "dedupe": "act-id",
       "autonomousEffect": "teaching-only"

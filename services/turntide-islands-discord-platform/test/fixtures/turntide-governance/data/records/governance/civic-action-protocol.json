@@ -103,7 +103,8 @@
             "recorded-governance-standing"
           ],
           "requires": [
-            "governing act"
+            "governing act",
+            "append-only activation event in the public delegation carrier"
           ],
           "effect": "fixture: activates the delegation"
         }

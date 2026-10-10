@@ -17,6 +17,10 @@
       "title": "fixture decision-action-reconciliation"
     },
     {
+      "id": "next-move-nudge",
+      "title": "fixture next-move-nudge"
+    },
+    {
       "id": "received-act-teaching-example",
       "title": "fixture received-act-teaching-example"
     }
