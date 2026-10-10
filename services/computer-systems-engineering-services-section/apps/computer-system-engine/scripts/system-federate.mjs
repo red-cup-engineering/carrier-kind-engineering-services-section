@@ -10,9 +10,11 @@
  * The node is SYSTEM_NODE_ID, SYSTEM_NODE_ORIGIN, SYSTEM_NODE_PEERS and SYSTEM_NODE_KEY.
  * SYSTEM_NODE_SETTLEMENT_FEEDS is a JSON map from peer origin to exact, date-independent
  * journal feed labels. A peer without a grant receives no journal material.
+ * SYSTEM_NODE_PEER_KEYS is a JSON map from peer origin to the Ed25519 public key (SPKI PEM) it
+ * declared; such a peer is verified without being dialed (a known-intermittent colony).
  */
 import { settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
-import { systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemSettlementFeedGrants, systemSettlementPeering } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemSettlementFeedGrants, systemSettlementPeering } from "@red-cup-engineering/computer-system-engine/rpc/node";
 import { processDataRootConfig } from "@red-cup-engineering/node-process-services-section/config";
 import { isDirectEntrypoint, processArguments, processEntrypointArgument, processPackageRoot } from "@red-cup-engineering/node-process-services-section/entrypoint";
 import { processEnvironment } from "@red-cup-engineering/node-process-services-section/environment";
@@ -56,7 +58,7 @@ async function main() {
   const until = flag(args, "--until") ?? new Date().toISOString().slice(0, 10);
   const since = flag(args, "--since") ?? new Date(Date.parse(`${until}T00:00:00Z`) - DAY_MS).toISOString().slice(0, 10);
   const batch = Number(flag(args, "--batch") ?? 500);
-  const peering = systemSettlementPeering(node, key);
+  const peering = systemSettlementPeering(node, key, fetch, { declaredKeys: systemNodeDeclaredPeerKeys(env, node) });
   const grants = systemSettlementFeedGrants(env, node);
   const report = [];
   for (const peer of node.peers) {

@@ -27,7 +27,7 @@ import { processLeaseCoordinator } from "@red-cup-engineering/computer-system-en
 import { parseEnvFileText } from "@red-cup-engineering/key-management-services-section/env-file";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
 import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
-import { systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
 import { mergeSettlementTransfer, settlementHoldings } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { createEnterpriseEntrance } from "./entrance.mjs";
 import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment } from "./activitypub-node.mjs";
@@ -504,7 +504,7 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
   const nodeKey = systemNodeKeyFromProcessEnvironment(environment);
   if (node !== undefined && node.origin !== config.publicBaseUrl) throw new TypeError("System node origin differs from the instance origin");
   if (node !== undefined && nodeKey === undefined) throw new TypeError("A federating System node requires SYSTEM_NODE_KEY");
-  const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey);
+  const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey, fetch, { declaredKeys: systemNodeDeclaredPeerKeys(environment, node) });
   const settlementGrants = node === undefined ? undefined : systemSettlementFeedGrants(environment, node);
   const rootRoutes = node === undefined ? [] : [systemNodeResource(node)];
   if (peering !== undefined) for (const pathname of ["/settlement/holdings", "/settlement/transfer"]) {
