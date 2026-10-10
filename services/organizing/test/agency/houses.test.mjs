@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { agencyPools, readAgency } from "../../src/agency/index.mjs";
-import { houseReference, houseResolver } from "../../src/agency/houses.mjs";
+import { addressFrom, crossHouseEdges, estateRootOf, houseReference, houseResolver, reciprocates } from "../../src/agency/houses.mjs";
 
 // The estate as the 561 Group's agency names it: the Group's firm pool, and the engineering and science
 // houses its chief engineering officer and chief science officer name across houses.
@@ -79,4 +79,24 @@ test("each house's registry is read once per resolver", async () => {
   const across = houseResolver(lib, { read: (root) => { reads += 1; return readAgency(root, { acts: [], pools: agencyPools(root) }); } });
   across(firm, "offices", `${ENGINEERING}#senior-engineer`); across(firm, "offices", `${ENGINEERING}#engineering-lead`);
   assert.equal(reads, 1);
+});
+
+test("a cross-house presides-over edge grants only when the other house's record names the presider back", async () => {
+  const lib = path.join(await mkdtemp("/var/tmp/houses-"), "lib");
+  const root = path.join(lib, GROUP);
+  await seat(root, "offices", "chief-engineering-officer", { kind: "office", "presides-over": [`${ENGINEERING}#senior-engineer`, `${ENGINEERING}#engineering-lead`] });
+  await seat(path.join(lib, ENGINEERING), "offices", "senior-engineer", { kind: "office", "reports-to": `${GROUP}#chief-engineering-officer` });
+  await seat(path.join(lib, ENGINEERING), "offices", "engineering-lead", { kind: "office" });
+  const firm = readAgency(root, { acts: [], pools: agencyPools(root) });
+  assert.equal(estateRootOf(root), lib);
+  const cengo = [...firm.offices.values()].find((o) => o.id === "chief-engineering-officer");
+  assert.equal(addressFrom(lib, firm, cengo), `${GROUP}#chief-engineering-officer`);
+  assert.equal(reciprocates({ authored: { "reports-to": `${GROUP}#chief-engineering-officer` } }, "presides-over", `${GROUP}#chief-engineering-officer`), true);
+  assert.equal(reciprocates({ authored: { "served-by": [`${GROUP}#x`] } }, "serves", `${GROUP}#x`), true);
+  assert.equal(reciprocates({ authored: {} }, "presides-over", `${GROUP}#chief-engineering-officer`), false);
+  const edges = crossHouseEdges(firm);
+  assert.deepEqual(edges.map(({ to, reading, grants }) => ({ to, reading, grants })), [
+    { to: `${ENGINEERING}#senior-engineer`, reading: "resolved", grants: true },
+    { to: `${ENGINEERING}#engineering-lead`, reading: "resolved", grants: false },
+  ]);
 });

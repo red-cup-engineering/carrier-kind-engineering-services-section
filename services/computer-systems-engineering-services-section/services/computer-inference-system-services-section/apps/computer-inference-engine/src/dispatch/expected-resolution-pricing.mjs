@@ -1,5 +1,6 @@
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { openLedgerJournal } from "../media/ledger-journal.mjs";
 import { nonnegativeHostRatio as exactNonnegativeAmount } from "@red-cup-engineering/metrologic/number/wire-ratio";
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
 import { executionConfiguration, executionConfigurationIdentity } from "./sen-carrier.mjs";
@@ -20,16 +21,46 @@ export const pricingRootOf = (environment = process.env) => {
   const web = environment.METROPLAT_WEB_DATA_DIR;
   return typeof web === "string" && web.trim() !== "" ? resolve(dirname(web), "inference-pricing") : undefined;
 };
+/** The JSONL files the book was kept in before the one log; read once into the journal, never written. */
 export const OBSERVATIONS_FILE = "observations.jsonl";
 export const DELIVERIES_FILE = "deliveries.jsonl";
-
-function observationsPath(dataRoot) {
-  return resolve(nonempty(dataRoot, "pricing dataRoot"), OBSERVATIONS_FILE);
-}
-function deliveriesPath(dataRoot) { return resolve(nonempty(dataRoot, "pricing dataRoot"), DELIVERIES_FILE); }
+/** The kind the pricing book is kept under in the one log. */
+export const PRICING_BOOK_OBJECT_KIND = "inference.expected-resolution-pricing";
+const CATEGORIES = Object.freeze({ [DELIVERIES_FILE]: "delivery", [OBSERVATIONS_FILE]: "observation" });
 
 function nonempty(value, label) { if (typeof value !== "string" || value.trim() === "") throw new Error(`${label} must be nonempty text`); return value; }
-function readJsonl(path) { return existsSync(path) ? readFileSync(path, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line)) : []; }
+
+/**
+ * The pricing book: a semantic-record journal at `<dataRoot>/pricing-book.journal` (the one log),
+ * with deliveries and observations kept as held records in append order. JSONL files an earlier
+ * release left under `dataRoot` are admitted once, read only and in order, skipping records the
+ * journal already holds; `jsonl-admission.json` in the journal marks that so it never repeats.
+ */
+function pricingBook(dataRoot) {
+  const root = resolve(nonempty(dataRoot, "pricing dataRoot"));
+  const book = openLedgerJournal(join(root, "pricing-book"), PRICING_BOOK_OBJECT_KIND);
+  const admission = join(book.root, "jsonl-admission.json");
+  if (!existsSync(admission)) book.exclusively(() => {
+    if (existsSync(admission)) return;
+    const counts = {};
+    for (const [file, category] of Object.entries(CATEGORIES)) {
+      const path = join(root, file);
+      if (!existsSync(path)) continue;
+      const held = new Set(book.read(category).map((record) => record.id));
+      let admitted = 0;
+      for (const line of readFileSync(path, "utf8").split("\n").filter(Boolean)) {
+        const record = JSON.parse(line);
+        if (typeof record?.id === "string" && held.has(record.id)) continue;
+        book.record(category, record);
+        admitted += 1;
+      }
+      counts[category] = admitted;
+    }
+    writeFileSync(admission, `${JSON.stringify({ type: "PricingBookJsonlAdmission", version: 1, from: root, at: new Date().toISOString(), counts })}\n`, { flag: "wx" });
+  });
+  return book;
+}
+const appendTo = (dataRoot, category, record) => { pricingBook(dataRoot).record(category, record); return record; };
 
 export function appendDelivery(delivery, { dataRoot } = {}) {
   if (!delivery || typeof delivery !== "object" || Array.isArray(delivery)) throw new Error("delivery must be one object");
@@ -50,10 +81,9 @@ export function appendDelivery(delivery, { dataRoot } = {}) {
   if (coordinate) return coordinate;
   const existing = deliveries.find((item) => item.id === record.id);
   if (existing) return existing;
-  const path = deliveriesPath(dataRoot); mkdirSync(dirname(path), { recursive: true }); appendFileSync(path, `${JSON.stringify(record)}\n`);
-  return record;
+  return appendTo(dataRoot, "delivery", record);
 }
-export function loadDeliveries({ dataRoot } = {}) { return readJsonl(deliveriesPath(dataRoot)); }
+export function loadDeliveries({ dataRoot } = {}) { return pricingBook(dataRoot).read("delivery"); }
 
 /** Append one observation. Preserves the caller's outcome and evidence
  * verbatim; never estimates or drops a field to force a shape. */
@@ -79,10 +109,7 @@ export function appendObservation(observation, { dataRoot } = {}) {
   // Evidence explains a judgment; the delivery identifies what was judged.
   // The same explanation can recur for distinct paid provider completions.
   const record = Object.freeze({ id: semanticId({ delivery: delivery.id, ...body }), observedAt: new Date().toISOString(), delivery: delivery.id, ...body });
-  const path = observationsPath(dataRoot);
-  mkdirSync(dirname(path), { recursive: true });
-  appendFileSync(path, `${JSON.stringify(record)}\n`);
-  return record;
+  return appendTo(dataRoot, "observation", record);
 }
 
 /** Retain an attributable refusal before delivery. Completed receiver protocol
@@ -133,14 +160,13 @@ export function appendInferenceRefusal(refusal, { dataRoot } = {}) {
     return coordinate;
   }
   const record = Object.freeze({ id: semanticId(body), observedAt: new Date().toISOString(), ...body });
-  const path = observationsPath(dataRoot); mkdirSync(dirname(path), { recursive: true }); appendFileSync(path, `${JSON.stringify(record)}\n`);
-  return record;
+  return appendTo(dataRoot, "observation", record);
 }
 
 /** Load every observation recorded so far. Absence of the file is absence of
  * observations, never an error: no observations have landed yet. */
 export function loadObservations({ dataRoot } = {}) {
-  return readJsonl(observationsPath(dataRoot));
+  return pricingBook(dataRoot).read("observation");
 }
 
 /** Provider HTTP and transport evidence share the existing private observation carrier. */
@@ -157,10 +183,7 @@ export function appendProviderAvailability(reading, credentialSha256, { dataRoot
   if (body.status !== undefined && (!Number.isInteger(body.status) || body.status < 100 || body.status > 599)) throw new TypeError("provider HTTP status must be observed");
   if (body.status === undefined) nonempty(body.reason, "non-HTTP availability reason");
   const record = Object.freeze({ id: semanticId({ ...body, observedAt: reading.observedAt }), observedAt: reading.observedAt, ...body });
-  const path = observationsPath(dataRoot);
-  mkdirSync(dirname(path), { recursive: true });
-  appendFileSync(path, `${JSON.stringify(record)}\n`);
-  return record;
+  return appendTo(dataRoot, "observation", record);
 }
 
 export function latestProviderAvailability(provider, credentialSha256, { dataRoot, observations = loadObservations({ dataRoot }) } = {}) {
@@ -181,10 +204,7 @@ export function appendReceiverOutcomeRetraction({ observationId, evidence }, { d
   }
   const body = { kind: "receiver-outcome-retraction", originalOutcome: original.id, delivery: original.delivery, outcome: "refused", evidence: reason };
   const record = Object.freeze({ id: semanticId(body), observedAt: new Date().toISOString(), ...body });
-  const file = observationsPath(dataRoot);
-  mkdirSync(dirname(file), { recursive: true });
-  appendFileSync(file, `${JSON.stringify(record)}\n`);
-  return record;
+  return appendTo(dataRoot, "observation", record);
 }
 
 /** Withdraw a receiver judgment caused by the customer's own invalid demand or state. */
@@ -200,10 +220,7 @@ export function appendReceiverOutcomeVoid({ observationId, evidence }, { dataRoo
   }
   const body = { kind: "receiver-outcome-void", originalOutcome: original.id, delivery: original.delivery, evidence: reason };
   const record = Object.freeze({ id: semanticId(body), observedAt: new Date().toISOString(), ...body });
-  const file = observationsPath(dataRoot);
-  mkdirSync(dirname(file), { recursive: true });
-  appendFileSync(file, `${JSON.stringify(record)}\n`);
-  return record;
+  return appendTo(dataRoot, "observation", record);
 }
 
 /** Original events remain readable; consumers price each delivery by its latest valid disposition. */

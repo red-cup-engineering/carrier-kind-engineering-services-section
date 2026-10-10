@@ -22,6 +22,6 @@
   },
   "dependencies": {
     "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
-    "@red-cup-engineering/semantic-record-journal-service": "0.1.0"
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*"
   }
 }
