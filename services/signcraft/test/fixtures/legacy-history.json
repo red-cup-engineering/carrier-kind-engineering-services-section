@@ -1,0 +1,212 @@
+{
+  "tables": [
+    {
+      "name": "signcraft_history_content",
+      "sql": "CREATE TABLE signcraft_history_content (\n    id TEXT PRIMARY KEY,\n    parts INTEGER NOT NULL\n  )",
+      "rows": [
+        {
+          "id": "ni:///sha-256;Z4GX2cIUuTIyM5utYVim_Gi-zvMOBlldqoQRzc23orY",
+          "parts": 1
+        }
+      ]
+    },
+    {
+      "name": "signcraft_history_content_chunks",
+      "sql": "CREATE TABLE signcraft_history_content_chunks (\n    id TEXT NOT NULL,\n    part INTEGER NOT NULL,\n    payload TEXT NOT NULL,\n    PRIMARY KEY (id, part)\n  )",
+      "rows": [
+        {
+          "id": "ni:///sha-256;Z4GX2cIUuTIyM5utYVim_Gi-zvMOBlldqoQRzc23orY",
+          "part": 0,
+          "payload": "{\"authored\":\"workshop\",\"skills\":[\"building\"]}"
+        }
+      ]
+    },
+    {
+      "name": "signcraft_history_control_chunks",
+      "sql": "CREATE TABLE signcraft_history_control_chunks (\n    id INTEGER NOT NULL,\n    part INTEGER NOT NULL,\n    payload TEXT NOT NULL,\n    PRIMARY KEY (id, part)\n  )",
+      "rows": [
+        {
+          "id": 1,
+          "part": 0,
+          "payload": "{\"clock\":100,\"pending\":[\"build\"],\"game\":\"ni:///sha-256;Z4GX2cIUuTIyM5utYVim_Gi-zvMOBlldqoQRzc23orY\"}"
+        }
+      ]
+    },
+    {
+      "name": "signcraft_history_frontier",
+      "sql": "CREATE TABLE signcraft_history_frontier (\n    id INTEGER PRIMARY KEY CHECK (id = 1),\n    checkpoint_id TEXT NOT NULL,\n    heads TEXT NOT NULL,\n    size INTEGER NOT NULL,\n    functional_predicates TEXT NOT NULL,\n    control_parts INTEGER NOT NULL,\n    next_sequence INTEGER NOT NULL,\n    next_subject INTEGER NOT NULL,\n    log_from INTEGER NOT NULL DEFAULT 0\n  )",
+      "rows": [
+        {
+          "id": 1,
+          "checkpoint_id": "ni:///sha-256;hWvmd3keptSCMhvb87Ha1N4g0hch14zgU5B1wivRKMc",
+          "heads": "[\"ni:///sha-256;SdQoYBjTAYN7KDbnJOVd_5gu0qoOFIumN2JH7KLTkow\"]",
+          "size": 5,
+          "functional_predicates": "[\"location\"]",
+          "control_parts": 1,
+          "next_sequence": 0,
+          "next_subject": 3,
+          "log_from": 1
+        }
+      ]
+    },
+    {
+      "name": "signcraft_history_log",
+      "sql": "CREATE TABLE signcraft_history_log (\n    sequence INTEGER NOT NULL,\n    part INTEGER NOT NULL,\n    parts INTEGER NOT NULL,\n    checkpoint_id TEXT NOT NULL,\n    heads TEXT NOT NULL,\n    since_base INTEGER NOT NULL,\n    weight INTEGER NOT NULL,\n    payload TEXT NOT NULL,\n    PRIMARY KEY (sequence, part)\n  ) WITHOUT ROWID",
+      "rows": [
+        {
+          "sequence": 0,
+          "part": 0,
+          "parts": 1,
+          "checkpoint_id": "ni:///sha-256;hWvmd3keptSCMhvb87Ha1N4g0hch14zgU5B1wivRKMc",
+          "heads": "[\"ni:///sha-256;SdQoYBjTAYN7KDbnJOVd_5gu0qoOFIumN2JH7KLTkow\"]",
+          "since_base": 0,
+          "weight": 0,
+          "payload": "[{\"id\":\"ni:///sha-256;yEP-PPvVBcFYTMeRppxHrPrPxg6OSih-bwwtL-C3ePY\",\"parents\":[],\"source\":\"inhabit\",\"cells\":[{\"subject\":\"alice\",\"predicate\":\"location\",\"object\":\"garden\",\"for\":[\"inhabit\"],\"against\":[]},{\"subject\":\"alice\",\"predicate\":\"skill:building\",\"object\":1,\"for\":[\"learn\"],\"against\":[]},{\"subject\":\"workshop\",\"predicate\":\"open\",\"object\":true,\"for\":[\"opened\"],\"against\":[\"disputed\"]}]},{\"id\":\"ni:///sha-256;SdQoYBjTAYN7KDbnJOVd_5gu0qoOFIumN2JH7KLTkow\",\"parents\":[\"ni:///sha-256;yEP-PPvVBcFYTMeRppxHrPrPxg6OSih-bwwtL-C3ePY\"],\"source\":\"work\",\"cells\":[{\"subject\":\"alice\",\"predicate\":\"location\",\"object\":\"workshop\",\"for\":[\"move\"],\"against\":[]},{\"subject\":\"library\",\"predicate\":\"text\",\"object\":\"Exact é 😀 resource\",\"for\":[\"authored\"],\"against\":[]}]}]"
+        }
+      ]
+    },
+    {
+      "name": "signcraft_history_reading",
+      "sql": "CREATE TABLE signcraft_history_reading (\n    subject_key TEXT PRIMARY KEY,\n    sequence INTEGER NOT NULL UNIQUE,\n    parts INTEGER NOT NULL\n  )",
+      "rows": [
+        {
+          "subject_key": "65616c696365",
+          "sequence": 0,
+          "parts": 1
+        },
+        {
+          "subject_key": "68776f726b73686f70",
+          "sequence": 1,
+          "parts": 1
+        },
+        {
+          "subject_key": "676c696272617279",
+          "sequence": 2,
+          "parts": 1
+        }
+      ]
+    },
+    {
+      "name": "signcraft_history_reading_chunks",
+      "sql": "CREATE TABLE signcraft_history_reading_chunks (\n    subject_key TEXT NOT NULL,\n    part INTEGER NOT NULL,\n    payload TEXT NOT NULL,\n    PRIMARY KEY (subject_key, part)\n  )",
+      "rows": [
+        {
+          "subject_key": "65616c696365",
+          "part": 0,
+          "payload": "[{\"subject\":\"alice\",\"predicate\":\"skill:building\",\"object\":1,\"for\":[\"learn\"],\"against\":[]},{\"subject\":\"alice\",\"predicate\":\"location\",\"object\":\"workshop\",\"for\":[\"move\"],\"against\":[]}]"
+        },
+        {
+          "subject_key": "68776f726b73686f70",
+          "part": 0,
+          "payload": "[{\"subject\":\"workshop\",\"predicate\":\"open\",\"object\":true,\"for\":[\"opened\"],\"against\":[\"disputed\"]}]"
+        },
+        {
+          "subject_key": "676c696272617279",
+          "part": 0,
+          "payload": "[{\"subject\":\"library\",\"predicate\":\"text\",\"object\":\"Exact é 😀 resource\",\"for\":[\"authored\"],\"against\":[]}]"
+        }
+      ]
+    },
+    {
+      "name": "signcraft_history_revision_chunks",
+      "sql": "CREATE TABLE signcraft_history_revision_chunks (\n    revision_id TEXT NOT NULL,\n    part INTEGER NOT NULL,\n    payload TEXT NOT NULL,\n    PRIMARY KEY (revision_id, part)\n  )",
+      "rows": []
+    },
+    {
+      "name": "signcraft_history_revisions",
+      "sql": "CREATE TABLE signcraft_history_revisions (\n    revision_id TEXT PRIMARY KEY,\n    sequence INTEGER NOT NULL UNIQUE,\n    parts INTEGER NOT NULL\n  )",
+      "rows": []
+    }
+  ],
+  "expected": {
+    "history": {
+      "kind": "signcraft.history",
+      "functionalPredicates": [
+        "location"
+      ],
+      "revisions": [
+        {
+          "id": "ni:///sha-256;yEP-PPvVBcFYTMeRppxHrPrPxg6OSih-bwwtL-C3ePY",
+          "parents": [],
+          "source": "inhabit",
+          "cells": [
+            {
+              "subject": "alice",
+              "predicate": "location",
+              "object": "garden",
+              "for": [
+                "inhabit"
+              ],
+              "against": []
+            },
+            {
+              "subject": "alice",
+              "predicate": "skill:building",
+              "object": 1,
+              "for": [
+                "learn"
+              ],
+              "against": []
+            },
+            {
+              "subject": "workshop",
+              "predicate": "open",
+              "object": true,
+              "for": [
+                "opened"
+              ],
+              "against": [
+                "disputed"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ni:///sha-256;SdQoYBjTAYN7KDbnJOVd_5gu0qoOFIumN2JH7KLTkow",
+          "parents": [
+            "ni:///sha-256;yEP-PPvVBcFYTMeRppxHrPrPxg6OSih-bwwtL-C3ePY"
+          ],
+          "source": "work",
+          "cells": [
+            {
+              "subject": "alice",
+              "predicate": "location",
+              "object": "workshop",
+              "for": [
+                "move"
+              ],
+              "against": []
+            },
+            {
+              "subject": "library",
+              "predicate": "text",
+              "object": "Exact é 😀 resource",
+              "for": [
+                "authored"
+              ],
+              "against": []
+            }
+          ]
+        }
+      ]
+    },
+    "control": {
+      "clock": 100,
+      "pending": [
+        "build"
+      ],
+      "game": "ni:///sha-256;Z4GX2cIUuTIyM5utYVim_Gi-zvMOBlldqoQRzc23orY"
+    },
+    "contents": [
+      {
+        "id": "ni:///sha-256;Z4GX2cIUuTIyM5utYVim_Gi-zvMOBlldqoQRzc23orY",
+        "value": {
+          "authored": "workshop",
+          "skills": [
+            "building"
+          ]
+        }
+      }
+    ]
+  }
+}
