@@ -121,14 +121,16 @@ export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCom
   for (const reading of readings) {
     for (const skill of reading.skills) providers.set(skill.id, [...(providers.get(skill.id) ?? []), reading.id]);
   }
-  const seenAgents = new Set();
-  for (const reading of readings) {
-    if (!incumbenciesOf(agency, reading.office).some((seat) => seat.state === "dignitas")) continue;
-    if (reading.skills.length === 0) continue;
-    if (seenAgents.has(reading.id)) { obstructions.push({ office: reading.office, reason: `office id '${reading.id}' is seated at dignitas in several sections` }); continue; }
+  const seated = readings.filter((reading) => reading.skills.length > 0 && incumbenciesOf(agency, reading.office).some((seat) => seat.state === "dignitas"));
+  const sections = new Map();
+  for (const reading of seated) sections.set(reading.id, [...(sections.get(reading.id) ?? []), reading.office]);
+  for (const reading of seated) {
+    // An agent is named by its office id. Two offices of one id in different sections are two
+    // offices (Blockchain Trashpanda's chief executive and the 561 Group's), and naming the agent
+    // for whichever came first would dispatch the wrong one; neither projects until the ids differ.
+    if (sections.get(reading.id).length > 1) { obstructions.push({ office: reading.office, reason: `office id '${reading.id}' is seated at dignitas in several sections: ${sections.get(reading.id).join(", ")}` }); continue; }
     try {
       const agent = projectOfficeAgent({ repoRoot: path.dirname(agency.root), agency, office: reading.office });
-      seenAgents.add(agent.id);
       files.set(`.claude/agents/${agent.id}.md`, agent.text);
     } catch (error) {
       obstructions.push({ office: reading.office, reason: error.message });
@@ -157,7 +159,7 @@ export function projectClaudeHarness({ node, agencyRoot, settlementRoot, hookCom
     env: Object.freeze({ ...budget }),
     deny: Object.freeze([...deny]),
     mcpServers,
-    counts: { agents: seenAgents.size, events: Object.keys(hooks).length, mcpServers: Object.keys(mcpServers).length, standing: files.has(".claude/CLAUDE.md"), budget: Object.keys(budget).length, deny: deny.length, hostResource: control !== undefined },
+    counts: { agents: [...files.keys()].filter((file) => file.startsWith(".claude/agents/")).length, events: Object.keys(hooks).length, mcpServers: Object.keys(mcpServers).length, standing: files.has(".claude/CLAUDE.md"), budget: Object.keys(budget).length, deny: deny.length, hostResource: control !== undefined },
     obstructions: Object.freeze(obstructions),
   });
 }
