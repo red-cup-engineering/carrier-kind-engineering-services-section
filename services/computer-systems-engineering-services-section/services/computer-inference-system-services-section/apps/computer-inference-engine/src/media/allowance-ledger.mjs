@@ -32,7 +32,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { admitSqlOnce, openLedgerJournal } from "./ledger-journal.mjs";
+import { openLedgerJournal } from "./ledger-journal.mjs";
+import { admitSqlOnce, allowanceLedgerSqlRows } from "./import-sql-ledger.mjs";
 import { admitAllowanceEvidence, allowanceLapses, readAllowance } from "@red-cup-engineering/organizing/enterprise";
 
 const MINUTE = 60_000;
@@ -59,22 +60,9 @@ const byAt = (a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0);
 /** The last record per key, in the order each key was first seen. */
 const latest = (records, keyOf) => { const held = new Map(); for (const record of records) held.set(keyOf(record), record); return [...held.values()]; };
 
-/** What a SQLite allowance ledger held, as the journal records it. */
-function sqlRows(database, tables) {
-  const all = (table, sql) => (tables.has(table) ? database.prepare(sql).all() : []);
-  return [
-    ...all("allowance_evidence", "SELECT allowance, source, at, entry FROM allowance_evidence ORDER BY at")
-      .map((row) => ["evidence", { allowance: row.allowance, source: row.source, at: row.at, entry: JSON.parse(row.entry) }]),
-    ...all("allowance_hold", "SELECT id, allowance, state, hold FROM allowance_hold ORDER BY rowid")
-      .map((row) => ["hold", { id: row.id, allowance: row.allowance, state: row.state, hold: JSON.parse(row.hold) }]),
-    ...all("allowance_declaration", "SELECT allowance, at, declaration FROM allowance_declaration ORDER BY allowance")
-      .map((row) => ["declaration", { allowance: row.allowance, at: row.at, declaration: JSON.parse(row.declaration) }]),
-  ];
-}
-
 function openLedger(path) {
   const journal = openLedgerJournal(path, OBJECT_KIND);
-  admitSqlOnce(journal, path, sqlRows);
+  admitSqlOnce(journal, path, allowanceLedgerSqlRows);
   const evidenceOf = (allowance) => latest(journal.read("evidence").filter((row) => row.allowance === allowance).reverse(), (row) => row.source).reverse().sort(byAt);
   const holdsOf = (allowance) => latest(journal.read("hold").filter((row) => allowance === undefined || row.allowance === allowance), (row) => row.id);
   const declarationsOf = () => latest(journal.read("declaration"), (row) => row.allowance);
