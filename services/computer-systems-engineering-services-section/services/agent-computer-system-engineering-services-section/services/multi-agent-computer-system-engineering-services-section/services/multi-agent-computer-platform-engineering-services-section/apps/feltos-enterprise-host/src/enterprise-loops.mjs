@@ -20,9 +20,10 @@ import { enactAgencyRecords } from "@red-cup-engineering/organizing/agency/recor
 import { firmPoolAuthorityResolver } from "@red-cup-engineering/metroplat/firm-pool-authority";
 import { canonicalPlayer, resolve as resolveAgency } from "@red-cup-engineering/organizing/agency";
 import { playerOfAct, subjectOf } from "@red-cup-engineering/organizing/agency/cast";
-import { agencyAt, bearerTestimonyOf, handedAgency, officeServiceSession, officesOfAccount, seatedAgencyOf, tellSessionHand } from "@red-cup-engineering/metroplat/offices";
+import { agencyAt, bearerTestimonyOf, handedAgency, officeServiceSession, officesOfAccount, providersOfAccount, seatedAgencyOf, tellSessionHand } from "@red-cup-engineering/metroplat/offices";
 import { readAgentWorkDispatchReadout } from "@red-cup-engineering/feltos/work/dispatch-readout";
 import { workHomesOf } from "./federated-work.mjs";
+import { canonicalSeatBriefBearer } from "./seat-brief-principal.mjs";
 import { workBoardSourceLocators } from "./work-board-source-locators.mjs";
 
 const ENTERPRISE_TURN_SECONDS = 120;
@@ -502,10 +503,16 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
         // Without a caller-accounted limit the brief lists every piece of work awaiting a move.
         const limit = input?.limit ?? Infinity;
         if (limit !== Infinity && (!Number.isInteger(limit) || limit < 1)) throw new TypeError("seat-brief limit is a positive integer");
-        const bearer = playerOfAct(handedAgency(binding), { invocation: { subject: account } })?.bearer ?? account;
+        // The caller is a host-authenticated account, not necessarily a registry character.
+        // Resolve through the same told/authored hands and network binding as office authority.
+        const seated = seatedAgencyOf({ ...binding, agencyRoot });
+        const bearer = canonicalSeatBriefBearer({
+          account, providers: providersOfAccount({ ...binding, agencyRoot }, account),
+          resolveCharacter: (ref) => resolveAgency(seated, "characters", ref),
+        });
         // A session reads its own lane: the caller's hand, unless another account's brief is asked for.
         const hand = input?.hand ?? (input?.account === undefined ? context?.invocation?.caller?.hand : undefined);
-        return seatBriefOf(seatedAgencyOf({ ...binding, agencyRoot }), board.read(binding.now()), bearer, { limit, ...(hand === undefined || input?.whole === true ? {} : { hand }) });
+        return seatBriefOf(seated, board.read(binding.now()), bearer, { limit, ...(hand === undefined || input?.whole === true ? {} : { hand }) });
       },
     }),
     operation({
