@@ -46,3 +46,47 @@ export function houseResolver(estateRoot, { read = (root) => readAgency(root, { 
       : Object.freeze({ reading: "resolved", record, house: parts.house });
   };
 }
+
+/** The estate directory a pool root lies in: its outermost ancestor named `lib`, else undefined. */
+export function estateRootOf(root) {
+  let estate;
+  for (let dir = path.resolve(root); path.dirname(dir) !== dir; dir = path.dirname(dir)) if (path.basename(dir) === "lib") estate = dir;
+  return estate;
+}
+
+/** The address another house names `record` of `agency` by: the pool's estate path, its section, and its id. */
+export function addressFrom(estateRoot, agency, record) {
+  const house = path.relative(estateRoot, agency.root).split(path.sep).join("/");
+  return `${house}${record.sectionPath ? `/${record.sectionPath}` : ""}#${record.id}`;
+}
+
+const NAMED_BACK = Object.freeze({ "presides-over": "reports-to", serves: "served-by" });
+
+/**
+ * Whether `target`, a record in another house, names `from` back across an edge of `kind`: a presided
+ * office names its presider in `reports-to`, a served office names who serves it in `served-by`. One house
+ * never grants itself standing over another house's offices on its own say-so: a cross-house edge confers
+ * reach only when the other house's own record names it back.
+ */
+export function reciprocates(target, kind, from) {
+  const field = NAMED_BACK[kind];
+  if (field === undefined) return false;
+  const raw = target?.authored?.[field] ?? target?.[field];
+  return (Array.isArray(raw) ? raw : [raw]).includes(from);
+}
+
+/**
+ * Every cross-house `presides-over` edge of `agency`'s offices, each with its reading and whether it grants:
+ * a cross-house edge always resolves and is shown; it confers reach only under reciprocity.
+ */
+export function crossHouseEdges(agency, { estateRoot = estateRootOf(agency.root), across = estateRoot && houseResolver(estateRoot) } = {}) {
+  if (!across) return [];
+  const edges = [];
+  for (const office of agency.offices.values()) for (const ref of office.presidesOver ?? []) {
+    if (resolve(agency, "offices", ref, office.sectionPath) !== undefined || houseReference(ref) === undefined) continue;
+    const reading = across(agency, "offices", ref, office.sectionPath);
+    edges.push(Object.freeze({ from: office.key, to: ref, kind: "presides-over", reading: reading.reading,
+      grants: reading.reading === "resolved" && reading.house !== null && reciprocates(reading.record, "presides-over", addressFrom(estateRoot, agency, office)) }));
+  }
+  return edges;
+}
