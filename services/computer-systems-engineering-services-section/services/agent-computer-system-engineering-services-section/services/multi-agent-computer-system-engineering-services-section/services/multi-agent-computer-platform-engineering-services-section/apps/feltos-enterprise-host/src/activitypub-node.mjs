@@ -58,6 +58,38 @@ export async function activityPubActorsAtHost({ agencyRoot, host, keysDirectory,
   return Object.freeze(actors.sort((left, right) => left.identifier.localeCompare(right.identifier)));
 }
 
+/**
+ * An activity a peer held for this node, pulled from that peer (`pullHeldFromPeers`), as the inbox
+ * arrival it would have been had it been pushed. The peer's signed-pull response over HTTPS is what
+ * vouches for it, so its author must be an actor on the peer's own origin, and it must be addressed
+ * to an actor on this origin, which is its recipient. Admission still decides it as any arrival.
+ */
+export function heldArrival({ activity, peer, origin }) {
+  if (activity === null || typeof activity !== "object" || Array.isArray(activity)) throw new TypeError("a pulled delivery is one activity");
+  const author = typeof activity.actor === "string" ? activity.actor : activity.actor?.id;
+  let authorUrl;
+  try { authorUrl = new URL(author); } catch { throw new TypeError("a pulled delivery names its author"); }
+  if (authorUrl.origin !== new URL(peer).origin || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(authorUrl.pathname)) {
+    throw new TypeError(`a delivery pulled from ${peer} must be authored by an actor on its origin`);
+  }
+  const own = new URL(origin).origin;
+  const recipients = [activity.to ?? []].flat().map((value) => (typeof value === "string" ? value : value?.id))
+    .flatMap((value) => {
+      try {
+        const url = new URL(value);
+        const match = /^\/actors\/([a-z0-9][a-z0-9._-]*)$/u.exec(url.pathname);
+        return url.origin === own && match ? [match[1]] : [];
+      } catch { return []; }
+    });
+  if (recipients.length !== 1) throw new TypeError("a pulled delivery must be addressed to exactly one actor on this node");
+  return Object.freeze({
+    recipient: recipients[0],
+    activity: Object.freeze({ actorId: authorUrl, actorIds: Object.freeze([authorUrl]) }),
+    jsonLd: activity,
+    sender: Object.freeze({ actorId: authorUrl.href, inboxId: `${authorUrl.href}/inbox`, sharedInboxId: null }),
+  });
+}
+
 /** Retain verified ActivityPub evidence in node arrivals and addressed character inboxes. */
 export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin, actors, resolveActor, agencyRoot, host = rootName, executeRequest, reply } = {}) {
   if (typeof rootName !== "string" || rootName.trim() === "") throw new TypeError("ActivityPub arrival needs an admitted instance identity");

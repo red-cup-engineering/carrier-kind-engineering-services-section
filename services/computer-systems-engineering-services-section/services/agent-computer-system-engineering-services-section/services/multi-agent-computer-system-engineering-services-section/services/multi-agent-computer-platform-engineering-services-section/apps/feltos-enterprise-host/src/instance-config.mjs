@@ -137,6 +137,31 @@ function workPeersDeclared(web, legacyActor, origin, activityPubConfig) {
   return Object.freeze([...peers].map(([actor, moves]) => Object.freeze({ actor, moves: Object.freeze(moves) })));
 }
 
+/**
+ * How present each peer actor is, beside the work peers' shared presence: a map from an HTTPS actor
+ * to one of `WORK_PEER_PRESENCES`. Declaring a peer known-intermittent here grants it nothing: it
+ * only says that what this node addresses to that actor is held for it to pull, not pushed
+ * (`federated-work.mjs` `deliverOrHold`), and that it may pull what is held for it.
+ */
+function peerPresencesDeclared(web) {
+  if (web.peerPresences === undefined) return Object.freeze({});
+  if (web.peerPresences === null || typeof web.peerPresences !== "object" || Array.isArray(web.peerPresences)) {
+    throw new TypeError("Enterprise host web peerPresences must map peer actors to a presence");
+  }
+  const presences = {};
+  for (const [actor, presence] of Object.entries(web.peerPresences)) {
+    const peer = new URL(/^https:\/\//u.test(actor) ? actor : "invalid:");
+    if (peer.username || peer.password || peer.search || peer.hash || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(peer.pathname)) {
+      throw new TypeError(`Enterprise host web peerPresences names ${actor}, which is not an HTTPS actor`);
+    }
+    if (!WORK_PEER_PRESENCES.includes(presence)) {
+      throw new TypeError(`Enterprise host web peerPresences ${actor} must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+    }
+    presences[peer.href] = presence;
+  }
+  return Object.freeze(presences);
+}
+
 /** The process consumes deployment settings and admitted instance data. No organization path or tool is built in. */
 export function enterpriseWebConfig(installed, instancePath, environment = process.env, { requireTls = true } = {}) {
   const setting = (name) => present(environment[name] ?? environment[installed.web.environmentAliases?.[name]]);
@@ -177,6 +202,13 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
   if (!WORK_PEER_PRESENCES.includes(workPeerPresence)) {
     throw new TypeError(`METROPLAT_WORK_PEER_PRESENCE must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
   }
+  // This node's own presence: a known-intermittent node (a colony in an ephemeral cloud environment)
+  // cannot be pushed to, so it pulls what its peers hold for it whenever it runs its catch-up.
+  const presence = setting("METROPLAT_PRESENCE") ?? installed.web.presence ?? "continuous";
+  if (!WORK_PEER_PRESENCES.includes(presence)) {
+    throw new TypeError(`METROPLAT_PRESENCE must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+  }
+  const peerPresences = peerPresencesDeclared(installed.web);
   const suspicionSetting = setting("METROPLAT_WORK_PEER_SUSPICION_SECONDS") ?? installed.web.workPeerSuspicionSeconds;
   const workPeerSuspicionSeconds = suspicionSetting === undefined ? undefined : Number(suspicionSetting);
   if (workPeerSuspicionSeconds !== undefined && !(Number.isInteger(workPeerSuspicionSeconds) && workPeerSuspicionSeconds > 0)) {
@@ -210,6 +242,8 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     activityPubProjection: projection,
     workPeers,
     peeringOffice: installed.web.peeringOffice ?? installed.identity.id,
+    presence,
+    peerPresences,
     ...(workPeers.length === 0 ? {} : { workPeerPresence, ...(workPeerSuspicionSeconds === undefined ? {} : { workPeerSuspicionSeconds }) }),
     deliverWorkToPeer: installed.web.deliverWorkToPeer !== false,
   });

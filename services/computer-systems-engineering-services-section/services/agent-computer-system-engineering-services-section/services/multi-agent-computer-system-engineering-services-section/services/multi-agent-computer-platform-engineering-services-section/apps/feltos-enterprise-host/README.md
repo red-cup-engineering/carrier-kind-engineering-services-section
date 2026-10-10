@@ -128,6 +128,29 @@ receipts.
 For the complete authorized setup and verification workflow, see
 [Connect a ChatGPT Dot to MetroPlat](../../../../../../../../../../../../../561-group-services-section/services/561-group-computer-services-section/content/text/documents/articles/teaching-articles/guides/connect-chatgpt-dot-to-metroplat.md).
 
+## Known-intermittent peers hold and pull
+
+A node with no inbound transport while it is away, such as a colony in an ephemeral cloud
+environment, cannot be pushed to. Its peers hold what they address to it, and it pulls when it runs.
+
+- On the holding node, `web.peerPresences` in the host declaration maps a peer actor to
+  `known-intermittent`. This grants the peer nothing. Its work moves and actor-request results
+  addressed to that actor are kept in the `held-peer-delivery` journal in the data root, and are not
+  pushed (`deliverOrHold`).
+- The holding node serves them at its instance actor's outbox,
+  `GET /actors/<instance>/outbox?held-for=<peer actor>[&after=<held address>]`, only when the
+  request's HTTP signature verifies as that same peer actor and the peer is still declared
+  known-intermittent. Unsigned pulls get 401, and any other signer gets 403. Without `held-for`, the
+  outbox is unchanged.
+- On the intermittent node, `web.presence: "known-intermittent"` (or `METROPLAT_PRESENCE`) makes its
+  `work-peer-catch-up` schedule pull from each work peer before it pushes. The schedule is due at
+  start, so the pull also runs at boot. Each pulled activity must be authored on that peer's origin
+  and addressed to this node. It then enters the ordinary arrival path, where the standing checks
+  still apply. The resume point for each peer is kept in `work-peer-pulled.jsonl`.
+
+To verify the signed pull, the holding node must be able to read the puller's actor key. A colony
+that is never reachable cannot be verified, so its pull is refused (fail-closed).
+
 ## Focused verification
 
 ```sh

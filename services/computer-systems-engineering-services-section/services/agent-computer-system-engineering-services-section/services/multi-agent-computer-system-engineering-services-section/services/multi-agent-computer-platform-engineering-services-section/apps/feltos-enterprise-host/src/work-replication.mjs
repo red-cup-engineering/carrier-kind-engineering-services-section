@@ -18,7 +18,8 @@
  * Transport reuses the peer federation (`federated-work.mjs`): the same signed openings and
  * tellings, shipped by `shipWorkSince` from a cursor, so a peer that was away, or a delivery that
  * failed, is brought up to date by sending again. Receiving is `preparePeerWork`, already
- * idempotent. Not here yet (next slice): forwarding a coordinated move to its thread's home node,
+ * idempotent. A known-intermittent peer cannot be pushed to: what is addressed to it is held for it
+ * (`deliverOrHold`), and that peer, when it runs, pulls what is held for it (`pullHeldFromPeers`). Not here yet (next slice): forwarding a coordinated move to its thread's home node,
  * which needs a territory-to-node map the configuration does not hold.
  */
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
@@ -29,7 +30,7 @@ import { deliverActivity } from "@red-cup-engineering/activitypub-services-secti
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
-import { homeHostOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
+import { homeHostOf, presenceOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
 import { notePeerRun, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
 
 /** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
@@ -222,7 +223,7 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     return thread !== undefined && homeHostOf(thread, enterprises) === host;
   };
   const outbound = [...replicableMovesOf(entries), ...decidedMovesOf(entries, { homedHere })];
-  const observations = new Map(workPeersOf(config).map((peer) => [peer, { shipped: 0, failed: [] }]));
+  const observations = new Map(workPeersOf(config).map((peer) => [peer, { shipped: 0, held: 0, failed: [] }]));
   const received = new Map([...observations.keys()].map((peer) => [peer, readShipped(binding.dataRoot, peer)]));
   let moveId;
   const observedDelivery = async (sender, request) => {
@@ -249,11 +250,19 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
       : decided ? prepareWorkDecisionDelivery({ config, provider, deliver: observedDelivery, decision: { ...record, decidedBy: host } })
         : prepareWorkTellingDelivery({ config, provider, deliver: observedDelivery, telling: record });
     if (thunk === undefined) throw new TypeError("no work peer is configured");
-    await thunk();
+    // A move held for a known-intermittent peer is handed on: the peer pulls it, so it is not sent again.
+    for (const value of await thunk() ?? []) {
+      if (value?.held !== true || !received.has(value.recipient) || received.get(value.recipient).has(id)) continue;
+      noteShipped(binding.dataRoot, [{ peer: value.recipient, id }]);
+      received.get(value.recipient).add(id);
+      observations.get(value.recipient).held += 1;
+    }
   };
   const completelyReceived = new Set(outbound.filter(({ id }) => [...received.values()].every((held) => held.has(id))).map(({ id }) => id));
   const result = await shipWorkSince({ entries: outbound, shipped: completelyReceived, ship });
-  return Object.freeze({ ...result, peers: Object.freeze([...observations].map(([peer, observation]) => Object.freeze({ peer, shipped: observation.shipped, failed: Object.freeze(observation.failed) }))) });
+  return Object.freeze({ ...result, peers: Object.freeze([...observations].map(([peer, observation]) => Object.freeze({
+    peer, shipped: observation.shipped, ...(observation.held === 0 ? {} : { held: observation.held }), failed: Object.freeze(observation.failed),
+  }))) });
 }
 
 /**
@@ -282,11 +291,104 @@ export function noteWorkPeerLiveness({ config, binding, host, result, now = new 
   const readings = peers.map(({ peer, shipped, failed }) => {
     const noted = notePeerRun(journal, {
       observer: host, peer, now, shipped, failed,
-      presence: config.workPeerPresence, thresholdSeconds: config.workPeerSuspicionSeconds,
+      presence: presenceOf(config, peer), thresholdSeconds: config.workPeerSuspicionSeconds,
     });
     return Object.freeze({ peer, liveness: noted.reading, ...(noted.silentSeconds === undefined ? {} : { silentSeconds: Math.round(noted.silentSeconds) }) });
   });
   return Object.freeze({ peers: Object.freeze(readings), ...(readings.length === 1 ? { liveness: readings[0].liveness, ...(readings[0].silentSeconds === undefined ? {} : { silentSeconds: readings[0].silentSeconds }) } : {}) });
+}
+
+const PULL_LEDGER_FILE = "work-peer-pulled.jsonl";
+const PULL_PAGES = 100;
+
+/** The held address up to which this node has pulled from `peer`, from the ledger kept in its root. */
+export function readPulled(dataRoot, peer) {
+  const path = resolve(dataRoot, PULL_LEDGER_FILE);
+  if (!existsSync(path)) return undefined;
+  let after;
+  for (const line of readFileSync(path, "utf8").split("\n").filter(Boolean)) {
+    const receipt = JSON.parse(line);
+    if (receipt?.peer === peer && typeof receipt.after === "string") after = receipt.after;
+  }
+  return after;
+}
+
+function notePulled(dataRoot, peer, after) {
+  const path = resolve(dataRoot, PULL_LEDGER_FILE);
+  mkdirSync(dirname(path), { recursive: true });
+  appendFileSync(path, `${JSON.stringify({ peer, after })}\n`);
+}
+
+/** A GET signed by this node's instance actor, through the ActivityPub provider's own key custody. */
+export const signedGetAs = (provider, identifier) => async (url) => {
+  if (provider?.federation === undefined || provider.origin === undefined) throw new TypeError("pulling held deliveries requires the instance ActivityPub actor");
+  const load = await provider.federation.createContext(new URL(provider.origin), undefined).getDocumentLoader({ identifier });
+  return (await load(url)).document;
+};
+
+const actorOf = (activity) => (typeof activity?.actor === "string" ? activity.actor : activity?.actor?.id);
+const addressees = (activity) => [activity?.to ?? [], activity?.cc ?? []].flat().map((value) => (typeof value === "string" ? value : value?.id));
+
+/**
+ * A known-intermittent node's return: pull from each work peer what that peer holds for this node's
+ * instance actor, page by page from where the last pull ended, and admit each activity as an arrival
+ * from that peer (`admit(activity, peer)`, the host's `provider.admitHeld`). The pull is a GET of the
+ * peer's instance actor outbox with `held-for`, signed by this node's instance actor
+ * (`heldDeliveryResponse` on the peer). An activity not authored on the peer's origin, or not
+ * addressed to this node's actor, is refused and not admitted. A continuous node pulls nothing: it is
+ * pushed to. Returns one result per peer: { peer, pulled, refused[, failed, away] }.
+ */
+export async function pullHeldFromPeers({ config, binding, provider, signedGet, admit }) {
+  if (config.presence !== "known-intermittent" || config.deliverWorkToPeer === false) return Object.freeze([]);
+  const identifier = config.activityPub?.instanceActor?.identifier;
+  if (identifier === undefined || config.publicBaseUrl === undefined) throw new TypeError("a known-intermittent node pulls as its instance ActivityPub actor");
+  const own = new URL(`/actors/${encodeURIComponent(identifier)}`, config.publicBaseUrl).href;
+  const get = signedGet ?? signedGetAs(provider, identifier);
+  const admitHeld = admit ?? ((activity, peer) => {
+    if (typeof provider?.admitHeld !== "function") throw new TypeError("pulled deliveries need the host's arrival port");
+    return provider.admitHeld(activity, { peer });
+  });
+  const results = [];
+  for (const peer of workPeersOf(config)) {
+    const origin = new URL(peer).origin;
+    let after = readPulled(binding.dataRoot, peer);
+    let pulled = 0;
+    const refused = [];
+    try {
+      for (let pages = 0; pages < PULL_PAGES; pages += 1) {
+        const url = new URL(`${peer.replace(/\/$/u, "")}/outbox`);
+        url.searchParams.set("held-for", own);
+        if (after !== undefined) url.searchParams.set("after", after);
+        const page = await get(url.href);
+        if (page?.type !== "OrderedCollectionPage" || !Array.isArray(page.orderedItems)) throw new TypeError(`${peer} answered a held-delivery pull with no collection page`);
+        if (page.orderedItems.length === 0) break;
+        for (const activity of page.orderedItems) {
+          const author = actorOf(activity);
+          let authorOrigin;
+          try { authorOrigin = new URL(author).origin; } catch { authorOrigin = undefined; }
+          if (authorOrigin !== origin) { refused.push(`${activity?.id ?? "an activity"} is not authored on ${origin}`); continue; }
+          if (!addressees(activity).includes(own)) { refused.push(`${activity?.id ?? "an activity"} is not addressed to ${own}`); continue; }
+          try {
+            await admitHeld(activity, peer);
+            pulled += 1;
+          } catch (error) {
+            // A refusal is this node's verdict on the activity; anything else leaves the page to pull again.
+            if (!(error instanceof TypeError)) throw error;
+            refused.push(`${activity?.id ?? "an activity"}: ${error.message}`.slice(0, 400));
+          }
+        }
+        const next = typeof page.next === "string" ? new URL(page.next) : undefined;
+        const cursor = next?.origin === origin ? next.searchParams.get("after") : null;
+        if (cursor === null || cursor === undefined || cursor === after) break;
+        after = cursor;
+        notePulled(binding.dataRoot, peer, after);
+      }
+      results.push(Object.freeze({ peer, pulled, refused: Object.freeze(refused) }));
+    } catch (error) {
+      results.push(Object.freeze({ peer, pulled, refused: Object.freeze(refused), failed: String(error?.message ?? error).slice(0, 400), away: deliveryAway(error) }));
+    }
+  }
+  return Object.freeze(results);
 }
 
 /** The operation a node schedule runs to keep the work peer current (MetroPlat instance `schedules`). */
@@ -295,13 +397,19 @@ export function workReplicationOperations({ config, binding, provider, host }) {
     verb: "work-peer-catch-up",
     inputFormat: "json", outputFormat: "json",
     summary: "Send the work peer every work-board fact it has not received.",
-    description: "Domain: {}. Ships this board's told moves (openings and tellings) the peer has not received, and the coordinated moves this node decided on threads homed here. Idempotent; a failed delivery is sent again on the next run.",
+    description: "Domain: {}. A known-intermittent node first pulls what each peer holds for it. Then it ships this board's told moves (openings and tellings) the peer has not received, and the coordinated moves this node decided on threads homed here; a known-intermittent peer has them held for it to pull. Idempotent; a failed delivery or pull is tried again on the next run.",
     relation: "boundary",
     effects: { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "schema-bounded" },
     run: async () => {
+      // A node that cannot be pushed to takes what is held for it before it hands anything on.
+      const pulls = await pullHeldFromPeers({ config, binding, provider: provider() });
       const result = await catchUpWorkPeer({ config, provider: provider(), binding, host });
       const liveness = noteWorkPeerLiveness({ config, binding, host, result });
-      return Object.freeze({ ...catchUpOutcome(result, config.workPeerPresence), ...liveness });
+      const outcome = catchUpOutcome(result, config.workPeerPresence);
+      // A peer that refused the pull (an unverified signature, say) is a failure; one that was away is not.
+      const refusedPulls = pulls.filter(({ failed, away: wasAway }) => failed !== undefined && !wasAway);
+      if (refusedPulls.length > 0) throw new TypeError(`work-peer-catch-up: pulling held deliveries failed: ${refusedPulls.map(({ peer, failed }) => `${peer}: ${failed}`).join("; ")}`);
+      return Object.freeze({ ...outcome, ...liveness, ...(pulls.length === 0 ? {} : { pulled: pulls }) });
     },
   })]);
 }
