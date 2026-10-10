@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@red-cup-engineering/energy-bank": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/semantic-record-journal-service": "0.4.0",
     "@red-cup-engineering/treasury-observation-service": "workspace:*"
   },

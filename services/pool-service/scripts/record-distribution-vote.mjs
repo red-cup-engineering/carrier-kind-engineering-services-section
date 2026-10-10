@@ -26,6 +26,9 @@ export function recordDistributionVoteFromStore(statePath, journalRoot, request)
   const document = readStore(statePath, null);
   if (!document?.pool) throw new Error(`record-distribution-vote: no pool document at ${statePath}`);
   const { pool, tallies } = document;
+  if ((document.cycleTallies ?? []).some((tally) => tally.cycleId === request.cycleId)) {
+    return { recorded: false, reason: `cycle "${request.cycleId}" is already closed and cannot accept another distribution vote` };
+  }
   const votes = document.votes ?? [];
   const result = castDistributionVote({
     votes,
