@@ -5,13 +5,13 @@
 import { makeInference, infer } from "@red-cup-engineering/signcraft/inference/infer";
 
 /**
- * Nominal consideration for this provider: one reciprocal bounded
+ * Free-first nominal consideration for this provider: one reciprocal bounded
  * lot, the same nominal-cost shape already admitted for the sibling
  * bare-cedar-fog-npu-inference-team local provider (its content/agent-cards
  * card's "reciprocal-short-inference" alternative). The market's own
  * obligation validator (inference-dispatch-service/src/exact-amount.mjs)
- * rejects a literal zero amount, so this is the market's cheapest lawful
- * obligation, not a zero price.
+ * rejects a literal zero amount, so "free-first" here means the market's
+ * actual cheapest lawful obligation, not a zero price.
  * @type {ReadonlyArray<{id: string, obligations: Array<{id: string, kind: string, asset: string, amount: number, unit: string, settlementAdapter: string}>}>}
  */
 export const DERIVATION_CONSIDERATION_ALTERNATIVES = Object.freeze([

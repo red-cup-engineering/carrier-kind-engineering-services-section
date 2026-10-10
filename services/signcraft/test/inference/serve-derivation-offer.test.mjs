@@ -94,7 +94,7 @@ test("answerBoundedDerivationDemand refuses a malformed demand rather than throw
   assert.match(answer.reason, /requires attributes and rules/);
 });
 
-test("the nominal consideration alternative is the market's cheapest lawful (nonzero) bundle", () => {
+test("the free-first consideration alternative is the market's cheapest lawful (nonzero) bundle", () => {
   assert.equal(DERIVATION_CONSIDERATION_ALTERNATIVES.length, 1);
   const [alternative] = DERIVATION_CONSIDERATION_ALTERNATIVES;
   assert.equal(alternative.obligations.length, 1);
