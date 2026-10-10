@@ -20,6 +20,8 @@ import { journal, openJournal } from "@red-cup-engineering/computer-system-engin
 import { authorizationFromStanding } from "@red-cup-engineering/computer-system-engine/rpc/dispatch";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
+import { createSignRoadmap } from "@red-cup-engineering/organizing/work/sign-roadmap";
+import { admitSignRoadmap } from "@red-cup-engineering/feltos/work/sign-roadmap-journal";
 import { projectSurface } from "@red-cup-engineering/metroplat/presentation/surface";
 import { capabilityWitnessesForOperations } from "@red-cup-engineering/feltos/agents/capability-witnesses";
 import { readCapabilityWitnesses } from "@red-cup-engineering/computer-system-engine/rpc/capability-claims";
@@ -96,6 +98,29 @@ function admitDuty(dataRoot, packageName, workerId, scope, item = 2, reading = "
   });
 }
 
+/** The executable Action an allocation prepares at admission (feltos agency-work-allocation):
+ * only a scope bound to an admitted SignRoadmap Action reaches the frontier. */
+function admitAllocatedAction(dataRoot, packageName, scope) {
+  const separator = scope.indexOf(":");
+  const base = { title: scope, description: "Allocated test obligation" };
+  const graph = createSignRoadmap({
+    nodes: [
+      { key: "demand", kind: scope.slice(0, separator), content: { ...base, title: scope.slice(separator + 1), intendedOutcome: "An independent receiver checks the outcome.", acceptance: "An independent receiver checks the outcome." } },
+      { key: "change", kind: "change", content: { ...base, target: scope, before: "Declared work awaits execution", after: "An independent receiver checks the outcome.", acceptance: "An independent receiver checks the outcome." } },
+      { key: "action", kind: "action", content: { ...base, operation: "agency-work-propose", effect: "Use the available tools to make real progress on this obligation.", acceptance: "An independent receiver checks the outcome." } },
+      { key: "resource", kind: "resource", content: { ...base, locator: `test:${scope}`, mediaType: "application/json" } },
+      { key: "evidence", kind: "evidence", content: { ...base, locator: `test:${scope}`, excerpt: "Declared test-work via test-skill; office service duty:test" } },
+    ],
+    edges: [
+      { from: "change", predicate: "targets", to: "demand", witness: "evidence" },
+      { from: "change", predicate: "derives-action", to: "action", witness: "evidence" },
+      { from: "action", predicate: "uses-resource", to: "resource", witness: "evidence" },
+    ],
+  });
+  if (!graph.ok) throw new TypeError(graph.refusal.message);
+  admitSignRoadmap({ ...defaultFilesystemBinding(dataRoot), rootName: packageName }, graph.value, { at: at.slice(0, 10) });
+}
+
 /** Admit a `held` duty that also carries a canonical office-service-allocation
  * marker (the exact boundary shape `agencyWorkAllocationMarkerOfRow`,
  * `src/work/observations.mts`, parses) so the duty reaches the "ready"
@@ -123,6 +148,7 @@ function admitAllocatedDuty(dataRoot, packageName, workerId, scope, item = 2) {
       text: "office-service-allocation",
       scope,
       character: workerId,
+      model: "model:test",
       office: "office:test",
       officeService: "office-service:test",
       duty: "duty:test",
@@ -132,16 +158,19 @@ function admitAllocatedDuty(dataRoot, packageName, workerId, scope, item = 2) {
       requiresCapabilities: [],
       method: "Use the available tools to make real progress on this obligation.",
       receiverCondition: "An independent receiver checks the outcome.",
+      governing: { office: { id: "office:test" }, duty: { id: "duty:test" }, work: { id: "test-work" } },
       evidence: [`office:office:test`, `office-service:office-service:test`, `scope:${scope}`],
     },
     caller: { transport: "test" },
   });
-  return openJournal(dataRoot).appendRows(claimSessionFeed.name, claimSessionStatementRows(assignment), {
+  const appended = openJournal(dataRoot).appendRows(claimSessionFeed.name, claimSessionStatementRows(assignment), {
     at,
     rootName: packageName,
     subject: "work-ledger",
     caller: { transport: "test" },
   });
+  admitAllocatedAction(dataRoot, packageName, scope);
+  return appended;
 }
 
 test("the agent worker engine is host-cancelled and never invents work", async () => {
@@ -386,7 +415,7 @@ test("a governed agent worker can discharge admitted work through content-addres
   const root = mkdtempSync(path.join(tmpdir(), "metroplat-agent-workspace-mutation-"));
   const dataRoot = path.join(root, "data");
   const packageRoot = path.join(root, "package");
-  const sourcePath = path.join(packageRoot, "src", "value.mts");
+  const sourcePath = path.join(packageRoot, "src", "value.mjs");
   try {
     mkdirSync(path.dirname(sourcePath), { recursive: true });
     const beforeText = 'import "./missing.mjs";\nexport const value = 1;\n';
@@ -427,7 +456,7 @@ test("a governed agent worker can discharge admitted work through content-addres
           const move = inferenceToolMove({
             request: "tool:workspace-file-replace:1",
             name: "workspace-file-replace",
-            input: { path: "src/value.mts", expected: artifactId(beforeText), content: afterText },
+            input: { path: "src/value.mjs", expected: artifactId(beforeText), content: afterText },
           });
           yield inferenceSourceTerminal(inferenceResult({
             call: call.id,
@@ -494,17 +523,18 @@ test("a governed agent worker can discharge admitted work through content-addres
     assert.equal(result.dischargedRole, "discharge");
     assert.equal(readFileSync(sourcePath, "utf8"), afterText);
     const repairedPolicy = await policyRead.execute({}, {});
-    assert.equal(repairedPolicy.value.summary.denied, 0);
+    // Policy summaries count readings by knowledge-family name; `active` is told against only.
+    assert.equal(repairedPolicy.value.summary.active, 0);
 
     const stale = replaceWorkspaceFile(packageRoot, {
-      path: "src/value.mts",
+      path: "src/value.mjs",
       expected: artifactId(beforeText),
       content: "stale overwrite\n",
     }, binding);
     assert.equal(stale.kind, "metroplat.filesystem.workspace-file-replace:obstruction");
     assert.equal(stale.reason, "stale-source");
     const escaping = replaceWorkspaceFile(packageRoot, {
-      path: "../outside.mts",
+      path: "../outside.mjs",
       expected: artifactId("outside"),
       content: "escape\n",
     }, binding);

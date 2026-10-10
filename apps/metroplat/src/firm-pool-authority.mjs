@@ -190,7 +190,7 @@ export function firmPoolAuthorityCandidates(
     candidates: Object.freeze(candidates.sort((left, right) =>
       left.sources.office.localeCompare(right.sources.office) || left.sources.duty.localeCompare(right.sources.duty))),
     obstructions: Object.freeze(obstructions.sort((left, right) =>
-      left.office.localeCompare(right.office) || left.duty.localeCompare(right.duty))),
+      left.office.localeCompare(right.office) || (left.duty ?? "").localeCompare(right.duty ?? ""))),
   });
 }
 
