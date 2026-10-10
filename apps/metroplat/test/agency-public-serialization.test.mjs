@@ -8,12 +8,13 @@ import test from "node:test";
 
 test("agency public CLI operation returns JSON at the transport boundary", () => {
   const dataRoot = mkdtempSync(path.join(tmpdir(), "metroplat-agency-json-"));
+  const agencyRoot = mkdtempSync(path.join(tmpdir(), "metroplat-agency-root-"));
   try {
     const script = fileURLToPath(new URL("../scripts/metroplat.mjs", import.meta.url));
     const run = spawnSync(process.execPath, [script, "--data-root", dataRoot, "agency"], {
       input: "{}\n",
       encoding: "utf8",
-      env: { ...process.env, METROPLAT_DATA_ROOT: dataRoot },
+      env: { ...process.env, METROPLAT_DATA_ROOT: dataRoot, METROPLAT_AGENCY_ROOT: agencyRoot },
     });
     assert.equal(run.status, 0, run.stderr);
     const value = JSON.parse(run.stdout.trim());
@@ -23,5 +24,6 @@ test("agency public CLI operation returns JSON at the transport boundary", () =>
     assert.doesNotThrow(() => JSON.stringify(value));
   } finally {
     rmSync(dataRoot, { recursive: true, force: true });
+    rmSync(agencyRoot, { recursive: true, force: true });
   }
 });
