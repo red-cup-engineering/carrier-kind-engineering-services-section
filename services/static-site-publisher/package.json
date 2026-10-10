@@ -35,7 +35,8 @@
     "@red-cup-engineering/static-site-conformance-service": "workspace:*",
     "@red-cup-engineering/web-page-tiling-engine": "workspace:*",
     "@red-cup-engineering/web-release-candidate-service": "workspace:*",
-    "@red-cup-engineering/web-theming-service": "workspace:*"
+    "@red-cup-engineering/web-theming-service": "workspace:*",
+    "@red-cup-engineering/workspace-content-graph-service": "workspace:*"
   },
   "scripts": {
     "test": "node --test \"test/*.test.mjs\""

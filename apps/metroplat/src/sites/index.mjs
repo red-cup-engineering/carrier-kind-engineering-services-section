@@ -94,7 +94,7 @@ export function projectRootLeanTheoremMap(packageName = "@red-cup-engineering/me
     openFrontier: Object.freeze(links.flatMap((link) => [...link.frontier])),
     evidence: Object.freeze([
       "sites/index.mts:projectRootLeanTheoremMap",
-      "@red-cup-engineering/lean-system-services-section:leanProjectTheoremMapContract",
+      "@red-cup-engineering/lean-system-services-section/schema:leanProjectTheoremMapContract",
       "src/core/math/topology/settling-site.mts",
       "src/core/math/topology/alexandrov-site.mts",
       "src/core/math/order/d-frame-site.mts",
