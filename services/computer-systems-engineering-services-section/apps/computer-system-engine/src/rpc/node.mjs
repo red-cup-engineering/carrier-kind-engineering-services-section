@@ -187,13 +187,44 @@ export function systemSettlementFeedGrants(env, node) {
   return Object.freeze({ labelsFor: (origin) => grants.get(origin) ?? Object.freeze([]) });
 }
 
+/**
+ * Declared peer keys: SYSTEM_NODE_PEER_KEYS is a JSON object from a configured peer origin to its
+ * Ed25519 public key (SPKI PEM). A known-intermittent peer (a colony in an ephemeral environment)
+ * cannot be dialed while it is away, so its signed requests are verified against the key it declared
+ * rather than one fetched live (Lenticule swarm theory: a PeerRecord holds the peer's signing key,
+ * and a peer's absence reads unknown, never refused).
+ */
+export function systemNodeDeclaredPeerKeys(env, node) {
+  const raw = env.SYSTEM_NODE_PEER_KEYS?.trim();
+  const configured = raw ? record(parse(raw), "System node declared peer keys") : {};
+  const keys = new Map();
+  for (const [origin, pem] of Object.entries(configured)) {
+    if (originOf(origin, "declared-key peer") !== origin || !node.peers.includes(origin)) {
+      throw new TypeError(`System node declared peer key names an unconfigured peer: ${origin}`);
+    }
+    if (typeof pem !== "string" || pem.length === 0) throw new TypeError(`System node declared peer key for ${origin} must be a PEM string`);
+    const key = createPublicKey(pem);
+    if (key.asymmetricKeyType !== "ed25519") throw new TypeError(`System node declared peer key for ${origin} must be Ed25519`);
+    keys.set(origin, key.export({ type: "spki", format: "pem" }));
+  }
+  return keys;
+}
+
 /** How a node reaches its peers' settlements: signed holdings reads and transfers (RFC 9421 over
- *  the node's key), and the public keys of its configured peers, resolved from their advertisements. */
-export function systemSettlementPeering(node, privateKey, fetcher = fetch) {
+ *  the node's key), and the public keys of its configured peers. A peer's declared key
+ *  (`declaredKeys`, from `systemNodeDeclaredPeerKeys`) is used as held, without dialing the peer;
+ *  any other is resolved from its advertisement. A discovery that fails is not kept: the peer was
+ *  away or answered badly, which says nothing lasting about its key, so the next request asks again. */
+export function systemSettlementPeering(node, privateKey, fetcher = fetch, { declaredKeys = new Map() } = {}) {
   const keys = new Map();
   const peerKey = async (origin) => {
     if (!node.peers.includes(origin)) return undefined;
-    if (!keys.has(origin)) keys.set(origin, discoverSystemNode(origin, fetcher).then((peer) => peer.key));
+    if (declaredKeys.has(origin)) return declaredKeys.get(origin);
+    if (!keys.has(origin)) {
+      const discovery = discoverSystemNode(origin, fetcher).then((peer) => peer.key);
+      keys.set(origin, discovery);
+      discovery.catch(() => { if (keys.get(origin) === discovery) keys.delete(origin); });
+    }
     return keys.get(origin);
   };
   const post = async (origin, pathname, value) => {
@@ -209,10 +240,21 @@ export function systemSettlementPeering(node, privateKey, fetcher = fetch) {
     verify: (request) => verifyRequest({ ...request, publicKeyFor: peerKey }),
     holdingsOf: (origin, date) => post(origin, "/settlement/holdings", { date }),
     transferTo: (origin, transfer) => post(origin, "/settlement/transfer", transfer),
+    /** Ask a peer for the granted witnesses of `date` this settlement's `holdings` lack (replay-from-peer):
+     *  a node that cannot be dialed brings itself up to date by pulling. */
+    pullFrom: (origin, { date, holdings, limit }) => post(origin, "/settlement/pull", { date, holdings, ...(limit === undefined ? {} : { limit }) }),
   });
 }
 
-/** Verify an exact signed peer request before reading or merging a settlement. */
+/** The signed settlement exchange routes a node serves to its configured peers. */
+export const SETTLEMENT_EXCHANGE_PATHS = Object.freeze(["/settlement/holdings", "/settlement/transfer", "/settlement/pull"]);
+
+/** The most witnesses one pull answer carries; a puller asks again for the rest (`remaining`). */
+export const SETTLEMENT_PULL_LIMIT = 2000;
+
+/** Verify an exact signed peer request before reading or merging a settlement. A pull is answered with
+ *  the granted witnesses the requester's holdings lack (`exchange.transfer`), never with more than it
+ *  is granted; a node with no `transfer` does not serve pulls. */
 export async function settlementExchangeResponse(req, exchange) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -224,6 +266,11 @@ export async function settlementExchangeResponse(req, exchange) {
   if (feedLabels.length === 0) return { status: 403, value: { error: "settlement-feed-grant-required" } };
   try {
     const value = JSON.parse(body);
+    if (pathname === "/settlement/pull") {
+      if (exchange.transfer === undefined) return { status: 404, value: { error: "settlement-pull-not-served" } };
+      const limit = Number.isInteger(value.limit) && value.limit > 0 ? Math.min(value.limit, SETTLEMENT_PULL_LIMIT) : SETTLEMENT_PULL_LIMIT;
+      return { status: 200, value: exchange.transfer(value.date, value.holdings, limit, feedLabels) };
+    }
     return { status: 200, value: pathname === "/settlement/holdings"
       ? exchange.holdings(value.date, feedLabels)
       : exchange.merge(value, feedLabels) };

@@ -1,16 +1,17 @@
 /**
  * src/search/revision-index - CAIRN's durable archive index: every revision of every document
  * any source has held (a repository's whole history, deleted documents included; other
- * repositories and machines; transcripts), full-text searchable in one SQLite FTS5 file.
+ * repositories and machines; transcripts), full-text searchable, kept as a reading of a semantic
+ * record journal (`revision-journal.mjs`) ranked by a semiotic-eavt term index.
  *
  * A body is keyed by its git blob id, so the same text from any source is indexed once and a
  * later pass reads only what is new. Occurrences say where a body stood: source, path, the
- * revision that wrote or deleted it, and when.
+ * revision that wrote or deleted it, and when. An SQLite index left at the index file from
+ * before is read once into the journal beside it (`import-sql-revision-index.mjs`).
  */
-import { mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
 
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { gitBlobReader, gitRefTips, gitRevisions } from "@red-cup-engineering/computer-code-development-engine/git/history";
@@ -18,11 +19,13 @@ import { gitBlobIdOf } from "@red-cup-engineering/git-services-section/git-objec
 import { eavtRecord } from "@red-cup-engineering/eavt/row";
 import { claudeCodeSessionChronicleFromJsonl, claudeSessionAuthoredChronicle } from "@red-cup-engineering/feltos/agents/sessions/claude-code/codec";
 import { codexSessionAuthoredChronicle, codexSessionChronicleOfContent } from "@red-cup-engineering/feltos/agents/sessions/codex/codec";
+import { importSqlRevisionIndex, isSqliteFile } from "./import-sql-revision-index.mjs";
+import { openRevisionJournal, snippetOf } from "./revision-journal.mjs";
 
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
 const BATCH = 500;
 
-/** The index file a host uses unless it names another. */
+/** The index file a host uses unless it names another; its journal is kept beside it (`<file>.journal`). */
 export const defaultRevisionIndexFile = (environment = process.env) =>
   environment.CAIRN_REVISION_INDEX ?? path.join(environment.XDG_STATE_HOME ?? path.join(homedir(), ".local", "state"), "561-group", "cairn", "revisions.sqlite");
 
@@ -31,11 +34,6 @@ function titleOf(text, file) {
   const front = /^---\n([\s\S]*?)\n---/u.exec(text)?.[1];
   const declared = front && /^(?:title|name):\s*["']?(.+?)["']?\s*$/mu.exec(front)?.[1];
   return declared ?? /^#\s+(.+)$/mu.exec(text)?.[1] ?? path.posix.basename(file ?? "");
-}
-
-/** Words as quoted FTS5 terms, so punctuation ("ActivityPub++", "x402") never parses as syntax. */
-function matchExpression(query) {
-  return query.split(/\s+/u).filter(Boolean).map((word) => `"${word.replaceAll('"', '""')}"`).join(" ");
 }
 
 /** What was said in one session transcript, as "role: text" paragraphs, through the harness's own codec. */
@@ -59,60 +57,40 @@ function* jsonlFiles(root) {
   }
 }
 
-/** node:sqlite rows have no prototype; a plain object is what JSON boundaries accept. */
-const plain = (rows) => rows.map((row) => ({ ...row }));
-
-export function openRevisionIndex(file = defaultRevisionIndexFile()) {
-  mkdirSync(path.dirname(file), { recursive: true });
-  const db = new DatabaseSync(file);
-  db.exec(`PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS body (id TEXT PRIMARY KEY, title TEXT, bytes INTEGER);
-    CREATE VIRTUAL TABLE IF NOT EXISTS body_text USING fts5 (id UNINDEXED, title, text, tokenize = 'unicode61 remove_diacritics 2');
-    CREATE TABLE IF NOT EXISTS occurrence (id TEXT, source TEXT, path TEXT, revision TEXT, at TEXT, deleted INTEGER, PRIMARY KEY (id, source, path, revision));
-    CREATE INDEX IF NOT EXISTS occurrence_place ON occurrence (source, path, at);
-    CREATE TABLE IF NOT EXISTS cursor (source TEXT, tip TEXT, PRIMARY KEY (source, tip));`);
-  const has = db.prepare("SELECT 1 FROM body WHERE id = ?");
-  const putBody = db.prepare("INSERT OR IGNORE INTO body (id, title, bytes) VALUES (?, ?, ?)");
-  const putText = db.prepare("INSERT INTO body_text (id, title, text) VALUES (?, ?, ?)");
-  const putOccurrence = db.prepare("INSERT OR IGNORE INTO occurrence (id, source, path, revision, at, deleted) VALUES (?, ?, ?, ?, ?, ?)");
-  const occurrencesOf = db.prepare(`SELECT source, path, MIN(at) AS first, MAX(at) AS last, MAX(deleted) AS deleted
-    FROM occurrence WHERE id = ? GROUP BY source, path ORDER BY last DESC`);
+/** The archive index kept at `file`'s journal (`<file>.journal`, or `root` when named). */
+export function openRevisionIndex(file = defaultRevisionIndexFile(), { root = `${file}.journal` } = {}) {
+  const store = openRevisionJournal({ root });
+  if (store.admission === null && isSqliteFile(file)) importSqlRevisionIndex(file, store);
 
   function admitBody(id, bytes, file) {
-    if (has.get(id) !== undefined || bytes.length > MAX_BODY_BYTES || bytes.includes(0)) return false;
+    if (store.hasBody(id) || bytes.length > MAX_BODY_BYTES || bytes.includes(0)) return false;
     const text = bytes.toString("utf8");
-    const title = titleOf(text, file);
-    putBody.run(id, title, bytes.length);
-    putText.run(id, title, text);
-    return true;
+    return store.admitBody(id, titleOf(text, file), bytes.length, text);
   }
 
   const index = Object.freeze({
     file,
+    root: store.root,
     /** Read one repository's history since its last pass, as `source`. */
     async ingestGit(repository, { source = repository, pathspecs = ["*.md"], onProgress } = {}) {
       const reader = gitBlobReader(repository);
       const tips = await gitRefTips(repository);
-      const known = db.prepare("SELECT tip FROM cursor WHERE source = ?").all(source).map((row) => row.tip);
       const exclude = [];
-      for (const tip of known) if (await reader.read(tip) !== undefined) exclude.push(tip);
+      for (const tip of store.cursorOf(source)) if (await reader.read(tip) !== undefined) exclude.push(tip);
       let revisions = 0, bodies = 0;
-      db.exec("BEGIN");
       try {
         for await (const revision of gitRevisions(repository, { pathspecs, exclude })) {
-          putOccurrence.run(revision.blob, source, revision.path, revision.commit, revision.at, revision.deleted ? 1 : 0);
-          if (!revision.deleted && has.get(revision.blob) === undefined) {
+          store.occur(revision.blob, source, revision.path, revision.commit, revision.at, revision.deleted);
+          if (!revision.deleted && !store.hasBody(revision.blob)) {
             const bytes = await reader.read(revision.blob);
             if (bytes !== undefined && admitBody(revision.blob, bytes, revision.path)) bodies += 1;
           }
-          if (++revisions % BATCH === 0) { db.exec("COMMIT; BEGIN"); onProgress?.({ source, revisions, bodies }); }
+          if (++revisions % BATCH === 0) { store.flush(); onProgress?.({ source, revisions, bodies }); }
         }
-        db.prepare("DELETE FROM cursor WHERE source = ?").run(source);
-        const putTip = db.prepare("INSERT OR IGNORE INTO cursor (source, tip) VALUES (?, ?)");
-        for (const tip of tips) putTip.run(source, tip);
-        db.exec("COMMIT");
+        store.setCursor(source, tips);
+        store.flush();
       } catch (error) {
-        db.exec("ROLLBACK");
+        store.discard();
         throw error;
       } finally {
         await reader.close();
@@ -122,29 +100,27 @@ export function openRevisionIndex(file = defaultRevisionIndexFile()) {
     /** Admit documents that live outside git (transcripts, exports), each `{ source, path, revision, at, text }`. */
     admitDocuments(documents) {
       let bodies = 0;
-      db.exec("BEGIN");
       try {
         for (const document of documents) {
           const bytes = Buffer.from(document.text, "utf8");
           const id = gitBlobIdOf(bytes);
-          putOccurrence.run(id, document.source, document.path, document.revision ?? id, document.at ?? null, 0);
+          store.occur(id, document.source, document.path, document.revision ?? id, document.at ?? null, false);
           if (admitBody(id, bytes, document.path)) bodies += 1;
         }
-        db.exec("COMMIT");
+        store.flush();
       } catch (error) {
-        db.exec("ROLLBACK");
+        store.discard();
         throw error;
       }
       return Object.freeze({ bodies });
     },
     /** Admit every session transcript under a root not yet read at its current size, as `source`. */
     admitTranscripts(root, { harness, source = `${harness}:${root}` }) {
-      const seen = db.prepare("SELECT 1 FROM occurrence WHERE source = ? AND path = ? AND revision = ?");
       let sessions = 0, bodies = 0;
       for (const file of jsonlFiles(root)) {
         const { size, mtime } = statSync(file);
         const relative = path.relative(root, file), revision = `size:${size}`;
-        if (seen.get(source, relative, revision) !== undefined) continue;
+        if (store.seen(source, relative, revision)) continue;
         let text;
         try { text = transcriptText(harness, readFileSync(file, "utf8")); } catch { continue; }
         if (text.length === 0) continue;
@@ -153,38 +129,43 @@ export function openRevisionIndex(file = defaultRevisionIndexFile()) {
       }
       return Object.freeze({ source, sessions, bodies });
     },
-    /** The best-matching bodies for a query, each with where it stood and whether it was deleted there. */
+    /**
+     * The best-matching bodies for a query, each with where it stood and whether it was deleted
+     * there. Words match folded (case and diacritics away); a word the tokenizer would split
+     * ("ActivityPub++", "x402-v2") must also appear verbatim. `raw` takes the query as an FTS5
+     * expression (words, prefix*, "phrases", AND, OR, NOT, parentheses; other FTS5 syntax is
+     * refused). `score` is BM25 as FTS5 gave it: lower is better.
+     */
     search(query, { limit = 20, raw = false } = {}) {
-      const expression = raw ? query : matchExpression(query);
       const wanted = Math.min(Math.max(1, limit), 200);
-      // Words the tokenizer would split ("ActivityPub++", "x402-v2") must also appear verbatim.
-      const verbatim = raw ? [] : query.split(/\s+/u).filter((word) => /[^\p{L}\p{N}]/u.test(word)).map((word) => word.replace(/^"|"$/gu, ""));
-      const rows = db.prepare(`SELECT id, title, bm25(body_text) AS score, snippet(body_text, 2, '«', '»', '…', 24) AS snippet
-        FROM body_text WHERE body_text MATCH ? ${verbatim.map(() => "AND instr(text, ?) > 0").join(" ")} ORDER BY score LIMIT ?`)
-        .all(expression, ...verbatim, wanted * 10).map((row) => ({ ...row }));
+      const verbatim = raw ? [] : query.split(/\s+/u).filter((word) => /[^\p{L}\p{N}]/u.test(word)).map((word) => word.replace(/^"|"$/gu, "")).filter(Boolean);
       // One hit per document: its revisions share a title and a latest file name.
       const documents = new Map();
-      for (const row of rows) {
-        const occurrences = plain(occurrencesOf.all(row.id));
-        const key = `${row.title}\u0000${path.posix.basename(occurrences[0]?.path ?? row.id)}`;
+      for (const hit of raw ? store.match(query, { limit: wanted * 10 }) : store.search(query, { limit: wanted * 10 })) {
+        if (verbatim.length > 0) {
+          const text = store.textOf(hit.key);
+          if (!verbatim.every((word) => text.includes(word))) continue;
+        }
+        const title = store.title(hit.key), occurrences = store.occurrencesOf(hit.key);
+        const key = `${title}\u0000${path.posix.basename(occurrences[0]?.path ?? hit.key)}`;
         const known = documents.get(key);
-        if (known === undefined) documents.set(key, { ...row, revisions: 1, occurrences });
+        if (known === undefined) documents.set(key, { id: hit.key, title, score: -hit.score, revisions: 1, occurrences });
         else known.revisions += 1;
         if (documents.size === wanted && known === undefined) break;
       }
-      return Object.freeze([...documents.values()].slice(0, wanted).map((hit) => Object.freeze(hit)));
+      return Object.freeze([...documents.values()].slice(0, wanted).map(({ id, title, score, revisions, occurrences }) =>
+        Object.freeze({ id, title, score, snippet: snippetOf(store.textOf(id), raw ? query.replace(/\b(?:AND|OR|NOT)\b|[*"()]/gu, " ") : query), revisions, occurrences })));
     },
     /** One body's text and occurrences. */
     read(id) {
-      const row = db.prepare("SELECT id, title, text FROM body_text WHERE id = ?").get(id);
-      return row === undefined ? undefined : Object.freeze({ ...row, occurrences: plain(occurrencesOf.all(id)) });
+      const title = store.title(id);
+      return title === undefined ? undefined : Object.freeze({ id, title, text: store.textOf(id), occurrences: store.occurrencesOf(id) });
     },
     /** How much the index holds, per source. */
     summary() {
-      return Object.freeze({ file, bodies: db.prepare("SELECT COUNT(*) AS n FROM body").get().n,
-        sources: plain(db.prepare("SELECT source, COUNT(*) AS occurrences, MAX(at) AS latest FROM occurrence GROUP BY source").all()) });
+      return Object.freeze({ file, root: store.root, bodies: store.size, sources: store.sources() });
     },
-    close: () => db.close(),
+    close: () => {},
   });
   return index;
 }
@@ -198,7 +179,7 @@ export function revisionIndexOperations(binding = {}) {
     operation({
       verb: "archive-search", inputFormat: "json", outputFormat: "json",
       summary: "Search every revision of every document the archive has held, deleted ones included.",
-      description: "Domain: { query, limit?, raw? }. Words match exactly as given; raw passes FTS5 syntax through.",
+      description: "Domain: { query, limit?, raw? }. Words match folded, and a word holding punctuation must also appear verbatim; raw takes an FTS5 expression (words, prefix*, phrases, AND, OR, NOT, parentheses).",
       run: (input) => index().search(String(record(input).query ?? ""), { limit: record(input).limit, raw: record(input).raw === true }),
     }),
     operation({

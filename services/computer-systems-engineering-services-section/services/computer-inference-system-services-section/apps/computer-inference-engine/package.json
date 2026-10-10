@@ -58,6 +58,7 @@
     "./media/account-artifact-capacity": "./src/media/account-artifact-capacity.mjs",
     "./media/artifact-work": "./src/media/artifact-work.mjs",
     "./media/allowance-ledger": "./src/media/allowance-ledger.mjs",
+    "./media/ledger-journal": "./src/media/ledger-journal.mjs",
     "./media/subscription-allowances": "./src/media/subscription-allowances.mjs",
     "./media/allowance-book": "./src/media/allowance-book.mjs",
     "./media/resource-prices": "./src/media/resource-prices.mjs",
@@ -157,7 +158,7 @@
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-system-platform": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/data-custody-directory-service": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
     "@red-cup-engineering/energy-bank": "workspace:*",
@@ -181,7 +182,7 @@
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
     "@red-cup-engineering/x402-services-section": "workspace:*",
     "sharp": "0.35.5",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "devDependencies": {

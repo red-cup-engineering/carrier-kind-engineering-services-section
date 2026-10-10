@@ -12,7 +12,7 @@
  * A move here is a journal entry `{ id, record }`: `id` its content address (the board journal's
  * own), `record` the move as it was admitted, with the edition that admitted it. A node re-admits
  * every remote move under that recorded edition and never under its own; a move of an edition this
- * release does not realize is kept unread (organizing `isUnreadableMove`), neither refused nor
+ * release does not realize is kept unread (organizing `unreadReasonOf`), neither refused nor
  * played, until a release realizes its edition.
  *
  * Transport reuses the peer federation (`federated-work.mjs`): the same signed openings and
@@ -24,11 +24,13 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
-import { ALWAYS_TOLD_MOVES, isUnreadableMove, moveOf, OPENING_MOVES, readForward, TOLD_MOVES } from "@red-cup-engineering/organizing/enterprise";
+import { ALWAYS_TOLD_MOVES, unreadReasonOf, moveOf, OPENING_MOVES, readForward, TOLD_MOVES } from "@red-cup-engineering/organizing/enterprise";
+import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { homeHostOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
+import { notePeerRun, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
 
 /** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
 const BOARD_KIND = "work-arena-move";
@@ -62,13 +64,13 @@ const kindsOf = (entries) => {
  */
 export function replicableMovesOf(moves, { among = moves } = {}) {
   const kindOf = kindsOf(among);
-  return Object.freeze([...moves].filter(({ record }) => !isUnreadableMove(record) && isReplicable(record, kindOf)).sort(byTimeThenAddress));
+  return Object.freeze([...moves].filter(({ record }) => unreadReasonOf(record) === undefined && isReplicable(record, kindOf)).sort(byTimeThenAddress));
 }
 
 /** The moves of `moves` that are coordinated: played on the thread's own board, never replicated. */
 export function coordinatedMovesOf(moves, { among = moves } = {}) {
   const kindOf = kindsOf(among);
-  return Object.freeze([...moves].filter(({ record }) => !isUnreadableMove(record) && !isReplicable(record, kindOf)).sort(byTimeThenAddress));
+  return Object.freeze([...moves].filter(({ record }) => unreadReasonOf(record) === undefined && !isReplicable(record, kindOf)).sort(byTimeThenAddress));
 }
 
 /**
@@ -87,7 +89,7 @@ export function mergeMoves(local, remote) {
   const coordinated = [];
   for (const entry of remote) {
     if (held.has(entry.id)) continue;
-    if (isUnreadableMove(entry.record)) {
+    if (unreadReasonOf(entry.record) !== undefined) {
       held.set(entry.id, entry);
       unread.push(entry);
       continue;
@@ -215,18 +217,30 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     return thread !== undefined && homeHostOf(thread, enterprises) === host;
   };
   const outbound = [...replicableMovesOf(entries), ...decidedMovesOf(entries, { homedHere })];
+  const observations = new Map(workPeersOf(config).map((peer) => [peer, { shipped: 0, failed: [] }]));
+  const observedDelivery = async (sender, request) => {
+    const observation = observations.get(request.recipient);
+    try {
+      const value = await (deliver ?? deliverActivity)(sender, request);
+      observation.shipped += 1;
+      return value;
+    } catch (error) {
+      observation.failed.push(Object.freeze({ why: String(error?.message ?? error), away: deliveryAway(error) }));
+      throw error;
+    }
+  };
   const ship = async ({ record }) => {
     const opening = OPENING_MOVES.includes(record.move);
     const decided = !opening && !isReplicable(record, kindsOf(entries));
-    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver, opening: record })
-      : decided ? prepareWorkDecisionDelivery({ config, provider, deliver, decision: { ...record, decidedBy: host } })
-        : prepareWorkTellingDelivery({ config, provider, deliver, telling: record });
+    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver: observedDelivery, opening: record })
+      : decided ? prepareWorkDecisionDelivery({ config, provider, deliver: observedDelivery, decision: { ...record, decidedBy: host } })
+        : prepareWorkTellingDelivery({ config, provider, deliver: observedDelivery, telling: record });
     if (thunk === undefined) throw new TypeError("no work peer is configured");
     await thunk();
   };
   const result = await shipWorkSince({ entries: outbound, shipped: readShipped(binding.dataRoot), ship });
   noteShipped(binding.dataRoot, result.shipped.map(({ id }) => id));
-  return result;
+  return Object.freeze({ ...result, peers: Object.freeze([...observations].map(([peer, observation]) => Object.freeze({ peer, shipped: observation.shipped, failed: Object.freeze(observation.failed) }))) });
 }
 
 /**
@@ -242,6 +256,26 @@ export function catchUpOutcome({ shipped, failed }, presence = "continuous") {
   return Object.freeze({ shipped: shipped.length, ...(held.length === 0 ? {} : { held: held.length, peer: "away" }) });
 }
 
+/**
+ * Keep what one catch-up run says of the work peer's liveness in the node journal, and read it back:
+ * the peer's FOUR reading (unknown while it is away and below its threshold, or always when it is
+ * known-intermittent) and its silence in seconds. A run that fails still keeps its witness first.
+ */
+export function noteWorkPeerLiveness({ config, binding, host, result, now = new Date(binding.now?.() ?? Date.now()).toISOString() }) {
+  if (config.deliverWorkToPeer === false) return Object.freeze({});
+  const peers = result.peers ?? [];
+  if (peers.length === 0) return Object.freeze({});
+  const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: PEER_LIVENESS_KIND });
+  const readings = peers.map(({ peer, shipped, failed }) => {
+    const noted = notePeerRun(journal, {
+      observer: host, peer, now, shipped, failed,
+      presence: config.workPeerPresence, thresholdSeconds: config.workPeerSuspicionSeconds,
+    });
+    return Object.freeze({ peer, liveness: noted.reading, ...(noted.silentSeconds === undefined ? {} : { silentSeconds: Math.round(noted.silentSeconds) }) });
+  });
+  return Object.freeze({ peers: Object.freeze(readings), ...(readings.length === 1 ? { liveness: readings[0].liveness, ...(readings[0].silentSeconds === undefined ? {} : { silentSeconds: readings[0].silentSeconds }) } : {}) });
+}
+
 /** The operation a node schedule runs to keep the work peer current (MetroPlat instance `schedules`). */
 export function workReplicationOperations({ config, binding, provider, host }) {
   return Object.freeze([operation({
@@ -251,6 +285,10 @@ export function workReplicationOperations({ config, binding, provider, host }) {
     description: "Domain: {}. Ships this board's told moves (openings and tellings) the peer has not received, and the coordinated moves this node decided on threads homed here. Idempotent; a failed delivery is sent again on the next run.",
     relation: "boundary",
     effects: { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "schema-bounded" },
-    run: async () => catchUpOutcome(await catchUpWorkPeer({ config, provider: provider(), binding, host }), config.workPeerPresence),
+    run: async () => {
+      const result = await catchUpWorkPeer({ config, provider: provider(), binding, host });
+      const liveness = noteWorkPeerLiveness({ config, binding, host, result });
+      return Object.freeze({ ...catchUpOutcome(result, config.workPeerPresence), ...liveness });
+    },
   })]);
 }

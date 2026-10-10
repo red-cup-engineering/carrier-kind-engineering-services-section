@@ -51,7 +51,7 @@
   "dependencies": {
     "@red-cup-engineering/computer": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "scripts": {
     "test": "node --test src/*.test.mjs"

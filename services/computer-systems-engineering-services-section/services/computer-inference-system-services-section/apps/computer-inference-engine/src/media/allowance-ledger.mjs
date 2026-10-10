@@ -21,14 +21,19 @@
  *
  * A hold is admitted when the allowance read with every live hold pending still holds the kind
  * to fit. With `probe`, a consumer may also take one hold where the fit is unknown: its success
- * or refusal is how an unstated price or budget is learned. Admission, attempt and settlement are
- * each one IMMEDIATE transaction, so concurrent consumers on one host serialize on the store.
+ * or refusal is how an unstated price or budget is learned. Admission, attempt and settlement each
+ * run under the journal's writer lock, so concurrent consumers on one host serialize on the ledger.
+ *
+ * The ledger is a semantic-record journal (`ledger-journal.mjs`): evidence, every state a hold
+ * passes through, and every changed declaration are told records appended in order, and a reading
+ * folds them; the last state recorded for a hold or declaration is the one that stands. A SQLite
+ * ledger left at the store path from before is admitted into the journal once, read-only.
  */
-import { DatabaseSync } from "node:sqlite";
 import { createHash, randomUUID } from "node:crypto";
-import { mkdirSync } from "node:fs";
 import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
+import { openLedgerJournal } from "./ledger-journal.mjs";
+import { admitSqlOnce, allowanceLedgerSqlRows } from "./import-sql-ledger.mjs";
 import { admitAllowanceEvidence, allowanceLapses, readAllowance } from "@red-cup-engineering/organizing/enterprise";
 
 const MINUTE = 60_000;
@@ -49,44 +54,40 @@ const instant = (value, what) => {
 };
 const sourceOf = (entry) => entry.source ?? `sha256:${createHash("sha256").update(JSON.stringify(entry)).digest("hex")}`;
 
+const OBJECT_KIND = "inference.allowance-ledger";
+const plain = (value) => JSON.parse(JSON.stringify(value));
+const byAt = (a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0);
+/** The last record per key, in the order each key was first seen. */
+const latest = (records, keyOf) => { const held = new Map(); for (const record of records) held.set(keyOf(record), record); return [...held.values()]; };
+
 function openLedger(path) {
-  mkdirSync(dirname(path), { recursive: true });
-  const db = new DatabaseSync(path);
-  db.exec(`PRAGMA busy_timeout = 5000;
-    CREATE TABLE IF NOT EXISTS allowance_evidence (allowance TEXT NOT NULL, source TEXT NOT NULL, at TEXT NOT NULL, entry TEXT NOT NULL, PRIMARY KEY (allowance, source));
-    CREATE TABLE IF NOT EXISTS allowance_hold (id TEXT PRIMARY KEY, allowance TEXT NOT NULL, state TEXT NOT NULL, hold TEXT NOT NULL);
-    CREATE INDEX IF NOT EXISTS allowance_hold_live ON allowance_hold (allowance, state);
-    CREATE TABLE IF NOT EXISTS allowance_declaration (allowance TEXT PRIMARY KEY, at TEXT NOT NULL, declaration TEXT NOT NULL);`);
-  const evidenceRows = db.prepare("SELECT entry FROM allowance_evidence WHERE allowance = ? ORDER BY at");
-  const insertEvidence = db.prepare("INSERT INTO allowance_evidence (allowance, source, at, entry) VALUES (?, ?, ?, ?) ON CONFLICT DO NOTHING");
-  const holdRow = db.prepare("SELECT hold FROM allowance_hold WHERE id = ?");
-  const liveRows = db.prepare(`SELECT hold FROM allowance_hold WHERE allowance = ? AND state IN (${LIVE.map(() => "?").join(", ")})`);
-  const allRows = db.prepare("SELECT hold FROM allowance_hold WHERE allowance = ?");
-  const writeHold = db.prepare("INSERT INTO allowance_hold (id, allowance, state, hold) VALUES (?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET state = excluded.state, hold = excluded.hold");
-  const writeDeclaration = db.prepare("INSERT INTO allowance_declaration (allowance, at, declaration) VALUES (?, ?, ?) ON CONFLICT (allowance) DO UPDATE SET at = excluded.at, declaration = excluded.declaration WHERE allowance_declaration.declaration <> excluded.declaration");
-  const declarationRows = db.prepare("SELECT allowance, at, declaration FROM allowance_declaration ORDER BY allowance");
-  const poolRows = db.prepare("SELECT allowance FROM allowance_evidence UNION SELECT allowance FROM allowance_hold UNION SELECT allowance FROM allowance_declaration ORDER BY allowance");
-  const rawEvidenceRows = db.prepare("SELECT entry FROM allowance_evidence WHERE allowance = ? AND at >= ? ORDER BY at");
-  const store = {
-    evidence: (allowance) => admitAllowanceEvidence(evidenceRows.all(allowance).map(({ entry }) => JSON.parse(entry))),
+  const journal = openLedgerJournal(path, OBJECT_KIND);
+  admitSqlOnce(journal, path, allowanceLedgerSqlRows);
+  const evidenceOf = (allowance) => latest(journal.read("evidence").filter((row) => row.allowance === allowance).reverse(), (row) => row.source).reverse().sort(byAt);
+  const holdsOf = (allowance) => latest(journal.read("hold").filter((row) => allowance === undefined || row.allowance === allowance), (row) => row.id);
+  const declarationsOf = () => latest(journal.read("declaration"), (row) => row.allowance);
+  return {
+    evidence: (allowance) => admitAllowanceEvidence(evidenceOf(allowance).map((row) => row.entry)),
     record: (allowance, entry) => {
       const source = sourceOf(entry);
-      return insertEvidence.run(allowance, source, entry.at, JSON.stringify({ ...entry, source })).changes > 0;
+      if (journal.read("evidence").some((row) => row.allowance === allowance && row.source === source)) return false;
+      journal.record("evidence", plain({ allowance, source, at: entry.at, entry: { ...entry, source } }));
+      return true;
     },
-    hold: (id) => { const row = holdRow.get(id); return row ? JSON.parse(row.hold) : null; },
-    holds: (allowance, { all = false } = {}) => (all ? allRows.all(allowance) : liveRows.all(allowance, ...LIVE)).map(({ hold }) => JSON.parse(hold)),
-    write: (hold) => { writeHold.run(hold.id, hold.allowance, hold.state, JSON.stringify(hold)); return Object.freeze(hold); },
-    declare: (allowance) => writeDeclaration.run(allowance.id, new Date().toISOString(), JSON.stringify(allowance)),
-    declarations: () => declarationRows.all().map(({ allowance, at, declaration }) => ({ allowance, at, declaration: JSON.parse(declaration) })),
-    pools: () => poolRows.all().map(({ allowance }) => allowance),
-    rawEvidence: (allowance, since) => rawEvidenceRows.all(allowance, since).map(({ entry }) => JSON.parse(entry)),
-    transaction: (work) => {
-      db.exec("BEGIN IMMEDIATE");
-      try { const result = work(); db.exec("COMMIT"); return result; } catch (error) { db.exec("ROLLBACK"); throw error; }
+    hold: (id) => holdsOf().find((row) => row.id === id)?.hold ?? null,
+    holds: (allowance, { all = false } = {}) => holdsOf(allowance).filter((row) => all || LIVE.includes(row.state)).map((row) => row.hold),
+    write: (hold) => { journal.record("hold", plain({ id: hold.id, allowance: hold.allowance, state: hold.state, hold })); return Object.freeze(hold); },
+    declare: (allowance) => {
+      const held = declarationsOf().find((row) => row.allowance === allowance.id);
+      const declaration = plain(allowance);
+      if (held === undefined || JSON.stringify(held.declaration) !== JSON.stringify(declaration)) journal.record("declaration", { allowance: allowance.id, at: new Date().toISOString(), declaration });
     },
-    close: () => db.close(),
+    declarations: () => declarationsOf().sort((a, b) => a.allowance.localeCompare(b.allowance)).map(({ allowance, at, declaration }) => ({ allowance, at, declaration })),
+    pools: () => [...new Set([...journal.read("evidence"), ...journal.read("hold"), ...journal.read("declaration")].map((row) => row.allowance))].sort(),
+    rawEvidence: (allowance, since) => evidenceOf(allowance).filter((row) => row.at >= since).map((row) => row.entry),
+    transaction: (work) => journal.exclusively(work),
+    close: () => {},
   };
-  return store;
 }
 
 const withLedger = (storePath, work, allowance) => {
@@ -229,6 +230,9 @@ export function readAllowanceLedger(allowance, { storePath, now = new Date() }) 
     return Object.freeze({ reading: readAllowance(allowance, evidence, { now: at, pending: pendingOf(holds) }), holds: Object.freeze(holds) });
   }, allowance);
 }
+
+/** Every entry the ledger holds as evidence for an allowance, in the order of its instants. */
+export const allowanceLedgerEvidence = (allowanceId, { storePath }) => withLedger(storePath, (store) => store.rawEvidence(allowanceId, ""));
 
 /** What the allowance lapsed between `since` and `now`, live holds counted as spent. */
 export function allowanceLedgerLapses(allowance, { storePath, since, now = new Date() }) {

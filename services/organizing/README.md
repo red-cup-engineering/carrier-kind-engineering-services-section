@@ -55,6 +55,10 @@ const org = adjudicateAction.run({ community, contributions: [...] }, {});
 import { ... } from "@red-cup-engineering/agentic-organization-engine";    // full surface
 ```
 
+## Cell evidence
+
+`./cells` (and `./cells/<module>`) holds the pre-effect evidence an agent acting as one cell in a mesh keeps apart, each derived by a pure function from source-bound assertions and never supplied as a conclusion: `visibility` (a boundary observation classified conservatively, so a partial or errored view is never absence evidence), `carrier` (which surface is canonical for which effect domain; availability never changes canonicality), `handoff` (a transfer binds its epoch, predecessor, successor and subject to a witness or lease), `custody`, `representation` and `receiving` (FOUR "extremal" standings from affirming and denying assertions; a producer cannot self-satisfy independent receiving), `trace-context` (W3C traceparent version 00, correlation only) and `workload-identity` (SPIFFE IDs, identifier only). Nothing here grants authority, an office or a capability; the effect gate that composes them with office standing and capability is not carried.
+
 ## RelMath Realization
 
 Organizing's work-item dependency graphs can now be graded by the finite causal surface: `analysis.causal.settleCausalSet`, `analysis.causal.apexCount`, and the Myrheim-Meyer geometry/topology witness give exact order, apex, and obstruction reads.

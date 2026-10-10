@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { runOpenAiCompatibleChatExchange, tokenUsage, validateChatCompletionPacket, selectNextProvider, isRateLimitRefusal, resolveAttemptPacket, dispatchChatCompletionInOrder } from "../../src/openai/openai-compatible-chat-completion.mjs";
+import { runOpenAiCompatibleChatExchange, tokenUsage, validateChatCompletionPacket, selectNextProvider, isRateLimitRefusal, resolveAttemptPacket, dispatchChatCompletionInOrder, isZeroCashProvider } from "../../src/openai/openai-compatible-chat-completion.mjs";
 
 const PACKET = { model: "test-model", messages: [{ role: "user", content: "hi" }] };
 const CONFIG = { providerId: "test-provider", chatCompletionsUrl: "https://example.invalid/v1/chat/completions", apiKey: "secret" };
@@ -241,4 +241,14 @@ test("ordered dispatch admits explicit unauthenticated loopback and still skips 
   } });
   assert.equal(result.ok, true);
   assert.deepEqual(result.tried.map(({ providerId, outcome }) => [providerId, outcome]), [["cloud", "misconfigured"], ["local", "completion"]]);
+});
+
+test("the admitted OpenRouter :free model is machine-readable zero-cash capacity", () => {
+  const catalogPath = fileURLToPath(new URL("../../content/openai/providers/catalog.json", import.meta.url));
+  const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
+  const row = catalog.rows.find((candidate) => candidate.providerId === "openrouter-cohere-north");
+  assert.ok(row);
+  assert.match(row.defaultModel, /:free$/u);
+  assert.equal(isZeroCashProvider(row, row.defaultModel), true);
+  assert.equal(isZeroCashProvider(row, "cohere/north-mini-code"), false);
 });

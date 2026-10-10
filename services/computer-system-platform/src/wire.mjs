@@ -1,7 +1,7 @@
 import { COMPUTER_ENGINEERING_SPECIFICATION_ID } from "@red-cup-engineering/computer-system-engine/specification";
-import { admit } from "@red-cup-engineering/computer-data-services-section/type-system";
-import { TYPED_OPERATION_MESSAGE_VERSION as VERSION, TYPED_OPERATION_REQUEST_KIND as REQUEST, TYPED_OPERATION_RESULT_KIND as RESULT, TYPED_OPERATION_REFUSAL_KIND as REFUSAL, typedOperationRequestType as REQUEST_TYPE, typedOperationResultType as RESULT_TYPE, typedOperationRefusalType as REFUSAL_TYPE } from "@red-cup-engineering/computer-data-services-section/typed-operation-message";
-import { admitRelationalFieldDocument, relationalFieldDocument } from "@red-cup-engineering/computer-data-services-section/type-system/relations";
+import { admit } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { TYPED_OPERATION_MESSAGE_VERSION as VERSION, TYPED_OPERATION_REQUEST_KIND as REQUEST, TYPED_OPERATION_RESULT_KIND as RESULT, TYPED_OPERATION_REFUSAL_KIND as REFUSAL, typedOperationRequestType as REQUEST_TYPE, typedOperationResultType as RESULT_TYPE, typedOperationRefusalType as REFUSAL_TYPE } from "@red-cup-engineering/computer-data-engineering-services-section/typed-operation-message";
+import { admitRelationalFieldDocument, relationalFieldDocument } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/relations";
 
 const refusal = (code, message) => Object.freeze({ ok: false, refusal: Object.freeze({ code, message }) });
 const accepted = (value) => Object.freeze({ ok: true, value });

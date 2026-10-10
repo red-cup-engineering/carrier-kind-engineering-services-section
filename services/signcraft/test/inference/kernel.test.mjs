@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { knowledgeJoinReading as joinK, knowledgeMeetReading as meetK, truthJoinReading as joinT, truthMeetReading as meetT, negateReading as negate, knowledgeLeqReading as leqK, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading as joinK, knowledgeMeetReading as meetK, truthJoinReading as joinT, truthMeetReading as meetT, negateReading as negate, knowledgeLeqReading as leqK, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { makeContext, closeAttrs, dgBasis, impClosure } from "@red-cup-engineering/metrologic/closure/formal-context";
 import { kHeight, makeValuation, withReading, readingAt, sigma, delta, settle, stepLedger, settlingDefect } from "../../src/inference/nuclei.mjs";
 import { makeComplex, withConductance, disagreementEnergy, spectralGap, refusalNumber } from "../../src/inference/complex.mjs";

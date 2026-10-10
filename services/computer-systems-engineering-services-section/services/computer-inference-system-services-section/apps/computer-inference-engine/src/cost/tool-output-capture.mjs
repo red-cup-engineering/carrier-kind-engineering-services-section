@@ -4,7 +4,7 @@ import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import { applyCompaction, planCompaction } from "@red-cup-engineering/computer-inference-engine/tokens/token-compactification";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export const DEFAULT_CAPTURE_BYTES = 64 * 1024 * 1024;
 export const DEFAULT_RENDER_BYTES = 12 * 1024;

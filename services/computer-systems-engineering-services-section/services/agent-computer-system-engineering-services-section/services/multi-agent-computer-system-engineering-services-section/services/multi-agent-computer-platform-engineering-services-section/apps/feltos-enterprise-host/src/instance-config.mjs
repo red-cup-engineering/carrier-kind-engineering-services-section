@@ -177,6 +177,11 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
   if (!WORK_PEER_PRESENCES.includes(workPeerPresence)) {
     throw new TypeError(`METROPLAT_WORK_PEER_PRESENCE must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
   }
+  const suspicionSetting = setting("METROPLAT_WORK_PEER_SUSPICION_SECONDS") ?? installed.web.workPeerSuspicionSeconds;
+  const workPeerSuspicionSeconds = suspicionSetting === undefined ? undefined : Number(suspicionSetting);
+  if (workPeerSuspicionSeconds !== undefined && !(Number.isInteger(workPeerSuspicionSeconds) && workPeerSuspicionSeconds > 0)) {
+    throw new TypeError("METROPLAT_WORK_PEER_SUSPICION_SECONDS must be a positive whole number of seconds");
+  }
   return Object.freeze({
     instance: Object.freeze({
       name: installed.identity.id,
@@ -205,7 +210,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     activityPubProjection: projection,
     workPeers,
     peeringOffice: installed.web.peeringOffice ?? installed.identity.id,
-    ...(workPeers.length === 0 ? {} : { workPeerPresence }),
+    ...(workPeers.length === 0 ? {} : { workPeerPresence, ...(workPeerSuspicionSeconds === undefined ? {} : { workPeerSuspicionSeconds }) }),
     deliverWorkToPeer: installed.web.deliverWorkToPeer !== false,
   });
 }

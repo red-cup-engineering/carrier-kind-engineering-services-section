@@ -33,7 +33,7 @@
  *     violence, no power held without a duty, no charismatic instability. Domination is exercised by
  *     whoever decides, so whoever decides makes the claim. A body no one decides in makes none: ⊥.
  */
-import { knowledgeJoinAll, truthMeetAll } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinAll, truthMeetAll } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { coalitionLattice, holdingsOfRelations } from "@red-cup-engineering/socializing/coalition";
 import { effectivityDual, effectivitySpace } from "@red-cup-engineering/socializing/effectivity";
 import { admitJuralRelations, readJuralRelations } from "@red-cup-engineering/socializing/jural";

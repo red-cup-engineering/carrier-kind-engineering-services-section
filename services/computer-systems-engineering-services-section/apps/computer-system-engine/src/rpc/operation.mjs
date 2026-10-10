@@ -20,9 +20,9 @@ import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/
 import { mark, utterance } from "@red-cup-engineering/signcell/utterance";
 import { createOperationExecutor } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { schemaFrom, schemaFromGraph } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { shiftSen, tm, ty } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { checkTy, tyEqual } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
-import { decodeDescriptor, descriptorTy, encodeDescriptor } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { shiftSen, tm, ty } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { checkTy, tyEqual } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
+import { decodeDescriptor, descriptorTy, encodeDescriptor } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { evaluate } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/eval";
 import { evaluateRunTerm, primitives } from "@red-cup-engineering/signcraft/primitives";
 import { jsonResource, canonicalJson, canonicalizeJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section";

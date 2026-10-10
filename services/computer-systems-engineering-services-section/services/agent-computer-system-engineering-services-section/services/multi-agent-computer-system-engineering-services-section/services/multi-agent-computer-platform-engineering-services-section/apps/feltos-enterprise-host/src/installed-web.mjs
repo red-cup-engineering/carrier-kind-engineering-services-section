@@ -31,7 +31,7 @@ export async function installedEnterpriseWeb(hostPath) {
     throw new TypeError("FeltOS enterprise host web declaration must be an object");
   }
   const web = host.web;
-  const unsupportedWeb = Object.keys(web).filter((key) => !["instructions", "cookiePrefix", "defaultPaths", "environmentAliases", "networkSources", "companions", "workPeerActor", "workPeers", "peeringOffice", "workPeerPresence", "deliverWorkToPeer"].includes(key));
+  const unsupportedWeb = Object.keys(web).filter((key) => !["instructions", "cookiePrefix", "defaultPaths", "environmentAliases", "networkSources", "companions", "workPeerActor", "workPeers", "peeringOffice", "workPeerPresence", "workPeerSuspicionSeconds", "deliverWorkToPeer"].includes(key));
   if (unsupportedWeb.length > 0) throw new TypeError(`Enterprise host web declaration has unsupported fields: ${unsupportedWeb.join(", ")}`);
   if (web.workPeerPresence !== undefined && !WORK_PEER_PRESENCES.includes(web.workPeerPresence)) {
     throw new TypeError(`Enterprise host web workPeerPresence must be one of ${WORK_PEER_PRESENCES.join(", ")}`);

@@ -17,7 +17,7 @@
   "dependencies": {
     "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
     "@red-cup-engineering/computer-inference-engine": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/ebook-production-services-section": "workspace:*",
     "@red-cup-engineering/voice-audio-services-section": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",
@@ -31,7 +31,7 @@
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/rdf-data-model-services-section": "workspace:*",
     "@red-cup-engineering/web-theming-service": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-code-development-engine": "workspace:*"
   },
   "scripts": {

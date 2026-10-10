@@ -11,7 +11,7 @@
  * name that later research contradicts stays contested rather than silently overwritten.
  * @packageDocumentation
  */
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /**
  * The declared defaults of the heir-search enterprise's pricing axes (its agency record's settings);

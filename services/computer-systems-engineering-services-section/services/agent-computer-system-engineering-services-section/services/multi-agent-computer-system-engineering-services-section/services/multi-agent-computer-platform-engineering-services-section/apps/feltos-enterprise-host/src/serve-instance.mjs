@@ -27,8 +27,8 @@ import { processLeaseCoordinator } from "@red-cup-engineering/computer-system-en
 import { parseEnvFileText } from "@red-cup-engineering/key-management-services-section/env-file";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
 import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
-import { systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
-import { mergeSettlementTransfer, settlementHoldings } from "@red-cup-engineering/computer-system-engine/journal/exchange";
+import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse, SETTLEMENT_EXCHANGE_PATHS } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { mergeSettlementTransfer, settlementHoldings, settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { createEnterpriseEntrance } from "./entrance.mjs";
 import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment } from "./activitypub-node.mjs";
 import { enterpriseWebConfig } from "./instance-config.mjs";
@@ -100,16 +100,22 @@ function clockConfiguration(environment, declaredClock) {
   return Object.freeze({ subject, intervalMs });
 }
 
+export function companionListenOptions(companion, settings = {}, environment = {}) {
+  const host = settings.HOST ?? companion.host ?? environment.HOST ?? "127.0.0.1";
+  const port = Number(settings.PORT ?? companion.port);
+  if (typeof host !== "string" || host.trim() === "") throw new TypeError("Enterprise host companion host must be a nonempty string");
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) throw new TypeError("Enterprise host companion port must be an integer from 1 to 65535");
+  return Object.freeze({ host, port });
+}
+
 async function startCompanion(companion, environment) {
   const file = environment[companion.environmentFileKey]?.trim();
   if (!file) return Object.freeze({ skipped: true, close: async () => undefined });
   const settings = parseEnvFileText(readFileSync(file, "utf8"));
   const app = await companion.factory(settings);
-  const service = await startNativeApplication(app, {
-    host: settings.HOST ?? "127.0.0.1",
-    port: Number(settings.PORT ?? companion.port),
-  });
-  process.stderr.write(`[feltos-enterprise-host] companion ${companion.module} on ${settings.HOST ?? "127.0.0.1"}:${service.port}\n`);
+  const listen = companionListenOptions(companion, settings, environment);
+  const service = await startNativeApplication(app, listen);
+  process.stderr.write(`[feltos-enterprise-host] companion ${companion.module} on ${listen.host}:${service.port}\n`);
   return service;
 }
 
@@ -508,10 +514,10 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
   const nodeKey = systemNodeKeyFromProcessEnvironment(environment);
   if (node !== undefined && node.origin !== config.publicBaseUrl) throw new TypeError("System node origin differs from the instance origin");
   if (node !== undefined && nodeKey === undefined) throw new TypeError("A federating System node requires SYSTEM_NODE_KEY");
-  const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey);
+  const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey, fetch, { declaredKeys: systemNodeDeclaredPeerKeys(environment, node) });
   const settlementGrants = node === undefined ? undefined : systemSettlementFeedGrants(environment, node);
   const rootRoutes = node === undefined ? [] : [systemNodeResource(node)];
-  if (peering !== undefined) for (const pathname of ["/settlement/holdings", "/settlement/transfer"]) {
+  if (peering !== undefined) for (const pathname of SETTLEMENT_EXCHANGE_PATHS) {
     rootRoutes.push({
       id: `system${pathname.replaceAll("/", ".")}`,
       match: pathname,
@@ -523,6 +529,7 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
           feedLabelsFor: settlementGrants.labelsFor,
           holdings: (date, feedLabels) => settlementHoldings(config.metroplatDataRoot, date, { feedLabels }),
           merge: (transfer, feedLabels) => mergeSettlementTransfer(config.metroplatDataRoot, transfer, { feedLabels }),
+          transfer: (date, holdings, limit, feedLabels) => settlementTransfer(config.metroplatDataRoot, date, holdings, { limit, feedLabels }),
         });
         return Response.json(answer.value, { status: answer.status });
       },

@@ -58,7 +58,7 @@ import { sectionEavtEvidence } from "@red-cup-engineering/eavt/section-eavt-evid
 import { settleEavtEvidence } from "@red-cup-engineering/eavt/settle-eavt-evidence";
 import { unique as dedupe } from "@red-cup-engineering/eavt/deduplicate-rows";
 import { sectionSpace } from "@red-cup-engineering/metrologic/articulation/predicating/positing/independent-evidence";
-import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 const rowId = (row) => identifyContentAddressedRow({ row }).identity;
 const isReadingInKnowledge = (name) => isReading(name, "knowledge");
  // the four-bilattice values (stable = a held disagreement) + their predicates

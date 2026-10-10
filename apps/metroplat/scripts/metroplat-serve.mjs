@@ -41,8 +41,8 @@ import { AGENT_WORKER_STAGE_VERBS, runAgentWorkerEngine } from "@red-cup-enginee
 import { grantAssertion } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 import { admitCapabilityAssertions, readCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
 import { activateHttpRequestedCapabilities, httpProcessConfig } from "@red-cup-engineering/metroplat/http-options";
-import { systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering } from "@red-cup-engineering/computer-system-engine/rpc/node";
-import { mergeSettlementTransfer, settlementHoldings } from "@red-cup-engineering/computer-system-engine/journal/exchange";
+import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { mergeSettlementTransfer, settlementHoldings, settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { resolveInfographProcessOptions } from "@red-cup-engineering/metroplat/process-options";
 import { installedMetroplatFromProcessOptions } from "@red-cup-engineering/metroplat/instance";
 import { firmPoolAuthorityResolver } from "@red-cup-engineering/metroplat/firm-pool-authority";
@@ -82,7 +82,7 @@ async function main() {
   const node = systemNodeFromProcessEnvironment(processEnvironment());
   const nodeKey = systemNodeKeyFromProcessEnvironment(processEnvironment());
   // A node with a key exchanges only feeds explicitly granted to each peer.
-  const peering = node === undefined || nodeKey === undefined ? undefined : systemSettlementPeering(node, nodeKey);
+  const peering = node === undefined || nodeKey === undefined ? undefined : systemSettlementPeering(node, nodeKey, fetch, { declaredKeys: systemNodeDeclaredPeerKeys(processEnvironment(), node) });
   const settlementGrants = node === undefined ? undefined : systemSettlementFeedGrants(processEnvironment(), node);
   // --fern/--operations-root resolve exactly as they do at the CLI and MCP
   // process boundaries (../src/process-options.mjs); httpConfig
@@ -231,6 +231,7 @@ async function main() {
         feedLabelsFor: settlementGrants.labelsFor,
         holdings: (date, feedLabels) => settlementHoldings(dataRoot, date, { feedLabels }),
         merge: (transfer, feedLabels) => mergeSettlementTransfer(dataRoot, transfer, { feedLabels }),
+        transfer: (date, holdings, limit, feedLabels) => settlementTransfer(dataRoot, date, holdings, { limit, feedLabels }),
       },
     }),
     ...(rootApex === undefined ? {} : { rootApex }),

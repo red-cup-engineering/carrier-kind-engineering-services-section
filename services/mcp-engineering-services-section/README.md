@@ -10,7 +10,8 @@ The house's one Model Context Protocol implementation. Every MCP server and clie
 - `scripts/call-tool.mjs`: make one authenticated HTTP tool call with JSON on stdin and only the tool value on stdout; `--input-key` wraps carrier input and repeatable `--argument name=value` adds fixed host-supplied fields.
 - `./tool-binding`: `bindMcpTools` turns an explicitly granted subset of a server's tools into function-calling tools.
 - `./client-endpoint`: the JSON carrier for stdio and HTTP client configuration.
-- `./catalog`: admission of external tool catalogs, and tool refusals.
+- `./catalog`: admission of external tool catalogs, and tool refusals. `assayMcpCatalogDispatch` assays exact `tools/list` to `tools/call` name transport; an underscore-or-hyphen near miss is reported as evidence and is never an alias.
+- `./modern`: the 2026-07-28 modern stateless era as a named compatibility boundary, not a conformance claim: `mcpProtocolEra`, `MCP_PROTOCOL_MIGRATION_PROFILE` (not ready, with its blockers), `mcpModernRouteHeaders`, and `assayMcpModernRequest`, which checks a request's per-request `_meta` and routing headers against its body. `initialize` still negotiates only `MCP_PROTOCOL_VERSIONS`.
 - `./articulating-tools`: the articulating apex's actions as tools.
 
 Authorization servers live in `oauth-services-section`; what a server offers lives with the system that serves it.

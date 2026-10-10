@@ -14,8 +14,8 @@ import { randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
 import test from "node:test";
-import { admitTypeSystemDocument } from "@red-cup-engineering/computer-data-services-section/type-system/document";
-import { getType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { admitTypeSystemDocument } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/document";
+import { getType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 
 const SERVER_SCRIPT = new URL("../scripts/serve-verbs-over-stdio.mjs", import.meta.url).pathname;
 const EAVT_VERBS = "@red-cup-engineering/eavt/verbs";

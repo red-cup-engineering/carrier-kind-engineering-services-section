@@ -10,6 +10,7 @@
     "./tool-binding": "./src/tool-binding.mjs",
     "./client-endpoint": "./src/client-endpoint.mjs",
     "./catalog": "./src/catalog.mjs",
+    "./modern": "./src/modern.mjs",
     "./articulating-tools": "./src/articulating-tools.mjs",
     "./federation": "./src/federation.mjs",
     "./scripts/bridge-mcp-server": "./scripts/bridge-mcp-server.mjs",
@@ -31,7 +32,7 @@
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/oauth-services-section": "workspace:*",
     "@red-cup-engineering/signcell": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "bin": {
     "bridge-mcp-server": "scripts/bridge-mcp-server.mjs",
