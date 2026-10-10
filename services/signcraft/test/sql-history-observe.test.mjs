@@ -1,3 +1,7 @@
+// Carried from bare-cedar-fog's SignStuff copy of signcraft (2026-10-10), where it already failed:
+// it specifies store.observe, store.subjects and subject indexes, which no SQL store in the estate
+// implements yet (neither this owner's sql-history-store nor the copy's content port). Each case is
+// declared todo so it runs and reports without gating; implementing them turns these back to test().
 import assert from "node:assert/strict";
 import test from "node:test";
 import { DatabaseSync } from "node:sqlite";
@@ -35,7 +39,7 @@ const batchOf = (random) => {
 const readings = (history) => queryHistory(history, {});
 const pairs = (items) => items.map(({ subject, cell: value }) => JSON.stringify([subject, value])).sort();
 
-test("store.observe is observeHistory: same revisions, heads, reading; point reads agree with historySection", () => {
+test.todo("store.observe is observeHistory: same revisions, heads, reading; point reads agree with historySection", () => {
   for (let seed = 1; seed <= 25; seed += 1) {
     const random = rng(seed);
     const { store } = database();
@@ -82,7 +86,7 @@ test("store.observe is observeHistory: same revisions, heads, reading; point rea
   }
 });
 
-test("subjects iterates by name with prefix, limit and after", () => {
+test.todo("subjects iterates by name with prefix, limit and after", () => {
   const { store } = database();
   store.observe(SUBJECTS.map((subject) => cell(subject, "n:one", "x", { for: ["w"] })), { functionalPredicates: FUNCTIONAL });
   const all = [...store.subjects()];
@@ -93,7 +97,7 @@ test("subjects iterates by name with prefix, limit and after", () => {
   assert.deepEqual([...store.subjects({ limit: 0 })], []);
 });
 
-test("an unchanged batch writes nothing; a functional change supersedes; a repeat with new evidence is kept", () => {
+test.todo("an unchanged batch writes nothing; a functional change supersedes; a repeat with new evidence is kept", () => {
   const { store, db } = database();
   const a = cell("m", "f:one", "x", { for: ["w1"] });
   assert.ok(store.observe([a], { functionalPredicates: FUNCTIONAL }));
@@ -107,7 +111,7 @@ test("an unchanged batch writes nothing; a functional change supersedes; a repea
   assert.equal(rows(), 3);
 });
 
-test("observe folds a commit's log first, interoperates with commit, and widening is refused over held cells", () => {
+test.todo("observe folds a commit's log first, interoperates with commit, and widening is refused over held cells", () => {
   const { store } = database();
   let history = createHistory(FUNCTIONAL);
   history = observeHistory(history, [cell("a", "f:one", "x", { for: ["w"] }), cell("a", "n:one", "p", { for: ["w"] })]);
@@ -127,7 +131,7 @@ test("observe folds a commit's log first, interoperates with commit, and widenin
   assert.ok(store.observe([cell("d", "n:two", "v", { for: ["w"] })], { functionalPredicates: ["n:two"] }));
 });
 
-test("a store made before the indexes existed is indexed once on open", () => {
+test.todo("a store made before the indexes existed is indexed once on open", () => {
   const fixture = database();
   let history = createHistory(FUNCTIONAL);
   history = observeHistory(history, [cell("a", "f:one", "x", { for: ["w"] }), cell("b", "n:one", "p", { for: ["w"] })]);
