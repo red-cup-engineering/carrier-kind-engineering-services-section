@@ -54,7 +54,8 @@
   },
   "scripts": {
     "check:activitypub-node": "node scripts/check-activitypub-node.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "check:memory-budget": "node scripts/check-memory-budget.mjs"
   },
   "softwareKind": "service"
 }
