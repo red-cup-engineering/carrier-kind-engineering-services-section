@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validateJson } from "@red-cup-engineering/validate-json-service";
+import { validateJson } from "@red-cup-engineering/json-schema-services-section/validation";
 
 import admitPoolMemberInput from "../data/records/schema/admit-pool-member.input.schema.json" with { type: "json" };
 import admitPoolMemberOutput from "../data/records/schema/admit-pool-member.output.schema.json" with { type: "json" };
