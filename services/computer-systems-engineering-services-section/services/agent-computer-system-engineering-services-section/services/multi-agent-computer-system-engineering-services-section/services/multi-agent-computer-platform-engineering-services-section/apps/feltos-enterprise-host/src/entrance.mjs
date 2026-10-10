@@ -24,9 +24,37 @@ const requestHost = (ctx) => String(ctx.request?.headers.get("host") ?? firstHea
 const forwardedProto = (ctx) => String(ctx.request?.headers.get("x-forwarded-proto") ?? firstHeader(ctx.req?.headers?.["x-forwarded-proto"]) ?? "")
   .split(",")[0].trim().toLowerCase();
 
-/** Hosted applications answer every request whose Host they name, ahead of the instance's own
- * admission and routes: an application with its own principals and paths (an app at its own
- * hostname) shares the listener without sharing MetroPlat's sign-in or path space. */
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+/** Admit one hosted application at install. Hosting bypasses the instance's admission, so it is
+ * granted only as the deployment declares it: the hosts come from the application entry's
+ * configuration (never from the application, never at runtime), the application must be able to
+ * answer each, and it must declare how it authenticates. `authentication: "none"` makes it
+ * read-only and the entrance refuses every state-changing method; otherwise it names the scheme
+ * that guards its own state changes. An application that declares neither is refused. */
+function admitHosted(entry, supplied, ownHost, hosted) {
+  const declared = entry?.configuration?.hosts;
+  if (!Array.isArray(declared) || declared.length === 0) throw new TypeError("a hosted application's hosts are declared in its deployment configuration (configuration.hosts)");
+  if (typeof supplied.fetch !== "function" || !Array.isArray(supplied.hosts)) throw new TypeError("a hosted MetroPlat application names the hosts it answers and supplies fetch");
+  const { authentication } = supplied;
+  const readOnly = authentication === "none";
+  if (!readOnly && !(authentication !== null && typeof authentication === "object" && typeof authentication.scheme === "string" && authentication.scheme.length > 0)) {
+    throw new TypeError("a hosted application declares its authentication: a scheme guarding its state changes, or \"none\" to be read-only");
+  }
+  for (const host of declared) {
+    if (typeof host !== "string" || !HOSTNAME.test(host)) throw new TypeError(`a hosted application names a lowercase hostname, not ${String(host)}`);
+    if (host === ownHost) throw new TypeError(`${host} is this instance's own host`);
+    if (hosted.has(host)) throw new TypeError(`${host} is named by two hosted applications`);
+    if (!supplied.hosts.includes(host)) throw new TypeError(`the hosted application does not answer for ${host}`);
+    hosted.set(host, Object.freeze({ fetch: supplied.fetch, readOnly }));
+  }
+}
+
+/** Hosted applications answer every request whose Host the deployment declared for them, ahead of
+ * the instance's own admission and routes: an application with its own principals and paths (an
+ * app at its own hostname) shares the listener without sharing MetroPlat's sign-in or path space.
+ * They skip the router, not the journal: the request is traced, and the instance's response hooks
+ * see it, as for any other request. */
 function hostedApplications(hosted, base) {
   if (hosted.size === 0) return {};
   const origin = new URL(base);
@@ -35,6 +63,10 @@ function hostedApplications(hosted, base) {
       const host = requestHost(ctx);
       const target = hosted.get(host);
       if (target === undefined) return undefined;
+      const method = (ctx.request?.method ?? ctx.req?.method ?? "GET").toUpperCase();
+      if (target.readOnly && !SAFE_METHODS.has(method)) {
+        return new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD, OPTIONS", "cache-control": "no-store" } });
+      }
       const proto = ["http", "https"].includes(forwardedProto(ctx)) ? forwardedProto(ctx) : origin.protocol.slice(0, -1);
       const url = new URL(`${ctx.url.pathname}${ctx.url.search}`, `${proto}://${host}`);
       const request = ctx.request !== undefined ? new Request(url, ctx.request) : toWebRequest(ctx.req, { url, signal: ctx.signal });
@@ -185,15 +217,7 @@ export function createEnterpriseEntrance(config, {
     }
     if (supplied.readerAccess) readerAccess.push(supplied.readerAccess);
     if (supplied.hosts !== undefined) {
-      if (!Array.isArray(supplied.hosts) || supplied.hosts.length === 0 || typeof supplied.fetch !== "function") {
-        throw new TypeError("a hosted MetroPlat application names its hosts and supplies fetch");
-      }
-      for (const host of supplied.hosts) {
-        if (typeof host !== "string" || !HOSTNAME.test(host)) throw new TypeError(`a hosted application names a lowercase hostname, not ${String(host)}`);
-        if (host === ownHost) throw new TypeError(`${host} is this instance's own host`);
-        if (hosted.has(host)) throw new TypeError(`${host} is named by two hosted applications`);
-        hosted.set(host, supplied);
-      }
+      admitHosted(entry, supplied, ownHost, hosted);
       continue;
     }
     if (Array.isArray(supplied.applications)) {
