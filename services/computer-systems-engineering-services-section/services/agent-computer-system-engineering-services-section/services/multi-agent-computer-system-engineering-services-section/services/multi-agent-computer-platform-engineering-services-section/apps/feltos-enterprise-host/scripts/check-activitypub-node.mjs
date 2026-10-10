@@ -41,7 +41,7 @@ try {
   const origin = "http://127.0.0.1:18807";
   const repository = checkoutRoot(path.dirname(fileURLToPath(import.meta.url)));
   const agencyRoot = path.join(repository, "lib");
-  const actors = activityPubActorsAtHost({ agencyRoot, host: "bare-cedar-fog", keysDirectory: path.join(state, "keys") });
+  const actors = await activityPubActorsAtHost({ agencyRoot, host: "bare-cedar-fog", keysDirectory: path.join(state, "keys") });
   const requests = [];
   const onActivity = createActivityPubNodeArrivalHandler({
     dataRoot: state,

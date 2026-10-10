@@ -12,7 +12,7 @@
  * A move here is a journal entry `{ id, record }`: `id` its content address (the board journal's
  * own), `record` the move as it was admitted, with the edition that admitted it. A node re-admits
  * every remote move under that recorded edition and never under its own; a move of an edition this
- * release does not realize is kept unread (organizing `isUnreadableMove`), neither refused nor
+ * release does not realize is kept unread (organizing `unreadReasonOf`), neither refused nor
  * played, until a release realizes its edition.
  *
  * Transport reuses the peer federation (`federated-work.mjs`): the same signed openings and
@@ -24,11 +24,12 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
-import { ALWAYS_TOLD_MOVES, isUnreadableMove, moveOf, OPENING_MOVES, readForward, TOLD_MOVES } from "@red-cup-engineering/organizing/enterprise";
+import { ALWAYS_TOLD_MOVES, unreadReasonOf, moveOf, OPENING_MOVES, readForward, TOLD_MOVES } from "@red-cup-engineering/organizing/enterprise";
+import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
-import { homeHostOf, workHomesOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
+import { homeHostOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
 import { notePeerRun, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
 
 /** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
@@ -63,13 +64,13 @@ const kindsOf = (entries) => {
  */
 export function replicableMovesOf(moves, { among = moves } = {}) {
   const kindOf = kindsOf(among);
-  return Object.freeze([...moves].filter(({ record }) => !isUnreadableMove(record) && isReplicable(record, kindOf)).sort(byTimeThenAddress));
+  return Object.freeze([...moves].filter(({ record }) => unreadReasonOf(record) === undefined && isReplicable(record, kindOf)).sort(byTimeThenAddress));
 }
 
 /** The moves of `moves` that are coordinated: played on the thread's own board, never replicated. */
 export function coordinatedMovesOf(moves, { among = moves } = {}) {
   const kindOf = kindsOf(among);
-  return Object.freeze([...moves].filter(({ record }) => !isUnreadableMove(record) && !isReplicable(record, kindOf)).sort(byTimeThenAddress));
+  return Object.freeze([...moves].filter(({ record }) => unreadReasonOf(record) === undefined && !isReplicable(record, kindOf)).sort(byTimeThenAddress));
 }
 
 /**
@@ -88,7 +89,7 @@ export function mergeMoves(local, remote) {
   const coordinated = [];
   for (const entry of remote) {
     if (held.has(entry.id)) continue;
-    if (isUnreadableMove(entry.record)) {
+    if (unreadReasonOf(entry.record) !== undefined) {
       held.set(entry.id, entry);
       unread.push(entry);
       continue;
@@ -137,6 +138,8 @@ const AWAY_CODES = new Set(["ECONNREFUSED", "ECONNRESET", "ENOTFOUND", "EAI_AGAI
  * excused as absence: an error of neither shape stays a failure.
  */
 export function deliveryAway(error) {
+  // A handoff to several peers that failed for more than one is away only if every one of them was.
+  if (error instanceof AggregateError) return error.errors.length > 0 && error.errors.every(deliveryAway);
   const status = error?.statusCode ?? error?.response?.status;
   if (typeof status === "number") return AWAY_STATUSES.has(status);
   for (let cause = error; cause !== undefined && cause !== null; cause = cause.cause) {
@@ -183,10 +186,15 @@ export function failuresSaid(failed, limit = 3) {
 const LEDGER_FILE = "work-peer-shipped.jsonl";
 
 /** The addresses the work peer has received from this settlement, from the ledger kept in its root. */
-export function readShipped(dataRoot) {
+export function readShipped(dataRoot, peer) {
   const path = resolve(dataRoot, LEDGER_FILE);
   if (!existsSync(path)) return new Set();
-  return new Set(readFileSync(path, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line)));
+  const receipts = readFileSync(path, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
+  // Historical bare addresses do not identify a recipient and cannot prove a newly granted peer
+  // has received them. Keep that reader for history; current delivery selects named receipts only.
+  return new Set(receipts.flatMap((receipt) => peer === undefined
+    ? (typeof receipt === "string" ? [receipt] : [])
+    : (receipt?.peer === peer && typeof receipt.id === "string" ? [receipt.id] : [])));
 }
 
 function noteShipped(dataRoot, ids) {
@@ -203,7 +211,7 @@ function noteShipped(dataRoot, ids) {
  * peer admits what it lacks and ignores what it holds.
  */
 export async function catchUpWorkPeer({ config, provider, binding, deliver, host, agencyRoot = config.agencyRoot, enterprises: enterprisesOf }) {
-  if (config.workPeerActor === undefined || config.deliverWorkToPeer === false) return Object.freeze({ shipped: Object.freeze([]), failed: Object.freeze([]) });
+  if (config.deliverWorkToPeer === false || workPeersOf(config).length === 0) return Object.freeze({ shipped: Object.freeze([]), failed: Object.freeze([]) });
   const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: BOARD_KIND });
   const entries = entriesOfJournal(journal);
   const agency = agencyAt(agencyRoot);
@@ -214,18 +222,38 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     return thread !== undefined && homeHostOf(thread, enterprises) === host;
   };
   const outbound = [...replicableMovesOf(entries), ...decidedMovesOf(entries, { homedHere })];
-  const ship = async ({ record }) => {
+  const observations = new Map(workPeersOf(config).map((peer) => [peer, { shipped: 0, failed: [] }]));
+  const received = new Map([...observations.keys()].map((peer) => [peer, readShipped(binding.dataRoot, peer)]));
+  let moveId;
+  const observedDelivery = async (sender, request) => {
+    const observation = observations.get(request.recipient);
+    const held = received.get(request.recipient);
+    if (held.has(moveId)) return;
+
+    try {
+      const value = await (deliver ?? deliverActivity)(sender, request);
+      noteShipped(binding.dataRoot, [{ peer: request.recipient, id: moveId }]);
+      held.add(moveId);
+      observation.shipped += 1;
+      return value;
+    } catch (error) {
+      observation.failed.push(Object.freeze({ why: String(error?.message ?? error), away: deliveryAway(error) }));
+      throw error;
+    }
+  };
+  const ship = async ({ id, record }) => {
+    moveId = id;
     const opening = OPENING_MOVES.includes(record.move);
     const decided = !opening && !isReplicable(record, kindsOf(entries));
-    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver, opening: record })
-      : decided ? prepareWorkDecisionDelivery({ config, provider, deliver, decision: { ...record, decidedBy: host } })
-        : prepareWorkTellingDelivery({ config, provider, deliver, telling: record });
+    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver: observedDelivery, opening: record })
+      : decided ? prepareWorkDecisionDelivery({ config, provider, deliver: observedDelivery, decision: { ...record, decidedBy: host } })
+        : prepareWorkTellingDelivery({ config, provider, deliver: observedDelivery, telling: record });
     if (thunk === undefined) throw new TypeError("no work peer is configured");
     await thunk();
   };
-  const result = await shipWorkSince({ entries: outbound, shipped: readShipped(binding.dataRoot), ship });
-  noteShipped(binding.dataRoot, result.shipped.map(({ id }) => id));
-  return result;
+  const completelyReceived = new Set(outbound.filter(({ id }) => [...received.values()].every((held) => held.has(id))).map(({ id }) => id));
+  const result = await shipWorkSince({ entries: outbound, shipped: completelyReceived, ship });
+  return Object.freeze({ ...result, peers: Object.freeze([...observations].map(([peer, observation]) => Object.freeze({ peer, shipped: observation.shipped, failed: Object.freeze(observation.failed) }))) });
 }
 
 /**
@@ -247,14 +275,18 @@ export function catchUpOutcome({ shipped, failed }, presence = "continuous") {
  * known-intermittent) and its silence in seconds. A run that fails still keeps its witness first.
  */
 export function noteWorkPeerLiveness({ config, binding, host, result, now = new Date(binding.now?.() ?? Date.now()).toISOString() }) {
-  if (config.workPeerActor === undefined || config.deliverWorkToPeer === false) return Object.freeze({});
+  if (config.deliverWorkToPeer === false) return Object.freeze({});
+  const peers = result.peers ?? [];
+  if (peers.length === 0) return Object.freeze({});
   const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: PEER_LIVENESS_KIND });
-  const noted = notePeerRun(journal, {
-    observer: host, peer: config.workPeerActor, now,
-    shipped: result.shipped.length, failed: result.failed,
-    presence: config.workPeerPresence, thresholdSeconds: config.workPeerSuspicionSeconds,
+  const readings = peers.map(({ peer, shipped, failed }) => {
+    const noted = notePeerRun(journal, {
+      observer: host, peer, now, shipped, failed,
+      presence: config.workPeerPresence, thresholdSeconds: config.workPeerSuspicionSeconds,
+    });
+    return Object.freeze({ peer, liveness: noted.reading, ...(noted.silentSeconds === undefined ? {} : { silentSeconds: Math.round(noted.silentSeconds) }) });
   });
-  return Object.freeze({ liveness: noted.reading, ...(noted.silentSeconds === undefined ? {} : { silentSeconds: Math.round(noted.silentSeconds) }) });
+  return Object.freeze({ peers: Object.freeze(readings), ...(readings.length === 1 ? { liveness: readings[0].liveness, ...(readings[0].silentSeconds === undefined ? {} : { silentSeconds: readings[0].silentSeconds }) } : {}) });
 }
 
 /** The operation a node schedule runs to keep the work peer current (MetroPlat instance `schedules`). */
