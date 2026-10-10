@@ -2,13 +2,13 @@
  * src/search/import-sql-revision-index - the read-once admission of an SQLite FTS5 archive index left
  * from before CAIRN kept its archive index in a journal: the only place the archive index still reads
  * SQL. The node runtime holds none: read-legacy-sqlite.py receives the file (read-only, immutable,
- * bounded; see legacy-sqlite-reader.mjs) and its bodies, texts, occurrences and cursors are staged into
+ * bounded; see computer-system-engine/legacy-sqlite-reader) and its bodies, texts, occurrences and cursors are staged into
  * the journal in batches, so nothing indexed before is lost; a receipt recorded once the whole file
  * is read keeps it from being read again, and an admission that stopped part way is read again
  * whole (bodies and occurrences already held are kept once).
  */
 import { closeSync, openSync, readSync } from "node:fs";
-import { readLegacySqlite } from "./legacy-sqlite-reader.mjs";
+import { readLegacySqlite } from "@red-cup-engineering/computer-system-engine/legacy-sqlite-reader";
 
 const SQLITE_HEADER = "SQLite format 3\u0000";
 const BATCH = 500;

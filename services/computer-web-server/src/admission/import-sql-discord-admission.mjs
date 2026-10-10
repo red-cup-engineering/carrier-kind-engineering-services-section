@@ -6,7 +6,7 @@
 // from `wrangler d1 export` or a local file. A table the file lacks holds nothing to admit; a row
 // the store already holds is left as the store has it. discord_command_login_rate_limits is not
 // read: its windows last a minute and are not facts worth keeping.
-import { readLegacySqlite } from './legacy-sqlite-reader.mjs';
+import { readLegacySqlite } from '@red-cup-engineering/computer-system-engine/legacy-sqlite-reader';
 const TABLES = Object.freeze([
     Object.freeze({ table: 'discord_oauth_sessions', key: 'session_hash', into: 'oauthSessions' }),
     Object.freeze({ table: 'discord_command_login_challenges', key: 'challenge_hash', into: 'commandChallenges' }),

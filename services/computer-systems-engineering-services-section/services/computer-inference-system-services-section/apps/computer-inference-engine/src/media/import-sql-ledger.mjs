@@ -7,7 +7,7 @@
  */
 import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { readLegacySqlite } from "./legacy-sqlite-reader.mjs";
+import { readLegacySqlite } from "@red-cup-engineering/computer-system-engine/legacy-sqlite-reader";
 
 /**
  * Admit a SQLite store left at `storePath` into the journal once: `rowsOf(legacy)` returns
