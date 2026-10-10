@@ -37,6 +37,7 @@ import { installedEnterpriseWeb } from "./installed-web.mjs";
 import { enterpriseOperationRuntime } from "./enterprise-runtime.mjs";
 import { EnterpriseExecutionWorker } from "./enterprise-execution.mjs";
 import { linkLiveModules } from "./probe-link.mjs";
+import { startNativeActorService, nativeActorReadiness } from "./native-actor-service.mjs";
 
 export function metroplatEnvironment(config) {
   return {
@@ -230,22 +231,6 @@ export async function activityPubProvider(config, environment, {operationSurface
   return Object.freeze({...activityPub,provider:Object.freeze(projected)});
 }
 
-// Stop ingress before provider storage/queues. Always release the federation even if
-// another close fails; callers and the platform own this one composite lifetime.
-async function closeFederation({ activityPubProjection, activityPub, federation, queueAbort, queueWorker }) {
-  const failures = [];
-  for (const close of [
-    () => activityPubProjection?.close(),
-    async () => { queueAbort?.abort(); await queueWorker; },
-    () => activityPub?.close(),
-    () => federation.close(),
-  ]) {
-    try { await close(); }
-    catch (error) { failures.push(error); }
-  }
-  if (failures.length) throw new AggregateError(failures, "enterprise federation release failed");
-}
-
 /** Compose one already-admitted instance as a supervised capability platform. */
 const FEDERATION_HEALTH_MS = 2_000;
 
@@ -271,12 +256,19 @@ export function createEnterpriseServicePlatform({
     installed, config, environment,
     sourceWorkspaces: services.sourceWorkspaces,
     sourceReadResource: services.sourceReadResource,
-    activityPubProvider: () => platform.capabilities().federation?.activityPub?.provider,
-    activityPubInbox: () => platform.capabilities().federation?.activityPub?.inbox,
+    activityPubProvider: () => {
+      const actor = platform.capabilities()["native-actor"];
+      return actor?.state() === "running" ? actor.activityPub.provider : undefined;
+    },
+    activityPubInbox: () => {
+      const actor = platform.capabilities()["native-actor"];
+      return actor?.state() === "running" ? actor.activityPub.inbox : undefined;
+    },
     executeIsolatedWork: (request) => executionWorker.execute(request),
   });
   const schedules = runtime.schedules;
   const probe = probeOf(environment);
+  const requiresNativeActor = probe === undefined && config.activityPub !== undefined;
   let families;
   // A probe never runs the execution worker or the carriers, so it links them: the worker's own
   // module graph, and every carrier entry point (probe-link.mjs). A failure is a failed family.
@@ -319,7 +311,8 @@ export function createEnterpriseServicePlatform({
       }
       // A probe whose families did not all load and link is not ready, whatever the supervisor says.
       const unloaded = probe !== undefined && (families === undefined || families.failed.length > 0);
-      const ok = !unloaded && (report.state === "ready" || report.state === "degraded");
+      const nativeActor = nativeActorReadiness(platform.capabilities()["native-actor"], requiresNativeActor);
+      const ok = !unloaded && nativeActor.ok && (report.state === "ready" || report.state === "degraded");
       return Response.json({
         ok,
         service: config.instance.name,
@@ -344,7 +337,8 @@ export function createEnterpriseServicePlatform({
             return metadata.repositories.map(({repository,commit})=>({repository,commit,url:`https://github.com/${repository}/commit/${commit}`}));
           } catch { return null; }
         })(),
-        state: unloaded ? "unready" : report.state,
+        state: !nativeActor.ok ? "failed" : unloaded ? "unready" : report.state,
+        nativeActor,
         phases: report.providers,
         ...(probe === undefined ? {} : { probe: true, families }),
         ...(availability === undefined ? {} : { federation: availability }),
@@ -381,7 +375,20 @@ export function createEnterpriseServicePlatform({
       }
       return host;
     },
-  }, {
+  }, ...(requiresNativeActor ? [{
+    // Local work admission is required. Remote MCP startup/retry never owns this actor.
+    name: "native-actor",
+    optional: false,
+    start: (capabilities) => startNativeActorService({
+      open: () => createActivityPub(config, environment, {
+        operationSurface: capabilities["metroplat-host"].operationSurface, binding: runtime.binding,
+      }),
+      ...(config.activityPubProjection === undefined ? {} : {
+        project: (provider) => startApplication(activityPubApplication(provider), config.activityPubProjection),
+      }),
+    }),
+    close: (actor) => actor.close(),
+  }] : []), {
     name: "entrance",
     start: async (capabilities) => {
       bootstrapFederation = await federate(baseUpstreams(capabilities["metroplat-host"], config), {
@@ -389,6 +396,7 @@ export function createEnterpriseServicePlatform({
       });
       const initial = entranceFactory(config, {
         federation: bootstrapFederation,
+        activityPubProvider: capabilities["native-actor"]?.activityPub.provider,
         sessionCookiePrefix: installed.web.cookiePrefix ?? "metroplat",
         grantStoreProfile,
         applications: installed.applications,
@@ -433,44 +441,27 @@ export function createEnterpriseServicePlatform({
       for (const { prefix, reason } of federation.unavailable ?? []) {
         process.stderr.write(`[feltos-enterprise-host] ${prefix} unavailable: ${reason}\n`);
       }
-      let activityPub;
-      let activityPubProjection;
-      const queueAbort = new AbortController();
-      let queueWorker;
       try {
-        activityPub = probe === undefined ? await createActivityPub(config, environment, {operationSurface:capabilities["metroplat-host"].operationSurface,binding:runtime.binding}) : undefined;
-        if (config.activityPubProjection !== undefined && probe === undefined) {
-          // Same provider, finite canonical routes, separate loopback ingress.
-          // Binding precedes installation, so a failed bind cannot leave stale
-          // provider routes in the full entrance while supervision retries.
-          activityPubProjection = await startApplication(
-            activityPubApplication(activityPub?.provider), config.activityPubProjection,
-          );
-        }
         const full = entranceFactory(config, {
           federation,
-          activityPubProvider: activityPub?.provider,
+          activityPubProvider: capabilities["native-actor"]?.activityPub.provider,
           sessionCookiePrefix: installed.web.cookiePrefix ?? "metroplat",
           grantStoreProfile,
           applications: installed.applications,
           rootRoutes,
         });
         entrance.install(full.app);
-        if (activityPub) queueWorker = activityPub.provider.federation.startQueue(undefined, { signal: queueAbort.signal })
-          .catch((error) => {
-            if (!queueAbort.signal.aborted) process.stderr.write(`[feltos-enterprise-host] ActivityPub queue stopped: ${error?.message ?? error}\n`);
-          });
-        return Object.freeze({ federation, activityPub, activityPubProjection, queueAbort, queueWorker });
+        return Object.freeze({ federation });
       } catch (error) {
         entrance.reset();
-        try { await closeFederation({ activityPubProjection, activityPub, federation }); }
+        try { await federation.close(); }
         catch (cleanup) { throw new AggregateError([error, cleanup], "enterprise federation startup failed"); }
         throw error;
       }
     },
     close: async (capability) => {
       entrance.reset();
-      await closeFederation(capability);
+      await capability.federation.close();
     },
   }, ...(configuredClock === undefined ? [] : [{
     name: "enterprise-execution-worker",
