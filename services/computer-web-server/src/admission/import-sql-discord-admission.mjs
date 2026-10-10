@@ -2,13 +2,13 @@
 // the journal store that now keeps them (discord-store.mjs). SQL survives here only as that
 // admission path for old bytes: `wrangler d1 export` or a local SQLite file of the tables
 // admission's D1 migrations created (discord_oauth_sessions, discord_command_login_challenges,
-// discord_interaction_sessions, discord_command_login_rate_limits). A table the file lacks holds
-// nothing to admit; a row the store already holds is left as the store has it.
+// discord_interaction_sessions). A table the file lacks holds nothing to admit; a row the store
+// already holds is left as the store has it. discord_command_login_rate_limits is not read: its
+// windows last a minute and are not facts worth keeping.
 const TABLES = Object.freeze([
     Object.freeze({ table: 'discord_oauth_sessions', key: 'session_hash', into: 'oauthSessions' }),
     Object.freeze({ table: 'discord_command_login_challenges', key: 'challenge_hash', into: 'commandChallenges' }),
     Object.freeze({ table: 'discord_interaction_sessions', key: 'session_hash', into: 'interactionSessions' }),
-    Object.freeze({ table: 'discord_command_login_rate_limits', key: 'rate_key', into: 'rateLimits' }),
 ]);
 /** Admit every row of the SQLite file at `file` into `store`; returns how many were admitted per table. */
 export function importSqlDiscordAdmission(file, store) {

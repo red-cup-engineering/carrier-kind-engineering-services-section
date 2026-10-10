@@ -1,6 +1,6 @@
 // Discord admission's journal store, and the read-once import of what a D1 (SQLite) database held.
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -41,10 +41,22 @@ test('an update writes only what its change returns, as one step', (t) => {
   assert.deepEqual(store.atomically(() => store.commandChallenges.update('c', once)).after, { challenge_hash: 'c', approved_at: 5 });
   const second = store.atomically(() => store.commandChallenges.update('c', once));
   assert.equal(second.before, second.after, 'a challenge is approved once');
-  store.rateLimits.write('k', { rate_key: 'k', attempts: 1, reset_at: 10 });
   store.interactionSessions.write('i', { session_hash: 'i' });
-  assert.deepEqual(store.rateLimits.rows(), [{ rate_key: 'k', attempts: 1, reset_at: 10 }]);
   assert.deepEqual(store.interactionSessions.rows(), [{ session_hash: 'i' }]);
+});
+
+test('a rate-limit window is one rewritten file per source, never a journal record, and is removed once it ends', (t) => {
+  const root = freshRoot(t, 'discord-store-rate-');
+  const store = createDiscordAdmissionStore({ root });
+  const a = 'a'.repeat(64), b = 'b'.repeat(64);
+  assert.deepEqual(store.atomically(() => store.rateLimits.hit(a, 100, 60)), { attempts: 1, reset_at: 160 });
+  assert.deepEqual(store.atomically(() => store.rateLimits.hit(a, 130, 60)), { attempts: 2, reset_at: 160 });
+  assert.deepEqual(store.atomically(() => store.rateLimits.hit(a, 160, 60)), { attempts: 1, reset_at: 220 }, 'an ended window starts again');
+  store.atomically(() => store.rateLimits.hit(b, 300, 60));
+  assert.equal(store.rateLimits.read(a), null, 'another source\'s hit removes a window that has ended');
+  assert.deepEqual(readdirSync(join(root, '.discord-admission', 'rate-limits')), [`${b}.json`]);
+  assert.deepEqual(readdirSync(root), ['.discord-admission'], 'no rate-limit hit is journaled: only the window files exist');
+  assert.throws(() => store.rateLimits.hit('../escape', 1, 60), TypeError);
 });
 
 test('a D1 admission database is admitted into the journal once', (t) => {
@@ -57,22 +69,22 @@ test('a D1 admission database is admitted into the journal once', (t) => {
     VALUES ('s1', 'h1', '345678901234567890', 'Reader', 'sealed', 2, 100, 200, 0, 1, 2)`).run();
   legacy.prepare(`INSERT INTO discord_command_login_challenges (challenge_hash, verifier_hash, expires_at, approved_at, consumed_at, subject_hash, discord_user_ciphertext, created_at)
     VALUES ('c1', 'v1', 300, NULL, NULL, NULL, NULL, 3)`).run();
-  legacy.prepare(`INSERT INTO discord_command_login_rate_limits (rate_key, attempts, reset_at) VALUES ('k1', 4, 400)`).run();
+  legacy.prepare(`INSERT INTO discord_command_login_rate_limits (rate_key, attempts, reset_at) VALUES ('${'c'.repeat(64)}', 4, 400)`).run();
   legacy.close();
 
   const store = createDiscordAdmissionStore({ root: join(root, 'journal') });
   assert.deepEqual(importSqlDiscordAdmission(file, store), {
-    discord_oauth_sessions: 1, discord_command_login_challenges: 1, discord_interaction_sessions: 0, discord_command_login_rate_limits: 1,
+    discord_oauth_sessions: 1, discord_command_login_challenges: 1, discord_interaction_sessions: 0,
   });
   assert.deepEqual(store.oauthSessions.read('s1'), {
     session_hash: 's1', subject_hash: 'h1', discord_user_id: '345678901234567890', display_name: 'Reader', authorization_ciphertext: 'sealed',
     authorization_version: 2, token_expires_at: 100, session_expires_at: 200, retry_after: 0, created_at: 1, updated_at: 2,
   });
   assert.equal(store.commandChallenges.read('c1').approved_at, null);
-  assert.equal(store.rateLimits.read('k1').attempts, 4);
+  assert.equal(store.rateLimits.read('c'.repeat(64)), null, 'a minute-long rate window is not admitted');
 
   // The journal is now the store: a second reading admits nothing and changes nothing.
-  store.rateLimits.write('k1', { rate_key: 'k1', attempts: 5, reset_at: 400 });
-  assert.deepEqual(Object.values(importSqlDiscordAdmission(file, store)), [0, 0, 0, 0]);
-  assert.equal(store.rateLimits.read('k1').attempts, 5);
+  store.commandChallenges.write('c1', { ...store.commandChallenges.read('c1'), approved_at: 7 });
+  assert.deepEqual(Object.values(importSqlDiscordAdmission(file, store)), [0, 0, 0]);
+  assert.equal(store.commandChallenges.read('c1').approved_at, 7);
 });

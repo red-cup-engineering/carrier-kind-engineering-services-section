@@ -53,11 +53,8 @@ function sourceBucket(request) {
 async function allowChallenge(request, settings, db, now) {
     const current = nowSeconds(now);
     const key = sha256Hex(`discord-command-rate\0${settings.sessionSecret}\0${sourceBucket(request)}`);
-    // A window that has ended starts again at one attempt; otherwise the attempt is counted in it.
-    const { after } = db.atomically(() => db.rateLimits.update(key, (row) => (row === null || row.reset_at <= current
-        ? { rate_key: key, attempts: 1, reset_at: current + RATE_WINDOW_SECONDS }
-        : { ...row, attempts: row.attempts + 1 })));
-    return Number(after?.attempts) <= RATE_LIMIT;
+    const window = db.atomically(() => db.rateLimits.hit(key, current, RATE_WINDOW_SECONDS));
+    return window.attempts <= RATE_LIMIT;
 }
 export async function createDiscordCommandChallenge(settings, db, request, now = Date.now) {
     const resolved = resolveDiscordCommandSettings(settings);

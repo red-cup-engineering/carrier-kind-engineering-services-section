@@ -1,11 +1,14 @@
 // What Discord admission remembers, kept as signed records in a semantic record journal (SEAVT)
 // rather than SQL tables. Each table is a category of records keyed by its hash: OAuth sessions,
-// command-login challenges, interaction sessions and command-login rate limits. A row's history is
+// command-login challenges and interaction sessions. A row's history is
 // its records, each carrying the next `revision`; the row is the one with the highest revision,
 // and a removal is a record told denied (for false, against true), so nothing is erased. A change
 // that depends on the row it reads (a refresh that must not overwrite a concurrent one, a challenge
 // approved or consumed once) runs under one directory lock per store, which serializes writers on
-// this host the way a conditional UPDATE did.
+// this host the way a conditional UPDATE did. Command-login rate limits are not facts worth keeping:
+// each source's current window is one small file, rewritten in place and removed once it has
+// expired, so request traffic never grows the journal.
+import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createSemanticRecordJournal } from '@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record';
 import { createFieldIndex } from '@red-cup-engineering/semiotic-eavt-services-section/field-index';
@@ -15,7 +18,6 @@ export const DISCORD_ADMISSION_TABLES = Object.freeze({
     oauthSessions: 'oauth-session',
     commandChallenges: 'command-login-challenge',
     interactionSessions: 'interaction-session',
-    rateLimits: 'command-login-rate-limit',
 });
 const HELD = Object.freeze({ for: true, against: false });
 const REMOVED = Object.freeze({ for: false, against: true });
@@ -63,6 +65,44 @@ function createTable(journal, root, category) {
         },
     });
 }
+/** Each source's current rate-limit window, one rewritten file per key under `directory`. */
+function createRateWindows(directory) {
+    const fileOf = (key) => join(directory, `${key}.json`);
+    const read = (key) => {
+        try {
+            return JSON.parse(readFileSync(fileOf(key), 'utf8'));
+        }
+        catch {
+            return null;
+        }
+    };
+    return Object.freeze({
+        /** The window held for `key`, or null. */
+        read,
+        /** Count one attempt for `key` at `current` (seconds) and return its window: a window that has
+         * ended starts again at one attempt. Windows that have ended are removed. Run it atomically. */
+        hit(key, current, windowSeconds) {
+            if (!/^[0-9a-f]{64}$/u.test(key))
+                throw new TypeError('a rate-limit key is a sha-256 hex digest');
+            mkdirSync(directory, { recursive: true });
+            const held = read(key);
+            const window = held === null || held.reset_at <= current
+                ? { attempts: 1, reset_at: current + windowSeconds }
+                : { attempts: held.attempts + 1, reset_at: held.reset_at };
+            const pending = `${fileOf(key)}.${process.pid}.tmp`;
+            writeFileSync(pending, JSON.stringify(window));
+            renameSync(pending, fileOf(key));
+            for (const name of readdirSync(directory)) {
+                if (!name.endsWith('.json') || name === `${key}.json`)
+                    continue;
+                const other = read(name.slice(0, -'.json'.length));
+                if (other === null || other.reset_at <= current)
+                    rmSync(join(directory, name), { force: true });
+            }
+            return window;
+        },
+    });
+}
 /** Discord admission's store over the semantic record journal under `root`. */
 export function createDiscordAdmissionStore({ root } = {}) {
     if (typeof root !== 'string' || root.length === 0)
@@ -73,6 +113,7 @@ export function createDiscordAdmissionStore({ root } = {}) {
     return Object.freeze({
         root: journal.root,
         ...tables,
+        rateLimits: createRateWindows(join(lockDirectory, 'rate-limits')),
         /** Run `work` as one step against every other writer of this store on this host. */
         atomically: (work) => withDirectoryLock(lockDirectory, work),
     });
