@@ -101,8 +101,8 @@ test("world help preserves rich descriptor contract prose", async () => {
       verb: "work-board",
       summary: "Read the settlement work board.",
       description: "Domain: { limit?: 1..200, after?: id }. Codomain: paged work-board projection with matched, threads and next.",
-      domain: schemaFrom({ type: "object" }),
-      codomain: schemaFrom({ type: "object" }),
+      domain: schemaFrom({ $id: "metroplat/test/work-board/input", type: "object" }),
+      codomain: schemaFrom({ $id: "metroplat/test/work-board/output", type: "object" }),
       run: () => ({}),
     });
     const world = createMetroplatWorld({
