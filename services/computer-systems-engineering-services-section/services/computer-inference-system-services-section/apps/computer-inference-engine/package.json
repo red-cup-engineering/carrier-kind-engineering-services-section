@@ -120,6 +120,9 @@
     "./openai/pricing/operations": "./src/openai/pricing/operations.mjs",
     "./dispatch/operations": "./src/dispatch/operations.mjs"
   },
+  "sqlAdmissionPaths": [
+    "src/media/import-sql-ledger.mjs"
+  ],
   "bin": {
     "dispatch-chat-completion": "./scripts/openai/dispatch-chat-completion.mjs",
     "execute-provider-inference": "./scripts/openai/execute-provider-inference.mjs",
