@@ -9,7 +9,7 @@ The 42 `src` modules, three exported scripts, 25 original tests, and manifest we
 restored from `emsenn/bare-cedar-fog` commit
 `aeedb1e9e671c24986c1b4f5e1ddbe4e4f8fb6f6`, under
 `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section`.
-The receiving repository is `red-cup-engineering/computer-services-section`, at
+The receiving repository is `red-cup-engineering/computer-engineering-services-section`, at
 `services/computer-networking-engineering-services-section/services/http-services-section`.
 This README is new receiving documentation; no donor README was present.
 
