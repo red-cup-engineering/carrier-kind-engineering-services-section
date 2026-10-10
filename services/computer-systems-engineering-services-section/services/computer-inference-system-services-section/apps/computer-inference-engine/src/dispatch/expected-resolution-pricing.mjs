@@ -1,5 +1,6 @@
 import { dirname, join, resolve } from "node:path";
-import { admitJsonlOnce, openLedgerJournal, readAdmittingJsonl } from "../media/ledger-journal.mjs";
+import { openLedgerJournal } from "../media/ledger-journal.mjs";
+import { admitJsonlOnce, readAdmittingJsonl } from "@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once";
 import { nonnegativeHostRatio as exactNonnegativeAmount } from "@red-cup-engineering/metrologic/number/wire-ratio";
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
 import { executionConfiguration, executionConfigurationIdentity } from "./sen-carrier.mjs";

@@ -21,7 +21,8 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { admitAllowance, admitAllowanceEvidence, readAllowance } from '@red-cup-engineering/organizing/enterprise';
 import { allowanceLedgerLapses, allowanceLedgerPath, recordAllowanceEvidence } from '@red-cup-engineering/computer-inference-engine/media/allowance-ledger';
-import { admitJsonlOnce, openLedgerJournal, readAdmittingJsonl } from '@red-cup-engineering/computer-inference-engine/media/ledger-journal';
+import { openLedgerJournal } from '@red-cup-engineering/computer-inference-engine/media/ledger-journal';
+import { admitJsonlOnce, readAdmittingJsonl } from '@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once';
 import { openGoogleFlow } from './google-flow-client.mjs';
 
 export const FLOW_ALLOWANCE_PATH = new URL('../content/config/flow-allowance.json', import.meta.url);
