@@ -5,7 +5,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import test from "node:test";
 
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { journalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event";
@@ -368,7 +368,7 @@ test("independent processes admit concurrently through one journal funnel", { ti
   const logPath = path.join(root, "concurrent.jsonl");
   const child = String.raw`
     import { journalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event"; import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-    import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+    import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
     const label = process.env.METROPLAT_TEST_LABEL;
     const statement = journalWitness(Object.freeze({
       kind: "metroplat.journal.observation",

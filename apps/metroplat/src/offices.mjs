@@ -32,7 +32,7 @@ import { journal, openJournal } from "@red-cup-engineering/computer-system-engin
 import { toEavt } from "@red-cup-engineering/eavt/row";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinAll, readingAs, readingSchema } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinAll, readingAs, readingSchema } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { incumbencyState, officeIncumbencyClaimCell } from "@red-cup-engineering/socializing/office";
 import { AGENCY_POOLS, agencyRootFrom, bearersHandedBy, governanceOf, isToldBearer, officeCoordinationBoundary as officeBoundary, officeReading, officesOf, resolve, toldBearersOf, withSeatClaims, withToldHands } from "@red-cup-engineering/organizing/agency";
 import { agencyAt, agencyMoved } from "@red-cup-engineering/organizing/agency/held";

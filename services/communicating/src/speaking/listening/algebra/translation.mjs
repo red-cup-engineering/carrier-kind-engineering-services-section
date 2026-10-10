@@ -8,7 +8,7 @@ import {
   registerFiberDegradationReceipt,
 
 } from "./register-fiber.mjs";
-import { negateReading, readingFamilies, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
+import { negateReading, readingFamilies, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const translateReadingValue = (value) => value;
 

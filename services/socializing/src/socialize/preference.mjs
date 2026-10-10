@@ -25,7 +25,7 @@ import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/co
 
 import { admitSeed, descend } from "@red-cup-engineering/animating/becoming/descending";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { claimValue } from "@red-cup-engineering/signcell/cell";
 
 /** One settled pair of the social preference: the two alternatives (canonical order a < b), the

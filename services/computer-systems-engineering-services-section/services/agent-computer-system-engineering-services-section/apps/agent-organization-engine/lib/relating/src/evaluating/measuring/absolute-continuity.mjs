@@ -30,11 +30,11 @@
  * `natIsZeroTerm`/`countTerm` (independently-built, independently-tested
  * terms reused here) and each closed `namedReading` FOUR value.
  */
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { countTerm, natIsZeroTerm } from "../counting/index.mjs";
 import { compileNamedSen, namedBool } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/named-codec";
 import { namedArray, namedObject, namedString } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/named-codec";
-import { readingAs, readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingAs, readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const CHARGE_NAMES = readingFamilies.knowledge;
 

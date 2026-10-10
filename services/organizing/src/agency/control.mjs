@@ -46,7 +46,7 @@
 import { createHash } from "node:crypto";
 
 import { safetyGate, deviceStateHash, actuate } from "@red-cup-engineering/animating/becoming/doing/embodying/device";
-import { knowledgeJoinAll, truthMeetAll } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinAll, truthMeetAll } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 import { masksOf } from "./cast.mjs";
 import { bodyOf, incumbenciesOf, officeReading, resolve } from "./index.mjs";

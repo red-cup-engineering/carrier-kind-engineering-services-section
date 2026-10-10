@@ -16,7 +16,7 @@
 import { designReading } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/design";
 import { polarityReading } from "@red-cup-engineering/playing/structuring/polarity";
 import { interact } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/strategizing/interaction";
-import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** The meme shadow of a polarity: its Belnap reading value. */
 export const polarityShadow = (p) => polarityReading(p);

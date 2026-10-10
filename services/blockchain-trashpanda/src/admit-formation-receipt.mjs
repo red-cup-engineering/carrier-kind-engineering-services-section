@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { semanticDigest } from "@red-cup-engineering/base-pre-sign-policy-service";
 import { recordSettlementRecord } from "./settlement-witness.mjs";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ACTOR = "urn:ame:blockchain-trashpanda";

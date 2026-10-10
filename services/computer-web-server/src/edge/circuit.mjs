@@ -1,5 +1,5 @@
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 function observeOutcome(ctx) {
     let status = null;
     const res = ctx.res;

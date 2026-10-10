@@ -1,9 +1,9 @@
 /** The pure ABI for exact SEN term admission and witnessed name proposals. */
 import { addressArtifact } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { TmSchema, TySchema } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { isTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { checkTy, inferTy, isClosed } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+import { TmSchema, TySchema } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { isTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { checkTy, inferTy, isClosed } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
 import { normalize } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/eval";
 
 const typeContract = schemaFrom(TySchema);

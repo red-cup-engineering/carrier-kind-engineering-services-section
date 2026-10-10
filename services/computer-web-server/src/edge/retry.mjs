@@ -1,6 +1,6 @@
 import { retryWithBackoff } from "@red-cup-engineering/javascript-node-services-section/retry";
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 export async function withRetries(fn, opts = {}) {
     const maxAttempts = opts.maxAttempts ?? 3;
     const baseDelayMs = opts.baseDelayMs ?? 100;

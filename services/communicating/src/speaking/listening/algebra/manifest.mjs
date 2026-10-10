@@ -14,7 +14,7 @@ const sofic = Object.freeze({ completePaletteGraph, graphHom, identityGraphHom, 
 import { load } from "./compile.mjs";
 import "./profile.mjs";
 import { registerFiberAxes, registerFiberDataSchema } from "./register-fiber.mjs";
-import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const witnessJournalLiteralSchema = {
   type: "object",

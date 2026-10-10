@@ -17,15 +17,15 @@ import {
 } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import {
   inferTerm,
-} from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+} from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { conformTerm } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/conformance";
 import { a2aResultParts, ROLE_AGENT, ROLE_USER } from "@red-cup-engineering/a2a-services-section/a2a-client";
 import { createA2aServer } from "@red-cup-engineering/a2a-services-section/a2a-server";
 import { ephemeralAgentCardSigning } from "@red-cup-engineering/a2a-services-section/agent-card-signing";
 import { extractSenPart, senPart, sendSenTask } from "@red-cup-engineering/a2a-services-section/sen-part";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
-import { witnessBit } from "@red-cup-engineering/computer-data-services-section/four";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { witnessBit } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 export const artifactChecksum = (bytes) => sha256Digest(bytes);
 

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { evaluate, step } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/eval";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import {
   DAP_JSONRPC_VERSION,
   DAP_METHODS,

@@ -43,9 +43,9 @@
  * @packageDocumentation
  */
 import { createHash } from "node:crypto";
-import { census, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { census, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { gradedAdd, gradedIsZero, gradedNegate, gradedOfDecimal, gradedSign, gradedSubtract, gradedToDecimalString, gradedZero } from "@red-cup-engineering/exact-number-data-service/graded";
-import { tally } from "@red-cup-engineering/computer-data-services-section/tally";
+import { tally } from "@red-cup-engineering/computer-data-engineering-services-section/tally";
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
 import { cohomologyOfCells } from "@red-cup-engineering/signgraph/cohomology";
 import { creditLineAccount, intraGroupServicesAccount } from "../accounting/consolidation.mjs";

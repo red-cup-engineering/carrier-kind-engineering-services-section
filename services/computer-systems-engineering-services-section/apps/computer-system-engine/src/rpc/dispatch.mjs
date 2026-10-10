@@ -5,7 +5,7 @@ import { executionReceipt } from "./receipt.mjs";
 
 import { isOperationHandlerResult } from "./execution-context.mjs";
 
-import { isReading, readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading, readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { can, capabilityGrant, locusResource } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 
 /** Whether a settled standing is held: told for and not against, in whatever family it is named. */

@@ -4,7 +4,7 @@ import { isNiUri, niUriDigestBytes } from "@red-cup-engineering/uri-services-sec
 import { } from "./settlement-witness.mjs";
 import { publicTurntideContentPath } from "./env.mjs";
 import { UNION_MEDIA_DESTINATION_PROOF_CATEGORY, UNION_MEDIA_INTENT_CONTRACT, UNION_MEDIA_PRODUCT, unionMediaRepresentativePseudonym } from "./union-media-intent.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export const UNION_MEDIA_ENTERPRISE_AUTH_CATEGORY = "tti-union-media-enterprise-authentication-v1";
 export const UNION_MEDIA_ENTERPRISE_AUTH_CONTRACT = "ni:///sha-256;xX10couZ9FmdpLcQFvlvxBFdZemz55UJ_-h_sxQR0Ss";

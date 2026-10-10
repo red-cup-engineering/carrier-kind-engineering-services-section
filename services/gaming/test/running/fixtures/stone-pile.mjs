@@ -7,7 +7,7 @@
  * not enabled, which is the illegal-move case a replay must refuse.
  */
 
-import { hashSeed, mulberry32 } from "@red-cup-engineering/computer-data-services-section/randomization";
+import { hashSeed, mulberry32 } from "@red-cup-engineering/computer-data-engineering-services-section/randomization";
 import { gameRules } from "../../../src/running/rules.mjs";
 
 export function initialPosition(seed, configId) {

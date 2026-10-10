@@ -19,7 +19,7 @@
  * Recognition and denial are tellings (monotone, coordination-free); withdrawal and fission retract
  * (coordinated). Agents are any comparable keys; readings are FOUR's points (four.mjs).
  */
-import { knowledgeJoinAll, knowledgeMeetReading, knowledgeTop, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinAll, knowledgeMeetReading, knowledgeTop, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const told = (t = {}) => ({ recognitions: t.recognitions ?? [], denials: t.denials ?? [], withdrawn: t.withdrawn ?? [] });
 const setOf = (agents) => [...new Set(agents)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));

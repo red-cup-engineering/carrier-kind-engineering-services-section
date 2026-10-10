@@ -22,7 +22,7 @@
  * stability↔reachability gap: the equilibrium is reachable even where best-response cycles.
  */
 import { admitSeed, descend } from "@red-cup-engineering/animating/becoming/descending";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { claimValue, tokenValue } from "@red-cup-engineering/signcell/cell";
 
 

@@ -28,7 +28,7 @@
     "@red-cup-engineering/signgraph": "workspace:*",
     "@red-cup-engineering/signcraft": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "exports": {
