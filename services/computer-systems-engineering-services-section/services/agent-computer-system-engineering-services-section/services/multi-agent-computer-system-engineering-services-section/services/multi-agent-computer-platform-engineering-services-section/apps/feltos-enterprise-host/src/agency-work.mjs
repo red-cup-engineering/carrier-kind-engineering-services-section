@@ -552,9 +552,16 @@ export function enterpriseAgencyWorkOptions({
   const tellReceivedOutcome = ({ proposal, discharge, office, at }) => {
     try {
       if (proposal?.origin?.office === undefined || discharge.result?.kind !== "skill-result") return;
-      const market = workInferenceCoordinate({
-        proposal, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
-      });
+      // The delivery coordinate is optional provenance. An unavailable pricing
+      // record must not prevent telling the independently received native outcome.
+      let market;
+      try {
+        market = workInferenceCoordinate({
+          proposal, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
+        });
+      } catch (error) {
+        console.error("[work-discharge] inference coordinate remains unlinked:", error instanceof Error ? error.message : String(error));
+      }
       outcomeJournalOf(binding.dataRoot).record(outcomeOf({
         ...receivedOutcomeFields({ proposal, discharge, office, at }),
         ...(market === undefined ? {} : { market }), resources: proposalResources(proposal),
