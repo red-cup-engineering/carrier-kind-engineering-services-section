@@ -43,7 +43,7 @@ function fixture(extraOptions = {}) {
     // office service as its authority; this fixture's charter grants it to the fixture carrier.
     resolveAllocationDelegation: selected => ({ provider: selected.character.id, operations: [...selected.officeService.requiredCapabilities],
       effects: ["fixture"], authority: `office-service:${selected.office}` }),
-    authorizeProviderDelegation: request => ({ authority: request.authority, evidence: [`fixture-charter-grant:${request.holder}`] }),
+    authorizeProviderDelegation: request => ({ authority: request.authority, revision: "fixture", evidence: [`fixture-charter-grant:${request.holder}`] }),
     ...extraOptions };
   const read = input => readAllocationCandidates(binding, input, options);
   const reconcile = input => reconcileAllocations(binding, input, options);
@@ -72,17 +72,18 @@ test("transient pre-native startup failures get fresh bounded allocations", asyn
   try {
     f.carrier("fixture-executor");
     const scope = admitStructuredWorkIntent(f.binding,
-      assessedBy(assessment, workIntentOfRequest("Recover a transient required-node startup failure", "fixture-person")),
+      assessedBy(assessment, workIntentOfRequest("A transient required-node startup failure is recovered", "fixture-person")),
       { at: DATE }).obligations[0].scope;
     let allocated = (await f.reconcile({ scope })).items[0];
     assert.equal(allocated.state, "allocated", JSON.stringify(allocated.reasons));
     const seen = new Set([allocated.admission.allocation]);
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    // Unstamped startup failures are retried at once, up to six attempts (feltos 3fe499f).
+    for (let attempt = 1; attempt <= 6; attempt++) {
       const item = readAgentWorkDispatchReadout(f.binding, DATE).queue.find(item => item.scope === scope);
       admitAgencyWorkExecution(f.binding, item, "failed", attempt === 1
         ? "required MCP servers failed to initialize: client_credentials token request failed: 502"
         : "required MCP servers failed to initialize: 561-bare-cedar-fog: timed out handshaking with MCP server after 59.99999936s");
-      if (attempt === 3) {
+      if (attempt === 6) {
         assert.equal(f.read({ scope }).items[0].state, "already-allocated");
         assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).queue.find(item => item.scope === scope).execution.state, "failed");
       } else {
@@ -96,7 +97,7 @@ test("transient pre-native startup failures get fresh bounded allocations", asyn
         assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).queue.find(item => item.scope === scope).execution, undefined);
       }
     }
-    assert.equal(seen.size, 3);
+    assert.equal(seen.size, 6);
   } finally { f.dispose(); }
 });
 
@@ -105,7 +106,13 @@ test("startup recovery excludes native executions and permanent authorization re
   assert.equal(retryableAllocationStartup(item), true);
   assert.equal(retryableAllocationStartup({ ...item, execution: { ...item.execution, session: "actual-native-thread" } }), false);
   assert.equal(retryableAllocationStartup({ ...item, assignment: { state: "started" } }), false);
-  assert.equal(retryableAllocationStartup({ ...item, allocation: "allocation-startup-3-original" }), false);
+  assert.equal(retryableAllocationStartup({ ...item, allocation: "allocation-startup-5-original" }), true);
+  assert.equal(retryableAllocationStartup({ ...item, allocation: "allocation-startup-6-original" }), false);
+  // A stamped carrier-startup failure waits five minutes per prior attempt after it happened.
+  const failedAt = Date.parse(`${DATE}T12:00:00Z`);
+  const stamped = { allocation: "allocation-startup-2-original", execution: { state: "failed", failure: "carrier-startup", at: new Date(failedAt).toISOString() } };
+  assert.equal(retryableAllocationStartup(stamped, failedAt + 9 * 60_000), false);
+  assert.equal(retryableAllocationStartup(stamped, failedAt + 10 * 60_000), true);
   assert.equal(retryableAllocationStartup({ ...item, execution: { state: "failed", error: "required MCP servers failed to initialize: client_credentials token request failed: 403" } }), false);
   assert.equal(retryableAllocationStartup({ ...item, execution: { state: "failed", error: "a business operation timed out" } }), false);
 });
@@ -127,7 +134,7 @@ test("authority is shared across identical model requests only within one candid
       provider, { ...provider, character: { ...provider.character, model: "fixture-alt" } },
     ]);
     const scope = admitStructuredWorkIntent(f.binding,
-      assessedBy(assessment, workIntentOfRequest("Qualify the same incumbent on two model carriers", "fixture-person")),
+      assessedBy(assessment, workIntentOfRequest("The same incumbent holds standing on two models", "fixture-person")),
       { at: DATE }).obligations[0].scope;
     const initial = f.read({ scope }).items[0];
     assert.equal(initial.state, "allocatable", JSON.stringify(initial.reasons));
@@ -166,13 +173,19 @@ test("one witnessed demand becomes a ready office service; replay adds no second
 test("missing, withdrawn and incomparable providers stay explicit and write no allocation", async () => {
   const f = fixture();
   try {
-    const admission = f.admit("Preserve staffing qualification");
+    const admission = f.admit("Provider qualification stays explicit");
     const scope = admission.obligations[0].scope;
     assert.ok(f.read({ scope }).items[0].reasons.includes("no-current-provider-admission"));
+    // Characters under one office duty are execution choices ranked by expected cost (feltos 0beca6e),
+    // not competing authorities: the selection and its policy are explicit, and nothing is written by a read.
     f.carrier("one"); f.carrier("two");
-    assert.equal((await f.reconcile({ scope })).items[0].state, "choice-required");
+    const both = f.read({ scope }).items[0];
+    assert.equal(both.state, "allocatable");
+    assert.equal(both.selection.policy, "least-expected-cost-carrier-of-sole-authority");
+    assert.deepEqual(both.candidates.map(candidate => candidate.character.id).sort(), ["one", "two"]);
     f.carrier("two", "denied", `${DATE}T11:00:00Z`);
     assert.equal(f.read({ scope }).items[0].state, "allocatable");
+    assert.equal(f.read({ scope }).items[0].selection.character, "one");
     f.carrier("one", "denied", `${DATE}T11:00:00Z`);
     assert.equal((await f.reconcile({ scope })).items[0].state, "obstructed");
     assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).queue.length, 0);
@@ -183,7 +196,9 @@ test("unknown work has a typed missing authority instead of acquiring staffing a
   const f = fixture();
   try {
     f.carrier("fixture-executor");
-    const intent = workIntentOfRequest("Unsupported service", "fixture-person");
+    const unassessed = admitStructuredWorkIntent(f.binding, workIntentOfRequest("Unsupported service", "fixture-person"), { at: DATE });
+    assert.ok((await f.reconcile({ scope: unassessed.obligations[0].scope })).items[0].reasons.includes("work-not-declared"));
+    const intent = assessedBy({ work: "work-no-office-offers", skill: "skill-no-office-offers" }, workIntentOfRequest("A service no office offers is delivered", "fixture-person"));
     const admission = admitStructuredWorkIntent(f.binding, intent, { at: DATE });
     const result = (await f.reconcile({ scope: admission.obligations[0].scope })).items[0];
     assert.equal(result.state, "obstructed");
@@ -199,10 +214,15 @@ test("a bounded reconciliation scans past unresolved obligations to eligible wor
     for (let i = 0; i < 3; i += 1) admitStructuredWorkIntent(f.binding,
       workIntentOfRequest(`Unsupported service ${i}`, "fixture-person"), { at: DATE });
     const admission = f.admit("The eligible demand after unresolved work is assessed");
-    const result = (await f.reconcile({ limit: 1 }));
-    assert.equal(result.examined, 4);
-    assert.equal(result.counts.allocated, 1);
-    assert.equal(result.items.find(item => item.state === "allocated").scope, admission.obligations[0].scope);
+    // A limited reconciliation examines its cut per turn; the turn cursor rotates the cut
+    // (feltos 8d77bbc, 84e58b2), so unresolved obligations cannot hold every turn.
+    let allocated;
+    for (let turn = 0; turn < 4 && allocated === undefined; turn += 1) {
+      const result = await f.reconcile({ limit: 1, cursor: turn });
+      assert.ok(result.examined <= 1);
+      allocated = result.items.find(item => item.state === "allocated");
+    }
+    assert.equal(allocated?.scope, admission.obligations[0].scope);
     assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).frontier.length, 1);
   } finally { f.dispose(); }
 });
@@ -278,7 +298,7 @@ test("an undeclared parent composes its executable child without a phantom staff
     const parent = intent.items[0].cell;
     const admitted = admitStructuredWorkIntent(f.binding, { ...intent, items: [...intent.items,
       { cell: "campaign:fixture-child", parent, text: "Assess the child", work: assessment.work, skill: assessment.skill,
-        evidence: [], provenance: [{ source: "demand" }] }] }, { at: DATE });
+        evidence: [], provenance: intent.items[0].provenance }] }, { at: DATE });
     assert.equal(admitted.obligations.length, 2);
     const dispatch = readAgentWorkDispatchReadout(f.binding, DATE);
     assert.deepEqual(dispatch.unallocated.map(item => item.scope), ["campaign:fixture-child"]);
@@ -291,7 +311,7 @@ test("routed assessments execute once, await independent receipt, then advance t
   let executions = 0, complete;
   const authorization = { authority: "fixture-provider", revision: "fixture", evidence: ["fixture:authority"] };
   const f = fixture({
-    demandAssessment: { ...assessment, execution: { character: "fixture-executor", model: "fixture-model", maxOutstanding: 1 } },
+    demandAssessment: assessment,
     resolveAllocationDelegation: selected => ({ provider: selected.character.id, operations: ["fixture#read"], effects: ["host-read"], authority: authorization.authority }),
     authorizeProviderDelegation: () => authorization,
     agencyWorkProviders: ["fixture-executor"],
@@ -302,7 +322,7 @@ test("routed assessments execute once, await independent receipt, then advance t
     },
   });
   try {
-    f.carrier("fixture-executor"); f.carrier("other-qualified-provider");
+    f.carrier("fixture-executor");
     f.admit("First witnessed assessment"); f.admit("Second witnessed assessment");
     assert.equal(f.read({}).items.filter(item => item.state === "allocatable").length, 2);
     assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
@@ -320,8 +340,9 @@ test("routed assessments execute once, await independent receipt, then advance t
     const awaiting = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(awaiting.frontier.length, 0);
     assert.equal(awaiting.queue.find(item => item.scope === first.scope).execution.state, "proposed");
-    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
-    assert.equal((await pump.execute({})).ran.length, 0);
+    // A pending result holds only its own scope against a second execution (feltos 1a7ea27);
+    // independent demand stays staffable on the same carrier.
+    assert.notEqual(f.read({ scope: first.scope }).items[0].state, "allocatable");
     const item = awaiting.queue.find(item => item.scope === first.scope);
     const proposal = workResultProposalByReceipt(f.binding, first.proposal.receipt, item.subject);
     const discharge = {
@@ -341,12 +362,13 @@ test("routed assessments execute once, await independent receipt, then advance t
   } finally { f.dispose(); }
 });
 
-test("an unadmitted configured model cannot become an execution choice", async () => {
-  const f = fixture({ demandAssessment: { ...assessment, execution: { character: "fixture-executor", model: "not-admitted", maxOutstanding: 1 } } });
+// Execution choices are the current qualified carriers (feltos fd01e3d); no configured model is invented.
+test("without an admitted carrier no model becomes an execution choice", async () => {
+  const f = fixture({ demandAssessment: assessment });
   try {
-    f.carrier("fixture-executor"); f.admit("Do not invent a model carrier");
+    f.admit("A model carrier is never invented");
     assert.equal(f.read({}).items[0].state, "obstructed");
-    assert.ok(f.read({}).items[0].reasons.includes("configured-assessment-provider-unavailable"));
+    assert.ok(f.read({}).items[0].reasons.includes("no-current-provider-admission"));
     assert.equal((await f.reconcile({})).counts.allocated ?? 0, 0);
   } finally { f.dispose(); }
 });
@@ -404,7 +426,7 @@ test("a received provider error releases capacity and keeps its demand open", as
   let executions = 0, complete;
   const authorization = { authority: "fixture-provider", revision: "fixture", evidence: ["fixture:authority"] };
   const f = fixture({
-    demandAssessment: { ...assessment, execution: { character: "fixture-executor", model: "fixture-model", maxOutstanding: 1 } },
+    demandAssessment: assessment,
     resolveAllocationDelegation: selected => ({ provider: selected.character.id, operations: ["fixture#read"], effects: ["host-read"], authority: authorization.authority }),
     authorizeProviderDelegation: () => authorization,
     agencyWorkProviders: ["fixture-executor"],
@@ -415,7 +437,7 @@ test("a received provider error releases capacity and keeps its demand open", as
     },
   });
   try {
-    f.carrier("fixture-executor"); f.carrier("other-qualified-provider");
+    f.carrier("fixture-executor");
     f.admit("First witnessed assessment"); f.admit("Second witnessed assessment");
     assert.equal(f.read({}).items.filter(item => item.state === "allocatable").length, 2);
     assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
@@ -430,27 +452,12 @@ test("a received provider error releases capacity and keeps its demand open", as
     complete();
     const first = (await pending).ran[0];
     assert.equal(executions, 1);
-    const awaiting = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
-    assert.equal(awaiting.frontier.length, 0);
-    assert.equal(awaiting.queue.find(item => item.scope === first.scope).execution.state, "proposed");
-    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
-    assert.equal((await pump.execute({})).ran.length, 0);
-    const item = awaiting.queue.find(item => item.scope === first.scope);
-    const proposal = workResultProposalByReceipt(f.binding, first.proposal.receipt, item.subject);
-    const discharge = {
-      kind: "metroplat.work.discharge", id: "fixture-independent-receipt", subject: proposal.subject, intent: proposal.intent,
-      allocation: proposal.allocation, producer: proposal.producer, scope: proposal.scope,
-      text: "The independent receiver inspected the actual assessment", result: proposal.result, resultReceipt: proposal.receipt,
-      receiver: { id: "fixture-receiver", evidence: ["fixture:independent-inspection"] }, evidence: ["fixture:assessed-demand"],
-    };
-    assert.throws(() => admitWorkDischargeWithProposal(f.binding, { ...discharge, receiver: { ...discharge.receiver, id: proposal.producer.id } }, { at: DATE, receiverAuthorization: { evaluation: { allowed: true, kind: "fixture", snapshotRevision: "fixture", evidenceRefs: ["fixture:independent"] } } }), /same-character/);
-    admitWorkDischargeWithProposal(f.binding, discharge, { at: DATE, receiverAuthorization: { evaluation: { allowed: true, kind: "fixture", snapshotRevision: "fixture", evidenceRefs: ["fixture:independent"] } } });
-    const failed = readAgentWorkDispatchReadout(f.binding, DATE).queue.find(item => item.scope === first.scope);
-    assert.equal(failed.state, "blocked");
-    assert.equal(failed.status, "open");
+    // A witnessed producer error is already a failed observation: it ends the attempt without an
+    // acceptance review (feltos 46892ff), releases the carrier, and leaves the demand open.
+    const failed = readAgentWorkDispatchReadout({ ...f.binding }, DATE).queue.find(item => item.scope === first.scope);
     assert.equal(failed.execution.state, "failed");
-    assert.ok(failed.execution.receiverReceipt);
-    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
+    assert.equal(failed.status, "open");
+    assert.ok((await f.reconcile({ limit: 2 })).counts.allocated >= 1);
     const next = pump.execute({});
     await new Promise(resolve => setImmediate(resolve)); complete();
     assert.equal((await next).ran.length, 1);
@@ -463,7 +470,7 @@ test("a rejected successful proposal releases capacity without closing the deman
   let executions = 0, complete;
   const authorization = { authority: "fixture-provider", revision: "fixture", evidence: ["fixture:authority"] };
   const f = fixture({
-    demandAssessment: { ...assessment, execution: { character: "fixture-executor", model: "fixture-model", maxOutstanding: 1 } },
+    demandAssessment: assessment,
     resolveAllocationDelegation: selected => ({ provider: selected.character.id, operations: ["fixture#read"], effects: ["host-read"], authority: authorization.authority }),
     authorizeProviderDelegation: () => authorization,
     agencyWorkProviders: ["fixture-executor"],
@@ -474,7 +481,7 @@ test("a rejected successful proposal releases capacity without closing the deman
     },
   });
   try {
-    f.carrier("fixture-executor"); f.carrier("other-qualified-provider");
+    f.carrier("fixture-executor");
     f.admit("First witnessed assessment"); f.admit("Second witnessed assessment");
     assert.equal(f.read({}).items.filter(item => item.state === "allocatable").length, 2);
     assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
@@ -492,8 +499,8 @@ test("a rejected successful proposal releases capacity without closing the deman
     const awaiting = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(awaiting.frontier.length, 0);
     assert.equal(awaiting.queue.find(item => item.scope === first.scope).execution.state, "proposed");
-    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
-    assert.equal((await pump.execute({})).ran.length, 0);
+    // A pending result holds only its own scope against a second execution (feltos 1a7ea27).
+    assert.notEqual(f.read({ scope: first.scope }).items[0].state, "allocatable");
     const item = awaiting.queue.find(item => item.scope === first.scope);
     const proposal = workResultProposalByReceipt(f.binding, first.proposal.receipt, item.subject);
     const discharge = {
