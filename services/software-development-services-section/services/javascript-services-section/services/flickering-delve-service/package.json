@@ -26,7 +26,8 @@
     "@red-cup-engineering/organizing-with-the-web": "0.0.3",
     "@red-cup-engineering/organizing": "0.0.1",
     "@emsenn/computing-with-ledgers": "workspace:*",
-    "@emsenn/computing-with-hive": "workspace:*"
+    "@emsenn/computing-with-hive": "workspace:*",
+    "@red-cup-engineering/hive-blockchain-client-service": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

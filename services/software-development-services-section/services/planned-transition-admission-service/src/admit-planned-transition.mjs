@@ -1,9 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve, sep } from "node:path";
-import {
-  designFromActs,
-  materialJudgment,
-} from "@red-cup-engineering/playing/structuring";
+import { designFromActs } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/design";
+import { materialJudgment } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/settling/incarnation";
 import {
   coordinationCohomology,
   settlingAssociatedSheaf,

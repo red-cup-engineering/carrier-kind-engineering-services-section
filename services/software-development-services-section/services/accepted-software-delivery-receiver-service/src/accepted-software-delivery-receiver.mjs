@@ -45,11 +45,12 @@ const DEFAULT_RECORD_ROOT = join(DEFAULT_AUTHORITY_ROOT, "data");
 const DEFAULT_DATA_ROOT = join(MODULE_ROOT, "data");
 const SHA = /^sha256:[0-9a-f]{64}$/u;
 const CONTENT_ID = /^urn:sha256:[0-9a-f]{64}$/u;
-export const ADOPTED_MESH_CARRIER = "../../../lib/management/skills/enforcing-mesh-scope/scripts/mesh-scope.js";
+// The shared mesh-scope carrier, at its owner (8c7d72e9 removed the private copies this once named).
+export const ADOPTED_MESH_CARRIER = "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/mesh-scope";
 export const ADOPTED_MESH_EXPORTS = Object.freeze(["inspectMeshScope", "admitEnterpriseInstall", "revalidateEnterpriseInstall"]);
 
 async function adoptedMeshCarrier(options = {}) {
-  const carrier = options.meshCarrier ?? await import(new URL(ADOPTED_MESH_CARRIER, import.meta.url));
+  const carrier = options.meshCarrier ?? await import(ADOPTED_MESH_CARRIER);
   if (!ADOPTED_MESH_EXPORTS.every((name) => typeof carrier?.[name] === "function")) {
     throw new ReceiverRefusal("adopted-mesh-carrier-invalid", "the adopted carrier does not expose the exact inspect/admit/revalidate seam");
   }
