@@ -135,3 +135,27 @@ test("a peer's standing is read in the receiver's own feed, not the sender's", a
     assert.equal(cold.board().threads.length, 0);
   } finally { drop(); }
 });
+
+test("a new peer receives old moves without repeating delivery to a peer whose receipt is already held", async () => {
+  const { bare, cold, drop } = nodes();
+  try {
+    const firstPeer = actorOf("cold-red-gate");
+    const laterPeer = "https://later.example/actors/metroplat";
+    const grant = (actor) => admitWorkPeerGrants({ dataRoot: bare.root, origin: ORIGINS["bare-cedar-fog"], issuer: "bare-cedar-fog#peering", peers: [{ actor }], at: "2026-10-09T08:00:00Z" });
+    grant(firstPeer);
+    const open = hostedWorkOpening({ config: { ...bare.config, deliverWorkToPeer: false }, binding: bare.binding, provider: () => ({}), enterprises: () => ENTERPRISES });
+    await open(reportAt("2026-10-09T09:00:00Z", "https://github.com/owner/public/issues/99"));
+    const attempted = [];
+    const deliver = async (_provider, { recipient }) => { attempted.push(recipient); };
+    const catchUp = () => catchUpWorkPeer({ config: bare.config, provider: {}, binding: bare.binding, deliver, host: bare.host, agencyRoot: bare.agencyRoot, enterprises: () => ENTERPRISES });
+    const initial = await catchUp();
+    assert.equal(initial.failed.length, 0);
+    assert.deepEqual(attempted, [firstPeer]);
+    grant(laterPeer);
+    const later = await catchUp();
+    assert.equal(later.failed.length, 0);
+    assert.deepEqual(attempted, [firstPeer, laterPeer]);
+    await catchUp();
+    assert.deepEqual(attempted, [firstPeer, laterPeer]);
+  } finally { drop(); }
+});

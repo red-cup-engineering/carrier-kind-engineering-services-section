@@ -186,10 +186,15 @@ export function failuresSaid(failed, limit = 3) {
 const LEDGER_FILE = "work-peer-shipped.jsonl";
 
 /** The addresses the work peer has received from this settlement, from the ledger kept in its root. */
-export function readShipped(dataRoot) {
+export function readShipped(dataRoot, peer) {
   const path = resolve(dataRoot, LEDGER_FILE);
   if (!existsSync(path)) return new Set();
-  return new Set(readFileSync(path, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line)));
+  const receipts = readFileSync(path, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
+  // Historical bare addresses do not identify a recipient and cannot prove a newly granted peer
+  // has received them. Keep that reader for history; current delivery selects named receipts only.
+  return new Set(receipts.flatMap((receipt) => peer === undefined
+    ? (typeof receipt === "string" ? [receipt] : [])
+    : (receipt?.peer === peer && typeof receipt.id === "string" ? [receipt.id] : [])));
 }
 
 function noteShipped(dataRoot, ids) {
@@ -218,10 +223,17 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
   };
   const outbound = [...replicableMovesOf(entries), ...decidedMovesOf(entries, { homedHere })];
   const observations = new Map(workPeersOf(config).map((peer) => [peer, { shipped: 0, failed: [] }]));
+  const received = new Map([...observations.keys()].map((peer) => [peer, readShipped(binding.dataRoot, peer)]));
+  let moveId;
   const observedDelivery = async (sender, request) => {
     const observation = observations.get(request.recipient);
+    const held = received.get(request.recipient);
+    if (held.has(moveId)) return;
+
     try {
       const value = await (deliver ?? deliverActivity)(sender, request);
+      noteShipped(binding.dataRoot, [{ peer: request.recipient, id: moveId }]);
+      held.add(moveId);
       observation.shipped += 1;
       return value;
     } catch (error) {
@@ -229,7 +241,8 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
       throw error;
     }
   };
-  const ship = async ({ record }) => {
+  const ship = async ({ id, record }) => {
+    moveId = id;
     const opening = OPENING_MOVES.includes(record.move);
     const decided = !opening && !isReplicable(record, kindsOf(entries));
     const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver: observedDelivery, opening: record })
@@ -238,8 +251,7 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     if (thunk === undefined) throw new TypeError("no work peer is configured");
     await thunk();
   };
-  const result = await shipWorkSince({ entries: outbound, shipped: readShipped(binding.dataRoot), ship });
-  noteShipped(binding.dataRoot, result.shipped.map(({ id }) => id));
+  const result = await shipWorkSince({ entries: outbound, ship });
   return Object.freeze({ ...result, peers: Object.freeze([...observations].map(([peer, observation]) => Object.freeze({ peer, shipped: observation.shipped, failed: Object.freeze(observation.failed) }))) });
 }
 
