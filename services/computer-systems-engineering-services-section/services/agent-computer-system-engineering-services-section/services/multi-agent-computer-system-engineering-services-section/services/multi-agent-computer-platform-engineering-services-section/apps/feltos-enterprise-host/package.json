@@ -66,6 +66,7 @@
     "test/character-inbox-async.test.mjs",
     "test/work-peer-standing.test.mjs",
     "test/peer-health-observation.test.mjs",
+    "test/peer-health-host-declaration.test.mjs",
     "test/native-actor-service.test.mjs",
     "test/native-actor-host-wiring.test.mjs"
   ]
