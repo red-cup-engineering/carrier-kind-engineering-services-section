@@ -1,6 +1,8 @@
 import {createProviderAccountEntitlementResolver} from "./provider-account-entitlement.mjs";
 import {isZeroCashProvider} from "../openai/openai-compatible-chat-completion.mjs";
 const accountEntitlementVerifiers=new WeakMap();
+// Private owner custody retained at descriptor admission, never a caller execution field.
+const allowanceLedgerCustody=new WeakMap();
 const CATALOG_ROW=Symbol("provider-catalog-row");
 import { allocateProviderOutputTokens } from "../openai/provider-runtime.mjs";
 import { existsSync, readFileSync } from "node:fs";
@@ -241,7 +243,9 @@ function normalizeDirectEndpointDescriptor(entry, env = process.env, resolveAcco
   const availability = currentProviderAvailability(provider, { identity });
   // Each placement compares offers by consideration per accepted result, so an offer is priced by
   // what drawing its own allowance costs now, not by a constant every offer declares alike.
-  const share = allowanceShareOf(nonEmpty(entry.allowance), env);
+  const allowance = nonEmpty(entry.allowance);
+  const allowanceStore = allowance === null ? undefined : allowanceLedgerPath(env);
+  const share = allowanceShareOf(allowance, allowanceStore);
   const descriptor = {
     provider,
     ...(nonEmpty(entry.providerId) ? { providerId: nonEmpty(entry.providerId) } : {}),
@@ -288,6 +292,7 @@ function normalizeDirectEndpointDescriptor(entry, env = process.env, resolveAcco
     configurationIdentity: directEndpointConfigurationIdentity(descriptor),
   });
   if(accountEntitlement) accountEntitlementVerifiers.set(admitted,resolveAccountEntitlement);
+  if (allowanceStore !== undefined) allowanceLedgerCustody.set(admitted, allowanceStore);
   return admitted;
 }
 
@@ -298,10 +303,10 @@ function normalizeDirectEndpointDescriptor(entry, env = process.env, resolveAcco
  * descriptor that names no allowance, or whose ledger cannot be read, is priced at the unit: an
  * unknown is never free.
  */
-function allowanceShareOf(allowanceId, env) {
+function allowanceShareOf(allowanceId, storePath) {
   if (allowanceId === null) return { price: 1, exhausted: false, allowance: null };
   try {
-    const share = perishablePrice(readAllowanceLedger(subscriptionAllowance(allowanceId), { storePath: allowanceLedgerPath(env) }).reading);
+    const share = perishablePrice(readAllowanceLedger(subscriptionAllowance(allowanceId), { storePath }).reading);
     // A window spent out has no price, only when it turns: the share is identified as content (a JSON
     // value), so it never carries perishablePrice's unbounded price.
     return { ...(share.exhausted ? {} : { price: share.price }), exhausted: share.exhausted, allowance: allowanceId, binding: share.binding, ...(share.until ? { until: share.until } : {}) };
@@ -322,9 +327,11 @@ function recordWindowReading(descriptor, response, execution) {
   const at = new Date(execution.now?.() ?? Date.now()).toISOString();
   const window = providerWindowStatement(response, at);
   if (window === null) return;
+  const storePath = allowanceLedgerCustody.get(descriptor);
+  if (storePath === undefined) return;
   const used = Math.round(((window.limit - window.remaining) / window.limit) * 10_000) / 100;
   try {
-    recordAllowanceEvidence(subscriptionAllowance(allowanceId), [{ type: "reading", meter: "requests", at, used, resetsAt: window.resetsAt, source: `reading:${allowanceId}:requests:${window.resetsAt}:${used}` }], { storePath: allowanceLedgerPath() });
+    recordAllowanceEvidence(subscriptionAllowance(allowanceId), [{ type: "reading", meter: "requests", at, used, resetsAt: window.resetsAt, source: `reading:${allowanceId}:requests:${window.resetsAt}:${used}` }], { storePath });
   } catch { /* the reading is evidence for pricing, not a condition of the exchange */ }
 }
 
