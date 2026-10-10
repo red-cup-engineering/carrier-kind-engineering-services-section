@@ -10,7 +10,7 @@ import { codexNodeOptions } from "@red-cup-engineering/agent-harness-computer-sy
 import { claudeCodeAgencyWorkProvider, officeAgentDefinition } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/claude-code/agency-work";
 import { antigravityAgencyWorkProvider } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/antigravity/agency-work";
 import { BOUNDED_INFERENCE_SERVICE_MODEL } from "@red-cup-engineering/computer-inference-engine/dispatch/inference-work-lot-source";
-import { recordAcceptedWorkInferenceOutcome } from "@red-cup-engineering/computer-inference-engine/dispatch/accepted-work-outcome";
+import { workInferenceCoordinate } from "@red-cup-engineering/computer-inference-engine/dispatch/work-inference-coordinate";
 import { allowanceLedgerPath, readAllowanceLedger } from "@red-cup-engineering/computer-inference-engine/media/allowance-ledger";
 import { subscriptionAllowance } from "@red-cup-engineering/computer-inference-engine/media/subscription-allowances";
 import { selectInferenceSource } from "@red-cup-engineering/computer-inference-engine/dispatch/source-selection";
@@ -536,10 +536,6 @@ export function enterpriseAgencyWorkOptions({
   const hostedCharacter = character => !hosts(character) ? character : {
     ...character, capabilities: surfaceVerbs(),
   };
-  const onAcceptedWork = workerId === undefined || !environment.EXPECTED_RESOLUTION_PRICING_ROOT ? undefined
-    : ({ proposal, discharge }) => recordAcceptedWorkInferenceOutcome({
-      proposal, discharge, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
-    });
   // Receiving is the power to admit a work discharge. The host admits the receiver's judgement
   // into the root that owns the proposal, as it admits execution's proposal there: every
   // micro-enterprise's work is received in its own root. Any carrier whose character holds an
@@ -556,7 +552,13 @@ export function enterpriseAgencyWorkOptions({
   const tellReceivedOutcome = ({ proposal, discharge, office, at }) => {
     try {
       if (proposal?.origin?.office === undefined || discharge.result?.kind !== "skill-result") return;
-      outcomeJournalOf(binding.dataRoot).record(outcomeOf({ ...receivedOutcomeFields({ proposal, discharge, office, at }), resources: proposalResources(proposal) }));
+      const market = workInferenceCoordinate({
+        proposal, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
+      });
+      outcomeJournalOf(binding.dataRoot).record(outcomeOf({
+        ...receivedOutcomeFields({ proposal, discharge, office, at }),
+        ...(market === undefined ? {} : { market }), resources: proposalResources(proposal),
+      }));
     } catch (error) {
       console.error("[work-discharge] outcome remains untold:", error instanceof Error ? error.message : String(error));
     }
@@ -632,10 +634,6 @@ export function enterpriseAgencyWorkOptions({
       scope: discharge.scope, operation: receivingVerb, at });
     const { proposal } = admitWorkDischargeWithProposal(owning, discharge, { at: at.slice(0, 10), receiverAuthorization });
     tellReceivedOutcome({ proposal, discharge, office: review.office, at });
-    if (onAcceptedWork !== undefined && discharge.result.kind === "skill-result" && discharge.decision !== "rejected") {
-      try { await onAcceptedWork({ proposal, discharge }); }
-      catch (error) { console.error("[work-discharge] derived inference outcome remains unrecorded:", error instanceof Error ? error.message : String(error)); }
-    }
     const received = prior(outcome.session.id);
     if (received === undefined) throw new TypeError(`independent receiving recorded no native admission (${outcome.task})`);
     return { ...received, task: outcome.task, usage: outcome.usage };
@@ -722,7 +720,7 @@ export function enterpriseAgencyWorkOptions({
       finally { await carrier.adapter.release(lease); }
     },
     ...(authorizeWorkDischargeReceiver === undefined ? {} : { authorizeWorkDischargeReceiver }),
-    ...(onAcceptedWork === undefined ? {} : { onAcceptedWork }),
+    onWorkDischarged: tellReceivedOutcome,
     agencyWorkProviders,
     // Carriers expose a cross-process atomic provider reservation. Other
     // adapters keep the existing same-carrier admission gate until they do.
