@@ -18,7 +18,7 @@ import {
   x402PaymentCarrier,
   x402ReceiptCarrier,
 } from "../src/writing/x402/index.mjs";
-import { cohereLog } from "@red-cup-engineering/eavt/ledger/reading";
+import { cohereLog } from "@red-cup-engineering/eavt-services-section/ledger/reading";
 
 const challenge = {
   kind: "organizing.economy.x402.challenge",

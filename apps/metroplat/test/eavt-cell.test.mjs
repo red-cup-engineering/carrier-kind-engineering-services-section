@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { appendFileSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 
-import { askEavtCell } from "@red-cup-engineering/eavt/ask-eavt-cell";
+import { askEavtCell } from "@red-cup-engineering/eavt-services-section/ask-eavt-cell";
 import { encodeCanonical } from "@red-cup-engineering/cbor-services-section";
 import { askEavtCellRequest, askEavtTraceCellRequest, countEavtTraceContestedCellsRequest, eavtCellOperations } from "@red-cup-engineering/knowledge-system-server/eavt-cell";
 import { grantAssertion } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";

@@ -3,7 +3,7 @@
  * representation the request negotiates, with every representation offered in a Link header.
  */
 import { negotiateType } from "./negotiation.mjs";
-import { linkHeader } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/link";
+import { linkHeader } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/link";
 function assertRepresentation(representation) {
     if (!representation.type)
         throw new TypeError("representation.type is required");

@@ -1,5 +1,5 @@
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
-import { triplesToTurtle } from "@red-cup-engineering/rdf-data-model-services-section/sparql-over-eavt";
+import { triplesToTurtle } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/sparql-over-eavt";
 import { AUTHORIZED_RELATION_PREDICATES, relationPredicateRange } from "@red-cup-engineering/term-engineering-services-section/carrier";
 import { admitTermMarkdownInVault } from "@red-cup-engineering/term-engineering-services-section/relations";
 import { glossaryAudienceAdmits } from "@red-cup-engineering/term-engineering-services-section/glossary-skos";

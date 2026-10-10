@@ -1,6 +1,6 @@
 /** Compose Qwzspace's single-writer tick with canonical Web application routes. */
 import { createWebApplication } from "@red-cup-engineering/computer-web-platform/application";
-import { sseCommentFrame, sseEventFrame, sseHeaders } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { sseCommentFrame, sseEventFrame, sseHeaders } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 import { createIntentQueue } from "./intent-queue.mjs";
 import { createSnapshotManager } from "./snapshot-manager.mjs";
 import { createBroadcastHub } from "./broadcast-hub.mjs";

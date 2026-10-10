@@ -19,7 +19,7 @@ import {
   otlpTracesContract,
   otlpTracesSchema,
 } from "./otlp-schema.mjs";
-import { eavtKey, eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtKey, eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 
 export {

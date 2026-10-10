@@ -17,7 +17,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { createR2RestClient, r2RestConfiguration } from "@red-cup-engineering/cloudflare-r2-services-section/r2-rest";
-import { validateEpub } from "@red-cup-engineering/ebook-production-services-section/kindle-validation";
+import { validateEpub } from "@red-cup-engineering/ebook-engineering-services-section/kindle-validation";
 import { grantReviewCopy } from "../src/review-copy-grants.mjs";
 
 const usage = "usage: grant-review-copies.mjs --plan <launch.json> --release-acceptance <json> --epub <accepted.epub> --title <title> --channel advance-reader-team|outreach (--roster <private.json> | --name <name> --email <address> --reference <ref> [--invitation-file <text>]) [--campaign <id>] [--offering <id>] [--records <dir>] [--state <dir>] [--origin <url>] [--today YYYY-MM-DD]";

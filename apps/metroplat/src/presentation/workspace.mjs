@@ -13,7 +13,7 @@ import {
   entityGraphJsonLd,
   SCHEMA_ORG_CONTEXT,
 
-} from "@red-cup-engineering/rdf-data-model-services-section/schema-org";
+} from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/schema-org";
 import { iriRef, turtleLiteral } from "@red-cup-engineering/turtle-services-section/turtle";
 
 import { presentedCategoryDiagram } from "@red-cup-engineering/signgraph/diagram";

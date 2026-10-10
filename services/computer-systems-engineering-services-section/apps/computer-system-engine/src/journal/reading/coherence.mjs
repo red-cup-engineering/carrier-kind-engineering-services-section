@@ -9,7 +9,7 @@
  *
  * @metroplatSubject journal
  */
-import { normalizeStatementLog, sameStatement, sameStatementLog, statementRow } from "@red-cup-engineering/eavt/statement";
+import { normalizeStatementLog, sameStatement, sameStatementLog, statementRow } from "@red-cup-engineering/eavt-services-section/statement";
 
 function isIso(reading, statement) {
   return sameStatement(reading.fromWire(reading.toWire(statement)), statement);

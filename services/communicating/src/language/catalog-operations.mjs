@@ -10,7 +10,7 @@ import {
 } from "@red-cup-engineering/communicating/language/catalog";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { toEavt, eavtKey, eavtRecord } from "@red-cup-engineering/eavt/row";
+import { toEavt, eavtKey, eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 
 const termAdmissionResultContract = schemaFrom({
   $id: "metroplat/language/term-admission-result",

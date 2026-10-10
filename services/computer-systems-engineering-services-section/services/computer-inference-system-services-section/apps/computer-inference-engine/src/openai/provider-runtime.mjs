@@ -263,7 +263,7 @@ export async function performProviderInference(provider, marks, options = {}) {
 export async function executeProviderMessage(provider, message, options = {}) {
   const row = providerConfiguration(provider), policy = row.execution ?? {};
   const [{ executeTypedInferenceEffect }, { lazySettlementAccount }] = await Promise.all([
-    import("@red-cup-engineering/computer-inference-engine/fabric/execute-typed-inference-effect"),
+    import("@red-cup-engineering/computer-inference-system-services-section"),
     import("@red-cup-engineering/ethereum-engineering-services-section/settlement-account-binding"),
   ]);
   const settlement = lazySettlementAccount(providerResourceRoot(row, options.resourceRoot));

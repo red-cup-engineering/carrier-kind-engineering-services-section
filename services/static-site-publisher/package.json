@@ -25,7 +25,7 @@
     "@red-cup-engineering/activitypub-services-section": "workspace:*",
     "@red-cup-engineering/cbor-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
+    "@red-cup-engineering/computer-serialized-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-systems-publishing-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-web-server": "workspace:*",
     "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",

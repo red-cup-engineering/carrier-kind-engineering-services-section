@@ -19,10 +19,10 @@ function isNotationReadingName(value) {
 
 import { projectRadial, radialPalette } from "@red-cup-engineering/xml-document-rendering-service/svg/radial";
 
-import { articleContract } from "@red-cup-engineering/articles-services-section/article";
+import { articleContract } from "@red-cup-engineering/computer-article-engineering-services-section/article";
 
 import { articleToThemedPage } from "@red-cup-engineering/web-theming-service/themed-page";
-import { dataDatePartition } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataDatePartition } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { isReading, readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /* ── shared shape readers ──────────────────────────────────────────────── */

@@ -7,7 +7,7 @@
  * decode loop, which is a networking-substrate concern shared by every SSE
  * client, not one team's own.
  */
-import { parseSseStream } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { parseSseStream } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 
 function eventBoundary(buffer) {
   const matches = [

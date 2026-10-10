@@ -7,7 +7,7 @@ import {
   VIRTUALS_MARKET_ACTION_PRICE,
   evaluateVirtualsMarketActionRequirement,
 } from "../src/virtuals-market-action.mjs";
-import { X402_MARKET_ACTION_SAMPLE_REQUEST } from "@red-cup-engineering/blockchain-trashpanda/market-action-admission";
+import { X402_MARKET_ACTION_SAMPLE_REQUEST } from "@red-cup-engineering/blockchain-trashpanda-services-section/market-action-admission";
 
 test("declares a service-only Virtuals market-action offering", () => {
   assert.equal(VIRTUALS_MARKET_ACTION_OFFERING.name, VIRTUALS_MARKET_ACTION_OFFERING_NAME);

@@ -10,7 +10,7 @@ import { resolve, join, sep } from "node:path";
 import { htmlRepr, jsonRepr } from "@red-cup-engineering/http-services-section/representation";
 import { readFormBody, readJsonBody } from "@red-cup-engineering/http-services-section/body";
 import { assertStructuredWorkIntent } from "@red-cup-engineering/feltos/work/structured-intent";
-import { current, entities, unique, execute, foldIndependentEvidence, independentEvidenceRow } from "@red-cup-engineering/eavt";
+import { current, entities, unique, execute, foldIndependentEvidence, independentEvidenceRow } from "@red-cup-engineering/eavt-services-section";
 import { LEDGER_REPORT_NAMES, readMetroplatBooks, renderBooksHtml } from "./books.mjs";
 import { openingOfText, readMetroplatTaskList, renderTaskListHtml, workIntentOfOutline } from "./task-list.mjs";
 import { fromSection } from "@red-cup-engineering/html-structural-projection-service";

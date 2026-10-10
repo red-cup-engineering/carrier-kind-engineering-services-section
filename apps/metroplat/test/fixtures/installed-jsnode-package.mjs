@@ -1,7 +1,7 @@
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { encode } from "@red-cup-engineering/eavt";
+import { encode } from "@red-cup-engineering/eavt-services-section";
 import { readJsnodeOperationArguments } from "@red-cup-engineering/javascript-node-services-section/syntax";
 
 // A real installed package and admitted contracts, built locally without a registry,

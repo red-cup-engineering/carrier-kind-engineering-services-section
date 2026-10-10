@@ -47,7 +47,7 @@ import { operationsManifoldOf } from "@red-cup-engineering/computer-system-engin
 import { dispatchProjectedSurface } from "@red-cup-engineering/computer-system-engine/rpc/wire-dispatch";
 import { transportCloudEvent } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { feedResponse } from "@red-cup-engineering/http-services-section/statement-log-stream";
-import { sseFrame } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { sseFrame } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 
 import { writeProcessStderr } from "@red-cup-engineering/node-process-services-section/stdio";
 import { settleSite } from "@red-cup-engineering/signcraft/settle";

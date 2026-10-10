@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { basename } from "node:path";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { migrateLegacyTermMarkdown } from "../src/term-carrier.mjs";
 
 export async function migrateTermCarriers(paths, operations = {}) {

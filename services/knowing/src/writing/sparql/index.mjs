@@ -17,8 +17,8 @@ import {
   variable as datalogVariable,
 
 } from "../datalog/index.mjs";
-import { eavtRecord } from "@red-cup-engineering/eavt/row";
-import { triplesToTurtle } from "@red-cup-engineering/rdf-data-model-services-section/sparql-over-eavt";
+import { eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
+import { triplesToTurtle } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/sparql-over-eavt";
 
 const jsonTermSchema = {
   anyOf: [

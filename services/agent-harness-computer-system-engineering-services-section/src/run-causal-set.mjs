@@ -11,7 +11,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { dataArtifactAddress } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataArtifactAddress } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 
 import { journal } from "@red-cup-engineering/computer-system-engine/journal/journal";

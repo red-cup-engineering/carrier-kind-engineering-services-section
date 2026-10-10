@@ -44,7 +44,7 @@ import { x } from "@red-cup-engineering/metrologic/articulation/predicating/posi
 import { count, magnitude, toCount } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { hodgeDecompositionOfWeights, weightsOfEdges, graphSpectrum } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/laplacian";
 
-import { cell } from "@red-cup-engineering/eavt/ledger/cells";
+import { cell } from "@red-cup-engineering/eavt-services-section/ledger/cells";
 import { admitSeed, descend } from "@red-cup-engineering/animating/becoming/descending";
 import { socializingFace, aggregatePreferences } from "@red-cup-engineering/socializing";
 import { computingFace } from "@red-cup-engineering/computing/face";

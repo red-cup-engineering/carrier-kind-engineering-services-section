@@ -8,7 +8,7 @@
  */
 import { credentialFromStatementReference } from "@red-cup-engineering/computer-networking-engineering-services-section/identity";
 import { journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { eavtRecord } from "@red-cup-engineering/eavt/row";
+import { eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 
 
 /** Project a durable `data/journals` artifact into a Verifiable Credential under `data/records`. */

@@ -41,11 +41,11 @@ import {
 import { readThroughDateEvents, readThroughTerritoryEvents } from "./filesystem/territory-cache.mjs";
 import { causalGraphOf, topologicalOrder } from "@red-cup-engineering/semiotic-eavt-services-section/journal/causal-graph";
 import { journalAppendAddress, journalLogArtifact } from "./filesystem/operations/index.mjs";
-import { dataArtifactHandlePath, dataTierDirectory, mementoStateArtifactPath, parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataArtifactHandlePath, dataTierDirectory, mementoStateArtifactPath, parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 
 import { parse } from "@red-cup-engineering/json-services-section";
 import { journalDirectoryOf, settlementRootOf } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 function artifactOf(handle) {
   return typeof handle === "object" && handle !== null && "artifact" in handle

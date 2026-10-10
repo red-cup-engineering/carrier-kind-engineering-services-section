@@ -1,5 +1,5 @@
 /** Read syndication formats through the shared codecs; no publication policy lives here. */
-import { parseArxivAtom, parseFeed, parseJsonFeed } from "@red-cup-engineering/computer-data-serialization-services-section/web-feed";
+import { parseArxivAtom, parseFeed, parseJsonFeed } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/web-feed";
 import { fetchText } from "@red-cup-engineering/http-services-section/fetch-text";
 
 const boundedCount = (value, fallback = 20) => Number.isInteger(value) && value > 0 ? Math.min(value, 100) : fallback;

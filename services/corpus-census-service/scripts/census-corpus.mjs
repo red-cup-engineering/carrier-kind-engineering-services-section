@@ -7,7 +7,7 @@ import { join, posix, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deserialize, serialize } from "node:v8";
 import { gzipSync } from "node:zlib";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { parseArgv } from "@red-cup-engineering/javascript-node-services-section/argv";
 import { moduleClosureDigest } from "@red-cup-engineering/javascript-node-services-section/module-closure";
 import { isMain } from "@red-cup-engineering/javascript-file-services-section/javascript-file-main-guard";

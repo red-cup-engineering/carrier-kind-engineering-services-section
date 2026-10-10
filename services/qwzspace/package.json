@@ -27,7 +27,7 @@
   "dependencies": {
     "@red-cup-engineering/code-websocket-frame-service": "workspace:*",
     "@red-cup-engineering/computer-content-graph-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
+    "@red-cup-engineering/computer-serialized-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-web-platform": "workspace:*",

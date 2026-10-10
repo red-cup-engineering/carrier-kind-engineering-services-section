@@ -20,7 +20,7 @@ import {
   verificationMethodSchema,
   verifiableCredentialSchema,
 } from "./schema.mjs";
-import { eavtRecord, toEavt, foldJson, unfoldJson } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt, foldJson, unfoldJson } from "@red-cup-engineering/eavt-services-section/row";
 import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 
 export {

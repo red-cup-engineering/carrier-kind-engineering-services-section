@@ -1,5 +1,5 @@
 {
-  "name": "@red-cup-engineering/erc-4337-bundler-services-section",
+  "name": "@red-cup-engineering/erc-4337-bundler-service",
   "version": "0.1.2",
   "type": "module",
   "description": "Separately hireable ERC-4337/ERC-7769 bundler provider using the maintained Alto implementation.",

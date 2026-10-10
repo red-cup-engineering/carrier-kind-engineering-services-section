@@ -12,8 +12,8 @@
 // operations over Web Crypto, which is a port of this module, not a fork of it.
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
 import { sha256 } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash';
-import { parseCookieHeader, serializeSetCookie } from '@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cookie';
-import { signCookieValue, unsignCookieValue } from '@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/signed-cookie';
+import { parseCookieHeader, serializeSetCookie } from '@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cookie';
+import { signCookieValue, unsignCookieValue } from '@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/signed-cookie';
 export const DEFAULT_SESSION_TTL_SECONDS = 1_209_600; // 14 days, the house precedent.
 export const DEFAULT_TRANSACTION_TTL_SECONDS = 600; // A consent round trip, not a session.
 const COOKIE_ATTRIBUTES = Object.freeze({ httpOnly: true, secure: true, sameSite: 'lax', path: '/' });

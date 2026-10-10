@@ -30,8 +30,8 @@ import {
 
 } from "@red-cup-engineering/knowledge-system-server/directory-readout/boundary/schema";
 
-import { artifactTier } from "@red-cup-engineering/eavt/statement";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { artifactTier } from "@red-cup-engineering/eavt-services-section/statement";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 export { directoryReadoutRecordSchemaContract, directoryReadoutSchemaContract };
 
 const DIRECTORY_READOUT_RECORD_ACTION = "record-directory-readout";

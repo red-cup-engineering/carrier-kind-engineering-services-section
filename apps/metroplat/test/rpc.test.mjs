@@ -16,7 +16,7 @@ import { mcpToolRefusalContract } from "@red-cup-engineering/mcp-engineering-ser
 import { filesystemRpcFeedResponder, journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { rpcAdmittedStepsOfRows } from "@red-cup-engineering/computer-system-engine/journal/reading/rpc-sequence";
-import { eavtKey, eavtRecord } from "@red-cup-engineering/eavt/row";
+import { eavtKey, eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 
 const at = () => "2026-07-11T12:00:00.000Z";
 

@@ -8,7 +8,7 @@
  */
 import { escapeHtml } from "./markdown.mjs";
 import { socialMetaTags as pageSocialMetaTags, webAppManifest } from "@red-cup-engineering/html-engineering-services-section/page-metadata";
-import { creativeWork, organization, renderJsonLdScript } from "@red-cup-engineering/rdf-data-model-services-section/schema-org";
+import { creativeWork, organization, renderJsonLdScript } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/schema-org";
 
 /**
  * @param {string} origin absolute origin, e.g. "https://koios.news"

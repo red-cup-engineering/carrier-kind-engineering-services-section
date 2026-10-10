@@ -5,7 +5,7 @@
  * a data format (CSV by default), so a caller reads the report's rows rather than its HTML.
  * @packageDocumentation
  */
-import { applySetCookies, jarCookieHeader } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cookie";
+import { applySetCookies, jarCookieHeader } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cookie";
 
 const EXPORT_BASE = /"ExportUrlBase":"([^"]+)"/;
 

@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { Wallet, decryptKeystoreJson, isKeystoreJson } from "ethers";
-import { writeFileTextSync } from "@red-cup-engineering/file-services/write-file";
+import { writeFileTextSync } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 function requirePrivateFile(path, label) {

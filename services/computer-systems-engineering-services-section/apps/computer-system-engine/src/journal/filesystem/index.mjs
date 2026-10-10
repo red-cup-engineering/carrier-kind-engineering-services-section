@@ -14,7 +14,7 @@
 
 import path from "node:path";
 import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
-import { eavtKey } from "@red-cup-engineering/eavt/row";
+import { eavtKey } from "@red-cup-engineering/eavt-services-section/row";
 
 /** Beyond this many bytes, `readRows`/`readRowsPath` refuse a
  *  whole-file read rather than materializing every row resident, and name

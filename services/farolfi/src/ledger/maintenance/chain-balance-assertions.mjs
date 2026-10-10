@@ -1,7 +1,7 @@
 /** Derives Beancount `balance` assertions for Hive, Hive-Engine, Base-native and Base USDC chain state,
  *  from the wallets and symbol/account mappings recorded as metadata in the house ledger. */
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import {
   acquireObservationBoundary, callMany, chain, formatUnits,
 } from "@red-cup-engineering/treasury-observation-service/chains";

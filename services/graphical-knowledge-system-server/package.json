@@ -30,7 +30,7 @@
     "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/knowledge-system-server": "workspace:*",
     "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/rdf-data-model-services-section": "workspace:*",
+    "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/static-site-publisher": "workspace:*",
     "@red-cup-engineering/term-engineering-services-section": "workspace:*",
     "@red-cup-engineering/web-page-tiling-engine": "workspace:*",

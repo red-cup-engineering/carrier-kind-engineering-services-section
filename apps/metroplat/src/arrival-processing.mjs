@@ -17,7 +17,7 @@ import {
 import { createOperationCatalog, operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { dispatchWire } from "@red-cup-engineering/computer-system-engine/rpc/wire-dispatch";
 import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** A receiver-local decision to bind received material to a local authority subject.
  * CloudEvent source and material claims are inputs to this decision, not authority. */

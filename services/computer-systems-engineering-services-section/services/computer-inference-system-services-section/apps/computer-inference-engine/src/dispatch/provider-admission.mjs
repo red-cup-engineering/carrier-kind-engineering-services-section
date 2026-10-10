@@ -1,4 +1,4 @@
-import { TYPED_INFERENCE_OPERATION_TYPE } from "@red-cup-engineering/computer-inference-engine/fabric/execute-typed-inference-effect";
+import { TYPED_INFERENCE_OPERATION_TYPE } from "@red-cup-engineering/computer-inference-system-services-section";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { circuitInterfaceFromAgentCard } from "@red-cup-engineering/a2a-services-section/circuit-interface";

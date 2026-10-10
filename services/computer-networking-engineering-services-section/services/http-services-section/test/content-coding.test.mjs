@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { Readable } from "node:stream";
 import test from "node:test";
-import { compress } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
+import { compress } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
 import { negotiateEncoding as negotiate } from "../src/negotiation.mjs";
 import { negotiateEncoding } from "../src/negotiation.mjs";
 import { readBody } from "../src/body/read-http-request-body.mjs";

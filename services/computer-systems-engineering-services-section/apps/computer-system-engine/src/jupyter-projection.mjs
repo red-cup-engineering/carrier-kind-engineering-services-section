@@ -17,7 +17,7 @@ import {
 
 } from "@red-cup-engineering/computer-content-engineering-services-section/jupyter/codec";
 import { observeJournalOperation, journalContentArtifact, journalObservation, journalRecordArtifact } from "@red-cup-engineering/computer-system-engine/journal/filesystem/operations";
-import { contentRecordArtifactPath, dataArtifactHandlePath, recordContentArtifactPath, dataStoreFromContentPath, dataStoreFromRecordPath } from "@red-cup-engineering/eavt/data-artifact-address";
+import { contentRecordArtifactPath, dataArtifactHandlePath, recordContentArtifactPath, dataStoreFromContentPath, dataStoreFromRecordPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { } from "@red-cup-engineering/json-services-section";
 import { parseLines, serializeLines } from "@red-cup-engineering/jsonl-services-section";
 

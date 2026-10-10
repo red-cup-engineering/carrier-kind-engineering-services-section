@@ -60,7 +60,7 @@ It is generic over any glossary; nothing domain-specific is named here.
 ## SKOS vocabulary
 
 `src/glossary-skos.mjs` (the `./glossary-skos` export) projects a glossary index into a [W3C SKOS](https://www.w3.org/TR/skos-reference/) vocabulary serialized as JSON-LD (schema `computer-glossary-skos.v2`), so RDF, thesaurus, and schema.org consumers can all read the house glossaries.
-Nodes come from the data layer's shared builders (`definedTermJsonLd`, `definedTermSetJsonLd` in `@red-cup-engineering/rdf-data-model-services-section/schema-org`): each owning section is a `DefinedTermSet` and `skos:ConceptScheme`, and each admitted term a `DefinedTerm` and `skos:Concept`.
+Nodes come from the data layer's shared builders (`definedTermJsonLd`, `definedTermSetJsonLd` in `@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/schema-org`): each owning section is a `DefinedTermSet` and `skos:ConceptScheme`, and each admitted term a `DefinedTerm` and `skos:Concept`.
 
 - **IRIs.** A concept is `<base><scheme path>/<identity>` (base `https://561.group/knowledge/`); `schemeIriPath` drops the `services/` connectors, so an IRI depends on the section path alone, never on what else was indexed.
 - **Fields.** Name is `name`/`skos:prefLabel`, aliases `skos:altLabel`, the description schema.org `description`, the body `skos:definition`, the identity `termCode`/`skos:notation`, the carrier `type` `dct:type`.

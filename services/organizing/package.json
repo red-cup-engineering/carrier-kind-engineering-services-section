@@ -23,7 +23,7 @@
     "@red-cup-engineering/computing": "workspace:*",
     "@red-cup-engineering/cron-services-section": "workspace:*",
     "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/gaming": "workspace:*",
     "@red-cup-engineering/html-engineering-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",

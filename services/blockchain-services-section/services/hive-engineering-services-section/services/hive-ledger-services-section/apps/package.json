@@ -18,7 +18,7 @@
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/derive-hive-account-ledger-service": "workspace:*",
     "@red-cup-engineering/farolfi": "workspace:*",
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
     "@red-cup-engineering/read-hive-account-history-service": "workspace:*",
     "@red-cup-engineering/read-hive-engine-account-history-service": "workspace:*",

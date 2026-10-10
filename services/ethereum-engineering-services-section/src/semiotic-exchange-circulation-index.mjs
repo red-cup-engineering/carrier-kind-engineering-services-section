@@ -4,7 +4,7 @@ import { getAddress } from "ethers";
 
 import { readSemioticExchangeEvents } from "./semiotic-exchange-events.mjs";
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
-import { writeFileTextSync } from "@red-cup-engineering/file-services/write-file";
+import { writeFileTextSync } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 

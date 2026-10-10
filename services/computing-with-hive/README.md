@@ -1,4 +1,4 @@
-# @red-cup-engineering/computing-with-hive
+# @red-cup-engineering/hive-computing-service
 
 Hive as a computing package downstream of the `relating -> animating -> gaming -> computing` spine.
 
@@ -15,7 +15,7 @@ They enter the package through codecs, holography, the client, or the script bou
 
 | Package/module | Category role |
 | --- | --- |
-| `@red-cup-engineering/computing-with-hive` | Package root: admits Hive observations, curation requests, or codec-built operations as charge-backed computation results. |
+| `@red-cup-engineering/hive-computing-service` | Package root: admits Hive observations, curation requests, or codec-built operations as charge-backed computation results. |
 | `./computing/topology` | Hive facts as relational utterances and settled topology carriers inside the computing surface. |
 | `./holography` | Boundary Hive resources, especially JSON account/post/vote/follow records, projected into topology utterances. |
 | `./codecs` | Free-data gates for Hive wire forms: hashes, keys, serialization, operations, transactions, and Hive Engine payloads. |
@@ -29,7 +29,7 @@ They enter the package through codecs, holography, the client, or the script bou
 ## Verification
 
 ```sh
-pnpm --filter @red-cup-engineering/computing-with-hive run verify
+pnpm --filter @red-cup-engineering/hive-computing-service run verify
 ```
 
 `verify` typechecks, builds, runs the package tests, and audits the public package boundary.

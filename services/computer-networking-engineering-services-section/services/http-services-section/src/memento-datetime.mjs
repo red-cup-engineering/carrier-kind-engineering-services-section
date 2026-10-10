@@ -9,14 +9,14 @@ import {
   timeMapContract,
   timeMapSchema,
 } from "./memento-datetime-schema.mjs";
-import { eavtKey, eavtRecord } from "@red-cup-engineering/eavt/row";
+import { eavtKey, eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 import {
   foldStateAccumRow,
   initialStateAccum,
   closeStateAccum,
 
-} from "@red-cup-engineering/eavt/ledger/state-fold";
+} from "@red-cup-engineering/eavt-services-section/ledger/state-fold";
 
 export {
   mementoSnapshotContract,

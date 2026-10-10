@@ -2,9 +2,9 @@ import { readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { dispatchInferenceAsConfiguredCustomer } from "@red-cup-engineering/computer-inference-engine/dispatch/inference-dispatch";
-import { lintManuscript } from "@red-cup-engineering/ebook-production-services-section/lint-manuscript";
-import { fabricateEbookEdition } from "@red-cup-engineering/ebook-production-services-section/fabricate-ebook-edition";
-import { acceptEbookEdition } from "@red-cup-engineering/ebook-production-services-section/accept-ebook-edition";
+import { lintManuscript } from "@red-cup-engineering/ebook-engineering-services-section/lint-manuscript";
+import { fabricateEbookEdition } from "@red-cup-engineering/ebook-engineering-services-section/fabricate-ebook-edition";
+import { acceptEbookEdition } from "@red-cup-engineering/ebook-engineering-services-section/accept-ebook-edition";
 import { createTypedMark } from "@red-cup-engineering/signcell/typed-mark";
 import { defineSchemaType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type";
 

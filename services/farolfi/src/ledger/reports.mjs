@@ -5,8 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { detectJournalFormat, dispatch, dispatchEntries, parseJournalFile } from "@red-cup-engineering/farolfi";
 import { consolidateBooks } from "@red-cup-engineering/organizing/accounting/consolidation";
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 
 const REPORT_COMMANDS = Object.freeze({
   "balance": "bal",

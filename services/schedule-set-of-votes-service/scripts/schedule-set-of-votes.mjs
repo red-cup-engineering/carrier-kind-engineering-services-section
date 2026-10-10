@@ -2,7 +2,7 @@
 import { rationalOfBigInts, rationalParts } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { formatUnits, rationalUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { gradedValue, parseDecimalAmount } from "@red-cup-engineering/exact-number-data-service/graded";
-import { selectCurationVotes, toPostObservation } from "@red-cup-engineering/computing-with-hive/computing/curation";
+import { selectCurationVotes, toPostObservation } from "@red-cup-engineering/hive-computing-service/computing/curation";
 import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
 
 const DEFAULT_POLICY = Object.freeze({
@@ -28,7 +28,7 @@ function toBasicUtcDateTime(date) {
 
 /**
  * Schedules a day's Hive curation votes for one account: the one curation selection
- * (@red-cup-engineering/computing-with-hive's selectCurationVotes) over the candidates' post observations,
+ * (@red-cup-engineering/hive-computing-service's selectCurationVotes) over the candidates' post observations,
  * each priced at its tag's observed HBD per rshare (else the chain's `request.price`), weighted by
  * policy (preferred tags at maxWeight, dust at dustWeight, else minWeight), refused outside the
  * curation window, and budgeted at dailyManaBudgetPercent of current mana; each chosen vote is

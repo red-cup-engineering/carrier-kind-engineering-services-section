@@ -1,5 +1,5 @@
 {
-  "name": "@red-cup-engineering/newsletter-issue-production-services-section",
+  "name": "@red-cup-engineering/email-newsletter-engineering-services-section",
   "version": "0.1.0",
   "type": "module",
   "description": "Platform-neutral newsletter-issue fabrication: validates a CSL-JSON-cited issue and renders it to clean Markdown, paste-ready HTML (Substack-paste-safe: h2/h3/p/blockquote/a/strong/em only), and an RSS/Atom item fragment.",

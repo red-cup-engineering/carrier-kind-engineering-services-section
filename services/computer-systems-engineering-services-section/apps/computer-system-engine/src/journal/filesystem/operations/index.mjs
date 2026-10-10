@@ -8,7 +8,7 @@
  * path-derivation math, not a contract/lens/exposure boundary.
  */
 
-import { dataArtifactAddress, dataArtifactDescriptor } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataArtifactAddress, dataArtifactDescriptor } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import {
   feedStateProjectionContract,
   jupyterNotebookProjectionContract,

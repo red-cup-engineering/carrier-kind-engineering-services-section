@@ -25,7 +25,7 @@
 //   - SignCell/SignChain readings - the four-bilattice
 //     values (potential/active/absurd/stable) and their names
 
-import { foldEavtEvidence, sectionEavtEvidence } from "@red-cup-engineering/eavt";
+import { foldEavtEvidence, sectionEavtEvidence } from "@red-cup-engineering/eavt-services-section";
 import { canonicalCborToNiUri, encodeCanonical } from "@red-cup-engineering/cbor-services-section";
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
 import { sectionSpace } from "@red-cup-engineering/metrologic/articulation/predicating/positing/independent-evidence";

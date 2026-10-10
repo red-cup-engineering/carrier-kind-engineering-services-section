@@ -51,12 +51,12 @@ import {
 import { admitHookEnvelope, isHookEnvelope } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/hooks/codec";
 import { leanWorkspaceReadContract } from "@red-cup-engineering/feltos/lean/schema";
 import { texWorkspaceReadContract } from "@red-cup-engineering/lean-system-services-section/tex/schema";
-import { parseArtifactStem } from "@red-cup-engineering/eavt/data-artifact-address";
+import { parseArtifactStem } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { siteDirectoryGrammarOf } from "@red-cup-engineering/signchain/contracts/site-directory-grammar";
 import { directoryManifestContract, isDirectoryManifest } from "@red-cup-engineering/metroplat/resources/directory-manifest";
 import { jsonProjector } from "@red-cup-engineering/computer-content-engineering-services-section/json-projector";
 import { jsonlProjector } from "@red-cup-engineering/jsonl-services-section/jsonl-projector";
-import { eavtProjector } from "@red-cup-engineering/eavt/row";
+import { eavtProjector } from "@red-cup-engineering/eavt-services-section/row";
 
 export { isDirectoryManifest };
 

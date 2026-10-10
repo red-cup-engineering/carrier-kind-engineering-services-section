@@ -1,5 +1,5 @@
-import { evaluateSparql, triplesToTurtle } from "@red-cup-engineering/rdf-data-model-services-section/sparql-over-eavt";
-import { askEavtCell } from "@red-cup-engineering/eavt/ask-eavt-cell";
+import { evaluateSparql, triplesToTurtle } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/sparql-over-eavt";
+import { askEavtCell } from "@red-cup-engineering/eavt-services-section/ask-eavt-cell";
 import { queryTripleFragment } from "@red-cup-engineering/http-services-section/triple-pattern-fragments";
 import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { compareReadings, generatedConcepts, relationalPredicates, settledness, witnessing } from "@red-cup-engineering/signgraph/mesh";

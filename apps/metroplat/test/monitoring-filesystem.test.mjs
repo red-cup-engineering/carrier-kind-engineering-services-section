@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { dataTierPathSegment, dataTierAct, parseArtifactStem, dataDatePartition, dataTierDirectory, dataArtifactDescriptor, dataArtifactHandlePath, dataArtifactAddress, dataArtifactQuartet, projectDataArtifactAddress, projectDataArtifactPath, mementoStateArtifactPath, logContentArtifactPath, logRecordArtifactPath, recordContentArtifactPath, contentRecordArtifactPath, feedArtifactPath, dataStoreFromLogPath, dataStoreFromRecordPath, dataStoreFromContentPath } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataTierPathSegment, dataTierAct, parseArtifactStem, dataDatePartition, dataTierDirectory, dataArtifactDescriptor, dataArtifactHandlePath, dataArtifactAddress, dataArtifactQuartet, projectDataArtifactAddress, projectDataArtifactPath, mementoStateArtifactPath, logContentArtifactPath, logRecordArtifactPath, recordContentArtifactPath, contentRecordArtifactPath, feedArtifactPath, dataStoreFromLogPath, dataStoreFromRecordPath, dataStoreFromContentPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { isMarkdownPath, canonicalMarkdownNodePath, markdownNodePresentationPaths, resolveMarkdownNode } from "@red-cup-engineering/computer-system-engine/addressing/markdown-node";
 import { isArtifactAct, artifactActTier, pathTerm, termPath, artifactAddressTyping, PATH_TY } from "@red-cup-engineering/computer-system-engine/addressing/path-term";
 import { identifierSlug } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";

@@ -15,7 +15,7 @@
     "package.json"
   ],
   "dependencies": {
-    "@red-cup-engineering/computing-with-hive": "workspace:*",
+    "@red-cup-engineering/hive-computing-service": "workspace:*",
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*"

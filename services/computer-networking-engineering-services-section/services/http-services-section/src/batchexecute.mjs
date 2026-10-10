@@ -1,5 +1,5 @@
-import { applySetCookies, jarCookieHeader } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cookie";
-import { decodeBatchExecute, encodeBatchExecute, wizField } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/batchexecute";
+import { applySetCookies, jarCookieHeader } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cookie";
+import { decodeBatchExecute, encodeBatchExecute, wizField } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/batchexecute";
 
 /** Hosts a Google application's sign-in, pages and media redirect among. */
 export const GOOGLE_HOST = /(^|\.)(google\.com|googleusercontent\.com|googlevideo\.com|usercontent\.google\.com)$/u;
