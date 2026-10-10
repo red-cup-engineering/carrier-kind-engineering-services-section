@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { actionMcpHandle } from "@red-cup-engineering/relating/running";
+import { actionMcpHandle } from "@red-cup-engineering/computer-web-server/platform-http/operation-serving";
 import { CATALOG_PROFILE, trcApex } from "../src/index.mjs";
 
 const catalog = {
@@ -14,15 +14,15 @@ const catalog = {
 };
 const input = { catalog, resource: { path: "repo://spore/mark.rmn", content: "mark" } };
 
-test("one action apex projects matching discovery, CLI, and MCP faces", () => {
-  assert.equal(trcApex.discovery.bins.length, 7);
-  assert.deepEqual(trcApex.discovery.bins.map((bin) => bin.name).sort(), [
+test("one action apex projects matching discovery, CLI, and MCP faces", async () => {
+  assert.equal(trcApex.discovery.programs.length, 7);
+  assert.deepEqual(trcApex.discovery.programs.map((program) => program.name).sort(), [
     "audit-typed-resource-catalog", "catalog-node-workspace-sources", "catalog-workspace-content-graph", "check-language-cone", "classify-typed-resource", "project-trc-receipt-rmn", "scan-temporal-failure-marks",
   ]);
 
-  const mcpTools = actionMcpHandle(trcApex, { jsonrpc: "2.0", id: 1, method: "tools/list" }, {});
-  assert.equal(mcpTools.result.tools.length, trcApex.discovery.bins.length);
-  const mcpCall = actionMcpHandle(trcApex, {
+  const mcpTools = await actionMcpHandle(trcApex, { jsonrpc: "2.0", id: 1, method: "tools/list" }, {});
+  assert.equal(mcpTools.result.tools.length, trcApex.discovery.programs.length);
+  const mcpCall = await actionMcpHandle(trcApex, {
     jsonrpc: "2.0", id: 2, method: "tools/call",
     params: { name: "classify-typed-resource", arguments: { input } },
   }, {});
@@ -30,7 +30,7 @@ test("one action apex projects matching discovery, CLI, and MCP faces", () => {
   assert.equal(receipt.classification, "mark");
   assert.ok(!JSON.stringify(receipt).includes("/home/"));
 
-  const territoryCall = actionMcpHandle(trcApex, {
+  const territoryCall = await actionMcpHandle(trcApex, {
     jsonrpc: "2.0", id: 3, method: "tools/call",
     params: { name: "catalog-node-workspace-sources", arguments: { input: { resources: [
       { path: "services/cell/package.json", content: JSON.stringify({ name: "@test/cell", version: "1.0.0" }) },

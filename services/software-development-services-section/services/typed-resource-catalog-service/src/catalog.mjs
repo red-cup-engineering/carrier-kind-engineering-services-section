@@ -1,5 +1,5 @@
 import { classify, define, restrict } from "@red-cup-engineering/file-projection-kernel-service";
-import * as writing from "@red-cup-engineering/relating/writing";
+import * as writing from "@red-cup-engineering/computer-filepath-engineering-services-section/address";
 import { canonicalJson, immutable, semanticId } from "./canonical.mjs";
 import { recognize, validateRecognition } from "./recognition.mjs";
 
