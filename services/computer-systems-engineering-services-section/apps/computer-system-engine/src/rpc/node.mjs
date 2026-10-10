@@ -187,13 +187,44 @@ export function systemSettlementFeedGrants(env, node) {
   return Object.freeze({ labelsFor: (origin) => grants.get(origin) ?? Object.freeze([]) });
 }
 
+/**
+ * Declared peer keys: SYSTEM_NODE_PEER_KEYS is a JSON object from a configured peer origin to its
+ * Ed25519 public key (SPKI PEM). A known-intermittent peer (a colony in an ephemeral environment)
+ * cannot be dialed while it is away, so its signed requests are verified against the key it declared
+ * rather than one fetched live (Lenticule swarm theory: a PeerRecord holds the peer's signing key,
+ * and a peer's absence reads unknown, never refused).
+ */
+export function systemNodeDeclaredPeerKeys(env, node) {
+  const raw = env.SYSTEM_NODE_PEER_KEYS?.trim();
+  const configured = raw ? record(parse(raw), "System node declared peer keys") : {};
+  const keys = new Map();
+  for (const [origin, pem] of Object.entries(configured)) {
+    if (originOf(origin, "declared-key peer") !== origin || !node.peers.includes(origin)) {
+      throw new TypeError(`System node declared peer key names an unconfigured peer: ${origin}`);
+    }
+    if (typeof pem !== "string" || pem.length === 0) throw new TypeError(`System node declared peer key for ${origin} must be a PEM string`);
+    const key = createPublicKey(pem);
+    if (key.asymmetricKeyType !== "ed25519") throw new TypeError(`System node declared peer key for ${origin} must be Ed25519`);
+    keys.set(origin, key.export({ type: "spki", format: "pem" }));
+  }
+  return keys;
+}
+
 /** How a node reaches its peers' settlements: signed holdings reads and transfers (RFC 9421 over
- *  the node's key), and the public keys of its configured peers, resolved from their advertisements. */
-export function systemSettlementPeering(node, privateKey, fetcher = fetch) {
+ *  the node's key), and the public keys of its configured peers. A peer's declared key
+ *  (`declaredKeys`, from `systemNodeDeclaredPeerKeys`) is used as held, without dialing the peer;
+ *  any other is resolved from its advertisement. A discovery that fails is not kept: the peer was
+ *  away or answered badly, which says nothing lasting about its key, so the next request asks again. */
+export function systemSettlementPeering(node, privateKey, fetcher = fetch, { declaredKeys = new Map() } = {}) {
   const keys = new Map();
   const peerKey = async (origin) => {
     if (!node.peers.includes(origin)) return undefined;
-    if (!keys.has(origin)) keys.set(origin, discoverSystemNode(origin, fetcher).then((peer) => peer.key));
+    if (declaredKeys.has(origin)) return declaredKeys.get(origin);
+    if (!keys.has(origin)) {
+      const discovery = discoverSystemNode(origin, fetcher).then((peer) => peer.key);
+      keys.set(origin, discovery);
+      discovery.catch(() => { if (keys.get(origin) === discovery) keys.delete(origin); });
+    }
     return keys.get(origin);
   };
   const post = async (origin, pathname, value) => {
