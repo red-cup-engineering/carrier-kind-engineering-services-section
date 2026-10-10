@@ -18,12 +18,12 @@ import {
   canonicalJson,
   JSON_RESOURCE_ENVELOPE,
 } from "@red-cup-engineering/json-services-section";
-import { addressArtifact, addressPrimitiveArticulation, addressSiteConstitution, isArtifactRef, verifyArtifact } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/identity";
-import { parseJournalWitness, parseUniqueJournalRecord } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/event";
-import { isCausalWitness } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/judgment";
-import { rebuildCausalSubstrate } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/substrate";
-import { causalGraphOf, topologicalOrder } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/causal-graph";
-import { journalDirectoryOf } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/store-root";
+import { addressArtifact, addressPrimitiveArticulation, addressSiteConstitution, isArtifactRef, verifyArtifact } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
+import { parseJournalWitness, parseUniqueJournalRecord } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event";
+import { isCausalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/judgment";
+import { rebuildCausalSubstrate } from "@red-cup-engineering/semiotic-eavt-services-section/journal/substrate";
+import { causalGraphOf, topologicalOrder } from "@red-cup-engineering/semiotic-eavt-services-section/journal/causal-graph";
+import { journalDirectoryOf } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
 import { journalAppendAddress } from "./operations/index.mjs";
 import { writeFileAtomicNew } from "../../filesystem.mjs";
 import { isJournalUnavailable, journalUnavailable } from "../diagnostics.mjs";
