@@ -21,7 +21,7 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { admitAllowance, admitAllowanceEvidence, readAllowance } from '@red-cup-engineering/organizing/enterprise';
 import { allowanceLedgerLapses, allowanceLedgerPath, recordAllowanceEvidence } from '@red-cup-engineering/computer-inference-engine/media/allowance-ledger';
-import { admitJsonlOnce, openLedgerJournal } from '@red-cup-engineering/computer-inference-engine/media/ledger-journal';
+import { admitJsonlOnce, openLedgerJournal, readAdmittingJsonl } from '@red-cup-engineering/computer-inference-engine/media/ledger-journal';
 import { openGoogleFlow } from './google-flow-client.mjs';
 
 export const FLOW_ALLOWANCE_PATH = new URL('../content/config/flow-allowance.json', import.meta.url);
@@ -63,8 +63,9 @@ export const creditJournalRoot = (path = creditJournalPath()) => `${path.replace
  */
 function creditJournal(path) {
   const journal = openLedgerJournal(`${path.replace(/\.jsonl$/u, '')}`, FLOW_CREDIT_READING_OBJECT_KIND);
-  admitJsonlOnce(journal, [{ path, category: 'reading' }], { identity: (reading) => JSON.stringify(reading), type: 'FlowCreditJsonlAdmission', from: path });
-  return journal;
+  const sources = [{ path, category: 'reading' }], identity = (reading) => JSON.stringify(reading);
+  admitJsonlOnce(journal, sources, { identity, type: 'FlowCreditJsonlAdmission', from: path });
+  return Object.freeze({ ...journal, read: (category) => readAdmittingJsonl(journal, sources, category, { identity }) });
 }
 
 /** Every reading in the journal, oldest first; none if there are none yet. */

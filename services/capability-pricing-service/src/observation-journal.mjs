@@ -1,6 +1,6 @@
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { admitJsonlOnce } from "@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once";
+import { admitJsonlOnce, readAdmittingJsonl } from "@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 
 /** The kind price observations are kept under in the one log. */
@@ -25,14 +25,12 @@ export function openObservationJournal(observationsPath, { now = () => new Date(
   let last = held().reduce((latest, row) => Math.max(latest, Date.parse(row.recordedAt)), 0);
   const stamp = () => { last = Math.max(now().getTime(), last + 1); return new Date(last).toISOString(); };
   const append = (observation) => journal.record({ category: OBSERVATION, record: observation, recordedAt: stamp(), told: HELD });
-  admitJsonlOnce(
-    { root, record: (category, observation) => append(observation), read: () => held().map((row) => row.record) },
-    [{ path: observationsPath, category: OBSERVATION }],
-    { identity: (observation) => JSON.stringify(observation), type: "PriceObservationJsonlAdmission", from: resolve(observationsPath), mode: 0o600 },
-  );
+  const book = { root, record: (category, observation) => append(observation), read: () => held().map((row) => row.record) };
+  const sources = [{ path: observationsPath, category: OBSERVATION }], identity = (observation) => JSON.stringify(observation);
+  admitJsonlOnce(book, sources, { identity, type: "PriceObservationJsonlAdmission", from: resolve(observationsPath), mode: 0o600 });
   return Object.freeze({
     root,
     append: (observation) => { append(observation); return observation; },
-    observations: () => held().map((row) => structuredClone(row.record)),
+    observations: () => readAdmittingJsonl(book, sources, OBSERVATION, { identity }).map((observation) => structuredClone(observation)),
   });
 }

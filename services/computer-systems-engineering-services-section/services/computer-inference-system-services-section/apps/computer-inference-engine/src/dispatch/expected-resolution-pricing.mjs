@@ -1,5 +1,5 @@
 import { dirname, join, resolve } from "node:path";
-import { admitJsonlOnce, openLedgerJournal } from "../media/ledger-journal.mjs";
+import { admitJsonlOnce, openLedgerJournal, readAdmittingJsonl } from "../media/ledger-journal.mjs";
 import { nonnegativeHostRatio as exactNonnegativeAmount } from "@red-cup-engineering/metrologic/number/wire-ratio";
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
 import { executionConfiguration, executionConfigurationIdentity } from "./sen-carrier.mjs";
@@ -38,8 +38,9 @@ function nonempty(value, label) { if (typeof value !== "string" || value.trim() 
 function pricingBook(dataRoot) {
   const root = resolve(nonempty(dataRoot, "pricing dataRoot"));
   const book = openLedgerJournal(join(root, "pricing-book"), PRICING_BOOK_OBJECT_KIND);
-  admitJsonlOnce(book, Object.entries(CATEGORIES).map(([file, category]) => ({ path: join(root, file), category })), { type: "PricingBookJsonlAdmission", from: root });
-  return book;
+  const sources = Object.entries(CATEGORIES).map(([file, category]) => ({ path: join(root, file), category }));
+  admitJsonlOnce(book, sources, { type: "PricingBookJsonlAdmission", from: root });
+  return Object.freeze({ ...book, read: (category) => readAdmittingJsonl(book, sources, category) });
 }
 const appendTo = (dataRoot, category, record) => { pricingBook(dataRoot).record(category, record); return record; };
 

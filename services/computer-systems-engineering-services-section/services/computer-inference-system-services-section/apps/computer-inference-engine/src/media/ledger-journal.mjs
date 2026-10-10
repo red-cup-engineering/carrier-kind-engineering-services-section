@@ -67,4 +67,4 @@ function exclusively(root, work) {
 }
 
 export { admitSqlOnce } from "./import-sql-ledger.mjs";
-export { admitJsonlOnce } from "@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once";
+export { admitJsonlOnce, readAdmittingJsonl } from "@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once";
