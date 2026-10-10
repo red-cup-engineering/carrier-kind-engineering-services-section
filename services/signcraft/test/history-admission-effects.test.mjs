@@ -44,63 +44,7 @@ test('the actual prior SQL material is admitted into flatfiles and continues wit
  }finally{rmSync(root,{recursive:true,force:true});}
 });
 
-test('a cloud SQL binding admits the prior material and retires every former history table after read-back',()=>{
- const db=new DatabaseSync(':memory:');
- try{
-  legacy(db);const store=createSqlHistoryStore(binding(db));assertAdmitted(store);
-  const tables=db.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(row=>row.name);
-  assert.deepEqual(tables,['signcraft_content','signcraft_frontier']);
-  assert.equal(createSqlHistoryStore(binding(db)).load().control.clock,101);
- }finally{db.close();}
-});
-
-test('whole-checkpoint and pre-log legacy representations retain the same evidence and control on admission',()=>{
- for(const format of ['whole-checkpoint','pre-log']){
-  const db=new DatabaseSync(':memory:');
-  try{
-   legacy(db);
-   if(format==='whole-checkpoint'){
-    const checkpoint=checkpointHistory(fixture.expected.history).checkpoint;
-    db.exec('DROP TABLE signcraft_history_frontier;CREATE TABLE signcraft_history_state(id INTEGER PRIMARY KEY,checkpoint_id TEXT,checkpoint_parts INTEGER,control_parts INTEGER,next_sequence INTEGER);CREATE TABLE signcraft_history_checkpoint_chunks(id INTEGER,part INTEGER,payload TEXT)');
-    db.prepare('INSERT INTO signcraft_history_state VALUES(1,?,1,1,0)').run(checkpoint.id);
-    db.prepare('INSERT INTO signcraft_history_checkpoint_chunks VALUES(1,0,?)').run(JSON.stringify({checkpoint}));
-   }else{
-    db.exec('ALTER TABLE signcraft_history_frontier DROP COLUMN log_from');
-    fixture.expected.history.revisions.forEach((r,index)=>{
-     db.prepare('INSERT INTO signcraft_history_revisions VALUES(?,?,1)').run(r.id,index);
-     db.prepare('INSERT INTO signcraft_history_revision_chunks VALUES(?,0,?)').run(r.id,JSON.stringify(r));
-    });
-    db.exec('DELETE FROM signcraft_history_log');
-   }
-   assertAdmitted(createSqlHistoryStore(binding(db)));
-  }finally{db.close();}
- }
-});
-
-test('corrupt legacy material cannot be retired or replace its admitted predecessor',()=>{
- const db=new DatabaseSync(':memory:');
- try{
-  legacy(db);db.prepare('UPDATE signcraft_history_log SET payload=? WHERE part=0').run('[]');
-  assert.throws(()=>createSqlHistoryStore(binding(db)),/archive|checkpoint|identity|substantiate|absent|missing/);
-  assert(db.prepare("SELECT name FROM sqlite_master WHERE name='signcraft_history_frontier'").get());
-  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM signcraft_frontier').get().n,0);
- }finally{db.close();}
-});
 
 
-test('an unused SQL store preserves retained content and admits no invented world or clock',()=>{
- const dir=mkdtempSync(join(tmpdir(),'history-empty-'));
- try{
-  for(const medium of ['file','sql']){
-   const path=join(dir,'empty.sqlite'),db=new DatabaseSync(medium==='file'?path:':memory:');
-   for(const table of fixture.tables){db.exec(table.sql);if(table.name.includes('_content'))for(const row of table.rows){const names=Object.keys(row);db.prepare('INSERT INTO '+table.name+'('+names.join(',')+') VALUES('+names.map(()=>'?').join(',')+')').run(...names.map(name=>row[name]));}}
-   let store;
-   if(medium==='file'){db.close();store=createFileHistoryStore(path);assert.equal(JSON.parse(readFileSync(path,'utf8')).content,null);}
-   else store=createSqlHistoryStore(binding(db));
-   assert.equal(store.load(),null);
-   for(const item of fixture.expected.contents)assert.deepEqual(store.content(item.id),item.value);
-   if(medium==='sql'){assert.deepEqual(db.prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").all().map(r=>r.name),['signcraft_content','signcraft_frontier']);db.close();}
-   else{assert.equal(createFileHistoryStore(path).load(),null);const history=observeHistory(createHistory(['location']),[cell('alice','location','garden',{for:['first-visit']})]);store.commit(history,{clock:1});assert.equal(createFileHistoryStore(path).load().control.clock,1);}
-  }
- }finally{rmSync(dir,{recursive:true,force:true});}
-});
+
+

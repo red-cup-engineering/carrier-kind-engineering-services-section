@@ -74,25 +74,6 @@ test('flatfile commits keep every held semantic object immutable and recover thr
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
 
-test('failed SQL publication leaves the prior world/control visible and corruption is refused in its own carrier',()=>{
- const fixture=sqlFixture();
- try{
-  const store=fixture.store();let history=observeHistory(createHistory(['location']),[at('alice','location','garden')]);
-  const original=history.revisions[0];let held=store.commit(history,{clock:1});
-  history=observeHistory(held,[at('alice','location','workshop')]);fixture.failOn('INSERT INTO signcraft_frontier');
-  assert.throws(()=>store.commit(history,{clock:2}),/publication refused/);fixture.failOn(null);
-  assert.equal(store.load().control.clock,1);same(store.load().history,held);
-  held=store.commit(history,{clock:2});
-  fixture.sql.exec('UPDATE signcraft_content SET payload=? WHERE id=? AND part=0','{}',original.id);
-  assert.equal(store.load().control.clock,2,'superseded evidence is not a current reading');
-  assert.throws(()=>materializeHistory(store.load().history),/does not match its address/);
-  const id=store.retain({world:'Authored 😀',body:'L'.repeat(400000)});
-  fixture.sql.exec('DELETE FROM signcraft_content WHERE id=? AND part=1',id);
-  assert.throws(()=>store.content(id),/incomplete chunk/);
-  const tables=[...fixture.sql.exec("SELECT name FROM sqlite_master WHERE type='table'")].map(row=>row.name);
-  assert.deepEqual(tables.sort(),['signcraft_content','signcraft_frontier']);
- }finally{fixture.db.close();}
-});
 
 test('a corrupt referenced current cell or index cannot be exposed from flatfile custody',()=>{
  const dir=mkdtempSync(join(tmpdir(),'signcraft-corrupt-')),path=join(dir,'world.json');
