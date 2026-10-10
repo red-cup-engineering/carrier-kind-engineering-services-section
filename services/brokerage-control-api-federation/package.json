@@ -37,8 +37,6 @@
     "./virtuals-runtime": "./src/virtuals-runtime.mjs",
     "./union-runtime": "./src/union-runtime.mjs",
     "./esther-onboarding": "./src/esther-onboarding.mjs",
-    "./principal-contract": "./services/principal-brokerage-interface/src/principal-contract.mjs",
-    "./obsmetrologia-promotion": "./services/obsmetrologia-alpha-selection-proof-service/src/promotion-certificate.mjs",
     "./readiness": "./src/readiness.mjs",
     "./autonomous-portfolio": "./src/autonomous-portfolio.mjs",
     "./principal-brokerage-system": "./src/principal-brokerage-system.mjs",
