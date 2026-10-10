@@ -16,7 +16,7 @@ const integerRank = (matrix) => (matrix.length === 0 ? 0 : toCount(rank(fromInts
 /** The characteristic polynomial det(xI − A) of a host-integer matrix, highest degree first, exactly. */
 const characteristicPolynomial = (matrix) => (matrix.length === 0 ? Object.freeze([1]) : Object.freeze(charPoly(fromInts(matrix)).map(toInt).reverse()));
 import { coincides } from "@red-cup-engineering/signcell/cell";
-import { readingOfRecord, record, sidesOfReading, topMass } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfRecord, record, sidesOfReading, topMass } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { coverNerve, h1Rank } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/coordination-cohomology";
 
 const uniqueBy = (values, same) => {

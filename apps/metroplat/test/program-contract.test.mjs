@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { operation, operationIrAudit, schemasOfOperations } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import {

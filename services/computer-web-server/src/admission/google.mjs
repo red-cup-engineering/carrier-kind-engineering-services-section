@@ -10,8 +10,8 @@ import { exchangeGoogleCallback } from '@red-cup-engineering/google-oauth-servic
 import { judgePrincipalAdmission, resolveAdmissionPolicy } from '@red-cup-engineering/oauth-services-section/judge-principal-admission-service';
 import { relayToGoogleConsent } from '@red-cup-engineering/google-oauth-services-section/relay-to-google-consent-service';
 import { clearedCookie, createSessionCookie, createTransactionCookie, publicBaseUrl, randomToken, readSession, readTransaction, safeReturnTo, } from './session.mjs';
-import { sha256Base64Url } from '@red-cup-engineering/cryptographic-data-service/integrity';
-import { sha256Hex } from '@red-cup-engineering/cryptographic-data-service/integrity';
+import { sha256Base64Url } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
+import { sha256Hex } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
 export const GOOGLE_LOGIN_PATH = '/oauth/login';
 export const GOOGLE_CALLBACK_PATH = '/oauth/callback';
 export const GOOGLE_LOGOUT_PATH = '/oauth/logout';

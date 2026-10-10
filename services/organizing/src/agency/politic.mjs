@@ -39,7 +39,7 @@
  *     playing bodies it belongs to, skipping the reports-to chain its offices would route through. A body
  *     politic that serves a band answers to the band's head too: the culm exists by tending the rhizome.
  */
-import { truthMeetAll } from "@red-cup-engineering/computer-data-services-section/four";
+import { truthMeetAll } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { AUTHORITY_BASES, consensusClose, majorityClose, requisiteVariety } from "@red-cup-engineering/socializing/deciding";
 import { viableRecursion } from "@red-cup-engineering/socializing/viable";
 

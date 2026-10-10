@@ -1,5 +1,5 @@
 import { membershipProgram, siteUrl } from "./index.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export function communityHelp() {
   return [
@@ -50,6 +50,7 @@ export function joinCommunityInstructions() {
     "Complete Discord's short onboarding, choose the conversations you want, then introduce a place, practice, question, or project in #mainland.",
     `The ${membershipProgram.role} role opens: ${membershipProgram.unlocks.join(", ")}.`,
     "No wallet, payment, or personal biography is required for ordinary community membership.",
+    membershipProgram.governance,
     `Join and orientation details: ${new URL("join/", siteUrl).href}`,
   ].join("\n");
 }

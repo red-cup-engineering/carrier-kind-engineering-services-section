@@ -2,9 +2,9 @@ import {
   decodeCanonical as decodeCarrier,
   encodeCanonical as normalizedCarrierBytes,
 } from "@red-cup-engineering/cbor-services-section";
-import { arrayTerm, objectTerm, stringTerm, termToJson } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { checkTy, inferTy } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+import { arrayTerm, objectTerm, stringTerm, termToJson } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { checkTy, inferTy } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
 import {
   admitNormalizedSemanticContent,
   identifyNormalizedSemanticContent,

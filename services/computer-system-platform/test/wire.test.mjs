@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { COMPUTER_ENGINEERING_SPECIFICATION_ID } from "@red-cup-engineering/computer-system-engine/specification";
-import { defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 import { admitOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 
 import {

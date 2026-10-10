@@ -9,7 +9,7 @@ import { constitute } from "@red-cup-engineering/eavt/constitute-entity";
 import { appendEavtRow } from "@red-cup-engineering/eavt/append-eavt-row";
 import { readEavtEntries } from "@red-cup-engineering/eavt/read-eavt-entries";
 import { readSeavtEntriesAtPath } from "@red-cup-engineering/semiotic-eavt-services-section/read-seavt-entries-at-path";
-import { termToJson } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { termToJson } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { ADMITTED_HARNESS_ACTORS } from "../src/harness-lifecycle.mjs";
 import * as lagoonWorld from "@red-cup-engineering/flatfile-resource-graph-service/lagoon-world";
 

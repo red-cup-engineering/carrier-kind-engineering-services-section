@@ -3,7 +3,7 @@ import { dirname, relative, resolve, sep } from "node:path";
 import { mkdirSync } from "node:fs";
 import { applyEditBlocks, prepareCreateArtifact } from "./edit-language.mjs";
 import { runTestsCommand } from "@red-cup-engineering/javascript-node-services-section/run-sandboxed-command";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const SKIP = new Set([".git", "node_modules", ".lake", "dist", "coverage"]);
 

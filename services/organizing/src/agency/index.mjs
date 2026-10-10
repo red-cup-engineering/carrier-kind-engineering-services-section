@@ -32,7 +32,7 @@ import { governance } from "@red-cup-engineering/socializing/governance";
 import { costQuantale } from "@red-cup-engineering/metrologic/models/order/quantale";
 import { normalizeRule, ruleNorms } from "./rules.mjs";
 import { BODY_KINDS, MASK_KINDS } from "./kinds.mjs";
-import { knowledgeJoinAll, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinAll, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { agencyActsLog, foldAgencyActs, readAgencyActs, revisionOf } from "./acts.mjs";
 
 import { instantiateAgencyForm } from "./forms.mjs";
@@ -142,6 +142,9 @@ function normalize(pool, id, raw) {
         reportsTo: strings(r["reports-to"])[0],
         presidesOver: strings(r["presides-over"]),
         peers: strings(r["peer-offices"]),
+        // Historical replacement is continuity metadata only. It never recreates the
+        // predecessor as a resolvable office or grants its powers to the successor.
+        replacesOffice: strings(r["replaces-office"]),
         // Explicit duty references name records. Older offices without them use
         // their profile as the duty vocabulary; with explicit records, profile
         // keys can instead name the work those duties govern.
@@ -683,6 +686,7 @@ export function officeReading(agency, officeRef) {
     liberties: office.liberties,
     authority: office.authority,
     peers: office.peers,
+    replacesOffice: Object.freeze([...(office.replacesOffice ?? [])]),
     works: Object.freeze(works.map((w) => ({ ...w }))),
     skills: Object.freeze(skills.map((s) => ({ ...s, requires: s.requiresCapabilities }))),
     verbs: Object.freeze(verbs),
@@ -799,10 +803,17 @@ export function officeCoordinationBoundary(agency, officeRef) {
       .filter(candidate => candidate !== undefined && ownSection(candidate, enterprise)))
       .filter(listed => listed.some(candidate => candidate.key === office.key)).flat().filter(candidate => candidate.key !== office.key)
     : [];
+  // A predecessor office remains historical and absent from the registry. Its identity may
+  // cross only a receiving comparison through an explicitly authored current successor.
+  // Assignment, staffing, authority and source provenance continue to use current offices only.
+  const historical = candidate => (candidate.replacesOffice ?? []).flatMap(ref => ref.includes("#")
+    ? [ref]
+    : [ref, `${candidate.sectionPath}#${ref}`]);
   const neighbours = Object.freeze(related.map(spelled).sort());
   const boundary = Object.freeze({
     office: spelled(office), officeKey: office.key,
-    receivesFrom: Object.freeze([...new Set([...related, ...scoped, ...served].map(spelled))].sort()),
+    receivesFrom: Object.freeze([...new Set([...related, ...scoped, ...served]
+      .flatMap(candidate => [spelled(candidate), ...historical(candidate)]))].sort()),
     assignsTo: neighbours,
     verbs: officeReading(agency, office.key).verbs,
   });

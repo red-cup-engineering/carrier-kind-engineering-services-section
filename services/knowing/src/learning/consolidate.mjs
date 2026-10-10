@@ -19,7 +19,7 @@
  * Readings are SignCell's: extremal family held / denied / contested / unknown.
  */
 import { address, cell, cellSet, sidesOf } from "@red-cup-engineering/signcell/cell";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { rule } from "@red-cup-engineering/signchain/rules";
 import { closureOrbit } from "@red-cup-engineering/signcraft/settle";
 import { makeContext, lawfulBasis, extent } from "@red-cup-engineering/metrologic/closure/formal-context";

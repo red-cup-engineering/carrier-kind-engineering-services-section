@@ -101,8 +101,19 @@
       "classification": "observed-available",
       "signupUrl": "https://openrouter.ai/keys",
       "accountTerms": "OpenRouter's first-party Free Variant guide states that :free variants provide access without cost. Its Free Models Router guide also states that requests routed to free models have no charge. A live authenticated GET /api/v1/models on 2026-09-07 returned this exact model with prompt and completion prices both 0; a bounded chat completion then returned ordinary content.",
-      "note": "Verified 2026-09-07 live through the shared receiver-owned OpenAI-compatible adapter: a 12-prompt-token, 55-completion-token bounded request completed in about 0.87 s with ordinary completion content. Provider availability remains quota-bound and must fail closed on rate limit or refusal. 2026-10-04 measured: /api/v1/models lists nvidia/nemotron-3-super-120b-a12b:free at prompt and completion price 0, advertising structured_outputs and response_format (cohere/north-mini-code:free advertises neither). Allowance: 50 requests/day across all :free models (X-RateLimit-Limit 50, error code free-models-per-day; the key holds 0 credits, usage 0), which was already exhausted when this session first called (HTTP 429 on first request), so no live strict-schema call was possible; resets with the provider's daily window (UTC). The same model returned correct strict json_schema on NVIDIA NIM (2.7s). Capacity 1 follows the 50 requests/day allowance. Re-verify with one call after the window resets.",
-      "providerFamily": "openrouter"
+      "note": "Verified 2026-09-07 live through the shared receiver-owned OpenAI-compatible adapter: a 12-prompt-token, 55-completion-token bounded request completed in about 0.87 s with ordinary completion content. Provider availability remains quota-bound and must fail closed on rate limit or refusal. 2026-10-04 measured: /api/v1/models lists nvidia/nemotron-3-super-120b-a12b:free at prompt and completion price 0, advertising structured_outputs and response_format (cohere/north-mini-code:free advertises neither). Allowance: 50 requests/day across all :free models (X-RateLimit-Limit 50, error code free-models-per-day; the key holds 0 credits, usage 0), which was already exhausted when this session first called (HTTP 429 on first request), so no live strict-schema call was possible; resets with the provider's daily window (UTC). The same model returned correct strict json_schema on NVIDIA NIM (2.7s). Capacity 1 follows the 50 requests/day allowance. Re-verify with one call after the window resets. Machine-readable zero-cash admission added 2026-10-10: this exact :free model is contractually no-charge; paid overage is forbidden by selecting only the :free slug.",
+      "providerFamily": "openrouter",
+      "pricePerMillionTokensMicroUsd": {
+        "input": 0,
+        "output": 0
+      },
+      "entitlement": {
+        "cashCost": "zero",
+        "paidOverage": "forbidden",
+        "model": "nvidia/nemotron-3-super-120b-a12b:free",
+        "basis": "provider-free-variant-contract",
+        "observedAt": "2026-10-04T00:00:00Z"
+      }
     },
     {
       "providerId": "openrouter",

@@ -100,7 +100,7 @@ test("two actual signed node faces deliver during a turn and reply to the immuta
   assert.equal(message.value.text, "Which operating boundary is failing?");
   assert.match(received.messages.join("\n"), /reply <exact-message-id>/u);
   assert.equal((await b.city.connect(b.account, { id: "web-reentry" })).results[0].messages.length, 0, "entry consumes unread telling once and preserves history");
-  assert.equal(b.communication.read({ account: "unseated-visitor", optional: true, at: new Date().toISOString() }), undefined, "entry of an account without a public actor never consumes a character inbox");
+  assert.equal(await b.communication.read({ account: "unseated-visitor", optional: true, at: new Date().toISOString() }), undefined, "entry of an account without a public actor never consumes a character inbox");
   assert.equal((await b.city.command(b.account, "inbox", { id: "turn-3" })).results[0].messages.length, 0);
   const reply = await b.city.command(b.account, `reply ${message.id} The release receipt is pending.`, { id: "turn-4" });
   assert.equal(reply.results[0].inReplyTo, receipt.id);

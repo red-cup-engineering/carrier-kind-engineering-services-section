@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, chmodS
 import path from "node:path";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
 import { PrivateKey, KEY_ROLES } from "@red-cup-engineering/hive-blockchain-client-service/keys.mjs";
-import { sealWithPassphrase, openWithPassphrase } from "@red-cup-engineering/cryptographic-data-service/seal";
+import { sealWithPassphrase, openWithPassphrase } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/seal";
 import { keepCredential } from "@red-cup-engineering/credential-custody-service/keep";
 
 export { KEY_ROLES };

@@ -6,7 +6,7 @@
  * business supplies its own stages and outcome vocabulary and keeps its domain facts.
  * @packageDocumentation
  */
-import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { cell, knowledgeReading } from "@red-cup-engineering/signcell/cell";
 
 /**

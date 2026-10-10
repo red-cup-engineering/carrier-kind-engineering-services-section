@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { knowledgeJoinAll, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinAll, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 test("readingOfSides(\"knowledge\", ...) maps each (truth, falsity) combination to its charge name", ()=>{
     assert.equal(readingOfSides("knowledge", false, false), "absurd");
     assert.equal(readingOfSides("knowledge", true, false), "potential");

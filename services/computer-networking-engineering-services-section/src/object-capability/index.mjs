@@ -29,7 +29,7 @@ import {
   principalAssertionSchema,
   principalStandingSchema,
 } from "./schemas.mjs";
-import { knowledgeJoinReading, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 export {
   captpAuthorityGraphSchema,

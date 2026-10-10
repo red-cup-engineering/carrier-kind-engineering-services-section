@@ -1,9 +1,0 @@
-{
-  "name": "@red-cup-engineering/guix-machine-release-service",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Build pinned repository sources and receive Guix machine generations through GitHub CI.",
-  "scripts": { "test": "node --test test/*.test.mjs" },
-  "files": ["src", "scripts"]
-}

@@ -9,7 +9,7 @@ import { makeValuation, withReading, settle } from "./nuclei.mjs";
 import { makeComplex } from "./complex.mjs";
 import { generate as gibbsGenerate, enabledMoves } from "./generate.mjs";
 import { fluxFromTrace, adapt } from "./adapt.mjs";
-import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 export * from "@red-cup-engineering/metrologic/closure/formal-context";
 export * from "./nuclei.mjs";
