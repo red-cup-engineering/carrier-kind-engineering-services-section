@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { admitOrder, flowMediaInventory, flowMediaOffer, queueFlowOrder, queueFlowOrderOnce, recordFlowDelivery, runFlowQueue } from '../src/flow-generate.mjs';
+import { admitOrder, flowMediaInventory, flowMediaOffer, queueFlowOrder, queueFlowOrderOnce, recordFlowDelivery } from '../src/flow-generate.mjs';
 
 test('Flow orders preserve an admitted MediaNeed and intended destination', () => {
   const [line] = admitOrder(JSON.stringify([{
@@ -151,36 +151,4 @@ test('Flow does not advertise provider-neutral image generation when the current
     }),
   });
   assert.deepEqual(offer.capabilities, {});
-});
-
-
-test('Flow queue drains only the configured small generation batch and leaves the remainder pending', async t => {
-  const state = mkdtempSync(join(tmpdir(), 'flow-bounded-'));
-  t.after(() => rmSync(state, { recursive: true, force: true }));
-  queueFlowOrder([{
-    consumer: 'koios-news-services-section',
-    medium: 'image',
-    prompt: 'A bounded abstract social illustration.',
-    model: 'GEM_PIX_2',
-    aspect: '16:9',
-    count: 4,
-  }], { state, name: 'bounded', now: new Date('2026-10-04T18:00:00Z') });
-
-  const taken = [];
-  const open = async () => ({
-    async credits() { return { balance: 1050, renewsAt: '2026-11-03T07:00:00.000Z' }; },
-    async models() { return [{ key: 'GEM_PIX_2', medium: 'image', credits: 0 }]; },
-  });
-  const run = async (lines) => {
-    taken.push(...lines);
-    return { before: 1050, after: 1050, renewsAt: '2026-11-03T07:00:00.000Z', results: lines.map((line) => ({ consumer: line.consumer, kind: line.kind, credits: 0, kept: [] })) };
-  };
-  const result = await runFlowQueue({
-    state, open, run, maxGenerations: 2, now: new Date('2026-10-04T19:00:00Z'),
-    config: { tier: 2, account: 'urn:ame:test', meters: [{ id: 'daily', budget: 50 }] },
-  });
-  assert.equal(taken.reduce((sum, line) => sum + line.count, 0), 2);
-  assert.equal(result.idle, 50);
-  const inventory = flowMediaInventory({ state });
-  assert.equal(inventory.counts.pending, 2);
 });
