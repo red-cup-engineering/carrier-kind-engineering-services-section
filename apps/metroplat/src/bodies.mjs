@@ -14,7 +14,7 @@ import { journal, openJournal } from "@red-cup-engineering/computer-system-engin
 import { toEavt } from "@red-cup-engineering/eavt/row";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { resolve } from "@red-cup-engineering/organizing/agency";
-import { livedBodyOf } from "@red-cup-engineering/organizing/agency/lived-body";
+import { livedBodyOf, sessionsOf } from "@red-cup-engineering/organizing/agency/lived-body";
 import { outcomeJournal } from "@red-cup-engineering/organizing/enterprise";
 
 export const bodyRecordsFeed = "body-records";
@@ -58,33 +58,6 @@ export function tellBodyRecords(dataRoot, records, { at, caller }) {
 
 const count = (value) => (Number.isSafeInteger(value) && value > 0 ? value : 0);
 
-/** One day's turns, each with the key that names its reading, folded from the feed in one pass. */
-function dayTurns(feed, date) {
-  const turns = [];
-  journal.scan(feed, undefined, (_state, row) => {
-    const event = row[2];
-    if (event?.kind !== "metroplat.agent-session.token-usage-event" || event.usageKind !== "turn" || !text(event.sessionId)) return undefined;
-    const usage = event.usage ?? {};
-    const cached = count(usage.cachedInputTokens);
-    turns.push(Object.freeze({
-      key: `${event.provider}\n${event.sessionId}\n${event.source}\n${event.row}`,
-      row: Object.freeze({
-        session: event.sessionId,
-        ...(text(event.model) ? { model: event.model } : {}),
-        input: Math.max(0, count(usage.inputTokens) - cached) + count(usage.cacheCreationInputTokens),
-        cached: cached + count(usage.cacheReadInputTokens),
-        output: count(usage.outputTokens),
-        at: text(event.at) ? event.at : date,
-      }),
-    }));
-    return undefined;
-  });
-  return Object.freeze(turns);
-}
-
-/** A day's turns by the byte length of its feed: a day already read is read again only when its feed grew. */
-const heldDays = new Map();
-
 /**
  * The token usage the node's journal holds for the last `days` days (today included), as the rows
  * a lived body folds into its spend: `{session, model, input, cached, output, at}`. One streaming
@@ -92,8 +65,13 @@ const heldDays = new Map();
  * (the feed holds a reading again whenever a transcript is re-admitted). `input` is the uncached
  * input (OpenAI counts its cached input within `inputTokens`, so that is taken out; cache writes
  * count here), `cached` is the cache reads.
+ *
+ * Computed on demand and held by nothing afterwards: a read keeps only the rows (and their keys) of
+ * `sessions` when given, the sessions the asking body wore, so what it holds is that body's own
+ * turns, never every session's turns of every day. Days are read newest first and a feed's rows in
+ * its id order, so the turn kept for a key is the one the unfiltered read keeps.
  */
-export function readTokenUsageRows(dataRoot, { days = SPEND_DAYS, today = new Date().toISOString().slice(0, 10) } = {}) {
+export function readTokenUsageRows(dataRoot, { days = SPEND_DAYS, today = new Date().toISOString().slice(0, 10), sessions } = {}) {
   const seen = new Set();
   const rows = [];
   const day = new Date(`${today}T00:00:00Z`);
@@ -101,16 +79,26 @@ export function readTokenUsageRows(dataRoot, { days = SPEND_DAYS, today = new Da
     const date = new Date(day.getTime() - back * 86_400_000).toISOString().slice(0, 10);
     try {
       const feed = journal.feed(dataRoot, tokenUsageFeed, date, { subject: tokenUsageFeed });
-      const status = journal.sourceStatus(feed);
-      if (!status.exists) continue;
-      const held = heldDays.get(`${dataRoot}\n${date}`);
-      const turns = held?.bytes === status.bytes ? held.turns : dayTurns(feed, date);
-      if (held?.bytes !== status.bytes) heldDays.set(`${dataRoot}\n${date}`, { bytes: status.bytes, turns });
-      for (const { key, row } of turns) {
-        if (seen.has(key)) continue;
+      if (!journal.sourceStatus(feed).exists) continue;
+      journal.scan(feed, undefined, (_state, row) => {
+        const event = row[2];
+        if (event?.kind !== "metroplat.agent-session.token-usage-event" || event.usageKind !== "turn" || !text(event.sessionId)) return undefined;
+        if (sessions !== undefined && !sessions.has(event.sessionId)) return undefined;
+        const key = `${event.provider}\n${event.sessionId}\n${event.source}\n${event.row}`;
+        if (seen.has(key)) return undefined;
         seen.add(key);
-        rows.push(row);
-      }
+        const usage = event.usage ?? {};
+        const cached = count(usage.cachedInputTokens);
+        rows.push(Object.freeze({
+          session: event.sessionId,
+          ...(text(event.model) ? { model: event.model } : {}),
+          input: Math.max(0, count(usage.inputTokens) - cached) + count(usage.cacheCreationInputTokens),
+          cached: cached + count(usage.cacheReadInputTokens),
+          output: count(usage.outputTokens),
+          at: text(event.at) ? event.at : date,
+        }));
+        return undefined;
+      });
     } catch { /* a day whose feed cannot be read adds no spend */ }
   }
   return Object.freeze(rows);
@@ -122,11 +110,14 @@ export function readTokenUsageRows(dataRoot, { days = SPEND_DAYS, today = new Da
  */
 export function livedBodyAt(dataRoot, agency, characterRef, { told = {}, offices = [], spendDays = SPEND_DAYS } = {}) {
   const records = readBodyRecords(dataRoot);
-  const key = resolve(agency, "characters", characterRef)?.key;
+  const character = resolve(agency, "characters", characterRef);
+  const key = character?.key;
   let outcomes = [];
   try { outcomes = outcomeJournal(dataRoot).read(); } catch { /* a node with no outcome journal judges nothing */ }
+  // Spend counts only the sessions the body wore, so only theirs are read.
+  const wore = character === undefined ? new Set() : new Set(sessionsOf(character, told).map((entry) => entry.session));
   return livedBodyOf(agency, characterRef, {
-    usage: readTokenUsageRows(dataRoot, { days: spendDays }), ...told, outcomes, offices,
+    usage: told.usage ?? readTokenUsageRows(dataRoot, { days: spendDays, sessions: wore }), ...told, outcomes, offices,
     mail: records.filter((record) => record.kind === "mail" || record.kind === "mail-read"),
     memory: records.filter((record) => (record.kind === "memory" || record.kind === "memory-retract") && resolve(agency, "characters", record.character)?.key === key),
   });

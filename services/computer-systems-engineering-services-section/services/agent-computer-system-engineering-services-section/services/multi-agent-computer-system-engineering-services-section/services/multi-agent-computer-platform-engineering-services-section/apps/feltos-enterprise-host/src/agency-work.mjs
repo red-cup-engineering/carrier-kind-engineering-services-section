@@ -750,10 +750,10 @@ export function enterpriseAgencyWorkOptions({
       return recordHostedSession(item, await carrier.adapter.recover(item));
     },
     providersOfSubject: (subject) => providersOfAccount(binding, subject),
-    // A tick takes every ready item admitted capacity allows; only an explicit
-    // operator allocation cuts it.
-    ...(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK === undefined || environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK.trim() === "" ? {}
-      : { agencyWorkPumpMaxPerTick: positiveInteger(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK, "METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK") }),
+    // Pump within admitted capacity to quiescence, bounded to 32 attempts per
+    // tick by default. An explicit positive operator limit changes that bound.
+    agencyWorkPumpMaxPerTick: environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK === undefined || environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK.trim() === ""
+      ? 32 : positiveInteger(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK, "METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK"),
     ...(executeAgencyWork === undefined ? {} : { executeAgencyWork }),
   });
 }
