@@ -3,7 +3,7 @@ import { chmod, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { defineSchemaType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type";
 import { createTypedMark } from "@red-cup-engineering/signcell/typed-mark";
-import { renderAdvanceReaderCopy } from "@red-cup-engineering/ebook-production-services-section/advance-reader-rendition";
+import { renderAdvanceReaderCopy } from "@red-cup-engineering/ebook-engineering-services-section/advance-reader-rendition";
 import { referencedReviewCopyId, reviewCopyPointerKey, stagedReviewCopyPointer } from "@red-cup-engineering/digital-goods-storefront-services-section/review-copy";
 
 /**

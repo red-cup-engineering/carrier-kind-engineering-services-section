@@ -2,7 +2,7 @@
 import { defineType, instantiate } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 import { admitAgentSkillDescription } from "../../src/fabric/agent-skill-description.mjs";
 import { normalizeLinefeeds } from "@red-cup-engineering/computer-text-content-engineering-services-section/normalize-linefeeds";
-import { admitTextFileCreationProjection } from "@red-cup-engineering/file-services/admit-text-file-creation-projection";
+import { admitTextFileCreationProjection } from "@red-cup-engineering/computer-file-engineering-services-section/admit-text-file-creation-projection";
 
 const specificationDefinition = defineType({
   id: "AgentSkillMarkdownSpecification@1", name: "AgentSkillMarkdownSpecification",

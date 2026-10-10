@@ -8,7 +8,7 @@
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { canonical } from "@red-cup-engineering/json-services-section";
-import { eavtRecord } from "@red-cup-engineering/eavt/row";
+import { eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 
 export const EAVT_RELATION = "eavt";
 

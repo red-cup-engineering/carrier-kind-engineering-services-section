@@ -39,7 +39,7 @@
     "@red-cup-engineering/communicating": "workspace:*",
     "@red-cup-engineering/computer-language-systems-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/relating": "workspace:*"

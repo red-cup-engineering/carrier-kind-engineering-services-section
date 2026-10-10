@@ -1,5 +1,5 @@
 import { RpcClient } from "@red-cup-engineering/hive-blockchain-client-service/rpc.mjs";
-import { toPostObservation } from "@red-cup-engineering/computing-with-hive/computing/curation";
+import { toPostObservation } from "@red-cup-engineering/hive-computing-service/computing/curation";
 import { curationPriceOf, currentVotingMana } from "@red-cup-engineering/hive-blockchain-client-service/rewards.mjs";
 import { nativeMarketVwap } from "../../core/nativeMarket.mjs";
 import { parseInternalOrderBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";

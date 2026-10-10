@@ -1,5 +1,5 @@
 {
-  "name": "@red-cup-engineering/erc-7677-paymaster-services-section",
+  "name": "@red-cup-engineering/erc-7677-paymaster-service",
   "version": "0.1.0",
   "private": true,
   "type": "module",

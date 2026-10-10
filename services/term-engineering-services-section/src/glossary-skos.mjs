@@ -1,4 +1,4 @@
-import { SCHEMA_ORG_CONTEXT, SKOS_NAMESPACE, definedTermJsonLd, definedTermSetJsonLd } from "@red-cup-engineering/rdf-data-model-services-section/schema-org";
+import { SCHEMA_ORG_CONTEXT, SKOS_NAMESPACE, definedTermJsonLd, definedTermSetJsonLd } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/schema-org";
 import { RELATION_PREDICATE_RANGES } from "./term-carrier.mjs";
 
 const SCHEMA = "computer-glossary-skos.v2";

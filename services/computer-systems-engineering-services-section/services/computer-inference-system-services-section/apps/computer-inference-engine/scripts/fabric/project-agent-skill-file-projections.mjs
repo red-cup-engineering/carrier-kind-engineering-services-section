@@ -3,8 +3,8 @@ import { createHash } from "node:crypto";
 import { basename } from "node:path";
 import { canonical } from "@red-cup-engineering/json-services-section";
 import { projectAgentSkillMarkdown } from "@red-cup-engineering/computer-inference-engine/fabric/project-agent-skill-markdown";
-import { admitTextFileCreationProjection } from "@red-cup-engineering/file-services/admit-text-file-creation-projection";
-import { admitTextFileCreationProjectionSet } from "@red-cup-engineering/file-services/admit-text-file-creation-projection-set";
+import { admitTextFileCreationProjection } from "@red-cup-engineering/computer-file-engineering-services-section/admit-text-file-creation-projection";
+import { admitTextFileCreationProjectionSet } from "@red-cup-engineering/computer-file-engineering-services-section/admit-text-file-creation-projection-set";
 
 function requireSkillSource(value) {
   if (value?.type !== "JavascriptOperationSkillSource" || value.version !== 1) throw new TypeError("input must be an admitted JavascriptOperationSkillSource@1");

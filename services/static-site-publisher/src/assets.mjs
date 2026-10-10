@@ -1,6 +1,6 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
-import { extensionType } from '@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/media-type';
+import { extensionType } from '@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/media-type';
 
 // Text types are served as UTF-8.
 export function mediaTypeFor(path) {

@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { evaluateChronicleLedgerQuery, evaluateSparql, masksOfSessionQuery, sessionsAssignedToQuery, sparqlVariable, triplePattern } from "../src/writing/sparql/index.mjs";
 import { evaluateDatalog, variable } from "../src/writing/datalog/index.mjs";
-import { parse as parseEavt } from "@red-cup-engineering/eavt/row";
+import { parse as parseEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 const s = sparqlVariable("s");
 const o = sparqlVariable("o");

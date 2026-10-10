@@ -37,11 +37,11 @@
     "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/rdf-data-model-services-section": "workspace:*"
+    "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section": "workspace:*"
   },
   "license": "UNLICENSED"
 }

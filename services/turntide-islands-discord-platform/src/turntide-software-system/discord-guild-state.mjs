@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { botToken } from "./discord.mjs";
 import { env, publicTurntideDataPath } from "./env.mjs";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 
 const channelTypes = Object.freeze({
   0: "text", 2: "voice", 4: "category", 5: "announcement", 10: "announcement-thread",

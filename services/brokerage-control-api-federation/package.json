@@ -8,7 +8,7 @@
     "@red-cup-engineering/brokerage-independent-witness-and-books": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/mandate-portfolio-allocation-service": "workspace:*",
@@ -71,7 +71,7 @@
     "./live-mcp": "./src/live-mcp.mjs",
     "./live-runtime": "./src/live-runtime.mjs"
   },
-  "name": "@red-cup-engineering/brokerage-control-api-federation",
+  "name": "@red-cup-engineering/alpaca-services-section",
   "scripts": {
     "start:x402": "node src/market-runtime.mjs",
     "start:virtuals": "node src/virtuals-runtime.mjs",

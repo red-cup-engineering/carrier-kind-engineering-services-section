@@ -16,7 +16,7 @@ import path from "node:path";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { gitBlobReader, gitRefTips, gitRevisions } from "@red-cup-engineering/computer-code-development-engine/git/history";
 import { gitBlobIdOf } from "@red-cup-engineering/git-services-section/git-object-id";
-import { eavtRecord } from "@red-cup-engineering/eavt/row";
+import { eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 import { claudeCodeSessionChronicleFromJsonl, claudeSessionAuthoredChronicle } from "@red-cup-engineering/feltos/agents/sessions/claude-code/codec";
 import { codexSessionAuthoredChronicle, codexSessionChronicleOfContent } from "@red-cup-engineering/feltos/agents/sessions/codex/codec";
 import { importSqlRevisionIndex, isSqliteFile } from "./import-sql-revision-index.mjs";

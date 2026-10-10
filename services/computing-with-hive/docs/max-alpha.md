@@ -1,6 +1,6 @@
 # Max alpha as a derivable, bounded object
 
-*Design note for `@red-cup-engineering/computing-with-hive/computing/analysis`.
+*Design note for `@red-cup-engineering/hive-computing-service/computing/analysis`.
 The claim: "maximum alpha" is not a vibe — it is the optimum of a resource-constrained convex program whose feasible region is the chain's exact executable surfaces and whose ceiling is the spectral gap of the attention graph plus the reverse-auction game.
 Derivable optimum; provable bounded approximations at every layer.
 This note records the formalization so the analysis module can be built against it.*

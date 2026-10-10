@@ -5,7 +5,7 @@
 // naming the protected-resource metadata (RFC 9728), from which a client such as ChatGPT or
 // Claude discovers the authorization server, registers and signs in.
 
-import { bearerChallenge, bearerToken } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/bearer-authentication";
+import { bearerChallenge, bearerToken } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/bearer-authentication";
 import { INVALID_REQUEST, MCP_PROTOCOL_VERSIONS, PARSE_ERROR, createMcpServer, mcpRpcError } from "./server.mjs";
 
 const DEFAULT_MAX_BODY_BYTES = 4 * 1024 * 1024;

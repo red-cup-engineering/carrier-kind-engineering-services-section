@@ -5,7 +5,7 @@ import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, 
 import { dirname, join, resolve } from "node:path";
 import { appendJsonl, createInferenceScheduler, readJsonl } from "../../src/fabric/inference-fabric.mjs";
 import { canonicalJsonValue as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
-import { writeFileTextSync } from "@red-cup-engineering/file-services/write-file";
+import { writeFileTextSync } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
 const valued = new Set(["offer", "probe", "base-registry", "ledger", "ledger-root", "output-registry"]), booleans = new Set(["reproject", "recover-stale-lock", "help"]);

@@ -3,7 +3,7 @@ import { stat, readFile } from "node:fs/promises";
 import { join, extname, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { DEFAULT_TYPES, staticFiles } from "@red-cup-engineering/computer-web-server/static";
-import { httpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
+import { httpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
 import { fileSystemRouteManifest } from "./fs-router.mjs";
 export async function loadPages(opts) {
     const exts = opts.extensions ?? [

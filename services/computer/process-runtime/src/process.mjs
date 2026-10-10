@@ -20,7 +20,7 @@
 // the pure strategy (proc, world) -> [{ name, value:FOUR, reason?, path? }] raising this process's
 // judgments. Everything else is a typed face read off the trace.
 
-import { sectionEavtEvidence, settleEavtEvidence } from "@red-cup-engineering/eavt";
+import { sectionEavtEvidence, settleEavtEvidence } from "@red-cup-engineering/eavt-services-section";
 import { sectionSpace } from "@red-cup-engineering/metrologic/articulation/predicating/positing/independent-evidence";
 import { evidence } from "@red-cup-engineering/signcell/cell";
 import { pointWitnesses } from "@red-cup-engineering/metrologic/chu";

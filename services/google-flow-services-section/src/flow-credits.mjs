@@ -16,12 +16,13 @@
  * before they spend them, so a reading and a job's spends are read against one another. A balance
  * stands for every spend before it; successive balances are what show when the day turns.
  */
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { admitAllowance, admitAllowanceEvidence, readAllowance } from '@red-cup-engineering/organizing/enterprise';
 import { allowanceLedgerLapses, allowanceLedgerPath, recordAllowanceEvidence } from '@red-cup-engineering/computer-inference-engine/media/allowance-ledger';
 import { openLedgerJournal } from '@red-cup-engineering/computer-inference-engine/media/ledger-journal';
+import { admitJsonlOnce, readAdmittingJsonl } from '@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once';
 import { openGoogleFlow } from './google-flow-client.mjs';
 
 export const FLOW_ALLOWANCE_PATH = new URL('../content/config/flow-allowance.json', import.meta.url);
@@ -63,22 +64,9 @@ export const creditJournalRoot = (path = creditJournalPath()) => `${path.replace
  */
 function creditJournal(path) {
   const journal = openLedgerJournal(`${path.replace(/\.jsonl$/u, '')}`, FLOW_CREDIT_READING_OBJECT_KIND);
-  const admission = `${journal.root}/jsonl-admission.json`;
-  if (!existsSync(admission)) journal.exclusively(() => {
-    if (existsSync(admission)) return;
-    let admitted = 0;
-    if (existsSync(path)) {
-      const held = new Set(journal.read('reading').map((reading) => JSON.stringify(reading)));
-      for (const line of readFileSync(path, 'utf8').split('\n').filter(Boolean)) {
-        const reading = JSON.parse(line);
-        if (held.has(JSON.stringify(reading))) continue;
-        journal.record('reading', reading);
-        admitted += 1;
-      }
-    }
-    writeFileSync(admission, `${JSON.stringify({ type: 'FlowCreditJsonlAdmission', version: 1, from: path, at: new Date().toISOString(), admitted })}\n`, { flag: 'wx' });
-  });
-  return journal;
+  const sources = [{ path, category: 'reading' }], identity = (reading) => JSON.stringify(reading);
+  admitJsonlOnce(journal, sources, { identity, type: 'FlowCreditJsonlAdmission', from: path });
+  return Object.freeze({ ...journal, read: (category) => readAdmittingJsonl(journal, sources, category, { identity }) });
 }
 
 /** Every reading in the journal, oldest first; none if there are none yet. */

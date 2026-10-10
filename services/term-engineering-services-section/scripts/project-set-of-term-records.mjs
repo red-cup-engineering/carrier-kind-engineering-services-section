@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { confinePath } from "@red-cup-engineering/computer-filepath-engineering-services-section/filepath";
 import { argument } from "@red-cup-engineering/javascript-node-services-section/argv";
 import { isMain } from "@red-cup-engineering/javascript-file-services-section/javascript-file-main-guard";

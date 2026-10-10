@@ -5,8 +5,8 @@
  * cell questions and contested-cell counts (ks-01/ks-05): input admission,
  * trace-name confinement, RPC.
  */
-import { askEavtCell, askEavtTraceCell } from "@red-cup-engineering/eavt/ask-eavt-cell";
-import { countEavtTraceContestedCells } from "@red-cup-engineering/eavt/count-eavt-contested-cells";
+import { askEavtCell, askEavtTraceCell } from "@red-cup-engineering/eavt-services-section/ask-eavt-cell";
+import { countEavtTraceContestedCells } from "@red-cup-engineering/eavt-services-section/count-eavt-contested-cells";
 import { join } from "node:path";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 

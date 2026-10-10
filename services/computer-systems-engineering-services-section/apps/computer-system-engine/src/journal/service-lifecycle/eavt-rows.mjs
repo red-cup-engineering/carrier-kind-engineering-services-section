@@ -1,7 +1,7 @@
 
 
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 function lifecycleEntity(event) {
   return Object.freeze(["node-process/services/lifecycle", event.service, event.boundary]);

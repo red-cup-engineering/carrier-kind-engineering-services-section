@@ -15,7 +15,7 @@ import { operation } from "@red-cup-engineering/computer-system-engine/rpc/opera
 import { codecAdmissibleExtensions } from "@red-cup-engineering/computer-system-engine/addressing/codec-legibility";
 
 import { visitFileCensus } from "@red-cup-engineering/computer-code-development-engine/monitoring/filesystem/file-census/service";
-import { artifactTier } from "@red-cup-engineering/eavt/statement";
+import { artifactTier } from "@red-cup-engineering/eavt-services-section/statement";
 
 const DEFAULT_LIMIT = 24;
 const DEFAULT_MAX_FILES = 512;

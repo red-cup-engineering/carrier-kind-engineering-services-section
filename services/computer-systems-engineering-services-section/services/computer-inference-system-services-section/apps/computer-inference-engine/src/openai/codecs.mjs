@@ -24,7 +24,7 @@ import {
   openaiToolContract,
   openaiUsageCostContract,
 } from "./schemas.mjs";
-import { toEavt, eavtRecord } from "@red-cup-engineering/eavt/row";
+import { toEavt, eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 
 export * as chatCompletions from "./chat-completions/codec.mjs";
 export * as embeddings from "./embeddings/codec.mjs";

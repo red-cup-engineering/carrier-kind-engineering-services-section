@@ -3,7 +3,7 @@
  * the linked items. */
 import { documentShell } from "./templates.mjs";
 import { escapeHtml as esc } from "./markdown.mjs";
-import { atom, jsonFeed, newsSitemap, rss2 } from "@red-cup-engineering/computer-data-serialization-services-section/web-feed";
+import { atom, jsonFeed, newsSitemap, rss2 } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/web-feed";
 
 const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
 const text = (value) => String(value ?? "");

@@ -1,4 +1,4 @@
-import { parseAccept, parseAcceptEncoding, parseAcceptLanguage } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/preferences";
+import { parseAccept, parseAcceptEncoding, parseAcceptLanguage } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/preferences";
 
 /** Specific ranges establish a representation's preference before quality
  * ranks offered representations. q=0 therefore overrides a broader range. */

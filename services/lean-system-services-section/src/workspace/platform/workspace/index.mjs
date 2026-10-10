@@ -4,7 +4,7 @@ import { materialContext, relationalContract, relationalMove, relationalPredicat
 import { observationalLens } from "@red-cup-engineering/signchain/contracts/observation-lens";
 import { phaseEnergeticObligation } from "@red-cup-engineering/signchain/contracts/energetics";
 
-import { dataArtifactAddress, dataArtifactDescriptor } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataArtifactAddress, dataArtifactDescriptor } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 
 import { identifierSlug } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 

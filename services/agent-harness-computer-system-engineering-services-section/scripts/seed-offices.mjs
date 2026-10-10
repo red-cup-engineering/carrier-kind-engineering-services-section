@@ -8,9 +8,9 @@
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { constitute } from "@red-cup-engineering/eavt/constitute-entity";
-import { appendEavtRow } from "@red-cup-engineering/eavt/append-eavt-row";
-import { readEavtEntries } from "@red-cup-engineering/eavt/read-eavt-entries";
+import { constitute } from "@red-cup-engineering/eavt-services-section/constitute-entity";
+import { appendEavtRow } from "@red-cup-engineering/eavt-services-section/append-eavt-row";
+import { readEavtEntries } from "@red-cup-engineering/eavt-services-section/read-eavt-entries";
 import * as lagoonWorld from "@red-cup-engineering/flatfile-resource-graph-service/lagoon-world";
 
 // findRepoRoot, folded local to this script — see fold-harness-lifecycle.mjs's own copy for why.

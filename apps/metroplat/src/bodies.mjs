@@ -11,7 +11,7 @@
 import { createHash } from "node:crypto";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { resolve } from "@red-cup-engineering/organizing/agency";
 import { livedBodyOf, sessionsOf } from "@red-cup-engineering/organizing/agency/lived-body";

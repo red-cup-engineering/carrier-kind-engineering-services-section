@@ -1,6 +1,6 @@
 # game-presence
 
-`@red-cup-engineering/game-presence` — the cross-game presence/chat primitive every house game
+`@red-cup-engineering/computer-game-presence-services-section` — the cross-game presence/chat primitive every house game
 parameterizes instead of rolling its own: per-game player status (who's online), channels
 (subscribe/broadcast), and tells (cross-game direct messages), offered once as a shared service.
 Sits alongside `qwzspace` (the realtime room engine), `cast` (agent players), and `cartridge`
@@ -16,7 +16,7 @@ intent log does.
 ## Install
 
 ```sh
-npm install @red-cup-engineering/game-presence --registry https://registry.561.group/
+npm install @red-cup-engineering/computer-game-presence-services-section --registry https://registry.561.group/
 ```
 
 ## Shape

@@ -10,7 +10,7 @@ import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { journalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event";
 import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { artifactTier } from "@red-cup-engineering/eavt/statement";
+import { artifactTier } from "@red-cup-engineering/eavt-services-section/statement";
 import { eventPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/events";
 import { clearSegmentIndexes, locatedIndexDirectory, segmentPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/segment-store";
 import {

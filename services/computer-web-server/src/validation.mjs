@@ -1,5 +1,5 @@
 import { settleRequestTrace } from "@red-cup-engineering/http-services-section/request-trace";
-import { parseContentType } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-type";
+import { parseContentType } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-type";
 import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
 export { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
 function issue(path, keyword, message) {

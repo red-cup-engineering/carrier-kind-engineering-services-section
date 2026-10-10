@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { dispatchInferenceAsConfiguredCustomer } from "@red-cup-engineering/computer-inference-engine/dispatch/inference-dispatch";
-import { lintManuscript } from "@red-cup-engineering/ebook-production-services-section/lint-manuscript";
+import { lintManuscript } from "@red-cup-engineering/ebook-engineering-services-section/lint-manuscript";
 import { defineSchemaType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type";
 import { createTypedMark } from "@red-cup-engineering/signcell/typed-mark";
 

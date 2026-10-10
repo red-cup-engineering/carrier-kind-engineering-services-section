@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { dehydrateUtterances, rehydrateUtterances } from "@red-cup-engineering/eavt/log-path";
+import { dehydrateUtterances, rehydrateUtterances } from "@red-cup-engineering/eavt-services-section/log-path";
 import * as scientific from "@red-cup-engineering/signcell/utterance";
 
 test("existing utterance logs reconstitute shared objects without changing persisted payloads", () => {

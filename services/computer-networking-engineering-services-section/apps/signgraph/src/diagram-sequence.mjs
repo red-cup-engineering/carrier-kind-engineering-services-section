@@ -10,7 +10,7 @@
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 
 import { presentedCategoryDiagram } from "@red-cup-engineering/signgraph/diagram";
-import { eavtKey, eavtRecord } from "@red-cup-engineering/eavt/row";
+import { eavtKey, eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 
 function requireRecord(value, context) {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {

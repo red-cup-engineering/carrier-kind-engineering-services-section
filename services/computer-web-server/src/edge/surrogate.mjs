@@ -1,6 +1,6 @@
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
-import { parseCacheControl } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cache-control";
-import { parseDirectiveList } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/header-value";
+import { parseCacheControl } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cache-control";
+import { parseDirectiveList } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/header-value";
 const SURROGATE_CONTROL = "Surrogate-Control";
 const SURROGATE_KEY = "Surrogate-Key";
 const CACHE_TAG = "Cache-Tag";

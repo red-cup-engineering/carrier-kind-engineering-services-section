@@ -4,7 +4,7 @@
  * anchors before recomputing a fresh sweep.
  */
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** One resolved "term already exists at these schema addresses, sharing this attribute" fact. */
 

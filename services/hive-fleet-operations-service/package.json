@@ -36,7 +36,7 @@
     "./operations": "./src/operations.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/computing-with-hive": "workspace:*",
+    "@red-cup-engineering/hive-computing-service": "workspace:*",
     "@red-cup-engineering/activitypub-services-section": "workspace:*",
     "@red-cup-engineering/cbor-services-section": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",

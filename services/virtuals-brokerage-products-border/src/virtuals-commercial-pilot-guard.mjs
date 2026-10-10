@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
 import { createIfAbsent } from "./create-if-absent.mjs";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 

@@ -11,7 +11,7 @@
  * the headline entry points are re-exported here. The runnable `communicate` /
  * `communicate-serve` bins project this package's actions.
  */
-import { read as readOver } from "@red-cup-engineering/eavt/verbs";
+import { read as readOver } from "@red-cup-engineering/eavt-services-section/verbs";
 import { articulateCommunication, admitCommunication, locute as locuteOver, settle as settleOver } from "@red-cup-engineering/communicating";
 
 import english from "./compiled.mjs";

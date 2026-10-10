@@ -1,4 +1,4 @@
-import { compress, decompress, supportedCompressionCodings } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
+import { compress, decompress, supportedCompressionCodings } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
 import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 export function healthResource(options = {}) {
     if (typeof options.now !== "function") throw new TypeError("healthResource: options.now (a clock function returning a Date) is required");

@@ -7,7 +7,7 @@ import {openJournal,journal} from '../journal/journal.mjs';
 import {createOperationCatalog} from './operation.mjs';
 import {dispatchWire} from './wire-dispatch.mjs';
 import {journalRpcWitness} from './journal-witness.mjs';
-import {eavtRecord,toEavt} from '@red-cup-engineering/eavt/row';
+import {eavtRecord,toEavt} from '@red-cup-engineering/eavt-services-section/row';
 export function processingEntryValue(
   entry,
   state,

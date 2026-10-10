@@ -1,5 +1,5 @@
 /** Project many admitted source feeds into configured syndicate feeds. No editorial claims. */
-import { atom, jsonFeed, rss2 } from "@red-cup-engineering/computer-data-serialization-services-section/web-feed";
+import { atom, jsonFeed, rss2 } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/web-feed";
 import { admitSetOfFeedArrivals, normalizeFeedList } from "./feed-arrivals.mjs";
 import { sourceArrival } from "./source-arrival.mjs";
 

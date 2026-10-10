@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { createTypedMark } from "@red-cup-engineering/signcell/typed-mark";
-import { kindleReleaseAcceptanceType, verifyKindleValidationReceipt } from "@red-cup-engineering/ebook-production-services-section/kindle-validation";
+import { kindleReleaseAcceptanceType, verifyKindleValidationReceipt } from "@red-cup-engineering/ebook-engineering-services-section/kindle-validation";
 import { sha256Bytes } from "./retail-submission.mjs";
 
 /**

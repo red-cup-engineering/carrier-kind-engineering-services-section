@@ -1,12 +1,12 @@
 // serve-verbs-over-stdio.test — contract tests for scripts/serve-verbs-over-stdio.mjs, the one
 // generic stdio verb server in the tree. Exercises the server's own contract (handshake, shared
 // type catalog, InvalidInput/EffectRefused/TypeSystemMismatch refusals, frame recovery, read-after-
-// append ordering) against a real spawned process, using @red-cup-engineering/eavt's own verbs
-// module (--verbs @red-cup-engineering/eavt/verbs) as its fixture — a real owner module, not a
+// append ordering) against a real spawned process, using @red-cup-engineering/eavt-services-section's own verbs
+// module (--verbs @red-cup-engineering/eavt-services-section/verbs) as its fixture — a real owner module, not a
 // bespoke one, but this file is about the SERVER's contract, not eavt's.
 //
 // Ported from computer-deployment-engine's former composite-worker contract test (this server's
-// own assertions) and @red-cup-engineering/eavt's former standalone contract test for its own
+// own assertions) and @red-cup-engineering/eavt-services-section's former standalone contract test for its own
 // now-deleted stdio-loop script, both retired when the loop they each tested moved here.
 
 import assert from "node:assert/strict";
@@ -18,7 +18,7 @@ import { admitTypeSystemDocument } from "@red-cup-engineering/computer-data-engi
 import { getType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 
 const SERVER_SCRIPT = new URL("../scripts/serve-verbs-over-stdio.mjs", import.meta.url).pathname;
-const EAVT_VERBS = "@red-cup-engineering/eavt/verbs";
+const EAVT_VERBS = "@red-cup-engineering/eavt-services-section/verbs";
 
 function openWorker(environment = {}) {
   const worker = spawn(process.execPath, [SERVER_SCRIPT, "--verbs", EAVT_VERBS], {

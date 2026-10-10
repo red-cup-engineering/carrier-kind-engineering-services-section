@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
-import { parseCookieHeader, serializeSetCookie } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cookie";
-import { signCookieValue, unsignCookieValue } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/signed-cookie";
+import { parseCookieHeader, serializeSetCookie } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cookie";
+import { signCookieValue, unsignCookieValue } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/signed-cookie";
 import { appendSetCookie } from "@red-cup-engineering/http-services-section/cookies";
 function fnv1a(s) {
     let h = 0x811c9dc5;

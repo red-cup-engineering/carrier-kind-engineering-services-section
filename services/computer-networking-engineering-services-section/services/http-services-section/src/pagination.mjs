@@ -12,7 +12,7 @@
  * the shared `Link` header from either page's links, reusing
  * `codecs/text/http/link`'s writer rather than re-deriving it.
  */
-import { linkHeader } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/link";
+import { linkHeader } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/link";
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_MAX_LIMIT = 1000;

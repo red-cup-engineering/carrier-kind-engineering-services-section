@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { planLeanCheck } from "./check/plan.mjs";
 import { runLeanCheck } from "./check/run.mjs";
 import { leanCheckRequestContract, leanCheckResultContract } from "./check/schema.mjs";

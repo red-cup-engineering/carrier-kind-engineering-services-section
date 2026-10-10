@@ -14,7 +14,7 @@ import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-se
 import { readMarkdownFile } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-file";
 import { bundleMarkdownVaultCarriers } from "@red-cup-engineering/markdown-vault-bundle-services-section";
 import { walkPosixPaths } from "@red-cup-engineering/computer-filepath-engineering-services-section/walk-posix-paths";
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
 import { writeMarkdownFile } from "@red-cup-engineering/markdown-engineering-services-section/write-markdown-file";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 

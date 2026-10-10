@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { agencyAt } from "@red-cup-engineering/organizing/agency/held";
 import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { bodyOperations, livedBodyAt, readBodyRecords, readTokenUsageRows, WORDS_LIMIT } from "../src/bodies.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));

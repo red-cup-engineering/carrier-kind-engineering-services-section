@@ -28,7 +28,7 @@
  */
 import { canonical, parse as parseJson } from "@red-cup-engineering/json-services-section";
 import { jsonProjector } from "@red-cup-engineering/computer-content-engineering-services-section/json-projector";
-import { eavtProjector, parse as parseEavt, serialize as serializeEavt } from "@red-cup-engineering/eavt/row";
+import { eavtProjector, parse as parseEavt, serialize as serializeEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { svgProjector } from "@red-cup-engineering/signgraph/diagram-svg";
 import { mermaidProjector, umlProjector, plantUmlProjector } from "@red-cup-engineering/signgraph/diagram";
 import { senProjector } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/projector";

@@ -67,8 +67,8 @@ import {
   logRecordArtifactPath,
   projectDataArtifactPath,
 
-} from "@red-cup-engineering/eavt/data-artifact-address";
-import { closeStateAccum, foldStateAccumRow, initialStateAccum } from "@red-cup-engineering/eavt/ledger/state-fold";
+} from "@red-cup-engineering/eavt-services-section/data-artifact-address";
+import { closeStateAccum, foldStateAccumRow, initialStateAccum } from "@red-cup-engineering/eavt-services-section/ledger/state-fold";
 import {
   journalAppendAddress,
   journalLogArtifact,
@@ -136,7 +136,7 @@ import {
   STATEMENT_ROW_MAX_BYTES,
 
 } from "./index.mjs";
-import { eavtKey, eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtKey, eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 // ── events: the causal admission index (received witness -> admitted witness) ──
 

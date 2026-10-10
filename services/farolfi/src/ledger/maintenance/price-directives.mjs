@@ -1,8 +1,8 @@
 /** Derives Beancount `price` directives: CoinGecko USD prices for named commodities, and
  *  Hive-Engine-metrics-times-HIVE/USD derived prices for every other commodity the ledger's
  *  Hive-Engine Unclassified balances name. */
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { callMany } from "@red-cup-engineering/treasury-observation-service/chains";
 import { renderFile, renderPriceDirective } from "./beancount-render.mjs";
 import { fetchCoingeckoUsdPrices } from "./coingecko.mjs";

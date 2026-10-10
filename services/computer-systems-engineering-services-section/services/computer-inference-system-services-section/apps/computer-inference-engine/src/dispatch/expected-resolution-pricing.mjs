@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { openLedgerJournal } from "../media/ledger-journal.mjs";
+import { admitJsonlOnce, readAdmittingJsonl } from "@red-cup-engineering/semiotic-eavt-services-section/admit-jsonl-once";
 import { nonnegativeHostRatio as exactNonnegativeAmount } from "@red-cup-engineering/metrologic/number/wire-ratio";
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
 import { executionConfiguration, executionConfigurationIdentity } from "./sen-carrier.mjs";
@@ -39,26 +39,9 @@ function nonempty(value, label) { if (typeof value !== "string" || value.trim() 
 function pricingBook(dataRoot) {
   const root = resolve(nonempty(dataRoot, "pricing dataRoot"));
   const book = openLedgerJournal(join(root, "pricing-book"), PRICING_BOOK_OBJECT_KIND);
-  const admission = join(book.root, "jsonl-admission.json");
-  if (!existsSync(admission)) book.exclusively(() => {
-    if (existsSync(admission)) return;
-    const counts = {};
-    for (const [file, category] of Object.entries(CATEGORIES)) {
-      const path = join(root, file);
-      if (!existsSync(path)) continue;
-      const held = new Set(book.read(category).map((record) => record.id));
-      let admitted = 0;
-      for (const line of readFileSync(path, "utf8").split("\n").filter(Boolean)) {
-        const record = JSON.parse(line);
-        if (typeof record?.id === "string" && held.has(record.id)) continue;
-        book.record(category, record);
-        admitted += 1;
-      }
-      counts[category] = admitted;
-    }
-    writeFileSync(admission, `${JSON.stringify({ type: "PricingBookJsonlAdmission", version: 1, from: root, at: new Date().toISOString(), counts })}\n`, { flag: "wx" });
-  });
-  return book;
+  const sources = Object.entries(CATEGORIES).map(([file, category]) => ({ path: join(root, file), category }));
+  admitJsonlOnce(book, sources, { type: "PricingBookJsonlAdmission", from: root });
+  return Object.freeze({ ...book, read: (category) => readAdmittingJsonl(book, sources, category) });
 }
 const appendTo = (dataRoot, category, record) => { pricingBook(dataRoot).record(category, record); return record; };
 

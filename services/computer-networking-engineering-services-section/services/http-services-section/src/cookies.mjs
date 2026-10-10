@@ -1,5 +1,5 @@
-import { assertCookieName, parseCookieHeader, serializeSetCookie } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cookie";
-import { signCookieValue, unsignCookieValue } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/signed-cookie";
+import { assertCookieName, parseCookieHeader, serializeSetCookie } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cookie";
+import { signCookieValue, unsignCookieValue } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/signed-cookie";
 export function getCookie(req, name) {
     assertCookieName(name);
     return parseCookieHeader(req.headers.cookie)[name] ?? null;

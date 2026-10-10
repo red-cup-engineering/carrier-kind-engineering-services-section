@@ -5,7 +5,7 @@ import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 
 import { feedResponseLogPath } from "../journal/projections.mjs";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** Project the canonical RPC evidence journal as the server's resumable SSE feed. */
 export function filesystemRpcFeedResponder(

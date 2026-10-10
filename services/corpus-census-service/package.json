@@ -23,7 +23,7 @@
   "dependencies": {
     "@red-cup-engineering/bibliography-engineering-services-section": "workspace:*",
     "@red-cup-engineering/carrier-kind-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/git-services-section": "workspace:*",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",

@@ -3,7 +3,7 @@
 // known dhive vector, and sign/verify/recover/determinism/canonicality of the ECDSA signer.
 import { run, isMain } from "./_harness.mjs";
 import crypto from "node:crypto";
-import { encode, decode } from "@red-cup-engineering/computer-data-serialization-services-section/base58";
+import { encode, decode } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/base58";
 import { sha256, sha256d, ripemd160, hmacSha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 import { sign, verify, recover, getPublicKey } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/secp256k1";
 import { PrivateKey, PublicKey } from "../src/keys.mjs";

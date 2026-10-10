@@ -4,10 +4,10 @@ import { request } from "node:http";
 import { once } from "node:events";
 import test from "node:test";
 import { negotiateType, negotiateEncoding, negotiateLanguage } from "../src/negotiation.mjs";
-import { compress, decompress } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
-import { parseCookieHeader, serializeCookieHeader } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cookie";
-import { parseRanges, multipartByterangesBody, multipartRangeBoundary } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/byte-range";
-import { parseContentType } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-type";
+import { compress, decompress } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
+import { parseCookieHeader, serializeCookieHeader } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cookie";
+import { parseRanges, multipartByterangesBody, multipartRangeBoundary } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/byte-range";
+import { parseContentType } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-type";
 
 test("HTTP field data determines the bytes received over a real connection", async () => {
   const body = Buffer.from("retained HTTP capability");

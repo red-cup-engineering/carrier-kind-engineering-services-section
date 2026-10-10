@@ -8,7 +8,7 @@ import { readFile, realpath } from 'node:fs/promises';
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, resolve as resolvePath, sep } from 'node:path';
 import { makeNiUri, niUriWithContentType } from '@red-cup-engineering/uri-services-section/ni-uri';
-import { extensionType } from '@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/media-type';
+import { extensionType } from '@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/media-type';
 import { cslReference } from '@red-cup-engineering/csl-json-services-section/record-formatting';
 import { pathToFileURL } from 'node:url';
 import { readVaultRooms } from '@red-cup-engineering/markdown-engineering-services-section/vault-dialect/vault-rooms';

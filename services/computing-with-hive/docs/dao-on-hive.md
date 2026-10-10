@@ -1,6 +1,6 @@
 # A DAO on Hive, taken seriously
 
-*Design note for `@red-cup-engineering/computing-with-hive`.
+*Design note for `@red-cup-engineering/hive-computing-service`.
 Companion to `max-alpha.md`.
 The claim: a DAO is not a voting widget bolted to a treasury — it is a **sheaf over a membership site**, and Hive already ships every primitive one needs (stake-weighted voting, a real on-chain treasury, a programmable sidechain) while shipping almost none of the **structure**.
 The gap between "Hive has governance primitives" and "Hive has DAOs worth the name" is exactly the gap our frontier modules close.

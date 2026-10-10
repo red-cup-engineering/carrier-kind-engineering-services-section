@@ -15,8 +15,8 @@
  * - putObject?(bucket, key, bytes, { contentType, metadata }), deleteObject?(bucket, key),
  *   createBucket?(bucket), deleteBucket?(bucket) -> "deleted" | "absent" | "not-empty"
  */
-import { parseRange, contentRange } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/byte-range";
-import { httpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
+import { parseRange, contentRange } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/byte-range";
+import { httpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
 
 const S3_NS = "http://s3.amazonaws.com/doc/2006-03-01/";
 const XML_TYPE = "application/xml; charset=utf-8";

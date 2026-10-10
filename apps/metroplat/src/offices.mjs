@@ -29,7 +29,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { operation, operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
 import { knowledgeJoinAll, readingAs, readingSchema } from "@red-cup-engineering/computer-data-engineering-services-section/four";

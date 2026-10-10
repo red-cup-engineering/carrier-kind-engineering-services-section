@@ -10,7 +10,7 @@
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { canonical } from "@red-cup-engineering/json-services-section";
 import { evidence } from "@red-cup-engineering/signcell/cell";
-import { cell } from "@red-cup-engineering/eavt/ledger/cells";
+import { cell } from "@red-cup-engineering/eavt-services-section/ledger/cells";
 
 import { mergeCrdtStates } from "../crdt/index.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";

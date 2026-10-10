@@ -26,7 +26,7 @@
     "generate-ontology": "project-json-schema-as-ontology ../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-services-section/services/knowledge-organization-services-section/data/records/schema/carriers https://561.group/ns/schema/ --out-dir ../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-services-section/services/knowledge-organization-services-section/data/ontology/carriers --reference ../../../../../../../../../science-services-section/services/information-science-services-section/services/communication-science-services-section/services/glossary-science-services-section/services/term-science-services-section/data/records/schema/glossary/terms/term.schema.json"
   },
   "dependencies": {
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
     "@red-cup-engineering/term-engineering-services-section": "workspace:*"

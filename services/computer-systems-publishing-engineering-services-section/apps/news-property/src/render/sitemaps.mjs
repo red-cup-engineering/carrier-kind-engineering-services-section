@@ -3,7 +3,7 @@
  * The news sitemap window is computed relative to the publication build time.
  * Callers can supply that time to reproduce a particular build.
  */
-import { newsSitemap, robots, sitemap } from "@red-cup-engineering/computer-data-serialization-services-section/web-feed";
+import { newsSitemap, robots, sitemap } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/web-feed";
 
 const NEWS_WINDOW_MS = 48 * 60 * 60 * 1000;
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/u;

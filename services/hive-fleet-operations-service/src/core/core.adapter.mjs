@@ -4,8 +4,8 @@ import { ingestOffers } from "../analysis/incentives.mjs";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { tm, canonicalWitnessValue, witnessCell, witnessLogInformation } from "./witness.mjs";
-import { hivePostTerm, hiveTagTerm, hiveTagUtterance, induceHiveTopology } from "@red-cup-engineering/computing-with-hive/computing/topology";
-import { alphaDecay, capturableSinks, mispricingEnergy } from "@red-cup-engineering/computing-with-hive/computing/analysis/alpha";
+import { hivePostTerm, hiveTagTerm, hiveTagUtterance, induceHiveTopology } from "@red-cup-engineering/hive-computing-service/computing/topology";
+import { alphaDecay, capturableSinks, mispricingEnergy } from "@red-cup-engineering/hive-computing-service/computing/analysis/alpha";
 import { decimalOfRational } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { gradedFromParts, gradedValue } from "@red-cup-engineering/exact-number-data-service/graded";
 import { readVotingIntelligenceOf } from "../analysis/intelligence.mjs";
@@ -19,7 +19,7 @@ import { readScreening, edgesForScreening } from "../analysis/screening.mjs";
 import { readCurationTelemetry, recordCurationPredictions, recordCurationSettlements } from "./curationSettlement.mjs";
 import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
 import { canonicalJsonValue as canonicalize } from "@red-cup-engineering/json-services-section/canonical-json";
-import { selectCurationVotes } from "@red-cup-engineering/computing-with-hive/computing/curation";
+import { selectCurationVotes } from "@red-cup-engineering/hive-computing-service/computing/curation";
 import { guardFleetSelfCross, recordMakerOrderScan } from "./makerOrders.mjs";
 import { sizeExactPoolToBook } from "../analysis/exactArbitrage.mjs";
 import { actuateHiveFleetMoves, hiveMoveReceipts, hiveWalletMoves, laneExecution } from "../agent/hive-fleet-domain.mjs";
@@ -267,7 +267,7 @@ function average(values) {
 }
 // The alpha radar is the exact mispricing of the post field's reward: each post's pending payout
 // (capped at 64 HBD) against the mean of the posts sharing each of its tags, over the post–tag
-// attention graph of the field's settled Hive carrier (see @red-cup-engineering/computing-with-hive's alpha).
+// attention graph of the field's settled Hive carrier (see @red-cup-engineering/hive-computing-service's alpha).
 function readAlphaRadarSignal(posts) {
     const milli = (payout)=>BigInt(Math.round(Math.min(64, Math.max(0, payout)) * 1000));
     const byTerm = new Map(posts.map((post)=>[hivePostTerm(post.author, post.permlink), post]));
@@ -402,7 +402,7 @@ export function candidateFieldDigest(posts) {
     return semanticIdentity("aagaard.strategy-candidate-field", field);
 }
 
-// The fleet's curation votes: the one curation selection (@red-cup-engineering/computing-with-hive's
+// The fleet's curation votes: the one curation selection (@red-cup-engineering/hive-computing-service's
 // selectCurationVotes) over the field's post observations, priced at the chain's rate, under the
 // wallet's weight cap and mana floor, excluding likely cartel trails. The radar and intelligence
 // remain the field's readings; they do not choose votes.

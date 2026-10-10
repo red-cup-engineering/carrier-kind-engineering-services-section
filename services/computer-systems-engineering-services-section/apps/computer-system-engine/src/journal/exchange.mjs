@@ -12,7 +12,7 @@
  * travel.
  */
 import path from "node:path";
-import { dataTierDirectory } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataTierDirectory } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { admitEvents, listDailyFeedsInternal, readArtifactSource, readEvents } from "./filesystem/write-journal-store.mjs";
 
 const feedName = (root, logPath) => path.relative(root, logPath).split(path.sep).join("/");

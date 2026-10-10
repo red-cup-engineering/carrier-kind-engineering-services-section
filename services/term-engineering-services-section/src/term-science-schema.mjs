@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 
 export async function projectTermScienceSchema({ source, destination }, operations = {}) {
   if (typeof source !== "string" || typeof destination !== "string") throw new TypeError("source and destination are required");

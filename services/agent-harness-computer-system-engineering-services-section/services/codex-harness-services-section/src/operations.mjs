@@ -10,7 +10,7 @@ import { randomUUID } from "node:crypto";
 
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { sessionContextImage } from "@red-cup-engineering/feltos/agents/context-image";
 import { resolve as resolveAgencyRecord } from "@red-cup-engineering/organizing/agency";
 import { agencyAt } from "@red-cup-engineering/organizing/agency/held";
