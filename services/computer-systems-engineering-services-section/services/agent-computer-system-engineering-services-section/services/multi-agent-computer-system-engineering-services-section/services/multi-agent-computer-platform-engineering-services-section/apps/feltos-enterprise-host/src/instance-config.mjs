@@ -241,6 +241,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     activityPub: activityPubConfig,
     activityPubProjection: projection,
     workPeers,
+    workPeerHealth: installed.web.workPeerHealth,
     peeringOffice: installed.web.peeringOffice ?? installed.identity.id,
     presence,
     peerPresences,

@@ -12,7 +12,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/red-cup-engineering/computer-services-section.git",
+    "url": "https://github.com/red-cup-engineering/computer-engineering-services-section.git",
     "directory": "services/networking-services-section/services/http-engineering-services-section/services/json-rpc-transport-service"
   },
   "engines": {

@@ -2,7 +2,7 @@
   "sourceRepository": "emsenn/bare-cedar-fog",
   "sourceCommit": "aeedb1e9e671c24986c1b4f5e1ddbe4e4f8fb6f6",
   "sourceRoot": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/apps/agent-organization-engine/lib/relating",
-  "receivingRepository": "red-cup-engineering/computer-services-section",
+  "receivingRepository": "red-cup-engineering/computer-engineering-services-section",
   "receivingRoot": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/apps/agent-organization-engine/lib/relating",
   "scope": "ordinary package implementation, declared specifications, documentation and existing tests; operational records and deployment-owned configuration excluded",
   "originalFiles": [

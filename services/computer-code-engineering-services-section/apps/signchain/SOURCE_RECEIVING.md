@@ -5,7 +5,7 @@ This restores `@red-cup-engineering/signchain` version `0.1.0` from
 `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/apps/signchain`.
 The receiving path is the corresponding existing Computer Code hierarchy,
 `services/computer-code-engineering-services-section/apps/signchain`, in
-`red-cup-engineering/computer-services-section`.
+`red-cup-engineering/computer-engineering-services-section`.
 
 All 21 original package, source, documentation, and test files and their Git
 modes are retained. The only runtime correction compares the justified final

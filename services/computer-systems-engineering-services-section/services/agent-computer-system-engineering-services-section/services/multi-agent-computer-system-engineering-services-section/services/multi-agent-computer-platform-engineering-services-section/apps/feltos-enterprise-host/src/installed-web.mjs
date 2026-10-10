@@ -31,8 +31,30 @@ export async function installedEnterpriseWeb(hostPath) {
     throw new TypeError("FeltOS enterprise host web declaration must be an object");
   }
   const web = host.web;
-  const unsupportedWeb = Object.keys(web).filter((key) => !["instructions", "cookiePrefix", "defaultPaths", "environmentAliases", "networkSources", "companions", "workPeerActor", "workPeers", "peeringOffice", "workPeerPresence", "workPeerSuspicionSeconds", "deliverWorkToPeer", "presence", "peerPresences"].includes(key));
+  const unsupportedWeb = Object.keys(web).filter((key) => !["instructions", "cookiePrefix", "defaultPaths", "environmentAliases", "networkSources", "companions", "workPeerActor", "workPeers", "workPeerHealth", "peeringOffice", "workPeerPresence", "workPeerSuspicionSeconds", "deliverWorkToPeer", "presence", "peerPresences"].includes(key));
   if (unsupportedWeb.length > 0) throw new TypeError(`Enterprise host web declaration has unsupported fields: ${unsupportedWeb.join(", ")}`);
+  // A health contract describes an already participating peer; it never admits a work peer or grant.
+  // Validate before resolving network factories, so an invalid declaration cannot start their work.
+  if (web.workPeerHealth !== undefined && !Array.isArray(web.workPeerHealth)) {
+    throw new TypeError("Enterprise host web workPeerHealth must be an array");
+  }
+  const healthActors = new Set();
+  for (const contract of web.workPeerHealth ?? []) {
+    if (contract === null || typeof contract !== "object" || Array.isArray(contract)
+      || Object.keys(contract).some((key) => !["actor", "kind", "service"].includes(key))
+      || contract.kind !== "metroplat-supervised-health"
+      || typeof contract.service !== "string" || contract.service.trim() === "") {
+      throw new TypeError("Enterprise host web workPeerHealth entries declare only actor, kind metroplat-supervised-health, and a nonempty service");
+    }
+    let actor;
+    try { actor = typeof contract.actor === "string" ? new URL(contract.actor) : undefined; } catch {}
+    if (actor?.protocol !== "https:" || actor.username || actor.password || actor.search || actor.hash
+      || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(actor.pathname) || actor.href !== contract.actor) {
+      throw new TypeError("Enterprise host web workPeerHealth actor must be a canonical HTTPS instance actor without credentials, query, or fragment");
+    }
+    if (healthActors.has(actor.href)) throw new TypeError("Enterprise host web workPeerHealth must name unique actors");
+    healthActors.add(actor.href);
+  }
   if (web.workPeerPresence !== undefined && !WORK_PEER_PRESENCES.includes(web.workPeerPresence)) {
     throw new TypeError(`Enterprise host web workPeerPresence must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
   }

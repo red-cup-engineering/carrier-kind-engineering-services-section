@@ -1,3 +1,5 @@
+import { deliverOrHold } from "./held-delivery.mjs";
+export { presenceOf, HELD_DELIVERY_OBJECT_KIND, holdForPeer, heldFor, heldDeliveryPage, deliverOrHold, signedRequestActor, heldDeliveryResponse } from "./held-delivery.mjs";
 import { agencyAt, agencyRootOf, coordinatingOfficeSession } from "@red-cup-engineering/metroplat/offices";
 import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
 import { extractSignCellEvidenceActivity, projectSignCellEvidenceActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
@@ -111,121 +113,6 @@ export function admitWorkPeerGrants({ dataRoot, rootName, origin, issuer, peers 
     .filter((grant) => !asserted.some((assertion) => assertion.holder === actor && assertion.grants === grant))
     .map((grant) => grantAssertion(issuer, actor, grant, at)));
   return admitCapabilityAssertions({ dataRoot, ...(rootName === undefined ? {} : { rootName }), date: at.slice(0, 10), assertions });
-}
-
-/**
- * How present a peer actor is: its own declaration in `peerPresences`, else the work peers' shared
- * presence, else continuous. A known-intermittent peer has no inbound transport while it is away
- * (a colony in an ephemeral cloud environment: its HTTPS transport sends and never receives).
- */
-export function presenceOf(config, actor) {
-  return config.peerPresences?.[actor] ?? config.workPeerPresence ?? "continuous";
-}
-
-/**
- * What this node holds for a known-intermittent peer: each activity it addressed to that peer,
- * kept as it was authored, under the peer's actor, until the peer pulls it (`heldDeliveryResponse`).
- */
-export const HELD_DELIVERY_OBJECT_KIND = "held-peer-delivery";
-const HELD_PAGE = 50;
-
-const heldJournal = (dataRoot) => createSemanticRecordJournal({ root: dataRoot, objectKind: HELD_DELIVERY_OBJECT_KIND });
-
-/** The held activities addressed to `recipient`, oldest first, each once, as { id, activity }. */
-function heldRows(dataRoot, recipient) {
-  const seen = new Set();
-  const rows = [];
-  for (const { id, record } of heldJournal(dataRoot).query({ category: "held" })) {
-    if (record?.recipient !== recipient || seen.has(id)) continue;
-    seen.add(id);
-    rows.push(Object.freeze({ id, activity: record.activity }));
-  }
-  return rows;
-}
-
-/** Hold one activity for `recipient`. Holding the same activity again is a no-op. */
-export function holdForPeer({ dataRoot, recipient, activity, at = new Date().toISOString() }) {
-  if (typeof dataRoot !== "string" || dataRoot === "") throw new TypeError("holding a delivery needs this node's data root");
-  if (typeof recipient !== "string" || recipient === "") throw new TypeError("a held delivery names the actor it is held for");
-  if (activity === null || typeof activity !== "object" || Array.isArray(activity)) throw new TypeError("a held delivery is one authored activity");
-  const record = JSON.parse(JSON.stringify({ recipient, activity }));
-  const bytes = JSON.stringify(record.activity);
-  const known = heldRows(dataRoot, recipient).find((row) => JSON.stringify(row.activity) === bytes);
-  if (known !== undefined) return Object.freeze({ held: true, recipient, id: known.id });
-  const { id } = heldJournal(dataRoot).record({ category: "held", recordedAt: at, record, told: { for: true, against: false } });
-  return Object.freeze({ held: true, recipient, id });
-}
-
-/** One page of what is held for `recipient` after the held address `after` (from the start when it is not held). */
-export function heldFor({ dataRoot, recipient, after, limit = HELD_PAGE }) {
-  const rows = heldRows(dataRoot, recipient);
-  const from = after === undefined || after === null ? 0 : rows.findIndex((row) => row.id === after) + 1;
-  return Object.freeze(rows.slice(from, from + Math.max(1, Math.min(limit, HELD_PAGE))));
-}
-
-/**
- * Hand one addressed activity to its recipient: pushed to its inbox, or, when the recipient is a
- * known-intermittent peer, held for it to pull. A push to such a peer could reach it only while it
- * is present, and a queued delivery that never arrives says nothing to its sender, so this node
- * holds instead of pushing; the peer pulls whatever it lacks when it is there.
- */
-export async function deliverOrHold({ config, provider, deliver = deliverActivity, request, at }) {
-  if (presenceOf(config, request.recipient) === "known-intermittent" && config.metroplatDataRoot !== undefined) {
-    return holdForPeer({ dataRoot: config.metroplatDataRoot, recipient: request.recipient, activity: request.activity, at });
-  }
-  return deliver(provider, request);
-}
-
-/**
- * The actor whose key verifiably signed `request`, as the ActivityPub provider (Fedify) reads its
- * HTTP signature on the provider's declared public face; undefined when it is unsigned or does not verify.
- */
-export async function signedRequestActor(provider, request) {
-  const url = new URL(request.url);
-  const onFace = new Request(new URL(url.pathname + url.search, provider.origin), request);
-  const owner = await provider.federation.createContext(onFace, undefined).getSignedKeyOwner();
-  return owner?.id?.href;
-}
-
-const heldRefusal = (status, reason) => Response.json({ type: "HeldDeliveryRefusal", reason }, {
-  status, headers: { "cache-control": "private, no-store" },
-});
-
-/**
- * Serve a known-intermittent peer what is held for it: a GET of this node's instance actor outbox
- * with `held-for=<peer actor>` (and `after=<held address>` to resume), signed by that same actor.
- * `signerOf(request)` answers the actor whose key verifiably signed the request, or nothing.
- * Anything else is not this route (undefined) and falls through to the ordinary outbox.
- */
-export async function heldDeliveryResponse({ config, request, signerOf }) {
-  const url = new URL(request.url);
-  const recipient = url.searchParams.get("held-for");
-  if (request.method !== "GET" || recipient === null || !/^\/actors\/[^/]+\/outbox$/u.test(url.pathname)) return undefined;
-  const instance = config.activityPub?.instanceActor?.identifier;
-  if (instance === undefined || url.pathname !== `/actors/${encodeURIComponent(instance)}/outbox`) {
-    return heldRefusal(404, "held deliveries are served at this node's instance actor outbox");
-  }
-  if (config.metroplatDataRoot === undefined) return heldRefusal(404, "this node keeps no data root and holds nothing");
-  let signer;
-  try { signer = await signerOf(request); } catch { signer = undefined; }
-  if (typeof signer !== "string") return heldRefusal(401, "a pull of held deliveries must be signed by the actor they are held for");
-  if (signer !== recipient) return heldRefusal(403, "a peer pulls only what is held for its own actor");
-  if (presenceOf(config, signer) !== "known-intermittent") return heldRefusal(403, `${signer} is not a known-intermittent peer of this node; nothing is held for it`);
-  const items = heldFor({ dataRoot: config.metroplatDataRoot, recipient, after: url.searchParams.get("after") ?? undefined });
-  const page = new URL(`/actors/${encodeURIComponent(instance)}/outbox`, config.publicBaseUrl);
-  page.searchParams.set("held-for", recipient);
-  const self = new URL(page);
-  if (url.searchParams.has("after")) self.searchParams.set("after", url.searchParams.get("after"));
-  const next = new URL(page);
-  if (items.length > 0) next.searchParams.set("after", items.at(-1).id);
-  return new Response(JSON.stringify({
-    "@context": "https://www.w3.org/ns/activitystreams",
-    id: self.href,
-    type: "OrderedCollectionPage",
-    partOf: new URL(`/actors/${encodeURIComponent(instance)}/outbox`, config.publicBaseUrl).href,
-    orderedItems: items.map(({ activity }) => activity),
-    ...(items.length > 0 ? { next: next.href } : {}),
-  }), { status: 200, headers: { "content-type": "application/activity+json", "cache-control": "private, no-store" } });
 }
 
 /** A queue failure retains the local admission as an explicit, retryable result. */
@@ -430,8 +317,8 @@ export function prepareWorkForwardDelivery({ config, provider, move, deliver = d
 }
 
 /** Prepare a decision the home admitted for the other node. */
-export function prepareWorkDecisionDelivery({ config, provider, decision, deliver = deliverActivity }) {
-  return preparePeerDelivery({ config, provider, deliver, activityOf: (base) => workDecisionActivity({ ...base, decision, at: decision.at }) });
+export function prepareWorkDecisionDelivery({ config, provider, decision, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workDecisionActivity({ ...base, decision, at: decision.at }) });
 }
 
 /**
@@ -505,16 +392,16 @@ function keepUnread(binding, move) {
 }
 
 /** Prepare before playing locally so an untransportable telling cannot become local-only. */
-export function prepareWorkTellingDelivery({ config, provider, telling, deliver = deliverActivity }) {
-  return preparePeerDelivery({ config, provider, deliver, activityOf: (base) => workTellingActivity({ ...base, telling, at: telling.at }) });
+export function prepareWorkTellingDelivery({ config, provider, telling, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workTellingActivity({ ...base, telling, at: telling.at }) });
 }
 
 /** Prepare before playing locally so an untransportable opening cannot become local-only. */
-export function prepareWorkOpeningDelivery({ config, provider, opening, deliver = deliverActivity }) {
-  return preparePeerDelivery({ config, provider, deliver, activityOf: (base) => workOpeningActivity({ ...base, opening, at: opening.at }) });
+export function prepareWorkOpeningDelivery({ config, provider, opening, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workOpeningActivity({ ...base, opening, at: opening.at }) });
 }
 
-function preparePeerDelivery({ config, provider, deliver, activityOf }) {
+function preparePeerDelivery({ config, provider, deliver, activityOf, onPeerFailure }) {
   if (config.deliverWorkToPeer === false) return undefined;
   const peers = workPeersOf(config);
   if (peers.length === 0) return undefined;
@@ -532,6 +419,8 @@ function preparePeerDelivery({ config, provider, deliver, activityOf }) {
       identifier, recipient: peerActor, inbox: `${peerActor.replace(/\/$/u, "")}/inbox`, activity,
     } })));
     const failed = settled.flatMap((result, index) => (result.status === "rejected" ? [{ peerActor: deliveries[index].peerActor, reason: result.reason }] : []));
+    // Catch-up observes every failed recipient, including a hold that failed before transport.
+    for (const { peerActor, reason } of failed) onPeerFailure?.({ peer: peerActor, error: reason });
     // One failure is thrown as it came, so its cause is still read (away or refused); several are
     // thrown together, each kept as it came.
     if (failed.length === 1) throw failed[0].reason;

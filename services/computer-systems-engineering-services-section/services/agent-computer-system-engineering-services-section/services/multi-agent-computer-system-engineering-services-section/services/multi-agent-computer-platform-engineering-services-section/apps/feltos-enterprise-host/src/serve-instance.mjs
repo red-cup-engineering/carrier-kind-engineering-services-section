@@ -389,6 +389,11 @@ export function createEnterpriseServicePlatform({
     // Local work admission is required. Remote MCP startup/retry never owns this actor.
     name: "native-actor",
     optional: false,
+    // Actor enumeration and local queue opening walk the installed agency. On the
+    // loaded Cold Red Gate host this exceeds the platform default 10s timeout;
+    // that deadline killed the required actor before HTTP ingress could start.
+    // Remain required/fail-closed, but use the same bounded 180s budget as MetroPlat.
+    startMs: 180_000,
     start: (capabilities) => startNativeActorService({
       open: () => createActivityPub(config, environment, {
         operationSurface: capabilities["metroplat-host"].operationSurface, binding: runtime.binding,

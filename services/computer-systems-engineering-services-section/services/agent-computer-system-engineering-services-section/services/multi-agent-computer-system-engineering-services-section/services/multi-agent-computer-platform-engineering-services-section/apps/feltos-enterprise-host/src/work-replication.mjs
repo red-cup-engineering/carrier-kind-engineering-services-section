@@ -1,3 +1,5 @@
+import { signedGetAs, catchUpOutcome } from "./held-delivery.mjs";
+export { signedGetAs, catchUpOutcome, failuresSaid } from "./held-delivery.mjs";
 /**
  * One city from two nodes: the work board replicates as a union of content-addressed facts.
  *
@@ -31,7 +33,7 @@ import { operation } from "@red-cup-engineering/computer-system-engine/rpc/opera
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { homeHostOf, presenceOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
-import { notePeerRun, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
+import { notePeerRun, notePeerHealth, observeIdlePeers, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
 
 /** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
 const BOARD_KIND = "work-arena-move";
@@ -177,13 +179,6 @@ export async function shipWorkSince({ entries, shipped = new Set(), ship }) {
  * the most frequent first. A run that leaves moves undelivered says this, so its outcome names
  * the cause rather than only a count.
  */
-export function failuresSaid(failed, limit = 3) {
-  const counts = new Map();
-  for (const { why = "no reason given" } of failed) counts.set(why, (counts.get(why) ?? 0) + 1);
-  return [...counts].sort((left, right) => right[1] - left[1]).slice(0, limit)
-    .map(([why, count]) => `${count} × ${why.slice(0, 300)}`).join("; ");
-}
-
 const LEDGER_FILE = "work-peer-shipped.jsonl";
 
 /** The addresses the work peer has received from this settlement, from the ledger kept in its root. */
@@ -231,24 +226,24 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     const held = received.get(request.recipient);
     if (held.has(moveId)) return;
 
-    try {
-      const value = await (deliver ?? deliverActivity)(sender, request);
-      noteShipped(binding.dataRoot, [{ peer: request.recipient, id: moveId }]);
-      held.add(moveId);
-      observation.shipped += 1;
-      return value;
-    } catch (error) {
-      observation.failed.push(Object.freeze({ why: String(error?.message ?? error), away: deliveryAway(error) }));
-      throw error;
-    }
+    const value = await (deliver ?? deliverActivity)(sender, request);
+    noteShipped(binding.dataRoot, [{ peer: request.recipient, id: moveId }]);
+    held.add(moveId);
+    observation.shipped += 1;
+    return value;
+  };
+  const onPeerFailure = ({ peer, error }) => {
+    const observation = observations.get(peer);
+    if (observation === undefined) throw new TypeError("failed work delivery names no selected recipient");
+    observation.failed.push(Object.freeze({ id: moveId, why: String(error?.message ?? error), away: deliveryAway(error) }));
   };
   const ship = async ({ id, record }) => {
     moveId = id;
     const opening = OPENING_MOVES.includes(record.move);
     const decided = !opening && !isReplicable(record, kindsOf(entries));
-    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver: observedDelivery, opening: record })
-      : decided ? prepareWorkDecisionDelivery({ config, provider, deliver: observedDelivery, decision: { ...record, decidedBy: host } })
-        : prepareWorkTellingDelivery({ config, provider, deliver: observedDelivery, telling: record });
+    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, opening: record })
+      : decided ? prepareWorkDecisionDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, decision: { ...record, decidedBy: host } })
+        : prepareWorkTellingDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, telling: record });
     if (thunk === undefined) throw new TypeError("no work peer is configured");
     // A move held for a known-intermittent peer is handed on: the peer pulls it, so it is not sent again.
     for (const value of await thunk() ?? []) {
@@ -271,13 +266,6 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
  * not be reached for are held in place of failing the run (the ledger sends them again next run
  * anyway), and the run says the peer was away. A refusal still fails it.
  */
-export function catchUpOutcome({ shipped, failed }, presence = "continuous") {
-  const held = presence === "known-intermittent" ? failed.filter(({ away }) => away) : [];
-  const undelivered = failed.filter((entry) => !held.includes(entry));
-  if (undelivered.length > 0) throw new TypeError(`work-peer-catch-up: ${undelivered.length} of ${shipped.length + failed.length} moves were not delivered: ${failuresSaid(undelivered)}`);
-  return Object.freeze({ shipped: shipped.length, ...(held.length === 0 ? {} : { held: held.length, peer: "away" }) });
-}
-
 /**
  * Keep what one catch-up run says of the work peer's liveness in the node journal, and read it back:
  * the peer's FOUR reading (unknown while it is away and below its threshold, or always when it is
@@ -288,10 +276,11 @@ export function noteWorkPeerLiveness({ config, binding, host, result, now = new 
   const peers = result.peers ?? [];
   if (peers.length === 0) return Object.freeze({});
   const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: PEER_LIVENESS_KIND });
-  const readings = peers.map(({ peer, shipped, failed }) => {
-    const noted = notePeerRun(journal, {
+  const readings = peers.map(({ peer, shipped, failed, health }) => {
+    const noted = (health === undefined ? notePeerRun : notePeerHealth)(journal, {
       observer: host, peer, now, shipped, failed,
       presence: presenceOf(config, peer), thresholdSeconds: config.workPeerSuspicionSeconds,
+      ...(health === undefined ? {} : { health }),
     });
     return Object.freeze({ peer, liveness: noted.reading, ...(noted.silentSeconds === undefined ? {} : { silentSeconds: Math.round(noted.silentSeconds) }) });
   });
@@ -301,7 +290,7 @@ export function noteWorkPeerLiveness({ config, binding, host, result, now = new 
 const PULL_LEDGER_FILE = "work-peer-pulled.jsonl";
 const PULL_PAGES = 100;
 
-/** The held address up to which this node has pulled from `peer`, from the ledger kept in its root. */
+/** The custody continuation through which this node has pulled from `peer`, retained in its root. */
 export function readPulled(dataRoot, peer) {
   const path = resolve(dataRoot, PULL_LEDGER_FILE);
   if (!existsSync(path)) return undefined;
@@ -318,13 +307,6 @@ function notePulled(dataRoot, peer, after) {
   mkdirSync(dirname(path), { recursive: true });
   appendFileSync(path, `${JSON.stringify({ peer, after })}\n`);
 }
-
-/** A GET signed by this node's instance actor, through the ActivityPub provider's own key custody. */
-export const signedGetAs = (provider, identifier) => async (url) => {
-  if (provider?.federation === undefined || provider.origin === undefined) throw new TypeError("pulling held deliveries requires the instance ActivityPub actor");
-  const load = await provider.federation.createContext(new URL(provider.origin), undefined).getDocumentLoader({ identifier });
-  return (await load(url)).document;
-};
 
 const actorOf = (activity) => (typeof activity?.actor === "string" ? activity.actor : activity?.actor?.id);
 const addressees = (activity) => [activity?.to ?? [], activity?.cc ?? []].flat().map((value) => (typeof value === "string" ? value : value?.id));
@@ -404,8 +386,12 @@ export function workReplicationOperations({ config, binding, provider, host }) {
       // A node that cannot be pushed to takes what is held for it before it hands anything on.
       const pulls = await pullHeldFromPeers({ config, binding, provider: provider() });
       const result = await catchUpWorkPeer({ config, provider: provider(), binding, host });
-      const liveness = noteWorkPeerLiveness({ config, binding, host, result });
-      const outcome = catchUpOutcome(result, config.workPeerPresence);
+      // An empty work queue is no longer a blind interval for an already-declared peer.
+      // Re-read held peers before a public observation; no new recipient or grant is created.
+      const held = new Set(workPeersOf(config));
+      const peers = await observeIdlePeers((result.peers ?? []).filter(({ peer }) => held.has(peer)), { contracts: config.workPeerHealth });
+      const liveness = noteWorkPeerLiveness({ config, binding, host, result: { ...result, peers } });
+      const outcome = catchUpOutcome(result, config);
       // A peer that refused the pull (an unverified signature, say) is a failure; one that was away is not.
       const refusedPulls = pulls.filter(({ failed, away: wasAway }) => failed !== undefined && !wasAway);
       if (refusedPulls.length > 0) throw new TypeError(`work-peer-catch-up: pulling held deliveries failed: ${refusedPulls.map(({ peer, failed }) => `${peer}: ${failed}`).join("; ")}`);

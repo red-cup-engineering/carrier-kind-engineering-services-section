@@ -398,7 +398,7 @@ async function loopbackNode(t, name, route = async () => undefined) {
   t.after(() => new Promise((resolve) => { server.closeAllConnections(); server.close(resolve); }));
   const origin = `http://127.0.0.1:${server.address().port}`;
   local = await createLocalActivityPubProvider({
-    origin, statePath: join(root, "ap.sqlite"), queue: false, allowPrivateAddress: true,
+    origin, stateDirectory: join(root, "state"), queue: false, allowPrivateAddress: true,
     actors: [{ identifier: "metroplat", actorName: name, summary: name, keyPath: join(root, "key.json") }],
   });
   t.after(() => local.close());

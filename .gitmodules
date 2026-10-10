@@ -19,9 +19,6 @@
 [submodule "services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat"]
 	path = services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat
 	url = https://github.com/emsenn/metroplat.git
-[submodule "services/computer-data-services-section"]
-	path = services/computer-data-engineering-services-section
-	url = https://github.com/red-cup-engineering/computer-data-engineering-services-section.git
 [submodule "services/semiotic-software-services-section"]
 	path = services/semiotic-computer-system-services-section
 	url = https://github.com/red-cup-engineering/semiotic-computer-system-services-section.git

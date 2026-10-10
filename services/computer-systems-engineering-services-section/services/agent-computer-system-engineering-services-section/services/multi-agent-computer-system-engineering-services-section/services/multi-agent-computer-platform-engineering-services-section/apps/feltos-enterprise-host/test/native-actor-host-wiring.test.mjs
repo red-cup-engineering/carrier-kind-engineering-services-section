@@ -85,6 +85,10 @@ test("missing required actor returns HTTP 503 even when supervisor reports degra
 test("local actor is required and precedes ingress; remote federation remains optional", () => {
   const f = fixture();
   assert.equal(f.byName("native-actor").optional, false);
+  // Cold Red Gate release #38071983530 failed under the platform default 10s.
+  // Keep a bounded explicit budget and never turn this required actor optional.
+  assert.equal(f.byName("native-actor").startMs, 180_000);
+  assert.equal(f.byName("metroplat-host").startMs, 180_000);
   assert.equal(f.byName("federation").optional, true);
   assert.ok(f.descriptors.indexOf(f.byName("native-actor")) < f.descriptors.indexOf(f.byName("entrance")));
 });
