@@ -118,7 +118,8 @@
     "./tokens/usage-observations": "./src/tokens/usage-observations.mjs",
     "./openai/compatible-http-client": "./src/openai/compatible-http-client.mjs",
     "./openai/pricing/operations": "./src/openai/pricing/operations.mjs",
-    "./dispatch/operations": "./src/dispatch/operations.mjs"
+    "./dispatch/operations": "./src/dispatch/operations.mjs",
+    "./dispatch/work-inference-coordinate": "./src/dispatch/work-inference-coordinate.mjs"
   },
   "sqlAdmissionPaths": [
     "src/media/import-sql-ledger.mjs"
