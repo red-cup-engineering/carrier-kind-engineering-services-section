@@ -90,6 +90,7 @@
     "./dispatch/inference-source-kind": "./src/dispatch/inference-source-kind.mjs",
     "./dispatch/source-selection": "./src/dispatch/source-selection.mjs",
     "./dispatch/accepted-work-outcome": "./src/dispatch/accepted-work-outcome.mjs",
+    "./dispatch/work-inference-coordinate": "./src/dispatch/work-inference-coordinate.mjs",
     "./dispatch/provider-model-catalog": "./src/dispatch/provider-model-catalog.mjs",
     "./dispatch/provider-availability": "./src/dispatch/provider-availability.mjs",
     "./dispatch/tools": "./src/dispatch/tools.mjs",
