@@ -83,6 +83,7 @@
     "./work/fabrication-run": "./src/work/fabrication-run.mjs",
     "./agency": "./src/agency/index.mjs",
     "./agency/held": "./src/agency/held.mjs",
+    "./agency/houses": "./src/agency/houses.mjs",
     "./agency/cast": "./src/agency/cast.mjs",
     "./agency/kinds": "./src/agency/kinds.mjs",
     "./agency/rules": "./src/agency/rules.mjs",
