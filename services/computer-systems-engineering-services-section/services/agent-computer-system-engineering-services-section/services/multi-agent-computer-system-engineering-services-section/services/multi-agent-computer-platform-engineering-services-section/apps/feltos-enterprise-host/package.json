@@ -23,7 +23,8 @@
     "./activitypub-node": "./src/activitypub-node.mjs",
     "./installed-web": "./src/installed-web.mjs",
     "./enterprise-loops": "./src/enterprise-loops.mjs",
-    "./work-replication": "./src/work-replication.mjs"
+    "./work-replication": "./src/work-replication.mjs",
+    "./peer-liveness": "./src/peer-liveness.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/a2a-services-section": "workspace:*",
@@ -64,6 +65,7 @@
     "test/account-selection.test.mjs",
     "test/character-inbox-async.test.mjs",
     "test/work-peer-standing.test.mjs",
+    "test/peer-health-observation.test.mjs",
     "test/native-actor-service.test.mjs",
     "test/native-actor-host-wiring.test.mjs"
   ]

@@ -30,7 +30,7 @@ import { operation } from "@red-cup-engineering/computer-system-engine/rpc/opera
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { homeHostOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
-import { notePeerRun, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
+import { notePeerRun, notePeerHealth, observeIdlePeers, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
 
 /** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
 const BOARD_KIND = "work-arena-move";
@@ -279,10 +279,11 @@ export function noteWorkPeerLiveness({ config, binding, host, result, now = new 
   const peers = result.peers ?? [];
   if (peers.length === 0) return Object.freeze({});
   const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: PEER_LIVENESS_KIND });
-  const readings = peers.map(({ peer, shipped, failed }) => {
-    const noted = notePeerRun(journal, {
+  const readings = peers.map(({ peer, shipped, failed, health }) => {
+    const noted = (health === undefined ? notePeerRun : notePeerHealth)(journal, {
       observer: host, peer, now, shipped, failed,
       presence: config.workPeerPresence, thresholdSeconds: config.workPeerSuspicionSeconds,
+      ...(health === undefined ? {} : { health }),
     });
     return Object.freeze({ peer, liveness: noted.reading, ...(noted.silentSeconds === undefined ? {} : { silentSeconds: Math.round(noted.silentSeconds) }) });
   });
@@ -300,7 +301,11 @@ export function workReplicationOperations({ config, binding, provider, host }) {
     effects: { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "schema-bounded" },
     run: async () => {
       const result = await catchUpWorkPeer({ config, provider: provider(), binding, host });
-      const liveness = noteWorkPeerLiveness({ config, binding, host, result });
+      // An empty work queue is no longer a blind interval for an already-declared peer.
+      // Re-read held peers before a public observation; no new recipient or grant is created.
+      const held = new Set(workPeersOf(config));
+      const peers = await observeIdlePeers((result.peers ?? []).filter(({ peer }) => held.has(peer)), { contracts: config.workPeerHealth });
+      const liveness = noteWorkPeerLiveness({ config, binding, host, result: { ...result, peers } });
       return Object.freeze({ ...catchUpOutcome(result, config.workPeerPresence), ...liveness });
     },
   })]);

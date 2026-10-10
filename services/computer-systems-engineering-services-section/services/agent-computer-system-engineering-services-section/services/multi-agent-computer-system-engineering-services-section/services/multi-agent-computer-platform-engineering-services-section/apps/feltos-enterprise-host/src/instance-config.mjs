@@ -209,6 +209,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     activityPub: activityPubConfig,
     activityPubProjection: projection,
     workPeers,
+    workPeerHealth: installed.web.workPeerHealth,
     peeringOffice: installed.web.peeringOffice ?? installed.identity.id,
     ...(workPeers.length === 0 ? {} : { workPeerPresence, ...(workPeerSuspicionSeconds === undefined ? {} : { workPeerSuspicionSeconds }) }),
     deliverWorkToPeer: installed.web.deliverWorkToPeer !== false,
