@@ -26,7 +26,7 @@ import { servedRequest } from "@red-cup-engineering/computer-web-server/platform
 import { routeOpenAIChatGuest } from "@red-cup-engineering/metroplat/http/openai-chat";
 import { assertedHttpSubject } from "@red-cup-engineering/metroplat/http-options";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
-import { settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { SETTLEMENT_EXCHANGE_PATHS, settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
 
 export { bindHttpServerLifecycle } from "@red-cup-engineering/metroplat/http/lifecycle";
 
@@ -113,7 +113,6 @@ export function serve(operations, options) {
   return server;
 }
 
-const SETTLEMENT_EXCHANGE_PATHS = new Set(["/settlement/holdings", "/settlement/transfer"]);
 
 export function serveSchemaNamespace(
   mounts,
@@ -123,7 +122,7 @@ export function serveSchemaNamespace(
   const server = createHttpServer({ handle: (req, res) => {
     void (async () => {
       const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
-      if (options.settlementExchange !== undefined && req.method === "POST" && SETTLEMENT_EXCHANGE_PATHS.has(pathname)) {
+      if (options.settlementExchange !== undefined && req.method === "POST" && SETTLEMENT_EXCHANGE_PATHS.includes(pathname)) {
         const answer = await settlementExchangeResponse(req, options.settlementExchange);
         res.writeHead(answer.status, { "content-type": "application/json" });
         res.end(JSON.stringify(answer.value));

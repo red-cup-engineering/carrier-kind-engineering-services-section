@@ -42,7 +42,7 @@ import { grantAssertion } from "@red-cup-engineering/computer-networking-enginee
 import { admitCapabilityAssertions, readCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
 import { activateHttpRequestedCapabilities, httpProcessConfig } from "@red-cup-engineering/metroplat/http-options";
 import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering } from "@red-cup-engineering/computer-system-engine/rpc/node";
-import { mergeSettlementTransfer, settlementHoldings } from "@red-cup-engineering/computer-system-engine/journal/exchange";
+import { mergeSettlementTransfer, settlementHoldings, settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { resolveInfographProcessOptions } from "@red-cup-engineering/metroplat/process-options";
 import { installedMetroplatFromProcessOptions } from "@red-cup-engineering/metroplat/instance";
 import { firmPoolAuthorityResolver } from "@red-cup-engineering/metroplat/firm-pool-authority";
@@ -231,6 +231,7 @@ async function main() {
         feedLabelsFor: settlementGrants.labelsFor,
         holdings: (date, feedLabels) => settlementHoldings(dataRoot, date, { feedLabels }),
         merge: (transfer, feedLabels) => mergeSettlementTransfer(dataRoot, transfer, { feedLabels }),
+        transfer: (date, holdings, limit, feedLabels) => settlementTransfer(dataRoot, date, holdings, { limit, feedLabels }),
       },
     }),
     ...(rootApex === undefined ? {} : { rootApex }),

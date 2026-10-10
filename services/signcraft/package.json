@@ -32,6 +32,7 @@
     "./primitives": "./src/primitives.mjs",
     "./content-history-store": "./src/content-history-store.mjs",
     "./file-history-store": "./src/file-history-store.mjs",
+    "./key-value-history-store": "./src/key-value-history-store.mjs",
     "./import-sql-history": "./src/import-sql-history.mjs"
   },
   "dependencies": {
