@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 import { civicAnswerForMessage, shouldReply } from "../src/turntide-software-system/steward.mjs";
 import { runCivicScheduledRoutines } from "../src/turntide-software-system/civic-scheduled-routines.mjs";
+import { decisionProcedureWayfinding, explainTurntide, formatZelo, loadZeloCivicContext, orientTurntider } from "../src/turntide-software-system/zelo-civic-service.mjs";
 
 // The enacted Zelo civic runtime record (causeway-services/turntide-islands-services-section,
 // data/records/governance/zelo-civic-runtime.json, version 15) binds this delivery adapter to these rules.
@@ -17,38 +18,15 @@ const RUNTIME_RULES = Object.freeze({
   silenceWhenNoMaterialOutput: true,
 });
 
-// The civic kernel is Turntide's, loaded from TURNTIDE_PUBLIC_ROOT. This one answers with what it was
-// asked, so the test can see exactly what the adapter passed in and what it added on the way out.
-const KERNEL = `
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-const answer = (fn) => (context, options = {}) => ({ fn, options });
-export async function loadZeloCivicContext(root) { return JSON.parse(await readFile(path.join(root, "context.json"), "utf8")); }
-export const formatZelo = (value) => "KERNEL " + JSON.stringify(value);
-export const orientTurntider = answer("orientTurntider");
-export const explainTurntide = answer("explainTurntide");
-export const placeCivicGuide = answer("placeCivicGuide");
-export const routineStudio = answer("routineStudio");
-export const decisionProcedureWayfinding = answer("decisionProcedureWayfinding");
-export const standingWayfinding = answer("standingWayfinding");
-export const contestWayfinding = answer("contestWayfinding");
-export const tidepoolCivicMap = answer("tidepoolCivicMap");
-export const participationPaths = answer("participationPaths");
-export const draftProposal = answer("draftProposal");
-export const draftRoutineCandidate = answer("draftRoutineCandidate");
-export function scheduledCivicReview(context, { state = {} } = {}) {
-  return { outputs: context.outputs ?? [], nextState: { ...state, version: 1, initialized: true } };
-}
-`;
+// The civic kernel is this package's; the governance records it reads are Turntide's and come from
+// TURNTIDE_PUBLIC_ROOT. Here that root is a small set of invented records, so the test can tell exactly
+// what the real kernel answers and whether the adapter added anything on the way out.
+const FIXTURE_ROOT = path.join(import.meta.dirname, "fixtures", "turntide-governance");
 
-async function civicRoot(t, context = {}) {
-  const root = await mkdtemp(path.join(tmpdir(), "zelo-runtime-boundary-"));
-  t.after(() => rm(root, { recursive: true, force: true }));
-  await mkdir(path.join(root, "lib"), { recursive: true });
-  await mkdir(path.join(root, "data"), { recursive: true });
-  await writeFile(path.join(root, "lib", "zelo-civic-service.mjs"), KERNEL);
-  await writeFile(path.join(root, "context.json"), JSON.stringify(context));
-  return { source: { TURNTIDE_PUBLIC_ROOT: root, TTI_AGENT_DATA_ROOT: path.join(root, "data") }, dataRoot: path.join(root, "data") };
+async function civicRoot(t) {
+  const dataRoot = await mkdtemp(path.join(tmpdir(), "zelo-runtime-boundary-"));
+  t.after(() => rm(dataRoot, { recursive: true, force: true }));
+  return { source: { TURNTIDE_PUBLIC_ROOT: FIXTURE_ROOT, TTI_AGENT_DATA_ROOT: dataRoot }, dataRoot };
 }
 
 class RecordingTransport {
@@ -66,7 +44,9 @@ test("the delivery adapter relays the kernel's answer and adds no authority of i
   assert.equal(RUNTIME_RULES.runtimeMayExpandAuthority, false);
   const { source, dataRoot } = await civicRoot(t);
   const answer = await civicAnswerForMessage(channel("dock"), { id: "m1", authorId: "islander", content: "Zelo: what is Turntide?" }, source);
-  assert.equal(answer, `KERNEL ${JSON.stringify({ fn: "explainTurntide", options: {} })}`);
+  const context = await loadZeloCivicContext(FIXTURE_ROOT);
+  assert.equal(answer, formatZelo(explainTurntide(context)));
+  assert.match(answer, /^Turntide has three useful layers/u);
   assert.deepEqual(await readdir(dataRoot), []);
 });
 
@@ -84,7 +64,10 @@ test("Discord reactions, roles and mentions never become a vote or standing", as
   };
   const quiet = await civicAnswerForMessage(place, bare, source);
   assert.equal(await civicAnswerForMessage(place, loud, source), quiet);
-  assert.equal(quiet, `KERNEL ${JSON.stringify({ fn: "decisionProcedureWayfinding", options: { kind: "ordinary-governance-act" } })}`);
+  const context = await loadZeloCivicContext(FIXTURE_ROOT);
+  assert.equal(quiet, formatZelo(decisionProcedureWayfinding(context, { kind: "ordinary-governance-act" })));
+  assert.match(quiet, /Fixture ordinary act/u);
+  assert.match(quiet, /Numeric voting weights currently established: no/u);
   assert.deepEqual(await readdir(dataRoot), []);
 });
 
@@ -94,25 +77,39 @@ test("a rehearsal leaves no binding act behind", async (t) => {
   const answer = await civicAnswerForMessage(channel("governance-proposals"), {
     id: "m4", authorId: "islander", content: "Zelo, walk me through this governance change as a dry run",
   }, source);
-  assert.match(answer, /^KERNEL /u);
+  const context = await loadZeloCivicContext(FIXTURE_ROOT);
+  assert.equal(answer, formatZelo(orientTurntider(context)));
+  assert.doesNotMatch(answer, /\benacted\b|\bexecuted\b/u);
   assert.deepEqual(await readdir(dataRoot), []);
 });
 
 test("scheduled civic review is silent when the kernel has no material output", async (t) => {
   assert.equal(RUNTIME_RULES.silenceWhenNoMaterialOutput, true);
-  const { source, dataRoot } = await civicRoot(t, { outputs: [] });
+  const { source, dataRoot } = await civicRoot(t);
   const transport = new RecordingTransport();
-  const run = await runCivicScheduledRoutines({ transport, channels: [channel("governance-action")], source, dataRoot, now: "2026-10-10T12:00:00.000Z" });
+  const channels = [channel("governance-action"), channel("governance-questions"), channel("governance-discussion")];
+  const baseline = await runCivicScheduledRoutines({ transport, channels, source, dataRoot, now: "2026-10-10T12:00:00.000Z" });
+  const quiet = await runCivicScheduledRoutines({ transport, channels, source, dataRoot, now: "2026-10-10T13:00:00.000Z" });
+  assert.deepEqual(baseline.outputs, []);
+  assert.deepEqual(quiet.outputs, []);
   assert.deepEqual(transport.sent, []);
-  assert.deepEqual(run.deliveries, []);
+  assert.deepEqual(quiet.deliveries, []);
 });
 
 test("scheduled civic review delivers the kernel's output as written", async (t) => {
-  const content = "Decision/action reconciliation found 1 unsettled governance act(s).";
-  const { source, dataRoot } = await civicRoot(t, { outputs: [{ routine: "decision-action-reconciliation", channel: "governance-action", content }] });
+  const content = "Decision/action reconciliation found 1 unsettled governance act(s): fixture-act-unexecuted [not-started] → name or confirm the authorized executor and execution receipt";
+  const { source, dataRoot } = await civicRoot(t);
   const transport = new RecordingTransport();
-  await runCivicScheduledRoutines({ transport, channels: [channel("governance-action")], source, dataRoot, now: "2026-10-10T12:00:00.000Z" });
+  const channels = [channel("governance-action")];
+  await runCivicScheduledRoutines({ transport, channels, source, dataRoot, now: "2026-10-10T12:00:00.000Z" });
+  const due = await runCivicScheduledRoutines({ transport, channels, source, dataRoot, now: "2026-10-11T12:00:00.000Z" });
+  assert.deepEqual(due.outputs.map((output) => output.content), [content]);
   assert.deepEqual(transport.sent, [{ channelId: "channel-governance-action", content }]);
+});
+
+test("the runtime record the kernel loads carries the same five rules", async () => {
+  const context = await loadZeloCivicContext(FIXTURE_ROOT);
+  assert.deepEqual({ ...context.runtime.rules }, RUNTIME_RULES);
 });
 
 test("Zelo answers a mention anywhere and its name only in the civic places", () => {
