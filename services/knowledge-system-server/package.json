@@ -34,6 +34,9 @@
     "./search/revision-index": "./src/search/revision-index.mjs",
     "./vault-catalog": "./src/vault-catalog.mjs"
   },
+  "sqlAdmissionPaths": [
+    "src/search/import-sql-revision-index.mjs"
+  ],
   "files": [
     "content",
     "scripts",
