@@ -2,7 +2,7 @@
   "schema": "corpus-normalization/legacy-disposition/v1",
   "recordedAt": "2026-09-12",
   "family": "@emsenn/logical-inference-service-section",
-  "owner": "@red-cup-engineering/computer-inference-engine/fabric/execute-typed-inference-effect",
+  "owner": "@red-cup-engineering/computer-inference-system-services-section",
   "ownerVersion": "0.2.1",
   "transportOwner": "@red-cup-engineering/openai-compatible-chat-completion-service@0.5.5",
   "migration": {
