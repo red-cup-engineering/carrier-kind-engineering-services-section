@@ -12,6 +12,7 @@ const query = new URLSearchParams(location.search);
 const time = Number(query.get("time") ?? 9);
 const status = { ready: false, graphics: null, terrain: false, lines: [], error: null };
 globalThis.island = status;
+const panel = document.getElementById("text");
 
 try {
   const [frame, world] = await Promise.all([
@@ -34,7 +35,6 @@ try {
     if (!device) failed.push(rung);
   }
   const view = createBackend({ canvas, assets, device });
-  const panel = document.getElementById("text");
   const text = createTextBackend({
     write(lines) {
       status.lines = lines;
@@ -57,6 +57,9 @@ try {
   };
   draw();
 } catch (error) {
+  const message = "The island could not be displayed.";
+  status.lines = [message];
+  panel.replaceChildren(Object.assign(document.createElement("p"), { textContent: message }));
   status.error = String(error?.stack ?? error);
   throw error;
 }
