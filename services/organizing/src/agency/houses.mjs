@@ -47,11 +47,24 @@ export function houseResolver(estateRoot, { read = (root) => readAgency(root, { 
   };
 }
 
-/** The estate directory a pool root lies in: its outermost ancestor named `lib`, else undefined. */
-export function estateRootOf(root) {
-  let estate;
-  for (let dir = path.resolve(root); path.dirname(dir) !== dir; dir = path.dirname(dir)) if (path.basename(dir) === "lib") estate = dir;
-  return estate;
+/**
+ * The estate directory a pool root lies in. A configured estate (`ORGANIZING_ESTATE_ROOT`) wins, and a root
+ * outside it has none. Otherwise it is the outermost `lib` at the top of a repository (beside its `.git`),
+ * so a checkout under `/var/lib` still finds its own; failing that, the outermost ancestor named `lib`.
+ */
+export function estateRootOf(root, { configured = process.env.ORGANIZING_ESTATE_ROOT, exists = existsSync } = {}) {
+  const at = path.resolve(root);
+  if (configured) {
+    const estate = path.resolve(configured);
+    return at === estate || at.startsWith(`${estate}${path.sep}`) ? estate : undefined;
+  }
+  let outermost, atRepository;
+  for (let dir = at; path.dirname(dir) !== dir; dir = path.dirname(dir)) {
+    if (path.basename(dir) !== "lib") continue;
+    outermost = dir;
+    if (exists(path.join(path.dirname(dir), ".git"))) atRepository = dir;
+  }
+  return atRepository ?? outermost;
 }
 
 /** The address another house names `record` of `agency` by: the pool's estate path, its section, and its id. */
