@@ -58,6 +58,7 @@
     "./media/account-artifact-capacity": "./src/media/account-artifact-capacity.mjs",
     "./media/artifact-work": "./src/media/artifact-work.mjs",
     "./media/allowance-ledger": "./src/media/allowance-ledger.mjs",
+    "./media/ledger-journal": "./src/media/ledger-journal.mjs",
     "./media/subscription-allowances": "./src/media/subscription-allowances.mjs",
     "./media/allowance-book": "./src/media/allowance-book.mjs",
     "./media/resource-prices": "./src/media/resource-prices.mjs",
