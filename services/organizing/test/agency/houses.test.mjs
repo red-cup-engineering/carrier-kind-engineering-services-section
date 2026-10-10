@@ -63,6 +63,16 @@ test("a mounted house that does not seat the record reads unresolved; this pool'
   assert.deepEqual({ ...across(firm, "offices", "nobody") }, { reading: "unresolved", reason: "not seated in this pool" });
 });
 
+test("a key naming a section of this pool stays local: an unseated record there is unresolved, not a missing house", async () => {
+  const { lib } = await estate();
+  const root = path.join(lib, GROUP);
+  await seat(path.join(root, "services", "bookkeeping-section"), "offices", "clerk", { kind: "office" });
+  const firm = readAgency(root, { acts: [], pools: agencyPools(root) });
+  const across = houseResolver(lib);
+  assert.equal(across(firm, "offices", "services/bookkeeping-section#clerk").reading, "resolved");
+  assert.deepEqual({ ...across(firm, "offices", "services/bookkeeping-section#ghost") }, { reading: "unresolved", reason: "the section does not seat it" });
+});
+
 test("each house's registry is read once per resolver", async () => {
   const { lib, firm } = await estate();
   let reads = 0;

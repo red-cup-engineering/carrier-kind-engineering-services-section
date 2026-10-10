@@ -34,6 +34,8 @@ export function houseResolver(estateRoot, { read = (root) => readAgency(root, { 
     if (local !== undefined) return Object.freeze({ reading: "resolved", record: local, house: null });
     const parts = houseReference(ref);
     if (parts === undefined) return Object.freeze({ reading: "unresolved", reason: "not seated in this pool" });
+    // A section of this pool is named the same way from this pool's root: its key is local, never a house.
+    if (agency.sections?.has(parts.house)) return Object.freeze({ reading: "unresolved", reason: "the section does not seat it" });
     const root = path.join(estateRoot, parts.house);
     if (!existsSync(path.join(root, "lib", "agency"))) return Object.freeze({ reading: "house-not-mounted", house: parts.house });
     if (!houses.has(root)) houses.set(root, read(root));
