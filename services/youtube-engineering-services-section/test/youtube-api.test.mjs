@@ -175,6 +175,55 @@ test('missing named channel token never falls back to another channel', () => {
   assert.throws(() => createYouTube({ channelId, refreshTokenEnv: 'PACE_TOKEN', env, fetchImpl: async () => {}, authorize: async () => {} }), /PACE_TOKEN/);
 });
 
+test('batch stats use the cheap YouTube video-statistics endpoint', async () => {
+  const second = 'lmnopqrstuv';
+  const mock = fake({ effect(url, options) {
+    const request = new URL(url);
+    assert.equal(request.pathname, '/youtube/v3/videos:batchGetStats');
+    assert.equal(request.searchParams.get('id'), `${videoId},${second}`);
+    assert.equal(request.searchParams.get('part'), 'id,snippet,statistics,contentDetails');
+    assert.equal(options.method, undefined);
+    return json({ items: [{ id: videoId, statistics: { viewCount: '12' } }], summary: { requestedVideoCount: '2' } });
+  } });
+  const result = await make(mock.fetchImpl).batchVideoStats([videoId, second, videoId]);
+  assert.equal(result.items[0].statistics.viewCount, '12');
+  assert.equal(mock.calls.filter(call => call.url.includes('videos:batchGetStats')).length, 1);
+});
+
+test('analytics reports are explicitly bound to the configured channel', async () => {
+  const mock = fake({ effect(url) {
+    const request = new URL(url);
+    assert.equal(request.origin, 'https://youtubeanalytics.googleapis.com');
+    assert.equal(request.pathname, '/v2/reports');
+    assert.equal(request.searchParams.get('ids'), `channel==${channelId}`);
+    assert.equal(request.searchParams.get('startDate'), '2026-10-01');
+    assert.equal(request.searchParams.get('endDate'), '2026-10-03');
+    assert.equal(request.searchParams.get('metrics'), 'engagedViews,views,estimatedMinutesWatched');
+    assert.equal(request.searchParams.get('dimensions'), 'creatorContentType');
+    assert.equal(request.searchParams.get('filters'), `video==${videoId}`);
+    assert.equal(request.searchParams.get('sort'), '-engagedViews');
+    return json({ columnHeaders: [{ name: 'creatorContentType', columnType: 'DIMENSION', dataType: 'STRING' }], rows: [['SHORTS']] });
+  } });
+  const result = await make(mock.fetchImpl).analyticsReport({
+    startDate: '2026-10-01', endDate: '2026-10-03',
+    metrics: ['engagedViews', 'views', 'estimatedMinutesWatched'],
+    dimensions: ['creatorContentType'], filters: `video==${videoId}`, sort: ['-engagedViews'],
+  });
+  assert.deepEqual(result.rows, [['SHORTS']]);
+  assert.equal(mock.calls.filter(call => call.url.includes('/channels?')).length, 0);
+});
+
+test('invalid analytics query is refused before authentication or network I/O', async () => {
+  const mock = fake();
+  await assert.rejects(make(mock.fetchImpl).analyticsReport({
+    startDate: '2026-02-30', endDate: '2026-10-03', metrics: ['views'],
+  }), /invalid calendar date/);
+  await assert.rejects(make(mock.fetchImpl).analyticsReport({
+    startDate: '2026-10-01', endDate: '2026-10-03', metrics: ['views&filters=country==US'],
+  }), /metrics/);
+  assert.equal(mock.calls.length, 0);
+});
+
 test('wrong OAuth channel refuses upload before upload-session creation', async t => {
   const filePath = await fixture(t), mock = fake({ identity: otherChannel });
   await assert.rejects(make(mock.fetchImpl).upload({ ...input(filePath), onCheckpoint() {} }), /configured channel/);

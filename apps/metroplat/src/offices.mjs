@@ -537,6 +537,14 @@ function requireOfficeServiceCarrier(agency, officeRef, carrier) {
   }
 }
 
+/** What an office readout's `resources` were observed from: the operation catalog of the instance
+ * that was queried, together with the caller's standing there. */
+export const CURRENT_INSTANCE_RESOURCE_OBSERVATION = Object.freeze({
+  scope: "current-installed-instance",
+  installationBasis: "queried-instance-operation-catalog",
+  availabilityBasis: "queried-instance-operation-catalog+caller-standing",
+});
+
 /** A usable office readout: canonical methods and source, plus the installed
  * operation resources that those methods require for this actual caller. */
 export function officeResourceReading(binding, sources, officeRef, account) {
@@ -577,8 +585,8 @@ export function officeResourceReading(binding, sources, officeRef, account) {
     [relation, entries.map((entry) => entry.unresolved ? entry : route(entry.office))]));
   const direct = [...agency.offices.values()].filter((office) => resolve(agency, "offices", office.reportsTo, office.sectionPath)?.key === reading.office);
   organization["direct-reports"] = direct.map((office) => route(office.key));
-  return JSON.parse(JSON.stringify({ ...reading, resources, organization,
-    serviceStanding: route(reading.office) }));
+  return JSON.parse(JSON.stringify({ ...reading, resourceObservation: CURRENT_INSTANCE_RESOURCE_OBSERVATION,
+    resources, organization, serviceStanding: route(reading.office) }));
 }
 
 /** The liberties every subject holds on the platform: entering the world, speaking in it,
@@ -920,6 +928,13 @@ function participateHarnessHookEvent(binding, sources, { payload, subject, parti
   });
 }
 
+/** A JSON-safe projection of one agency record for broad readout. */
+export function agencyRecordProjection(pool, record) {
+  return { pool, key: record.key, id: record.id,
+    ...(record.name === undefined ? {} : { name: record.name }),
+    source: record.source, revision: record.revision };
+}
+
 /** The offices family. `sources` is read lazily: this family is itself one of the catalog's. */
 export function officeOperations(binding, sources) {
   const agency = () => agencyAt(agencyRootOf(binding));
@@ -951,20 +966,22 @@ export function officeOperations(binding, sources) {
         const reading = { kind: "metroplat.agency", pools: Object.fromEntries(AGENCY_POOLS.map((pool) => [pool, a[pool].size])),
           records: (input.pool ? [input.pool] : AGENCY_POOLS).flatMap((pool) => [...a[pool].values()]
             .filter((r) => !input.section || r.sectionPath === input.section)
-            .map((r) => ({ pool, key: r.key, id: r.id, name: r.name, source: r.source, revision: r.revision }))),
+            .map((r) => agencyRecordProjection(pool, r))),
           problems: a.problems };
-        if (input.pool !== undefined || input.section !== undefined) return reading;
+        // Public operation results cross a JSON transport boundary. Agency records may contain
+        // optional JavaScript fields; omit them exactly as JSON does before receipt validation.
+        if (input.pool !== undefined || input.section !== undefined) return JSON.parse(JSON.stringify(reading));
         const model = governanceOf(a);
         const claims = readIncumbencyClaims(binding.dataRoot), seated = withSeatClaims(handedAgency(binding, a), claims);
         const members = new Map();
         for (const holder of new Set(claims.map((claim) => claim.incumbent)))
           for (const key of claimedOffices(a, claims, holder)) members.set(key, [...(members.get(key) ?? []), holder]);
-        return { ...reading,
+        return JSON.parse(JSON.stringify({ ...reading,
           governance: { collectives: [...model.collectives.values()].map((c) => ({ ...c, members: [...new Set([...c.members, ...(members.get(c.id) ?? [])])] })),
             norms: [...model.norms.values()], acts: AGENCY_POOLS.flatMap((pool) => [...a[pool].values()]
               .filter((r) => r["last-governance-act"]).map((r) => ({ pool, key: r.key, revision: r.revision, ...r["last-governance-act"] }))) },
           cast: castCensus(seated), politic: politicCensus(seated, { admitted: admittedCapabilitiesOf(binding) }),
-          control: controlCensus(seated), jural: juralCensus(seated) };
+          control: controlCensus(seated), jural: juralCensus(seated) }));
       },
     }),
     operation({
