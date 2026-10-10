@@ -90,7 +90,8 @@
     "@red-cup-engineering/node-process-services-section": "workspace:*",
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-file-services-section": "workspace:*"
   },
   "engines": {
     "node": ">=22"

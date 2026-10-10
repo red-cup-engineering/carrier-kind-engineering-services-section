@@ -12,6 +12,7 @@
  * agency is read, so a connection with a live token starts in a few milliseconds.
  */
 import { readFileSync } from "node:fs";
+import { runMain } from "@red-cup-engineering/javascript-file-services-section/javascript-file-main-guard";
 import { headersFor, parseEnvironmentFile, signInOf, tokenCache } from "../src/claude-sign-in.mjs";
 
 const args = (argv) => {
@@ -50,7 +51,5 @@ async function main() {
   process.stdout.write(`${JSON.stringify(headers)}\n`, () => process.exit(0));
 }
 
-main().catch((error) => {
-  process.stderr.write(`claude-mcp-headers: ${error.message}\n`);
-  process.exit(1);
-});
+// Only when run as the headersHelper; a probe links every claude-code export and must not run it.
+await runMain(main, { moduleUrl: import.meta.url, formatError: (error) => `claude-mcp-headers: ${error.message}\n`, exitCode: 1 });
