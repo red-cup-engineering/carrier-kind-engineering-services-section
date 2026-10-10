@@ -28,7 +28,8 @@
   },
   "description": "Scalable customer-wallet-funded market in metered brokerage-control APIs.",
   "devDependencies": {
-    "@red-cup-engineering/computer-system-engine": "workspace:*"
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@rsc-quiescent/obsmetrologia-alpha-selection-proof-service": "workspace:*"
   },
   "exports": {
     ".": "./src/contract-kernel.mjs",
