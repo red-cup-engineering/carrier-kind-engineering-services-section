@@ -31,7 +31,7 @@ try {
   await mkdir(agencyRoot, { recursive: true });
   const actors = (root) => activityPubActorsAtHost({ agencyRoot, host: "fixture",
     keysDirectory: path.join(root, "keys"), instanceActor: { identifier: "metroplat", actorName: "Fixture MetroPlat", summary: "Temporary fixture instance for the signed opening receiving check" } });
-  const peerActors = actors(peerRoot);
+  const peerActors = await actors(peerRoot);
   const arrival = createActivityPubNodeArrivalHandler({ dataRoot: peerRoot, rootName: "fixture-peer",
     origin: peerOrigin, actors: peerActors });
   // The peer's peering office grants the source's instance actor the opening it delivers.
@@ -40,7 +40,7 @@ try {
   peer = await createLocalActivityPubProvider({ origin: peerOrigin, actors: peerActors,
     statePath: path.join(peerRoot, "activitypub.sqlite"), queue: false, allowPrivateAddress: true,
     onActivity: async (input) => { const result = await arrival(input); received.push(result); return result; } });
-  source = await createLocalActivityPubProvider({ origin: sourceOrigin, actors: actors(sourceRoot),
+  source = await createLocalActivityPubProvider({ origin: sourceOrigin, actors: await actors(sourceRoot),
     statePath: path.join(sourceRoot, "activitypub.sqlite"), queue: false, allowPrivateAddress: true, onActivity: async () => {} });
   globalThis.fetch = async (input, init) => {
     const request = input instanceof Request ? input : new Request(input, init);
