@@ -36,7 +36,6 @@
     "@red-cup-engineering/file-services": "workspace:*",
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
     "@red-cup-engineering/x402-services-section": "workspace:*",
-    "express": "5.2.1",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
+    "express": "5.2.1"
   }
 }
