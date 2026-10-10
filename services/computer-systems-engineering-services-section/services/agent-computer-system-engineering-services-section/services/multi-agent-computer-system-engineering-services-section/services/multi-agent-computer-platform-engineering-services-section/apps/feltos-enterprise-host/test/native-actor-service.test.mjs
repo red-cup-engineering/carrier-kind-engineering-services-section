@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { startNativeActorService, nativeActorReadiness, superviseRequiredNativeActor } from "../src/native-actor-service.mjs";
 
 function owner(events = []) {
@@ -162,4 +165,18 @@ test("the installed server executable binds actor loss to a nonzero supervised r
   assert.ok(executable.includes('process.kill(process.pid, "SIGTERM")'));
   assert.ok(executable.includes("process.exit(actorRestart ? 1 : 0)"));
   assert.match(executable, /const lifecycle = await serveEnterpriseInstance/u);
+});
+
+test("the actual server executable exits failed after actor loss, but cleanly on normal drain", () => {
+  const loader = fileURLToPath(new URL("./fixtures/native-actor-process-loader.mjs", import.meta.url));
+  const executable = fileURLToPath(new URL("../scripts/feltos-enterprise-serve.mjs", import.meta.url));
+  for (const [scenario, expected] of [["failure", 1], ["normal", 0], ["already-draining", 0]]) {
+    const result = spawnSync(process.execPath, ["--no-warnings", "--experimental-loader", loader, executable], {
+      env: { PATH: dirname(process.execPath), NATIVE_TEST_CASE: scenario },
+      encoding: "utf8", timeout: 7000, maxBuffer: 262144,
+    });
+    if (result.error) throw result.error;
+    assert.equal(result.status, expected, `subprocess ${scenario}: ${result.stderr}`);
+    if (scenario === "failure") assert.match(result.stderr, /required native actor stopped/u);
+  }
 });
