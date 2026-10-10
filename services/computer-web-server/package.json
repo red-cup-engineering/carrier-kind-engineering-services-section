@@ -54,7 +54,8 @@
     "./admission/discord": "./src/admission/discord.mjs",
     "./admission/google": "./src/admission/google.mjs",
     "./admission/discord-command": "./src/admission/discord-command.mjs",
-    "./admission/schema": "./src/admission/schema.mjs",
+    "./admission/discord-store": "./src/admission/discord-store.mjs",
+    "./admission/import-sql-discord-admission": "./src/admission/import-sql-discord-admission.mjs",
     "./admission/password": "./src/admission/password.mjs",
     "./admission/hive": "./src/admission/hive.mjs",
     "./admission/principals": "./src/admission/principals.mjs",
@@ -75,6 +76,9 @@
     "./static-mirror": "./src/static-mirror.mjs",
     "./platform-http/operation-serving": "./src/platform-http/operation-serving.mjs"
   },
+  "sqlAdmissionPaths": [
+    "src/admission/import-sql-discord-admission.mjs"
+  ],
   "files": [
     "src",
     "README.md"
@@ -83,7 +87,7 @@
     "test": "node --test --test-concurrency=2 test/**/*.test.mjs test/*.test.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/cloudflare-d1-service": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
     "@red-cup-engineering/code-websocket-frame-service": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
