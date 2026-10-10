@@ -27,6 +27,8 @@
     "./claude-code/install-claude-as-an-agent": "./services/claude-code-harness-services-section/src/install-claude-as-an-agent.mjs",
     "./claude-code/install-enterprise-in-claude": "./services/claude-code-harness-services-section/src/install-enterprise-in-claude.mjs",
     "./claude-code/enterprise-standing-block": "./services/claude-code-harness-services-section/src/enterprise-standing-block.mjs",
+    "./claude-code/sign-in": "./services/claude-code-harness-services-section/src/claude-sign-in.mjs",
+    "./claude-code/mcp-headers": "./services/claude-code-harness-services-section/scripts/claude-mcp-headers.mjs",
     "./claude-code/session": "./services/claude-code-harness-services-section/src/claude-code-session.mjs",
     "./claude-code/agency-work": "./services/claude-code-harness-services-section/src/agency-work.mjs",
     "./antigravity/session": "./services/antigravity-harness-services-section/src/antigravity-session.mjs",

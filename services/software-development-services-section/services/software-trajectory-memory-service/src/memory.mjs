@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semantic-record-journal-service";
+import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 
 export const TRAJECTORY_MEMORY_ROOT = fileURLToPath(new URL("..", import.meta.url));
 export const DEFAULT_TRAJECTORY_MEMORY_DATA_ROOT = fileURLToPath(new URL("../data", import.meta.url));
@@ -272,7 +272,7 @@ export async function appendTrajectoryRecord(record, recordedAt, {
     category: TRAJECTORY_CATEGORY,
     recordedAt,
     record,
-    charge: { support: verified, refutation: !verified },
+    told: { for: verified, against: !verified },
     relation: {
       subject: record?.missionId ?? record?.id ?? MISSION_EXECUTION_ACTOR,
       predicate: record?.type ?? "records",
