@@ -58,6 +58,22 @@ test("a journal holds bodies, texts, occurrences and cursors, and reopens at wha
   assert.deepEqual(third.cursorOf("repo"), ["tip-c"]);
 });
 
+test("an FTS5 expression matches through the term index, phrases word for word over the journal's text", (t) => {
+  const root = path.join(scratch(t), "revisions.journal");
+  const first = openRevisionJournal({ root });
+  first.admitBody(blob(10), "Fog", 15, "cedar fog lifts");
+  first.admitBody(blob(11), "Lift", 15, "fog cedar lifts");
+  first.admitBody(blob(12), "Salt", 10, "salt marsh");
+  first.flush();
+  const journal = openRevisionJournal({ root });
+  const keys = (expression) => journal.match(expression, { limit: 10 }).map((hit) => hit.key).sort();
+  assert.deepEqual(keys('"cedar fog"'), [blob(10)]);
+  assert.deepEqual(keys("cedar OR salt"), [blob(10), blob(11), blob(12)]);
+  assert.deepEqual(keys("cedar NOT lifts"), []);
+  assert.deepEqual(keys("mar*"), [blob(12)]);
+  assert.throws(() => journal.match("text:cedar", { limit: 10 }), /unsupported FTS5 query syntax/u);
+});
+
 test("discarded changes are never recorded", (t) => {
   const root = path.join(scratch(t), "revisions.journal");
   const journal = openRevisionJournal({ root });

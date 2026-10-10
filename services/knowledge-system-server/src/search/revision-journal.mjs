@@ -4,14 +4,15 @@
  * where a body stood, and the tips each source was last read at. Ranked search is a semiotic-eavt
  * term index over the same journal, keyed by blob id, with diacritics folded away.
  *
- * Bodies, occurrences and cursors are small and folded into memory when the journal opens. Texts are
- * not: each is kept under an object kind named by the first two characters of its blob id, so a
- * text is read from one of 256 journal logs rather than all of them. Every record carries many lines
- * in one string, split under the journal's string bound, because each record costs the journal an
- * admission, an identity and a witness however small it is.
+ * Every record carries many lines in one string, split under the journal's string bound, because
+ * each record costs the journal an admission, an identity and a witness however small it is.
+ * Bodies, occurrences and cursors are small and folded into memory when the journal opens. Texts
+ * are not held: they are kept under their own object kind, and a semiotic-eavt field index over the
+ * blob ids each text record carries reads back only the records holding the text asked for.
  */
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { carriedBytes, createTermIndex, foldedWords, TERM_INDEX_RECORD_BYTES } from "@red-cup-engineering/semiotic-eavt-services-section/term-index";
+import { createFieldIndex } from "@red-cup-engineering/semiotic-eavt-services-section/field-index";
 
 const KIND = "cairn.revision-index";
 const BODIES = "revision-index.bodies";
@@ -22,7 +23,7 @@ const ADMISSIONS = "revision-index.sql-admissions";
 const HELD = Object.freeze({ for: true, against: false });
 const SNIPPET_WORDS = 24;
 
-const textKind = (id) => `${KIND}.text.${id.slice(0, 2).toLowerCase()}`;
+const TEXT_KIND = `${KIND}.text`;
 const occurrenceKey = (id, source, path, revision) => `${id}\u0000${source}\u0000${path}\u0000${revision}`;
 const placeKey = (source, path, revision) => `${source}\u0000${path}\u0000${revision}`;
 const linesOf = (record) => record.lines.split("\n").map((line) => JSON.parse(line));
@@ -112,15 +113,15 @@ export function openRevisionJournal({ root, now = () => new Date().toISOString()
   function textOf(id) {
     if (staged.texts.has(id)) return staged.texts.get(id);
     if (!bodies.has(id)) return undefined;
-    const needle = `[${JSON.stringify(id)},`, parts = [];
-    for (const row of journal.query({ category: TEXT, objectKind: textKind(id) })) {
-      if (!row.record.lines.includes(needle)) continue;
-      for (const [line, part, count, chunk] of linesOf(row.record)) if (line === id) parts[part] = { count, chunk };
+    const parts = [];
+    for (const { record } of texts.get("blob", id)) {
+      for (const [line, part, count, chunk] of linesOf(record)) if (line === id) parts[part] = { count, chunk };
     }
     if (parts.length === 0 || parts.length !== parts[0].count || parts.some((part) => part === undefined)) throw new TypeError(`archive text ${id} has incomplete parts`);
     return parts.map((part) => part.chunk).join("");
   }
 
+  const texts = createFieldIndex({ root, objectKind: TEXT_KIND, category: TEXT, fields: { blob: (record) => linesOf(record).map(([id]) => id) } });
   const missing = [...bodies.keys()].filter((id) => terms.revisionOf(id) === undefined);
   if (missing.length > 0) terms.revise(({ put }) => { for (const id of missing) put(id, id, `${bodies.get(id).title}\n${textOf(id)}`); });
 
@@ -165,15 +166,12 @@ export function openRevisionJournal({ root, now = () => new Date().toISOString()
     setCursor(source, tips) { staged.cursors.set(source, [...tips]); },
     /** Record what is staged. */
     flush() {
-      const { texts, bodies: newBodies, occurrences: newOccurrences, cursors: newCursors } = staged;
+      const { texts: newTexts, bodies: newBodies, occurrences: newOccurrences, cursors: newCursors } = staged;
       restage();
-      const shards = new Map();
-      for (const [id, text] of texts) {
-        const chunks = chunksOf(text), lines = chunks.map((chunk, part) => JSON.stringify([id, part, chunks.length, chunk]));
-        const kind = textKind(id);
-        if (shards.has(kind)) shards.get(kind).push(...lines); else shards.set(kind, lines);
-      }
-      for (const [kind, lines] of shards) record(TEXT, "cairn.revision-index.text.v1", lines, kind);
+      record(TEXT, "cairn.revision-index.text.v1", [...newTexts].flatMap(([id, text]) => {
+        const chunks = chunksOf(text);
+        return chunks.map((chunk, part) => JSON.stringify([id, part, chunks.length, chunk]));
+      }), TEXT_KIND);
       record(BODIES, "cairn.revision-index.bodies.v1", [...newBodies].map(([id, { title, bytes }]) => JSON.stringify([id, title, bytes])));
       for (const [id, body] of newBodies) bodies.set(id, body);
       const fresh = newOccurrences.filter((line) => holdOccurrence(line));
@@ -183,7 +181,7 @@ export function openRevisionJournal({ root, now = () => new Date().toISOString()
         sequence += 1;
         cursors.set(source, tips);
       }
-      if (texts.size > 0) terms.revise(({ put }) => { for (const [id, text] of texts) put(id, id, `${newBodies.get(id).title}\n${text}`); });
+      if (newTexts.size > 0) terms.revise(({ put }) => { for (const [id, text] of newTexts) put(id, id, `${newBodies.get(id).title}\n${text}`); });
     },
     /** The receipt of the SQLite index read into this journal, or null. */
     get admission() { return admission; },
@@ -210,6 +208,8 @@ export function openRevisionJournal({ root, now = () => new Date().toISOString()
     title: (id) => bodies.get(id)?.title,
     /** Blob ids holding every word of the query, best first by BM25. */
     search: (query, { limit }) => terms.search(query, { limit }),
+    /** Blob ids matching an FTS5-style expression (words, prefix*, "phrases", AND, OR, NOT, parentheses), best first; other syntax is refused. */
+    match: (expression, { limit }) => terms.match(expression, { limit, textOf }),
     get size() { return bodies.size; },
     /** Occurrences and the latest time per source, by source. */
     sources() {

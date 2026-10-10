@@ -132,15 +132,16 @@ export function openRevisionIndex(file = defaultRevisionIndexFile(), { root = `$
     /**
      * The best-matching bodies for a query, each with where it stood and whether it was deleted
      * there. Words match folded (case and diacritics away); a word the tokenizer would split
-     * ("ActivityPub++", "x402-v2") must also appear verbatim unless `raw`. `score` is BM25 as
-     * FTS5 gave it: lower is better.
+     * ("ActivityPub++", "x402-v2") must also appear verbatim. `raw` takes the query as an FTS5
+     * expression (words, prefix*, "phrases", AND, OR, NOT, parentheses; other FTS5 syntax is
+     * refused). `score` is BM25 as FTS5 gave it: lower is better.
      */
     search(query, { limit = 20, raw = false } = {}) {
       const wanted = Math.min(Math.max(1, limit), 200);
       const verbatim = raw ? [] : query.split(/\s+/u).filter((word) => /[^\p{L}\p{N}]/u.test(word)).map((word) => word.replace(/^"|"$/gu, "")).filter(Boolean);
       // One hit per document: its revisions share a title and a latest file name.
       const documents = new Map();
-      for (const hit of store.search(query, { limit: wanted * 10 })) {
+      for (const hit of raw ? store.match(query, { limit: wanted * 10 }) : store.search(query, { limit: wanted * 10 })) {
         if (verbatim.length > 0) {
           const text = store.textOf(hit.key);
           if (!verbatim.every((word) => text.includes(word))) continue;
@@ -153,7 +154,7 @@ export function openRevisionIndex(file = defaultRevisionIndexFile(), { root = `$
         if (documents.size === wanted && known === undefined) break;
       }
       return Object.freeze([...documents.values()].slice(0, wanted).map(({ id, title, score, revisions, occurrences }) =>
-        Object.freeze({ id, title, score, snippet: snippetOf(store.textOf(id), query), revisions, occurrences })));
+        Object.freeze({ id, title, score, snippet: snippetOf(store.textOf(id), raw ? query.replace(/\b(?:AND|OR|NOT)\b|[*"()]/gu, " ") : query), revisions, occurrences })));
     },
     /** One body's text and occurrences. */
     read(id) {
@@ -178,7 +179,7 @@ export function revisionIndexOperations(binding = {}) {
     operation({
       verb: "archive-search", inputFormat: "json", outputFormat: "json",
       summary: "Search every revision of every document the archive has held, deleted ones included.",
-      description: "Domain: { query, limit?, raw? }. Words match folded; a word holding punctuation must also appear verbatim unless raw.",
+      description: "Domain: { query, limit?, raw? }. Words match folded, and a word holding punctuation must also appear verbatim; raw takes an FTS5 expression (words, prefix*, phrases, AND, OR, NOT, parentheses).",
       run: (input) => index().search(String(record(input).query ?? ""), { limit: record(input).limit, raw: record(input).raw === true }),
     }),
     operation({
