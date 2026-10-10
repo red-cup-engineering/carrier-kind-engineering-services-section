@@ -251,7 +251,8 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     if (thunk === undefined) throw new TypeError("no work peer is configured");
     await thunk();
   };
-  const result = await shipWorkSince({ entries: outbound, ship });
+  const completelyReceived = new Set(outbound.filter(({ id }) => [...received.values()].every((held) => held.has(id))).map(({ id }) => id));
+  const result = await shipWorkSince({ entries: outbound, shipped: completelyReceived, ship });
   return Object.freeze({ ...result, peers: Object.freeze([...observations].map(([peer, observation]) => Object.freeze({ peer, shipped: observation.shipped, failed: Object.freeze(observation.failed) }))) });
 }
 
