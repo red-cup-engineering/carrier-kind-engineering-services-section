@@ -1,7 +1,9 @@
 import { startLocalWitnessJournalProviderProcess } from "@red-cup-engineering/witness-journal-document-service/local-provider";
 import { createServer } from "./server.mjs";
 
-const witnessJournal = await startLocalWitnessJournalProviderProcess({ port: Number(process.env.WITNESS_JOURNAL_LOCAL_PORT ?? 19764) });
+// The local witness journal keeps what it witnesses (settlement witnesses among them) under WITNESS_JOURNAL_ROOT.
+if (!process.env.WITNESS_JOURNAL_ROOT) throw new Error("WITNESS_JOURNAL_ROOT is required: the directory where the local witness journal keeps what it witnesses");
+const witnessJournal = await startLocalWitnessJournalProviderProcess({ root: process.env.WITNESS_JOURNAL_ROOT, port: Number(process.env.WITNESS_JOURNAL_LOCAL_PORT ?? 19764) });
 const env = { ...process.env, WITNESS_JOURNAL_RDF_AGENT: witnessJournal.agentCardUrl };
 const { app, network, facilitatorUrl, payTo, price, port } = createServer(env);
 const server = app.listen(port, "0.0.0.0", () => console.log(JSON.stringify({

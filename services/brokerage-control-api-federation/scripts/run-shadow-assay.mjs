@@ -66,7 +66,7 @@ async function readAccountState() {
   });
 }
 
-const witnessJournal = await startLocalWitnessJournalProviderProcess({ port: Number(process.env.WITNESS_JOURNAL_LOCAL_PORT ?? 19764) });
+const witnessJournal = await startLocalWitnessJournalProviderProcess({ root: required(process.env.WITNESS_JOURNAL_ROOT, "WITNESS_JOURNAL_ROOT, where the local witness journal keeps what it witnesses"), port: Number(process.env.WITNESS_JOURNAL_LOCAL_PORT ?? 19764) });
 try {
   const env = { ...runtimeEnv, WITNESS_JOURNAL_RDF_AGENT: witnessJournal.agentCardUrl };
   const recordMarketManifest = createBrokerageMarketEventRecorder({ originatingActor: "urn:ame:alpaca-market-data-read-service", nodeId: "alpaca-market-data-read-service" }, env);
