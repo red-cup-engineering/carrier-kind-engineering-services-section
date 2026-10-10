@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$/u;
 

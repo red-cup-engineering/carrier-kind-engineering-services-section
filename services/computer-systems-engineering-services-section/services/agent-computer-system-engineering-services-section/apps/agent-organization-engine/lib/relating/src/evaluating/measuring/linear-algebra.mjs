@@ -2,8 +2,8 @@
  * evaluating/measuring/linear-algebra - SEN normalizers for finite exact
  * matrix receipts.
  */
-import { tm, } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { tm, } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 
 const field = (key) => tm.field(key, tm.var(0));
 

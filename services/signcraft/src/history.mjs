@@ -34,6 +34,12 @@ const cellName = (value) => {
   return id;
 };
 const identifyCheckpoint = ({ cells, ...body }) => address({ subject: "signcraft.history", predicate: "checkpoint", object: { ...body, cells: cells.map(cellName) } });
+/** The content address of a revision body ({ parents, source, cells }), as observeHistory names it. */
+export const identifyRevision = (body) => identify(body);
+/** Admit one cell exactly as a revision retains it. */
+export const retainHistoryCell = (value) => admitCell(value);
+/** The content address of a checkpoint body ({ heads, cells, size, functionalPredicates }), as checkpointHistory names it. */
+export const identifyHistoryCheckpoint = (body) => identifyCheckpoint(body);
 const identifyWholeCheckpoint = (body) => address({ subject: "signcraft.history", predicate: "checkpoint", object: body });
 // Histories whose every revision and checkpoint this module has addressed: built here from admitted
 // parts, or checked by restoreHistory. They are frozen, so admitting one again would only re-derive
@@ -483,28 +489,35 @@ function ancestorsOf(index, revision) {
   return found;
 }
 
-/** Read one subject as SignCells. Conflicting functional values carry counterevidence. */
-function sectionOf(history, subject) {
-  const index = indexOf(history), subjectKey = key(subject, null);
-  if (index.readings.has(subjectKey)) return index.readings.get(subjectKey);
-  const observations = index.bySubject.get(subjectKey)?.observations ?? [];
-  const functional = new Set(history.functionalPredicates), byPredicate = new Map();
-  for (const observation of observations) {
-    const predicateKey = key(subject, observation.cell.predicate);
+/** The reading of one subject's retained cells: cells of a predicate gather as a cell set, and
+ * conflicting functional values carry counterevidence. Pure over the cells it is given, so a store
+ * that holds a subject's retained cells reads exactly as a history that indexes them. */
+export function historySectionOfCells(functionalPredicates, subject, cells) {
+  const functional = new Set(functionalPredicates), byPredicate = new Map();
+  for (const value of cells) {
+    const predicateKey = key(subject, value.predicate);
     if (!byPredicate.has(predicateKey)) byPredicate.set(predicateKey, []);
-    byPredicate.get(predicateKey).push(observation);
+    byPredicate.get(predicateKey).push(value);
   }
   const result = [];
   for (const entries of byPredicate.values()) {
     // Revisions already carry SignCell witnesses. Rebuilding a telling log
     // would duplicate every witness into rows only to gather the same cells.
-    const section = cellSet(entries.map(({ cell: value }) => value));
+    const section = cellSet(entries);
     for (const value of section) {
       const alternatives = functional.has(value.predicate) ? section.filter((other) => !coincides(value.object, other.object) && other.for.length) : [];
       result.push(alternatives.length ? evidenced(value, { for: value.for, against: [...value.against, ...alternatives.flatMap((other) => other.for)] }) : value);
     }
   }
-  const section = cellSet(result);
+  return cellSet(result);
+}
+
+/** Read one subject as SignCells. Conflicting functional values carry counterevidence. */
+function sectionOf(history, subject) {
+  const index = indexOf(history), subjectKey = key(subject, null);
+  if (index.readings.has(subjectKey)) return index.readings.get(subjectKey);
+  const observations = index.bySubject.get(subjectKey)?.observations ?? [];
+  const section = historySectionOfCells(history.functionalPredicates, subject, observations.map(({ cell: value }) => value));
   index.readings.set(subjectKey, section);
   return section;
 }

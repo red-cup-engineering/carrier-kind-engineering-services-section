@@ -7,9 +7,9 @@
  * adjudication stay out of this module; those are organizing readings.
  */
 
-import { arrayTerm, jsonToTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { arrayTerm, jsonToTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { evaluateRunTerm } from "@red-cup-engineering/signcraft/primitives";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { capabilityDecisionCarrier } from "./capability-decision.mjs";
 import { capabilityRequestCarrier } from "./capability-request.mjs";
 import { workClosureCarrier } from "./work-closure.mjs";

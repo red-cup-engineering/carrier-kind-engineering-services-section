@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { moveOf, workBoard } from "@red-cup-engineering/organizing/enterprise";
-import { coordinatedMovesOf, decidedMovesOf, entriesOfJournal, failuresSaid, mergeMoves, replicableMovesOf, shipWorkSince } from "../src/work-replication.mjs";
+import { catchUpOutcome, coordinatedMovesOf, decidedMovesOf, deliveryAway, entriesOfJournal, failuresSaid, mergeMoves, replicableMovesOf, shipWorkSince } from "../src/work-replication.mjs";
 
 const DAY = "2026-10-03";
 const at = (hhmm) => `${DAY}T${hhmm}:00Z`;
@@ -143,4 +143,35 @@ test("undelivered moves are said by their reasons, the most frequent first", () 
   const failed = [{ why: "401 Unauthorized" }, { why: "not at home" }, { why: "401 Unauthorized" }, {}];
   assert.equal(failuresSaid(failed), "2 × 401 Unauthorized; 1 × not at home; 1 × no reason given");
   assert.equal(failuresSaid(failed, 1), "2 × 401 Unauthorized");
+});
+
+test("a delivery no one answered, or a gateway answered for an absent node, is away; one the peer answered is not", () => {
+  const status = (statusCode) => Object.assign(new Error(`Failed to send activity (${statusCode})`), { statusCode });
+  const fetchError = (message, cause) => Object.assign(new Error(message, { cause }), { name: "FetchError" });
+  const refusedConnection = new TypeError("fetch failed", { cause: Object.assign(new Error("connect ECONNREFUSED"), { code: "ECONNREFUSED" }) });
+  assert.equal(deliveryAway(fetchError("fetch failed", refusedConnection)), true, "Fedify keeps the transport failure as its cause");
+  assert.equal(deliveryAway(fetchError("HTTP 404", undefined)), false);
+  assert.equal(deliveryAway(Object.assign(fetchError("HTTP 404"), { response: { status: 404 } })), false, "a document the peer answered for is not away");
+  assert.equal(deliveryAway(fetchError("fetch failed", new TypeError("fetch failed", { cause: Object.assign(new Error("certificate has expired"), { code: "CERT_HAS_EXPIRED" }) }))), false, "a certificate fault is not absence");
+  assert.equal(deliveryAway(refusedConnection), true);
+  assert.equal(deliveryAway(new TypeError("request failed", { cause: Object.assign(new Error("getaddrinfo ENOTFOUND"), { code: "ENOTFOUND" }) })), true);
+  assert.equal(deliveryAway(Object.assign(new Error("aborted"), { name: "TimeoutError" })), true);
+  for (const code of [502, 503, 504, 521, 530]) assert.equal(deliveryAway(status(code)), true, `${code} says the node behind the gateway is not there`);
+  for (const code of [400, 401, 403, 404, 422, 500]) assert.equal(deliveryAway(status(code)), false, `${code} is the peer's own answer`);
+  assert.equal(deliveryAway(new Error("peer away")), false, "an error of no known shape stays a failure");
+  assert.equal(deliveryAway(undefined), false);
+});
+
+test("a known-intermittent peer's away moves are held and its refusals still fail the run; a continuous peer's away moves fail it", async () => {
+  const away = (n) => ({ id: `away-${n}`, why: "fetch failed", away: true });
+  const refused = { id: "refused", why: "401 Unauthorized", away: false };
+  const sent = [{ id: "sent" }];
+  assert.deepEqual(catchUpOutcome({ shipped: sent, failed: [away(1), away(2)] }, "known-intermittent"), { shipped: 1, held: 2, peer: "away" });
+  assert.deepEqual(catchUpOutcome({ shipped: sent, failed: [] }, "known-intermittent"), { shipped: 1 });
+  assert.throws(() => catchUpOutcome({ shipped: sent, failed: [away(1)] }, "continuous"), /1 of 2 moves were not delivered: 1 × fetch failed/);
+  assert.throws(() => catchUpOutcome({ shipped: sent, failed: [away(1)] }), /1 of 2 moves were not delivered/, "presence defaults to continuous");
+  assert.throws(() => catchUpOutcome({ shipped: sent, failed: [away(1), refused] }, "known-intermittent"), /1 of 3 moves were not delivered: 1 × 401 Unauthorized/);
+  const down = Object.assign(new Error("fetch failed", { cause: new TypeError("fetch failed", { cause: Object.assign(new Error("getaddrinfo ENOTFOUND"), { code: "ENOTFOUND" }) }) }), { name: "FetchError" });
+  const result = await shipWorkSince({ entries: [{ id: "a", record: {} }, { id: "b", record: {} }], ship: async ({ id }) => { if (id === "b") throw down; } });
+  assert.deepEqual(result.failed.map(({ id, away: wasAway }) => [id, wasAway]), [["b", true]], "a failed move keeps whether the peer was away");
 });

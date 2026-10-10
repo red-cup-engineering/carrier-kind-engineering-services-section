@@ -1,5 +1,5 @@
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const looseObject = { type: "object", additionalProperties: true };
 const looseArray = { type: "array", items: {} };

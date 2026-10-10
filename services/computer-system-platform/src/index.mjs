@@ -1,5 +1,5 @@
 import { admitOperation, executeOperation, isPromiseLike } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
-import { createTypeSystem, getType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { createTypeSystem, getType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 import { decodeOperationRequest, encodeOperationOutcome } from "./wire.mjs";
 function refusal(code, message) {
     return Object.freeze({ ok: false, refusal: Object.freeze({ code, message }) });

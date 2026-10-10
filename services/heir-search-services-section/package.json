@@ -34,7 +34,7 @@
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/propublica-nonprofit-explorer-services-section": "workspace:*",
     "@red-cup-engineering/usaspending-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "sideEffects": false
 }

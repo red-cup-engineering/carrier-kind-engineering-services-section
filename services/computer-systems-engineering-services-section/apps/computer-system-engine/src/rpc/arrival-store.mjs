@@ -1,5 +1,5 @@
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 import { admitCloudEventArrival, arrivalDispatchClaimFromCloudEvent, arrivalReceiptWithAdmission, ARRIVAL_ADMISSION_TERM, ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { } from "@red-cup-engineering/json-services-section";

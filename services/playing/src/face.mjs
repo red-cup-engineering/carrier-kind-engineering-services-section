@@ -44,7 +44,7 @@ import { knowledgeReading } from "@red-cup-engineering/signcell/cell";
 import { tellMembrane } from "@red-cup-engineering/signcraft/membrane";
 
 import { design } from "./structuring/concurrent-game/with-symmetry/ludicizing/design.mjs";
-import { census } from "@red-cup-engineering/computer-data-services-section/four";
+import { census } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** The agentive-triad bilattice axis playing's face reads. */
 

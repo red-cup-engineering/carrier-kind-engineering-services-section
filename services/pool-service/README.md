@@ -118,12 +118,16 @@ this section's operations.
   retires one after the dialogue-then-vote sequence (a human process this package does not
   model) has closed.
 - **The distribution vote** (`src/votes.mjs`): `record-distribution-vote` weights a member's
-  vote by their `matchedPairs` count read as of `matchedTallyAsOf` — this build lot's own
-  explicit resolution of the specification's "the previous cycle's close": `pool-service` does
-  not yet own a cycle calendar, so the caller (a cycle-running script or the CLI) names the
-  reference date directly, fixed once at cast time. `tally-cycle-votes` sums each cycle's
-  recorded votes per enterprise; quorum is three nonzero-weight voters, below which the caller
-  (`derive-cycle-split`) falls back to an even split of the voted portion too.
+  vote by their `matchedPairs` count read as of `matchedTallyAsOf` — this build lot's current
+  incomplete representation of the specification's "close of the previous cycle".
+  `pool-service` does not yet own an admitted monthly cycle calendar, so this timestamp remains
+  caller-supplied and MUST NOT be treated as a received calendar witness. What this build lot now
+  does make strict is **close immutability**: the first `tally-cycle-votes` result for a cycle is
+  append-only; a second close is refused; `record-distribution-vote` refuses a cycle that already
+  has a tally; votes timestamped after `closedAt` are excluded; duplicate stored member votes are
+  refused; and the tally carries a content-addressed `voteEvidence` commitment to the exact vote
+  set included at close. Quorum is three nonzero-weight voters, below which
+  `derive-cycle-split` falls back to an even split of the voted portion too.
 - **The cycle split** (`src/cycle.mjs`): `derive-cycle-split` applies the economics
   specification's 20% barrier reserve / 30% tally-credit float / 50% distributable, then the
   distributable's fixed-even / tally-weighted-voted split, in exact decimal arithmetic. The

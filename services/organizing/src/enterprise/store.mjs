@@ -12,7 +12,7 @@ import { CONTACT_SIDES, contactSide } from "./orders.mjs";
 import { validateControlRecord } from "./control.mjs";
 
 export const ENTERPRISE_JOURNAL_KIND = "enterprise";
-export const RECORD_CATEGORIES = Object.freeze(["contact", "order", "party", "setting", "settlement", "cost", "signature", "bid", "control"]);
+export const RECORD_CATEGORIES = Object.freeze(["contact", "order", "party", "resource", "setting", "settlement", "cost", "signature", "bid", "control"]);
 
 const journalAt = (root) => createSemanticRecordJournal({ root, objectKind: ENTERPRISE_JOURNAL_KIND });
 
@@ -70,6 +70,7 @@ export function enterpriseStore(binding, { roots, journal, now = () => new Date(
     },
     order: (record) => write("order", record),
     party: (record) => write("party", record),
+    resource: (record) => write("resource", record),
     setting: (record) => write("setting", record),
     settlement: (record) => write("settlement", record),
     cost: (record) => write("cost", record),

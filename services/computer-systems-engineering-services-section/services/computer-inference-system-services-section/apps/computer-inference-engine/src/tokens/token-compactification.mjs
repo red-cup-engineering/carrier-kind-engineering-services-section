@@ -24,7 +24,7 @@
 // The original spans are never mutated: compaction is a VIEW plus an ARCHIVE, so repeated
 // compaction cannot collapse irrecoverably.
 
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { niUriDigest } from "@red-cup-engineering/uri-services-section/ni-uri";
 

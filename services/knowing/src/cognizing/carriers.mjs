@@ -6,7 +6,7 @@
  */
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { memeCarrier } from "@red-cup-engineering/relating";
-import { readingSchema } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingSchema } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { closureRegimeNames, spineStages } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { orbitRegimeSchema } from "./section.mjs";
 

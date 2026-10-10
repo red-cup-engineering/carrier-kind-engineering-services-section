@@ -1,4 +1,4 @@
-import { knowledgeMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { closeOrdinalProcess, closureProcess, closureReadout, closureRegimeName, omegaOrdinal, stabilizingSup } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { regimeOfOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/ordinal-closure";
 /**

@@ -19,14 +19,19 @@ export function filesystemRpcFeedResponder(
   };
 }
 
+const CLOSED_HEADS = 1024;
+
 /** Admit attempts, decisions, and outcomes through the one journal API. */
 export function journalRpcWitness(root, options = {}) {
   const store = openJournal(root);
   const namespace = options.namespace ?? "@red-cup-engineering/metroplat";
   const heads = new Map();
   const ownEvidence = new Map();
+  // Heads of invocations an outcome closed: the caller reads the head it left to chain its next
+  // step (an agent worker's stages), so the most recent stay readable without keeping every one.
+  const closed = new Map();
   return Object.freeze({
-    causalHead: (invocation) => heads.get(invocation) ?? Object.freeze([]),
+    causalHead: (invocation) => heads.get(invocation) ?? closed.get(invocation) ?? Object.freeze([]),
     admit: (evidence, artifacts = []) => {
       const material = requireJsonValue(evidence, "RPC evidence");
       const id = artifactId(material);
@@ -56,8 +61,14 @@ export function journalRpcWitness(root, options = {}) {
       const eventIds = Object.freeze((admission.statements ?? []).map((statement) => statement.id));
       if (evidence.kind === "metroplat.rpc.outcome") {
         // The outcome closes the invocation: nothing reads its head again, so release it.
+        const head = eventIds.length > 0 ? eventIds : heads.get(invocation);
         heads.delete(invocation);
         ownEvidence.delete(invocation);
+        if (head !== undefined && head.length > 0) {
+          closed.delete(invocation);
+          closed.set(invocation, head);
+          if (closed.size > CLOSED_HEADS) closed.delete(closed.keys().next().value);
+        }
       } else if (eventIds.length > 0) {
         heads.set(invocation, eventIds);
         for (const eventId of eventIds) known.add(eventId);

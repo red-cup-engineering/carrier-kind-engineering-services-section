@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { semanticDigest } from "@red-cup-engineering/base-pre-sign-policy-service";
-import { sha256Digest } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const read = (path) => JSON.parse(readFileSync(join(ROOT, path), "utf8"));

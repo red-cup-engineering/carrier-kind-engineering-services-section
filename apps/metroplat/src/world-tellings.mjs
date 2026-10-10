@@ -23,7 +23,7 @@
  */
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { resolve } from "@red-cup-engineering/organizing/agency";
-import { subjects, certainValue, exitsOf } from "@red-cup-engineering/feltos/world";
+import { subjects, cells, certainValue, exitsOf } from "@red-cup-engineering/feltos/world";
 import { OPENING_MOVES, gistOfOpening, houseSectionOf, sectionsOf } from "@red-cup-engineering/organizing/enterprise";
 
 /** The journal the work arena's moves are recorded in (feltos/work/work-board's `WORK_BOARD_KIND`). */
@@ -139,12 +139,17 @@ export function proseOf(move, opening, nameOf = (player) => player) {
  * @param {{ game: { rooms: Record<string, { name: string, exits: Record<string, string> }>, assertions: ReadonlyArray<object> }, agency: object, plaza: string }} world
  */
 export function worldPlaces({ world, agency, plaza, characterName = () => undefined }) {
-  const roomOf = new Map(), sectionAt = new Map();
+  const roomOf = new Map(), sectionAt = new Map(), thingsOfOffice = new Map();
   for (const subject of subjects(world)) {
     const path = certainValue(world, subject, "section-path");
     const section = certainValue(world, subject, "kind") === "room" && typeof path === "string" ? houseSectionOf(path) : undefined;
     if (section !== undefined && !roomOf.has(section)) roomOf.set(section, subject);
     if (section !== undefined && !sectionAt.has(subject)) sectionAt.set(subject, section);
+    // An office is already placed in this carrier. Keep every asserted key so a
+    // contested or duplicate binding cannot silently fall back to an old path.
+    for (const key of new Set(cells(world, subject, "office-key").map(cell => cell.object).filter(key => typeof key === "string"))) {
+      thingsOfOffice.set(key, [...(thingsOfOffice.get(key) ?? []), subject]);
+    }
   }
   const roomAt = (section) => {
     const parts = String(section).split("/");
@@ -166,7 +171,14 @@ export function worldPlaces({ world, agency, plaza, characterName = () => undefi
   // An office in any spelling: the board's (`services/…#id`) or the agency's key (`emsenn/services/…#id`).
   const officeOf = (player) => offices.get(player) ?? (typeof player === "string" && player.includes("#") ? resolve(agency, "offices", player) : undefined);
   const hallOf = (player) => {
-    const section = enterprises.get(player)?.sectionPath ?? officeOf(player)?.sectionPath;
+    const enterprise = enterprises.get(player), office = officeOf(player);
+    if (enterprise === undefined && office !== undefined && thingsOfOffice.has(office.key)) {
+      const things = thingsOfOffice.get(office.key);
+      if (things.length !== 1 || certainValue(world, things[0], "office-key") !== office.key) return undefined;
+      const hall = certainValue(world, things[0], "located-in");
+      return typeof hall === "string" && certainValue(world, hall, "kind") === "room" ? hall : undefined;
+    }
+    const section = enterprise?.sectionPath ?? office?.sectionPath;
     return section === undefined ? undefined : roomAt(houseSectionOf(section) ?? section);
   };
   const placeOf = ({ sections = [], by }) => {
@@ -180,7 +192,10 @@ export function worldPlaces({ world, agency, plaza, characterName = () => undefi
     if (enterprises.has(player)) return enterprises.get(player).name ?? player;
     const office = officeOf(player);
     // An office whose section no room stands over has no hall to name: it is of the house.
-    if (office !== undefined) { const hall = hallOf(player); return `the ${office.name} of ${(hall === undefined ? undefined : certainValue(world, hall, "name")) ?? "the house"}`; }
+    if (office !== undefined) {
+      const hall = hallOf(player);
+      return `the ${office.name} of ${(hall === undefined ? undefined : certainValue(world, hall, "name")) ?? "the house"}`;
+    }
     return characterName(player) ?? String(player ?? "someone");
   };
   return Object.freeze({
@@ -273,3 +288,4 @@ export function createTellings({ dataRoot, now = Date.now }) {
     },
   });
 }
+

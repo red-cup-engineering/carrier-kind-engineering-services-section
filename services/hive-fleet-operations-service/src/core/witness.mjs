@@ -1,7 +1,7 @@
 import { canonicalJsonValue as canonicalize } from "@red-cup-engineering/json-services-section/canonical-json";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { niUriDigest } from "@red-cup-engineering/uri-services-section/ni-uri";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 /** Witness terms are SEN terms: a capability's verb is the pair of two marks, built by SEN's own constructors. */
 export { tm };
 export function canonicalWitnessValue(value) {

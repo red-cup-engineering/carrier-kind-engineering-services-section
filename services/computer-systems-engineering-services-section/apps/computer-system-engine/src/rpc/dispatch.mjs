@@ -5,7 +5,7 @@ import { executionReceipt } from "./receipt.mjs";
 
 import { isOperationHandlerResult } from "./execution-context.mjs";
 
-import { isReading, readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading, readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { can, capabilityGrant, locusResource } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 
 /** Whether a settled standing is held: told for and not against, in whatever family it is named. */
@@ -126,7 +126,8 @@ const isDerivation = (operation) => operation.effects.class === "pure" || operat
  *
  * A derivation that is authorized, coordination-free and returns no evidence or artifacts
  * leaves no journal rows. Anything else (an act, a refusal, a failure, a handler that wrote)
- * takes the witnessed path.
+ * takes the witnessed path, as does every invocation of a runtime that sets
+ * `witnessDerivations` (a caller that chains its next step on each step's causal head).
  */
 export async function dispatch(runtime, invocation) {
   const operation = runtime.catalog.byReference.get(invocation.operation);
@@ -150,7 +151,7 @@ export async function dispatch(runtime, invocation) {
     catch { return rejectUnadmittedInvocation(runtime, invocation, operation, "input", "operation input does not satisfy its declared domain"); }
   }
   if (!isDerivation(operation)
-    || operation.effects.coordination === "coordination-required") return witnessedDispatch(runtime, invocation);
+    || operation.effects.coordination === "coordination-required" || runtime.witnessDerivations === true) return witnessedDispatch(runtime, invocation);
   const startedAt = runtime.now();
   // An unwitnessed derivation becomes witnessed the moment it refuses, fails or writes: its
   // one authorization and one execution are then recorded as the act they turned out to be.

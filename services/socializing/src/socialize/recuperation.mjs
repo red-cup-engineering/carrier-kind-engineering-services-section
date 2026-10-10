@@ -28,7 +28,7 @@ import { address, isCell, knowledgeReading } from "@red-cup-engineering/signcell
 
 import { settleTrajectory } from "./settle.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 // ── The settling-trajectory carrier ──
 

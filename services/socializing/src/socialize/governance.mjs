@@ -33,7 +33,7 @@ import {
   negateReading,
   readingAs,
   readingOfSides,
-} from "@red-cup-engineering/computer-data-services-section/four";
+} from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { governanceAct } from "./jural.mjs";
 import { incumbencyState } from "./office.mjs";
 

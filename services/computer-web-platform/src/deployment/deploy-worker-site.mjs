@@ -11,6 +11,10 @@
  * Every step is receipted in the site's state directory: `built.json` (the release last built and
  * what it ships), `deployed.json` (what is live and the Worker version it went live as) and
  * `receipts.jsonl` (every build and deploy, appended). Wrangler is the site's own pinned one.
+ *
+ * A site that declares `health` URLs is not live until they answer: after a deploy each is probed,
+ * and when one still fails the Worker is rolled back to the version last recorded live, so a merge
+ * that breaks a site leaves the previous release serving. Only a healthy deploy is recorded live.
  * @module
  */
 import { spawn } from "node:child_process";
@@ -41,7 +45,9 @@ export function workerSitesOf(declaration) {
     };
     if (!Array.isArray(site.build) || site.build.length === 0 || !site.build.every((argument) => typeof argument === "string")) throw new TypeError(`worker-sites: ${site.id} names the node script that builds it`);
     inside(site.build[0], "build script");
-    return Object.freeze({ id: site.id, directory: inside(site.directory, "directory"), build: Object.freeze([...site.build]), config: inside(site.config ?? "wrangler.jsonc", "configuration"), output: inside(site.output ?? "dist", "build output") });
+    const health = site.health ?? [];
+    if (!Array.isArray(health) || !health.every((url) => typeof url === "string" && /^https:\/\/[^/]/u.test(url))) throw new TypeError(`worker-sites: ${site.id}'s health lists https URLs`);
+    return Object.freeze({ id: site.id, directory: inside(site.directory, "directory"), build: Object.freeze([...site.build]), config: inside(site.config ?? "wrangler.jsonc", "configuration"), output: inside(site.output ?? "dist", "build output"), health: Object.freeze([...health]) });
   }));
 }
 
@@ -90,6 +96,34 @@ export function nextStepOf({ release, built, deployed }) {
 /** The Worker version Wrangler reports a deploy went live as. */
 export const versionOfDeploy = (output) => /Current Version ID:\s*([0-9a-f-]{36})/iu.exec(output)?.[1];
 
+/**
+ * Whether every health URL answers below 400, each retried until it does or its attempts run out
+ * (a fresh Worker version can take a few seconds to reach every edge).
+ * @param {ReadonlyArray<string>} urls
+ * @returns {Promise<{ok: boolean, failures: ReadonlyArray<{url: string, status?: number, error?: string}>}>}
+ */
+export async function healthOf(urls, { probe = globalThis.fetch, attempts = 5, delayMs = 6_000, timeoutMs = 15_000 } = {}) {
+  const failures = [];
+  for (const url of urls) {
+    let last;
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      if (attempt > 0) await new Promise((wake) => setTimeout(wake, delayMs));
+      try {
+        const response = await probe(url, { redirect: "manual", signal: AbortSignal.timeout(timeoutMs), headers: { "cache-control": "no-cache" } });
+        last = { url, status: response.status };
+        if (response.status < 400) { last = undefined; break; }
+      } catch (error) {
+        last = { url, error: String(error?.message ?? error) };
+      }
+    }
+    if (last !== undefined) failures.push(Object.freeze(last));
+  }
+  return Object.freeze({ ok: failures.length === 0, failures: Object.freeze(failures) });
+}
+
+/** Wrangler's arguments to put a site's Worker back on a version it went live as before. */
+export const rollbackArgumentsOf = (site, version, reason) => Object.freeze(["rollback", version, "--config", site.config, "--message", reason.slice(0, 100), "--yes"]);
+
 const readJson = (path) => (existsSync(path) ? JSON.parse(readFileSync(path, "utf8")) : undefined);
 function writeJson(path, value) {
   writeFileSync(`${path}.tmp`, `${JSON.stringify(value, null, 2)}\n`);
@@ -109,10 +143,11 @@ function runQuietly(command, args, { cwd, env, timeoutMs }) {
 
 /**
  * Bring one declared site to what the running release ships: build it when the release is new to
- * it, deploy it when what it ships is not what is live. `dryRun` builds but does not deploy.
+ * it, deploy it when what it ships is not what is live, and roll it back when its health URLs do
+ * not answer after the deploy. `dryRun` builds but does not deploy.
  * @returns {Promise<{site: string, step: string, release: string, digest?: string, version?: string, ok: boolean, tail?: string}>}
  */
-export async function reconcileWorkerSite(site, { release, releaseRoot, stateRoot, environment = process.env, node = process.execPath, dryRun = false, timeoutMs = 600_000 }) {
+export async function reconcileWorkerSite(site, { release, releaseRoot, stateRoot, environment = process.env, node = process.execPath, dryRun = false, timeoutMs = 600_000, probe = globalThis.fetch, healthOptions = {}, wranglerPath }) {
   const state = join(stateRoot, site.id);
   mkdirSync(state, { recursive: true });
   const receipt = (entry) => appendFileSync(join(state, "receipts.jsonl"), `${JSON.stringify({ site: site.id, at: new Date().toISOString(), ...entry })}\n`);
@@ -145,12 +180,25 @@ export async function reconcileWorkerSite(site, { release, releaseRoot, stateRoo
     rmSync(join(state, "built.json"), { force: true });
     return Object.freeze({ site: site.id, step: "deploy", release, ok: false, tail: "build directory changed since it was built" });
   }
-  const wrangler = join(build, "node_modules", ".bin", "wrangler");
+  const wrangler = wranglerPath ?? join(build, "node_modules", ".bin", "wrangler");
   const ran = await runQuietly(wrangler, ["deploy", "--config", site.config], { cwd: build, env: { ...environment, WRANGLER_SEND_METRICS: "false", CI: "true" }, timeoutMs });
   const version = versionOfDeploy(ran.output);
   if (ran.code !== 0) {
     receipt({ step: "deploy", release, digest: built.digest, ok: false, tail: ran.output.slice(-2000) });
     return Object.freeze({ site: site.id, step: "deploy", release, digest: built.digest, ok: false, tail: ran.output.slice(-2000) });
+  }
+  if (site.health.length > 0) {
+    const health = await healthOf(site.health, { probe, ...healthOptions });
+    if (!health.ok) {
+      receipt({ step: "health", release, digest: built.digest, ...(version === undefined ? {} : { version }), ok: false, failures: health.failures });
+      const previous = deployed?.version;
+      if (previous === undefined) {
+        return Object.freeze({ site: site.id, step: "health", release, digest: built.digest, ok: false, failures: health.failures, tail: "no earlier live version is recorded to roll back to" });
+      }
+      const back = await runQuietly(wrangler, rollbackArgumentsOf(site, previous, `health failed after release ${release.slice(0, 12)}`), { cwd: build, env: { ...environment, WRANGLER_SEND_METRICS: "false", CI: "true" }, timeoutMs });
+      receipt({ step: "rollback", release, to: previous, ok: back.code === 0, ...(back.code === 0 ? {} : { tail: back.output.slice(-2000) }) });
+      return Object.freeze({ site: site.id, step: "rollback", release, digest: built.digest, ok: false, rolledBackTo: previous, rollbackOk: back.code === 0, failures: health.failures });
+    }
   }
   writeJson(join(state, "deployed.json"), { release, digest: built.digest, ...(version === undefined ? {} : { version }), at: new Date().toISOString() });
   receipt({ step: "deploy", release, digest: built.digest, ...(version === undefined ? {} : { version }), ok: true });
