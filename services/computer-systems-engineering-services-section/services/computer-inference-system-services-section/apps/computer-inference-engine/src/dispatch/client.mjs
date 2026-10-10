@@ -4,7 +4,7 @@ import { discoverValidatedAgentCard, extractSenPart, resumeSenTask, senPart, sen
 import { SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION, circuitInterfaceFromAgentCard } from "@red-cup-engineering/a2a-services-section/circuit-interface";
 import { decodeJsonValue, identifyJsonValue, jsonValueId } from "./sen-carrier.mjs";
 import { admitInferenceWorkOutput, admitInferenceWorkRequest } from "./inference-work-carriers.mjs";
-import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 
 const resultParts = a2aResultParts;
 

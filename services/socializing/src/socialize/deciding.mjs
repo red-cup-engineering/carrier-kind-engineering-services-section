@@ -1,4 +1,4 @@
-import { truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 /**
  * deciding — socializing's DECISION-RULE and META-GOVERNANCE capabilities: the modes by which a
  * collective settles a decision (consensus vs majority), the meta-stratification of governance

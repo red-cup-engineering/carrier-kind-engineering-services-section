@@ -1,5 +1,5 @@
 import { membershipProgram, siteUrl } from "./index.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export function communityHelp() {
   return [

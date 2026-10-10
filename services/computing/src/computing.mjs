@@ -26,7 +26,7 @@ import { agent } from "@red-cup-engineering/animating/becoming/doing/working/gov
 import { admitCommunicationAction } from "@red-cup-engineering/communicating/communicate/morphisms/illocute";
 import { ofCourse, atom } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/proving/proposition";
 import { positive } from "@red-cup-engineering/playing/structuring/polarity";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** The carrier `$id`s the surface references. computing operates over the AGENT carrier. */
 export const AGENT_CARRIER_ID = "animating/becoming/doing/working/governing/agent";

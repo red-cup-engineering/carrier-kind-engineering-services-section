@@ -21,7 +21,7 @@ import { workSourceClosureContract, workSourceResultContract } from "./schema.mj
 import { juralRelationOfClaimCell, scopeOf, workItemOfCell } from "@red-cup-engineering/socializing";
 
 import { validateDeterministicExecution, validateResultCodomain } from "./schema.mjs";
-import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 
 /** Claim-session rows carry the relation model notation's own reading vocabulary

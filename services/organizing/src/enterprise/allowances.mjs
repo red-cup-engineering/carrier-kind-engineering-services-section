@@ -41,7 +41,7 @@
  * Whether a kind fits now is a FOUR reading in the extremal family: held, denied, unknown or
  * contested; across `every` meters it is their truth meet.
  */
-import { readingOfSides, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const HOUR = 3_600_000;
 const STEP = Object.freeze({ day: 24 * HOUR, week: 7 * 24 * HOUR });

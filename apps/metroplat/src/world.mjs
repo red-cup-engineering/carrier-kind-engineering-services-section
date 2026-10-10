@@ -35,7 +35,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { operation, operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { defineGame } from "@red-cup-engineering/feltos/game";
 import { actorIdFor, createMudServer } from "@red-cup-engineering/feltos/mud-server";
 import { composeCapabilities, defineCapability } from "@red-cup-engineering/feltos/capabilities";

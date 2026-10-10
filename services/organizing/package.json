@@ -22,7 +22,7 @@
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computing": "workspace:*",
     "@red-cup-engineering/cron-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
     "@red-cup-engineering/gaming": "workspace:*",
     "@red-cup-engineering/html-engineering-services-section": "workspace:*",
@@ -40,7 +40,7 @@
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/signcraft": "workspace:*",
     "@red-cup-engineering/signgraph": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*",
     "@red-cup-engineering/git-services-section": "workspace:*"
   },

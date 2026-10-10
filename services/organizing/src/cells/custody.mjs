@@ -6,7 +6,7 @@
  * supply "held" as an effect-gate fact.
  */
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 function nonempty(value, label) {
   if (value.trim().length === 0) throw new TypeError(label + ": expected non-empty string");

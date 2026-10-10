@@ -4,7 +4,7 @@
  * deterministic replay of that history. Policies are SignCell evidence settled by SignChain rules under
  * SignCraft's closure.
  */
-import { mulberry32 } from "@red-cup-engineering/computer-data-services-section/randomization/mulberry32";
+import { mulberry32 } from "@red-cup-engineering/computer-data-engineering-services-section/randomization/mulberry32";
 import { cell } from "@red-cup-engineering/signcell/cell";
 import { rule } from "@red-cup-engineering/signchain/rules";
 import { settleCells } from "@red-cup-engineering/signcraft/settle";

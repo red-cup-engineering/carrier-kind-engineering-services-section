@@ -1,7 +1,7 @@
 // A username and password as an identity provider: the principals file holds each person's
 // scrypt hash, the form is bound to a signed CSRF cookie and same-origin posts, failures back
 // off per username, and admission is re-judged on every request like every other provider.
-import { sha256Hex } from '@red-cup-engineering/cryptographic-data-service/integrity';
+import { sha256Hex } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
 import { admissionPage, escapeHtml as escape } from './page.mjs';
 import { clearedCookie, cookieValue, createSessionCookie, opaqueCookie, publicBaseUrl, randomToken, readSession, safeReturnTo, sealConfidential, unsealConfidential } from './session.mjs';
 

@@ -17,7 +17,7 @@
 // @typedef {{instruction: string, input: string, model: string, mode: "dry-run"|"live", startedAt: number, performed: TypedInferencePerformed, error: (Error|undefined)}} TypedInferenceEvidenceContext
 
 import { randomUUID } from "node:crypto";
-import { ty, tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { ty, tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { effectBundle, effectBundleType } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import { decodeSemantic } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { conformTerm, conformTermBytes } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/conformance";

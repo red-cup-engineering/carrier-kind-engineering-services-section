@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test, { mock } from "node:test";
 import { assay } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
-import { jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { semanticBytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
 const PROVIDER_ACCOUNT = "eip155:31337:0x4444444444444444444444444444444444444444";

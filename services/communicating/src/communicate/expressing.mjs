@@ -5,8 +5,8 @@
  * rearrange cells in SEN; every bilattice operation on evidence (negation, the knowledge and truth
  * joins) is SignChain's, named through relating's primitives.
  */
-import { arrayTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { arrayTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 
 const empty = arrayTerm([]);
 
