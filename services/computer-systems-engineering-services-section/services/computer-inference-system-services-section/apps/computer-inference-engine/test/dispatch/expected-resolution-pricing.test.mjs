@@ -220,3 +220,21 @@ test("a judgment another register makes of an inference delivery reaches routing
   const voided = outcomeOf({ source: "editor", lot: "lot-r1", delivery: "r1", provider: "urn:ame:p", judge: "editor", verdict: "voided", voids: rejected.id, at: "2026-10-03T19:00:00Z", evidence: ["withdrawn"] });
   assert.equal(withRegisterJudgments([accepted], standingOutcomes([rejected, voided]), deliveries).length, 1);
 });
+
+test("the pricing book is kept in the one log; JSONL left by an earlier release is admitted once and left unchanged", async () => {
+  const { existsSync, readFileSync, writeFileSync } = await import("node:fs");
+  const { loadDeliveries, DELIVERIES_FILE, OBSERVATIONS_FILE } = await import("../../src/dispatch/expected-resolution-pricing.mjs");
+  return withTempDataRoot((dataRoot) => {
+    const earlier = { id: "urn:test:earlier-availability", observedAt: "2026-10-01T00:00:00.000Z", kind: "provider-availability", provider: "urn:ame:provider-a", credentialSha256: null, state: "available", quota: null, backoffUntil: null, reason: "earlier release" };
+    const legacy = `${JSON.stringify(earlier)}\n`;
+    writeFileSync(join(dataRoot, OBSERVATIONS_FILE), legacy);
+    const recorded = appendDelivery(delivery, { dataRoot });
+    const outcome = appendObservation(receiverOutcome(), { dataRoot });
+    assert.deepEqual(loadObservations({ dataRoot }).map((item) => item.id), [earlier.id, outcome.id]);
+    assert.deepEqual(loadDeliveries({ dataRoot }).map((item) => item.id), [recorded.id]);
+    assert.equal(readFileSync(join(dataRoot, OBSERVATIONS_FILE), "utf8"), legacy);
+    assert.equal(existsSync(join(dataRoot, DELIVERIES_FILE)), false);
+    assert.ok(existsSync(join(dataRoot, "pricing-book.journal", "jsonl-admission.json")));
+    assert.equal(loadObservations({ dataRoot }).filter((item) => item.id === earlier.id).length, 1);
+  });
+});
