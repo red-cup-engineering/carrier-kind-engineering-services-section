@@ -28,6 +28,7 @@
     "./settlement-signature": "./src/settlement-signature.mjs",
     "./history": "./src/history.mjs",
     "./sql-history-store": "./src/sql-history-store.mjs",
+    "./sql-content-history-store": "./src/sql-content-history-store.mjs",
     "./membrane": "./src/membrane.mjs",
     "./primitives": "./src/primitives.mjs",
     "./content-history-store": "./src/content-history-store.mjs",
