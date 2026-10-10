@@ -18,6 +18,7 @@
   "exports": {
     "./api": "./src/youtube-api.mjs",
     "./authorize": "./src/authorize.mjs",
-    "./credentials": "./src/credentials.mjs"
+    "./credentials": "./src/credentials.mjs",
+    "./studio": "./src/youtube-studio.mjs"
   }
 }
