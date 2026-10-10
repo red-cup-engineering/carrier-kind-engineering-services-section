@@ -13,7 +13,7 @@ const decodeSemantic = (bytes) => admitJsonSemanticContent({ bytes, objectKind: 
 const semanticId = semanticIdOf("brokerage.union-products-market-border.record");
 import { contractUnionBrokerageOffer, deliverUnionBrokerageContract } from "./union-border.mjs";
 import { ACTIVITYSTREAMS_PUBLIC } from "@red-cup-engineering/activitypub-services-section/activitystreams";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 export { ACTIVITYSTREAMS_PUBLIC };
 
 const exactUrl = (value, label) => { let url; try { url = new URL(value); } catch { throw new TypeError(`${label}-must-be-absolute-url`); } if (url.protocol !== "https:" && !["127.0.0.1", "localhost"].includes(url.hostname)) throw new TypeError(`${label}-must-use-https`); return url.href; };

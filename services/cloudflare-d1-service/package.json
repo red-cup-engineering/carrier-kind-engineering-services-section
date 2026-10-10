@@ -21,7 +21,7 @@
     "node": ">=24"
   },
   "devDependencies": {
-    "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/file-services": "workspace:*"
+    "@red-cup-engineering/computer-filepath-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/file-services": "0.4.0"
   }
 }

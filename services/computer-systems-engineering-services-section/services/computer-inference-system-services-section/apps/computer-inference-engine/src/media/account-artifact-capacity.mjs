@@ -4,7 +4,8 @@ import { isDeepStrictEqual } from "node:util";
 import { admitWorkResourceBinding, createWorkResourceReservations, workResourceAccountKey } from "../dispatch/work-placement/resource-reservations.mjs";
 import { jsonValueId } from "../dispatch/sen-carrier.mjs";
 import { admitAccountArtifactObservation, artifactUnits } from "./account-artifact-work.mjs";
-import { admitSqlOnce, openLedgerJournal } from "./ledger-journal.mjs";
+import { openLedgerJournal } from "./ledger-journal.mjs";
+import { accountCapacitySqlRows, admitSqlOnce } from "./import-sql-ledger.mjs";
 
 const quantity = (value) => ({ numerator: String(value), denominator: "1" });
 /** One host-wide store, so every consumer of an account draws from the same windows. */
@@ -51,9 +52,7 @@ const OBJECT_KIND = "inference.account-capacity";
 /** The store one capacity path names: `get(key)` and `compareAndSet(key, expectedVersion, value)`. */
 export function openAccountArtifactCapacityStore(path) {
   const journal = openLedgerJournal(path, OBJECT_KIND);
-  admitSqlOnce(journal, path, (database, tables) => (tables.has("account_capacity")
-    ? database.prepare("SELECT key, version, value FROM account_capacity ORDER BY key").all()
-      .map((row) => ["window", { key: row.key, version: row.version, value: JSON.parse(row.value) }]) : []));
+  admitSqlOnce(journal, path, accountCapacitySqlRows);
   const current = (key) => journal.read("window").filter((row) => row.key === key).reduce((top, row) => (top === null || row.version > top.version ? row : top), null);
   return {
     close: () => {},

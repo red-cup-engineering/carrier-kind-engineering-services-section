@@ -8,7 +8,7 @@
 
 import { addressTextDocument, artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { samePoint } from "@red-cup-engineering/computer-data-services-section/four";
+import { samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { canonicalJsonValue } from "@red-cup-engineering/json-services-section/canonical-json";
 import { isDecidable } from "@red-cup-engineering/computer-content-engineering-services-section/typed-resource-classification";
 

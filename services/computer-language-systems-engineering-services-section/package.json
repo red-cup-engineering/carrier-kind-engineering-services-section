@@ -27,7 +27,7 @@
     "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
     "@red-cup-engineering/relating": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "bin": {
     "compile-translation-lexicons": "./scripts/compile-translation-lexicons.mjs"

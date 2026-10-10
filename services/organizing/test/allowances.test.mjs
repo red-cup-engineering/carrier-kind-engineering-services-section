@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { admitAllowance, admitAllowanceEvidence, allowanceLapses, drainFirstAvailable, perishablePrice, planDraws, readAllowance } from "@red-cup-engineering/organizing/enterprise";
 
 const notebook = admitAllowance({

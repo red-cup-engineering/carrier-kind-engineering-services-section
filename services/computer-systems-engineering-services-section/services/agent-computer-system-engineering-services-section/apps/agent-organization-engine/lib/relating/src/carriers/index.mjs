@@ -22,7 +22,7 @@ export { presentedCategoryDiagramSchema, presentedCategoryDiagramCarrier } from 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { cellSchema, utteranceSchema } from "@red-cup-engineering/signcell/cell";
 import { evidenceSchema } from "@red-cup-engineering/signchain/bilattice";
-import { TySchema, TmSchema } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { TySchema, TmSchema } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 
 /** The base admission carrier: an utterance, a token and a claim (SignCell). */
 export const utteranceCarrier = schemaFrom(utteranceSchema);

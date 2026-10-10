@@ -1,6 +1,6 @@
 import { readFile, realpath } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { createTypedMark } from "@red-cup-engineering/signcell/typed-mark";
 import { ownerType } from "./carriers.mjs";
 

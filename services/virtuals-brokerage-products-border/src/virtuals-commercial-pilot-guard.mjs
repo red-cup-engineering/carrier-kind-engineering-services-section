@@ -3,7 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFileText } from "@red-cup-engineering/file-services/read-file";
 import { createIfAbsent } from "./create-if-absent.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export const BASE_CHAIN_ID = 8453;
 export const BASE_ACP_CONTRACT = "0x238e541bfefd82238730d00a2208e5497f1832e0";

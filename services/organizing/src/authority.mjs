@@ -6,9 +6,9 @@
  * owns the social-scale question where an agent's capabilities are joined with
  * an office's conferred authorities and read against work/operation requirements.
  */
-import { arrayTerm, jsonToTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { arrayTerm, jsonToTerm, objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { evaluateRunTerm } from "@red-cup-engineering/signcraft/primitives";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { officeEligibilityDecisionCarrier, officeEligibilityRequestCarrier,                                } from "./schemas.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
 import { officesHeldAtDignitas } from "@red-cup-engineering/socializing";

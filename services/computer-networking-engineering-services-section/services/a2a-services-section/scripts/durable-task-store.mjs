@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
 import { ROLE_AGENT, TASK_STATE, TERMINAL_TASK_STATES } from "./a2a-client.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 // A2A task custody over one network (or filesystem) custody/index source: a source
 // is { put(record), get({ taskId, tenant }), list({ tenant }) }. Each record is the

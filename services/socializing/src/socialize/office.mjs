@@ -46,7 +46,7 @@ import {
 import { cell, sameCell } from "@red-cup-engineering/signcell/cell";
 import { converseCell } from "@red-cup-engineering/signcell/predication";
 import { specializePredicateCell } from "@red-cup-engineering/signcell/predication";
-import { knowledgeJoinReading, readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading, readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** The work-carrier spine — the levels a jural relation's scope-action (a WORK-ITEM) sits at.
  *  endeavor generates campaign generates project generates plan generates task generates the

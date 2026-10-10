@@ -28,7 +28,7 @@ import {
   cliqueAdjacency,
 
 } from "@red-cup-engineering/metrologic/tiling/tile";
-import { readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** One projection of real claim-session material as an Tile, carrying the
  *  glued settlement and the derived cover alongside the tile itself. */

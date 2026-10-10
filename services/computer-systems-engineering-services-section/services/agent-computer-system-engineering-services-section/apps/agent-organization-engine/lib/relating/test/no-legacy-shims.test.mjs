@@ -14,7 +14,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { wireOf, wireCodec, wireByMediaType, stringCodec, jsonCodec, eavtCodec, senCodec, svgCodec, mermaidCodec, xmiCodec, plantUmlCodec, formCodec, WIRE_CODEC_NAMES } from "@red-cup-engineering/computer-system-engine/wire";
-import { sha256Hex, sha1Base64, hmacSha256Base64Url, timingSafeStringEqual } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex, sha1Base64, hmacSha256Base64Url, timingSafeStringEqual } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { toNumber } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { parseDecimal } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { toCount, fromCount, toInt, fromInt, ratFromInt, fromRatio, fromInts } from "@red-cup-engineering/exact-number-data-service/exact-number";

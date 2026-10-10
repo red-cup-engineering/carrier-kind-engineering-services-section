@@ -1,7 +1,7 @@
 // A feed observation is a SignCell utterance projected through communicating's
 // CloudEvents carrier. Its claim names the feed, item, and replay identity.
 
-import { sha256Digest } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { mark, utterance } from "@red-cup-engineering/signcell/utterance";
 import { cloudEventCarrier, cloudEventFromUtterance } from "../cloudevents.mjs";
 const FEED_KINDS = Object.freeze(["rss", "atom"]);

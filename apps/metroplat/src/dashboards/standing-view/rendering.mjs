@@ -23,7 +23,7 @@ import { articleContract } from "@red-cup-engineering/articles-services-section/
 
 import { articleToThemedPage } from "@red-cup-engineering/web-theming-service/themed-page";
 import { dataDatePartition } from "@red-cup-engineering/eavt/data-artifact-address";
-import { isReading, readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading, readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /* ── shared shape readers ──────────────────────────────────────────────── */
 

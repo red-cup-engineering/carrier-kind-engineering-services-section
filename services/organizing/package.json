@@ -22,7 +22,7 @@
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computing": "workspace:*",
     "@red-cup-engineering/cron-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
     "@red-cup-engineering/gaming": "workspace:*",
     "@red-cup-engineering/html-engineering-services-section": "workspace:*",
@@ -40,7 +40,7 @@
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/signcraft": "workspace:*",
     "@red-cup-engineering/signgraph": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*",
     "@red-cup-engineering/git-services-section": "workspace:*"
   },
@@ -83,10 +83,13 @@
     "./work/fabrication-run": "./src/work/fabrication-run.mjs",
     "./agency": "./src/agency/index.mjs",
     "./agency/held": "./src/agency/held.mjs",
+    "./agency/houses": "./src/agency/houses.mjs",
     "./agency/cast": "./src/agency/cast.mjs",
     "./agency/kinds": "./src/agency/kinds.mjs",
     "./agency/rules": "./src/agency/rules.mjs",
     "./enterprise": "./src/enterprise/index.mjs",
+    "./enterprise/allowances": "./src/enterprise/allowances.mjs",
+    "./enterprise/resources": "./src/enterprise/resources.mjs",
     "./work/recurring": "./src/work/recurring.mjs",
     "./host-neutral-carriers": "./src/host-neutral-carriers.mjs",
     "./agency/acts": "./src/agency/acts.mjs",
@@ -100,7 +103,10 @@
     "./agency/governing": "./src/agency/governing.mjs",
     "./agency/band": "./src/agency/band.mjs",
     "./agency/band-realization": "./src/agency/band-realization.mjs",
-    "./agency/source-provenance": "./src/agency/source-provenance.mjs"
+    "./agency/source-provenance": "./src/agency/source-provenance.mjs",
+    "./enterprise/outcomes": "./src/enterprise/outcomes.mjs",
+    "./enterprise/root": "./src/enterprise/root.mjs",
+    "./enterprise/work-arena": "./src/enterprise/work-arena.mjs"
   },
   "devDependencies": {
     "@red-cup-engineering/computer-code-development-engine": "workspace:*"

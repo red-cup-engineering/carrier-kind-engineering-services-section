@@ -6,7 +6,7 @@ import { reportFailure } from "../src/commandFailure.mjs";
 import { randomBytes } from "node:crypto";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
+import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 import { loadVerifiedHiveKey } from "@red-cup-engineering/key-management-services-section/hive-keystore";
 
 const API = "https://api.splinterlands.com";

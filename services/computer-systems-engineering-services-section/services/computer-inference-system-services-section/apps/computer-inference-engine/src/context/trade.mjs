@@ -1,5 +1,5 @@
 import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
-import { tally } from "@red-cup-engineering/computer-data-services-section/tally";
+import { tally } from "@red-cup-engineering/computer-data-engineering-services-section/tally";
 import { CONTEXT_PACKET_PROFILE } from "./packet.mjs";
 
 function ni(value, objectKind) {
