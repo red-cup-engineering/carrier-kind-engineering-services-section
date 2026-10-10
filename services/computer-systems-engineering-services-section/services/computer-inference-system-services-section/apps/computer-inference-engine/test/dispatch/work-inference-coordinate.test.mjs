@@ -9,9 +9,11 @@ import { executionConfigurationIdentity } from "../../src/dispatch/sen-carrier.m
 import { METROPLAT_INFERENCE_MARKET_CUSTOMER, officeWorkInferenceTaskClass } from "../../src/dispatch/office-work-inference-contract.mjs";
 
 // Every file under ROOT with its bytes: the pricing book is a journal (the one log, 8cf10144), so the
-// lookup writing nothing is shown on the whole data root, whatever the journal's own layout.
+// lookup writing nothing is shown on the whole data root, whatever the journal's own layout. A read
+// may extend the journal's derived read indexes (`index/`), which hold no record.
 const filesUnder = (root) => Object.fromEntries(readdirSync(root, { recursive: true }).map(String).sort()
   .filter((file) => lstatSync(path.join(root, file)).isFile()).map((file) => [file, readFileSync(path.join(root, file), "base64")]));
+const recordsUnder = (root) => Object.fromEntries(Object.entries(filesUnder(root)).filter(([file]) => !file.split(path.sep).includes("index")));
 const BOOK = "pricing-book.journal";
 
 // Synthetic delivery/proposal inputs to the genuine lookup and pricing APIs.
@@ -45,14 +47,14 @@ function fixture(run, { configured = true, registered = true } = {}) {
 }
 
 test("exact registered custody returns a frozen market coordinate without writing acceptance", () => fixture(({ root, reference, lookup }) => {
-  const before = filesUnder(root);
+  const before = recordsUnder(root);
   const expected = { provider: reference.provider, offer: reference.selectedOffer, taskClass: reference.taskClass,
     receipt: reference.receipt, configuration: reference.configurationIdentity };
   const coordinate = lookup();
   assert.deepEqual(coordinate, expected);
   assert.equal(Object.isFrozen(coordinate), true);
   assert.deepEqual(lookup(), coordinate);
-  assert.deepEqual(filesUnder(root), before);
+  assert.deepEqual(recordsUnder(root), before);
   assert.equal(loadDeliveries({ dataRoot: root }).length, 1);
   assert.deepEqual(loadObservations({ dataRoot: root }), []);
 }));
