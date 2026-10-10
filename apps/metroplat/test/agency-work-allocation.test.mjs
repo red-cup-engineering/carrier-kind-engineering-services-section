@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -24,7 +24,10 @@ const DATE = "2026-09-01";
 const ACTOR = "actor:WWOM5azg-fTrn1Id0YVbz5AhppbnFny_W5Xl-rKgSs4";
 const SUBJECT = "structured-work-intent-founder-tunesday-2026-09-01";
 const SCOPE = "work-item:pressure-plans-with-founder-rulings";
-const FIRM_POOL_ROOT = "/home/emsenn/info/lib/emsenn/services/561-group/services/561-group-services-section";
+// The firm pool is the 561 Group section of the repository this test runs in.
+let repositoryRoot = import.meta.dirname;
+while (!existsSync(path.join(repositoryRoot, ".git")) && repositoryRoot !== path.dirname(repositoryRoot)) repositoryRoot = path.dirname(repositoryRoot);
+const FIRM_POOL_ROOT = path.join(repositoryRoot, "lib/emsenn/services/561-group/services/561-group-services-section");
 
 function intent() {
   const levels = [
@@ -118,7 +121,7 @@ test("the configured firm pool resolves an office service without an institution
     officeService: { id: "emsenn/duty/leading-company-strategy-and-priorities", requiredCapabilities: [] },
     allocation: { scope: SCOPE },
   });
-  assert.deepEqual(resolved.officeService, { id: "emsenn/duty/leading-company-strategy-and-priorities", requiredCapabilities: ["agent-work-dispatch", "milestone", "work-item", "ledger-readings", "ledger-report"] });
+  assert.deepEqual(resolved.officeService, { id: "emsenn/duty/leading-company-strategy-and-priorities", requiredCapabilities: ["agent-work-dispatch", "structured-work-intent-admit", "milestone", "work-item", "ledger-readings", "ledger-report", "offices", "office", "office-incumbency-admit", "harness-hook-event-admit", "agency-work-propose", "agency-work-allocation-admit", "agency-work-allocation-candidates", "agency-work-assignment-admit", "work-discharge-admit"] });
   assert.equal(resolved.office.id, "chief-executive-officer");
   assert.equal(resolved.duty.work, "leading-company-strategy-and-priorities");
   assert.equal(resolved.skill.id, "lead-the-company");
@@ -377,13 +380,16 @@ test("an allocation marker cannot make a different Character's duty dispatchable
   }
 });
 
-test("lawful allocations of one scope remain independently ready for their Characters", () => {
-  const root = mkdtempSync(path.join(tmpdir(), "metroplat-independent-character-allocations-"));
+// A scope has one allocation succession (feltos b3035e6): re-allocating it to another
+// Character succeeds the first allocation, so a worker's proposal is never ambiguous.
+test("a second lawful allocation of one scope succeeds the first, whichever Character held it", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "metroplat-allocation-succession-"));
   const secondCharacter = "actor:second-lawful-provider";
   try {
     const binding = defaultFilesystemBinding(root, { now: () => `${DATE}T12:00:00.000Z` });
     admitStructuredWorkIntent(binding, intent(), { at: DATE, subject: SUBJECT });
     admitAgencyWorkAllocation(binding, allocation(), allocationOptions);
+    assert.equal(readAgentWorkDispatchReadout(binding, DATE, ACTOR).queue.length, 1);
     admitAgencyWorkAllocation(binding, {
       ...allocation(),
       id: "founder-second-provider-pressure-plans",
@@ -392,17 +398,11 @@ test("lawful allocations of one scope remain independently ready for their Chara
 
     const first = readAgentWorkDispatchReadout(binding, DATE, ACTOR);
     const second = readAgentWorkDispatchReadout(binding, DATE, secondCharacter);
-    assert.equal(first.queue.length, 1);
-    assert.equal(first.queue[0].scope, SCOPE);
-    assert.equal(first.queue[0].state, "ready");
+    assert.equal(first.queue.length, 0, "the first Character no longer owes the succeeded allocation");
     assert.equal(second.queue.length, 1);
     assert.equal(second.queue[0].scope, SCOPE);
     assert.equal(second.queue[0].state, "ready");
-
-    const firstDuties = readDutiesView(binding, DATE, ACTOR);
-    const secondDuties = readDutiesView(binding, DATE, secondCharacter);
-    assert.equal(firstDuties.duties[0].work, "leading-company-strategy-and-priorities");
-    assert.equal(secondDuties.duties[0].work, "leading-company-strategy-and-priorities");
+    assert.equal(readDutiesView(binding, DATE, secondCharacter).duties[0].work, "leading-company-strategy-and-priorities");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
