@@ -315,13 +315,15 @@ test("the admitted index rebuilds from the witness segments", () => {
   try {
     const statement = event("index-rebuild");
     openJournal(root).appendEvents(logPath, [statement]);
-    const admitted = path.join(root, ".metroplat-journal", "index", "causal-admission", "v2", "admitted.jsonl");
-    rmSync(admitted, { force: true });
+    // The located index (v3) and the feed's ledger are both derived: remove them and read again.
+    const index = path.join(root, ".metroplat-journal", "index", "causal-admission");
+    rmSync(index, { recursive: true, force: true });
+    rmSync(`${logPath}.admitted`, { force: true });
     clearSegmentIndexes();
 
     assert.deepEqual(openJournal(root).read(logPath).map((entry) => entry.id), [statement.id]);
     assert.equal(openJournal(root).appendEvents(logPath, [statement])[0].admission, "admitted");
-    assert.equal(existsSync(admitted), true);
+    assert.equal(existsSync(path.join(index, "v3", "formula.json")), true);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
