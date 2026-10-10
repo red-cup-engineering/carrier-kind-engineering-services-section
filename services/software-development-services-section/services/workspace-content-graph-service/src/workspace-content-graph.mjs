@@ -1,15 +1,15 @@
-import { EMPTY_WITNESS_ROOT, identifyBytesSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
 import { articulate, mark, utterance } from "@lenticule-science/articulating";
 import { predicate, presentPredicationSite } from "@lenticule-science/articulating/predicating";
 import {
   ARTICULATING_APEX,
   executeArticulateUtterance,
 } from "@lenticule-science/articulating-language-cone-service";
-import { readMarkdownDocument } from "@red-cup-engineering/markdown-document-codec-service";
+import { readMarkdownDocument } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-document";
 import { createSchema, validateInstance } from "@red-cup-engineering/json-schema-services-section";
 import {
   EMPTY_WITNESS_ROOT,
   IDENTITY_SETTLEMENT_PROFILE,
+  identifyBytesSemanticContent,
   identifyJsonSemanticContent,
 } from "@red-cup-engineering/semantic-content-identify-service";
 

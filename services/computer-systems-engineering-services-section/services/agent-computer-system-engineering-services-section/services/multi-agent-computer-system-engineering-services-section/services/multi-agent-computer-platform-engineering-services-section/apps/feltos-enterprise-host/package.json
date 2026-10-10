@@ -51,15 +51,18 @@
     "@x402/evm": "2.19.0",
     "@red-cup-engineering/json-services-section": "1.0.0",
     "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
   },
   "scripts": {
     "check:activitypub-node": "node scripts/check-activitypub-node.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "check:memory-budget": "node scripts/check-memory-budget.mjs"
   },
   "softwareKind": "service",
   "receivingTests": [
     "test/account-selection.test.mjs",
-    "test/character-inbox-async.test.mjs"
+    "test/character-inbox-async.test.mjs",
+    "test/work-peer-standing.test.mjs"
   ]
 }

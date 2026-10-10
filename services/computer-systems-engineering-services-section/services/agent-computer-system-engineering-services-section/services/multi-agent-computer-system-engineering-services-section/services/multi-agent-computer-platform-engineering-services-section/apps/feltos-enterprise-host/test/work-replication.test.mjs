@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { moveOf, workBoard } from "@red-cup-engineering/organizing/enterprise";
-import { catchUpOutcome, coordinatedMovesOf, decidedMovesOf, deliveryAway, entriesOfJournal, failuresSaid, mergeMoves, replicableMovesOf, shipWorkSince } from "../src/work-replication.mjs";
+import { catchUpOutcome, coordinatedMovesOf, decidedMovesOf, deliveryAway, entriesOfJournal, failuresSaid, mergeMoves, noteWorkPeerLiveness, replicableMovesOf, shipWorkSince } from "../src/work-replication.mjs";
 
 const DAY = "2026-10-03";
 const at = (hhmm) => `${DAY}T${hhmm}:00Z`;
@@ -174,4 +174,28 @@ test("a known-intermittent peer's away moves are held and its refusals still fai
   const down = Object.assign(new Error("fetch failed", { cause: new TypeError("fetch failed", { cause: Object.assign(new Error("getaddrinfo ENOTFOUND"), { code: "ENOTFOUND" }) }) }), { name: "FetchError" });
   const result = await shipWorkSince({ entries: [{ id: "a", record: {} }, { id: "b", record: {} }], ship: async ({ id }) => { if (id === "b") throw down; } });
   assert.deepEqual(result.failed.map(({ id, away: wasAway }) => [id, wasAway]), [["b", true]], "a failed move keeps whether the peer was away");
+});
+
+
+test("a multi-peer catch-up keeps answered and unreachable peers distinct in the native journal", () => {
+  const state = board();
+  try {
+    const report = noteWorkPeerLiveness({
+      config: { workPeerPresence: "continuous" }, binding: { dataRoot: state.root }, host: "observer",
+      now: at("12:00"), result: { peers: [
+        { peer: "https://answered.example/actors/metroplat", shipped: 1, failed: [] },
+        { peer: "https://away.example/actors/metroplat", shipped: 0, failed: [{ away: true, why: "connection refused" }] },
+      ] },
+    });
+    assert.deepEqual(report.peers.map(({ peer, liveness }) => ({ peer, liveness })), [
+      { peer: "https://answered.example/actors/metroplat", liveness: "held" },
+      { peer: "https://away.example/actors/metroplat", liveness: "unknown" },
+    ]);
+    assert.equal(report.liveness, undefined);
+    const journal = createSemanticRecordJournal({ root: state.root, objectKind: "peer-liveness" });
+    const records = journal.query({ category: "heartbeat" }).map(({ record }) => record);
+    assert.equal(records.length, 2);
+    assert.equal(records.every(({ observer }) => observer === "observer"), true);
+    assert.equal(new Set(records.map(({ peer }) => peer)).size, 2);
+  } finally { state.drop(); }
 });

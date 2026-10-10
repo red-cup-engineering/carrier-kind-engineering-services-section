@@ -1,3 +1,4 @@
+import { Worker } from "node:worker_threads";
 import {createProgrammeCustody} from "@red-cup-engineering/feltos/program-custody";
 import {agentOfIdentity} from '@red-cup-engineering/feltos/identity';
 import {agentCardOfAgent,A2A_PROTOCOL_VERSION} from '@red-cup-engineering/feltos/capabilities';
@@ -6,7 +7,7 @@ import {createOperationCatalog} from '@red-cup-engineering/computer-system-engin
 import {describe} from '@red-cup-engineering/computer-system-engine/rpc/describe';
 import {agencyAt} from '@red-cup-engineering/metroplat/offices';
 import {defaultFilesystemBinding} from '@red-cup-engineering/computer-system-engine/rpc/binding';
-import { hostedWorkIntentAdmission, hostedWorkOpening } from "./federated-work.mjs";
+import { admitWorkPeerGrants, hostedWorkIntentAdmission, hostedWorkOpening, workPeersOf } from "./federated-work.mjs";
 import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -172,7 +173,7 @@ export async function activityPubProvider(config, environment, {operationSurface
   const actorPayments=new Map();
   const onActivity=createActivityPubNodeArrivalHandler({
     dataRoot:config.metroplatDataRoot,rootName:config.instance.name,origin:config.activityPub.origin,actors,resolveActor:currentActor,
-    workPeerActor:config.workPeerActor,agencyRoot:config.agencyRoot,host:node??config.instance.name,
+    agencyRoot:config.agencyRoot,host:node??config.instance.name,
     executeRequest:async ({event,authenticatedActor,admission,recipient,recipientActor})=>{
       if(typeof operationSurface!=="function")throw new TypeError("actor requests need the installed operation surface");
       if(recipientActor.character!==undefined)throw new TypeError("a character inbox receives messages; invoke its offering enterprise actor");
@@ -322,7 +323,7 @@ export function createEnterpriseServicePlatform({
       return Response.json({
         ok,
         service: config.instance.name,
-        workPeerActor: config.workPeerActor ?? null,
+        workPeers: workPeersOf(config),
         workPeerPresence: config.workPeerPresence ?? null,
         release: environment.GUIX_MACHINE_RELEASE_ID ?? null,
         releasePipeline: environment.GUIX_MACHINE_ARTIFACT ? "github-guix" : null,
@@ -500,12 +501,21 @@ export function createEnterpriseServicePlatform({
 
 /** One FeltOS host executable interprets its own host declaration and the selected MetroPlat instance. */
 export async function serveEnterpriseInstance({ hostPath, environment = process.env, requireTls = true, shutdown = {} } = {}) {
+  if (environment.GUIX_MACHINE_DEPLOYMENT_STATUS && environment.METROPLAT_PROBE !== "1") {
+    const diagnostic = new Worker(new URL("./startup-cpu-profile.mjs", import.meta.url), { workerData: { statusPath: environment.GUIX_MACHINE_DEPLOYMENT_STATUS } });
+    diagnostic.on("error", error => process.stderr.write(`[startup-cpu] ${error.message}\n`));
+    diagnostic.unref();
+  }
   if (typeof hostPath !== "string" || !hostPath) throw new TypeError("FELTOS_ENTERPRISE_HOST is required");
   const web = await installedEnterpriseWeb(hostPath);
   const instancePath = web.instancePath;
   const metroplat = await installedMetroplatInstance(instancePath, null, {}, hostPath);
   const installed = { ...metroplat, web };
   const config = enterpriseWebConfig(installed, instancePath, environment, { requireTls });
+  // Declared peers become grants in this node's own feed before anything is delivered or received;
+  // from then on a peer's authority is its standing there.
+  admitWorkPeerGrants({ dataRoot: config.metroplatDataRoot, rootName: config.instance.name, origin: config.publicBaseUrl,
+    issuer: config.peeringOffice, peers: config.workPeers, at: new Date().toISOString() });
   const node = systemNodeFromProcessEnvironment(environment);
   const nodeKey = systemNodeKeyFromProcessEnvironment(environment);
   if (node !== undefined && node.origin !== config.publicBaseUrl) throw new TypeError("System node origin differs from the instance origin");
