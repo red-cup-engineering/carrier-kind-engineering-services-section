@@ -93,3 +93,28 @@ test("account and help affordances project installed descriptor contracts throug
     direct: [], public: [], office: [], allocation: [], delegation: [],
   });
 });
+
+test("world help preserves rich descriptor contract prose", async () => {
+  const root = mkdtempSync(path.join(tmpdir(), "world-help-contract-"));
+  try {
+    const descriptive = operation({
+      verb: "work-board",
+      summary: "Read the settlement work board.",
+      description: "Domain: { limit?: 1..200, after?: id }. Codomain: paged work-board projection with matched, threads and next.",
+      domain: schemaFrom({ $id: "metroplat/test/work-board/input", type: "object" }),
+      codomain: schemaFrom({ $id: "metroplat/test/work-board/output", type: "object" }),
+      run: () => ({}),
+    });
+    const world = createMetroplatWorld({
+      binding: { dataRoot: root, agencyRoot: root },
+      operations: () => [descriptive],
+      identity: { title: "Fixture" },
+      dispatchOperation: async () => { throw new Error("help must not dispatch the operation"); },
+    });
+    const helped = await world.command("fixture-account", "help work-board", { id: "help-contract" });
+    assert.match(helped.messages[0], /Contract:\nDomain: \{ limit\?: 1\.\.200, after\?: id \}/u);
+    assert.match(helped.messages[0], /Codomain: paged work-board projection/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
