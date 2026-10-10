@@ -18,8 +18,11 @@ await runMain(async () => {
   const lifecycle = await serveEnterpriseInstance({ hostPath: process.env.FELTOS_ENTERPRISE_HOST, shutdown });
   void superviseRequiredNativeActor(lifecycle.platform.capabilities()["native-actor"], lifecycle.shutdown, () => {
     actorRestart = true;
+    // A fast event-loop drain can beat the self-sent signal; preserve failure at once.
+    process.exitCode = 1;
     process.stderr.write("[feltos-enterprise-host] required native actor stopped; restarting service\n");
-    process.kill(process.pid, "SIGTERM");
+    // Use the installed lifecycle, not a self-sent signal that can be lost as the loop empties.
+    void lifecycle.shutdown.drain("required-native-actor-stopped");
   });
   return lifecycle;
 }, {
