@@ -8,7 +8,12 @@ const stub = Object.freeze({
     const monitor = { draining: false };
     const lifecycle = { platform: { capabilities: () => ({ 'native-actor': { failed } }) }, shutdown: monitor,
       close: async () => { monitor.draining = true; shutdown.onClosed(); } };
-    process.on('SIGTERM', () => { shutdown.onDrain(); void lifecycle.close(); });
+    monitor.drain = async () => {
+      if (monitor.draining) return;
+      monitor.draining = true;
+      shutdown.onDrain();
+      await lifecycle.close();
+    };
     if (process.env.NATIVE_TEST_CASE === 'failure') setTimeout(() => stopped(new Error('queue terminated')), 12);
     if (process.env.NATIVE_TEST_CASE === 'normal') setTimeout(() => void lifecycle.close(), 12);
     if (process.env.NATIVE_TEST_CASE === 'already-draining') setTimeout(() => { monitor.draining = true; stopped(new Error('queue stopped while draining')); void lifecycle.close(); }, 12);
