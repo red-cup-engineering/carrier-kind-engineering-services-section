@@ -27,8 +27,8 @@ import { processLeaseCoordinator } from "@red-cup-engineering/computer-system-en
 import { parseEnvFileText } from "@red-cup-engineering/key-management-services-section/env-file";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
 import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
-import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
-import { mergeSettlementTransfer, settlementHoldings } from "@red-cup-engineering/computer-system-engine/journal/exchange";
+import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse, SETTLEMENT_EXCHANGE_PATHS } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { mergeSettlementTransfer, settlementHoldings, settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { createEnterpriseEntrance } from "./entrance.mjs";
 import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment } from "./activitypub-node.mjs";
 import { enterpriseWebConfig } from "./instance-config.mjs";
@@ -507,7 +507,7 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
   const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey, fetch, { declaredKeys: systemNodeDeclaredPeerKeys(environment, node) });
   const settlementGrants = node === undefined ? undefined : systemSettlementFeedGrants(environment, node);
   const rootRoutes = node === undefined ? [] : [systemNodeResource(node)];
-  if (peering !== undefined) for (const pathname of ["/settlement/holdings", "/settlement/transfer"]) {
+  if (peering !== undefined) for (const pathname of SETTLEMENT_EXCHANGE_PATHS) {
     rootRoutes.push({
       id: `system${pathname.replaceAll("/", ".")}`,
       match: pathname,
@@ -519,6 +519,7 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
           feedLabelsFor: settlementGrants.labelsFor,
           holdings: (date, feedLabels) => settlementHoldings(config.metroplatDataRoot, date, { feedLabels }),
           merge: (transfer, feedLabels) => mergeSettlementTransfer(config.metroplatDataRoot, transfer, { feedLabels }),
+          transfer: (date, holdings, limit, feedLabels) => settlementTransfer(config.metroplatDataRoot, date, holdings, { limit, feedLabels }),
         });
         return Response.json(answer.value, { status: answer.status });
       },

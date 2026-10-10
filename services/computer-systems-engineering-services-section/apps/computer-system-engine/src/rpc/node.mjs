@@ -240,10 +240,21 @@ export function systemSettlementPeering(node, privateKey, fetcher = fetch, { dec
     verify: (request) => verifyRequest({ ...request, publicKeyFor: peerKey }),
     holdingsOf: (origin, date) => post(origin, "/settlement/holdings", { date }),
     transferTo: (origin, transfer) => post(origin, "/settlement/transfer", transfer),
+    /** Ask a peer for the granted witnesses of `date` this settlement's `holdings` lack (replay-from-peer):
+     *  a node that cannot be dialed brings itself up to date by pulling. */
+    pullFrom: (origin, { date, holdings, limit }) => post(origin, "/settlement/pull", { date, holdings, ...(limit === undefined ? {} : { limit }) }),
   });
 }
 
-/** Verify an exact signed peer request before reading or merging a settlement. */
+/** The signed settlement exchange routes a node serves to its configured peers. */
+export const SETTLEMENT_EXCHANGE_PATHS = Object.freeze(["/settlement/holdings", "/settlement/transfer", "/settlement/pull"]);
+
+/** The most witnesses one pull answer carries; a puller asks again for the rest (`remaining`). */
+export const SETTLEMENT_PULL_LIMIT = 2000;
+
+/** Verify an exact signed peer request before reading or merging a settlement. A pull is answered with
+ *  the granted witnesses the requester's holdings lack (`exchange.transfer`), never with more than it
+ *  is granted; a node with no `transfer` does not serve pulls. */
 export async function settlementExchangeResponse(req, exchange) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -255,6 +266,11 @@ export async function settlementExchangeResponse(req, exchange) {
   if (feedLabels.length === 0) return { status: 403, value: { error: "settlement-feed-grant-required" } };
   try {
     const value = JSON.parse(body);
+    if (pathname === "/settlement/pull") {
+      if (exchange.transfer === undefined) return { status: 404, value: { error: "settlement-pull-not-served" } };
+      const limit = Number.isInteger(value.limit) && value.limit > 0 ? Math.min(value.limit, SETTLEMENT_PULL_LIMIT) : SETTLEMENT_PULL_LIMIT;
+      return { status: 200, value: exchange.transfer(value.date, value.holdings, limit, feedLabels) };
+    }
     return { status: 200, value: pathname === "/settlement/holdings"
       ? exchange.holdings(value.date, feedLabels)
       : exchange.merge(value, feedLabels) };
