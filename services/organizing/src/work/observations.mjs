@@ -1,3 +1,4 @@
+import { workSourceClosureContract, workSourceResultContract } from "./schema.mjs";
 /**
  * running/work-item-observations — claim-session admit rows read as
  * `WorkItemObservation`s (`src/work/causal-set.mts`).
@@ -19,7 +20,7 @@
  */
 import { juralRelationOfClaimCell, scopeOf, workItemOfCell } from "@red-cup-engineering/socializing";
 
-import { validateDeterministicExecution, validateResultCodomain } from "./schema.mjs";
+import { admitAgencyWorkResult, workResultSkillContext, validateDeterministicExecution, validateResultCodomain } from "./schema.mjs";
 import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 
@@ -374,9 +375,15 @@ export function agencyWorkExecutionOfRow(row, event) {
   const value = role === "work-result-proposal" ? recordAt(boundary, "proposal") : role === "office-service-execution" ? recordAt(boundary, "execution") : undefined;
   const allocation = recordAt(value, "allocation"), scope = recordAt(value, "scope");
   if (typeof allocation !== "string" || typeof scope !== "string" || typeof event?.id !== "string") return undefined;
+  const sourceRepository = recordAt(value, "sourceRepository");
+  const sourceBinding = recordAt(value, "sourceBinding"), sourceResult = recordAt(value, "sourceResult");
+  if (sourceResult !== undefined && (!workSourceResultContract.validate(sourceResult) || sourceResult.sourceBinding !== sourceBinding?.id)) return undefined;
+  if (sourceBinding !== undefined && !workSourceClosureContract.validate(sourceBinding)) return undefined;
+  const source = { ...(typeof sourceRepository === "string" && sourceRepository.length > 0 ? { sourceRepository } : {}), ...(sourceBinding === undefined ? {} : { sourceBinding }), ...(sourceResult === undefined ? {} : { sourceResult }) };
   if (role === "work-result-proposal") {
-    const result = recordAt(value, "result");
-    if (!["skill-result", "skill-error"].includes(recordAt(result, "kind"))) return undefined;
+    let result;
+    try { result = admitAgencyWorkResult(recordAt(value, "result")); } catch { return undefined; }
+    const skillOutcome = workResultSkillContext(result);
     const subject = recordAt(value, "subject"), execution = recordAt(value, "execution");
     if (typeof subject !== "string" || typeof execution !== "string") return undefined;
     const failed = recordAt(result, "kind") === "skill-error";
@@ -384,7 +391,8 @@ export function agencyWorkExecutionOfRow(row, event) {
     const origin = recordAt(value, "origin");
     // A producer-reported failure is an attempt observation, never a claim of
     // successful work. Its immutable proposal retains the report and evidence.
-    return { allocation, scope, state: failed ? "failed" : "proposed", receipt: event.id, subject, execution, resultKind: recordAt(result, "kind"),
+    return { allocation, scope, ...source, state: failed ? "failed" : "proposed", receipt: event.id, subject, execution, resultKind: recordAt(result, "kind"),
+      ...(skillOutcome === undefined ? {} : { skillOutcome }),
       ...(failed ? { error: `producer-reported-skill-error:${recordAt(result, "error")}` } : {}),
       ...(typeof recordAt(origin, "session") === "string" && typeof recordAt(origin, "model") === "string"
         ? { session: recordAt(origin, "session"), model: recordAt(origin, "model"), ...(typeof recordAt(origin, "reasoningEffort") === "string" ? { reasoningEffort: recordAt(origin, "reasoningEffort") } : {}) } : {}) };
@@ -397,7 +405,7 @@ export function agencyWorkExecutionOfRow(row, event) {
     && typeof recordAt(requiredCarrierValue, "reasoningEffort") === "string"
     ? Object.freeze({ model: recordAt(requiredCarrierValue, "model"), reasoningEffort: recordAt(requiredCarrierValue, "reasoningEffort") })
     : undefined;
-  return { allocation, scope, state, receipt: event.id,
+  return { allocation, scope, ...source, state, receipt: event.id,
     ...(typeof recordAt(value, "session") === "string" && typeof recordAt(value, "model") === "string" ? { session: recordAt(value, "session"), model: recordAt(value, "model"), ...(typeof recordAt(value, "reasoningEffort") === "string" ? { reasoningEffort: recordAt(value, "reasoningEffort") } : {}) } : {}),
     ...(requiredCarrier === undefined ? {} : { requiredCarrier }),
     ...(typeof recordAt(value, "error") === "string" ? { error: recordAt(value, "error") } : {}),

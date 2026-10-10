@@ -88,7 +88,6 @@
     "./dispatch/inference-model": "./src/dispatch/inference-model.mjs",
     "./dispatch/inference-source-kind": "./src/dispatch/inference-source-kind.mjs",
     "./dispatch/source-selection": "./src/dispatch/source-selection.mjs",
-    "./dispatch/accepted-work-outcome": "./src/dispatch/accepted-work-outcome.mjs",
     "./dispatch/provider-model-catalog": "./src/dispatch/provider-model-catalog.mjs",
     "./dispatch/provider-availability": "./src/dispatch/provider-availability.mjs",
     "./dispatch/tools": "./src/dispatch/tools.mjs",
@@ -117,7 +116,8 @@
     "./tokens/usage-observations": "./src/tokens/usage-observations.mjs",
     "./openai/compatible-http-client": "./src/openai/compatible-http-client.mjs",
     "./openai/pricing/operations": "./src/openai/pricing/operations.mjs",
-    "./dispatch/operations": "./src/dispatch/operations.mjs"
+    "./dispatch/operations": "./src/dispatch/operations.mjs",
+    "./dispatch/work-inference-coordinate": "./src/dispatch/work-inference-coordinate.mjs"
   },
   "bin": {
     "dispatch-chat-completion": "./scripts/openai/dispatch-chat-completion.mjs",
