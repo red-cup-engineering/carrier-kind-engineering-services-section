@@ -39,7 +39,7 @@
 
 import { designReading, supportKeys } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/design";
 import { locusKey } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/locus";
-import { samePoint } from "@red-cup-engineering/computer-data-services-section/four";
+import { samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** Suits' prelusory goal — a target reading at a locus, describable without the rules. */
 

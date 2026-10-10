@@ -7,7 +7,7 @@
 import { createHmac, timingSafeEqual, verify as verifySignature } from 'node:crypto';
 import { SNOWFLAKE, discordSubjectHash } from './discord.mjs';
 import { clearedCookie, cookieValue, opaqueCookie, randomToken, sealConfidential, unsealConfidential } from './session.mjs';
-import { sha256Hex } from '@red-cup-engineering/cryptographic-data-service/integrity';
+import { sha256Hex } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
 const CHALLENGE_TTL_SECONDS = 5 * 60;
 const SESSION_TTL_SECONDS = 14 * 24 * 60 * 60;
 const RATE_WINDOW_SECONDS = 60;

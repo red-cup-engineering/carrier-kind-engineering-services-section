@@ -20,7 +20,7 @@ import { operate as auditIncomeToken } from "./income-token-audit.mjs";
 import { decimalUnits, formatUnits } from "@red-cup-engineering/exact-number-data-service/decimal-string";
 import { liveEngineBook } from "@red-cup-engineering/hive-blockchain-client-service/market.mjs";
 import { HiveClient } from "@red-cup-engineering/hive-blockchain-client-service";
-import { sha256Digest } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 const hiveReader = new HiveClient();
 

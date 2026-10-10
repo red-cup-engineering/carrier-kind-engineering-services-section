@@ -336,7 +336,7 @@ function discoveryRuntimePaths(discovery, baseIri) {
 }
 
 export { DEFAULT_SITE } from './config.mjs';
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 /**
  * Make outDir hold exactly this release. Files are written to a sibling staging

@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "no
 import { join, resolve } from "node:path";
 import { Wallet, decryptKeystoreJson, isKeystoreJson } from "ethers";
 import { writeFileTextSync } from "@red-cup-engineering/file-services/write-file";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 function requirePrivateFile(path, label) {
   const mode = statSync(path).mode & 0o777;

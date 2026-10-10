@@ -8,6 +8,7 @@ import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/co
 import { grantAssertion, revokeAssertion, locusResource } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 import { projectOperationAffordances } from "../src/operation-affordances.mjs";
 import { createMetroplatWorld } from "../src/world.mjs";
+import { agencyRecordProjection } from "../src/offices.mjs";
 
 const domain = schemaFrom({ $id: "metroplat/test/input", type: "object", required: ["duty"], properties: { duty: { type: "string" } } });
 const codomain = schemaFrom({ $id: "metroplat/test/output", type: "object", required: ["receipt"], properties: { receipt: { type: "string" } } });
@@ -67,6 +68,27 @@ test("public world command dispatches catalog powers without constructing a game
   }
 });
 
+test("agency record projection omits absent optional names and remains JSON-safe", () => {
+  const nameless = agencyRecordProjection("incumbencies", {
+    key: "office#incumbent",
+    id: "incumbent",
+    source: "lib/agency/incumbencies/incumbent.json",
+    revision: "r1",
+  });
+  assert.equal(Object.hasOwn(nameless, "name"), false);
+  assert.doesNotThrow(() => JSON.stringify(nameless));
+
+  const named = agencyRecordProjection("offices", {
+    key: "section#office",
+    id: "office",
+    name: "Office",
+    source: "lib/agency/offices/office.json",
+    revision: "r2",
+  });
+  assert.equal(named.name, "Office");
+  assert.doesNotThrow(() => JSON.stringify(named));
+});
+
 test("account and help affordances project installed descriptor contracts through current categorized standing", () => {
   const subject = "actor:worker";
   const direct = op("agent-work-dispatch");
@@ -92,4 +114,29 @@ test("account and help affordances project installed descriptor contracts throug
   assert.deepEqual(projectOperationAffordances([direct, publicOperation, officeOperation, allocationOperation], [], subject), {
     direct: [], public: [], office: [], allocation: [], delegation: [],
   });
+});
+
+test("world help preserves rich descriptor contract prose", async () => {
+  const root = mkdtempSync(path.join(tmpdir(), "world-help-contract-"));
+  try {
+    const descriptive = operation({
+      verb: "work-board",
+      summary: "Read the settlement work board.",
+      description: "Domain: { limit?: 1..200, after?: id }. Codomain: paged work-board projection with matched, threads and next.",
+      domain: schemaFrom({ $id: "metroplat/test/work-board/input", type: "object" }),
+      codomain: schemaFrom({ $id: "metroplat/test/work-board/output", type: "object" }),
+      run: () => ({}),
+    });
+    const world = createMetroplatWorld({
+      binding: { dataRoot: root, agencyRoot: root },
+      operations: () => [descriptive],
+      identity: { title: "Fixture" },
+      dispatchOperation: async () => { throw new Error("help must not dispatch the operation"); },
+    });
+    const helped = await world.command("fixture-account", "help work-board", { id: "help-contract" });
+    assert.match(helped.messages[0], /Contract:\nDomain: \{ limit\?: 1\.\.200, after\?: id \}/u);
+    assert.match(helped.messages[0], /Codomain: paged work-board projection/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });

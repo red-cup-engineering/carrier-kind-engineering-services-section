@@ -54,6 +54,11 @@ function reasonsOfDuty(duty, level, signedAction) {
   const reasons = [
     ...(duty.execution?.state === "proposed" && duty.status !== "discharged" ? ["result-awaiting-receipt"] : []),
     ...(duty.execution?.state === "failed" ? [`provider-execution-failed:${duty.execution.error ?? "unknown"}`] : []),
+    ...(duty.execution?.skillOutcome === undefined ? [] : [
+      `native-skill-routing:${duty.execution.skillOutcome.routing}`,
+      `native-skill-reading:${duty.execution.skillOutcome.reading}`,
+      ...(duty.execution.skillOutcome.errorClass === undefined ? [] : [`native-skill-error-class:${duty.execution.skillOutcome.errorClass}`]),
+    ]),
     `status:${duty.status}`,
     `via:${duty.via}`,
     `standing:${duty.standing}`,

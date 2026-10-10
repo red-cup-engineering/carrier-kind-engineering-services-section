@@ -29,6 +29,7 @@ import { operation } from "@red-cup-engineering/computer-system-engine/rpc/opera
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { homeHostOf, workHomesOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
+import { notePeerRun, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
 
 /** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
 const BOARD_KIND = "work-arena-move";
@@ -240,6 +241,22 @@ export function catchUpOutcome({ shipped, failed }, presence = "continuous") {
   return Object.freeze({ shipped: shipped.length, ...(held.length === 0 ? {} : { held: held.length, peer: "away" }) });
 }
 
+/**
+ * Keep what one catch-up run says of the work peer's liveness in the node journal, and read it back:
+ * the peer's FOUR reading (unknown while it is away and below its threshold, or always when it is
+ * known-intermittent) and its silence in seconds. A run that fails still keeps its witness first.
+ */
+export function noteWorkPeerLiveness({ config, binding, host, result, now = new Date(binding.now?.() ?? Date.now()).toISOString() }) {
+  if (config.workPeerActor === undefined || config.deliverWorkToPeer === false) return Object.freeze({});
+  const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: PEER_LIVENESS_KIND });
+  const noted = notePeerRun(journal, {
+    observer: host, peer: config.workPeerActor, now,
+    shipped: result.shipped.length, failed: result.failed,
+    presence: config.workPeerPresence, thresholdSeconds: config.workPeerSuspicionSeconds,
+  });
+  return Object.freeze({ liveness: noted.reading, ...(noted.silentSeconds === undefined ? {} : { silentSeconds: Math.round(noted.silentSeconds) }) });
+}
+
 /** The operation a node schedule runs to keep the work peer current (MetroPlat instance `schedules`). */
 export function workReplicationOperations({ config, binding, provider, host }) {
   return Object.freeze([operation({
@@ -249,6 +266,10 @@ export function workReplicationOperations({ config, binding, provider, host }) {
     description: "Domain: {}. Ships this board's told moves (openings and tellings) the peer has not received, and the coordinated moves this node decided on threads homed here. Idempotent; a failed delivery is sent again on the next run.",
     relation: "boundary",
     effects: { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "schema-bounded" },
-    run: async () => catchUpOutcome(await catchUpWorkPeer({ config, provider: provider(), binding, host }), config.workPeerPresence),
+    run: async () => {
+      const result = await catchUpWorkPeer({ config, provider: provider(), binding, host });
+      const liveness = noteWorkPeerLiveness({ config, binding, host, result });
+      return Object.freeze({ ...catchUpOutcome(result, config.workPeerPresence), ...liveness });
+    },
   })]);
 }

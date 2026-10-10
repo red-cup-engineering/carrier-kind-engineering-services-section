@@ -1,4 +1,4 @@
-import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 /**
  * Reading codec — the apex value, serialized by its stable name.
  *

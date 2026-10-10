@@ -5,14 +5,14 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import test from "node:test";
 
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { journalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event";
 import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { artifactTier } from "@red-cup-engineering/eavt/statement";
 import { eventPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/events";
-import { clearSegmentIndexes, segmentPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/segment-store";
+import { clearSegmentIndexes, locatedIndexDirectory, segmentPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/segment-store";
 import {
   artifactStoreRoot,
   journalDirectoryOf,
@@ -315,13 +315,16 @@ test("the admitted index rebuilds from the witness segments", () => {
   try {
     const statement = event("index-rebuild");
     openJournal(root).appendEvents(logPath, [statement]);
-    const admitted = path.join(root, ".metroplat-journal", "index", "causal-admission", "v2", "admitted.jsonl");
-    rmSync(admitted, { force: true });
+    // The located admission index (index/causal-admission/v3 and each feed's `.admitted` ledger) is
+    // derived from the segments: remove all of it and the root answers from its segments again.
+    const storeRoot = path.join(root, ".metroplat-journal");
+    rmSync(path.join(storeRoot, "index"), { recursive: true, force: true });
+    for (const name of readdirSync(root, { recursive: true })) if (String(name).endsWith(".admitted")) rmSync(path.join(root, String(name)));
     clearSegmentIndexes();
 
     assert.deepEqual(openJournal(root).read(logPath).map((entry) => entry.id), [statement.id]);
     assert.equal(openJournal(root).appendEvents(logPath, [statement])[0].admission, "admitted");
-    assert.equal(existsSync(admitted), true);
+    assert.equal(existsSync(locatedIndexDirectory(storeRoot)), true);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -368,7 +371,7 @@ test("independent processes admit concurrently through one journal funnel", { ti
   const logPath = path.join(root, "concurrent.jsonl");
   const child = String.raw`
     import { journalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event"; import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-    import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+    import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
     const label = process.env.METROPLAT_TEST_LABEL;
     const statement = journalWitness(Object.freeze({
       kind: "metroplat.journal.observation",

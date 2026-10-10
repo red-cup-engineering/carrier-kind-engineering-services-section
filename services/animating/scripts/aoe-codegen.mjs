@@ -12,7 +12,7 @@ function flag(name, fallback) {
 const receipt = await generateSemanticCarriersWork({
   specificationsDir: resolve(flag("--specifications", "specifications")),
   outFile: resolve(flag("--out", "src/generated/semantic-carriers.mjs")),
-  schemaTypeImport: flag("--schema-type-import", "@red-cup-engineering/computer-data-services-section/type-system/schema-type"),
+  schemaTypeImport: flag("--schema-type-import", "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type"),
   actor: flag("--actor", process.env.USER ?? "local-operator"),
   journalPath: flag("--journal"),
   write: args.includes("--write"), check: args.includes("--check"),

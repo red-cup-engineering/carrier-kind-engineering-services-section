@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 import { createComputerPlatform } from "@red-cup-engineering/computer-system-platform";
 import { declareCapabilityOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { mcpResource } from "@red-cup-engineering/mcp-engineering-services-section/http";

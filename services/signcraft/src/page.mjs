@@ -11,7 +11,7 @@ import { knowledgeReading } from "@red-cup-engineering/signcell/cell";
 import { at, chuSpace, settleRow } from "@red-cup-engineering/metrologic/chu";
 import { escapeAttr, escapeText, slug } from "@red-cup-engineering/html-structural-projection-service";
 import { canonical } from "@red-cup-engineering/json-services-section";
-import { isConsistentReading, knowledgeBottom, knowledgeJoinReading, readingFamilies, readingOfSides, samePoint, sidesOfReading, truthBottom, truthJoinReading, truthMeetReading, truthTop } from "@red-cup-engineering/computer-data-services-section/four";
+import { isConsistentReading, knowledgeBottom, knowledgeJoinReading, readingFamilies, readingOfSides, samePoint, sidesOfReading, truthBottom, truthJoinReading, truthMeetReading, truthTop } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 export const STANCE = Object.freeze({ CALM: "calm", AUDIT: "audit" });
 /** The glyph of each knowledge point, in side order: told nothing, for only, against only, both. */
