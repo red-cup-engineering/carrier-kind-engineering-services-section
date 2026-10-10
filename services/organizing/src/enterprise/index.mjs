@@ -24,6 +24,7 @@ export * from "./brief.mjs";
 export * from "./resources.mjs";
 export * from "./control.mjs";
 export * from "./board.mjs";
+export * from "./crm.mjs";
 export { contractingPartyFor, enterpriseOperations } from "./operations.mjs";
 export * from "./allowances.mjs";
 export * from "./founding.mjs";

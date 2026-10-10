@@ -3,7 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { createEnterpriseServicePlatform, realizedFamilies } from "../src/serve-instance.mjs";
+import { companionListenOptions, createEnterpriseServicePlatform, realizedFamilies } from "../src/serve-instance.mjs";
 
 const until = async (predicate, milliseconds = 1_000) => {
   const expires = Date.now() + milliseconds;
@@ -92,4 +92,14 @@ test("probe family realization reports the admitted verb set independently of re
   assert.equal(result.realized, 3);
   assert.deepEqual(calls, ["healthy", "duplicate", "unnamed"]);
   assert.deepEqual(result.failed, [{ verb: "failing-operation", error: "cannot load" }]);
+});
+
+test("a companion inherits the host binding when its own environment does not declare one", () => {
+  assert.deepEqual(companionListenOptions({ port: 18848 }, {}, { HOST: "node.example.test", PORT: "18807" }), {
+    host: "node.example.test", port: 18848,
+  });
+  assert.deepEqual(companionListenOptions({ port: 18848 }, { HOST: "127.0.0.1", PORT: "18849" }, { HOST: "node.example.test" }), {
+    host: "127.0.0.1", port: 18849,
+  });
+  assert.throws(() => companionListenOptions({ port: 0 }, {}), /port must be an integer/u);
 });

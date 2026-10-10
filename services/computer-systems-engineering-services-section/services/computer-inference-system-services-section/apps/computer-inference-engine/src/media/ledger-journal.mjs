@@ -3,16 +3,16 @@
  * content-addressed records) beside the name its SQLite store had, and nothing is updated in place.
  * A ledger named `…/allowance-ledger.sqlite` keeps its journal at `…/allowance-ledger.journal`; the
  * SQLite file, where one is left from before, is read once, read-only, into the journal, and a
- * receipt in the journal marks that admission so it is never repeated (`admitSqlOnce`).
+ * receipt in the journal marks that admission so it is never repeated (`admitSqlOnce`, kept in
+ * `import-sql-ledger.mjs`, the only place SQL is still read).
  *
  * Readers fold the journal and see what other processes appended. A writer whose admission depends
  * on what it reads (a hold fitting its allowance, a compare-and-set) runs inside `exclusively`, a
  * lock directory beside the journal, so consumers on one host serialize as they did on the SQLite
  * store's IMMEDIATE transactions. A lock left by a process that died is taken over once stale.
  */
-import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { DatabaseSync } from "node:sqlite";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 
 export const HELD = Object.freeze({ for: true, against: false });
@@ -66,27 +66,4 @@ function exclusively(root, work) {
   try { return work(); } finally { rmSync(lock, { recursive: true, force: true }); }
 }
 
-/**
- * Admit a SQLite store left at `storePath` into the journal once: `rowsOf(database)` returns
- * `[category, record]` pairs, read with the database open read-only. Returns the receipt (the
- * earlier one when already admitted), or null when there is no SQLite file.
- */
-export function admitSqlOnce(ledger, storePath, rowsOf) {
-  const receiptPath = join(ledger.root, "sql-admission.json");
-  if (existsSync(receiptPath)) return JSON.parse(readFileSync(receiptPath, "utf8"));
-  if (!/\.sqlite$/u.test(storePath) || !existsSync(storePath) || statSync(storePath).size === 0) return null;
-  return ledger.exclusively(() => {
-    if (existsSync(receiptPath)) return JSON.parse(readFileSync(receiptPath, "utf8"));
-    const database = new DatabaseSync(storePath, { readOnly: true });
-    let rows;
-    try {
-      const tables = new Set(database.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((row) => row.name));
-      rows = rowsOf(database, tables);
-    } finally { database.close(); }
-    const counts = {};
-    for (const [category, record] of rows) { ledger.record(category, record); counts[category] = (counts[category] ?? 0) + 1; }
-    const receipt = Object.freeze({ type: "LedgerSqlAdmission", version: 1, from: resolve(storePath), at: new Date().toISOString(), counts });
-    writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`, { flag: "wx" });
-    return receipt;
-  });
-}
+export { admitSqlOnce } from "./import-sql-ledger.mjs";

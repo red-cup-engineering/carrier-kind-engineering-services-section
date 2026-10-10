@@ -38,6 +38,7 @@
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/key-management-services-section": "workspace:*",
     "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
     "@red-cup-engineering/oauth-services-section": "workspace:*",

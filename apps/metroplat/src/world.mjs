@@ -596,6 +596,9 @@ export function worldCapability({ verbs, affordances = () => ({}), work }) {
       return { events: [ctx.message(ctx.actor, [
         `${target} (${matches.length ? matches.map((entry) => `${entry.category}${entry.scope === undefined ? "" : `: ${entry.scope}`}`).join("; ") : "requires standing"})`,
         descriptor.summary ?? "No summary is declared.",
+        ...(typeof descriptor.description === "string" && descriptor.description.trim() !== ""
+          && descriptor.description.trim() !== descriptor.summary?.trim()
+          ? [`Contract:\n${descriptor.description.trim()}`] : []),
         `Input schema:\n${JSON.stringify(descriptor.domain?.schema ?? {}, null, 2)}`,
         `Output schema:\n${JSON.stringify(descriptor.codomain?.schema ?? {}, null, 2)}`,
         `Operation reference: ${descriptor.ref}`,
