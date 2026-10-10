@@ -38,14 +38,20 @@ function fixture(extraOptions = {}) {
   };
   const options = { demandAssessment: assessment, ...allocationSources(binding),
     resolveAgencyWorkAuthority: request => firmPoolAuthorityResolver({ firmPoolRoot })(request),
-    resolveModelCharacter: character => harnessModelCharacterResolver(binding)(character), ...extraOptions };
+    resolveModelCharacter: character => harnessModelCharacterResolver(binding)(character),
+    // The host's scoped-grant gate (feltos-enterprise-host agency-work.mjs): the delegation names the
+    // office service as its authority; this fixture's charter grants it to the fixture carrier.
+    resolveAllocationDelegation: selected => ({ provider: selected.character.id, operations: [...selected.officeService.requiredCapabilities],
+      effects: ["fixture"], authority: `office-service:${selected.office}` }),
+    authorizeProviderDelegation: request => ({ authority: request.authority, evidence: [`fixture-charter-grant:${request.holder}`] }),
+    ...extraOptions };
   const read = input => readAllocationCandidates(binding, input, options);
   const reconcile = input => reconcileAllocations(binding, input, options);
   const admit = text => admitStructuredWorkIntent(binding, assessedBy(assessment, workIntentOfRequest(text, "fixture-person")), { at: DATE });
   return { binding, root, carrier, read, reconcile, admit, options, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
-test("provider projection preserves the same character's observed sessions at distinct reasoning efforts", () => {
+test("provider projection preserves the same character's observed sessions at distinct reasoning efforts", async () => {
   const f = fixture();
   try {
     f.carrier("fixture-executor", "held", `${DATE}T10:00:00Z`, "gpt-6-luna", "high", "luna-high");
@@ -94,7 +100,7 @@ test("transient pre-native startup failures get fresh bounded allocations", asyn
   } finally { f.dispose(); }
 });
 
-test("startup recovery excludes native executions and permanent authorization refusals", () => {
+test("startup recovery excludes native executions and permanent authorization refusals", async () => {
   const item = { allocation: "allocation-original", execution: { state: "failed", error: "required MCP servers failed to initialize: 561-bare-cedar-fog: timed out handshaking with MCP server after 59.99999936s" } };
   assert.equal(retryableAllocationStartup(item), true);
   assert.equal(retryableAllocationStartup({ ...item, execution: { ...item.execution, session: "actual-native-thread" } }), false);
@@ -104,7 +110,7 @@ test("startup recovery excludes native executions and permanent authorization re
   assert.equal(retryableAllocationStartup({ ...item, execution: { state: "failed", error: "a business operation timed out" } }), false);
 });
 
-test("authority is shared across identical model requests only within one candidate read", () => {
+test("authority is shared across identical model requests only within one candidate read", async () => {
   let calls = 0, withdrawn = false;
   const f = fixture({
     resolveAllocationDelegation: selected => ({ provider: selected.character.id, operations: ["fixture#read"], effects: ["host-read"], authority: "fixture-provider" }),
@@ -130,24 +136,24 @@ test("authority is shared across identical model requests only within one candid
     const reading = f.read({ scope });
     assert.equal(reading.items[0].state, "obstructed");
     assert.equal(calls, 2);
-    assert.equal(f.reconcile({ scope }).items[0].state, "obstructed");
+    assert.equal((await f.reconcile({ scope })).items[0].state, "obstructed");
     assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).queue.length, 0);
   } finally { f.dispose(); }
 });
 
-test("one witnessed demand becomes a ready office service; replay adds no second allocation", () => {
+test("one witnessed demand becomes a ready office service; replay adds no second allocation", async () => {
   const f = fixture();
   try {
     f.carrier("fixture-executor");
-    const admission = f.admit("Assess the allocation report and route its engineering work");
+    const admission = f.admit("The allocation report is assessed and its engineering work routed");
     const scope = admission.obligations[0].scope;
     const reading = f.read({ scope });
     assert.equal(reading.items[0].state, "allocatable");
     assert.deepEqual(reading.items[0].obligationWitness, { subject: admission.subject, witness: admission.obligations[0].witness });
-    const result = f.reconcile({ scope }).items[0];
+    const result = (await f.reconcile({ scope })).items[0];
     assert.equal(result.state, "allocated", JSON.stringify(result.reasons));
     assert.equal(result.dispatch.state, "ready");
-    assert.equal(f.reconcile({ scope }).items[0].state, "already-allocated");
+    assert.equal((await f.reconcile({ scope })).items[0].state, "already-allocated");
     const dispatch = readAgentWorkDispatchReadout(f.binding, DATE);
     assert.equal(dispatch.frontier.length, 1);
     assert.equal(dispatch.frontier[0].office, "chief-operations-officer");
@@ -157,43 +163,43 @@ test("one witnessed demand becomes a ready office service; replay adds no second
   } finally { f.dispose(); }
 });
 
-test("missing, withdrawn and incomparable providers stay explicit and write no allocation", () => {
+test("missing, withdrawn and incomparable providers stay explicit and write no allocation", async () => {
   const f = fixture();
   try {
     const admission = f.admit("Preserve staffing qualification");
     const scope = admission.obligations[0].scope;
     assert.ok(f.read({ scope }).items[0].reasons.includes("no-current-provider-admission"));
     f.carrier("one"); f.carrier("two");
-    assert.equal(f.reconcile({ scope }).items[0].state, "choice-required");
+    assert.equal((await f.reconcile({ scope })).items[0].state, "choice-required");
     f.carrier("two", "denied", `${DATE}T11:00:00Z`);
     assert.equal(f.read({ scope }).items[0].state, "allocatable");
     f.carrier("one", "denied", `${DATE}T11:00:00Z`);
-    assert.equal(f.reconcile({ scope }).items[0].state, "obstructed");
+    assert.equal((await f.reconcile({ scope })).items[0].state, "obstructed");
     assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).queue.length, 0);
   } finally { f.dispose(); }
 });
 
-test("unknown work has a typed missing authority instead of acquiring staffing authority", () => {
+test("unknown work has a typed missing authority instead of acquiring staffing authority", async () => {
   const f = fixture();
   try {
     f.carrier("fixture-executor");
     const intent = workIntentOfRequest("Unsupported service", "fixture-person");
     const admission = admitStructuredWorkIntent(f.binding, intent, { at: DATE });
-    const result = f.reconcile({ scope: admission.obligations[0].scope }).items[0];
+    const result = (await f.reconcile({ scope: admission.obligations[0].scope })).items[0];
     assert.equal(result.state, "obstructed");
     assert.ok(result.reasons.includes("office-duty-service-missing"));
     assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).queue.length, 0);
   } finally { f.dispose(); }
 });
 
-test("a bounded reconciliation scans past unresolved obligations to eligible work", () => {
+test("a bounded reconciliation scans past unresolved obligations to eligible work", async () => {
   const f = fixture();
   try {
     f.carrier("fixture-executor");
     for (let i = 0; i < 3; i += 1) admitStructuredWorkIntent(f.binding,
       workIntentOfRequest(`Unsupported service ${i}`, "fixture-person"), { at: DATE });
-    const admission = f.admit("Assess the eligible demand after unresolved work");
-    const result = f.reconcile({ limit: 1 });
+    const admission = f.admit("The eligible demand after unresolved work is assessed");
+    const result = (await f.reconcile({ limit: 1 }));
     assert.equal(result.examined, 4);
     assert.equal(result.counts.allocated, 1);
     assert.equal(result.items.find(item => item.state === "allocated").scope, admission.obligations[0].scope);
@@ -201,7 +207,7 @@ test("a bounded reconciliation scans past unresolved obligations to eligible wor
   } finally { f.dispose(); }
 });
 
-test("unclassified historical obligations remain representable on the clock RPC boundary", () => {
+test("unclassified historical obligations remain representable on the clock RPC boundary", async () => {
   const f = fixture();
   try {
     const admitted = admitStructuredWorkIntent(f.binding, workIntentOfRequest("Historical unclassified obligation", "fixture-person"), { at: DATE });
@@ -209,13 +215,13 @@ test("unclassified historical obligations remain representable on the clock RPC 
     assert.equal(isJsonValue(reading), true);
     assert.ok(reading.items[0].reasons.includes("work-not-declared"));
     assert.ok(reading.items[0].reasons.includes("skill-not-declared"));
-    const result = f.reconcile({});
+    const result = (await f.reconcile({}));
     assert.equal(isJsonValue(result), true);
     assert.equal(result.counts.obstructed, 1);
   } finally { f.dispose(); }
 });
 
-test("claim-only legacy obligations do not introduce undefined dispatch fields", () => {
+test("claim-only legacy obligations do not introduce undefined dispatch fields", async () => {
   const reading = agentWorkReadoutOfRows([["legacy-session", { cell: "task:legacy", reading: "unknown" },
     { boundary: { role: "obligation", text: "Legacy declared work" } }, DATE]], { subject: "fixture-person", date: DATE });
   assert.equal(reading.unallocated.length, 1);
@@ -265,7 +271,7 @@ test("unallocated required-carrier intent constrains selection and is admitted o
   } finally { f.dispose(); }
 });
 
-test("an undeclared parent composes its executable child without a phantom staffing demand", () => {
+test("an undeclared parent composes its executable child without a phantom staffing demand", async () => {
   const f = fixture();
   try {
     const intent = workIntentOfRequest("Parent delivery outcome", "fixture-person");
@@ -299,14 +305,14 @@ test("routed assessments execute once, await independent receipt, then advance t
     f.carrier("fixture-executor"); f.carrier("other-qualified-provider");
     f.admit("First witnessed assessment"); f.admit("Second witnessed assessment");
     assert.equal(f.read({}).items.filter(item => item.state === "allocatable").length, 2);
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated, 1);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
     const pump = workCoordinationOperations(f.binding, f.options).find(operation => operation.verb === "agency-work-pump");
     const pending = pump.execute({});
     await new Promise(resolve => setImmediate(resolve));
     const started = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(started.queue.filter(item => item.state === "in-flight").length, 1);
     assert.equal(started.queue.find(item => item.state === "in-flight").allocatedModel, "fixture-model");
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated ?? 0, 0);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
     assert.equal((await pump.execute({})).ran.length, 0);
     complete();
     const first = (await pending).ran[0];
@@ -314,7 +320,7 @@ test("routed assessments execute once, await independent receipt, then advance t
     const awaiting = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(awaiting.frontier.length, 0);
     assert.equal(awaiting.queue.find(item => item.scope === first.scope).execution.state, "proposed");
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated ?? 0, 0);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
     assert.equal((await pump.execute({})).ran.length, 0);
     const item = awaiting.queue.find(item => item.scope === first.scope);
     const proposal = workResultProposalByReceipt(f.binding, first.proposal.receipt, item.subject);
@@ -327,7 +333,7 @@ test("routed assessments execute once, await independent receipt, then advance t
     assert.throws(() => admitWorkDischargeWithProposal(f.binding, { ...discharge, receiver: { ...discharge.receiver, id: proposal.producer.id } }, { at: DATE, receiverAuthorization: { evaluation: { allowed: true, kind: "fixture", snapshotRevision: "fixture", evidenceRefs: ["fixture:independent"] } } }), /same-character/);
     admitWorkDischargeWithProposal(f.binding, discharge, { at: DATE, receiverAuthorization: { evaluation: { allowed: true, kind: "fixture", snapshotRevision: "fixture", evidenceRefs: ["fixture:independent"] } } });
     assert.equal(readAgentWorkDispatchReadout(f.binding, DATE).queue.filter(item => item.state === "done").length, 1);
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated, 1);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
     const next = pump.execute({});
     await new Promise(resolve => setImmediate(resolve)); complete();
     assert.equal((await next).ran.length, 1);
@@ -335,17 +341,17 @@ test("routed assessments execute once, await independent receipt, then advance t
   } finally { f.dispose(); }
 });
 
-test("an unadmitted configured model cannot become an execution choice", () => {
+test("an unadmitted configured model cannot become an execution choice", async () => {
   const f = fixture({ demandAssessment: { ...assessment, execution: { character: "fixture-executor", model: "not-admitted", maxOutstanding: 1 } } });
   try {
     f.carrier("fixture-executor"); f.admit("Do not invent a model carrier");
     assert.equal(f.read({}).items[0].state, "obstructed");
     assert.ok(f.read({}).items[0].reasons.includes("configured-assessment-provider-unavailable"));
-    assert.equal(f.reconcile({}).counts.allocated ?? 0, 0);
+    assert.equal((await f.reconcile({})).counts.allocated ?? 0, 0);
   } finally { f.dispose(); }
 });
 
-test("candidate pages fit the RPC carrier and the cursor reaches the remaining demands", () => {
+test("candidate pages fit the RPC carrier and the cursor reaches the remaining demands", async () => {
   const f = fixture();
   try {
     f.carrier("fixture-executor");
@@ -375,8 +381,8 @@ test("a restarted pump recovers the completed worker with verified session prove
     resolveOfficeSession: (_character, office, session) => ({ office, session, model: "fixture-model" }),
   });
   try {
-    f.carrier("fixture-executor"); f.admit("Recover the worker after the resident node restarts");
-    f.reconcile({});
+    f.carrier("fixture-executor"); f.admit("The worker is recovered after the resident node restarts");
+    (await f.reconcile({}));
     const duty = readAgentWorkDispatchReadout(f.binding, DATE).frontier[0];
     admitAgencyWorkExecution(f.binding, duty, "started");
     const pump = workCoordinationOperations({ ...f.binding }, f.options).find(operation => operation.verb === "agency-work-pump");
@@ -412,14 +418,14 @@ test("a received provider error releases capacity and keeps its demand open", as
     f.carrier("fixture-executor"); f.carrier("other-qualified-provider");
     f.admit("First witnessed assessment"); f.admit("Second witnessed assessment");
     assert.equal(f.read({}).items.filter(item => item.state === "allocatable").length, 2);
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated, 1);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
     const pump = workCoordinationOperations(f.binding, f.options).find(operation => operation.verb === "agency-work-pump");
     const pending = pump.execute({});
     await new Promise(resolve => setImmediate(resolve));
     const started = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(started.queue.filter(item => item.state === "in-flight").length, 1);
     assert.equal(started.queue.find(item => item.state === "in-flight").allocatedModel, "fixture-model");
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated ?? 0, 0);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
     assert.equal((await pump.execute({})).ran.length, 0);
     complete();
     const first = (await pending).ran[0];
@@ -427,7 +433,7 @@ test("a received provider error releases capacity and keeps its demand open", as
     const awaiting = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(awaiting.frontier.length, 0);
     assert.equal(awaiting.queue.find(item => item.scope === first.scope).execution.state, "proposed");
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated ?? 0, 0);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
     assert.equal((await pump.execute({})).ran.length, 0);
     const item = awaiting.queue.find(item => item.scope === first.scope);
     const proposal = workResultProposalByReceipt(f.binding, first.proposal.receipt, item.subject);
@@ -444,7 +450,7 @@ test("a received provider error releases capacity and keeps its demand open", as
     assert.equal(failed.status, "open");
     assert.equal(failed.execution.state, "failed");
     assert.ok(failed.execution.receiverReceipt);
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated, 1);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
     const next = pump.execute({});
     await new Promise(resolve => setImmediate(resolve)); complete();
     assert.equal((await next).ran.length, 1);
@@ -471,14 +477,14 @@ test("a rejected successful proposal releases capacity without closing the deman
     f.carrier("fixture-executor"); f.carrier("other-qualified-provider");
     f.admit("First witnessed assessment"); f.admit("Second witnessed assessment");
     assert.equal(f.read({}).items.filter(item => item.state === "allocatable").length, 2);
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated, 1);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
     const pump = workCoordinationOperations(f.binding, f.options).find(operation => operation.verb === "agency-work-pump");
     const pending = pump.execute({});
     await new Promise(resolve => setImmediate(resolve));
     const started = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(started.queue.filter(item => item.state === "in-flight").length, 1);
     assert.equal(started.queue.find(item => item.state === "in-flight").allocatedModel, "fixture-model");
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated ?? 0, 0);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
     assert.equal((await pump.execute({})).ran.length, 0);
     complete();
     const first = (await pending).ran[0];
@@ -486,7 +492,7 @@ test("a rejected successful proposal releases capacity without closing the deman
     const awaiting = readAgentWorkDispatchReadout({ ...f.binding }, DATE);
     assert.equal(awaiting.frontier.length, 0);
     assert.equal(awaiting.queue.find(item => item.scope === first.scope).execution.state, "proposed");
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated ?? 0, 0);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated ?? 0, 0);
     assert.equal((await pump.execute({})).ran.length, 0);
     const item = awaiting.queue.find(item => item.scope === first.scope);
     const proposal = workResultProposalByReceipt(f.binding, first.proposal.receipt, item.subject);
@@ -503,7 +509,7 @@ test("a rejected successful proposal releases capacity without closing the deman
     assert.equal(failed.status, "open");
     assert.equal(failed.execution.state, "failed");
     assert.ok(failed.execution.receiverReceipt);
-    assert.equal(f.reconcile({ limit: 2 }).counts.allocated, 1);
+    assert.equal((await f.reconcile({ limit: 2 })).counts.allocated, 1);
     const next = pump.execute({});
     await new Promise(resolve => setImmediate(resolve)); complete();
     assert.equal((await next).ran.length, 1);
@@ -519,8 +525,8 @@ test("a started allocated assessment retains its scoped delegated resources and 
   const f = fixture({ demandAssessment: { ...assessment, execution: { character: provider, model: "fixture-model", maxOutstanding: 1 } }, resolveAllocationDelegation: selected => ({ provider, operations: [resource.ref], effects: ["journal-read"], authority: "fixture-active-office" }), authorizeProviderDelegation: () => ({ authority: "fixture-active-office", revision: "fixture", evidence: ["fixture:current-authority"] }) });
   try {
     f.carrier(provider);
-    const scope = f.admit("Assess work with resources that persist during execution").obligations[0].scope;
-    const selected = f.reconcile({ scope }).items[0];
+    const scope = f.admit("Work with resources that persist during execution is assessed").obligations[0].scope;
+    const selected = (await f.reconcile({ scope })).items[0];
     assert.equal(selected.state, "allocated", JSON.stringify(selected));
     const item = readAgentWorkDispatchReadout(f.binding, DATE).frontier[0];
     admitAgencyWorkExecution(f.binding, item, "started");
