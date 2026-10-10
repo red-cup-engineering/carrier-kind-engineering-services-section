@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { startNativeActorService, nativeActorReadiness } from "../src/native-actor-service.mjs";
+import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { startNativeActorService, nativeActorReadiness, superviseRequiredNativeActor } from "../src/native-actor-service.mjs";
 
 function owner(events = []) {
   let resolve, reject;
@@ -119,4 +123,61 @@ test("invalid private service contracts are rejected", async () => {
   const { resource } = owner();
   resource.provider.federation.startQueue = () => undefined;
   await assert.rejects(startNativeActorService({ open: async () => resource }), /expose its lifetime/);
+});
+
+test("an unexpected post-start queue loss requests one actual supervisor restart", async () => {
+  const { resource, reject } = owner();
+  const actor = await startNativeActorService({ open: async () => resource });
+  let restarts = 0;
+  const monitored = superviseRequiredNativeActor(actor, { draining: false }, () => { restarts += 1; });
+  reject(new Error("native queue lost"));
+  await monitored;
+  assert.equal(restarts, 1);
+  assert.equal((await actor.failed).message, "native queue lost");
+  assert.deepEqual(nativeActorReadiness(actor, true), { required: true, ok: false, state: "failed" });
+  await actor.close();
+  assert.equal(restarts, 1);
+});
+
+test("graceful actor release causes no restart and an existing drain suppresses a late fatal signal", async () => {
+  const first = owner(), normal = await startNativeActorService({ open: async () => first.resource });
+  let restarts = 0;
+  superviseRequiredNativeActor(normal, { draining: false }, () => { restarts += 1; });
+  await normal.close();
+  await Promise.resolve();
+  assert.equal(restarts, 0);
+  const second = owner(), draining = await startNativeActorService({ open: async () => second.resource });
+  const result = superviseRequiredNativeActor(draining, { draining: true }, () => { restarts += 1; });
+  second.reject(new Error("queue lost after draining began"));
+  await result;
+  assert.equal(restarts, 0);
+  await draining.close();
+});
+
+test("required actor supervision refuses a service without a real failure signal", () => {
+  assert.throws(() => superviseRequiredNativeActor({ state: () => "running" }, { draining: false }, () => {}), /failure signal/);
+  assert.equal(superviseRequiredNativeActor(undefined, { draining: false }, () => {}), undefined);
+});
+
+test("the installed server executable binds actor loss to a nonzero supervised restart", () => {
+  const executable = readFileSync(new URL("../scripts/feltos-enterprise-serve.mjs", import.meta.url), "utf8");
+  assert.ok(executable.includes("superviseRequiredNativeActor("));
+  assert.ok(executable.includes('lifecycle.shutdown.drain("required-native-actor-stopped")'));
+  assert.ok(executable.includes("process.exitCode = 1"));
+  assert.ok(executable.includes("process.exit(actorRestart ? 1 : 0)"));
+  assert.match(executable, /const lifecycle = await serveEnterpriseInstance/u);
+});
+
+test("the actual server executable exits failed after actor loss, but cleanly on normal drain", () => {
+  const loader = fileURLToPath(new URL("./fixtures/native-actor-process-loader.mjs", import.meta.url));
+  const executable = fileURLToPath(new URL("../scripts/feltos-enterprise-serve.mjs", import.meta.url));
+  for (const [scenario, expected] of [["failure", 1], ["normal", 0], ["already-draining", 0]]) {
+    const result = spawnSync(process.execPath, ["--no-warnings", "--experimental-loader", loader, executable], {
+      env: { PATH: dirname(process.execPath), NATIVE_TEST_CASE: scenario },
+      encoding: "utf8", timeout: 7000, maxBuffer: 262144,
+    });
+    if (result.error) throw result.error;
+    assert.equal(result.status, expected, `subprocess ${scenario}: ${result.stderr}`);
+    if (scenario === "failure") assert.match(result.stderr, /required native actor stopped/u);
+  }
 });
