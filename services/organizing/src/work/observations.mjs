@@ -20,7 +20,7 @@ import { workSourceClosureContract, workSourceResultContract } from "./schema.mj
  */
 import { juralRelationOfClaimCell, scopeOf, workItemOfCell } from "@red-cup-engineering/socializing";
 
-import { validateDeterministicExecution, validateResultCodomain } from "./schema.mjs";
+import { admitAgencyWorkResult, workResultSkillContext, validateDeterministicExecution, validateResultCodomain } from "./schema.mjs";
 import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 
@@ -381,8 +381,9 @@ export function agencyWorkExecutionOfRow(row, event) {
   if (sourceBinding !== undefined && !workSourceClosureContract.validate(sourceBinding)) return undefined;
   const source = { ...(typeof sourceRepository === "string" && sourceRepository.length > 0 ? { sourceRepository } : {}), ...(sourceBinding === undefined ? {} : { sourceBinding }), ...(sourceResult === undefined ? {} : { sourceResult }) };
   if (role === "work-result-proposal") {
-    const result = recordAt(value, "result");
-    if (!["skill-result", "skill-error"].includes(recordAt(result, "kind"))) return undefined;
+    let result;
+    try { result = admitAgencyWorkResult(recordAt(value, "result")); } catch { return undefined; }
+    const skillOutcome = workResultSkillContext(result);
     const subject = recordAt(value, "subject"), execution = recordAt(value, "execution");
     if (typeof subject !== "string" || typeof execution !== "string") return undefined;
     const failed = recordAt(result, "kind") === "skill-error";
@@ -391,6 +392,7 @@ export function agencyWorkExecutionOfRow(row, event) {
     // A producer-reported failure is an attempt observation, never a claim of
     // successful work. Its immutable proposal retains the report and evidence.
     return { allocation, scope, ...source, state: failed ? "failed" : "proposed", receipt: event.id, subject, execution, resultKind: recordAt(result, "kind"),
+      ...(skillOutcome === undefined ? {} : { skillOutcome }),
       ...(failed ? { error: `producer-reported-skill-error:${recordAt(result, "error")}` } : {}),
       ...(typeof recordAt(origin, "session") === "string" && typeof recordAt(origin, "model") === "string"
         ? { session: recordAt(origin, "session"), model: recordAt(origin, "model"), ...(typeof recordAt(origin, "reasoningEffort") === "string" ? { reasoningEffort: recordAt(origin, "reasoningEffort") } : {}) } : {}) };
