@@ -56,7 +56,7 @@ try {
   const sourceBinding = defaultFilesystemBinding(sourceRoot);
   const open = hostedWorkOpening({ config, binding: sourceBinding, provider: () => providerAvailable ? source.provider : undefined });
   const request = (id, by = account) => ({ move: "request", by,
-    need: id === "retry-request" ? "Recover interrupted federation transport after channel failure" : `Fixture receiving check only: ${id}`,
+    need: id === "retry-request" ? "Interrupted federation traffic remains queued until its channel is available" : `Fixture receiving check only: ${id}`,
     conditions: id === "retry-request" ? ["The queued handoff resumes without duplicating the retained recovery request"] : ["the fixture observes it"],
   });
   const peerBoard = () => workBoardStore(defaultFilesystemBinding(peerRoot)).read();
