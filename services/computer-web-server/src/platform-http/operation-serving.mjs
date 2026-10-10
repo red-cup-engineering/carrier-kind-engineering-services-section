@@ -25,7 +25,7 @@ import { jsonRepr } from "@red-cup-engineering/http-services-section/representat
 import { mediaTypeCorner } from "@red-cup-engineering/computer-web-server/platform-http/codec/negotiation/media-type";
 import { exchangeClaim } from "@red-cup-engineering/computer-web-server/platform-http/claim-sessions/ws-session";
 import { negotiateRepresentation } from "@red-cup-engineering/computer-web-server/platform-http/codec/negotiation/representation";
-import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** Write one routed response ({ status, type, body, headers? }) to a Node response. */
 export function send(response, routed) {

@@ -114,7 +114,7 @@
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/tex-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "scripts": {
     "check": "for f in $(find src -name '*.mjs'); do node --check \"$f\" || exit 1; done",

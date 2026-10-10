@@ -1,6 +1,6 @@
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
 import { clientIp as requestClientIp } from "@red-cup-engineering/http-services-section/address";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 export function clientIp(req, trustProxy = false) {
     return requestClientIp(req, {
         trustProxy

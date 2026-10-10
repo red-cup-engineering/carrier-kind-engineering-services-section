@@ -27,3 +27,5 @@ The deployed-provider observation service joins an infrastructure owner's exact
 resource/revision/origin observation to signed Agent Card and provider-owned
 operation evidence. It does not infer application health from Cloud Run
 readiness and does not own deployment effects.
+
+`./v1-core` admits the A2A 1.0 `Message`, `TaskStatus` and `Task` objects a peer returns (`admitA2AV1Message`, `admitA2AV1TaskStatus`, `admitA2AV1Task`), with `isFinalTaskState` and `isSuccessfulTaskState`. It is a partial boundary and says so in `A2A_V1_CORE_PROFILE`; it reads no capability, office or authority field. The client's `TERMINAL_TASK_STATES` is the set of states a poller stops at and includes the interrupted `INPUT_REQUIRED` and `AUTH_REQUIRED`; `isFinalTaskState` excludes them.

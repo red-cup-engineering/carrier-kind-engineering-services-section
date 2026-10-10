@@ -35,7 +35,7 @@
  */
 import { createHash } from "node:crypto";
 
-import { knowledgeJoinAll, truthMeetAll } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinAll, truthMeetAll } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { canonical } from "@red-cup-engineering/json-services-section";
 
 import { handedness } from "./handedness.mjs";

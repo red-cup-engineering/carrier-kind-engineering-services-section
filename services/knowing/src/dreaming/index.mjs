@@ -31,6 +31,7 @@ import { coincides, sameCell as sameTriple } from "@red-cup-engineering/signcell
 import { knowledgeJoin, knowledgeMeet, noEvidence } from "@red-cup-engineering/signchain/bilattice";
 import { observation as makeObservation } from "./observation.mjs";
 import { task as makeTask } from "./task.mjs";
+import { tokenOf } from "../learning/vocabulary.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
 import { settlementSignature } from "@red-cup-engineering/signcraft/settlement-signature";
 
@@ -166,6 +167,48 @@ export function strictFiniteDream(observations, options = {}) {
     if (out.length >= limit) break;
   }
   return dreamResult(composing.regime, out);
+}
+
+/**
+ * strict (κ<ω), latent cells: open every topic the window's memory terms share but none names.
+ *
+ * Each observation is one memory term (`task.subject`) carrying its topic tokens (`task.object`).
+ * A topic present in at least `minSupport` distinct terms and absent as a term of its own is a
+ * latent cell, and is opened as a ⊥-opened `open-question` cell over the agent: the cell was
+ * asked, neither supported nor refuted (`noEvidence`). The dream recombines the window's own
+ * tokens, invents none, calls nothing, and writes nothing; its proposals are inert until a
+ * governing office articulates them. Sorted by support descending, then topic ascending.
+ */
+export function latentCellDream(observations, options = {}) {
+  const minSupport = options.minSupport ?? 2;
+  const maxProposals = options.maxProposals ?? Infinity;
+  const tokenize = options.tokenize ?? topicTokens;
+  const observer = options.observer ?? dreamTerm(["observer", composing.regime]);
+  const agent = options.agent ?? observer;
+  const at = options.at ?? dreamMark([composing.regime]);
+  const named = new Set();
+  const support = new Map();
+  for (const obs of observations) {
+    const key = termKey(obs.task.subject);
+    for (const own of tokenize(obs.task.subject)) named.add(own);
+    for (const topic of tokenize(obs.task.object)) {
+      const witnesses = support.get(topic) ?? new Map();
+      witnesses.set(key, obs.task.subject);
+      support.set(topic, witnesses);
+    }
+  }
+  const latent = [...support]
+    .filter(([topic, witnesses]) => witnesses.size >= minSupport && !named.has(topic))
+    .map(([topic, witnesses]) => ({ topic, witnesses: [...witnesses].sort(([a], [b]) => compareText(a, b)).map(([, term]) => term) }))
+    .sort((a, b) => b.witnesses.length - a.witnesses.length || compareText(a.topic, b.topic))
+    .slice(0, maxProposals);
+  return dreamResult(composing.regime, latent.map(({ topic, witnesses }) => makeObservation({
+    observer,
+    task: makeTask({ subject: agent, predicate: "open-question", object: topic }),
+    evidence: noEvidence,
+    at,
+    note: dreamMark([`${composing.regime}-latent-cell`, `support:${witnesses.length}`, ...witnesses]),
+  })));
 }
 
 /** scott (κ=ω): consolidate repeated cells by knowledge-join. */
@@ -3119,6 +3162,31 @@ function admitObservation(value, verb) {
 
 const sameTerm = coincides;
 const sameCell = sameTriple;
+
+/** The topic tokens a term or object carries: its texts (strings, mark values, list members) as tokens. */
+function topicTokens(value) {
+  const out = new Set();
+  const visit = (part) => {
+    if (typeof part === "string") {
+      const token = tokenOf(part);
+      if (token) out.add(token);
+    } else if (Array.isArray(part)) part.forEach(visit);
+    else if (part !== null && typeof part === "object") visit(part.mark ?? part.value);
+  };
+  visit(value);
+  return [...out];
+}
+
+/** A deterministic key for a term: its JSON with object keys sorted. */
+function termKey(term) {
+  return JSON.stringify(term, (_, value) => (value !== null && typeof value === "object" && !Array.isArray(value)
+    ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, value[key]]))
+    : value));
+}
+
+function compareText(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
 
 function dreamTerm(parts) {
   return dreamMark(parts);

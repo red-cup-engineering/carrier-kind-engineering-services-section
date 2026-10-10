@@ -1,6 +1,13 @@
 import { existsSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 
+/**
+ * How present a work peer is. A continuous peer answers whenever it is asked, so a delivery it does
+ * not take has failed. A known-intermittent peer (a colony in an ephemeral cloud environment, say) is
+ * away as a matter of course, so a delivery that could not reach it is held, not failed.
+ */
+export const WORK_PEER_PRESENCES = Object.freeze(["continuous", "known-intermittent"]);
+
 const present = (value) => typeof value === "string" && value.trim() ? value.trim() : undefined;
 const required = (value, name) => {
   const result = present(value);
@@ -22,6 +29,21 @@ export function publicOrigin(value, { requireTls = true } = {}) {
   }
   if (requireTls && url.protocol !== "https:") throw new TypeError("PUBLIC_BASE_URL must use https");
   return url.origin;
+}
+
+/**
+ * Google sign-in is all-or-none, as ActivityPub is. A node with no Google client still admits its
+ * password, Hive and machine principals: a colony whose origin no Google client has registered
+ * (one that lives in an ephemeral cloud environment, say) is not thereby unable to start.
+ */
+function googleSignIn(environment) {
+  const clientId = present(environment.GOOGLE_CLIENT_ID);
+  const clientSecret = present(environment.GOOGLE_CLIENT_SECRET);
+  if (clientId === undefined && clientSecret === undefined) return undefined;
+  const missing = [["GOOGLE_CLIENT_ID", clientId], ["GOOGLE_CLIENT_SECRET", clientSecret]]
+    .filter(([, value]) => value === undefined).map(([name]) => name);
+  if (missing.length) throw new TypeError(`Google sign-in configuration is all-or-none; missing ${missing.join(", ")}`);
+  return Object.freeze({ clientId, clientSecret });
 }
 
 const AP_KEYS = ["ACTIVITYPUB_ORIGIN", "ACTIVITYPUB_IDENTIFIER", "ACTIVITYPUB_ACTOR_NAME", "ACTIVITYPUB_ACTOR_SUMMARY", "ACTIVITYPUB_KEYS_PATH"];
@@ -95,8 +117,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     throw new TypeError("MetroPlat instance origin differs from PUBLIC_BASE_URL");
   }
   const stateDir = resolve(required(setting("METROPLAT_WEB_STATE_DIR"), "METROPLAT_WEB_STATE_DIR"));
-  const googleClientId = required(environment.GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID for MetroPlat Google sign-in");
-  const googleClientSecret = required(environment.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET for MetroPlat Google sign-in");
+  const google = googleSignIn(environment);
   const defaults = installed.web.defaultPaths ?? {};
   const pathSetting = (key, fallback, base = repository) => {
     const value = setting(key);
@@ -129,6 +150,15 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     }
     workPeerActor = peer.href;
   }
+  const workPeerPresence = setting("METROPLAT_WORK_PEER_PRESENCE") ?? installed.web.workPeerPresence ?? "continuous";
+  if (!WORK_PEER_PRESENCES.includes(workPeerPresence)) {
+    throw new TypeError(`METROPLAT_WORK_PEER_PRESENCE must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+  }
+  const suspicionSetting = setting("METROPLAT_WORK_PEER_SUSPICION_SECONDS") ?? installed.web.workPeerSuspicionSeconds;
+  const workPeerSuspicionSeconds = suspicionSetting === undefined ? undefined : Number(suspicionSetting);
+  if (workPeerSuspicionSeconds !== undefined && !(Number.isInteger(workPeerSuspicionSeconds) && workPeerSuspicionSeconds > 0)) {
+    throw new TypeError("METROPLAT_WORK_PEER_SUSPICION_SECONDS must be a positive whole number of seconds");
+  }
   return Object.freeze({
     instance: Object.freeze({
       name: installed.identity.id,
@@ -142,7 +172,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     stateDir,
     sessionSecret: required(environment.SESSION_SECRET, "SESSION_SECRET"),
     allowedEmail: setting("METROPLAT_ALLOWED_EMAIL")?.toLowerCase(),
-    google: Object.freeze({ clientId: googleClientId, clientSecret: googleClientSecret }),
+    google,
     dataDir: present(setting("METROPLAT_WEB_DATA_DIR")) === undefined ? undefined : resolve(setting("METROPLAT_WEB_DATA_DIR")),
     metroplatSubject: present(setting("METROPLAT_MCP_SUBJECT")) ?? installed.identity.id,
     metroplatCapabilities: installed.capabilities ?? Object.freeze([]),
@@ -156,6 +186,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     activityPub: activityPubConfig,
     activityPubProjection: projection,
     workPeerActor,
+    ...(workPeerActor === undefined ? {} : { workPeerPresence, ...(workPeerSuspicionSeconds === undefined ? {} : { workPeerSuspicionSeconds }) }),
     deliverWorkToPeer: installed.web.deliverWorkToPeer !== false,
   });
 }

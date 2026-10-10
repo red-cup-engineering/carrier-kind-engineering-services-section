@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { WIRE_CODEC_NAMES, senCodec, wireByMediaType, wireCodec, wireOf } from "@red-cup-engineering/computer-system-engine/wire";
 import { wireOf as wireOf_2, wireCodec as wireCodec_2, wireByMediaType as wireByMediaType_2, stringCodec, jsonCodec, eavtCodec, senCodec as senCodec_2, svgCodec, mermaidCodec, xmiCodec, plantUmlCodec, formCodec, WIRE_CODEC_NAMES as WIRE_CODEC_NAMES_2 } from "@red-cup-engineering/computer-system-engine/wire";
-import { sha256Hex, sha1Base64, hmacSha256Base64Url, timingSafeStringEqual } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex, sha1Base64, hmacSha256Base64Url, timingSafeStringEqual } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { toCount, fromCount, toInt, fromInt, ratFromInt, fromRatio, fromInts } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { ASSERT, RETRACT } from "@red-cup-engineering/datom";
 import { toDatom } from "@red-cup-engineering/datom/admit-datom";

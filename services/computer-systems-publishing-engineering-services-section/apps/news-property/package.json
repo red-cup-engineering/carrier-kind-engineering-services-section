@@ -21,7 +21,7 @@
     "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
     "@red-cup-engineering/computer-inference-engine": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/html-engineering-services-section": "workspace:*",
     "@red-cup-engineering/rdf-data-model-services-section": "workspace:*",
     "@red-cup-engineering/web-theming-service": "workspace:*",

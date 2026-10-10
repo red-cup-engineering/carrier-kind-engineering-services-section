@@ -38,6 +38,7 @@
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/key-management-services-section": "workspace:*",
     "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
     "@red-cup-engineering/oauth-services-section": "workspace:*",
@@ -49,12 +50,16 @@
     "@x402/core": "2.19.0",
     "@x402/evm": "2.19.0",
     "@red-cup-engineering/json-services-section": "1.0.0",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "scripts": {
     "check:activitypub-node": "node scripts/check-activitypub-node.mjs",
     "test": "node --test test/*.test.mjs"
   },
-  "softwareKind": "service"
+  "softwareKind": "service",
+  "receivingTests": [
+    "test/account-selection.test.mjs",
+    "test/character-inbox-async.test.mjs"
+  ]
 }

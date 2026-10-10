@@ -90,7 +90,7 @@
     "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/discord-rest-transport-service": "workspace:*",
     "@red-cup-engineering/eavt": "workspace:*",
     "@red-cup-engineering/google-oauth-services-section": "workspace:*",
@@ -107,12 +107,15 @@
     "@red-cup-engineering/web-page-tiling-engine": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/signcell": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
     "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/apps/computer-web-server"
-  }
+  },
+  "receivingTests": [
+    "test/admission-account-switch.test.mjs"
+  ]
 }

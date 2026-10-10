@@ -32,7 +32,7 @@ export const conformanceSuites = Object.freeze([
         entry: "Main",
         vectors: "golden-vectors.jsonl",
         realizations: Object.freeze([
-            async () => (await import("@red-cup-engineering/computer-data-services-section/four")).obsmetrologiaRealization,
+            async () => (await import("@red-cup-engineering/computer-data-engineering-services-section/four")).obsmetrologiaRealization,
         ]),
     }),
     Object.freeze({

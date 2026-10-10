@@ -31,7 +31,7 @@
  */
 
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
-import { sha256Bytes } from "@red-cup-engineering/cryptographic-data-service/portable-sha256";
+import { sha256Bytes } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/portable-sha256";
 
 /** SHA-256 hex of `canonicalJson(value)`: the content address of a position (or of any
  *  JSON-safe value). Portable SHA-256, so the module loads in a browser without a Node

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 // A stream response is the A2A 1.0 JSON union: exactly one of task, message,
 // statusUpdate or artifactUpdate.

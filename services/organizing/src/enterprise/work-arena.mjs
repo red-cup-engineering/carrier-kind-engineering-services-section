@@ -171,12 +171,12 @@
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 import { gameRules, hashPosition } from "@red-cup-engineering/gaming/running/rules";
-import { readingOfSides, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { evidence as toldEvidence } from "@red-cup-engineering/signcell/cell";
 import { pricedNerve } from "@red-cup-engineering/signgraph/cohomology";
 import { ORDER_CHANNELS } from "../work/staffing.mjs";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { validateResultCodomain } from "../work/schema.mjs";
+import { validateDeterministicExecution, validateResultCodomain } from "../work/schema.mjs";
 import { EIGHTEENTH_EDITION, editionAt, readForward, REALIZED_EDITION, SEVENTEENTH_EDITION, unmigratedReason } from "./work-arena-law.mjs";
 
 export const OPENING_MOVES = Object.freeze(["aim", "request", "propose", "report", "ask", "declare", "supply"]);
@@ -553,12 +553,7 @@ function statementsOf(list, what, shape) {
   }));
 }
 
-const assayOf = (assay) => {
-  if (assay !== undefined && (typeof assay?.operation !== "string" || typeof assay?.acceptance?.kind !== "string")) {
-    throw new TypeError("an assay names an operation, its request and its acceptance");
-  }
-  return assay;
-};
+const assayOf = (assay) => assay === undefined ? undefined : validateDeterministicExecution(assay);
 
 /**
  * Where a requirement was allocated from (requirement flow-down, INCOSE): `<thread>#<requirement>`,

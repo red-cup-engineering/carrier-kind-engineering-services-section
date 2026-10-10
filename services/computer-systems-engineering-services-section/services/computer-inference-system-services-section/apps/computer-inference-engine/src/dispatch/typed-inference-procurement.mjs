@@ -11,7 +11,7 @@ import {
 } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import {
   validateType,
-} from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+} from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
 import { conformTerm } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/conformance";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import { jsonValueId } from "./sen-carrier.mjs";

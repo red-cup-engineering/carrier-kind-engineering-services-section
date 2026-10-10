@@ -12,7 +12,7 @@
  */
 import { coincides, knowledgeReading } from "@red-cup-engineering/signcell/cell";
 import { evidenceAt } from "./valuation.mjs";
-import { knowledgeBottom, knowledgeTop, truthBottom, truthTop, readingOfSides, samePoint, fusionReading, knowledgeJoinReading, knowledgeMeetReading, residuumReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeBottom, knowledgeTop, truthBottom, truthTop, readingOfSides, samePoint, fusionReading, knowledgeJoinReading, knowledgeMeetReading, residuumReading, truthJoinReading, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** An order over readings: join, meet, bottom, top. */
 const order = (name, join, meet, bottom, top) => Object.freeze({ kind: "signgraph.order", name, join, meet, bottom, top });

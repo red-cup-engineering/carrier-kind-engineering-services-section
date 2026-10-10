@@ -5,7 +5,7 @@ import { promisify } from "node:util";
 import { readJsnodeModuleRequests, readJsnodePackageConsumers, visitJsnodeSyntax } from "@red-cup-engineering/javascript-node-services-section/syntax";
 import { applyJsnodePackageCollapsePlan, planJsnodePackageCollapse } from "@red-cup-engineering/javascript-node-services-section/syntax";
 import { planActivePathRelocation, applyActivePathRelocation, relocateRepositoryPath } from "@red-cup-engineering/computer-code-engineering-services-section/workspace-path-relocation";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { admitSoftwarePlacement, softwareWorkIdentity, witnessSoftwareWork } from "../software-change.mjs";
 import { concludeSoftwareWork, proposeSoftwareWork, readSoftwareWorkProposal } from "./work-journal.mjs";
 

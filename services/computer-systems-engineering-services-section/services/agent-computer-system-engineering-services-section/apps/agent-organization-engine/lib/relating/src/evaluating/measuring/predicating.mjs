@@ -2,8 +2,8 @@
  * evaluating/measuring/predicating — SEN normalizers for finite predication
  * fibration/Yoneda/temporal/relative-ideal witnesses.
  */
-import { tm, } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { objectTerm, stringTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { tm, } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { objectTerm, stringTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 
 const field = (key) => tm.field(key, tm.var(0));
 

@@ -429,7 +429,7 @@ export function enterpriseAgencyWorkOptions({
       admitCharacterMasks({ dataRoot, date: at.slice(0, 10), masks: [{ kind: "metroplat.character-mask", account: `session:${session.id}`, character: workerId, reading: "held", issuer: identity.id, at }] });
     }
     executeInferredWork = async (item) => ({ ...await executeAgencyWorkProvider(item, {
-      surface: operationSurface(), dataRoot: owning.dataRoot, rootName, workerId, provider: configured.provider, enterprise,
+      surface: operationSurface(), dataRoot: owning.dataRoot, capabilityDataRoot: binding.dataRoot, rootName, workerId, provider: configured.provider, enterprise,
       model: workerModel, inference, now: processIsoNow, agentBounds: AGENT_WORKER_BOUNDS,
       // Its acts are played by the hand the host admits: the standing session, told as a mask of the worker.
       session: session.id,

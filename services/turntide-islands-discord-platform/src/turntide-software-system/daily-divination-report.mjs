@@ -12,7 +12,7 @@ import {
   EMPTY_WITNESS_ROOT,
   identifyJsonSemanticContent,
 } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
-import { inferTy } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+import { inferTy } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
 import { circuitInterfaceFromAgentCard, SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } from "@red-cup-engineering/a2a-services-section/circuit-interface";
 import { recordWitnessJournalBatch, relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-document-service";
 // @ts-expect-error This TTI-root management die is canonical JavaScript and intentionally remains outside the app compiler root.

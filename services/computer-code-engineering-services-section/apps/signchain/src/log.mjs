@@ -10,7 +10,7 @@
  * sides gathered from its rows. A cell set forgets order; the log keeps it.
  */
 import { cell, cellSet, coincides, knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const ROLES = ["subject", "predicate", "object"];
 const SIDES = ["for", "against"];

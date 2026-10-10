@@ -40,7 +40,7 @@ import {
   magicCircle,
   magicCircleJudgment,
 } from "./magic-circle.mjs";
-import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading, samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const sortIds = (ids) =>
   Object.freeze([...new Set(ids)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0)));

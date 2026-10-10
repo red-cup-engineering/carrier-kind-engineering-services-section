@@ -15,7 +15,7 @@ import {
 } from "@red-cup-engineering/signcraft/settle";
 import { evaluateRunTerm as evaluateWith } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/eval";
 import { settleMembrane, tellMembrane } from "./membrane.mjs";
-import { conflateReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { conflateReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** A settlement, or a presented filtration given as JSON (stages and cofinality). */
 const settled = (value) => value.kind === "signcraft.filtration" ? filtration(value.stages, value.cofinality) : value;

@@ -5,7 +5,7 @@ import {
   normalizeCircuitAssembly, normalizeHierarchicalCircuit, verifyCircuitAssembly,
 } from "./hierarchical-circuit.mjs";
 import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "./relational-value.mjs";
-import { validateFour } from "@red-cup-engineering/computer-data-services-section/four";
+import { validateFour } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 export const CIRCUIT_TRACE_PROFILE = "org.emsenn.sen.hierarchical-circuit-trace.v6";
 

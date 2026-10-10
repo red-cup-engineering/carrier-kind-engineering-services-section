@@ -1,6 +1,6 @@
 import { TellingLog, tellSides } from "@red-cup-engineering/signchain/log";
 import { inCidr } from "@red-cup-engineering/http-services-section/address";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 function clientIp(req, trustProxy) {
     if (trustProxy) {
         const fwd = req.headers["x-forwarded-for"];

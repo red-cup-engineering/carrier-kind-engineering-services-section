@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { bundleMarkdownVaultCarriers } from "../src/bundle-markdown-vault-carriers.mjs";
 import { MARKDOWN_VAULT_BUNDLE_ROLES } from "../src/select-markdown-vault-carriers.mjs";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 /** This package's own root; the default semantic-record-journal custody root (writes land at data/logs/, per house data-custody law). */
 export const NODE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");

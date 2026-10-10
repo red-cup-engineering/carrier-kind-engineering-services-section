@@ -27,7 +27,7 @@ import {
 // abrash needs (distinct from that package's own `migrate`, a single-entity crossing between two
 // worlds); aliased to keep this module's own established public name and behavior.
 import { eavtRow as assertRow } from "@red-cup-engineering/eavt/admit-row";
-import { readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { FOUR, gridFromCells, registerWorldGridReader } from "./grid.mjs";
 
 export { FOUR, gridFromCells } from "./grid.mjs";

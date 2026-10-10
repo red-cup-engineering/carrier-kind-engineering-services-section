@@ -8,8 +8,8 @@
  */
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { createCipheriv, createDecipheriv } from "node:crypto";
-import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 import { parse as parseJson, requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";

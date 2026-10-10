@@ -11,6 +11,7 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { setImmediate } from "node:timers/promises";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { workCoordinationOperations } from "@red-cup-engineering/feltos/work/service";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { enterpriseOfficeKeys, seatedEnterprises, staffedByOwnOffices, standingTakingSubjectsOf, turnEnterpriseLoop, workResourcesUnder } from "@red-cup-engineering/feltos/work/enterprise-loop";
@@ -20,9 +21,10 @@ import { enactAgencyRecords } from "@red-cup-engineering/organizing/agency/recor
 import { firmPoolAuthorityResolver } from "@red-cup-engineering/metroplat/firm-pool-authority";
 import { canonicalPlayer, resolve as resolveAgency } from "@red-cup-engineering/organizing/agency";
 import { playerOfAct, subjectOf } from "@red-cup-engineering/organizing/agency/cast";
-import { agencyAt, bearerTestimonyOf, handedAgency, officeServiceSession, officesOfAccount, seatedAgencyOf, tellSessionHand } from "@red-cup-engineering/metroplat/offices";
+import { agencyAt, bearerTestimonyOf, handedAgency, officeServiceSession, officesOfAccount, providersOfAccount, seatedAgencyOf, tellSessionHand } from "@red-cup-engineering/metroplat/offices";
 import { readAgentWorkDispatchReadout } from "@red-cup-engineering/feltos/work/dispatch-readout";
 import { workHomesOf } from "./federated-work.mjs";
+import { canonicalSeatBriefBearer } from "./seat-brief-principal.mjs";
 import { workBoardSourceLocators } from "./work-board-source-locators.mjs";
 
 const ENTERPRISE_TURN_SECONDS = 120;
@@ -82,6 +84,51 @@ export function judgesOf(agency, seated, record) {
 }
 
 const boundary = { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "schema-bounded" };
+
+export const workBoardDomain = schemaFrom({
+  $id: "feltos-enterprise-host/work-board/input",
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    kind: { enum: ["aim", "request", "propose", "report", "ask", "declare"] },
+    standing: { type: "string", minLength: 1 },
+    step: { type: "string", minLength: 1 },
+    open: { type: "boolean" },
+    ready: { type: "boolean" },
+    owes: { type: "string", minLength: 1 },
+    agenda: { type: "string", minLength: 1 },
+    horizon: { enum: ["now", "soon", "later", "eventually"] },
+    by: { type: "string", minLength: 1 },
+    home: { type: "string", minLength: 1 },
+    tag: { type: "string", minLength: 1 },
+    law: { type: "string", minLength: 1 },
+    subject: { type: "string", minLength: 1 },
+    serves: { type: "string", minLength: 1 },
+    source: { type: "string", minLength: 1, maxLength: 4096 },
+    sources: { type: "array", minItems: 1, maxItems: 200, uniqueItems: true, items: { type: "string", minLength: 1, maxLength: 4096 } },
+    thread: { type: "string", minLength: 1 },
+    full: { type: "boolean" },
+    limit: { type: "integer", minimum: 1, maximum: 200 },
+    after: { type: "string", minLength: 1 }
+  },
+  not: { required: ["source", "sources"] }
+});
+
+export const workBoardCodomain = schemaFrom({
+  $id: "feltos-enterprise-host/work-board/output",
+  type: "object",
+  additionalProperties: false,
+  required: ["kind", "at", "position", "matched", "threads", "refused"],
+  properties: {
+    kind: { const: "feltos.work.work-board" },
+    at: { type: "string", minLength: 1 },
+    position: { type: "string", minLength: 1 },
+    matched: { type: "integer", minimum: 0 },
+    next: { type: "string", minLength: 1 },
+    threads: { type: "array", items: { type: "object" } },
+    refused: { oneOf: [{ type: "integer", minimum: 0 }, { type: "array", items: { type: "object" } }] }
+  }
+});
 
 /** Resolve authority ownership from the unique current taking record, not the thread's territory. */
 export function currentTakingOwner(thread, subject, agency) {
@@ -502,10 +549,16 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
         // Without a caller-accounted limit the brief lists every piece of work awaiting a move.
         const limit = input?.limit ?? Infinity;
         if (limit !== Infinity && (!Number.isInteger(limit) || limit < 1)) throw new TypeError("seat-brief limit is a positive integer");
-        const bearer = playerOfAct(handedAgency(binding), { invocation: { subject: account } })?.bearer ?? account;
+        // The caller is a host-authenticated account, not necessarily a registry character.
+        // Resolve through the same told/authored hands and network binding as office authority.
+        const seated = seatedAgencyOf({ ...binding, agencyRoot });
+        const bearer = canonicalSeatBriefBearer({
+          account, providers: providersOfAccount({ ...binding, agencyRoot }, account),
+          resolveCharacter: (ref) => resolveAgency(seated, "characters", ref),
+        });
         // A session reads its own lane: the caller's hand, unless another account's brief is asked for.
         const hand = input?.hand ?? (input?.account === undefined ? context?.invocation?.caller?.hand : undefined);
-        return seatBriefOf(seatedAgencyOf({ ...binding, agencyRoot }), board.read(binding.now()), bearer, { limit, ...(hand === undefined || input?.whole === true ? {} : { hand }) });
+        return seatBriefOf(seated, board.read(binding.now()), bearer, { limit, ...(hand === undefined || input?.whole === true ? {} : { hand }) });
       },
     }),
     operation({
@@ -528,6 +581,7 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
     operation({
       verb: "work-board",
       inputFormat: "json", outputFormat: "json",
+      domain: workBoardDomain, codomain: workBoardCodomain,
       summary: "Read this settlement's work board: its aims, requests, proposals, reports, questions and declarations.",
       description: "Domain: { kind?: aim|request|propose|report|ask|declare, standing?: string, step?: string, open?: boolean, ready?: boolean, owes?: player|market, agenda?: player|market, horizon?: now|soon|later|eventually, by?: player, home?: enterprise, tag?: string, law?: string, subject?: string, serves?: thread, source?: locator (up to 4096 characters), sources?: locator[1..200] (each up to 4096 characters), thread?: id, full?: boolean, limit?: 1..200 (default 50), after?: id }. subject matches the opening's subject or a current taking's canonical admitted work subject; source matches one exact cited locator; sources matches any of its 1..200 exact locators for one bounded selection; source and sources combine by union. owes=<player> keeps the threads awaiting that player's move (owes=market: work at home nowhere, which no micro-enterprise is seated for); horizon reads each thread's modality (now: committed and unblocked; soon: necessary; later: possible; eventually: cannot proceed as it stands), derived, never stated. step=<step> keeps threads at that derived protocol step (request: unrefined, refined, promised, obstructed, delivered, declined; report: open, obstacle, adopted; propose: open, adopted; aim: open, held; ask: open, answered). agenda=<player> is that player's agenda: the threads whose protocol step awaits a move of its (as opener, assayer, addressee, taker or home), nearest horizon first and oldest first within one. A listing returns one summary per thread (its gist, standing, horizon, whose move it owes, opener, tags, addressee or award, home territory, what it serves and comes after, what still blocks it, how many requirements and conditions its contract states and which must-requirements no condition verifies, the moves it awaits from whoever owes it (awaits: refine, promise, deliver, accept, adopt, resolve, answer, hold, …), what it still lacks to be worked (gaps: no-requirements, no-conditions, unverified:<id>, ambiguous:<id>, unscoped), how many of its requirements are allocated to requests serving it, offer, holders/promisers/adopters/answerers, counter-offers, corroborations, children), oldest first, with next to page after; thread=<id> returns that thread whole (an id the board has never held is refused as not found), and full: true returns whole threads in the listing. serves=<id> lists the threads serving that request or aim (its decomposition). ready: true keeps threads nothing unsettled holds back and, for requests, whose contract is refined and whose must-requirements use no unverifiable term. A whole thread is its opening, standing (aim: open, held, withdrawn, superseded; request: open, declined, promised, delivered, accepted, withdrawn, superseded; propose: open, adopted, ...; report: open, adopted, resolved, ...; ask: open, answered, accepted, ...; declare: in-force, withdrawn, superseded), holders and those who left, promisers and the work subject each holds it under, refinements, counter-offers, deliveries and their verdicts, adoptions, corroborations, answers, and a request's operative contract and current offer. open: true keeps only threads not yet closed. Moves stored but illegal on replay do not count: a listing counts them under refused, and a thread read lists its own.",
       run: (input) => {

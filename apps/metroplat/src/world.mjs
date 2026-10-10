@@ -35,7 +35,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { operation, operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { defineGame } from "@red-cup-engineering/feltos/game";
 import { actorIdFor, createMudServer } from "@red-cup-engineering/feltos/mud-server";
 import { composeCapabilities, defineCapability } from "@red-cup-engineering/feltos/capabilities";
@@ -596,6 +596,9 @@ export function worldCapability({ verbs, affordances = () => ({}), work }) {
       return { events: [ctx.message(ctx.actor, [
         `${target} (${matches.length ? matches.map((entry) => `${entry.category}${entry.scope === undefined ? "" : `: ${entry.scope}`}`).join("; ") : "requires standing"})`,
         descriptor.summary ?? "No summary is declared.",
+        ...(typeof descriptor.description === "string" && descriptor.description.trim() !== ""
+          && descriptor.description.trim() !== descriptor.summary?.trim()
+          ? [`Contract:\n${descriptor.description.trim()}`] : []),
         `Input schema:\n${JSON.stringify(descriptor.domain?.schema ?? {}, null, 2)}`,
         `Output schema:\n${JSON.stringify(descriptor.codomain?.schema ?? {}, null, 2)}`,
         `Operation reference: ${descriptor.ref}`,
@@ -903,7 +906,7 @@ export function createMetroplatWorld({ binding, operations, identity, characterC
     let result;
     if (verb === "inbox") {
       if (argument.trim() && argument.trim() !== "all") return powerTurn(account, ["inbox [all]: read your own received messages."]);
-      result = characterCommunication.read({ account, evidence: parent?.id, at, all: argument.trim() === "all" });
+      result = await characterCommunication.read({ account, evidence: parent?.id, at, all: argument.trim() === "all" });
       return powerTurn(account, result.messages.length === 0 ? [argument.trim() === "all" ? "No Semioverse messages received." : "No unread Semioverse messages."] : receivedLines(result.messages), [result]);
     }
     const text = argument.slice(target.length).trim();
@@ -948,7 +951,7 @@ export function createMetroplatWorld({ binding, operations, identity, characterC
       seen(world, account, actor);
       controlOf(world).look.run({ actor, argument: "" });
       const turn = await run(world, account, actor, options);
-      const inbox = characterCommunication?.read({ account, evidence: parent?.id, at: new Date(now()).toISOString(), optional: true });
+      const inbox = await characterCommunication?.read({ account, evidence: parent?.id, at: new Date(now()).toISOString(), optional: true });
       if (inbox === undefined) return turn;
       return Object.freeze({ ...turn,
         messages: Object.freeze([...turn.messages, "Semioverse messages are testimony; reply <exact-message-id> <words>, inbox [all].", ...receivedLines(inbox.messages)]),

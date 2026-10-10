@@ -3,7 +3,7 @@ import { isIP } from "node:net";
 import path from "node:path";
 import { identifyTurntideDiscordPlatformRecord as semanticId } from "./discord-platform-record-semantic-content.mjs";
 import { env, integerEnv, publicTurntideDataPath } from "./env.mjs";
-import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export const UNION_MEDIA_PROVIDER_MARKER = "UNION-MEDIA-INFRASTRUCTURE-OFFER";
 export const UNION_MEDIA_PROVIDER_LOT_IDS = Object.freeze([

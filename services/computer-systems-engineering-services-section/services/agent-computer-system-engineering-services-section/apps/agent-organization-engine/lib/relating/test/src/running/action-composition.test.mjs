@@ -7,9 +7,9 @@ import { describe, it } from "node:test";
 
 import { dispatch } from "@red-cup-engineering/computer-system-engine/rpc/verb-dispatch";
 import { induceSurface } from "@red-cup-engineering/computer-system-engine/rpc/induce";
-import { tm, ty } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { booleanDescriptor, descriptorTy, encodeDescriptor, nullDescriptor, projectField, recordDescriptor } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
-import { checkTy } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+import { tm, ty } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { booleanDescriptor, descriptorTy, encodeDescriptor, nullDescriptor, projectField, recordDescriptor } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { checkTy } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
 
 function compositionFixture() {
   const source = schemaFrom({ $id: "relating/test/composition/source", type: "object" });

@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { SETTLEMENT_EXCHANGE_PATHS } from "@red-cup-engineering/computer-system-engine/rpc/node";
 import { mergeApps } from "@red-cup-engineering/computer-web-server/compose";
 import { SIGN_IN_PATH, createWebAdmissionApplication, defaultPublicRoute } from "@red-cup-engineering/computer-web-server/admission/application";
 import { createPrincipalRegistry } from "@red-cup-engineering/computer-web-server/admission/principals";
@@ -17,7 +18,7 @@ export const enterprisePublicRoute = (path, method) =>
   SELF_ADMITTING.has(path) || (path === GOOGLE_CALLBACK_PATH && method === "GET")
   || path.startsWith("/.well-known/")
   || path.startsWith("/actors/") || path === "/inbox" || path === "/nodeinfo/2.1"
-  || (method === "POST" && (path === "/settlement/holdings" || path === "/settlement/transfer"))
+  || (method === "POST" && SETTLEMENT_EXCHANGE_PATHS.includes(path))
   || defaultPublicRoute(path, method);
 
 const withinTimeout = (promise, what) => Promise.race([
@@ -98,6 +99,9 @@ export function createEnterpriseEntrance(config, {
       };
     },
     loginUrl: (returnTo) => `${SIGN_IN_PATH}?return_to=${encodeURIComponent(returnTo)}`,
+    // A connector must show which account it will use, including after a prior consent.
+    confirmExternalAccount: true,
+    switchAccount: (context, returnTo) => admission.switchAccount(context, returnTo),
   });
   const metroplat = federation.clients.get("metroplat");
   let metroplatTools;

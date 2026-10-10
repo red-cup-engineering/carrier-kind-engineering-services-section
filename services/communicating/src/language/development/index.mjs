@@ -18,7 +18,7 @@ import {
 
 } from "../presentation.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { readingFamilies, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingFamilies, readingOfSides, sidesOfReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 export const developmentStages = Object.freeze(["dream", "plan", "architect", "spec", "tests", "docs", "code"]);
 
