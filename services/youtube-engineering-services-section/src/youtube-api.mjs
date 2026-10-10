@@ -6,6 +6,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 const API = 'https://www.googleapis.com/youtube/v3/';
 const UPLOAD = 'https://www.googleapis.com/upload/youtube/v3/';
+const ANALYTICS = 'https://youtubeanalytics.googleapis.com/v2/';
 const CHUNK = 8 * 1024 * 1024; // A bounded multiple of Google's 256 KiB chunk unit.
 // Retain Google's refusal across clients and worker restarts. Each daily quota
 // bucket waits for its actual reset, rather than probing every timer turn.
@@ -38,6 +39,32 @@ function futureUtc(value) {
   const canonical = new Date(value).toISOString();
   if (canonical !== value.replace(/(?<=:\d\d)Z$/, '.000Z')) throw new Error('publishAt contains an invalid UTC calendar date');
   return canonical;
+}
+function analyticsDate(value, name) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error(`${name} must be YYYY-MM-DD`);
+  const [year, month, day] = value.split('-').map(Number);
+  const canonical = new Date(Date.UTC(year, month - 1, day)).toISOString().slice(0, 10);
+  if (canonical !== value) throw new Error(`${name} contains an invalid calendar date`);
+  return value;
+}
+const ANALYTICS_FIELD = /^[A-Za-z][A-Za-z0-9_]*$/u;
+const ANALYTICS_SORT = /^-?[A-Za-z][A-Za-z0-9_]*$/u;
+function analyticsFields(value, name, { required = false, pattern = ANALYTICS_FIELD } = {}) {
+  const list = value ?? [];
+  if (!Array.isArray(list) || (required && list.length === 0) || list.some(item => typeof item !== 'string' || !pattern.test(item))) {
+    throw new Error(`${name} must be ${required ? 'a nonempty' : 'an'} array of YouTube Analytics field names`);
+  }
+  return list.join(',');
+}
+function analyticsFilter(value) {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || !value.trim() || value.length > 4000 || /[\r\n]/u.test(value)) throw new Error('filters must be one bounded YouTube Analytics filter expression');
+  return value.trim();
+}
+function positiveInteger(value, name) {
+  if (value === undefined) return undefined;
+  if (!Number.isSafeInteger(value) || value < 1) throw new Error(`${name} must be a positive integer`);
+  return value;
 }
 async function digest(path) {
   const hash = createHash('sha256');
@@ -227,6 +254,38 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     try {const uploads=await observed;if(inventoryPath)privateJson(inventoryPath,{channelId,observedAt:new Date(uploadsObservedAt).toISOString(),uploads});return structuredClone(uploads);}
     catch (error) { if (uploadObservation === observed) uploadObservation = undefined; throw error; }
   }
+  /** Cheap current counters and duration/publish facts for a bounded set of video IDs. */
+  async function batchVideoStats(videoIds) {
+    if (!Array.isArray(videoIds) || videoIds.length === 0 || videoIds.some(id => !/^[\w-]{11}$/.test(id))) throw new Error('batchVideoStats requires one or more YouTube video IDs');
+    const ids = [...new Set(videoIds)];
+    const query = new URLSearchParams({ id: ids.join(','), part: 'id,snippet,statistics,contentDetails' });
+    return api(`videos:batchGetStats?${query}`);
+  }
+
+  /**
+   * One targeted owner Analytics report, bound to this configured channel. The caller chooses only
+   * Analytics field names and an optional provider filter expression; raw rows and headers are
+   * returned so channel-local storage can preserve the observation without baking policy here.
+   * Like `audienceReports`, it authorizes the explicit channel ID itself and makes no Data API
+   * identity request first.
+   */
+  async function analyticsReport({ startDate, endDate, metrics, dimensions = [], filters, sort = [], maxResults, startIndex } = {}) {
+    const start = analyticsDate(startDate, 'startDate'), end = analyticsDate(endDate, 'endDate');
+    if (start > end) throw new Error('startDate must not be after endDate');
+    const metricList = analyticsFields(metrics, 'metrics', { required: true });
+    const dimensionList = analyticsFields(dimensions, 'dimensions');
+    const sortList = analyticsFields(sort, 'sort', { pattern: ANALYTICS_SORT });
+    const filter = analyticsFilter(filters);
+    const maximum = positiveInteger(maxResults, 'maxResults'), first = positiveInteger(startIndex, 'startIndex');
+    const params = new URLSearchParams({ ids: `channel==${channelId}`, startDate: start, endDate: end, metrics: metricList });
+    if (dimensionList) params.set('dimensions', dimensionList);
+    if (filter) params.set('filters', filter);
+    if (sortList) params.set('sort', sortList);
+    if (maximum !== undefined) params.set('maxResults', String(maximum));
+    if (first !== undefined) params.set('startIndex', String(first));
+    return responseJson(await authorized(`${ANALYTICS}reports?${params}`, {}, 'youtube.analytics'), 'analytics');
+  }
+
   async function upload({ filePath, metadata, publishAt, marker, onCheckpoint, checkpoint, language }) {
     const when = publishAt === undefined ? undefined : (checkpoint?.publishAt === publishAt ? publishAt : futureUtc(publishAt));
     if (typeof marker !== 'string' || !/^[A-Za-z0-9_./:-]{1,200}$/.test(marker)) throw new Error('A stable production marker is required');
@@ -488,7 +547,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
     if(videoIds.some((id,index)=>ordered[index]!==id))throw new Error('YouTube did not retain the curriculum order');
     return {playlistId:playlist.id,url:'https://www.youtube.com/playlist?list='+playlist.id,videoIds:ordered,verifiedAt:new Date().toISOString(),carrier:'youtube-playlist'};
   }
-  return { audienceReports, verifyIdentity, listUploads, lastObservedUploads, assertUploadAvailable, upload, setThumbnail, getVideo, schedule, setTitle, setRelatedVideo, publish, unlist, ensureLearningPlaylist, setLearningLinks, ensureLearningCourse };
+  return { audienceReports, batchVideoStats, analyticsReport, verifyIdentity, listUploads, lastObservedUploads, assertUploadAvailable, upload, setThumbnail, getVideo, schedule, setTitle, setRelatedVideo, publish, unlist, ensureLearningPlaylist, setLearningLinks, ensureLearningCourse };
 }
 
 function nextOffset(response, size) {
