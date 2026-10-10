@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semantic-record-journal-service";
+import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { runMission as defaultRunMission } from "./mission-runtime.mjs";
 
 export const MISSION_EXECUTION_ROOT = fileURLToPath(new URL("..", import.meta.url));
@@ -15,7 +15,7 @@ async function appendRouteObservation(record, { dataRoot }) {
     category: ROUTE_OBSERVATION_CATEGORY,
     recordedAt: record.finishedAt,
     record,
-    charge: { support: successful, refutation: !successful },
+    told: { for: successful, against: !successful },
     relation: { subject: record.id, predicate: "routes", object: record.continuation },
   });
   return Object.freeze({ ...receipt, documentNi: receipt.id, reference: null });
