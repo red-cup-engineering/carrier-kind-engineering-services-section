@@ -120,6 +120,24 @@ export function applies(rule, { actor, verb, input }) {
     && holds(rule.when, { input, actor, verb });
 }
 
+const empty = (conditions) => (Array.isArray(conditions) ? conditions.length === 0 : Object.keys(conditions ?? {}).length === 0);
+
+/** Does a rule carry a check the machine can run? It does when its subject or its action names
+ *  something narrower than every account or every verb, or it states conditions (`when`) or a
+ *  requirement (`require`). A rule stated only in prose over every actor and every verb names no
+ *  check: judged as written, a MUST NOT of that kind would forbid every action of every actor. */
+export function ruleIsComplete(rule) {
+  const every = (patterns) => patterns.every((pattern) => pattern === "*");
+  return !every(rule.subject) || !every(rule.action) || !empty(rule.when) || !empty(rule.require);
+}
+
+/** The binding rules that carry no machine check: each is work to complete, never a refusal. */
+export function incompleteRules(agency) {
+  return [...(agency.rules?.values() ?? [])]
+    .filter((rule) => BCP14.find((entry) => entry.keyword === rule.keyword)?.force === "binding" && !ruleIsComplete(rule))
+    .map((rule) => Object.freeze({ rule: rule.key ?? rule.id, statement: rule.statement, keyword: rule.keyword }));
+}
+
 /** Every rule of the registry (an agency whose `rules` pool is read) binding `actor`. */
 export function rulesFor(agency, actor) {
   return [...(agency.rules?.values() ?? [])].filter((rule) => rule.subject.some((pattern) => globMatches(pattern, actor)));
@@ -158,18 +176,25 @@ function fixedPoint(rules, seed) {
  * Judge an intended action `{ actor, verb, input }` against the registry's rules: the action's
  * facts are told as cells, every applicable rule is a SignChain rule over them, and the judgment
  * is the (action, permitted, house) cell's reading at the fixed point, with the rules whose
- * derivations told it. Refuse when that cell is told against.
+ * derivations told it. Refuse when that cell is told against. A rule that carries no machine
+ * check (`ruleIsComplete`) tells nothing about the action: whether the action falls under it is
+ * unknown, not refused, so it is listed as `incomplete` for completion and never decides.
  */
 export function judgeAction(agency, action) {
   const token = Object.freeze({ actor: action.actor, verb: action.verb });
   const facts = [];
   const rules = [];
   const statements = new Map();
+  const incomplete = [];
   for (const rule of agency.rules?.values() ?? []) {
     if (!applies(rule, action)) continue;
     const bcp = BCP14.find((entry) => entry.keyword === rule.keyword);
     if (!bcp) continue;
     const key = rule.key ?? rule.id;
+    if (!ruleIsComplete(rule)) {
+      if (bcp.force === "binding") incomplete.push(rule.statement || key);
+      continue;
+    }
     statements.set(key, { statement: rule.statement, keyword: rule.keyword, force: bcp.force, ...(rule.because ? { because: rule.because } : {}) });
     facts.push(cell(token, "falls-under", key, { for: [{ rule: key, observed: "conditions" }] }));
     if (bcp.direction === "require") {
@@ -204,17 +229,19 @@ export function judgeAction(agency, action) {
     decision: refusals.length > 0 ? "refuse" : "proceed",
     reasons: Object.freeze(refusals.map((f) => f.statement || f.rule)),
     advice: Object.freeze(findings.filter((f) => f.force === "advisory" && f.told === "against").map((f) => f.statement || f.rule)),
+    incomplete: Object.freeze(incomplete),
     findings: Object.freeze(findings),
   });
 }
 
 /** The rules as governance norms: each binding rule's subject pattern is a collective whose
- *  members its MUST requires, and its MUST NOT forbids, the action. */
+ *  members its MUST requires, and its MUST NOT forbids, the action. A rule with no machine
+ *  check binds nothing it can name, so it is no norm until it is completed. */
 export function ruleNorms(agency) {
   const norms = [];
   for (const rule of agency.rules?.values() ?? []) {
     const bcp = BCP14.find((entry) => entry.keyword === rule.keyword);
-    if (!bcp || bcp.force !== "binding" || bcp.direction === "permit") continue;
+    if (!bcp || bcp.force !== "binding" || bcp.direction === "permit" || !ruleIsComplete(rule)) continue;
     for (const subject of rule.subject) {
       norms.push({ id: `${rule.key ?? rule.id}:${subject}`, of: `rule-subject:${subject}`, binds: rule.action.map((action) => ({ constraint: bcp.direction === "forbid" ? { forbid: action } : { require: action } })) });
     }
