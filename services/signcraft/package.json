@@ -5,7 +5,8 @@
   "description": "Settlement, history, inference and presentations composed from SignCell, SignChain and SignGraph.",
   "files": [
     "src",
-    "scripts"
+    "scripts",
+    "!scripts/historical-history-receiving"
   ],
   "exports": {
     "./package.json": "./package.json",
