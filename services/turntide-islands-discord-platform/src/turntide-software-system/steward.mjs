@@ -682,7 +682,7 @@ async function runPollingSteward(source) {
           seen.add(`reply:${message.id}`);
           continue;
         }
-        if (message.authorBot || seen.has(`reply:${message.id}`) || !shouldReply(message.content, bot.id)) continue;
+        if (message.authorBot || seen.has(`reply:${message.id}`) || !shouldReply(message.content, bot.id, channel.name)) continue;
         seen.add(`reply:${message.id}`);
         await answerMessage(transport, channel, message, source);
       }
@@ -1089,8 +1089,13 @@ export async function inferAnswer(prompt, source = process.env, system = renderO
   return `Turntide Islands steward heard this but no inference provider answered (${grounds || "none armed"}): ${prompt}`;
 }
 
-export function shouldReply(content, botId) {
-  return new RegExp(`<@!?${botId}>`, "u").test(content);
+const NAME_ADDRESSED_PLACES = new Set(["dock", "governance-questions", "governance-discussion", "governance-proposals", "governance-action"]);
+
+/** A mention addresses Zelo anywhere; in the civic places, so does opening a message with its name. */
+export function shouldReply(content, botId, channelName) {
+  if (new RegExp(`<@!?${botId}>`, "u").test(content)) return true;
+  return typeof channelName === "string" && NAME_ADDRESSED_PLACES.has(normalizedName(channelName))
+    && /^\s*zelo(?:\s*[:,—-]|\s+)/iu.test(String(content ?? ""));
 }
 
 function inferenceReadiness(source) {
