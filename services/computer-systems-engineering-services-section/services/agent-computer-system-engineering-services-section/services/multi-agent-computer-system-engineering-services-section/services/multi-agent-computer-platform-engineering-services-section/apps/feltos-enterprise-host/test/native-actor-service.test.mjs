@@ -158,8 +158,8 @@ test("required actor supervision refuses a service without a real failure signal
 
 test("the installed server executable binds actor loss to a nonzero supervised restart", () => {
   const executable = readFileSync(new URL("../scripts/feltos-enterprise-serve.mjs", import.meta.url), "utf8");
-  assert.match(executable, /superviseRequiredNativeActor\\(/u);
-  assert.match(executable, /process\\.kill\\(process\\.pid, "SIGTERM"\\)/u);
-  assert.match(executable, /process\\.exit\\(actorRestart \\? 1 : 0\\)/u);
+  assert.ok(executable.includes("superviseRequiredNativeActor("));
+  assert.ok(executable.includes('process.kill(process.pid, "SIGTERM")'));
+  assert.ok(executable.includes("process.exit(actorRestart ? 1 : 0)"));
   assert.match(executable, /const lifecycle = await serveEnterpriseInstance/u);
 });
