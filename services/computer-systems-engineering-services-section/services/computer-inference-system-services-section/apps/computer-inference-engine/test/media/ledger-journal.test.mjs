@@ -12,18 +12,20 @@ import {
 import { allowanceBookText } from "../../src/media/allowance-book.mjs";
 import { openAccountArtifactCapacityStore } from "../../src/media/account-artifact-capacity.mjs";
 import { ledgerJournalRoot } from "../../src/media/ledger-journal.mjs";
+import { admitAllowance } from "@red-cup-engineering/organizing/enterprise";
 
 const scratch = (t) => {
   const directory = mkdtempSync(path.join(tmpdir(), "ledger-journal-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   return directory;
 };
-// Daily budget 50 and a 20-credit kind: two fit a day.
-const flow = {
+// One daily budget of 50 and a 20-credit kind: two fit a day.
+const declared = {
   id: "flow-credits", account: "google:fixture", product: "google-flow", unit: "credit", draws: "first",
-  meters: [{ id: "daily", law: "period", every: "day", anchor: "2026-10-01T07:00:00Z", budget: 50 }, { id: "monthly", law: "period", every: "month", anchor: "2026-09-15T00:00:00Z", budget: 200 }],
+  meters: [{ id: "daily", law: "period", every: "day", anchor: "2026-10-01T07:00:00Z", budget: 50 }],
   costs: { "veo:fast": 20, "veo:quality": 100 }, because: "fixture",
 };
+const flow = admitAllowance(declared);
 const now = "2026-10-02T12:00:00.000Z";
 
 test("the allowance ledger is a journal: holds, attempts, settlements and evidence, and no SQL", (t) => {
@@ -54,10 +56,11 @@ test("concurrent consumers on one host serialize: no more holds go through than 
   const source = `
     import { workerData, parentPort } from "node:worker_threads";
     const { holdAllowance } = await import(workerData.module);
-    parentPort.postMessage(holdAllowance(workerData.flow, { id: workerData.id, kind: "veo:fast", principal: workerData.id }, { storePath: workerData.storePath, now: workerData.now }).disposition);`;
+    const { admitAllowance } = await import("@red-cup-engineering/organizing/enterprise");
+    parentPort.postMessage(holdAllowance(admitAllowance(workerData.flow), { id: workerData.id, kind: "veo:fast", principal: workerData.id }, { storePath: workerData.storePath, now: workerData.now }).disposition);`;
   const module = new URL("../../src/media/allowance-ledger.mjs", import.meta.url).href;
   const outcomes = await Promise.all(Array.from({ length: 6 }, (_, index) => new Promise((resolve, reject) => {
-    const worker = new Worker(source, { eval: true, type: "module", workerData: { module, flow, storePath, now, id: `w${index}` } });
+    const worker = new Worker(source, { eval: true, type: "module", workerData: { module, flow: declared, storePath, now, id: `w${index}` } });
     worker.once("message", resolve);
     worker.once("error", reject);
   })));
@@ -73,7 +76,7 @@ test("a SQLite allowance ledger is admitted once, read-only, and reads as it did
     CREATE TABLE allowance_declaration (allowance TEXT PRIMARY KEY, at TEXT NOT NULL, declaration TEXT NOT NULL);`);
   database.prepare("INSERT INTO allowance_evidence VALUES (?, ?, ?, ?)").run("flow-credits", "studio:old", "2026-10-02T08:00:00.000Z", JSON.stringify({ type: "spend", kind: "veo:fast", count: 1, at: "2026-10-02T08:00:00.000Z", source: "studio:old" }));
   database.prepare("INSERT INTO allowance_hold VALUES (?, ?, ?, ?)").run("live", "flow-credits", "held", JSON.stringify({ id: "live", allowance: "flow-credits", account: "google:fixture", kind: "veo:fast", count: 1, at: now, state: "held", probe: false, principal: "studio", heldAt: now, expiresAt: "2026-10-02T12:15:00.000Z" }));
-  database.prepare("INSERT INTO allowance_declaration VALUES (?, ?, ?)").run("flow-credits", now, JSON.stringify(flow));
+  database.prepare("INSERT INTO allowance_declaration VALUES (?, ?, ?)").run("flow-credits", now, JSON.stringify(declared));
   database.close();
   const before = readFileSync(storePath);
 
