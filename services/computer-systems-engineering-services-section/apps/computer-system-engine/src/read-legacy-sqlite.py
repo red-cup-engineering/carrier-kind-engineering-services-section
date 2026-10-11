@@ -6,7 +6,8 @@ object per line on stdout for the admission to record into its journal.
 
   python3 -I read-legacy-sqlite.py <file> '<specs>'
 
-<specs> is a JSON list of {"table", "order"?, "join"?: {"table", "on", "columns"}}. A table or
+<specs> is a JSON list of {"table", "order"?, "rowid"?: true, "join"?: {"table", "on", "columns"}}; "rowid" adds
+each row's rowid as the column "rowid" (a table that keeps no column for it, such as an FTS5 table). A table or
 column is named only if the file holds it; a table the file lacks is simply not read. Lines:
 {"kind":"source","tables":[...]}, then {"kind":"row","table":T,"row":{...}} per row (a join's
 columns arrive as "<table>.<column>", bytes as {"$blob":base64}), then {"kind":"end","counts":{...}}.
@@ -81,7 +82,7 @@ def main(argv):
         if table not in held:
             continue
         held_columns = columns(table)
-        select, join, order = "t.*", "", ""
+        select, join, order = ("t.rowid AS \"rowid\", t.*" if spec.get("rowid") is True else "t.*"), "", ""
         if spec.get("order") is not None:
             if spec["order"] != "rowid" and spec["order"] not in held_columns:
                 refuse("order names a column the table lacks")
