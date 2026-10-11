@@ -25,6 +25,7 @@ import {
 
 
 import {
+  causallyFollows,
   agencyWorkAllocationKey,
   agencyWorkAllocationMarkerOfRow,
   intentOfObligationEvidence,
@@ -143,19 +144,6 @@ export function governanceViewOfRows(
   return collector.read(subject, date);
 }
 
-function causallyFollows(directCauses, obligation, causesByWitness) {
-  const pending = [...(directCauses ?? [])];
-  const visited = new Set();
-  while (pending.length > 0) {
-    const cause = pending.pop();
-    if (cause === obligation) return true;
-    if (visited.has(cause)) continue;
-    visited.add(cause);
-    pending.push(...(causesByWitness.get(cause) ?? []));
-  }
-  return false;
-}
-
 function workItemViewOfMaterial(
   feed,
   date,
@@ -183,12 +171,13 @@ function workItemViewOfMaterial(
     });
   }
   const diamondsByScope = workItemDiamondsByScope(observations);
+  const statuses = workItemStatusesOfObservations(observations);
   const scopes = {};
   for (const scope of [...new Set(observations.map((observation) => observation.item))].sort()) {
     const scopeDiamonds = diamondsByScope.get(scope) ?? Object.freeze([]);
-    const lifecycleStatus = workItemStatusOfScope(scope, diamondsByScope);
+    const lifecycleStatus = statuses.get(scope);
     const latest = scopeDiamonds.at(-1);
-    const causalDischarge = latest?.lower.witness !== undefined
+    const causalDischarge = lifecycleStatus === "discharged" && latest?.lower.witness !== undefined
       && latest.upper.witness !== undefined
       && causallyFollows(latest.upper.causes, latest.lower.witness, causesByWitness);
     const terminalReading = latest?.upper.reading !== "unknown";
@@ -447,8 +436,7 @@ export function workRoadmapOfObservations(
     relationObstructions.add("conflict-coloring-not-factor-map");
   }
 
-  const diamondsByScope = workItemDiamondsByScope(observations);
-  const statuses = new Map(scopes.map((scope) => [scope, workItemStatusOfScope(scope, diamondsByScope)]));
+  const statuses = workItemStatusesOfObservations(observations);
   const declarations = new Map(observations.filter((observation) => observation.event === "opened" && observation.text !== undefined)
     .map((observation) => [observation.item, observation]));
   const cycleScopes = dependencySettlement.kind === "lorentzian.causalSettle-obstruction"
@@ -586,6 +574,18 @@ export function workItemStatusOfScope(
   return latest !== undefined && !latest.deshrouded ? "discharged" : "open";
 }
 
+/** A trailing canonical declaration remains open even before another observation
+ * can bound its diamond. Receipt metadata without a declaration does not reopen
+ * work; prior settled diamonds remain historical evidence for their own opening. */
+export function workItemStatusesOfObservations(observations) {
+  const diamondsByScope = workItemDiamondsByScope(observations);
+  const latest = new Map(observations.map(observation => [observation.item, observation]));
+  return new Map([...latest].map(([scope, observation]) => {
+    const bounded = workItemStatusOfScope(scope, diamondsByScope);
+    return [scope, bounded !== "obstructed" && observation.event === "opened" && observation.text !== undefined ? "open" : bounded];
+  }));
+}
+
 export function workItemViewCollector() {
   const collector = workItemObservationCollector();
   const causesByWitness = new Map();
@@ -624,7 +624,7 @@ function dutiesViewOfMaterial(
   const duties = dutiesOfAgent(claimRows, agent);
   if (duties.length === 0) return undefined;
 
-  const diamondsByScope = workItemDiamondsByScope(observations);
+  const statuses = workItemStatusesOfObservations(observations);
 
   return Object.freeze({
     kind: "metroplat.holography.duties-settlement",
@@ -642,7 +642,7 @@ function dutiesViewOfMaterial(
         standing: duty.relation.standing,
         via: duty.via,
         ...(office === undefined ? {} : { office }),
-        status: workItemStatusOfScope(duty.relation.scope, diamondsByScope),
+        status: statuses.get(duty.relation.scope) ?? "open",
         ...(intent === undefined ? {} : { intent }),
         ...(obligation?.subject === undefined ? {} : { subject: obligation.subject }),
         ...(obligation === undefined ? {} : { text: obligation.text }),

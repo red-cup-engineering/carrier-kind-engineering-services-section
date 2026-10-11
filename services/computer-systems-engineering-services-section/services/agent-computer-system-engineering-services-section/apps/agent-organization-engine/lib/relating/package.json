@@ -53,6 +53,7 @@
     "./typing": "./src/writing/print.mjs",
     "./evaluating/measuring": "./src/evaluating/measuring/index.mjs",
     "./evaluating/counting": "./src/evaluating/counting/index.mjs",
+    "./evaluating/settling": "./src/evaluating/settling/index.mjs",
     "./evaluating/connecting": "./src/evaluating/connecting/formal-concept.mjs",
     "./running/session": "./src/running/session.mjs",
     "./running/session-schema": "./src/running/session-schema.mjs",

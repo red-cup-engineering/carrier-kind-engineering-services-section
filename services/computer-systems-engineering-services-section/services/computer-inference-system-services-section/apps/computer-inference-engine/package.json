@@ -119,7 +119,8 @@
     "./openai/compatible-http-client": "./src/openai/compatible-http-client.mjs",
     "./openai/pricing/operations": "./src/openai/pricing/operations.mjs",
     "./dispatch/operations": "./src/dispatch/operations.mjs",
-    "./dispatch/work-inference-coordinate": "./src/dispatch/work-inference-coordinate.mjs"
+    "./dispatch/work-inference-coordinate": "./src/dispatch/work-inference-coordinate.mjs",
+    "./dispatch/work-placement": "./src/dispatch/decide-work-placement.mjs"
   },
   "bin": {
     "dispatch-chat-completion": "./scripts/openai/dispatch-chat-completion.mjs",

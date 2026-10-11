@@ -9,7 +9,8 @@
  */
 import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
-import { intentOfThread, moveOf, orderOf, workBoard, wagersOf, takersOf, REALIZED_EDITION, RESPONSE_MOVES, TOLD_MOVES } from "./index.mjs";
+import { intentOfThread, moveOf, orderOf, workBoard, wagersOf, takersOf, RESPONSE_MOVES, TOLD_MOVES } from "./work-arena.mjs";
+import { REALIZED_EDITION } from "./work-arena-law.mjs";
 
 const BASE = Date.parse("2026-01-01T00:00:00.000Z");
 const at = (minutes) => new Date(BASE + minutes * 60_000).toISOString();
