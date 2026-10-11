@@ -50,7 +50,7 @@ const fillAll = (value, vars) => {
 
 /** Every record in `dir`, in file order; a file that is not an Obligation record is refused loudly. */
 export function readObligationRecords(dir) {
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) throw Object.assign(new Error("The configured obligation records are unavailable; absence is not an empty obligation list."), { code: "OBLIGATION_RECORDS_UNAVAILABLE" });
   return readdirSync(dir).filter((name) => name.endsWith(".json")).sort().map((name) => {
     const record = JSON.parse(readFileSync(join(dir, name), "utf8"));
     if (record?.type !== "Obligation" || typeof record.id !== "string" || typeof record.kind !== "string" || !Array.isArray(record.to) || record.to.length === 0) {
@@ -147,3 +147,4 @@ export function declaredObligations({ repositoryRoot = process.cwd(), records, d
     },
   };
 }
+

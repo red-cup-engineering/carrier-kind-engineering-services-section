@@ -102,7 +102,7 @@ export function obligationsApp({ stateDir, sources: declared = [], runAs, naviga
   const find = async (subject, sourceId, id) => (await owed(subject)).owing.find(({ source, obligation }) => source.id === sourceId && obligation.id === id);
 
   const listPage = ({ owing, unread }) => page("Obligations", [
-    ...(owing.length === 0 ? [{ title: "Nothing waits on you", span: 12, html: `<p>The house needs nothing from you right now.</p><p><a href="/play">Go to the city</a></p>` }] : []),
+    ...(owing.length === 0 && unread.length === 0 ? [{ title: "Nothing waits on you", span: 12, html: `<p>The house needs nothing from you right now.</p><p><a href="/play">Go to the city</a></p>` }] : []),
     ...owing.map(({ source, obligation }) => ({
       title: obligation.title, span: 12,
       html: `<p>${escapeHtml(obligation.why)}</p><p><a href="${escapeHtml(walkHref(source.id, obligation.id))}"><strong>Walk me through it</strong></a></p><p><small>From ${escapeHtml(source.title ?? source.id)}</small></p>`,
@@ -162,8 +162,8 @@ export function obligationsApp({ stateDir, sources: declared = [], runAs, naviga
   return {
     /** Where a signed-in person lands: their obligations while any wait, else the city. */
     landing: async (principal) => {
-      try { return (await owed(subjectOf(principal))).owing.length > 0 ? "/obligations" : "/play"; }
-      catch { return "/play"; }
+      try { const { owing, unread } = await owed(subjectOf(principal)); return owing.length > 0 || unread.length > 0 ? "/obligations" : "/play"; }
+      catch { return "/obligations"; }
     },
     resources: [
       { id: "ops-obligations", match: "/obligations", methods: ["GET"], produces: ["text/html"], handler: list },
@@ -179,3 +179,4 @@ export function obligationsApp({ stateDir, sources: declared = [], runAs, naviga
     ],
   };
 }
+
