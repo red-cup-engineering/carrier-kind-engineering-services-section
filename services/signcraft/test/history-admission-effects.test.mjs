@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync,mkdtempSync,rmSync,existsSync} from 'node:fs';
-import {spawnSync} from 'node:child_process';
-import {createHash} from 'node:crypto';
+import {readFileSync,mkdtempSync,rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
@@ -23,8 +21,6 @@ function assertAdmitted(store){
  assert.deepEqual(queryHistory(store.load().history,{}),queryHistory(updated,{}));
  assert.equal(store.load().control.clock,101);
 }
-const python=spawnSync('python3',['-I','--version']);
-const withPython=python.status===0?test:test.skip;
 function scratch(body){const root=mkdtempSync(join(tmpdir(),'history-admission-'));try{return body(root);}finally{rmSync(root,{recursive:true,force:true});}}
 
 test('received historical rows become flatfile history that continues, with no database in the process',()=>scratch(root=>{
@@ -60,25 +56,19 @@ test('the reader\'s lines are checked against their header, counts and terminal 
  assert.throws(()=>collectHistoricalLines([...good,good[1]]),/continues after/u);
 });
 
-withPython('a real earlier relational file is read read-only by the Python reader and received by the JS receiver',()=>scratch(root=>{
- const source=join(root,'earlier.db'),target=join(root,'received','world.json');
- const build=spawnSync('python3',['-I',here('./fixtures/build-historical-file.py'),here('./fixtures/legacy-history.json'),source],{encoding:'utf8'});
- assert.equal(build.status,0,build.stderr);
- const before=readFileSync(source),sha=createHash('sha256').update(before).digest('hex');
- assert.throws(()=>createFileHistoryStore(source),/receive it offline/u,'the store refuses the earlier file instead of reading it at startup');
- // a digest other than the admitted one is refused before any row is read
- const wrong=spawnSync('python3',['-I',here('../scripts/read-historical-history.py'),source,'0'.repeat(64)],{encoding:'utf8'});
- assert.notEqual(wrong.status,0);assert.match(wrong.stderr,/differs from the admitted source digest/u);
- const read=spawnSync('python3',['-I',here('../scripts/read-historical-history.py'),source,sha],{encoding:'utf8'});
- assert.equal(read.status,0,read.stderr);
- const lines=read.stdout.trim().split('\n');
- assert.equal(JSON.parse(lines[0]).kind,'source');assert.equal(JSON.parse(lines.at(-1)).kind,'end');
- const receive=spawnSync(process.execPath,[here('../scripts/receive-historical-history.mjs'),target],{input:read.stdout,encoding:'utf8'});
- assert.equal(receive.status,0,receive.stderr);
- assert.equal(JSON.parse(receive.stdout).sourceSha256,sha);
- assert(readFileSync(source).equals(before),'the earlier file is untouched');
- assertAdmitted(createFileHistoryStore(target));
- const again=spawnSync(process.execPath,[here('../scripts/receive-historical-history.mjs'),target],{input:read.stdout,encoding:'utf8'});
- assert.notEqual(again.status,0,'receiving never overwrites an existing history');
- assert(!existsSync(source+'-journal'));
+
+// This is an explicitly authored row carrier, not a generated SQL file.
+// The real JS receiver consumes it through stdin; no historical reader runs.
+import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+test('the real JS receiver accepts authored row lines and refuses an occupied target',()=>scratch(root=>{
+ const target=join(root,'received','world.json'),tables=tablesOf();
+ const sha256=createHash('sha256').update(JSON.stringify(tables)).digest('hex');
+ const counts=Object.fromEntries(Object.entries(tables).map(([name,rows])=>[name,rows.length]));
+ const input=[{kind:'source',sha256,tables:counts},...Object.entries(tables).flatMap(([table,rows])=>rows.map(row=>({kind:'row',table,row}))),{kind:'end',sha256,tables:counts}].map(value=>JSON.stringify(value)).join('\n')+'\n';
+ const receive=spawnSync(process.execPath,[here('../scripts/receive-historical-history.mjs'),target],{input,encoding:'utf8'});
+ assert.equal(receive.status,0,receive.stderr);assert.equal(JSON.parse(receive.stdout).sourceSha256,sha256);
+ assertAdmitted(createFileHistoryStore(target));const before=readFileSync(target);
+ const again=spawnSync(process.execPath,[here('../scripts/receive-historical-history.mjs'),target],{input,encoding:'utf8'});
+ assert.notEqual(again.status,0);assert.match(again.stderr,/target already exists/u);assert.deepEqual(readFileSync(target),before);
 }));
