@@ -99,7 +99,11 @@ export function obligationsApp({ stateDir, sources: declared = [], runAs, naviga
     }
     return { owing, unread };
   };
-  const find = async (subject, sourceId, id) => (await owed(subject)).owing.find(({ source, obligation }) => source.id === sourceId && obligation.id === id);
+  const find = async (subject, sourceId, id) => {
+    const { owing, unread } = await owed(subject);
+    return { found: owing.find(({ source, obligation }) => source.id === sourceId && obligation.id === id), unread };
+  };
+  const unreadTiles = (unread) => unread.map(({ failed, error }) => ({ title: "Could not read every source", span: 12, content: `${failed}: ${error}` }));
 
   const listPage = ({ owing, unread }) => page("Obligations", [
     ...(owing.length === 0 && unread.length === 0 ? [{ title: "Nothing waits on you", span: 12, html: `<p>The house needs nothing from you right now.</p><p><a href="/play">Go to the city</a></p>` }] : []),
@@ -107,7 +111,7 @@ export function obligationsApp({ stateDir, sources: declared = [], runAs, naviga
       title: obligation.title, span: 12,
       html: `<p>${escapeHtml(obligation.why)}</p><p><a href="${escapeHtml(walkHref(source.id, obligation.id))}"><strong>Walk me through it</strong></a></p><p><small>From ${escapeHtml(source.title ?? source.id)}</small></p>`,
     })),
-    ...unread.map(({ failed, error }) => ({ title: "Could not read every source", span: 12, content: `${failed}: ${error}` })),
+    ...unreadTiles(unread),
   ]);
 
   const walkPage = (sourceId, obligation, walk, notice, status = 200) => page(obligation.title, [
@@ -138,7 +142,11 @@ export function obligationsApp({ stateDir, sources: declared = [], runAs, naviga
     const { source: sourceId, id } = ctx.params;
     if (!principal) return signIn(walkHref(sourceId, id));
     const subject = subjectOf(principal);
-    const found = await find(subject, sourceId, id);
+    const { found, unread } = await find(subject, sourceId, id);
+    if (!found && unread.length) return page("Obligations unavailable", [
+      ...unreadTiles(unread),
+      { title: "This obligation has not been reconciled", span: 12, html: `<p>Its source could not be read. This does not mean it is done.</p><p><a href="/obligations">Your obligations</a></p>` },
+    ], 503);
     if (!found) return page("Obligations", [{ title: "Nothing to walk", span: 12, html: `<p>This isn't waiting on you, or it's already done.</p><p><a href="/obligations">Your obligations</a></p>` }], 404);
     if (ctx.req.method === "GET") {
       const again = ctx.url?.searchParams?.get("again") === "1";
@@ -155,7 +163,8 @@ export function obligationsApp({ stateDir, sources: declared = [], runAs, naviga
     walks.end(subject, sourceId, id);
     const rest = await owed(subject);
     return page(done.title, [
-      { title: done.title, span: 12, html: `<p>${escapeHtml(done.content)}</p><p><a href="${rest.owing.length > 0 ? "/obligations" : "/play"}">${rest.owing.length > 0 ? `Next: ${rest.owing.length} more waiting` : "Go to the city"}</a></p>` },
+      ...unreadTiles(rest.unread),
+      { title: done.title, span: 12, html: `<p>${escapeHtml(done.content)}</p><p><a href="${rest.owing.length > 0 || rest.unread.length > 0 ? "/obligations" : "/play"}">${rest.owing.length > 0 ? `Next: ${rest.owing.length} more waiting` : rest.unread.length > 0 ? "Review unread obligation sources" : "Go to the city"}</a></p>` },
     ]);
   };
 
