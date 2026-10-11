@@ -51,6 +51,7 @@
     "@red-cup-engineering/javascript-node-services-section": "workspace:*"
   },
   "scripts": {
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "test:legacy-sql": "node --test qualification/legacy-sql/*.test.mjs"
   }
 }
