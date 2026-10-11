@@ -9,7 +9,7 @@ import { encodeRelationalValue } from "@red-cup-engineering/signgraph/relational
 import { createAttentionAllocationRecordJournal } from "./record-journal.mjs";
 
 import { computeAllocation } from "@red-cup-engineering/metrologic/obstruction/attention-allocation";
-import { ACTIVITYSTREAMS_CONTEXT } from "@red-cup-engineering/activitypub-services-section/activitystreams";
+import { ACTIVITYSTREAMS_CONTEXT } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/activitystreams";
 
 const ACTOR = "urn:ame:attention-allocation-readout";
 const NODE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
