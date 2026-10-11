@@ -152,7 +152,7 @@ export function currentTakingOwner(thread, subject, agency) {
  * @param {string} host.settlementsRoot
  * @param {() => object|undefined} host.workOptions the host's work options, once MetroPlat opened them
  * @param {() => object[]} host.operations the host's operations, once MetroPlat opened them
- * @param {(opening: object) => Promise<object>} [host.open] the host's opening port (plays, then hands to a peer)
+ * @param {(opening: object, witness?: {causes?: string[]}) => Promise<object>} [host.open] the host's opening port (plays, then hands to a peer)
  * @param {(move: object) => object|Promise<object>} [host.tell] the host's response port (plays or hands on a telling, forwards a coordinated move to its thread's home); the enterprise loop plays its responses through it
  */
 /** A clock outcome carries the native allocation admission unchanged. The admission
@@ -276,7 +276,7 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
     // through the worker's admitted session (its hand, told by the execution node).
     return { ...move, by: owner, hand: `session:${officeService.session}` };
   };
-  const opened = open ?? (async (opening) => board.play(opening));
+  const opened = open ?? (async (opening, witness) => board.play(opening, witness));
   const told = tell ?? ((move) => board.play(move));
   const bindingOf = (record) => {
     const root = enterpriseRootOf(record, { settlementsRoot, repositoryRoot });
@@ -583,7 +583,7 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
       inputFormat: "json", outputFormat: "json",
       domain: workBoardDomain, codomain: workBoardCodomain,
       summary: "Read this settlement's work board: its aims, requests, proposals, reports, questions and declarations.",
-      description: "Domain: { kind?: aim|request|propose|report|ask|declare, standing?: string, step?: string, open?: boolean, ready?: boolean, owes?: player|market, agenda?: player|market, horizon?: now|soon|later|eventually, by?: player, home?: enterprise, tag?: string, law?: string, subject?: string, serves?: thread, source?: locator (up to 4096 characters), sources?: locator[1..200] (each up to 4096 characters), thread?: id, full?: boolean, limit?: 1..200 (default 50), after?: id }. subject matches the opening's subject or a current taking's canonical admitted work subject; source matches one exact cited locator; sources matches any of its 1..200 exact locators for one bounded selection; source and sources combine by union. owes=<player> keeps the threads awaiting that player's move (owes=market: work at home nowhere, which no micro-enterprise is seated for); horizon reads each thread's modality (now: committed and unblocked; soon: necessary; later: possible; eventually: cannot proceed as it stands), derived, never stated. step=<step> keeps threads at that derived protocol step (request: unrefined, refined, promised, obstructed, delivered, declined; report: open, obstacle, adopted; propose: open, adopted; aim: open, held; ask: open, answered). agenda=<player> is that player's agenda: the threads whose protocol step awaits a move of its (as opener, assayer, addressee, taker or home), nearest horizon first and oldest first within one. A listing returns one summary per thread (its gist, standing, horizon, whose move it owes, opener, tags, addressee or award, home territory, what it serves and comes after, what still blocks it, how many requirements and conditions its contract states and which must-requirements no condition verifies, the moves it awaits from whoever owes it (awaits: refine, promise, deliver, accept, adopt, resolve, answer, hold, …), what it still lacks to be worked (gaps: no-requirements, no-conditions, unverified:<id>, ambiguous:<id>, unscoped), how many of its requirements are allocated to requests serving it, offer, holders/promisers/adopters/answerers, counter-offers, corroborations, children), oldest first, with next to page after; thread=<id> returns that thread whole (an id the board has never held is refused as not found), and full: true returns whole threads in the listing. serves=<id> lists the threads serving that request or aim (its decomposition). ready: true keeps threads nothing unsettled holds back and, for requests, whose contract is refined and whose must-requirements use no unverifiable term. A whole thread is its opening, standing (aim: open, held, withdrawn, superseded; request: open, declined, promised, delivered, accepted, withdrawn, superseded; propose: open, adopted, ...; report: open, adopted, resolved, ...; ask: open, answered, accepted, ...; declare: in-force, withdrawn, superseded), holders and those who left, promisers and the work subject each holds it under, refinements, counter-offers, deliveries and their verdicts, adoptions, corroborations, answers, and a request's operative contract and current offer. open: true keeps only threads not yet closed. Moves stored but illegal on replay do not count: a listing counts them under refused, and a thread read lists its own.",
+      description: "Domain: { kind?: aim|request|propose|report|ask|declare, standing?: string, step?: string, open?: boolean, ready?: boolean, owes?: player|market, agenda?: player|market, horizon?: now|soon|later|eventually, by?: player, home?: enterprise, tag?: string, law?: string, subject?: string, serves?: thread, source?: locator (up to 4096 characters), sources?: locator[1..200] (each up to 4096 characters), thread?: id, full?: boolean, limit?: 1..200 (default 50), after?: id }. subject matches the opening's subject or a current taking's canonical admitted work subject; source matches one exact cited locator; sources matches any of its 1..200 exact locators for one bounded selection; source and sources combine by union. owes=<player> keeps the threads awaiting that player's move (owes=market: work at home nowhere, which no micro-enterprise is seated for); horizon reads each thread's modality (now: committed and unblocked; soon: necessary; later: possible; eventually: cannot proceed as it stands), derived, never stated. step=<step> keeps threads at that derived protocol step (request: unrefined, refined, promised, obstructed, delivered, declined; report: open, obstacle, adopted; propose: open, adopted; aim: open, held; ask: open, answered). agenda=<player> is that player's agenda: the threads whose protocol step awaits a move of its (as opener, assayer, addressee, taker or home), nearest horizon first and oldest first within one. A listing returns one summary per thread (its gist, standing, horizon, whose move it owes, opener, tags, addressee or award, home territory, what it serves and comes after, what still blocks it, how many requirements and conditions its contract states and which must-requirements no condition verifies, the moves it awaits from whoever owes it (awaits: refine, promise, deliver, accept, adopt, resolve, answer, hold, …), what it still lacks to be worked (gaps: no-requirements, no-conditions, unverified:<id>, ambiguous:<id>, unscoped), how many of its requirements are allocated to requests serving it, offer, holders/promisers/adopters/answerers, counter-offers, corroborations, children), oldest first, with next to page after; thread=<id> returns that thread whole (an id the board has never held is refused as not found), and full: true returns whole threads in the listing. serves=<id> lists the threads serving that request or aim (its decomposition). ready: true keeps threads nothing unsettled holds back and, for requests, whose contract is refined and whose must-requirements use no unverifiable term. A whole thread includes openingWitnesses, the actual exact opening's journal witness rows (event/origin/causes when retained; missing historical metadata remains unknown), not a judgment of original authority or successful outcome. A whole thread is its opening, standing (aim: open, held, withdrawn, superseded; request: open, declined, promised, delivered, accepted, withdrawn, superseded; propose: open, adopted, ...; report: open, adopted, resolved, ...; ask: open, answered, accepted, ...; declare: in-force, withdrawn, superseded), holders and those who left, promisers and the work subject each holds it under, refinements, counter-offers, deliveries and their verdicts, adoptions, corroborations, answers, and a request's operative contract and current offer. open: true keeps only threads not yet closed. Moves stored but illegal on replay do not count: a listing counts them under refused, and a thread read lists its own.",
       run: (input) => {
         const sourceLocators = workBoardSourceLocators(input);
         const read = board.read(binding.now(), input?.thread === undefined && sourceLocators !== undefined && sourceLocators.length <= 200
@@ -611,8 +611,10 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
           && (sourceLocators === undefined || (thread.opening.sources ?? []).some((source) => sourceLocators.includes(source.locator)))
           && (input?.thread === undefined || thread.id === input.thread));
         if (agenda !== undefined) threads.sort((a, b) => agenda.get(a.id) - agenda.get(b.id));
+        // This is a raw journal reading, not an authority or successful-outcome judgment.
+        const withWitnesses = (thread) => ({ ...thread, openingWitnesses: board.witnessesOf(thread.opening) });
         const listing = { kind: "feltos.work.work-board", at: binding.now(), position: read.position, matched: threads.length };
-        if (input?.thread !== undefined) return Object.freeze({ ...listing, threads, refused: read.refused.filter((refusal) => refusal.move.thread === input.thread || refusal.move.id === input.thread) });
+        if (input?.thread !== undefined) return Object.freeze({ ...listing, threads: threads.map(withWitnesses), refused: read.refused.filter((refusal) => refusal.move.thread === input.thread || refusal.move.id === input.thread) });
         const limit = input?.limit ?? 50;
         if (!Number.isInteger(limit) || limit < 1 || limit > 200) throw new TypeError("work-board limit is an integer from 1 to 200");
         const start = input?.after === undefined ? 0 : threads.findIndex((thread) => thread.id === input.after) + 1;
@@ -620,7 +622,7 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
         const page = threads.slice(start, start + limit);
         return Object.freeze({
           ...listing,
-          threads: input?.full === true ? page : page.map(threadSummary),
+          threads: input?.full === true ? page.map(withWitnesses) : page.map(threadSummary),
           ...(start + limit < threads.length ? { next: page.at(-1).id } : {}),
           refused: read.refused.length,
         });
@@ -657,7 +659,11 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
       relation: "boundary", effects: boundary,
       run: (input, _args, context) => {
         if (!OPENING_MOVES.includes(input?.move)) throw new TypeError(`work-open: move is one of ${OPENING_MOVES.join(", ")}`);
-        return opened(played(input, context, "work-open"));
+        // Caller-supplied causal claims cannot stand in for the governed handler context.
+        if (Object.hasOwn(input, "causes")) throw new TypeError("work-open causes belong to its witnessed invocation, not its input");
+        return opened(played(input, context, "work-open"), {
+          causes: context?.kind === "metroplat.rpc.execution-context" ? context.evidence : undefined,
+        });
       },
     }),
     operation({
@@ -674,3 +680,4 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
     }),
   ]);
 }
+

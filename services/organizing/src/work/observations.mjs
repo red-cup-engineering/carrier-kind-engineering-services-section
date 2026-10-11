@@ -18,7 +18,7 @@ import { workSourceClosureContract, workSourceResultContract } from "./schema.mj
  * the admit log; this module only reduces recorded rows in order, whether
  * they arrive as an array or as a file-backed fold.
  */
-import { juralRelationOfClaimCell, scopeOf, workItemOfCell } from "@red-cup-engineering/socializing";
+import { juralRelationOfClaimCell, scopeOf, workItemOfCell } from "@red-cup-engineering/socializing/office";
 
 import { admitAgencyWorkResult, workResultSkillContext, validateDeterministicExecution, validateResultCodomain } from "./schema.mjs";
 import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";

@@ -29,7 +29,7 @@ import {
 
 } from "./didcomm.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { ACTIVITYSTREAMS_CONTEXT, ACTIVITYSTREAMS_PUBLIC } from "@red-cup-engineering/activitypub-services-section/activitystreams";
+import { ACTIVITYSTREAMS_CONTEXT, ACTIVITYSTREAMS_PUBLIC } from "@red-cup-engineering/activitypub-services-section/rmn-activity";
 import { negateReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 export const ACTIVITYPUB_C2S_CONTENT_TYPE = "application/activity+json";

@@ -5,7 +5,7 @@ import { deliverActivity } from "@red-cup-engineering/activitypub-services-secti
 import { extractSignCellEvidenceActivity, projectSignCellEvidenceActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { homeHostOf, moveOf, openingOf, OPENING_MOVES, readForward, responseOf, TOLD_MOVES, unreadReasonOf, workArenaLawOf, workHomesOf } from "@red-cup-engineering/organizing/enterprise";
-import { holderOf, settlementIntake, workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
+import { holderOf, settlementIntake, workBoardStore, workBoardCauses } from "@red-cup-engineering/feltos/work/work-board";
 import { admitCapabilityAssertions, readCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
 import { authorizationFromCapabilityAssertions, authorizationFromStanding } from "@red-cup-engineering/computer-system-engine/rpc/dispatch";
 import { can, capabilityGrant, grantAssertion, PUBLIC_HOLDER } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
@@ -70,13 +70,16 @@ function admitByStanding({ kind, senderActorId, origin, binding, subject, value 
     kind: "metroplat.federated-work.admission", move: kind, disposition, standing, sender: senderActorId, grant,
     ...(subject === undefined ? {} : { subject }), decision: decision.kind, evidence: Object.freeze([...decision.evidence]),
     reasons: Object.freeze(reasons), at,
+    // Offered references remain the signed sender's claim. Their witnesses may be absent here;
+    // they are not this node's causal predecessors or proof of the original actor's authority.
+    ...(value?.causes === undefined ? {} : { sourceCauses: workBoardCauses(value.causes) }),
     // A held delivery keeps what it carried, so a repaired standing can admit it again.
     ...(disposition === "held" ? { value: JSON.parse(JSON.stringify(value ?? null)) } : {}),
   });
-  createSemanticRecordJournal({ root: binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND })
+  const receipt = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND })
     .record({ category: disposition, recordedAt: at, record: JSON.parse(JSON.stringify(witness)), told: { for: true, against: false } });
   if (disposition === "refused") throw Object.assign(new TypeError(reasons[0]), { obstruction: witness });
-  return witness;
+  return Object.freeze({ ...witness, events: receipt.events });
 }
 
 /** A delivery the sender's contested standing holds: witnessed, never played on the board. */
@@ -173,7 +176,8 @@ const sameOpening = (left, right) => Buffer.from(senActivityObjectBytes({ object
 export function hostedWorkOpening({ config, provider, binding, enterprises, deliver: deliverOpening = deliverActivity }) {
   const agency = () => agencyAt(config.agencyRoot ?? agencyRootOf(binding));
   const board = workBoardStore(binding, { agency, homes: workHomesOf(agency, enterprises) });
-  return async (input) => {
+  return async (input, { causes: suppliedCauses } = {}) => {
+    const causes = workBoardCauses(suppliedCauses);
     // The board admits under its agency's adopted law, which can precede the
     // newest law this release realizes. The offered carrier must name that
     // same edition so a replay is compared with the record actually admitted.
@@ -181,23 +185,24 @@ export function hostedWorkOpening({ config, provider, binding, enterprises, deli
     const known = board.read(fresh.at).threads.find((thread) => thread.id === fresh.id);
     const transport = provider();
     const opening = known?.opening ?? fresh;
-    const deliver = prepareWorkOpeningDelivery({ config, provider: transport, opening, deliver: deliverOpening });
+    const originalCauses = known === undefined ? causes : workBoardCauses(board.witnessesOf(opening).flatMap((row) => row.causes ?? []));
+    const deliver = prepareWorkOpeningDelivery({ config, provider: transport, opening, causes: originalCauses, deliver: deliverOpening });
     if (known !== undefined && (fresh.move !== "report" || sameOpening(opening, fresh))) {
       // A repeated opening remains the original evidence on both nodes. It is
       // not another report by the earlier speaker at the earlier time.
       return deliverAdmittedWork(deliver, opening);
     }
-    if (known === undefined) return deliverAdmittedWork(deliver, board.play(fresh));
+    if (known === undefined) return deliverAdmittedWork(deliver, board.play(fresh, { causes }));
     // Validate the offered opening's carrier before its local effect. Fixed
     // opening/authority fields are still owned by the board's original record.
-    prepareWorkOpeningDelivery({ config, provider: transport, opening: fresh, deliver: deliverOpening });
-    const admission = board.play(fresh);
+    prepareWorkOpeningDelivery({ config, provider: transport, opening: fresh, causes, deliver: deliverOpening });
+    const admission = board.play(fresh, { causes });
     const forward = deliver === undefined ? undefined : async () => {
       await deliver();
       // Use the emitted native move, including its actual admitted law/hand.
       // A later preparation/queue failure is an explicit failed peer handoff,
       // not a claim that receiving succeeded or permission to repeat the work.
-      const tell = prepareWorkTellingDelivery({ config, provider: transport, telling: admission, deliver: deliverOpening });
+      const tell = prepareWorkTellingDelivery({ config, provider: transport, telling: admission, causes, deliver: deliverOpening });
       if (tell === undefined) throw new TypeError("admitted report telling lost its peer delivery binding");
       await tell();
     };
@@ -234,19 +239,22 @@ const toldOn = (board, move) => {
 const carried = (move, assert) => (unreadReasonOf(move) === undefined ? assert(move) : move);
 
 /** One opening travels as addressed SignCell evidence, with its player intact. */
-export function workOpeningActivity({ origin, identifier, peerActor, opening, at }) {
-  return workMoveActivity({ origin, identifier, peerActor, at, objectKind: WORK_OPENING_OBJECT_KIND, value: carried(opening, assertFederatedOpening) });
+export function workOpeningActivity({ origin, identifier, peerActor, opening, at, causes }) {
+  return workMoveActivity({ origin, identifier, peerActor, at, objectKind: WORK_OPENING_OBJECT_KIND, value: carried(opening, assertFederatedOpening), causes });
 }
 
 /** One telling travels as addressed SignCell evidence, with its player intact. */
-export function workTellingActivity({ origin, identifier, peerActor, telling, at }) {
-  return workMoveActivity({ origin, identifier, peerActor, at, objectKind: WORK_TELLING_OBJECT_KIND, value: carried(telling, assertFederatedTelling) });
+export function workTellingActivity({ origin, identifier, peerActor, telling, at, causes }) {
+  return workMoveActivity({ origin, identifier, peerActor, at, objectKind: WORK_TELLING_OBJECT_KIND, value: carried(telling, assertFederatedTelling), causes });
 }
 
-function workMoveActivity({ origin, identifier, peerActor, at, objectKind, value }) {
+function workMoveActivity({ origin, identifier, peerActor, at, objectKind, value, causes: suppliedCauses }) {
+  const causes = workBoardCauses(suppliedCauses);
+  // Transport-only metadata. The arena still derives exactly the same move and thread identity.
+  const carriedValue = causes.length === 0 ? value : { ...value, causes };
   return projectSignCellEvidenceActivity({
     origin, identifier, recipient: peerActor, eventTime: at,
-    objectBytes: senActivityObjectBytes({ objectKind, value }),
+    objectBytes: senActivityObjectBytes({ objectKind, value: carriedValue }),
   });
 }
 
@@ -371,9 +379,12 @@ export function preparePeerWorkDecision({ projection, senderActorId, origin, bin
 }
 
 /** Record a peer's move in this board's journal exactly as the peer said it; replay reads it under its own edition. */
-function recordAsSaid(binding, move) {
-  createSemanticRecordJournal({ root: binding.dataRoot, objectKind: "work-arena-move" })
-    .record({ category: "move", recordedAt: move.at, record: JSON.parse(JSON.stringify(move)), told: { for: true, against: false } });
+function recordAsSaid(binding, move, causes = []) {
+  const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: "work-arena-move" });
+  // Unknown-edition and coordinated moves are still one exact authored fact across
+  // repeated arrivals; retain every separate admission, never backfill its work row.
+  if (workBoardStore(binding).rawWitnessesOf(move).length !== 0) return move;
+  journal.record({ category: "move", recordedAt: move.at, record: JSON.parse(JSON.stringify(move)), told: { for: true, against: false }, causes });
   return move;
 }
 
@@ -384,21 +395,21 @@ function recordAsSaid(binding, move) {
  * and listed unread with why, never refused: refusing it would leave the two boards apart for good
  * and the peer sending it again on every catch-up.
  */
-function keepUnread(binding, move) {
+function keepUnread(binding, move, causes = []) {
   if (!["move", "by", "at"].every((key) => typeof move[key] === "string") || (move.id === undefined && typeof move.thread !== "string")) {
     throw new TypeError("a kept move still names its kind, player, time and thread");
   }
-  return recordAsSaid(binding, move);
+  return recordAsSaid(binding, move, causes);
 }
 
 /** Prepare before playing locally so an untransportable telling cannot become local-only. */
-export function prepareWorkTellingDelivery({ config, provider, telling, deliver = deliverActivity, onPeerFailure }) {
-  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workTellingActivity({ ...base, telling, at: telling.at }) });
+export function prepareWorkTellingDelivery({ config, provider, telling, causes, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workTellingActivity({ ...base, telling, causes, at: telling.at }) });
 }
 
 /** Prepare before playing locally so an untransportable opening cannot become local-only. */
-export function prepareWorkOpeningDelivery({ config, provider, opening, deliver = deliverActivity, onPeerFailure }) {
-  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workOpeningActivity({ ...base, opening, at: opening.at }) });
+export function prepareWorkOpeningDelivery({ config, provider, opening, causes, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workOpeningActivity({ ...base, opening, causes, at: opening.at }) });
 }
 
 function preparePeerDelivery({ config, provider, deliver, activityOf, onPeerFailure }) {
@@ -434,14 +445,17 @@ export function preparePeerWorkOpening({ projection, senderActorId, origin, bind
   if (projection.objectKind !== WORK_OPENING_OBJECT_KIND) return undefined;
   const standing = admitByStanding({ kind: "opening", senderActorId, origin, binding, subject: projection.cloudEvent?.id, value: projection.value });
   if (standing.disposition === "held") return held(standing);
+  const { causes: _sourceCauses, ...value } = projection.value;
+  // Only the receiving node's actual admission witness is a local causal predecessor.
+  const causes = standing.events;
   // A peer's opening this board cannot read under its own edition: kept unread, never refused.
-  if (unreadReasonOf(projection.value) !== undefined) return () => keepUnread(binding, projection.value);
-  const opening = assertFederatedOpening(projection.value);
+  if (unreadReasonOf(value) !== undefined) return () => keepUnread(binding, value, causes);
+  const opening = assertFederatedOpening(value);
   return () => {
     const board = workBoardStore(binding, { agency: () => agencyAt(agencyRoot), homes: workHomesOf(() => agencyAt(agencyRoot), enterprises) });
     const known = board.read(opening.at).threads.find((thread) => thread.id === opening.id);
     if (known !== undefined && sameOpening(known.opening, opening)) return known.opening;
-    return board.play(opening);
+    return board.play(opening, { causes });
   };
 }
 
@@ -454,14 +468,16 @@ export function preparePeerWorkTelling({ projection, senderActorId, origin, bind
   if (projection.objectKind !== WORK_TELLING_OBJECT_KIND) return undefined;
   const standing = admitByStanding({ kind: "telling", senderActorId, origin, binding, subject: projection.cloudEvent?.id, value: projection.value });
   if (standing.disposition === "held") return held(standing);
-  if (unreadReasonOf(projection.value) !== undefined) return () => keepUnread(binding, projection.value);
-  const telling = assertFederatedTelling(projection.value);
+  const { causes: _sourceCauses, ...value } = projection.value;
+  const causes = standing.events;
+  if (unreadReasonOf(value) !== undefined) return () => keepUnread(binding, value, causes);
+  const telling = assertFederatedTelling(value);
   return () => {
     const board = workBoardStore(binding, { agency: () => agencyAt(agencyRoot), homes: workHomesOf(() => agencyAt(agencyRoot), enterprises) });
     const told = toldOn(board, telling);
-    if (told === undefined) return board.tell(telling);
+    if (told === undefined) return board.tell(telling, { causes });
     if (!told) throw new TypeError(`${telling.move} is not told on ${telling.thread}; a coordinated move is played on the thread's own board`);
-    return board.play(telling);
+    return board.play(telling, { causes });
   };
 }
 

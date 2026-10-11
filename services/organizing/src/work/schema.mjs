@@ -1,7 +1,7 @@
-import { gitSourceClosureSchema, gitSourceResultSchema } from "@red-cup-engineering/git-services-section/git-command-codec";
 import { skillResultCarrier } from "@red-cup-engineering/animating/becoming/doing/working/governing/carriers";
 import { skillError } from "@red-cup-engineering/animating/becoming/doing/working/governing/skill";
 import { skillResultRouting } from "../work.mjs";
+import { gitSourceClosureSchema, gitSourceResultSchema } from "@red-cup-engineering/git-services-section/git-command-codec";
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { validateJsonSchemaDocument } from "@red-cup-engineering/json-schema-services-section/validation";
@@ -80,8 +80,14 @@ export function admitAgencyWorkResult(value) {
     if (!native.ok || result.codomainAssay.source !== semanticId(native)) {
       throw new TypeError("result codomain assay does not name its native success source");
     }
-    validateResultCodomain(result.codomainAssay.returns);
-    expected = typedValueResultOf(result.codomainAssay.returns, native.output);
+    const declaredCodomain = admitNativeResultCodomain(result.codomainAssay.returns);
+    expected = typedValueResultOf(declaredCodomain, native.output);
+    // JSON embedded in native text can decode new non-NFC strings even when
+    // both the text and declared schema are transport-stable. The product
+    // admitted by that literal schema must not change during persistence.
+    if (canonicalJson(expected) !== canonicalJson(canonicalCarrier(expected))) {
+      throw new TypeError("native codomain projection is not stable through the work result SCA transport");
+    }
   }
   if (semanticId(actual) !== semanticId(expected)) {
     throw new TypeError("office result does not match its native outcome projection or codomain assay");
@@ -802,6 +808,21 @@ export function validateResultCodomain(value) {
   return Object.freeze(value);
 }
 
+/** A native assay persists its declared schema inside an SCA-canonical result.
+ * JSON Schema interprets literal text, not NFC equivalence. Refuse a schema
+ * that this transport would rewrite rather than silently change its contract.
+ * This conservative whole-schema limit includes annotation text; it does not
+ * attempt to decide which normalization changes preserve schema semantics.
+ * Legacy results without native evidence retain their existing schema domain. */
+function admitNativeResultCodomain(value) {
+  const snapshot = canonicalizeJson(value, JSON_RESOURCE_ENVELOPE).value;
+  if (canonicalJson(snapshot) !== canonicalJson(canonicalCarrier(snapshot))) {
+    throw new TypeError("native result codomain is not stable through the work result SCA transport");
+  }
+  validateResultCodomain(snapshot);
+  return snapshot;
+}
+
 /**
  * A work result typed by the codomain its item declares (`returns`). A skill result whose value,
  * an already `returned` value, or a JSON value its textual output carries (`jsonValuesOfText`)
@@ -814,7 +835,7 @@ export function typedResultOf(returns, result) {
   result = admitAgencyWorkResult(result);
   if (returns === undefined || result.kind !== "skill-result") return result;
   const native = result.skillOutcome;
-  const declaredCodomain = native === undefined ? returns : canonicalizeJson(returns, JSON_RESOURCE_ENVELOPE).value;
+  const declaredCodomain = native === undefined ? returns : admitNativeResultCodomain(returns);
   validateResultCodomain(declaredCodomain);
   const projected = typedValueResultOf(declaredCodomain, native === undefined ? result.value : native.output);
   if (native === undefined) return projected;
@@ -841,4 +862,3 @@ function typedValueResultOf(returns, value) {
       + (quoted === "" ? "" : `; it returned: ${quoted.length > RETURNED_EXCERPT ? `${quoted.slice(0, RETURNED_EXCERPT)}…` : quoted}`),
   });
 }
-

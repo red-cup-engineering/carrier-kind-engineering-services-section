@@ -4,7 +4,7 @@ import {
   workItemCausalSetCarrier,
 
 } from "./causal-set.mjs";
-import { dutiesOfAgent, juralRelationsOfClaimRows } from "@red-cup-engineering/socializing";
+import { dutiesOfAgent, juralRelationsOfClaimRows } from "@red-cup-engineering/socializing/office";
 import { readJuralRelations } from "@red-cup-engineering/socializing/jural";
 
 import {
