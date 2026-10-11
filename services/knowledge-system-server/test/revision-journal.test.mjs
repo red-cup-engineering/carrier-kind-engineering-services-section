@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { writeLegacySqlite } from "./write-legacy-sqlite.mjs";
 import { importSqlRevisionIndex, isSqliteFile } from "../src/search/import-sql-revision-index.mjs";
 import { openRevisionJournal, snippetOf } from "../src/search/revision-journal.mjs";
 
@@ -14,7 +15,7 @@ const scratch = (t) => {
   return directory;
 };
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../src");
-const SQL = /node:sqlite|better-sqlite3|DatabaseSync|CREATE (VIRTUAL )?TABLE|INSERT (OR [A-Z]+ )?INTO|SELECT [^"`']* FROM/u;
+const SQL = /node:sql|better-sqlite|libsql|sql\.js|DatabaseSync|CREATE (VIRTUAL )?TABLE|INSERT (OR [A-Z]+ )?INTO|SELECT [^"`']* FROM/u;
 const blob = (n) => n.toString(16).padStart(40, "0");
 
 test("a journal holds bodies, texts, occurrences and cursors, and reopens at what it held", (t) => {
@@ -107,19 +108,19 @@ test("a snippet marks the query's words in the words around the first of them", 
 test("an SQLite archive index is read once into the journal, with a receipt", (t) => {
   const directory = scratch(t);
   const file = path.join(directory, "revisions.sqlite");
-  const { DatabaseSync } = process.getBuiltinModule("node:sqlite");
-  const db = new DatabaseSync(file);
   // The layout the SQLite archive index wrote.
-  db.exec(`CREATE TABLE body (id TEXT PRIMARY KEY, title TEXT, bytes INTEGER);
+  writeLegacySqlite(file, [
+    `CREATE TABLE body (id TEXT PRIMARY KEY, title TEXT, bytes INTEGER);
     CREATE VIRTUAL TABLE body_text USING fts5 (id UNINDEXED, title, text, tokenize = 'unicode61 remove_diacritics 2');
     CREATE TABLE occurrence (id TEXT, source TEXT, path TEXT, revision TEXT, at TEXT, deleted INTEGER, PRIMARY KEY (id, source, path, revision));
-    CREATE TABLE cursor (source TEXT, tip TEXT, PRIMARY KEY (source, tip));`);
-  db.prepare("INSERT INTO body VALUES (?, ?, ?)").run(blob(7), "Cedar", 9);
-  db.prepare("INSERT INTO body_text VALUES (?, ?, ?)").run(blob(7), "Cedar", "cedar fog");
-  db.prepare("INSERT INTO occurrence VALUES (?, ?, ?, ?, ?, ?)").run(blob(7), "repo", "cedar.md", "c1", "2026-01-01T00:00:00Z", 0);
-  db.prepare("INSERT INTO occurrence VALUES (?, ?, ?, ?, ?, ?)").run(blob(7), "repo", "cedar.md", "c2", "2026-02-01T00:00:00Z", 1);
-  db.prepare("INSERT INTO cursor VALUES (?, ?)").run("repo", "tip-a");
-  db.close();
+    CREATE TABLE cursor (source TEXT, tip TEXT, PRIMARY KEY (source, tip));`,
+    ["INSERT INTO body VALUES (?, ?, ?)", blob(7), "Cedar", 9],
+    ["INSERT INTO body_text VALUES (?, ?, ?)", blob(7), "Cedar", "cedar fog"],
+    ["INSERT INTO occurrence VALUES (?, ?, ?, ?, ?, ?)", blob(7), "repo", "cedar.md", "c1", "2026-01-01T00:00:00Z", 0],
+    ["INSERT INTO occurrence VALUES (?, ?, ?, ?, ?, ?)", blob(7), "repo", "cedar.md", "c2", "2026-02-01T00:00:00Z", 1],
+    ["INSERT INTO cursor VALUES (?, ?)", "repo", "tip-a"],
+  ]);
+  const before = readFileSync(file);
   assert.equal(isSqliteFile(file), true);
   assert.equal(isSqliteFile(path.join(directory, "absent.sqlite")), false);
 
@@ -128,6 +129,7 @@ test("an SQLite archive index is read once into the journal, with a receipt", (t
   assert.equal(journal.admission, null);
   assert.deepEqual({ ...importSqlRevisionIndex(file, journal) }, { from: file, bodies: 1, occurrences: 2, sources: 1 });
 
+  assert.ok(readFileSync(file).equals(before), "the SQLite file is read, never written");
   const again = openRevisionJournal({ root });
   assert.equal(again.admission.bodies, 1);
   assert.equal(again.textOf(blob(7)), "cedar fog");
