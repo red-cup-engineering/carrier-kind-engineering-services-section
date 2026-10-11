@@ -97,7 +97,7 @@
     "lib/obsmetrologia-conformance/lakefile.toml",
     "lib/obsmetrologia-conformance/lean-toolchain",
     "lib/obsmetrologia-conformance/lake-manifest.json",
-    "lib/obsmetrologia-conformance/golden-vectors.jsonl",
+    "lib/obsmetrologia-conformance/*golden-vectors.jsonl",
     "README.md",
     "package.json"
   ],
@@ -114,7 +114,8 @@
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/tex-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/organizing": "workspace:*"
   },
   "scripts": {
     "check": "for f in $(find src -name '*.mjs'); do node --check \"$f\" || exit 1; done",
