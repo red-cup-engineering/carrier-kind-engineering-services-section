@@ -8,7 +8,6 @@ import {
   allowanceHold, allowanceLedgerDeclarations, allowanceLedgerEvidence, allowanceLedgerPools, allowanceLedgerUse,
   attemptAllowance, holdAllowance, readAllowanceLedger, recordAllowanceEvidence, releaseAllowance, settleAllowance,
 } from "../../src/media/allowance-ledger.mjs";
-import { writeLegacySqlite } from "./write-legacy-sqlite.mjs";
 import { allowanceBookText } from "../../src/media/allowance-book.mjs";
 import { openAccountArtifactCapacityStore } from "../../src/media/account-artifact-capacity.mjs";
 import { ledgerJournalRoot } from "../../src/media/ledger-journal.mjs";
@@ -68,31 +67,7 @@ test("concurrent consumers on one host serialize: no more holds go through than 
   assert.equal(outcomes.filter((outcome) => outcome === "refused").length, 4);
 });
 
-test("a SQLite allowance ledger is admitted once, read-only, and reads as it did", (t) => {
-  const storePath = path.join(scratch(t), "allowance-ledger.sqlite");
-  writeLegacySqlite(storePath, [
-    `CREATE TABLE allowance_evidence (allowance TEXT NOT NULL, source TEXT NOT NULL, at TEXT NOT NULL, entry TEXT NOT NULL, PRIMARY KEY (allowance, source));
-    CREATE TABLE allowance_hold (id TEXT PRIMARY KEY, allowance TEXT NOT NULL, state TEXT NOT NULL, hold TEXT NOT NULL);
-    CREATE TABLE allowance_declaration (allowance TEXT PRIMARY KEY, at TEXT NOT NULL, declaration TEXT NOT NULL);`,
-    ["INSERT INTO allowance_evidence VALUES (?, ?, ?, ?)", "flow-credits", "studio:old", "2026-10-02T08:00:00.000Z", JSON.stringify({ type: "spend", kind: "veo:fast", count: 1, at: "2026-10-02T08:00:00.000Z", source: "studio:old" })],
-    ["INSERT INTO allowance_hold VALUES (?, ?, ?, ?)", "live", "flow-credits", "held", JSON.stringify({ id: "live", allowance: "flow-credits", account: "google:fixture", kind: "veo:fast", count: 1, at: now, state: "held", probe: false, principal: "studio", heldAt: now, expiresAt: "2026-10-02T12:15:00.000Z" })],
-    ["INSERT INTO allowance_declaration VALUES (?, ?, ?)", "flow-credits", now, JSON.stringify(declared)],
-  ]);
-  const before = readFileSync(storePath);
-
-  // The old spend and the live hold both count: the next 20-credit hold does not fit the 50 budget.
-  assert.equal(holdAllowance(flow, { id: "next", kind: "veo:fast", principal: "studio" }, { storePath, now }).disposition, "refused");
-  assert.deepEqual(readAllowanceLedger(flow, { storePath, now }).holds.map((hold) => hold.id), ["live"]);
-  assert.deepEqual(allowanceLedgerEvidence("flow-credits", { storePath }).map((entry) => entry.source), ["studio:old"]);
-  assert.ok(readFileSync(storePath).equals(before), "the SQLite file is read, never written");
-  const receipt = JSON.parse(readFileSync(path.join(ledgerJournalRoot(storePath), "sql-admission.json"), "utf8"));
-  assert.deepEqual(receipt.counts, { evidence: 1, hold: 1, declaration: 1 });
-  releaseAllowance(flow, "live", { storePath, now });
-  assert.equal(allowanceLedgerEvidence("flow-credits", { storePath }).length, 1, "a second open does not admit again");
-  assert.equal(allowanceHold("live", { storePath }).state, "released");
-});
-
-test("account capacity windows compare-and-set by version in the journal, and admit their SQLite once", async (t) => {
+test("account capacity windows compare-and-set by version in the journal", async (t) => {
   const directory = scratch(t);
   const storePath = path.join(directory, "account-capacity.sqlite");
   const store = openAccountArtifactCapacityStore(storePath);
@@ -102,14 +77,4 @@ test("account capacity windows compare-and-set by version in the journal, and ad
   assert.deepEqual(await store.compareAndSet("k", 1, { type: "WorkResourceAccountWindow", reservations: [{ id: "r" }] }), { version: 2 });
   assert.deepEqual(await openAccountArtifactCapacityStore(storePath).get("k"), { type: "WorkResourceAccountWindow", reservations: [{ id: "r" }], version: 2 });
 
-  const legacyPath = path.join(directory, "legacy.sqlite");
-  writeLegacySqlite(legacyPath, [
-    "CREATE TABLE account_capacity (key TEXT PRIMARY KEY, version INTEGER NOT NULL, value TEXT NOT NULL);",
-    ["INSERT INTO account_capacity VALUES (?, ?, ?)", "acct", 7, JSON.stringify({ type: "WorkResourceAccountWindow", reservations: [] })],
-  ]);
-  const legacy = openAccountArtifactCapacityStore(legacyPath);
-  assert.equal((await legacy.get("acct")).version, 7);
-  assert.deepEqual(await legacy.compareAndSet("acct", 7, { reservations: [] }), { version: 8 });
-  assert.equal((await openAccountArtifactCapacityStore(legacyPath).get("acct")).version, 8, "reopening does not admit the SQLite rows again");
-  assert.ok(!readdirSync(ledgerJournalRoot(legacyPath)).includes(".lock"), "the writer lock is released");
 });

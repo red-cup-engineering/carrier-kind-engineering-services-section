@@ -5,7 +5,6 @@ import { admitWorkResourceBinding, createWorkResourceReservations, workResourceA
 import { jsonValueId } from "../dispatch/sen-carrier.mjs";
 import { admitAccountArtifactObservation, artifactUnits } from "./account-artifact-work.mjs";
 import { openLedgerJournal } from "./ledger-journal.mjs";
-import { accountCapacitySqlRows, admitSqlOnce } from "./import-sql-ledger.mjs";
 
 const quantity = (value) => ({ numerator: String(value), denominator: "1" });
 /** One host-wide store, so every consumer of an account draws from the same windows. */
@@ -45,14 +44,12 @@ function bindingOf(value) {
 /**
  * The capacity store is a semantic-record journal of account windows: each compare-and-set that
  * goes through appends the window's next version, and the highest version recorded for a key is the
- * window as it stands. The check and the append run under the journal's writer lock. A SQLite store
- * left at the path from before is admitted once, read-only.
+ * window as it stands. The check and the append run under the journal's writer lock. Historical custody requires explicit offline receiving.
  */
 const OBJECT_KIND = "inference.account-capacity";
 /** The store one capacity path names: `get(key)` and `compareAndSet(key, expectedVersion, value)`. */
 export function openAccountArtifactCapacityStore(path) {
   const journal = openLedgerJournal(path, OBJECT_KIND);
-  admitSqlOnce(journal, path, accountCapacitySqlRows);
   const current = (key) => journal.read("window").filter((row) => row.key === key).reduce((top, row) => (top === null || row.version > top.version ? row : top), null);
   return {
     close: () => {},
