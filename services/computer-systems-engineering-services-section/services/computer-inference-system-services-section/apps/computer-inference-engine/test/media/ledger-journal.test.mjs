@@ -3,12 +3,12 @@ import test from "node:test";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
 import { Worker } from "node:worker_threads";
 import {
   allowanceHold, allowanceLedgerDeclarations, allowanceLedgerEvidence, allowanceLedgerPools, allowanceLedgerUse,
   attemptAllowance, holdAllowance, readAllowanceLedger, recordAllowanceEvidence, releaseAllowance, settleAllowance,
 } from "../../src/media/allowance-ledger.mjs";
+import { writeLegacySqlite } from "./write-legacy-sqlite.mjs";
 import { allowanceBookText } from "../../src/media/allowance-book.mjs";
 import { openAccountArtifactCapacityStore } from "../../src/media/account-artifact-capacity.mjs";
 import { ledgerJournalRoot } from "../../src/media/ledger-journal.mjs";
@@ -70,14 +70,14 @@ test("concurrent consumers on one host serialize: no more holds go through than 
 
 test("a SQLite allowance ledger is admitted once, read-only, and reads as it did", (t) => {
   const storePath = path.join(scratch(t), "allowance-ledger.sqlite");
-  const database = new DatabaseSync(storePath);
-  database.exec(`CREATE TABLE allowance_evidence (allowance TEXT NOT NULL, source TEXT NOT NULL, at TEXT NOT NULL, entry TEXT NOT NULL, PRIMARY KEY (allowance, source));
+  writeLegacySqlite(storePath, [
+    `CREATE TABLE allowance_evidence (allowance TEXT NOT NULL, source TEXT NOT NULL, at TEXT NOT NULL, entry TEXT NOT NULL, PRIMARY KEY (allowance, source));
     CREATE TABLE allowance_hold (id TEXT PRIMARY KEY, allowance TEXT NOT NULL, state TEXT NOT NULL, hold TEXT NOT NULL);
-    CREATE TABLE allowance_declaration (allowance TEXT PRIMARY KEY, at TEXT NOT NULL, declaration TEXT NOT NULL);`);
-  database.prepare("INSERT INTO allowance_evidence VALUES (?, ?, ?, ?)").run("flow-credits", "studio:old", "2026-10-02T08:00:00.000Z", JSON.stringify({ type: "spend", kind: "veo:fast", count: 1, at: "2026-10-02T08:00:00.000Z", source: "studio:old" }));
-  database.prepare("INSERT INTO allowance_hold VALUES (?, ?, ?, ?)").run("live", "flow-credits", "held", JSON.stringify({ id: "live", allowance: "flow-credits", account: "google:fixture", kind: "veo:fast", count: 1, at: now, state: "held", probe: false, principal: "studio", heldAt: now, expiresAt: "2026-10-02T12:15:00.000Z" }));
-  database.prepare("INSERT INTO allowance_declaration VALUES (?, ?, ?)").run("flow-credits", now, JSON.stringify(declared));
-  database.close();
+    CREATE TABLE allowance_declaration (allowance TEXT PRIMARY KEY, at TEXT NOT NULL, declaration TEXT NOT NULL);`,
+    ["INSERT INTO allowance_evidence VALUES (?, ?, ?, ?)", "flow-credits", "studio:old", "2026-10-02T08:00:00.000Z", JSON.stringify({ type: "spend", kind: "veo:fast", count: 1, at: "2026-10-02T08:00:00.000Z", source: "studio:old" })],
+    ["INSERT INTO allowance_hold VALUES (?, ?, ?, ?)", "live", "flow-credits", "held", JSON.stringify({ id: "live", allowance: "flow-credits", account: "google:fixture", kind: "veo:fast", count: 1, at: now, state: "held", probe: false, principal: "studio", heldAt: now, expiresAt: "2026-10-02T12:15:00.000Z" })],
+    ["INSERT INTO allowance_declaration VALUES (?, ?, ?)", "flow-credits", now, JSON.stringify(declared)],
+  ]);
   const before = readFileSync(storePath);
 
   // The old spend and the live hold both count: the next 20-credit hold does not fit the 50 budget.
@@ -103,10 +103,10 @@ test("account capacity windows compare-and-set by version in the journal, and ad
   assert.deepEqual(await openAccountArtifactCapacityStore(storePath).get("k"), { type: "WorkResourceAccountWindow", reservations: [{ id: "r" }], version: 2 });
 
   const legacyPath = path.join(directory, "legacy.sqlite");
-  const database = new DatabaseSync(legacyPath);
-  database.exec("CREATE TABLE account_capacity (key TEXT PRIMARY KEY, version INTEGER NOT NULL, value TEXT NOT NULL);");
-  database.prepare("INSERT INTO account_capacity VALUES (?, ?, ?)").run("acct", 7, JSON.stringify({ type: "WorkResourceAccountWindow", reservations: [] }));
-  database.close();
+  writeLegacySqlite(legacyPath, [
+    "CREATE TABLE account_capacity (key TEXT PRIMARY KEY, version INTEGER NOT NULL, value TEXT NOT NULL);",
+    ["INSERT INTO account_capacity VALUES (?, ?, ?)", "acct", 7, JSON.stringify({ type: "WorkResourceAccountWindow", reservations: [] })],
+  ]);
   const legacy = openAccountArtifactCapacityStore(legacyPath);
   assert.equal((await legacy.get("acct")).version, 7);
   assert.deepEqual(await legacy.compareAndSet("acct", 7, { reservations: [] }), { version: 8 });

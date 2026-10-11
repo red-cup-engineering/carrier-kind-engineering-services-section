@@ -4,12 +4,12 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { DatabaseSync } from "node:sqlite";
+import { writeLegacySqlite } from "./write-legacy-sqlite.mjs";
 import { accountCapacitySqlRows, admitSqlOnce, allowanceLedgerSqlRows } from "../../src/media/import-sql-ledger.mjs";
 import { openLedgerJournal } from "../../src/media/ledger-journal.mjs";
 
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../src");
-const SQL = /node:sqlite|better-sqlite3|sqlite3|DatabaseSync|CREATE (VIRTUAL )?TABLE|INSERT (OR [A-Z]+ )?INTO|SELECT [^"`']* FROM/u;
+const SQL = /node:sql|better-sqlite|sqlite3|libsql|sql\.js|DatabaseSync|CREATE (VIRTUAL )?TABLE|INSERT (OR [A-Z]+ )?INTO|SELECT [^"`']* FROM/u;
 
 test("SQL is read only in the read-once admission: no other module of the engine holds any", () => {
   const holding = readdirSync(source, { recursive: true }).map(String)
@@ -22,15 +22,18 @@ test("a ledger's SQLite rows are read once into its journal, with a receipt", (t
   const directory = mkdtempSync(path.join(tmpdir(), "import-sql-ledger-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const storePath = path.join(directory, "allowance-ledger.sqlite");
-  const database = new DatabaseSync(storePath);
-  database.exec(`CREATE TABLE allowance_evidence (allowance TEXT NOT NULL, source TEXT NOT NULL, at TEXT NOT NULL, entry TEXT NOT NULL);
-    CREATE TABLE account_capacity (key TEXT PRIMARY KEY, version INTEGER NOT NULL, value TEXT NOT NULL);`);
-  database.prepare("INSERT INTO allowance_evidence VALUES (?, ?, ?, ?)").run("pool", "s1", "2026-10-02T08:00:00.000Z", JSON.stringify({ type: "spend" }));
-  database.prepare("INSERT INTO account_capacity VALUES (?, ?, ?)").run("acct", 3, JSON.stringify({ reservations: [] }));
-  database.close();
+  writeLegacySqlite(storePath, [
+    `CREATE TABLE allowance_evidence (allowance TEXT NOT NULL, source TEXT NOT NULL, at TEXT NOT NULL, entry TEXT NOT NULL);
+    CREATE TABLE account_capacity (key TEXT PRIMARY KEY, version INTEGER NOT NULL, value TEXT NOT NULL);`,
+    ["INSERT INTO allowance_evidence VALUES (?, ?, ?, ?)", "pool", "s1", "2026-10-02T08:00:00.000Z", JSON.stringify({ type: "spend" })],
+    ["INSERT INTO account_capacity VALUES (?, ?, ?)", "acct", 3, JSON.stringify({ reservations: [] })],
+  ]);
 
   const ledger = openLedgerJournal(storePath, "test.ledger");
-  const receipt = admitSqlOnce(ledger, storePath, (db, tables) => [...allowanceLedgerSqlRows(db, tables), ...accountCapacitySqlRows(db, tables)]);
+  const receipt = admitSqlOnce(ledger, storePath, Object.assign(
+    (legacy) => [...allowanceLedgerSqlRows(legacy), ...accountCapacitySqlRows(legacy)],
+    { tables: [...allowanceLedgerSqlRows.tables, ...accountCapacitySqlRows.tables] },
+  ));
   assert.deepEqual(receipt.counts, { evidence: 1, window: 1 });
   assert.deepEqual(ledger.read("evidence"), [{ allowance: "pool", source: "s1", at: "2026-10-02T08:00:00.000Z", entry: { type: "spend" } }]);
   assert.deepEqual(ledger.read("window"), [{ key: "acct", version: 3, value: { reservations: [] } }]);

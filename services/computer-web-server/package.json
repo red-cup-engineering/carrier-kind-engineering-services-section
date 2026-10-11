@@ -76,9 +76,6 @@
     "./static-mirror": "./src/static-mirror.mjs",
     "./platform-http/operation-serving": "./src/platform-http/operation-serving.mjs"
   },
-  "sqlAdmissionPaths": [
-    "src/admission/import-sql-discord-admission.mjs"
-  ],
   "files": [
     "src",
     "README.md"

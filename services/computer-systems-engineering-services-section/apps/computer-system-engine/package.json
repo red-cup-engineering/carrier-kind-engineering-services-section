@@ -74,7 +74,8 @@
     "./rpc/wire-dispatch": "./src/rpc/wire-dispatch.mjs",
     "./rpc/node": "./src/rpc/node.mjs",
     "./rpc/actor-processing": "./src/rpc/actor-processing.mjs",
-    "./rpc/actor-client": "./src/rpc/actor-client.mjs"
+    "./rpc/actor-client": "./src/rpc/actor-client.mjs",
+    "./legacy-sqlite-reader": "./src/legacy-sqlite-reader.mjs"
   },
   "files": [
     "src",
