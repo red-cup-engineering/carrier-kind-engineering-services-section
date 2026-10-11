@@ -23,7 +23,6 @@
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
     "@red-cup-engineering/strategy-program-synthesis-work-lot-service": "workspace:*",
     "@red-cup-engineering/strategy-evaluation-service": "workspace:*",
-    "@red-cup-engineering/file-data-services-section": "workspace:*",
     "@red-cup-engineering/purged-walk-forward-fold-service": "workspace:*"
   },
   "description": "Scalable customer-wallet-funded market in metered brokerage-control APIs.",
