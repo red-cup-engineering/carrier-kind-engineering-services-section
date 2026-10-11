@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtemp,rm,readdir,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {createYouTube,readYouTubeAuthenticationState} from '../src/youtube-api.mjs';
+import {createYouTube,readYouTubeAuthenticationState,revalidateYouTubeAuthentication} from '../src/youtube-api.mjs';
 
 const channelId='UCabcdefghijklmnopqrstuv',otherChannel='UCzyxwvutsrqponmlkjihgfe';
 const json=(value,status=200)=>new Response(JSON.stringify(value),{status});
@@ -85,4 +85,42 @@ test('unreadable and invalid retained records remain unavailable without leaking
  const {mkdir}=await import('node:fs/promises');await rm(path);await mkdir(path); // EISDIR, no permission changes needed.
  assert.equal(f.read().reason,'retained-observation-unreadable');
  let calls=0;await assert.rejects(createYouTube({...f.options,authorize:async()=>{calls++;},fetchImpl:async()=>{calls++;}}).verifyIdentity(),e=>e.code==='YOUTUBE_AUTHENTICATION_PENDING');assert.equal(calls,0);
+});
+test('explicit successful revalidation supersedes the exact refusal and preserves its bytes',async t=>{
+ const f=await fixture(t);let healthy=false,calls=0;
+ const fetchImpl=async url=>{calls++;return url.includes('oauth2')?(healthy?json({access_token:'synthetic-access'}):json({error:'invalid_grant'},400)):json({items:[{id:channelId}]});};
+ const client=createYouTube({...f.options,authorize:async()=>{},fetchImpl});await assert.rejects(client.verifyIdentity());
+ const path=join(f.root,'authentication',(await readdir(join(f.root,'authentication')))[0]);const {readFile}=await import('node:fs/promises'),before=await readFile(path,'utf8');
+ healthy=true;assert.equal(f.read().status,'rejected'); // Mere availability/storage changes cannot discharge it.
+ await revalidateYouTubeAuthentication({...f.options,authorize:async()=>{},fetchImpl});
+ assert.equal(f.read().status,'verified');assert.equal(f.read().verifiedAt,'2026-10-07T10:00:00.000Z');assert.equal(await readFile(path,'utf8'),before);
+ assert.equal((await client.verifyIdentity()).id,channelId); // Also supersedes the client-local old refusal.
+ const afterCalls=calls;f.read();f.read();assert.equal(calls,afterCalls);
+ healthy=false;const next=createYouTube({...f.options,authorize:async()=>{},fetchImpl});await assert.rejects(next.verifyIdentity());
+ assert.equal(f.read().status,'rejected');assert.notEqual(await readFile(path,'utf8'),before); // New refusal invalidates the witness even at identical clocks.
+});
+test('failed or wrong-channel revalidation cannot supersede retained refusal',async t=>{
+ const f=await fixture(t);await assert.rejects(createYouTube({...f.options,authorize:async()=>{},fetchImpl:async()=>json({error:'invalid_grant'},400)}).verifyIdentity());
+ const before=await readdir(join(f.root,'authentication'));
+ for(const fetchImpl of [async()=>json({error:'invalid_grant'},400),async url=>url.includes('oauth2')?json({access_token:'synthetic-access'}):json({items:[{id:otherChannel}]})]){
+  await assert.rejects(revalidateYouTubeAuthentication({...f.options,authorize:async()=>{},fetchImpl}));assert.equal(f.read().status,'rejected');
+ }
+ assert.deepEqual(await readdir(join(f.root,'authentication')),before);
+});
+test('revalidation does not overwrite a concurrent later refusal',async t=>{
+ const f=await fixture(t);await assert.rejects(createYouTube({...f.options,authorize:async()=>{},fetchImpl:async()=>json({error:'invalid_grant'},400)}).verifyIdentity());
+ const path=join(f.root,'authentication',(await readdir(join(f.root,'authentication')))[0]);
+ await assert.rejects(revalidateYouTubeAuthentication({...f.options,authorize:async()=>{},fetchImpl:async url=>{
+  if(url.includes('oauth2'))return json({access_token:'synthetic-access'});
+  await writeFile(path,JSON.stringify({reason:'invalid_client',observedAt:'2026-10-07T10:00:00.000Z'}));return json({items:[{id:channelId}]});
+ }}),/changed during revalidation/);
+ assert.equal(f.read().reason,'client-rejected');assert.equal((await readdir(join(f.root,'authentication'))).length,1);
+});
+test('malformed superseding witnesses remain unavailable and cannot hide a refusal',async t=>{
+ const f=await fixture(t);await assert.rejects(createYouTube({...f.options,authorize:async()=>{},fetchImpl:async()=>json({error:'invalid_grant'},400)}).verifyIdentity());
+ const path=join(f.root,'authentication',(await readdir(join(f.root,'authentication')))[0])+'.verified.json';
+ for(const body of ['not-json','null','false','{}',JSON.stringify({type:'YouTubeAuthenticationRevalidation',version:1,channelId,refusalSha256:'a'.repeat(64),verifiedAt:'2099-01-01T00:00:00Z'})]) {
+  await writeFile(path,body);assert.equal(f.read().status,'unavailable');
+  let calls=0;await assert.rejects(createYouTube({...f.options,authorize:async()=>{calls++;},fetchImpl:async()=>{calls++;}}).verifyIdentity(),e=>e.code==='YOUTUBE_AUTHENTICATION_PENDING');assert.equal(calls,0);
+ }
 });

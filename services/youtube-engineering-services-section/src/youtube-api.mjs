@@ -1,7 +1,7 @@
 import { open, stat } from 'node:fs/promises';
 import { createReadStream, existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const API = 'https://www.googleapis.com/youtube/v3/';
@@ -41,17 +41,48 @@ const AUTHENTICATION_REASONS=new Map([
 export function readYouTubeAuthenticationState({channelId,refreshTokenEnv,env,clock=Date.now}={}) {
   if(!/^UC[\w-]{22}$/u.test(channelId??'')||!/^[_A-Z][_A-Z0-9]*$/u.test(refreshTokenEnv??'')||!env||typeof env!=='object')throw new TypeError('An exact configured YouTube identity is required');
   const observedAt=new Date(clock()).toISOString();
-  const observation=(status,reason,refusedAt=null)=>({type:'YouTubeAuthenticationObservation',version:1,channelId,status,reason,observedAt,refusedAt});
-  if(!env[refreshTokenEnv])return observation('missing','channel-credential-missing');
+  const observation=(status,reason,refusedAt=null,verifiedAt=null)=>({type:'YouTubeAuthenticationObservation',version:1,channelId,status,reason,observedAt,refusedAt,verifiedAt});
   if(!env.YOUTUBE_OAUTH_CLIENT_ID||!env.YOUTUBE_OAUTH_CLIENT_SECRET)return observation('unavailable','client-configuration-missing');
+  if(!env[refreshTokenEnv])return observation('missing','channel-credential-missing');
   const path=authenticationPath({channelId,refreshTokenEnv,env});
   if(!path)return observation('unavailable','observation-root-unavailable');
-  let held;
-  try {held=JSON.parse(readFileSync(path,'utf8'));}
+  let held,original;
+  try {original=readFileSync(path,'utf8');held=JSON.parse(original);}
   catch(error){return error.code==='ENOENT'?observation('present-unobserved','no-retained-refusal'):observation('unavailable','retained-observation-unreadable');}
   if(!held||typeof held!=='object'||typeof held.reason!=='string')return observation('unavailable','retained-observation-invalid');
   const at=Date.parse(held.observedAt),refusedAt=Number.isFinite(at)&&at<=Date.parse(observedAt)?new Date(at).toISOString():null;
+  let verified,hasVerification=false;
+  try {verified=JSON.parse(readFileSync(path+'.verified.json','utf8'));hasVerification=true;}
+  catch(error){if(error.code!=='ENOENT')return observation('unavailable','retained-verification-unreadable',refusedAt);}
+  if(hasVerification) {
+    const at=Date.parse(verified?.verifiedAt);
+    if(!verified||typeof verified!=='object'||verified.type!=='YouTubeAuthenticationRevalidation'||verified.version!==1||verified.channelId!==channelId||!/^[a-f0-9]{64}$/u.test(verified.refusalSha256??'')||!Number.isFinite(at)||at>Date.parse(observedAt))return observation('unavailable','retained-verification-invalid',refusedAt);
+    if(verified.refusalSha256===createHash('sha256').update(original).digest('hex')&&(!refusedAt||at>=Date.parse(refusedAt)))return observation('verified','channel-identity-verified',refusedAt,new Date(at).toISOString());
+  }
   return observation('rejected',AUTHENTICATION_REASONS.get(held.reason)??'unclassified-refusal',refusedAt);
+}
+
+/** Explicit account recovery only: verify this exact credential with Google before superseding
+ * its retained refusal. Ordinary readiness checks and production never invoke this transition.
+ * The refusal bytes stay intact; a later refusal invalidates this hash-bound success witness.
+ */
+export async function revalidateYouTubeAuthentication(options) {
+  const {channelId,refreshTokenEnv,env,clock=Date.now}=options;
+  const path=authenticationPath({channelId,refreshTokenEnv,env});
+  const observation=readYouTubeAuthenticationState({channelId,refreshTokenEnv,env,clock});
+  if(observation.status==='unavailable'||observation.reason==='unclassified-refusal')throw new Error('YouTube authentication observation requires operator reconciliation before revalidation');
+  let original;
+  if(path)try {original=readFileSync(path,'utf8');}catch(error){if(error.code!=='ENOENT')throw new Error('YouTube authentication observation could not be read for revalidation');}
+  // Verification is deliberately isolated from the refusal being revalidated. It still requires
+  // the caller's explicit authorization and the normal refresh plus configured-channel check.
+  const identity=await createYouTube({...options,env:{...env,YOUTUBE_API_STATE_ROOT:'',HOME:undefined}}).verifyIdentity({fresh:true});
+  if(original!==undefined) {
+    let current;try {current=readFileSync(path,'utf8');}catch {throw new Error('YouTube authentication observation could not be reconciled after verification');}
+    if(current!==original)throw new Error('YouTube authentication observation changed during revalidation; preserve it for reconciliation');
+    try {privateJson(path+'.verified.json',{type:'YouTubeAuthenticationRevalidation',version:1,channelId,refusalSha256:createHash('sha256').update(original).digest('hex'),verifiedAt:new Date(clock()).toISOString()});}
+    catch {throw new Error('YouTube authentication verification could not be retained; its refusal remains effective');}
+  }
+  return identity;
 }
 
 // videos.update replaces mutable fields in its requested part. Preserve the
@@ -149,10 +180,11 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       const reason=[...AUTHENTICATION_REASONS].find(([,value])=>value===observation.reason)?.[0]??'Retained authentication refusal requires operator review';
       throw authenticationPending(reason);
     }
-    if(observation.status==='unavailable'&&observation.reason.startsWith('retained-observation-'))throw authenticationPending('Retained authentication observation requires operator review');
+    if(observation.status==='unavailable'&&observation.reason.startsWith('retained-'))throw authenticationPending('Retained authentication observation requires operator review');
+    if(observation.status==='verified')return;
     if(authRefusal)throw authenticationPending(authRefusal);
   }
-  function refuseAuthentication(reason) {authRefusal=reason;if(authPath)privateJson(authPath,{reason,observedAt:new Date(clock()).toISOString()});return authenticationPending(reason);}
+  function refuseAuthentication(reason) {authRefusal=reason;if(authPath)privateJson(authPath,{id:randomUUID(),reason,observedAt:new Date(clock()).toISOString()});return authenticationPending(reason);}
   const inventoryTtl=3600000;
   function quotaPath(bucket){return root?join(root,'quotas',project+'-'+bucket+'.json'):null;}
   function waiting(bucket) {
