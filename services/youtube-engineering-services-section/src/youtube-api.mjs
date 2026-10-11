@@ -25,6 +25,35 @@ function privateJson(path,value) {
 }
 function remove(path) {if(path)try{unlinkSync(path);}catch(error){if(error.code!=='ENOENT')throw error;}}
 
+const authenticationPath=({channelId,refreshTokenEnv,env})=>{
+  const root=env.YOUTUBE_API_STATE_ROOT??(env.HOME?join(env.HOME,'.local/state/561-group/youtube'):null);
+  return root?join(root,'authentication',createHash('sha256').update(JSON.stringify([channelId,env.YOUTUBE_OAUTH_CLIENT_ID,env.YOUTUBE_OAUTH_CLIENT_SECRET,env[refreshTokenEnv]])).digest('hex')+'.json'):null;
+};
+const AUTHENTICATION_REASONS=new Map([
+  ['invalid_grant','grant-rejected'],['invalid_client','client-rejected'],
+  ['Google rejected a freshly renewed access token','access-token-rejected'],
+  ['YouTube credential does not identify configured channel','channel-mismatch'],
+]);
+/** Read the uploader's existing channel-bound refusal; never probe Google or alter custody.
+ * Present-unobserved means a grant is held, not that Google currently accepts it.
+ * observedAt is this read; refusedAt is the original retained refusal, when known.
+ */
+export function readYouTubeAuthenticationState({channelId,refreshTokenEnv,env,clock=Date.now}={}) {
+  if(!/^UC[\w-]{22}$/u.test(channelId??'')||!/^[_A-Z][_A-Z0-9]*$/u.test(refreshTokenEnv??'')||!env||typeof env!=='object')throw new TypeError('An exact configured YouTube identity is required');
+  const observedAt=new Date(clock()).toISOString();
+  const observation=(status,reason,refusedAt=null)=>({type:'YouTubeAuthenticationObservation',version:1,channelId,status,reason,observedAt,refusedAt});
+  if(!env[refreshTokenEnv])return observation('missing','channel-credential-missing');
+  if(!env.YOUTUBE_OAUTH_CLIENT_ID||!env.YOUTUBE_OAUTH_CLIENT_SECRET)return observation('unavailable','client-configuration-missing');
+  const path=authenticationPath({channelId,refreshTokenEnv,env});
+  if(!path)return observation('unavailable','observation-root-unavailable');
+  let held;
+  try {held=JSON.parse(readFileSync(path,'utf8'));}
+  catch(error){return error.code==='ENOENT'?observation('present-unobserved','no-retained-refusal'):observation('unavailable','retained-observation-unreadable');}
+  if(!held||typeof held!=='object'||typeof held.reason!=='string')return observation('unavailable','retained-observation-invalid');
+  const at=Date.parse(held.observedAt),refusedAt=Number.isFinite(at)&&at<=Date.parse(observedAt)?new Date(at).toISOString():null;
+  return observation('rejected',AUTHENTICATION_REASONS.get(held.reason)??'unclassified-refusal',refusedAt);
+}
+
 // videos.update replaces mutable fields in its requested part. Preserve the
 // existing distribution and license settings when changing visibility.
 function publicationStatus(video, changes) {
@@ -111,11 +140,16 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
   const fingerprint=value=>createHash('sha256').update(value).digest('hex');
   const project=fingerprint(env.YOUTUBE_OAUTH_CLIENT_ID);
   const inventoryPath=root?join(root,'inventories',fingerprint(JSON.stringify([channelId,env.YOUTUBE_OAUTH_CLIENT_ID,env[refreshTokenEnv]]))+'.json'):null;
-  const authPath=root?join(root,'authentication',fingerprint(JSON.stringify([channelId,env.YOUTUBE_OAUTH_CLIENT_ID,env.YOUTUBE_OAUTH_CLIENT_SECRET,env[refreshTokenEnv]]))+'.json'):null;
+  const authPath=authenticationPath({channelId,refreshTokenEnv,env});
   let authRefusal;
   function authenticationPending(reason) {return Object.assign(new Error('YouTube authentication pending: '+reason),{code:'YOUTUBE_AUTHENTICATION_PENDING',credentialRequired:true});}
   function assertAuthentication() {
-    if(authPath&&existsSync(authPath)){const held=JSON.parse(readFileSync(authPath,'utf8'));throw authenticationPending(held.reason);}
+    const observation=readYouTubeAuthenticationState({channelId,refreshTokenEnv,env,clock});
+    if(observation.status==='rejected') {
+      const reason=[...AUTHENTICATION_REASONS].find(([,value])=>value===observation.reason)?.[0]??'Retained authentication refusal requires operator review';
+      throw authenticationPending(reason);
+    }
+    if(observation.status==='unavailable'&&observation.reason.startsWith('retained-observation-'))throw authenticationPending('Retained authentication observation requires operator review');
     if(authRefusal)throw authenticationPending(authRefusal);
   }
   function refuseAuthentication(reason) {authRefusal=reason;if(authPath)privateJson(authPath,{reason,observedAt:new Date(clock()).toISOString()});return authenticationPending(reason);}
@@ -202,7 +236,7 @@ export function createYouTube({ channelId, refreshTokenEnv, env, fetchImpl, auth
       identityObservedAt = Date.now();
       identityObservation = (async () => {
         const result = await api('channels?part=id,contentDetails&mine=true');
-        if (result.items?.length !== 1 || result.items[0].id !== channelId) throw new Error(`YouTube credential does not identify configured channel ${channelId}`);
+        if (result.items?.length !== 1 || result.items[0].id !== channelId) throw refuseAuthentication('YouTube credential does not identify configured channel');
         return result.items[0];
       })();
     }
@@ -558,3 +592,4 @@ function nextOffset(response, size) {
   if (!Number.isSafeInteger(offset) || offset < 1 || offset > size) throw new Error('Invalid YouTube resumable Range header');
   return offset;
 }
+

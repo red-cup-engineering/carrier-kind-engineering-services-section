@@ -282,7 +282,9 @@ test('expired ambiguous upload refuses a fresh session or duplicate', async t =>
   } });
   await assert.rejects(make(first.fetchImpl).upload({ ...input(filePath), onCheckpoint: s => { saved = s; } }));
   const second = fake({ effect() { return new Response(null, { status: 404 }); } });
-  await assert.rejects(make(second.fetchImpl).upload({ ...input(filePath), checkpoint: saved, onCheckpoint() {} }), /ambiguous.*duplicate/);
+  await assert.rejects(make(second.fetchImpl).upload({ ...input(filePath), checkpoint: saved, onCheckpoint: s => { saved = s; } }), error => error.code === 'YOUTUBE_UPLOAD_SESSION_EXPIRED');
+  assert.equal(saved.phase, 'expired');
+  assert.ok(Number.isFinite(Date.parse(saved.sessionExpiredAt)));
   assert.equal(second.calls.filter(c => c.url.includes('/upload/') && c.method === 'POST').length, 0);
 });
 
@@ -410,3 +412,4 @@ test('Data API quota does not block channel-bound Analytics reports',async()=>{
  const reports=await client.audienceReports();assert.equal(reports.videos.status,'observed');assert.equal(reports.traffic.rows[0].views,10);assert.equal(reports.questions.status,'unavailable');
  assert.equal(calls.length-before,3);assert(calls.slice(before).every(url=>url.startsWith('https://youtubeanalytics.googleapis.com/')));
 });
+
