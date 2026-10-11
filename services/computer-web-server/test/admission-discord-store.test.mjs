@@ -1,12 +1,13 @@
+import {createHash} from 'node:crypto';
 // Discord admission's journal store, and the read-once import of what a D1 (SQLite) database held.
 import assert from 'node:assert/strict';
-import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, rmSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { createSemanticRecordJournal } from '@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record';
 import { DISCORD_ADMISSION_OBJECT_KIND, DISCORD_ADMISSION_TABLES, createDiscordAdmissionStore } from "../src/admission/discord-store.mjs";
-import { importSqlDiscordAdmission } from "../src/admission/import-sql-discord-admission.mjs";
+import { importSqlDiscordAdmission } from "../scripts/historical-discord-receiving/receive.mjs";
 import { ADMISSION_MIGRATIONS } from "./fixtures/legacy-d1-admission-schema.mjs";
 
 function freshRoot(t, name) {
@@ -71,9 +72,10 @@ test('a D1 admission database is admitted into the journal once', (t) => {
     VALUES ('c1', 'v1', 300, NULL, NULL, NULL, NULL, 3)`).run();
   legacy.prepare(`INSERT INTO discord_command_login_rate_limits (rate_key, attempts, reset_at) VALUES ('${'c'.repeat(64)}', 4, 400)`).run();
   legacy.close();
+  const expectedSha256=createHash('sha256').update(readFileSync(file)).digest('hex');
 
   const store = createDiscordAdmissionStore({ root: join(root, 'journal') });
-  assert.deepEqual(importSqlDiscordAdmission(file, store), {
+  assert.deepEqual(importSqlDiscordAdmission(file, store, {expectedSha256}), {
     discord_oauth_sessions: 1, discord_command_login_challenges: 1, discord_interaction_sessions: 0,
   });
   assert.deepEqual(store.oauthSessions.read('s1'), {
@@ -85,6 +87,9 @@ test('a D1 admission database is admitted into the journal once', (t) => {
 
   // The journal is now the store: a second reading admits nothing and changes nothing.
   store.commandChallenges.write('c1', { ...store.commandChallenges.read('c1'), approved_at: 7 });
-  assert.deepEqual(Object.values(importSqlDiscordAdmission(file, store)), [0, 0, 0]);
+  assert.deepEqual(Object.values(importSqlDiscordAdmission(file, store, {expectedSha256})), [0, 0, 0]);
   assert.equal(store.commandChallenges.read('c1').approved_at, 7);
+  assert.equal(createHash('sha256').update(readFileSync(file)).digest('hex'),expectedSha256,'original custody remains unchanged');
+  assert.throws(()=>importSqlDiscordAdmission(file,store,{expectedSha256:'0'.repeat(64)}),/identity/);
+  writeFileSync(file+'-wal','unreceived');assert.throws(()=>importSqlDiscordAdmission(file,store,{expectedSha256}),/transaction custody/);
 });

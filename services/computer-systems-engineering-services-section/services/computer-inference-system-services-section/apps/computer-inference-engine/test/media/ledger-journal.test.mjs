@@ -1,3 +1,6 @@
+import {createHash} from 'node:crypto';
+import {admitSqlOnce,allowanceLedgerSqlRows,accountCapacitySqlRows} from '../../scripts/historical-ledger-receiving/receive.mjs';
+import {openLedgerJournal} from '../../src/media/ledger-journal.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
@@ -68,8 +71,8 @@ test("concurrent consumers on one host serialize: no more holds go through than 
   assert.equal(outcomes.filter((outcome) => outcome === "refused").length, 4);
 });
 
-test("a SQLite allowance ledger is admitted once, read-only, and reads as it did", (t) => {
-  const storePath = path.join(scratch(t), "allowance-ledger.sqlite");
+test("a SQLite allowance ledger is received explicitly offline and reads as it did", (t) => {
+  let storePath = path.join(scratch(t), "allowance-ledger.sqlite");
   const database = new DatabaseSync(storePath);
   database.exec(`CREATE TABLE allowance_evidence (allowance TEXT NOT NULL, source TEXT NOT NULL, at TEXT NOT NULL, entry TEXT NOT NULL, PRIMARY KEY (allowance, source));
     CREATE TABLE allowance_hold (id TEXT PRIMARY KEY, allowance TEXT NOT NULL, state TEXT NOT NULL, hold TEXT NOT NULL);
@@ -78,13 +81,17 @@ test("a SQLite allowance ledger is admitted once, read-only, and reads as it did
   database.prepare("INSERT INTO allowance_hold VALUES (?, ?, ?, ?)").run("live", "flow-credits", "held", JSON.stringify({ id: "live", allowance: "flow-credits", account: "google:fixture", kind: "veo:fast", count: 1, at: now, state: "held", probe: false, principal: "studio", heldAt: now, expiresAt: "2026-10-02T12:15:00.000Z" }));
   database.prepare("INSERT INTO allowance_declaration VALUES (?, ?, ?)").run("flow-credits", now, JSON.stringify(declared));
   database.close();
-  const before = readFileSync(storePath);
+  const sourcePath=storePath,before=readFileSync(sourcePath),expectedSha256=createHash('sha256').update(before).digest('hex');
+  assert.throws(()=>readAllowanceLedger(flow,{storePath,now}),/explicit offline receiving/);
+  assert(!existsSync(ledgerJournalRoot(sourcePath)));
+  storePath=path.join(path.dirname(sourcePath),'received-allowance');
+  admitSqlOnce(openLedgerJournal(storePath,'inference.allowance-ledger'),sourcePath,allowanceLedgerSqlRows,{expectedSha256});
 
   // The old spend and the live hold both count: the next 20-credit hold does not fit the 50 budget.
   assert.equal(holdAllowance(flow, { id: "next", kind: "veo:fast", principal: "studio" }, { storePath, now }).disposition, "refused");
   assert.deepEqual(readAllowanceLedger(flow, { storePath, now }).holds.map((hold) => hold.id), ["live"]);
   assert.deepEqual(allowanceLedgerEvidence("flow-credits", { storePath }).map((entry) => entry.source), ["studio:old"]);
-  assert.ok(readFileSync(storePath).equals(before), "the SQLite file is read, never written");
+  assert.ok(readFileSync(sourcePath).equals(before), "the SQLite file is read, never written");
   const receipt = JSON.parse(readFileSync(path.join(ledgerJournalRoot(storePath), "sql-admission.json"), "utf8"));
   assert.deepEqual(receipt.counts, { evidence: 1, hold: 1, declaration: 1 });
   releaseAllowance(flow, "live", { storePath, now });
@@ -107,9 +114,15 @@ test("account capacity windows compare-and-set by version in the journal, and ad
   database.exec("CREATE TABLE account_capacity (key TEXT PRIMARY KEY, version INTEGER NOT NULL, value TEXT NOT NULL);");
   database.prepare("INSERT INTO account_capacity VALUES (?, ?, ?)").run("acct", 7, JSON.stringify({ type: "WorkResourceAccountWindow", reservations: [] }));
   database.close();
-  const legacy = openAccountArtifactCapacityStore(legacyPath);
+  const expectedSha256=createHash('sha256').update(readFileSync(legacyPath)).digest('hex');
+  assert.throws(()=>openAccountArtifactCapacityStore(legacyPath),/explicit offline receiving/);
+  assert(!existsSync(ledgerJournalRoot(legacyPath)));
+  const receivedPath=path.join(directory,'received-capacity');
+  admitSqlOnce(openLedgerJournal(receivedPath,'inference.account-capacity'),legacyPath,accountCapacitySqlRows,{expectedSha256});
+  const legacy = openAccountArtifactCapacityStore(receivedPath);
   assert.equal((await legacy.get("acct")).version, 7);
   assert.deepEqual(await legacy.compareAndSet("acct", 7, { reservations: [] }), { version: 8 });
-  assert.equal((await openAccountArtifactCapacityStore(legacyPath).get("acct")).version, 8, "reopening does not admit the SQLite rows again");
-  assert.ok(!readdirSync(ledgerJournalRoot(legacyPath)).includes(".lock"), "the writer lock is released");
+  assert.equal((await openAccountArtifactCapacityStore(receivedPath).get("acct")).version, 8, "reopening does not admit the SQLite rows again");
+  assert.equal(createHash('sha256').update(readFileSync(legacyPath)).digest('hex'),expectedSha256);
+  assert.ok(!readdirSync(ledgerJournalRoot(receivedPath)).includes(".lock"), "the writer lock is released");
 });

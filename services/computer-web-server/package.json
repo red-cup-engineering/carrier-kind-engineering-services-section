@@ -55,7 +55,6 @@
     "./admission/google": "./src/admission/google.mjs",
     "./admission/discord-command": "./src/admission/discord-command.mjs",
     "./admission/discord-store": "./src/admission/discord-store.mjs",
-    "./admission/import-sql-discord-admission": "./src/admission/import-sql-discord-admission.mjs",
     "./admission/password": "./src/admission/password.mjs",
     "./admission/hive": "./src/admission/hive.mjs",
     "./admission/principals": "./src/admission/principals.mjs",
@@ -76,9 +75,6 @@
     "./static-mirror": "./src/static-mirror.mjs",
     "./platform-http/operation-serving": "./src/platform-http/operation-serving.mjs"
   },
-  "sqlAdmissionPaths": [
-    "src/admission/import-sql-discord-admission.mjs"
-  ],
   "files": [
     "src",
     "README.md"

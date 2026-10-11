@@ -1,3 +1,6 @@
+import {createHash} from 'node:crypto';
+import {existsSync} from 'node:fs';
+import {assertNativeLedgerCustody} from '../../src/media/native-ledger-custody.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
@@ -5,7 +8,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
-import { accountCapacitySqlRows, admitSqlOnce, allowanceLedgerSqlRows } from "../../src/media/import-sql-ledger.mjs";
+import { accountCapacitySqlRows, admitSqlOnce, allowanceLedgerSqlRows } from "../../scripts/historical-ledger-receiving/receive.mjs";
 import { openLedgerJournal } from "../../src/media/ledger-journal.mjs";
 
 const source = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../src");
@@ -28,14 +31,19 @@ test("a ledger's SQLite rows are read once into its journal, with a receipt", (t
   database.prepare("INSERT INTO allowance_evidence VALUES (?, ?, ?, ?)").run("pool", "s1", "2026-10-02T08:00:00.000Z", JSON.stringify({ type: "spend" }));
   database.prepare("INSERT INTO account_capacity VALUES (?, ?, ?)").run("acct", 3, JSON.stringify({ reservations: [] }));
   database.close();
+  const expectedSha256=createHash('sha256').update(readFileSync(storePath)).digest('hex');
+  assert.throws(()=>assertNativeLedgerCustody(storePath),/explicit offline receiving/);
+  assert(!existsSync(storePath.replace(/\.sqlite$/u,'')+'.journal'));
 
-  const ledger = openLedgerJournal(storePath, "test.ledger");
-  const receipt = admitSqlOnce(ledger, storePath, (db, tables) => [...allowanceLedgerSqlRows(db, tables), ...accountCapacitySqlRows(db, tables)]);
+  const ledger = openLedgerJournal(path.join(directory,"native-ledger"), "test.ledger");
+  const receipt = admitSqlOnce(ledger, storePath, (db, tables) => [...allowanceLedgerSqlRows(db, tables), ...accountCapacitySqlRows(db, tables)], {expectedSha256});
   assert.deepEqual(receipt.counts, { evidence: 1, window: 1 });
   assert.deepEqual(ledger.read("evidence"), [{ allowance: "pool", source: "s1", at: "2026-10-02T08:00:00.000Z", entry: { type: "spend" } }]);
   assert.deepEqual(ledger.read("window"), [{ key: "acct", version: 3, value: { reservations: [] } }]);
   // A table the store never had reads as nothing; a second admission returns the first receipt.
-  assert.deepEqual(admitSqlOnce(ledger, storePath, () => { throw new Error("read again"); }), receipt);
+  assert.deepEqual(admitSqlOnce(ledger, storePath, () => { throw new Error("read again"); }, {expectedSha256}), receipt);
   assert.equal(ledger.read("hold").length, 0);
-  assert.equal(admitSqlOnce(openLedgerJournal(path.join(directory, "none.sqlite"), "test.ledger"), path.join(directory, "none.sqlite"), allowanceLedgerSqlRows), null);
+  assert.equal(createHash("sha256").update(readFileSync(storePath)).digest("hex"),expectedSha256);
+  assert.throws(()=>admitSqlOnce(ledger,storePath,allowanceLedgerSqlRows,{expectedSha256:"0".repeat(64)}),/identity/);
+  assert.equal(admitSqlOnce(openLedgerJournal(path.join(directory, "none.sqlite"), "test.ledger"), path.join(directory, "none.sqlite"), allowanceLedgerSqlRows, {expectedSha256}), null);
 });

@@ -1,3 +1,6 @@
+import {createHash} from 'node:crypto';
+import {existsSync} from 'node:fs';
+import {assertNativeIndexCustody} from '../src/search/native-index-custody.mjs';
 import assert from "node:assert/strict";
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -5,7 +8,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { importSqlRevisionIndex, isSqliteFile } from "../src/search/import-sql-revision-index.mjs";
+import { importSqlRevisionIndex, isSqliteFile } from "../scripts/historical-revision-index-receiving/receive.mjs";
 import { openRevisionJournal, snippetOf } from "../src/search/revision-journal.mjs";
 
 const scratch = (t) => {
@@ -123,10 +126,12 @@ test("an SQLite archive index is read once into the journal, with a receipt", (t
   assert.equal(isSqliteFile(file), true);
   assert.equal(isSqliteFile(path.join(directory, "absent.sqlite")), false);
 
-  const root = `${file}.journal`;
+  const expectedSha256=createHash('sha256').update(readFileSync(file)).digest('hex');
+  assert.throws(()=>assertNativeIndexCustody(file),/explicit offline receiving/);assert(!existsSync(file+'.journal'));
+  const root = path.join(directory,'native-index');
   const journal = openRevisionJournal({ root });
   assert.equal(journal.admission, null);
-  assert.deepEqual({ ...importSqlRevisionIndex(file, journal) }, { from: file, bodies: 1, occurrences: 2, sources: 1 });
+  assert.deepEqual({ ...importSqlRevisionIndex(file, journal, {expectedSha256}) }, { from: file, sourceSha256:expectedSha256, bodies: 1, occurrences: 2, sources: 1 });
 
   const again = openRevisionJournal({ root });
   assert.equal(again.admission.bodies, 1);
@@ -135,7 +140,8 @@ test("an SQLite archive index is read once into the journal, with a receipt", (t
   assert.deepEqual(again.occurrencesOf(blob(7)), [{ source: "repo", path: "cedar.md", first: "2026-01-01T00:00:00Z", last: "2026-02-01T00:00:00Z", deleted: 1 }]);
   assert.deepEqual(again.search("fog", { limit: 5 }).map((hit) => hit.key), [blob(7)]);
   // Read again, nothing is held twice.
-  importSqlRevisionIndex(file, again);
+  importSqlRevisionIndex(file, again, {expectedSha256});
+  assert.equal(createHash("sha256").update(readFileSync(file)).digest("hex"),expectedSha256);
   assert.equal(openRevisionJournal({ root }).sources()[0].occurrences, 2);
 });
 
@@ -144,4 +150,14 @@ test("SQL is read only in the read-once admission: no other module of the server
     .filter((file) => file.endsWith(".mjs") && !path.basename(file).startsWith("import-sql-"))
     .filter((file) => SQL.test(readFileSync(path.join(source, file), "utf8")));
   assert.deepEqual(holding, []);
+});
+
+test('an unrelated historical database cannot produce an empty receiving receipt', t=>{
+ const directory=scratch(t),file=path.join(directory,'unrelated.sqlite');
+ const {DatabaseSync}=process.getBuiltinModule('node:sqlite');const db=new DatabaseSync(file);db.exec('CREATE TABLE unrelated (value TEXT)');db.close();
+ const expectedSha256=createHash('sha256').update(readFileSync(file)).digest('hex'),root=path.join(directory,'native');
+ const store=openRevisionJournal({root});
+ assert.throws(()=>importSqlRevisionIndex(file,store,{expectedSha256}),/required custody tables/);
+ assert.equal(openRevisionJournal({root}).admission,null);
+ assert.equal(createHash('sha256').update(readFileSync(file)).digest('hex'),expectedSha256);
 });
