@@ -1,25 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DatabaseSync} from 'node:sqlite';
 import {mkdtempSync,readFileSync,writeFileSync,rmSync,readdirSync,statSync,unlinkSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {cell} from '@red-cup-engineering/signcell/cell';
 import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
 import {createHistory,observeHistory,queryHistory,materializeHistory,historyHeads,historySize,withFunctionalPredicates,checkpointHistory} from '../src/history.mjs';
-import {createSqlHistoryStore} from '../src/sql-history-store.mjs';
+import {MEDIA} from './_history-store-media.mjs';
 import {createFileHistoryStore} from '../src/file-history-store.mjs';
 import {createFileStoreSync} from '@red-cup-engineering/immutable-content-custody-service/file-store';
 import {createFileContentReference} from '@red-cup-engineering/immutable-content-custody-service/file-reference';
 import {immutableContentKey} from '@red-cup-engineering/immutable-content-custody-service';
 
 const at=(s,p,o,w='w')=>cell(s,p,o,{for:[w]});
-function sqlFixture(path=':memory:'){
- const db=new DatabaseSync(path);let failOn;
- const sql={exec(query,...args){if(failOn&&query.includes(failOn))throw new Error('publication refused');if(/^\s*SELECT\b/iu.test(query))return db.prepare(query).all(...args);db.prepare(query).run(...args);return [];}};
- const transactionSync=operation=>{db.exec('BEGIN IMMEDIATE');try{const result=operation();db.exec('COMMIT');return result;}catch(e){db.exec('ROLLBACK');throw e;}};
- return {db,sql,transactionSync,store:()=>createSqlHistoryStore({sql,transactionSync}),failOn:value=>{failOn=value;}};
-}
 function same(a,b){
  assert.deepEqual(queryHistory(a,{}),queryHistory(b,{}));assert.deepEqual(historyHeads(a),historyHeads(b));assert.equal(historySize(a),historySize(b));
 }
@@ -30,10 +23,10 @@ function files(root){
 }
 function statExists(path){try{return statSync(path).isDirectory();}catch{return false;}}
 
-test('the same native carrier retains evidence, skills, locations and causal ancestry over SQL and flatfiles',()=>{
- const dir=mkdtempSync(join(tmpdir(),'signcraft-content-')),database=sqlFixture();
+test('the same native carrier retains evidence, skills, locations and causal ancestry over in-memory storage and flatfiles',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'signcraft-content-')),memory=MEDIA.memory();
  try{
-  for(const store of [database.store(),createFileHistoryStore(join(dir,'world.json'))]){
+  for(const store of [memory.open(),createFileHistoryStore(join(dir,'world.json'))]){
    let full=createHistory(['location']);
    full=observeHistory(full,[at('alice','location','garden'),at('alice','skill:building',1),cell('workshop','open',true,{for:['opened'],against:['disputed']})],{source:'inhabit'});
    let held=store.commit(full,{clock:1,queue:['learn']});
@@ -51,7 +44,7 @@ test('the same native carrier retains evidence, skills, locations and causal anc
    const priorContent=store.retain(Object.freeze({authored:'Garden 😀',body:'x'.repeat(210000)}));
    assert.equal(store.content(priorContent).body.length,210000);
   }
- }finally{database.db.close();rmSync(dir,{recursive:true,force:true});}
+ }finally{rmSync(dir,{recursive:true,force:true});}
 });
 
 test('flatfile commits keep every held semantic object immutable and recover through a missing or stale reference cache',()=>{

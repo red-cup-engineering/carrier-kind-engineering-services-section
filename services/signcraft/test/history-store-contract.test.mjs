@@ -1,6 +1,5 @@
 // What a SignCraft history store promises, stated over the content kernel on every medium a port
-// gives it (in-memory storage, flatfiles). The SQL history store's tests (sql-history-store.test.mjs)
-// state the same promises in terms of its tables; here they are stated as effects any medium shows:
+// gives it (in-memory storage, flatfiles). The promises are stated as effects any medium shows:
 // the root a store publishes and the objects it writes.
 import assert from "node:assert/strict";
 import test from "node:test";
