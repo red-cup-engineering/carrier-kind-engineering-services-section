@@ -9,21 +9,24 @@
  * reaches through a requirement's requirement is in the closure.
  *
  * Each realization is a table an implementation exports, binding the declarations it realizes to its
- * realizers. The suite's realization is their union. A realization named by a file that does not exist
- * yet is not registered. A suite with no registered realization is pending: an open obligation, never a
- * nonconformance. Once any realization is registered, every operation of the suite must conform.
+ * realizers. The suite's realization is their union. These registered realizers are declared package
+ * dependencies: a missing owner or table is a broken binding, never an unimplemented theory.
+ * A genuinely unregistered suite may remain pending. Every registered operation must conform.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const section = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const conformancePackage = path.join(section, "lib/obsmetrologia-conformance");
-const organizing = path.resolve(section, "../../../agent-computer-system-engineering-services-section/apps/agent-organization-engine/lib/organizing");
-const codeEngineering = path.resolve(section, "../../../../../computer-code-engineering-services-section");
 
-/** A realization exported as `name` by the module at `file`, registered once the file exists. */
-const realizationAt = (file, name) => async () => (existsSync(file) ? (await import(pathToFileURL(file).href))[name] : undefined);
+/** Resolve a registered realization through its declared owning package, independent of checkout layout. */
+const realizationAt = (specifier) => async () => {
+    const table = (await import(specifier)).obsmetrologiaRealization;
+    if (table === null || typeof table !== "object" || Array.isArray(table))
+        throw new TypeError(`${specifier}: registered obsmetrologiaRealization table is missing`);
+    return table;
+};
 
 export const conformanceSuites = Object.freeze([
     Object.freeze({
@@ -32,7 +35,7 @@ export const conformanceSuites = Object.freeze([
         entry: "Main",
         vectors: "golden-vectors.jsonl",
         realizations: Object.freeze([
-            async () => (await import("@red-cup-engineering/computer-data-engineering-services-section/four")).obsmetrologiaRealization,
+            realizationAt("@red-cup-engineering/computer-data-engineering-services-section/four"),
         ]),
     }),
     Object.freeze({
@@ -41,7 +44,7 @@ export const conformanceSuites = Object.freeze([
         entry: "WorkArenaMain",
         vectors: "work-arena.golden-vectors.jsonl",
         realizations: Object.freeze([
-            realizationAt(path.join(organizing, "src/enterprise/work-arena-realization.mjs"), "obsmetrologiaRealization"),
+            realizationAt("@red-cup-engineering/organizing/enterprise/work-arena-realization"),
         ]),
     }),
     Object.freeze({
@@ -50,7 +53,7 @@ export const conformanceSuites = Object.freeze([
         entry: "SenLambdaMain",
         vectors: "sen-lambda.golden-vectors.jsonl",
         realizations: Object.freeze([
-            realizationAt(path.join(codeEngineering, "src/semiotic-expression-notation/realization.mjs"), "obsmetrologiaRealization"),
+            realizationAt("@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/realization"),
         ]),
     }),
     Object.freeze({
@@ -59,7 +62,7 @@ export const conformanceSuites = Object.freeze([
         entry: "BandMain",
         vectors: "band.golden-vectors.jsonl",
         realizations: Object.freeze([
-            realizationAt(path.join(organizing, "src/agency/band-realization.mjs"), "obsmetrologiaRealization"),
+            realizationAt("@red-cup-engineering/organizing/agency/band-realization"),
         ]),
     }),
 ]);

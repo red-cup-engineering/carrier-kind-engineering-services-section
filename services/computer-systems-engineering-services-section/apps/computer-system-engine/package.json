@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "exports": {
     "./filesystem": "./src/filesystem.mjs",
+    "./repository-observation": "./src/repository-observation.mjs",
     "./specification": "./src/specification.mjs",
     "./generated/specification-declarations": "./src/generated/specification-declarations.mjs",
     "./specifications/*": "./specifications/*",
