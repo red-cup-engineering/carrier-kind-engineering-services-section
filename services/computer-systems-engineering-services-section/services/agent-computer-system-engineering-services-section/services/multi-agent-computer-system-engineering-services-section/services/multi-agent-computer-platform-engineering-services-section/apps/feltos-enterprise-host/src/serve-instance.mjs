@@ -7,7 +7,7 @@ import {createOperationCatalog} from '@red-cup-engineering/computer-system-engin
 import {describe} from '@red-cup-engineering/computer-system-engine/rpc/describe';
 import {agencyAt} from '@red-cup-engineering/metroplat/offices';
 import {defaultFilesystemBinding} from '@red-cup-engineering/computer-system-engine/rpc/binding';
-import { admitWorkPeerGrants, hostedWorkIntentAdmission, hostedWorkOpening, workPeersOf } from "./federated-work.mjs";
+import { admitWorkPeerGrants, deliverOrHold, heldDeliveryResponse, hostedWorkIntentAdmission, hostedWorkOpening, signedRequestActor, workPeersOf } from "./federated-work.mjs";
 import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -31,7 +31,7 @@ import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/insta
 import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse, SETTLEMENT_EXCHANGE_PATHS } from "@red-cup-engineering/computer-system-engine/rpc/node";
 import { mergeSettlementTransfer, settlementHoldings, settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { createEnterpriseEntrance } from "./entrance.mjs";
-import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment } from "./activitypub-node.mjs";
+import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment, heldArrival } from "./activitypub-node.mjs";
 import { enterpriseWebConfig } from "./instance-config.mjs";
 import { installedEnterpriseWeb } from "./installed-web.mjs";
 import { enterpriseOperationRuntime } from "./enterprise-runtime.mjs";
@@ -192,12 +192,22 @@ export async function activityPubProvider(config, environment, {operationSurface
       const activity=projectSenActivity({type:"Accept",origin:config.activityPub.origin,identifier,recipient,
         objectBytes:bytes,a2aMessage:{...agentSenMessage(bytes),...(result.taskId===undefined?{}:{taskId:result.taskId}),metadata:actorPaymentMetadata(result)},
         agentCard:new URL('/.well-known/agent-card.json',config.activityPub.origin).href,eventTime:new Date().toISOString()});
-      return deliverActivity(activityPub.provider,{identifier,recipient,inbox,activity});
+      // A known-intermittent requester cannot be pushed to: its result is held for it to pull.
+      return deliverOrHold({config,provider:activityPub.provider,deliver:deliverActivity,request:{identifier,recipient,inbox,activity}});
     },
   });
   activityPub=await createLocalActivityPubProvider({environment,...config.activityPub,...(node===undefined?{}:{actors,dynamicActors:true,resolveActor:currentActor}),onActivity});
   const native=activityPub.provider;
-  const projected={...native,routeCapabilities:Object.freeze({...native.routeCapabilities,actorPrograms:typeof operationSurface==="function",programmeBytes:typeof operationSurface==="function",actorAgentCards:true}),fetch:async request=>{
+  const projected={...native,routeCapabilities:Object.freeze({...native.routeCapabilities,actorPrograms:typeof operationSurface==="function",programmeBytes:typeof operationSurface==="function",actorAgentCards:true}),
+  // An activity a known-intermittent node pulled from a peer enters as the arrival a push would have been.
+  admitHeld:async(jsonLd,{peer})=>{
+    const arrival=heldArrival({activity:jsonLd,peer,origin:config.activityPub.origin});
+    await activityPub.inbox?.retain?.(arrival);
+    return onActivity(arrival);
+  },
+  fetch:async request=>{
+    const held=await heldDeliveryResponse({config,request,signerOf:signed=>signedRequestActor(native,signed)});
+    if(held!==undefined)return held;
     if(programmes.matches(request.url)){
       if(typeof operationSurface==='function'){
         const surface=await operationSurface();await programmes.retain(surface.operations??surface.apex?.catalog.operations??surface.catalog?.operations);

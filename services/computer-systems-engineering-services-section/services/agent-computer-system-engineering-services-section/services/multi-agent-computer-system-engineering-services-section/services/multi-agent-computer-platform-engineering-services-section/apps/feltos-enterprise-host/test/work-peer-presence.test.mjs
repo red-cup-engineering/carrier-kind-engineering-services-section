@@ -44,3 +44,23 @@ test("a node with no work peer has no presence to read", () => {
 test("an unknown presence is refused before any effect", () => {
   assert.throws(() => configure({ METROPLAT_WORK_PEER_ACTOR: PEER, METROPLAT_WORK_PEER_PRESENCE: "sometimes" }), /must be one of continuous, known-intermittent/);
 });
+
+test("a node is continuous unless it declares itself known-intermittent", () => {
+  assert.equal(configure().presence, "continuous");
+  assert.equal(configure({}, { presence: "known-intermittent" }).presence, "known-intermittent");
+  assert.equal(configure({ METROPLAT_PRESENCE: "continuous" }, { presence: "known-intermittent" }).presence, "continuous");
+  assert.throws(() => configure({ METROPLAT_PRESENCE: "sometimes" }), /METROPLAT_PRESENCE must be one of/);
+});
+
+test("a peer's own presence is declared beside the work peers', and grants it nothing", async () => {
+  const { presenceOf, workPeersOf } = await import("../src/federated-work.mjs");
+  const config = configure({ METROPLAT_WORK_PEER_ACTOR: "https://bare-cedar-fog.invalid/actors/metroplat" }, { peerPresences: { [PEER]: "known-intermittent" } });
+  assert.deepEqual(config.peerPresences, { [PEER]: "known-intermittent" });
+  assert.equal(presenceOf(config, PEER), "known-intermittent");
+  assert.equal(presenceOf(config, "https://bare-cedar-fog.invalid/actors/metroplat"), "continuous");
+  assert.ok(!config.workPeers.some(({ actor }) => actor === PEER), "declaring a presence declares no work peer");
+  assert.ok(!workPeersOf({ ...config, metroplatDataRoot: undefined }).includes(PEER));
+  assert.throws(() => configure({}, { peerPresences: { [PEER]: "sometimes" } }), /must be one of continuous, known-intermittent/);
+  assert.throws(() => configure({}, { peerPresences: { "http://soft-grass-pebble.invalid/actors/metroplat": "known-intermittent" } }), /not an HTTPS actor/);
+  assert.throws(() => configure({}, { peerPresences: [PEER] }), /must map peer actors/);
+});

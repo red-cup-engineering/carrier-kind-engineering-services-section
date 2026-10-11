@@ -1,3 +1,5 @@
+import { deliverOrHold } from "./held-delivery.mjs";
+export { presenceOf, HELD_DELIVERY_OBJECT_KIND, holdForPeer, heldFor, heldDeliveryPage, deliverOrHold, signedRequestActor, heldDeliveryResponse } from "./held-delivery.mjs";
 import { agencyAt, agencyRootOf, coordinatingOfficeSession } from "@red-cup-engineering/metroplat/offices";
 import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
 import { extractSignCellEvidenceActivity, projectSignCellEvidenceActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
@@ -315,8 +317,8 @@ export function prepareWorkForwardDelivery({ config, provider, move, deliver = d
 }
 
 /** Prepare a decision the home admitted for the other node. */
-export function prepareWorkDecisionDelivery({ config, provider, decision, deliver = deliverActivity }) {
-  return preparePeerDelivery({ config, provider, deliver, activityOf: (base) => workDecisionActivity({ ...base, decision, at: decision.at }) });
+export function prepareWorkDecisionDelivery({ config, provider, decision, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workDecisionActivity({ ...base, decision, at: decision.at }) });
 }
 
 /**
@@ -390,16 +392,16 @@ function keepUnread(binding, move) {
 }
 
 /** Prepare before playing locally so an untransportable telling cannot become local-only. */
-export function prepareWorkTellingDelivery({ config, provider, telling, deliver = deliverActivity }) {
-  return preparePeerDelivery({ config, provider, deliver, activityOf: (base) => workTellingActivity({ ...base, telling, at: telling.at }) });
+export function prepareWorkTellingDelivery({ config, provider, telling, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workTellingActivity({ ...base, telling, at: telling.at }) });
 }
 
 /** Prepare before playing locally so an untransportable opening cannot become local-only. */
-export function prepareWorkOpeningDelivery({ config, provider, opening, deliver = deliverActivity }) {
-  return preparePeerDelivery({ config, provider, deliver, activityOf: (base) => workOpeningActivity({ ...base, opening, at: opening.at }) });
+export function prepareWorkOpeningDelivery({ config, provider, opening, deliver = deliverActivity, onPeerFailure }) {
+  return preparePeerDelivery({ config, provider, deliver, onPeerFailure, activityOf: (base) => workOpeningActivity({ ...base, opening, at: opening.at }) });
 }
 
-function preparePeerDelivery({ config, provider, deliver, activityOf }) {
+function preparePeerDelivery({ config, provider, deliver, activityOf, onPeerFailure }) {
   if (config.deliverWorkToPeer === false) return undefined;
   const peers = workPeersOf(config);
   if (peers.length === 0) return undefined;
@@ -412,10 +414,13 @@ function preparePeerDelivery({ config, provider, deliver, activityOf }) {
   // Every peer is tried; one that failed fails the handoff, so it is sent again (a peer that already
   // holds the move admits the repeat as a no-op).
   return async () => {
-    const settled = await Promise.allSettled(deliveries.map(({ peerActor, activity }) => deliver(provider, {
+    // A known-intermittent peer is held for, not pushed to (`deliverOrHold`); it pulls what it lacks.
+    const settled = await Promise.allSettled(deliveries.map(({ peerActor, activity }) => deliverOrHold({ config, provider, deliver, request: {
       identifier, recipient: peerActor, inbox: `${peerActor.replace(/\/$/u, "")}/inbox`, activity,
-    })));
+    } })));
     const failed = settled.flatMap((result, index) => (result.status === "rejected" ? [{ peerActor: deliveries[index].peerActor, reason: result.reason }] : []));
+    // Catch-up observes every failed recipient, including a hold that failed before transport.
+    for (const { peerActor, reason } of failed) onPeerFailure?.({ peer: peerActor, error: reason });
     // One failure is thrown as it came, so its cause is still read (away or refused); several are
     // thrown together, each kept as it came.
     if (failed.length === 1) throw failed[0].reason;
