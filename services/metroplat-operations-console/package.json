@@ -31,7 +31,8 @@
   "receivingTests": [
     "test/github-issues.test.mjs",
     "test/github-native-intake.test.mjs",
-    "test/github-resolver-application.test.mjs"
+    "test/github-resolver-application.test.mjs",
+    "test/obligation-source-receiving.test.mjs"
   ],
   "devDependencies": {
     "@red-cup-engineering/computer-system-engine": "workspace:*",
