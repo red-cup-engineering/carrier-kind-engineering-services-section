@@ -47,6 +47,19 @@ function googleSignIn(environment) {
 }
 
 const AP_KEYS = ["ACTIVITYPUB_ORIGIN", "ACTIVITYPUB_IDENTIFIER", "ACTIVITYPUB_ACTOR_NAME", "ACTIVITYPUB_ACTOR_SUMMARY", "ACTIVITYPUB_KEYS_PATH"];
+function activityPubCustodyLocation(environment, stateDir) {
+  const nativeDirectory = present(environment.ACTIVITYPUB_STATE_DIR);
+  const historicalLocator = present(environment.ACTIVITYPUB_SQLITE_PATH);
+  if (nativeDirectory !== undefined && historicalLocator !== undefined) {
+    throw new TypeError("ActivityPub native state and historical SQL locators cannot be combined; receive and admit the state binding before switching");
+  }
+  // Selection is configuration, not historical receiving or startup clearance.
+  // The owning provider still independently admits retained custody before writes.
+  return nativeDirectory === undefined
+    ? { statePath: resolve(historicalLocator ?? join(stateDir, "activitypub.sqlite")) }
+    : { stateDirectory: resolve(nativeDirectory) };
+}
+
 function activityPub(environment, stateDir, identity) {
   if (!Object.keys(environment).some((name) => name.startsWith("ACTIVITYPUB_"))) return undefined;
   const nodeHost = present(environment.ACTIVITYPUB_NODE_HOST);
@@ -62,7 +75,7 @@ function activityPub(environment, stateDir, identity) {
         }),
       }),
       keysDirectory: resolve(present(environment.ACTIVITYPUB_KEYS_DIRECTORY) ?? join(stateDir, "activitypub-keys")),
-      statePath: resolve(present(environment.ACTIVITYPUB_SQLITE_PATH) ?? join(stateDir, "activitypub.sqlite")),
+      ...activityPubCustodyLocation(environment, stateDir),
     });
   }
   const missing = AP_KEYS.filter((name) => present(environment[name]) === undefined);
@@ -73,7 +86,7 @@ function activityPub(environment, stateDir, identity) {
     actorName: present(environment.ACTIVITYPUB_ACTOR_NAME),
     summary: present(environment.ACTIVITYPUB_ACTOR_SUMMARY),
     keyPath: resolve(environment.ACTIVITYPUB_KEYS_PATH),
-    statePath: resolve(present(environment.ACTIVITYPUB_SQLITE_PATH) ?? join(stateDir, "activitypub.sqlite")),
+    ...activityPubCustodyLocation(environment, stateDir),
   });
 }
 
