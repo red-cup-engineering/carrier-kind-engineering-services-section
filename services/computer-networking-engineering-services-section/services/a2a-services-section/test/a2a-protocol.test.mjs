@@ -28,7 +28,7 @@ test("message/send round-trips through a caller-supplied handler and tasks/get o
   await withServer({
     "message/send": async (message) => ({ messageId: "m2", taskId: message.taskId, contextId: message.contextId, role: ROLE_AGENT, parts: [{ content: { $case: "text", value: "ok" } }], metadata: {}, extensions: [], referenceTaskIds: [] }),
   }, async (baseUrl) => {
-    const message = { messageId: "m1", taskId: "task-1", contextId: "ctx-1", role: ROLE_USER, parts: [], metadata: {}, extensions: [], referenceTaskIds: [] };
+    const message = { messageId: "m1", taskId: "task-1", contextId: "ctx-1", role: ROLE_USER, parts: [{ content: { $case: "text", value: "synthetic request" } }], metadata: {}, extensions: [], referenceTaskIds: [] };
     const result = await sendMessage(baseUrl, message);
     assert.equal(result.parts[0].content.value, "ok");
     const task = await getTask(baseUrl, "task-1");
@@ -39,7 +39,7 @@ test("message/send round-trips through a caller-supplied handler and tasks/get o
 
 test("a handler refusal fails the task instead of throwing across the wire", async () => {
   await withServer({ "message/send": async () => { throw new Error("refused by policy"); } }, async (baseUrl) => {
-    const message = { messageId: "m1", taskId: "task-2", contextId: "ctx-1", role: ROLE_USER, parts: [], metadata: {}, extensions: [], referenceTaskIds: [] };
+    const message = { messageId: "m1", taskId: "task-2", contextId: "ctx-1", role: ROLE_USER, parts: [{ content: { $case: "text", value: "synthetic request" } }], metadata: {}, extensions: [], referenceTaskIds: [] };
     const result = await sendMessage(baseUrl, message);
     assert.equal(result.metadata.disposition, "refused");
     const task = await getTask(baseUrl, "task-2");
@@ -77,8 +77,8 @@ test("an unknown JSON-RPC method is refused with -32601", async () => {
 test("a bearerToken option requires the matching Authorization header", async () => {
   const { baseUrl, close } = await startServer({ bearerToken: "secret", handlers: { "message/send": async (message) => message } });
   try {
-    await assert.rejects(() => sendMessage(baseUrl, { messageId: "m1", role: ROLE_USER, parts: [] }), /HTTP 401/u);
-    const result = await sendMessage(baseUrl, { messageId: "m1", role: ROLE_USER, parts: [] }, { headers: { authorization: "Bearer secret" } });
+    await assert.rejects(() => sendMessage(baseUrl, { messageId: "m1", role: ROLE_USER, parts: [{ content: { $case: "text", value: "synthetic request" } }] }), /HTTP 401/u);
+    const result = await sendMessage(baseUrl, { messageId: "m1", role: ROLE_USER, parts: [{ content: { $case: "text", value: "synthetic request" } }] }, { headers: { authorization: "Bearer secret" } });
     assert.equal(result.messageId, "m1");
   } finally { await close(); }
 });

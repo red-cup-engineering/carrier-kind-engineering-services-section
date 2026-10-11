@@ -1,6 +1,6 @@
 // Admission of the stable A2A 1.0 core objects (Message, TaskStatus, Task) a peer returns.
-// The client in `a2a-client.mjs` hands back whatever the provider sent; this module is the check a
-// consumer runs before it trusts the shape. It is a partial boundary, not a wire-conformance claim:
+// The client converts the selected JSON-RPC operations to internal Part unions; this module
+// separately admits the core data model. It is a partial boundary, not a wire-conformance claim:
 // bindings, Agent Card discovery and negotiation, security, streaming and push, extensions and the
 // A2A TCK are separate obligations. No capability, office, custody or authority field is read into
 // or written onto these objects; those are bound beside them by the consumer.
