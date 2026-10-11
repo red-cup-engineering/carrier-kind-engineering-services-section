@@ -5,25 +5,27 @@
 // message/stream is not implemented (no house consumer polls a live SSE stream; every
 // consumer either blocks on message/send or polls tasks/get).
 //
-// Wire shapes are plain JSON objects, never SDK classes: a Message is
+// Internal shapes are plain objects, never SDK classes. json-wire.mjs converts
+// tagged Part unions at the HTTP boundary. A Message is
 // { messageId, contextId, taskId, role, parts, metadata, extensions, referenceTaskIds }
 // and a Task is { id, contextId, status: { state, message, timestamp }, history,
 // artifacts, metadata }. `role` and `status.state` are the A2A 1.0 JSON enum spellings
 // ("ROLE_USER"/"ROLE_AGENT", "TASK_STATE_*").
 
 import { readFileSync } from "node:fs";
+import { requestToJson, resultFromJson, wireMethod } from "./json-wire.mjs";
 
 export const ROLE_USER = "ROLE_USER";
 export const ROLE_AGENT = "ROLE_AGENT";
 
 /** The A2A protocol version the house speaks. */
-export const A2A_PROTOCOL_VERSION = "1.0.0";
+export const A2A_PROTOCOL_VERSION = "1.0";
 
 /** The well-known Agent Card path of the current A2A specification. */
 export const AGENT_CARD_WELL_KNOWN_PATH = ".well-known/agent-card.json";
 
-/** The Agent Card path earlier drafts and SDKs used, which this client fetches and servers still answer. */
-export const AGENT_CARD_PATH = ".well-known/agent.json";
+/** Current discovery path; the exported name remains used by signed-card custody. */
+export const AGENT_CARD_PATH = AGENT_CARD_WELL_KNOWN_PATH;
 
 export const TASK_STATE = Object.freeze({
   SUBMITTED: "TASK_STATE_SUBMITTED",
@@ -60,9 +62,16 @@ export function bearerHeaderFromFile(path) {
 /** Fetches the Agent Card at the standard well-known resource and returns its plain JSON. */
 export async function discoverAgentCard(baseUrl, { fetch: fetchImpl = globalThis.fetch, headers = {}, signal } = {}) {
   const url = rooted(baseUrl, AGENT_CARD_PATH);
-  const response = await fetchImpl(url, { headers: { accept: "application/json", ...headers }, signal });
+  const response = await fetchImpl(url, { headers: protocolHeaders(headers, { accept: "application/json" }), signal });
   if (!response.ok) throw new Error(`Agent Card discovery at ${url} returned HTTP ${response.status}`);
   return response.json();
+}
+
+function protocolHeaders(headers, defaults) {
+  const result = new Headers(defaults);
+  for (const [key, value] of new Headers(headers)) result.set(key, value);
+  result.set("a2a-version", A2A_PROTOCOL_VERSION);
+  return result;
 }
 
 let nextRequestId = 1;
@@ -73,19 +82,21 @@ export async function callA2aMethod(baseUrl, method, params, { fetch: fetchImpl 
   const id = nextRequestId++;
   const response = await fetchImpl(url, {
     method: "POST",
-    headers: { "content-type": "application/json", ...headers },
-    body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
+    headers: protocolHeaders(headers, { "content-type": "application/json" }),
+    body: JSON.stringify({ jsonrpc: "2.0", id, method: wireMethod(method), params: requestToJson(method, params) }),
     signal,
   });
   if (!response.ok) throw new Error(`A2A ${method} at ${url} returned HTTP ${response.status}`);
   const body = await response.json();
-  if (body.error) {
+  if (body?.jsonrpc !== "2.0" || body.id !== id || Object.hasOwn(body, "result") === Object.hasOwn(body, "error")) throw new Error(`A2A ${method}: malformed or uncorrelated JSON-RPC response`);
+  if (Object.hasOwn(body, "error")) {
+    if (!Number.isInteger(body.error?.code) || typeof body.error?.message !== "string") throw new Error(`A2A ${method}: malformed JSON-RPC error`);
     const error = new Error(body.error.message ?? `A2A ${method} was refused`);
     error.code = body.error.code;
     error.data = body.error.data;
     throw error;
   }
-  return body.result;
+  return resultFromJson(method, body.result);
 }
 
 /** Sends one A2A message. Returns whatever the provider returns: a Message (for a
@@ -97,7 +108,8 @@ export function sendMessage(baseUrl, message, options = {}) {
 }
 
 export function getTask(baseUrl, taskId, options = {}) {
-  return callA2aMethod(baseUrl, "tasks/get", { id: taskId }, options);
+  const { historyLength, ...transport } = options;
+  return callA2aMethod(baseUrl, "tasks/get", { id: taskId, ...(historyLength === undefined ? {} : { historyLength }) }, transport);
 }
 
 export function cancelTask(baseUrl, taskId, options = {}) {
