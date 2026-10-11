@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { invokeTypedOperation } from "../src/typed-operation-message.mjs";
+import { invokeTypedOperation } from "@red-cup-engineering/javascript-node-services-section/invoke-typed-operation";
 
 const operations = Object.freeze({
   double: (input) => input.n * 2,
