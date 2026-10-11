@@ -80,7 +80,8 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node --test --test-concurrency=2 test/**/*.test.mjs test/*.test.mjs"
+    "test": "node --test --test-concurrency=2 test/**/*.test.mjs test/*.test.mjs",
+    "test:legacy-sql": "node --test scripts/historical-discord-receiving/test/*.test.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",

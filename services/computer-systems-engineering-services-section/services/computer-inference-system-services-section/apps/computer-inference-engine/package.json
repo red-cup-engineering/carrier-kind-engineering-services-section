@@ -143,7 +143,8 @@
     "inference-allowance": "scripts/media/allowance-status.mjs"
   },
   "scripts": {
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "test:legacy-sql": "node --test scripts/historical-ledger-receiving/test/*.test.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/a2a-services-section": "workspace:*",

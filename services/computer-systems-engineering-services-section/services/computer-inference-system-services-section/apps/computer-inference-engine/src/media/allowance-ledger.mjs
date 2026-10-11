@@ -91,7 +91,7 @@ const withLedger = (storePath, work, allowance) => {
   const store = openLedger(storePath);
   try {
     // Every allowance a consumer draws on is known to the ledger as it was last presented.
-    if (Array.isArray(allowance?.meters)) store.declare(allowance);
+    if (Array.isArray(allowance?.meters)) store.transaction(() => store.declare(allowance));
     return work(store);
   } finally { store.close(); }
 };

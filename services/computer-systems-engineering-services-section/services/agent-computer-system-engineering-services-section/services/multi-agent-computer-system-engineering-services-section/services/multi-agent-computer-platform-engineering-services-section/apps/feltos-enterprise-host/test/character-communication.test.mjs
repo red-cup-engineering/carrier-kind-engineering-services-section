@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createServer } from "node:http";
-import { mkdtempSync, mkdirSync, cpSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,10 +12,11 @@ import { characterInbox } from "@red-cup-engineering/metroplat/offices";
 import { createActivityPubNodeArrivalHandler } from "../src/activitypub-node.mjs";
 import { hostedCharacterCommunication, characterActorAddress, CHARACTER_TELLING } from "../src/character-communication.mjs";
 
+import { fixtureRepository } from "./fixture-repository.mjs";
+
 const GROUP = "lib/emsenn/services/561-group/services/561-group-services-section";
 function fixture(t) {
-  let repository = path.dirname(fileURLToPath(import.meta.url));
-  while (!existsSync(path.join(repository, GROUP, "data/records/schema"))) repository = path.dirname(repository);
+  const repository = fixtureRepository(path.dirname(fileURLToPath(import.meta.url)), path.join(GROUP, "data/records/schema"));
   const root = mkdtempSync(path.join(tmpdir(), "semioverse-characters-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const agencyRoot = path.join(root, "house");
@@ -59,7 +60,7 @@ async function node(t, fixture, character) {
   const actors = [{ identifier: (character.activityPub?.identifier ?? character.harness), character, keyPath: path.join(dataRoot, "key.json"), actorName: character.name, summary: character.description }];
   const arrivals = [];
   const admit = createActivityPubNodeArrivalHandler({ dataRoot, rootName: character.host, origin, actors });
-  local = await createLocalActivityPubProvider({ origin, actors, statePath: path.join(dataRoot, "ap.sqlite"), queue: false,
+  local = await createLocalActivityPubProvider({ origin, actors, stateDirectory: path.join(dataRoot, "state"), queue: false,
     // Isolated loopback fixtures only; production keeps its configured network policy.
     allowPrivateAddress: true, onActivity: async arrival => { arrivals.push(arrival); return admit(arrival); } });
   t.after(() => local.close());

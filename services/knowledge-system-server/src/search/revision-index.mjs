@@ -6,7 +6,8 @@
  *
  * A body is keyed by its git blob id, so the same text from any source is indexed once and a
  * later pass reads only what is new. Occurrences say where a body stood: source, path, the
- * revision that wrote or deleted it, and when. Historical SQL indexes require explicit offline receiving; runtime opening never converts them.
+ * revision that wrote or deleted it, and when. Historical index custody is refused before native
+ * opening; explicit offline receiving owns conversion into a distinct destination.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
@@ -18,7 +19,7 @@ import { gitBlobIdOf } from "@red-cup-engineering/git-services-section/git-objec
 import { eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 import { claudeCodeSessionChronicleFromJsonl, claudeSessionAuthoredChronicle } from "@red-cup-engineering/feltos/agents/sessions/claude-code/codec";
 import { codexSessionAuthoredChronicle, codexSessionChronicleOfContent } from "@red-cup-engineering/feltos/agents/sessions/codex/codec";
-import {assertNativeIndexCustody} from "./native-index-custody.mjs";
+import { assertNativeIndexCustody } from "./native-index-custody.mjs";
 import { openRevisionJournal, snippetOf } from "./revision-journal.mjs";
 
 const MAX_BODY_BYTES = 2 * 1024 * 1024;

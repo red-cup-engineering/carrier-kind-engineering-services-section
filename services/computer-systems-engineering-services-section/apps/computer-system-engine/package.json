@@ -79,13 +79,15 @@
   "files": [
     "src",
     "specifications",
-    "scripts"
+    "scripts",
+    "!scripts/historical-sql-receiving"
   ],
   "bin": {
     "serve-verbs-over-stdio": "./scripts/serve-verbs-over-stdio.mjs"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "test:legacy-sql": "node --test scripts/historical-sql-receiving/test/*.test.mjs"
   },
   "engines": {
     "node": ">=22.18"

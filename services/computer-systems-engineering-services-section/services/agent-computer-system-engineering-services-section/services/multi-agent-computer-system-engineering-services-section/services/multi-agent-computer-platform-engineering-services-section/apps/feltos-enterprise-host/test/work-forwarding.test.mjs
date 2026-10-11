@@ -6,8 +6,11 @@ import { test } from "node:test";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { extractSignCellEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
-import { admitWorkPeerGrants, homeHostOf, hostedWorkOpening, hostedWorkTelling, preparePeerWork, workDecisionActivity } from "../src/federated-work.mjs";
-import { catchUpWorkPeer } from "../src/work-replication.mjs";
+import { createServer } from "node:http";
+import { createLocalActivityPubProvider } from "@red-cup-engineering/activitypub-services-section/local-server";
+import { admitWorkPeerGrants, heldDeliveryResponse, holdForPeer, homeHostOf, hostedWorkOpening, hostedWorkTelling, preparePeerWork, signedRequestActor, workDecisionActivity } from "../src/federated-work.mjs";
+import { catchUpWorkPeer, pullHeldFromPeers, signedGetAs } from "../src/work-replication.mjs";
+import { heldArrival } from "../src/activitypub-node.mjs";
 
 const ENTERPRISES = [
   { id: "alpha", host: "bare-cedar-fog", sectionPath: "services/alpha-section" },
@@ -264,4 +267,177 @@ test("losing the peer binding after opening delivery reports a failed telling ha
     assert.equal(sayingsOf(bare.board().threads.find(value => value.id === first.id)).length, 1);
     assert.equal(sayingsOf(cold.board().threads.find(value => value.id === first.id)).length, 0);
   } finally { c.drop(); }
+});
+
+
+/**
+ * Bare Cedar Fog as a known-intermittent colony: Cold Red Gate holds what it addresses to it, and the
+ * colony pulls it with a request `signer` vouches for. Admission on the colony is the ordinary one.
+ */
+function intermittent(c, signer = () => actorOf("bare-cedar-fog")) {
+  const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"];
+  cold.config.metroplatDataRoot = cold.binding.dataRoot;
+  cold.config.peerPresences = { [actorOf("bare-cedar-fog")]: "known-intermittent" };
+  bare.config.metroplatDataRoot = bare.binding.dataRoot;
+  bare.config.presence = "known-intermittent";
+  const signedGet = async (url) => {
+    const response = await heldDeliveryResponse({ config: cold.config, request: new Request(url), signerOf: signer });
+    if (!response.ok) throw Object.assign(new Error(`HTTP ${response.status}: ${(await response.json()).reason}`), { statusCode: response.status });
+    return response.json();
+  };
+  const admit = (activity, peer) => {
+    const arrival = heldArrival({ activity, peer, origin: ORIGINS["bare-cedar-fog"] });
+    const evidence = extractSignCellEvidenceActivity({ ...activity, actor: arrival.sender.actorId }, { expectedActor: arrival.sender.actorId, expectedRecipient: actorOf("bare-cedar-fog") });
+    return preparePeerWork({ projection: evidence, senderActorId: arrival.sender.actorId, origin: ORIGINS["bare-cedar-fog"], binding: bare.binding, agencyRoot: bare.agencyRoot, host: "bare-cedar-fog", enterprises: () => ENTERPRISES })?.();
+  };
+  const pull = () => pullHeldFromPeers({ config: bare.config, binding: bare.binding, signedGet, admit });
+  return { bare, cold, pull };
+}
+
+test("a move addressed to a known-intermittent peer is held, not pushed, and the peer pulls it onto its board once", async () => {
+  const c = city();
+  try {
+    const { bare, cold, pull } = intermittent(c);
+    let pushed = 0;
+    const deliver = cold.deliver;
+    cold.deliver = async (...args) => { pushed += 1; return deliver(...args); };
+    const opening = await hostedWorkOpening({ config: cold.config, binding: cold.binding, provider: cold.provider, enterprises: () => ENTERPRISES, deliver: cold.deliver })(aimAt("2026-10-03T09:00:00Z"));
+    assert.equal(opening.peerHandoff, "queued", "holding is the handoff");
+    assert.equal(pushed, 0, "nothing is pushed to a peer that cannot receive");
+    assert.ok(!bare.board().threads.some((thread) => thread.id === opening.id), "the colony has not received it yet");
+    const [first] = await pull();
+    assert.equal(first.peer, actorOf("cold-red-gate"));
+    assert.equal(first.pulled, 1);
+    assert.deepEqual(first.refused, []);
+    assert.ok(bare.board().threads.some((thread) => thread.id === opening.id), "the pulled opening is on the colony's board");
+    const [again] = await pull();
+    assert.equal(again.pulled, 0, "a pull resumes after what it already took");
+    // The holding node's catch-up finds the move already held: it notes it handed on and holds nothing twice.
+    const caught = await cold.catchUp();
+    assert.equal(caught.peers.find(({ peer }) => peer === actorOf("bare-cedar-fog")).held, 1);
+    assert.equal(pushed, 0);
+    const [third] = await pull();
+    assert.equal(third.pulled, 0, "the same activity held again is not served again");
+  } finally { c.drop(); }
+});
+
+test("a catch-up holds the moves a known-intermittent peer lacks and does not hold them again", async () => {
+  const c = city();
+  try {
+    const { cold } = intermittent(c);
+    cold.config.deliverWorkToPeer = false;
+    await cold.open(aimAt("2026-10-03T09:00:00Z"));
+    cold.config.deliverWorkToPeer = true;
+    const first = await cold.catchUp();
+    assert.equal(first.peers[0].held, 1);
+    assert.equal(first.failed.length, 0);
+    const second = await cold.catchUp();
+    assert.equal(second.shipped.length + second.failed.length, 0, "a held move is in the ledger of what the peer has been handed");
+  } finally { c.drop(); }
+});
+
+test("held deliveries are served only to the known-intermittent actor they are held for, on its own signature", async () => {
+  const c = city();
+  try {
+    const { cold } = intermittent(c);
+    holdForPeer({ dataRoot: cold.binding.dataRoot, recipient: actorOf("bare-cedar-fog"), activity: { id: "https://cold.example/activities/1", actor: actorOf("cold-red-gate"), to: [actorOf("bare-cedar-fog")] } });
+    const url = `${actorOf("cold-red-gate")}/outbox?held-for=${encodeURIComponent(actorOf("bare-cedar-fog"))}`;
+    const ask = (signer, at = url) => heldDeliveryResponse({ config: cold.config, request: new Request(at), signerOf: async () => signer });
+    assert.equal((await ask(undefined)).status, 401, "an unsigned pull is refused");
+    assert.equal((await ask("https://elsewhere.example/actors/metroplat")).status, 403, "another actor cannot pull what is held for this one");
+    const held = await ask(actorOf("bare-cedar-fog"));
+    assert.equal(held.status, 200);
+    const page = await held.json();
+    assert.equal(page.orderedItems.length, 1);
+    assert.ok(page.next.includes("after="));
+    cold.config.peerPresences = {};
+    assert.equal((await ask(actorOf("bare-cedar-fog"))).status, 403, "a peer no longer declared intermittent pulls nothing");
+    assert.equal(await heldDeliveryResponse({ config: cold.config, request: new Request(`${actorOf("cold-red-gate")}/outbox`), signerOf: async () => undefined }), undefined,
+      "the ordinary outbox is not this route");
+  } finally { c.drop(); }
+});
+
+test("a pulled activity not authored on the peer's origin, or not addressed to the puller, is refused", async () => {
+  const c = city();
+  try {
+    const { cold, pull } = intermittent(c);
+    holdForPeer({ dataRoot: cold.binding.dataRoot, recipient: actorOf("bare-cedar-fog"), activity: { id: "https://elsewhere.example/a", actor: "https://elsewhere.example/actors/metroplat", to: [actorOf("bare-cedar-fog")] } });
+    holdForPeer({ dataRoot: cold.binding.dataRoot, recipient: actorOf("bare-cedar-fog"), activity: { id: "https://cold.example/b", actor: actorOf("cold-red-gate"), to: ["https://elsewhere.example/actors/metroplat"] } });
+    const [result] = await pull();
+    assert.equal(result.pulled, 0);
+    assert.equal(result.refused.length, 2);
+  } finally { c.drop(); }
+});
+
+test("a continuous node pulls nothing, and a refused pull is reported, not hidden", async () => {
+  const c = city();
+  try {
+    const { bare, pull } = intermittent(c, () => undefined);
+    const [refused] = await pull();
+    assert.match(refused.failed, /HTTP 401/);
+    assert.equal(refused.away, false);
+    bare.config.presence = "continuous";
+    assert.deepEqual(await pull(), []);
+  } finally { c.drop(); }
+});
+
+/** One loopback ActivityPub node: an actual local provider whose requests a `route` may answer first. */
+async function loopbackNode(t, name, route = async () => undefined) {
+  const root = mkdtempSync(join(tmpdir(), `held-${name}-`));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  let local;
+  const server = createServer(async (request, response) => {
+    try {
+      const web = new Request(new URL(request.url, origin), { method: request.method, headers: request.headers });
+      const result = await route(web, local) ?? await local.provider.fetch(web);
+      response.writeHead(result.status, Object.fromEntries(result.headers));
+      response.end(Buffer.from(await result.arrayBuffer()));
+    } catch (error) { response.writeHead(500); response.end(String(error)); }
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise((resolve) => { server.closeAllConnections(); server.close(resolve); }));
+  const origin = `http://127.0.0.1:${server.address().port}`;
+  local = await createLocalActivityPubProvider({
+    origin, stateDirectory: join(root, "state"), queue: false, allowPrivateAddress: true,
+    actors: [{ identifier: "metroplat", actorName: name, summary: name, keyPath: join(root, "key.json") }],
+  });
+  t.after(() => local.close());
+  return { origin, actor: `${origin}/actors/metroplat`, provider: local.provider, root };
+}
+
+test("an actual signed pull is verified by the holding node's ActivityPub provider", { timeout: 30000 }, async (t) => {
+  let config;
+  const holder = await loopbackNode(t, "holder", (request, local) => heldDeliveryResponse({ config, request, signerOf: (signed) => signedRequestActor(local.provider, signed) }));
+  const colony = await loopbackNode(t, "colony");
+  config = { publicBaseUrl: holder.origin, metroplatDataRoot: holder.root, activityPub: { instanceActor: { identifier: "metroplat" } }, peerPresences: { [colony.actor]: "known-intermittent" } };
+  const activity = { id: `${holder.origin}/activities/held-1`, type: "Accept", actor: holder.actor, to: [colony.actor] };
+  holdForPeer({ dataRoot: holder.root, recipient: colony.actor, activity });
+  const unsigned = await fetch(`${holder.actor}/outbox?held-for=${encodeURIComponent(colony.actor)}`, { headers: { accept: "application/activity+json" } });
+  assert.equal(unsigned.status, 401);
+  const admitted = [];
+  const binding = { dataRoot: colony.root };
+  const colonyConfig = { presence: "known-intermittent", publicBaseUrl: colony.origin, activityPub: { instanceActor: { identifier: "metroplat" } }, workPeers: [{ actor: holder.actor }] };
+  const [result] = await pullHeldFromPeers({ config: colonyConfig, binding, signedGet: signedGetAs(colony.provider, "metroplat"), admit: async (pulled) => { admitted.push(pulled); } });
+  assert.equal(result.failed, undefined, result.failed);
+  assert.equal(result.pulled, 1);
+  assert.deepEqual(admitted, [activity]);
+});
+
+test("a result addressed to a known-intermittent requester is held for it; one to a continuous requester is delivered", async () => {
+  const root = mkdtempSync(join(tmpdir(), "deliver-or-hold-"));
+  try {
+    const { deliverOrHold } = await import("../src/federated-work.mjs");
+    const colony = "https://soft-grass-pebble.example/actors/metroplat", peer = "https://bare.example/actors/metroplat";
+    const config = { metroplatDataRoot: root, peerPresences: { [colony]: "known-intermittent" } };
+    const delivered = [];
+    const deliver = async (_provider, request) => { delivered.push(request.recipient); return { delivered: true }; };
+    const request = (recipient) => ({ identifier: "metroplat", recipient, inbox: `${recipient}/inbox`, activity: { id: `https://cold.example/activities/${recipient.length}`, type: "Accept", actor: "https://cold.example/actors/metroplat", to: [recipient] } });
+    const held = await deliverOrHold({ config, deliver, request: request(colony) });
+    assert.equal(held.held, true);
+    assert.deepEqual(await deliverOrHold({ config, deliver, request: request(peer) }), { delivered: true });
+    assert.deepEqual(delivered, [peer]);
+    const response = await heldDeliveryResponse({ config: { ...config, publicBaseUrl: "https://cold.example", activityPub: { instanceActor: { identifier: "metroplat" } } },
+      request: new Request(`https://cold.example/actors/metroplat/outbox?held-for=${encodeURIComponent(colony)}`), signerOf: async () => colony });
+    assert.deepEqual((await response.json()).orderedItems, [request(colony).activity]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

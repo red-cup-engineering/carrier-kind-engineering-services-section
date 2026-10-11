@@ -125,8 +125,12 @@ export function keepWitness(journal, witness) {
 export function notePeerRun(journal, { observer, peer, now, shipped, failed, presence, thresholdSeconds, windowSeconds }) {
   const answered = shipped > 0 || failed.some(({ away: wasAway }) => !wasAway);
   const reachedFor = shipped + failed.length > 0;
-  if (answered) keepWitness(journal, heartbeat({ observer, peer, at: now, windowSeconds }));
-  else if (reachedFor) keepWitness(journal, away({ observer, peer, at: now, windowSeconds }));
+  return noteObservation(journal, { observer, peer, now, answered, reachedFor, presence, thresholdSeconds, windowSeconds });
+}
+
+function noteObservation(journal, { observer, peer, now, answered, reachedFor, presence, thresholdSeconds, windowSeconds, why, serviceHealth }) {
+  if (answered) keepWitness(journal, { ...heartbeat({ observer, peer, at: now, windowSeconds }), ...(why === undefined ? {} : { why }), ...(serviceHealth === undefined ? {} : { serviceHealth }) });
+  else if (reachedFor) keepWitness(journal, { ...away({ observer, peer, at: now, windowSeconds }), ...(why === undefined ? {} : { why }), ...(serviceHealth === undefined ? {} : { serviceHealth }) });
   const witnesses = witnessesIn(journal);
   // Only a run that sought the peer and found it away can fire the threshold: a run with nothing to
   // send is no observation of the peer at all.
@@ -134,4 +138,100 @@ export function notePeerRun(journal, { observer, peer, now, shipped, failed, pre
   if (fired !== undefined) keepWitness(journal, fired);
   const all = fired === undefined ? witnesses : [...witnesses, fired];
   return Object.freeze({ reading: currentReading(all, peer), silentSeconds: elapsedSinceHeard(all, peer, now) });
+}
+
+/** An idle catch-up still observes its existing peer, without sending a fabricated work move.
+ * Only this host's actual supervised health contract can supply a heartbeat. An HTTP success
+ * alone is not recovery. These reads use no actor keys, grants, redirects or request credentials.
+ * Their deadline also covers the response body, even when a provider ignores AbortSignal. */
+export const PEER_HEALTH_TIMEOUT_MS = 2_000;
+export const PEER_HEALTH_MAX_BYTES = 65_536;
+
+export async function observePeerHealth(peer, { contract, probe = globalThis.fetch, timeoutMs = PEER_HEALTH_TIMEOUT_MS } = {}) {
+  let actor;
+  try { actor = new URL(peer); } catch { return Object.freeze({ observed: false, ready: false, reason: "health-peer-unobservable" }); }
+  if (actor.protocol !== "https:" || actor.username !== "" || actor.password !== "") return Object.freeze({ observed: false, ready: false, reason: "health-peer-unobservable" });
+  if (contract?.actor !== actor.href || contract?.kind !== "metroplat-supervised-health"
+    || typeof contract.service !== "string" || contract.service.trim() === "")
+    return Object.freeze({ observed: false, ready: false, reason: "health-contract-unavailable" });
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > PEER_HEALTH_TIMEOUT_MS) throw new TypeError("peer health deadline is bounded");
+  const url = new URL("/healthz", actor.origin).href;
+  const controller = new AbortController();
+  let timer, reader;
+  let stopped = false;
+  const cancelBody = () => {
+    const held = reader;
+    reader = undefined;
+    if (held === undefined) return;
+    // A provider's cancellation promise may itself stall. Initiate cleanup, never await it.
+    try { Promise.resolve(held.cancel()).catch(() => {}); } catch {}
+    try { held.releaseLock(); } catch {}
+  };
+  const observe = async () => {
+    try {
+      const response = await probe(url, { method: "GET", redirect: "error", credentials: "omit", cache: "no-store",
+        headers: { accept: "application/json", "cache-control": "no-cache" }, signal: controller.signal });
+      if (stopped) {
+        try { Promise.resolve(response.body?.cancel?.()).catch(() => {}); } catch {}
+        return Object.freeze({ ready: false, reason: "health-timeout" });
+      }
+      if (![200, 503].includes(response.status)) {
+        void response.body?.cancel?.().catch?.(() => {});
+        return Object.freeze({ ready: false, reason: "health-http-status", status: response.status });
+      }
+      if (typeof response.body?.getReader !== "function") return Object.freeze({ ready: false, reason: "health-body-unreadable" });
+      reader = response.body.getReader();
+      const bodyReader = reader;
+      const chunks = [];
+      let length = 0;
+      try {
+        for (;;) {
+          const { done, value } = await bodyReader.read();
+          if (done) break;
+          length += value.byteLength;
+          if (length > PEER_HEALTH_MAX_BYTES) return Object.freeze({ ready: false, reason: "health-body-too-large" });
+          chunks.push(value);
+        }
+      } finally { cancelBody(); }
+      const bytes = new Uint8Array(length);
+      let offset = 0;
+      for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+      let body;
+      try { body = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)); }
+      catch { return Object.freeze({ ready: false, reason: "health-body-invalid" }); }
+      if (body?.service !== contract.service) return Object.freeze({ ready: false, reason: "health-service-mismatch" });
+      const ready = response.status === 200 && body.ok === true && ["ready", "degraded"].includes(body.state) && body.nativeActor?.ok === true;
+      const failed = body.ok === false || body.nativeActor?.ok === false || ["failed", "unready", "stopped"].includes(body.state);
+      const readiness = ready || failed ? Object.freeze({ state: ready ? "ready" : "failed", service: body.service,
+        ...(typeof body.ok === "boolean" ? { ok: body.ok } : {}),
+        ...(typeof body.state === "string" ? { serviceState: body.state } : {}),
+        ...(typeof body.nativeActor?.ok === "boolean" ? { nativeActorOk: body.nativeActor.ok } : {}),
+      }) : undefined;
+      return Object.freeze({ ready, reason: ready ? "health-ready" : "health-unready", ...(readiness === undefined ? {} : { readiness }) });
+    } catch { return Object.freeze({ ready: false, reason: "health-unreachable" }); }
+  };
+  try {
+    return await Promise.race([observe(), new Promise((resolve) => {
+      timer = setTimeout(() => {
+        stopped = true;
+        resolve(Object.freeze({ ready: false, reason: "health-timeout" }));
+        controller.abort();
+        cancelBody();
+      }, timeoutMs);
+    })]);
+  } finally { stopped = true; clearTimeout(timer); controller.abort(); cancelBody(); }
+}
+
+/** The same window/threshold/intermittent policy, with the idle observation named honestly. */
+export function notePeerHealth(journal, { health, ...policy }) {
+  return noteObservation(journal, { ...policy, answered: health.ready === true, reachedFor: health.observed !== false, why: health.reason, serviceHealth: health.readiness });
+}
+
+/** Only peers selected by the existing catch-up run, and only when no delivery observed them.
+ * Probes run together, so unreachable peers add at most one bounded observation deadline. */
+export async function observeIdlePeers(peers, { contracts = [], ...options } = {}) {
+  const declared = Array.isArray(contracts) ? contracts : [];
+  return Object.freeze(await Promise.all(peers.map(async (peer) => peer.shipped + peer.failed.length === 0
+    ? Object.freeze({ ...peer, health: await observePeerHealth(peer.peer, { ...options, contract: declared.find(entry => entry?.actor === peer.peer) }) })
+    : peer)));
 }

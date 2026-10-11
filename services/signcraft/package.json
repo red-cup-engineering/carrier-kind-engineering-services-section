@@ -5,8 +5,7 @@
   "description": "Settlement, history, inference and presentations composed from SignCell, SignChain and SignGraph.",
   "files": [
     "src",
-    "scripts",
-    "!scripts/historical-history-receiving"
+    "scripts"
   ],
   "exports": {
     "./package.json": "./package.json",
@@ -28,14 +27,12 @@
     "./page": "./src/page.mjs",
     "./settlement-signature": "./src/settlement-signature.mjs",
     "./history": "./src/history.mjs",
-    "./sql-history-store": "./src/sql-history-store.mjs",
-    "./sql-content-history-store": "./src/sql-content-history-store.mjs",
     "./membrane": "./src/membrane.mjs",
     "./primitives": "./src/primitives.mjs",
     "./content-history-store": "./src/content-history-store.mjs",
     "./file-history-store": "./src/file-history-store.mjs",
     "./key-value-history-store": "./src/key-value-history-store.mjs",
-    "./import-sql-history": "./src/import-sql-history.mjs"
+    "./historical-history": "./src/historical-history.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/signcell": "workspace:*",
@@ -54,6 +51,7 @@
     "@red-cup-engineering/javascript-node-services-section": "workspace:*"
   },
   "scripts": {
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "test:legacy-sql": "node --test qualification/legacy-sql/*.test.mjs"
   }
 }

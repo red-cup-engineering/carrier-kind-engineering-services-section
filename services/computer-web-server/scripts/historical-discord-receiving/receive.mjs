@@ -1,50 +1,37 @@
-import {tmpdir} from 'node:os';
-import {join} from 'node:path';
-import {lstatSync,openSync,readSync,closeSync,existsSync,mkdtempSync,copyFileSync,rmSync} from 'node:fs';
-import {createHash} from 'node:crypto';
+import { withHistoricalSnapshot } from "./custody.mjs";
 // The rows a D1 (SQLite) Discord admission database held, read once, read-only, and admitted into
-// the journal store that now keeps them (discord-store.mjs). SQL survives here only as that
-// admission path for old bytes: `wrangler d1 export` or a local SQLite file of the tables
-// admission's D1 migrations created (discord_oauth_sessions, discord_command_login_challenges,
-// discord_interaction_sessions). A table the file lacks holds nothing to admit; a row the store
-// already holds is left as the store has it. discord_command_login_rate_limits is not read: its
-// windows last a minute and are not facts worth keeping.
+// the journal store that now keeps them (discord-store.mjs). The node runtime holds no SQL: the
+// file is received by read-legacy-sqlite.py (read-only, immutable, bounded; see
+// legacy-sqlite-reader.mjs), which streams the rows of the tables admission's D1 migrations
+// created (discord_oauth_sessions, discord_command_login_challenges, discord_interaction_sessions)
+// from `wrangler d1 export` or a local file. A table the file lacks holds nothing to admit; a row
+// the store already holds is left as the store has it. discord_command_login_rate_limits is not
+// read: its windows last a minute and are not facts worth keeping.
+import { readLegacySqlite } from '@red-cup-engineering/historical-sql-reader-service';
 const TABLES = Object.freeze([
-    Object.freeze({ table: 'discord_oauth_sessions', key: 'session_hash', into: 'oauthSessions' }),
-    Object.freeze({ table: 'discord_command_login_challenges', key: 'challenge_hash', into: 'commandChallenges' }),
-    Object.freeze({ table: 'discord_interaction_sessions', key: 'session_hash', into: 'interactionSessions' }),
+    Object.freeze({ table: 'discord_oauth_sessions', requiredColumns: ["session_hash", "subject_hash", "discord_user_id", "display_name", "authorization_ciphertext", "authorization_version", "token_expires_at", "session_expires_at", "retry_after", "created_at", "updated_at"], key: 'session_hash', into: 'oauthSessions' }),
+    Object.freeze({ table: 'discord_command_login_challenges', requiredColumns: ["challenge_hash", "verifier_hash", "expires_at", "approved_at", "consumed_at", "subject_hash", "discord_user_ciphertext", "created_at"], key: 'challenge_hash', into: 'commandChallenges' }),
+    Object.freeze({ table: 'discord_interaction_sessions', requiredColumns: ["session_hash", "subject_hash", "discord_user_ciphertext", "session_expires_at", "created_at"], key: 'session_hash', into: 'interactionSessions' }),
 ]);
-/** Admit every row of the SQLite file at `file` into `store`; returns how many were admitted per table. */
-function sourceIdentity(file){
- const held=lstatSync(file);if(!held.isFile()||held.isSymbolicLink()||held.size>16*1024*1024)throw new Error('Discord historical source must be bounded regular custody');
- for(const suffix of ['-wal','-journal'])if(existsSync(file+suffix)){const sidecar=lstatSync(file+suffix);if(!sidecar.isFile()||sidecar.isSymbolicLink()||sidecar.size!==0)throw new Error('Discord historical source has unresolved transaction custody');}
- const hash=createHash('sha256'),fd=openSync(file,'r'),buffer=Buffer.alloc(65536);let total=0;
- try{for(;;){const bytes=readSync(fd,buffer,0,buffer.length,null);if(!bytes)break;total+=bytes;if(total>16*1024*1024)throw new Error('Discord historical source bound exhausted');hash.update(buffer.subarray(0,bytes));}return hash.digest('hex');}finally{closeSync(fd);}
-}
-export function importSqlDiscordAdmission(file, store, {expectedSha256}={}) {
-    if(!/^[a-f0-9]{64}$/u.test(expectedSha256??'')||sourceIdentity(file)!==expectedSha256)throw new Error('Discord historical source identity is required and must match');
-    const { DatabaseSync } = process.getBuiltinModule('node:sqlite');
-    const scratch=mkdtempSync(join(tmpdir(),'discord-historical-receiving-')),snapshot=join(scratch,'source.sqlite');let db;
-    try {
-        copyFileSync(file,snapshot);if(sourceIdentity(snapshot)!==expectedSha256)throw new Error('Discord historical snapshot changed');
-        db = new DatabaseSync(snapshot, {readOnly:true});
-        const present = new Set(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all().map((row) => row.name));
-        const admitted = {};let records=0,decodedBytes=0;
-        db.exec('PRAGMA query_only=on');db.exec('BEGIN');
+/** Admit every row of the legacy SQLite file at `file` into `store`; returns how many were admitted per table. */
+export function importSqlDiscordAdmission(file, store, {expectedSha256, python}={}) {
+ return withHistoricalSnapshot(file, store.root, expectedSha256, (snapshot, verify) => {
+    return readLegacySqlite(snapshot, TABLES.map(({ table, key, requiredColumns }) => ({ table, order: key, requiredColumns })), (legacy) => {
+        if(!TABLES.some(({table})=>legacy.has(table)))throw new Error('Discord historical source has no recognized admission tables');
+        verify();
+        const admitted = {};
         for (const { table, key, into } of TABLES) {
             admitted[table] = 0;
-            if (!present.has(table))
+            if (!legacy.has(table))
                 continue;
-            for (const row of db.prepare(`SELECT * FROM "${table}" ORDER BY "${key}"`).iterate()) {
-                const value = { ...row };decodedBytes+=Buffer.byteLength(JSON.stringify(value));if(++records>20000||decodedBytes>16*1024*1024)throw new Error('Discord historical representation bound exhausted');
-                const { before } = store.atomically(() => store[into].update(value[key], (held) => (held === null ? value : undefined)));
+            for (const row of legacy.rows(table)) {
+                const { before } = store.atomically(() => store[into].update(row[key], (held) => (held === null ? row : undefined)));
                 if (before === null)
                     admitted[table] += 1;
             }
         }
-        db.exec('COMMIT');if(sourceIdentity(file)!==expectedSha256)throw new Error('Discord original source changed during receiving');return admitted;
-    }
-    finally {
-        db?.close();rmSync(scratch,{recursive:true,force:true});
-    }
+        verify();
+        return admitted;
+    }, {python});
+ });
 }

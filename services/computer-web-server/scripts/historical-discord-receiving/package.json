@@ -8,6 +8,13 @@
     ".": "./receive.mjs"
   },
   "files": [
-    "receive.mjs"
-  ]
+    "receive.mjs",
+    "custody.mjs"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/historical-sql-reader-service": "workspace:*"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
 }
