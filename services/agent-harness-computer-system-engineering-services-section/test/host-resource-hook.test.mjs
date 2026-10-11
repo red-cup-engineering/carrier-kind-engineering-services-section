@@ -6,12 +6,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, truncateSync, writeFileSync } from "node:fs";
+import net from "node:net";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, truncateSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { BUSY_EXIT_CODE, classify, decide, hookEntries, hostResourceControl, hookSource, lockPath, parseShell, run, shellQuote, waitSeconds } from "../src/host-resource-hook.mjs";
+import { BUSY_EXIT_CODE, CONTAINMENT_SLICE, classify, containedCommand, containmentLimits, decide, hookEntries, hostResourceControl, hookSource, isContained, launcherScript, lockPath, parseShell, run, shellQuote, sliceUnit, waitSeconds } from "../src/host-resource-hook.mjs";
 
 const HOOK = fileURLToPath(new URL("../src/host-resource-hook.mjs", import.meta.url));
 const MiB = 1024 * 1024;
@@ -598,7 +599,8 @@ test("a node's projection carries the hook file and settings that name it, for C
   assert.deepEqual([...control.files.keys()].sort(), [".claude/hooks/host-resource-hook.mjs", ".codex/hooks.json", ".codex/hooks/host-resource-hook.mjs"]);
   assert.equal(control.files.get(".claude/hooks/host-resource-hook.mjs"), hookSource());
   const [entry] = control.hooks.PreToolUse;
-  assert.equal(entry.matcher, "Bash");
+  assert.equal(entry.matcher, "Bash|Monitor");
+  assert.equal(JSON.parse(hostResourceControl({ node }).files.get(".codex/hooks.json")).hooks.PreToolUse[0].matcher, "Bash");
   assert.deepEqual(entry.hooks.map((handler) => handler.type), ["command"]);
   assert.equal(entry.hooks[0].command, "node '/work/node dir/.claude/hooks/host-resource-hook.mjs'");
   const codex = JSON.parse(control.files.get(".codex/hooks.json"));
@@ -611,4 +613,96 @@ test("run() answers a bare event the way the process does", { skip: !haveFlock }
   const direct = run(event("find / -name x"), { env });
   assert.equal(JSON.parse(direct).hookSpecificOutput.permissionDecision, "deny");
   assert.equal(run("nonsense", { env }), undefined);
+});
+
+// ---------------------------------------------------------------------------------------------
+// Containment: a fake systemd-run records its arguments and runs what follows "--", and a real
+// socket stands in for the user manager's bus, so the slice's placement is read without a systemd.
+// ---------------------------------------------------------------------------------------------
+
+const fakeBin = path.join(root, "fake-bin");
+mkdirSync(fakeBin, { recursive: true });
+writeFileSync(path.join(fakeBin, "systemd-run"), [
+  "#!/bin/sh",
+  '[ -z "$FAKE_SYSTEMD_RUN_LOG" ] || printf \'%s\\n\' "$*" >> "$FAKE_SYSTEMD_RUN_LOG"',
+  'while [ $# -gt 0 ] && [ "$1" != "--" ]; do shift; done',
+  '[ $# -gt 0 ] || exit 0',
+  "shift",
+  'exec "$@"',
+  "",
+].join("\n"), { mode: 0o755 });
+const OUTSIDE = "0::/non-systemd\n";
+const INSIDE = `0::/user.slice/user-1000.slice/user@1000.service/agent.slice/${CONTAINMENT_SLICE}/run-r1.scope\n`;
+const shellEvent = (command, permission_mode, tool_name = "Bash") => ({ hook_event_name: "PreToolUse", cwd: dirs.plain, tool_name, permission_mode, tool_input: { command, description: "d" } });
+
+async function withBus(work) {
+  const runtime = mkdtempSync(path.join(root, "runtime-"));
+  const server = net.createServer();
+  await new Promise((resolve) => server.listen(path.join(runtime, "bus"), resolve));
+  try { return await work(runtime); } finally { await new Promise((resolve) => server.close(resolve)); }
+}
+
+test("the slice takes a quarter of the processors and at most 40% of memory, with no swap", () => {
+  const limits = containmentLimits({ cpus: 16, memory: 7748 * MiB });
+  assert.deepEqual(limits, { CPUQuota: "400%", CPUWeight: 20, MemoryHigh: "2324M", MemoryMax: "3099M", MemorySwapMax: 0, TasksMax: 768 });
+  assert.equal(containmentLimits({ cpus: 2, memory: 1024 * MiB }).CPUQuota, "100%");
+  const unit = sliceUnit(limits);
+  assert.match(unit, /^\[Unit\]\nDescription=.+\n\n\[Slice\]\n/u);
+  for (const [key, value] of Object.entries(limits)) assert.ok(unit.includes(`\n${key}=${value}\n`), key);
+});
+
+test("a session outside the slice has its commands placed in it; one inside is left alone", { skip: !haveFlock }, async () => {
+  await withBus(async (runtime) => {
+    const live = { ...env, XDG_RUNTIME_DIR: runtime, PATH: `${fakeBin}:${env.PATH}` };
+    const slice = `--slice=${CONTAINMENT_SLICE} --`;
+    const answer = (input, cgroup = OUTSIDE, provider = "claude") => decide(input, { env: live, provider, cgroup })?.updatedInput?.command;
+    // Without permission rules, every command is contained.
+    assert.ok(answer(shellEvent("ls -la", "bypassPermissions")).includes(slice));
+    // With them, only what is already rewritten, so no allow rule stops matching a light command.
+    assert.equal(answer(shellEvent("ls -la", "default")), undefined);
+    const heavy = answer(shellEvent("git fetch origin", "default"));
+    assert.ok(heavy.includes(slice) && heavy.includes("flock"), "a heavy command is serialized and contained");
+    // A watch is contained but never takes the heavy slot.
+    const watch = answer(shellEvent("git fetch origin; sleep 60", "default", "Monitor"));
+    assert.ok(watch.includes(slice) && !watch.includes("flock"));
+    // Already inside the slice: serialization only.
+    assert.equal(answer(shellEvent("ls -la", "bypassPermissions"), INSIDE), undefined);
+    assert.ok(!answer(shellEvent("git fetch origin", "bypassPermissions"), INSIDE).includes("systemd-run"));
+    // Never for an allow-list session, for Codex, or when switched off; a denial still wins.
+    assert.equal(answer(shellEvent("git fetch origin", "dontAsk")), undefined);
+    assert.ok(!answer(shellEvent("git fetch origin", "bypassPermissions"), OUTSIDE, "codex").includes("systemd-run"));
+    assert.equal(decide(shellEvent("ls", "bypassPermissions", "Monitor"), { env: live, provider: "codex", cgroup: OUTSIDE }), undefined);
+    assert.equal(decide(shellEvent("ls", "bypassPermissions"), { env: { ...live, AGENT_CONTAINMENT: "off" }, cgroup: OUTSIDE }), undefined);
+    assert.equal(decide(shellEvent("find / -name x", "bypassPermissions"), { env: live, cgroup: OUTSIDE }).permissionDecision, "deny");
+  });
+  // No user manager to reach: the command is left as it was.
+  assert.equal(decide(shellEvent("ls -la", "bypassPermissions"), { env: { ...env, XDG_RUNTIME_DIR: root, PATH: `${fakeBin}:${env.PATH}` }, cgroup: OUTSIDE }), undefined);
+});
+
+test("a contained command keeps its output, exit status and the directory it ends in", { timeout: 60_000 }, () => {
+  const log = path.join(root, "systemd-run.log");
+  const runtime = mkdtempSync(path.join(root, "contained-"));
+  const script = `cd ${shellQuote(dirs.plain)}; ${containedCommand(`printf '%s\\n' "it's inside"; cd /; exit 3`)}; echo "rc=$? dir=$(pwd)"`;
+  const result = spawnSync("bash", ["-c", script], { encoding: "utf8", env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}`, XDG_RUNTIME_DIR: runtime, FAKE_SYSTEMD_RUN_LOG: log } });
+  assert.equal(result.stdout, "it's inside\nrc=3 dir=/\n", result.stderr);
+  assert.match(readFileSync(log, "utf8"), new RegExp(`^--user --scope --quiet --collect --slice=${CONTAINMENT_SLICE} -- bash -c `, "u"));
+  assert.deepEqual(readdirSync(runtime), [], "the directory record is removed");
+});
+
+test("the launcher starts the executable it is handed inside the slice, or directly where it cannot", { skip: !existsSync("/proc/self/cgroup"), timeout: 60_000 }, async () => {
+  const launcher = path.join(root, "claude-contained");
+  writeFileSync(launcher, launcherScript(), { mode: 0o755 });
+  const log = path.join(root, "launcher.log");
+  const inside = isContained(readFileSync("/proc/self/cgroup", "utf8"));
+  await withBus(async (runtime) => {
+    const result = spawnSync(launcher, ["/bin/echo", "a", "b c"], { encoding: "utf8", env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}`, XDG_RUNTIME_DIR: runtime, FAKE_SYSTEMD_RUN_LOG: log } });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout, "a b c\n");
+    const calls = existsSync(log) ? readFileSync(log, "utf8") : "";
+    if (inside) assert.equal(calls, "", "already inside the slice, so started directly");
+    else assert.match(calls, new RegExp(`--slice=${CONTAINMENT_SLICE} -- /bin/echo a b c\\n$`, "u"));
+  });
+  const bare = spawnSync(launcher, ["/bin/echo", "ok"], { encoding: "utf8", env: { ...process.env, XDG_RUNTIME_DIR: path.join(root, "no-runtime") } });
+  assert.equal(bare.stdout, "ok\n");
+  if (!inside) assert.match(bare.stderr, /runs uncontained/u);
 });

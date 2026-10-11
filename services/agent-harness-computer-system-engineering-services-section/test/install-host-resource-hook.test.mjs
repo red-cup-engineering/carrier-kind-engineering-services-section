@@ -4,13 +4,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { hookSource } from "../src/host-resource-hook.mjs";
-import { installHostResourceHook } from "../scripts/install-host-resource-hook.mjs";
+import { CONTAINMENT_SLICE, hookSource, launcherScript, sliceUnit } from "../src/host-resource-hook.mjs";
+import { installContainment, installHostResourceHook } from "../scripts/install-host-resource-hook.mjs";
 
 const SCRIPT = fileURLToPath(new URL("../scripts/install-host-resource-hook.mjs", import.meta.url));
 const root = mkdtempSync(path.join(tmpdir(), "install-host-resource-hook-"));
@@ -42,7 +42,7 @@ test("the hook is copied to the stable directory and named for Bash, every other
   assert.deepEqual(written.hooks.PostToolUse, EXISTING.hooks.PostToolUse);
   assert.deepEqual(written.hooks.PreToolUse[0], EXISTING.hooks.PreToolUse[0]);
   assert.equal(written.hooks.PreToolUse.length, 2);
-  assert.equal(written.hooks.PreToolUse[1].matcher, "Bash");
+  assert.equal(written.hooks.PreToolUse[1].matcher, "Bash|Monitor");
   assert.equal(written.hooks.PreToolUse[1].hooks[0].command, `node '${result.hook}'`);
   assert.equal(JSON.parse(readFileSync(`${settings}.before-host-resource-hook`, "utf8")).model, "opus", "the earlier text is kept");
 });
@@ -108,8 +108,46 @@ test("default places follow the environment", () => {
 
 test("the command line installs and prints what it did", () => {
   const { dest, settings } = fresh();
-  const result = spawnSync(process.execPath, [SCRIPT, "--dest", dest, "--settings", settings], { encoding: "utf8" });
+  const result = spawnSync(process.execPath, [SCRIPT, "--dest", dest, "--settings", settings, "--no-containment"], { encoding: "utf8" });
   assert.equal(result.status, 0, result.stderr);
   assert.deepEqual(JSON.parse(result.stdout), { hook: path.join(dest, "host-resource-hook.mjs"), settings, provider: "claude", changed: true });
-  assert.equal(JSON.parse(readFileSync(settings, "utf8")).hooks.PreToolUse[0].matcher, "Bash");
+  assert.equal(JSON.parse(readFileSync(settings, "utf8")).hooks.PreToolUse[0].matcher, "Bash|Monitor");
+});
+
+test("containment installs the slice unit, the launcher and VS Code's wrapper setting, once", () => {
+  const environment = { HOME: path.join(root, "contain-home"), XDG_CONFIG_HOME: path.join(root, "contain-config"), XDG_DATA_HOME: path.join(root, "contain-data") };
+  const vscodeSettings = path.join(root, "vscode", "settings.json");
+  mkdirSync(path.dirname(vscodeSettings), { recursive: true });
+  writeFileSync(vscodeSettings, JSON.stringify({ "claudeCode.initialPermissionMode": "bypassPermissions" }));
+  let reloads = 0;
+  const reload = () => { reloads += 1; return true; };
+  const first = installContainment({ environment, vscodeSettings, reload });
+  assert.equal(first.unit, path.join(root, "contain-config", "systemd", "user", CONTAINMENT_SLICE));
+  assert.equal(readFileSync(first.unit, "utf8"), sliceUnit());
+  assert.equal(first.launcher, path.join(root, "contain-data", "agent-harness", "claude-contained"));
+  assert.equal(readFileSync(first.launcher, "utf8"), launcherScript());
+  assert.equal(statSync(first.launcher).mode & 0o777, 0o755);
+  assert.deepEqual(JSON.parse(readFileSync(vscodeSettings, "utf8")), { "claudeCode.initialPermissionMode": "bypassPermissions", "claudeCode.claudeProcessWrapper": first.launcher });
+  assert.deepEqual([first.vscode, first.reloaded, first.changed, reloads], ["set", true, true, 1]);
+  const again = installContainment({ environment, vscodeSettings, reload });
+  assert.deepEqual([again.vscode, again.reloaded, again.changed, reloads], ["unchanged", false, false, 1]);
+});
+
+test("VS Code settings that are not plain JSON are left alone, and a machine without VS Code is skipped", () => {
+  const environment = { HOME: path.join(root, "jsonc-home"), XDG_CONFIG_HOME: path.join(root, "jsonc-config"), XDG_DATA_HOME: path.join(root, "jsonc-data") };
+  const vscodeSettings = path.join(root, "jsonc", "settings.json");
+  mkdirSync(path.dirname(vscodeSettings), { recursive: true });
+  const jsonc = '{\n  // a comment\n  "editor.tabSize": 2\n}\n';
+  writeFileSync(vscodeSettings, jsonc);
+  assert.equal(installContainment({ environment, vscodeSettings, reload: () => true }).vscode, "left alone");
+  assert.equal(readFileSync(vscodeSettings, "utf8"), jsonc);
+  assert.equal(installContainment({ environment: { ...environment, HOME: path.join(root, "no-vscode") }, reload: () => true }).vscode, "absent");
+});
+
+test("the hook install carries containment for Claude Code only when asked, never for Codex", () => {
+  const environment = { HOME: path.join(root, "both-home"), XDG_CONFIG_HOME: path.join(root, "both-config"), XDG_DATA_HOME: path.join(root, "both-data") };
+  assert.equal(installHostResourceHook({ ...fresh(), environment }).containment, undefined);
+  const contained = installHostResourceHook({ ...fresh(), environment, containment: true, reload: () => true });
+  assert.equal(contained.containment.unit, path.join(root, "both-config", "systemd", "user", CONTAINMENT_SLICE));
+  assert.equal(installHostResourceHook({ ...fresh(), environment, provider: "codex", containment: true, reload: () => true }).containment, undefined);
 });

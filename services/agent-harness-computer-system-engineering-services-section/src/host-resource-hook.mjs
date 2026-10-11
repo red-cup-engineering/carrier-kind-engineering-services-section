@@ -2,9 +2,13 @@
 /**
  * The host-resource controller: one PreToolUse hook that mediates the Bash commands of every agent
  * session on a machine, so that no number of concurrent sessions, subagents or Codex processes can
- * exhaust its disk or memory. The control is software in the harness, not a kernel cap and not an
- * instruction an agent is trusted to follow: the harness hands the hook each command before it
- * runs, and the hook answers one of three ways.
+ * exhaust its disk or memory. The control is software in the harness and not an instruction an agent
+ * is trusted to follow: the harness hands the hook each command before it runs, and the hook answers
+ * one of three ways. Beneath it sits a kernel cap (see "Containment" below): every process a Claude
+ * Code session runs lives in one user-manager slice, `agent-claude.slice`, whose cgroup limits bind
+ * the sum of all of it to a share of the host, however many sessions and subagents there are. A
+ * session started by the launcher `launcherScript` writes is inside the slice from its first
+ * instruction; for one that is not, the hook places its commands there itself.
  *
  *   deny       the command reads or writes far more than it can be worth (`find` over the disk or a
  *              large working tree, `git worktree add`, `git clone` into a working directory, an
@@ -38,11 +42,12 @@
  * Zero dependencies: this one file is copied beside the settings that name it, and runs under
  * plain `node`. It reads a handful of stat results and no repository state, so it adds only node's
  * own start-up time. Settings are read from the hook's own process environment (the harness's, which
- * an agent's command cannot change): AGENT_HOST_GUARD=off disables it; AGENT_HEAVY_LOCK,
- * AGENT_HEAVY_WAIT_SECONDS, AGENT_HEAVY_LARGE_REPO_FILES and AGENT_HEAVY_LARGE_REPO_INDEX_BYTES tune it.
+ * an agent's command cannot change): AGENT_HOST_GUARD=off disables it; AGENT_CONTAINMENT=off leaves
+ * commands outside the slice; AGENT_HEAVY_LOCK, AGENT_HEAVY_WAIT_SECONDS, AGENT_HEAVY_LARGE_REPO_FILES
+ * and AGENT_HEAVY_LARGE_REPO_INDEX_BYTES tune it.
  */
 import { accessSync, closeSync, constants, lstatSync, mkdirSync, openSync, readFileSync, readSync, readdirSync, readlinkSync, realpathSync, statSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { availableParallelism, homedir, tmpdir, totalmem } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -809,17 +814,124 @@ export function serializedCommand(original, { lock, wait, nice = true, ionice = 
   ].join("; ");
 }
 
+// ---------------------------------------------------------------------------------------------
+// Containment: everything a Claude Code session runs, held by the kernel to a share of the host.
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * The user-manager slice every process of every Claude Code session runs in. Its cgroup limits bind
+ * the sum of all of it (sessions, subagents, monitors, commands, MCP servers), so no number of them
+ * can take the machine from the person using it: the cap is the kernel's, not a rule a session is
+ * trusted to keep. The lock above orders the heavy commands; the slice bounds everything.
+ */
+export const CONTAINMENT_SLICE = "agent-claude.slice";
+
+/**
+ * The slice's limits on a host of `cpus` processors and `memory` bytes: a quarter of the processors
+ * at a low CPU weight, so the person at the machine wins any contention; memory reclaimed from the
+ * slice above 30% of the host and its processes killed inside the slice above 40%, with no swap, so
+ * an exhausted session loses a command rather than the machine losing everything; and a task ceiling
+ * that stops a runaway fan-out of processes.
+ */
+export function containmentLimits({ cpus = availableParallelism(), memory = totalmem() } = {}) {
+  const share = (fraction) => `${Math.floor((memory * fraction) / (1024 * 1024))}M`;
+  return Object.freeze({
+    CPUQuota: `${Math.max(1, Math.floor(cpus / 4)) * 100}%`,
+    CPUWeight: 20,
+    MemoryHigh: share(0.3),
+    MemoryMax: share(0.4),
+    MemorySwapMax: 0,
+    TasksMax: 768,
+  });
+}
+
+/** The systemd user unit that gives the slice its limits (`~/.config/systemd/user/agent-claude.slice`). */
+export function sliceUnit(limits = containmentLimits()) {
+  return [
+    "[Unit]",
+    "Description=Every process a Claude Code session runs, held to a share of this host",
+    "",
+    "[Slice]",
+    ...Object.entries(limits).map(([key, value]) => `${key}=${value}`),
+    "",
+  ].join("\n");
+}
+
+/**
+ * The launcher a harness runs in place of the `claude` executable (the VS Code extension's
+ * `claudeCode.claudeProcessWrapper`, which is handed the executable and its arguments): it starts
+ * them inside a transient scope of the slice, so the session and everything it ever spawns are
+ * contained from its first instruction. A process already in the slice is started directly. Where
+ * the user's systemd cannot place it, it says so and starts the session uncontained, whose commands
+ * the hook then places in the slice one by one if it can.
+ */
+export function launcherScript({ slice = CONTAINMENT_SLICE } = {}) {
+  const run = `systemd-run --user --scope --quiet --collect --slice=${slice}`;
+  return [
+    "#!/bin/sh",
+    "# Generated by install-host-resource-hook (agent-harness); an install replaces any edit.",
+    `# Runs "$@", the claude executable and its arguments, inside ${slice}.`,
+    ': "${XDG_RUNTIME_DIR:=/run/user/$(id -u)}"',
+    "export XDG_RUNTIME_DIR",
+    `case "$(cat /proc/self/cgroup 2>/dev/null)" in */${slice}/*) exec "$@" ;; esac`,
+    `if [ -S "$XDG_RUNTIME_DIR/bus" ] && command -v systemd-run >/dev/null 2>&1 && ${run} true 2>/dev/null; then`,
+    `  exec ${run} -- "$@"`,
+    "fi",
+    `echo "claude launcher: the user's systemd could not place this session in ${slice}; it runs uncontained" >&2`,
+    'exec "$@"',
+    "",
+  ].join("\n");
+}
+
+/** Whether a process whose `/proc/<pid>/cgroup` reads `cgroup` runs inside the slice. */
+export const isContained = (cgroup, slice = CONTAINMENT_SLICE) => typeof cgroup === "string" && cgroup.includes(`/${slice}/`);
+
+const ownCgroup = () => {
+  try { return readFileSync("/proc/self/cgroup", "utf8"); } catch { return undefined; }
+};
+
+/** Whether a command can be placed in the slice from here: `systemd-run` on PATH and the user manager's bus at `$XDG_RUNTIME_DIR/bus`. */
+function canContain(env) {
+  if (env.AGENT_CONTAINMENT === "off" || !env.XDG_RUNTIME_DIR || !onPath("systemd-run", env)) return false;
+  try { return statSync(path.join(env.XDG_RUNTIME_DIR, "bus")).isSocket(); } catch { return false; }
+}
+
+/**
+ * `original` run in a transient scope of the slice, in this shell's environment, keeping its exit
+ * status and the directory it ends in (the harness reads the shell's directory after the command,
+ * so a `cd` inside the scope must carry back out of it).
+ */
+export function containedCommand(original, { slice = CONTAINMENT_SLICE } = {}) {
+  const inner = `trap 'pwd -P >"$_AH_DIR" 2>/dev/null' EXIT; ${original}`;
+  return [
+    '_ah_dir=$(mktemp "${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/agent-dir.XXXXXX")',
+    `_AH_DIR="$_ah_dir" systemd-run --user --scope --quiet --collect --slice=${slice} -- bash -c ${shellQuote(inner)}`,
+    "_ah_rc=$?",
+    '_ah_to=$(cat "$_ah_dir" 2>/dev/null); rm -f "$_ah_dir"',
+    '[ -z "$_ah_to" ] || cd "$_ah_to"',
+    '(exit "$_ah_rc")',
+  ].join("; ");
+}
+
 const SHELL_TOOLS = /^(Bash|shell|exec_command|local_shell|container\.exec)$/u;
+/** Claude Code's Monitor runs a shell command for as long as it watches: contained, never serialized, since a watch would hold the heavy slot for its whole life. */
+const WATCH_TOOLS = /^Monitor$/u;
 
 /**
  * The hook's answer to one PreToolUse event: the `hookSpecificOutput` object, or undefined to let
  * the command run untouched. `provider` is "claude" or "codex"; Codex accepts `updatedInput` only
- * together with an explicit allow.
+ * together with an explicit allow. `cgroup` is the session's own cgroup (the hook inherits it).
+ *
+ * A Claude Code session outside the slice has its commands placed there: every command when it runs
+ * without permission rules (`bypassPermissions`), and otherwise the heavy commands and watches,
+ * which are already rewritten, so no command an allow rule admits starts asking because of it.
  */
-export function decide(input, { env = process.env, provider = "claude", home } = {}) {
+export function decide(input, { env = process.env, provider = "claude", home, cgroup = ownCgroup() } = {}) {
   if (env.AGENT_HOST_GUARD === "off") return undefined;
   const toolInput = input?.tool_input;
-  if (!SHELL_TOOLS.test(String(input?.tool_name)) || typeof toolInput?.command !== "string") return undefined;
+  const tool = String(input?.tool_name);
+  const watch = provider === "claude" && WATCH_TOOLS.test(tool);
+  if (!(SHELL_TOOLS.test(tool) || watch) || typeof toolInput?.command !== "string") return undefined;
   const command = toolInput.command;
   if (command.trim() === "" || command.length > LIMITS.maxCommandLength) return undefined;
   const lock = lockPath(env);
@@ -829,9 +941,14 @@ export function decide(input, { env = process.env, provider = "claude", home } =
   }
   // A session confined to an allow-list (`dontAsk`, the carriers') has its permission rules checked
   // against the rewritten command, which no allowed pattern matches: it is denied there, never rewritten.
-  if (verdict.action !== "serialize" || verdict.locked || env.AGENT_HEAVY_LOCK_HELD || input.permission_mode === "dontAsk") return undefined;
-  if (!onPath("flock", env) || !ensureLockFile(lock)) return undefined;
-  const wrapped = serializedCommand(command, { lock, wait: waitSeconds(toolInput, env), nice: onPath("nice", env), ionice: onPath("ionice", env) });
+  if (input.permission_mode === "dontAsk") return undefined;
+  let wrapped;
+  if (!watch && verdict.action === "serialize" && !verdict.locked && !env.AGENT_HEAVY_LOCK_HELD && onPath("flock", env) && ensureLockFile(lock)) {
+    wrapped = serializedCommand(command, { lock, wait: waitSeconds(toolInput, env), nice: onPath("nice", env), ionice: onPath("ionice", env) });
+  }
+  const contain = provider === "claude" && !isContained(cgroup) && (wrapped !== undefined || watch || input.permission_mode === "bypassPermissions") && canContain(env);
+  if (contain) wrapped = containedCommand(wrapped ?? command);
+  if (wrapped === undefined) return undefined;
   const output = { hookEventName: "PreToolUse", updatedInput: { ...toolInput, command: wrapped } };
   if (provider === "codex") {
     output.permissionDecision = "allow";
@@ -854,10 +971,10 @@ export function run(stdin, { env = process.env, provider = "claude" } = {}) {
 // What a harness projects to install the hook.
 // ---------------------------------------------------------------------------------------------
 
-/** The `hooks` object naming the hook for Bash tool calls, valid in Claude Code settings and in Codex `hooks.json`. */
+/** The `hooks` object naming the hook for shell tool calls (Claude Code's Bash and Monitor, Codex's Bash), valid in Claude Code settings and in Codex `hooks.json`. */
 export function hookEntries(hookPath, { provider = "claude", node = "node", timeout = 15 } = {}) {
   const command = `${node} ${shellQuote(hookPath)}${provider === "codex" ? " --provider codex" : ""}`;
-  return { PreToolUse: [{ matcher: "Bash", hooks: [{ type: "command", command, timeout }] }] };
+  return { PreToolUse: [{ matcher: provider === "codex" ? "Bash" : "Bash|Monitor", hooks: [{ type: "command", command, timeout }] }] };
 }
 
 /** This file's own source, which a projection copies beside the settings that name it. */
