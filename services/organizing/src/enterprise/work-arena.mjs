@@ -1939,6 +1939,8 @@ export function createWorkArenaReader({ players, homes: homesOf } = {}) {
   let identityRevision;
   let canonical = exactPlayer;
   let ids = [];
+  let sourceEvents = [];
+  let openingSources = new Map();
   let position = workArenaRules.initialPosition();
   let refused = [];
   let unread = [];
@@ -1978,8 +1980,10 @@ export function createWorkArenaReader({ players, homes: homesOf } = {}) {
     if (eligible.some(({ id }) => typeof id !== "string" || id.length === 0)) {
       throw new TypeError("work arena replay requires verified move record identifiers");
     }
-    if (changedIdentity || ids.length > eligible.length || ids.some((id, index) => id !== eligible[index].id)) {
+    if (changedIdentity || ids.length > eligible.length || ids.some((id, index) => id !== eligible[index].id || sourceEvents[index] !== eligible[index].event)) {
       ids = [];
+      sourceEvents = [];
+      openingSources = new Map();
       position = workArenaRules.initialPosition();
       refused = [];
       unread = [];
@@ -1993,13 +1997,31 @@ export function createWorkArenaReader({ players, homes: homesOf } = {}) {
       snapshot = undefined;
       selectedSnapshots = new Map();
     }
-    const extend = (move) => extendPrivatePosition(position, move, canonical);
+    let replayingSource;
+    const extend = (move) => {
+      const hadOpening = OPENING_MOVES.includes(move.move) && position.threads[move.id] !== undefined;
+      const changed = extendPrivatePosition(position, move, canonical);
+      // Capture source identity at the actual accepted transition, not by matching
+      // a later projection. Refused, unread and duplicate openings cannot replace it.
+      if (OPENING_MOVES.includes(move.move) && !hadOpening && position.threads[move.id] !== undefined) {
+        openingSources.set(move.id, Object.freeze({ id: replayingSource.id,
+          ...(replayingSource.event === undefined ? {} : { event: replayingSource.event }) }));
+      }
+      return changed;
+    };
     for (let index = ids.length; index < eligible.length; index++) {
-      replayMove(position.threads, structuredClone(eligible[index].record), extend, awaiting, (entry) => refused.push(entry), (entry) => unread.push(entry), homes);
+      replayingSource = eligible[index];
+      replayMove(position.threads, structuredClone(replayingSource.record), extend, awaiting, (entry) => refused.push(entry), (entry) => unread.push(entry), homes);
     }
     ids = eligible.map(({ id }) => id);
+    sourceEvents = eligible.map(({ event }) => event);
   };
   return Object.freeze({
+    /** Exact raw journal source selected by replay for each accepted opening. */
+    openingSourcesAt(records, at) {
+      replay(records, at);
+      return Object.freeze(Object.fromEntries(openingSources));
+    },
     /** Inspect one thread without projecting the whole position: the thread as the board reads
      * it (`boardAt`), detached; validation uses the same move rules without copying the full
      * thread map. */
@@ -2008,7 +2030,8 @@ export function createWorkArenaReader({ players, homes: homesOf } = {}) {
       const playerIdentity = canonical;
       const thread = threadId === undefined ? undefined : position.threads[threadId];
       return Object.freeze({
-        ...(thread === undefined ? {} : { thread: projectThread(position.threads, structuredClone(thread), at, territories) }),
+        ...(thread === undefined ? {} : { thread: projectThread(position.threads, structuredClone(thread), at, territories),
+          openingSource: openingSources.get(threadId) }),
         validate: (move) => workArenaTransition(position, move, playerIdentity),
       });
     },

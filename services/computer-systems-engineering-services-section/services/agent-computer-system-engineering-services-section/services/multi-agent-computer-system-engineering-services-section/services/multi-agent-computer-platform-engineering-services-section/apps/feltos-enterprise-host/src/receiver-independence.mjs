@@ -1,3 +1,8 @@
+import { workResultReceivingByDischarge, workResultReceivings } from "@red-cup-engineering/feltos/work/work-discharge";
+import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
+import { outcomeJournal, outcomeOf } from "@red-cup-engineering/organizing/enterprise/outcomes";
+import { proposalResources } from "@red-cup-engineering/organizing/enterprise/resources";
+
 /**
  * Receiver independence: who may receive a delivery, ranked by how independent a channel the
  * receiver is of the producer (Central Dogma of Code Fabrication: different models are independent
@@ -83,10 +88,58 @@ export function receivedOutcomeFields({ proposal, discharge, office, at }) {
   return {
     source: "work-discharge", lot: proposal.subject ?? proposal.scope, delivery: proposal.receipt,
     provider: proposal.origin.office, judge: office, verdict: discharge.decision === "rejected" ? "rejected" : "accepted", at,
+    reportedResult: proposal.result,
     evidence: [...new Set([proposal.receipt, ...(discharge.evidence ?? [])])],
     ...(typeof proposal.origin.model === "string" && proposal.origin.model !== "" ? { carrier: proposal.origin.model } : {}),
     ...(typeof proposal.skill === "string" && proposal.skill !== "" ? { skill: proposal.skill } : {}),
     player: { by: proposal.origin.office, bearer: proposal.producer?.id, hand: proposal.origin.session },
     ...(discharge.decision === "rejected" && typeof discharge.text === "string" && discharge.text !== "" ? { reason: discharge.text.slice(0, 800) } : {}),
   };
+}
+
+const outcomeJournals = new Map();
+const outcomeJournalOf = root => outcomeJournals.get(root) ?? outcomeJournals.set(root, outcomeJournal(root)).get(root);
+
+/** Tell the already admitted independent judgment, including failure-report evidence, exactly once.
+ * Admission and any inference-delivery resolution remain with the caller that owns the receipt. */
+export function recordReceivedOutcome({ dataRoot, proposal, discharge, office, market }) {
+  const receiving = workResultReceivingByDischarge({ dataRoot }, proposal, discharge);
+  if (receiving === undefined || receiving.at === undefined) throw new TypeError("work outcome requires the original admitted receiving witness and time");
+  if (receiving.office !== office) throw new TypeError("work outcome office must be the original receiving office");
+  const fields = receivedOutcomeFields({ proposal, discharge, office: receiving.office, at: receiving.at });
+  const journal = outcomeJournalOf(dataRoot);
+  // Earlier outcomes did not name their receiving witness. Keep an already recorded exact
+  // judgment and its original time rather than creating a newly dated copy on retry. Rich
+  // records additionally bind to the exact event. Only an original legacy receiving
+  // witness may match an unkeyed outcome on its original day: a newly admitted A must
+  // never be suppressed by an old A, including after an intervening B. Untyped old
+  // records are eligible only for the successful-result path the old host recorded.
+  const identity = outcome => canonicalJson(Object.fromEntries([
+    "source", "lot", "delivery", "provider", "judge", "verdict", "evidence", "carrier", "skill", "player", "reason",
+  ].filter(key => outcome[key] !== undefined).map(key => [key, outcome[key]])));
+  const expected = identity(outcomeOf(fields));
+  const compatible = journal.read().filter(outcome => identity(outcome) === expected
+    && (outcome.reportedResult === undefined ? proposal.result.kind === "skill-result"
+      : canonicalJson(outcome.reportedResult) === canonicalJson(proposal.result)));
+  if (compatible.some(outcome => outcome.receivingReceipt === receiving.receipt)) return 0;
+  const unkeyed = compatible.filter(outcome => outcome.receivingReceipt === undefined
+    && receiving.dischargeIdentity === undefined && outcome.at.slice(0, 10) === receiving.at.slice(0, 10));
+  if (unkeyed.length > 0) {
+    // One old unkeyed body is not evidence that two distinct admitted acts have
+    // both been recorded. Recover original companion fields through their owner,
+    // then require a unique outcome-to-act mapping; do not invent old precision.
+    const acts = workResultReceivings({ dataRoot }, proposal).filter(act => act.judgment !== undefined
+      && act.at?.slice(0, 10) === receiving.at.slice(0, 10)
+      && identity(outcomeOf(receivedOutcomeFields({ proposal,
+        discharge: { ...act.judgment, decision: act.decision }, office: act.office, at: act.at,
+      }))) === expected);
+    if (acts.length !== 1 || acts[0].receipt !== receiving.receipt) throw new TypeError("ambiguous historical outcome-to-receiving pairing");
+    return 0;
+  }
+  return journal.record(outcomeOf({
+    ...fields, receivingReceipt: receiving.receipt,
+    ...(receiving.authorizationReceipt === undefined ? {} : { receivingAuthorizationReceipt: receiving.authorizationReceipt }),
+    ...(receiving.atPrecision === undefined ? {} : { atPrecision: receiving.atPrecision }),
+    ...(market === undefined ? {} : { market }), resources: proposalResources(proposal),
+  }));
 }

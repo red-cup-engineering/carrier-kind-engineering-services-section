@@ -190,7 +190,9 @@ export async function dispatch(runtime, invocation) {
       operation,
       startedAt,
       evidence: Object.freeze([]),
+      ...(runtime.resultProjection === undefined ? {} : { projectResult: runtime.resultProjection.project }),
     }));
+    runtime.resultProjection?.verify(isOperationHandlerResult(handled) ? handled.value : handled);
   } catch (error) {
     return witnessAct(decision, obstruction(invocation, operation.ref, "execution", startedAt, runtime.now(), [message(error)], [], decision));
   }
@@ -360,7 +362,9 @@ async function witnessedDispatch(runtime, invocation) {
       operation,
       startedAt,
       evidence: runtime.witness.causalHead(invocation.id),
+      ...(runtime.resultProjection === undefined ? {} : { projectResult: runtime.resultProjection.project }),
     }));
+    runtime.resultProjection?.verify(isOperationHandlerResult(handled) ? handled.value : handled);
     if (isOperationHandlerResult(handled)) {
       value = handled.value;
       handlerEvidence = handled.evidence;

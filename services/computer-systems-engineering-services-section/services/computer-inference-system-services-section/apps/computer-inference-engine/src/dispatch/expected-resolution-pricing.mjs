@@ -5,6 +5,7 @@ import { nonnegativeHostRatio as exactNonnegativeAmount } from "@red-cup-enginee
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
 import { executionConfiguration, executionConfigurationIdentity } from "./sen-carrier.mjs";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { admitAgencyWorkResult } from "@red-cup-engineering/organizing/work/schema";
 import { ORDER_CHANNELS } from "@red-cup-engineering/organizing/work/staffing";
 
 /** Locate pricing state beneath an already selected data directory. */
@@ -249,11 +250,20 @@ export function withRegisterJudgments(observations, judgments, deliveries) {
   }
   const judged = new Map(observations.filter((item) => item.kind === "receiver-outcome").map((item) => [item.receipt, item]));
   const joined = [];
+  const enriched = new Map();
   for (const [receipt, outcome] of latest) {
     const delivery = byReceipt.get(receipt);
     const prior = judged.get(receipt);
     const observedAt = outcome.at;
+    // A received execution report has its own verdict. Keep the typed report so accepting an
+    // error cannot be priced as completed work, or rewritten into a receiver/provider refusal.
+    const report = outcome.reportedResult === undefined ? {} : {
+      reportedResult: admitAgencyWorkResult(outcome.reportedResult),
+      reportVerdict: outcome.verdict, reportJudgment: outcome.id,
+    };
     if (prior !== undefined) {
+      if (outcome.reportedResult !== undefined) enriched.set(prior, Object.freeze({ ...prior, ...report }));
+      if (report.reportedResult?.kind === "skill-error") continue;
       if (prior.outcome === "accepted" && outcome.verdict === "rejected") {
         joined.push(Object.freeze({ kind: "receiver-outcome-retraction", id: outcome.id, observedAt, originalOutcome: prior.id, delivery: prior.delivery, outcome: "refused", evidence: outcome.id, register: outcome.source }));
       }
@@ -262,13 +272,16 @@ export function withRegisterJudgments(observations, judgments, deliveries) {
     joined.push(Object.freeze({
       kind: "receiver-outcome", id: outcome.id, observedAt, delivery: delivery.id, workLot: delivery.workLot, provider: delivery.provider, taskClass: delivery.taskClass,
       selectedOffer: delivery.selectedOffer, receipt, receiver: delivery.receiver, outcome: outcome.verdict === "accepted" ? "accepted" : "refused", evidence: outcome.id, register: outcome.source,
+      ...report,
       ...(delivery.configurationIdentity === undefined ? {} : { configurationIdentity: delivery.configurationIdentity }),
       ...(delivery.durationMs === undefined ? {} : { durationMs: delivery.durationMs }), ...(delivery.resources === undefined ? {} : { resources: delivery.resources }),
       ...(delivery.order === undefined ? {} : { order: delivery.order }),
     }));
   }
-  return joined.length === 0 ? observations : [...observations, ...joined];
+  return joined.length === 0 && enriched.size === 0 ? observations : [...observations.map(item => enriched.get(item) ?? item), ...joined];
 }
+
+const isExecutionFailure = observation => observation.reportedResult?.kind === "skill-error";
 
 /**
  * The orders providers have missed alike: refused by `orderChannels` or more distinct providers
@@ -279,7 +292,7 @@ export function withRegisterJudgments(observations, judgments, deliveries) {
 export function incompleteOrders(observations, { orderChannels = ORDER_CHANNELS } = {}) {
   const missedBy = new Map();
   for (const o of effectiveReceiverObservations(observations)) {
-    if (typeof o.order !== "string" || !((o.kind === "receiver-outcome" && o.outcome === "refused") || o.kind === "receiver-attempt-refusal")) continue;
+    if (isExecutionFailure(o) || typeof o.order !== "string" || !((o.kind === "receiver-outcome" && o.outcome === "refused") || o.kind === "receiver-attempt-refusal")) continue;
     if (!missedBy.has(o.order)) missedBy.set(o.order, new Set());
     missedBy.get(o.order).add(o.provider);
   }
@@ -290,12 +303,13 @@ export function incompleteOrders(observations, { orderChannels = ORDER_CHANNELS 
  * provider-versus-receiver provenance. */
 export function terminalResolutionCounts(provider, taskClass, observations, configurationIdentity = null) {
   const incomplete = incompleteOrders(observations);
-  const censored = (o) => typeof o.order === "string" && incomplete.has(o.order) && o.outcome !== "accepted";
+  const censored = (o) => !isExecutionFailure(o) && typeof o.order === "string" && incomplete.has(o.order) && o.outcome !== "accepted";
   const relevant = effectiveReceiverObservations(observations).filter((o) => !censored(o) && o.provider === provider && o.taskClass === taskClass && (configurationIdentity === null ? !o.configurationIdentity : o.configurationIdentity === configurationIdentity) && ((o.kind === "receiver-outcome" && ["accepted", "refused"].includes(o.outcome)) || ["provider-refusal", "receiver-attempt-refusal"].includes(o.kind)));
-  const receiverAcceptances = relevant.filter((o) => o.kind === "receiver-outcome" && o.outcome === "accepted").length;
-  const receiverRefusals = relevant.filter((o) => (o.kind === "receiver-outcome" && o.outcome === "refused") || o.kind === "receiver-attempt-refusal").length;
+  const receiverAcceptances = relevant.filter((o) => !isExecutionFailure(o) && o.kind === "receiver-outcome" && o.outcome === "accepted").length;
+  const receiverRefusals = relevant.filter((o) => !isExecutionFailure(o) && ((o.kind === "receiver-outcome" && o.outcome === "refused") || o.kind === "receiver-attempt-refusal")).length;
   const providerRefusals = relevant.filter((o) => o.kind === "provider-refusal").length;
-  return { receiverAcceptances, receiverRefusals, providerRefusals, successfulResolutions: receiverAcceptances, terminalResolutions: relevant.length };
+  const executionFailures = relevant.filter(isExecutionFailure).length;
+  return { receiverAcceptances, receiverRefusals, providerRefusals, ...(executionFailures === 0 ? {} : { executionFailures }), successfulResolutions: receiverAcceptances, terminalResolutions: relevant.length };
 }
 
 /** Compatibility projection for callers using the older ambiguous names. */

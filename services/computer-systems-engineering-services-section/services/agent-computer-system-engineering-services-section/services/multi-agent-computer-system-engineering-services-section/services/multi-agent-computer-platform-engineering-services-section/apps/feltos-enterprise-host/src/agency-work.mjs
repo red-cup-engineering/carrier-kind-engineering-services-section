@@ -32,12 +32,12 @@ import { addressFrom, estateRootOf, houseReference, houseResolver, reciprocates 
 import { workResultProposalByReceipt } from "@red-cup-engineering/feltos/work/work-result-proposal";
 import { admitWorkDischargeWithProposal, resolveWorkDischarge, workResultReceivingBySession } from "@red-cup-engineering/feltos/work/work-discharge";
 import { bestStaffing, joinStandings, thompsonDraw } from "@red-cup-engineering/organizing/work/staffing";
-import { outcomeJournal, outcomeOf, outcomeStandingIndexOf, perishablePrice, pricedCostOf, proposalResources, readStandingIndex, resourcePricesAt, resourcePricesIndexOf } from "@red-cup-engineering/organizing/enterprise";
+import { outcomeStandingIndexOf, perishablePrice, pricedCostOf, readStandingIndex, resourcePricesAt, resourcePricesIndexOf } from "@red-cup-engineering/organizing/enterprise";
 import { carrierStandingOfQueue } from "@red-cup-engineering/feltos/work/allocation-control";
 import { processIsoNow } from "@red-cup-engineering/node-process-services-section/clock";
 import { inferenceReceivingCarrier, directEndpointReceivingTransport } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/carrier/inference-receiving-carrier";
 import { loadDirectEndpointProviderDescriptors } from "@red-cup-engineering/computer-inference-engine/dispatch/direct-endpoint-provider";
-import { modelFamily, rankReceivers, receivedOutcomeFields } from "./receiver-independence.mjs";
+import { modelFamily, rankReceivers, recordReceivedOutcome } from "./receiver-independence.mjs";
 import { publicationPlanForHostedOutcome } from "./publication-plan-resource.mjs";
 
 function positiveInteger(value, name) {
@@ -280,12 +280,9 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
   }));
 }
 
-// One outcome journal per root (organizing/enterprise/outcomes), told into without reading it: a
-// received result's outcome is unique by its receipt, so the day's segment admits it once. Staffing
-// reads the carrier standing the acceptance readout folds from the journal (its standing index), at
-// most once a minute, never the journal itself.
-const outcomeJournals = new Map();
-const outcomeJournalOf = (root) => outcomeJournals.get(root) ?? outcomeJournals.set(root, outcomeJournal(root, { dedupe: "day" })).get(root);
+// Staffing reads the carrier standing the acceptance readout folds from the journal (its standing
+// index), at most once a minute, never the journal itself. Receiving is recorded by the shared
+// receiver-independence outcome function after the real admission boundary.
 const standingIndexes = new Map();
 function journalStandingOf(environment) {
   const path = outcomeStandingIndexOf({ environment });
@@ -546,12 +543,12 @@ export function enterpriseAgencyWorkOptions({
   // What every register other than the queue's own receipts judged of each carrier's work (arena
   // assays, editors, the inference market), joined into allocation's and receiving's staffing.
   const readCarrierStanding = () => journalStandingOf(environment);
-  // Every received result is a judgment of delivered work, told once as an outcome in the node's
+  // Every received report carries its exact result and independent verdict into the node's
   // journal: its receiving office judged the work its origin office delivered, carried by the
   // origin's model. A failure to tell never undoes the receipt.
   const tellReceivedOutcome = ({ proposal, discharge, office, at }) => {
     try {
-      if (proposal?.origin?.office === undefined || discharge.result?.kind !== "skill-result") return;
+      if (proposal?.origin?.office === undefined) return;
       // The delivery coordinate is optional provenance. An unavailable pricing
       // record must not prevent telling the independently received native outcome.
       let market;
@@ -562,10 +559,7 @@ export function enterpriseAgencyWorkOptions({
       } catch (error) {
         console.error("[work-discharge] inference coordinate remains unlinked:", error instanceof Error ? error.message : String(error));
       }
-      outcomeJournalOf(binding.dataRoot).record(outcomeOf({
-        ...receivedOutcomeFields({ proposal, discharge, office, at }),
-        ...(market === undefined ? {} : { market }), resources: proposalResources(proposal),
-      }));
+      recordReceivedOutcome({ dataRoot: binding.dataRoot, proposal, discharge, office, at, market });
     } catch (error) {
       console.error("[work-discharge] outcome remains untold:", error instanceof Error ? error.message : String(error));
     }
@@ -593,7 +587,7 @@ export function enterpriseAgencyWorkOptions({
     return (read?.queue ?? []).filter(item => item.reasons?.includes("result-awaiting-receipt") && item.execution?.receipt !== undefined).flatMap(item => {
       // A receipt is read in the causal subject that recorded it: the execution's, not the duty's derived subject.
       const proposal = workResultProposalByReceipt(owningBinding, item.execution.receipt, item.execution.subject ?? item.subject);
-      if (proposal.origin === undefined || proposal.result.kind !== "skill-result") return [];
+      if (proposal.origin === undefined) return [];
       const qualified = receiversOf.filter(receiver => receiver.office !== proposal.origin.office && receiver.receivesFrom.includes(proposal.origin.office));
       if (qualified.length === 0) return [];
       // Most independent first (receiver-independence.mjs), then cheapest; a receiver that cannot take the receipt
@@ -622,8 +616,6 @@ export function enterpriseAgencyWorkOptions({
     const prior = (session) => workResultReceivingBySession(owning, review.proposal, { ...receiver, session });
     const outcome = await carrier.adapter.receive(review);
     if (outcome.session === undefined) throw new TypeError("independent receiving ended without an observed native session");
-    const already = prior(outcome.session.id);
-    if (already !== undefined) return { ...already, task: outcome.task, usage: outcome.usage };
     if (outcome.judgement === undefined) throw new TypeError(`independent receiving returned no typed judgement (${outcome.task}, exit ${outcome.exitCode}${outcome.errors?.length ? `: ${outcome.errors.join("; ")}` : ""})`);
     // A receiver that could not inspect the evidence judged nothing: no discharge is admitted, the
     // work stays awaiting receipt, and the carrier's next attempt receives it again.
@@ -639,8 +631,8 @@ export function enterpriseAgencyWorkOptions({
     const receiverAuthorization = authorizeWorkDischargeReceiver({ receiver: carrier.workerId, office: review.office,
       session: outcome.session.id, model: outcome.session.model, invocation,
       scope: discharge.scope, operation: receivingVerb, at });
-    const { proposal } = admitWorkDischargeWithProposal(owning, discharge, { at: at.slice(0, 10), receiverAuthorization });
-    tellReceivedOutcome({ proposal, discharge, office: review.office, at });
+    const { proposal, receiving } = admitWorkDischargeWithProposal(owning, discharge, { at: at.slice(0, 10), receivedAt: at, receiverAuthorization });
+    tellReceivedOutcome({ proposal, discharge, office: receiving.office, at: receiving.at });
     const received = prior(outcome.session.id);
     if (received === undefined) throw new TypeError(`independent receiving recorded no native admission (${outcome.task})`);
     return { ...received, task: outcome.task, usage: outcome.usage };

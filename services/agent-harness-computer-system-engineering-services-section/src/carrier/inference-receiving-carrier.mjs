@@ -26,7 +26,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-import { RECEIVING_DECISIONS, RECEIVING_JUDGEMENT_SCHEMA } from "./agency-carrier.mjs";
+import { RECEIVING_DECISIONS, RECEIVING_JUDGEMENT_SCHEMA, receivingJudgementMeaning } from "./receiving-judgement.mjs";
 
 export const RECEIVING_ATTEMPTS = 4;
 export const RECEIVING_RETRY_MS = 10 * 60_000;
@@ -76,9 +76,10 @@ export function receivingMessages({ office, proposal, evidence }) {
   const inspected = evidence.map((entry) => `--- ${entry.label} (${entry.found ? "inspected" : "NOT FOUND"})\n${entry.text}`).join("\n\n");
   return Object.freeze([
     { role: "system", content: [
-      `You are an independent receiver exercising the ${office} office. You judge one delivered engineering result against its receiver condition. You did not produce it and you do not perform its work.`,
+      `You are an independent receiver exercising the ${office} office. You judge one immutable engineering work report under the rule below. You did not produce it and you do not perform its work.`,
       "Answer with one JSON object and nothing else: {\"decision\":\"accepted|rejected|unverified\",\"text\":\"concise judgement\",\"evidence\":[\"labels you actually used\"]}. Do not reason at length: decide from the material given.",
-      "accepted: the evidence you were shown verifies the delivery against the receiver condition. rejected: the evidence you were shown shows the receiver condition unmet, or the result names no evidence, or evidence it names does not exist. unverified: you could not inspect what the condition needs (a commit was NOT FOUND, a diff was truncated before the part that matters, a subject was outside this material). Unverified is unknown, never a rejection.",
+      receivingJudgementMeaning(proposal.result),
+      "unverified: you could not inspect what the condition needs (a commit was NOT FOUND, a diff was truncated before the part that matters, a subject was outside this material). Unverified is unknown, never a rejection.",
       "In `evidence` list only labels from the INSPECTED EVIDENCE block (like commit:abc1234) or evidence strings the proposal itself names. Never invent evidence and never accept what you could not inspect.",
     ].join("\n") },
     { role: "user", content: `PROPOSAL (immutable):\n${clip(JSON.stringify(proposalForReceiver(proposal), null, 1), PROPOSAL_CHARACTERS)}\n\nINSPECTED EVIDENCE:\n${inspected === "" ? "(none inspected by the host)" : inspected}` },

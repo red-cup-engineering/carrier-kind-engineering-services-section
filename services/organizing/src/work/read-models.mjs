@@ -4,7 +4,7 @@ import {
   workItemCausalSetCarrier,
 
 } from "./causal-set.mjs";
-import { dutiesOfAgent, juralRelationsOfClaimRows, workItemOfCell, workLevelBelow } from "@red-cup-engineering/socializing";
+import { dutiesOfAgent, juralRelationsOfClaimRows, workItemOfCell, workLevelBelow } from "@red-cup-engineering/socializing/office";
 import { readJuralRelations } from "@red-cup-engineering/socializing/jural";
 import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 import {

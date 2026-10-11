@@ -1,3 +1,6 @@
+import {resolve} from 'node:path';
+import {extractSenActivity,projectSenActivity,senActivityObjectBytes} from '@red-cup-engineering/activitypub-services-section/sen-activity';
+import {agentSenMessage} from '@red-cup-engineering/a2a-services-section/sen-part';
 import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
 import {canonicalJson} from '@red-cup-engineering/json-services-section';
 import {sha256Hex} from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
@@ -114,7 +117,19 @@ export function actorPaymentMetadata(result) {
 /** A signature-admitted request uses governed dispatch. An owner-supplied native
  * payment port admits execution only after authority and input type admission.
  * Task/payment state is kept in the existing addressed processing journal. */
-export async function processAdmittedActorRequest({event,admission,authenticatedActor,operations,binding,authorize,program="infograph",recipient,payment}){
+const projectingRequests = new Set();
+export async function processAdmittedActorRequest(options){
+ const {event,admission,authenticatedActor,binding,projectReply}=options;
+ if(projectReply===undefined)return processActorRequest(options);
+ const receipt=admitCloudEventArrival(event);
+ if(receipt.ok!==true||admission?.cloudEventIdentity!==receipt.cloudEventIdentity||event.source!==authenticatedActor)
+  throw new TypeError("actor execution needs the exact signature-admitted arrival");
+ const key=JSON.stringify([resolve(binding.dataRoot),receipt.cloudEventIdentity]);
+ if(projectingRequests.has(key))throw new TypeError("actor request is already being processed on this host");
+ projectingRequests.add(key);
+ try{return await processActorRequest(options);}finally{projectingRequests.delete(key);}
+}
+async function processActorRequest({event,admission,authenticatedActor,operations,binding,authorize,program="infograph",recipient,payment,projectReply,senderAgentCard}){
  const receipt=admitCloudEventArrival(event);
  if(receipt.ok!==true||admission?.cloudEventIdentity!==receipt.cloudEventIdentity||event.source!==authenticatedActor)
   throw new TypeError("actor execution needs the exact signature-admitted arrival");
@@ -142,19 +157,36 @@ export async function processAdmittedActorRequest({event,admission,authenticated
  let operationRef=held?.operation;
  let racedTask;
  const entry={cloudEventIdentity:sourceIdentity,packetDigest:receipt.packetDigest,dispatchEvent:{verb:claim.argv[0]}};
- const append=(state,result,obstructions=[],privateFields={})=>{
+ const prepare=(state,result,obstructions=[],privateFields={})=>{
   const previous=actorRequestProcessing(binding.dataRoot,sourceIdentity,sourceTime);
   const sequence=(previous?.sequence??0)+1;
   if(!Number.isSafeInteger(sequence))throw new TypeError('actor task needs a bounded transition continuation');
   const value={...processingEntryValue(entry,state,obstructions,result),sequence,
    ...(payment===undefined&&currentPayment===undefined?{}:{taskId,requestMaterial,
     ...(operationRef===undefined?{}:{operation:operationRef}),...(currentPayment===undefined?{}:{payment:currentPayment})}),...privateFields};
+  return value;
+ };
+ let preparedResult;
+ const projectResult=projectReply===undefined?undefined:result=>{
+  const proposed=processingEntryFromValue(prepare("processed",result));
+  if(preparedResult!==undefined){
+   if(canonicalJson(proposed)!==canonicalJson(preparedResult))throw new TypeError("actor processing metadata changed after response preflight");
+   return;
+  }
+  const projected=projectReply(proposed);
+  if(projected?.then!==undefined||canonicalJson(projected)!==canonicalJson(proposed))throw new TypeError("actor reply projector must preserve the exact synchronous processing result");
+  if(canonicalJson(processingEntryFromValue(prepare("processed",result)))!==canonicalJson(proposed))throw new TypeError("actor processing metadata changed during response preflight");
+  preparedResult=projected;
+ };
+ const append=(state,result,obstructions=[],privateFields={})=>{
+  const value=prepare(state,result,obstructions,privateFields);
+  if(state==="processed"&&preparedResult!==undefined&&canonicalJson(processingEntryFromValue(value))!==canonicalJson(preparedResult))throw new TypeError("actor processing metadata changed after response preflight");
   const at=binding.now();
   openJournal(binding.dataRoot).appendRows(ARRIVAL_PROCESS_FEED,arrivalProcessingRows([{entry,value}],at),{
    ...binding,at:sourceTime,subject:semanticId({kind:"actor-request",eventIdentity:sourceIdentity}),
    caller:{transport:"actor-inbox",cloudEventIdentity:receipt.cloudEventIdentity},
   });
-  return processingEntryFromValue(value);
+  return state==="processed"&&preparedResult!==undefined?preparedResult:processingEntryFromValue(value);
  };
  const beforeExecute=payment===undefined?undefined:async (invocation,operation)=>{
   // The money effect is coordinated even when the useful compute is pure.
@@ -213,10 +245,43 @@ export async function processAdmittedActorRequest({event,admission,authenticated
  const catalog=createOperationCatalog(operations);
  const result=await dispatchWire(catalog,claim.argv,claim.stdin,{
   operation:claim.operation,subject:authenticatedActor,request:sourceIdentity,program,now:binding.now,
-  caller:{transport:"activitypub",...(recipient===undefined?{}:{recipient}),cloudEventIdentity:receipt.cloudEventIdentity,subjectBindingEvidence:[admission.cloudEventIdentity]},
-  coordinate:processLeaseCoordinator(binding.dataRoot),witness:journalRpcWitness(binding.dataRoot),beforeExecute,
+  caller:{transport:"activitypub",...(senderAgentCard===undefined?{}:{agentCard:senderAgentCard}),...(recipient===undefined?{}:{recipient}),cloudEventIdentity:receipt.cloudEventIdentity,subjectBindingEvidence:[admission.cloudEventIdentity]},
+  coordinate:processLeaseCoordinator(binding.dataRoot),witness:journalRpcWitness(binding.dataRoot),beforeExecute,projectResult,
  },authorize);
  if(racedTask!==undefined)return Object.freeze({...racedTask,replayed:true});
- return append(currentPayment?.status==='payment-required'?"payment-required":result.code===0?"processed":"obstructed",result,
-  result.code===0?[]:[result.stderr.trim()]);
+ const state=currentPayment?.status==='payment-required'?"payment-required":result.code===0?"processed":"obstructed";
+ try{return append(state,result,result.code===0?[]:[result.stderr.trim()]);}
+ catch(error){
+  if(state!=="processed"||preparedResult===undefined)throw error;
+  const reason="preflighted actor processing result could not be committed: "+error.message;
+  return append("obstructed",{code:1,stdout:"",stderr:reason},[reason]);
+ }
+}
+
+/** One admitted request's existing native RPC reply. No send or authority occurs here.
+ * The returned result snapshot is the key for the exact preflighted wire, so the
+ * host cannot quietly re-encode it with a later time or changed metadata. */
+export function createActorResultProjection({origin,identifier,recipient,request,agentCard,eventTime}) {
+ const replies=new WeakMap();
+ const freeze=value=>{
+  if(value!==null&&typeof value==='object'){Object.values(value).forEach(freeze);Object.freeze(value);}
+  return value;
+ };
+ return Object.freeze({
+  project(result){
+   const held=freeze(JSON.parse(canonicalJson(result)));
+   const bytes=senActivityObjectBytes({objectKind:'metroplat.dispatch.result',value:{request,result:held}});
+   const activity=projectSenActivity({type:'Accept',origin,identifier,recipient,objectBytes:bytes,
+    a2aMessage:{...agentSenMessage(bytes),...(held.taskId===undefined?{}:{taskId:held.taskId}),metadata:actorPaymentMetadata(held)},agentCard,eventTime});
+   extractSenActivity(activity,{expectedActor:new URL('/actors/'+encodeURIComponent(identifier),origin).href,
+    expectedRecipient:recipient,expectedAgentCard:agentCard});
+   replies.set(held,activity);
+   return held;
+  },
+  activity(result){
+   const activity=replies.get(result);
+   if(activity===undefined)throw new TypeError('actor result has no exact preflighted native reply');
+   return activity;
+  },
+ });
 }

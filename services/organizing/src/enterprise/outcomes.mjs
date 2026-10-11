@@ -36,13 +36,14 @@ import { readFileSync, statSync } from "node:fs";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { readingFamilies, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { formatGraded, gradedAdd, gradedFromParts, gradedIsZero, gradedNegate, gradedOfDecimal, gradedQuotient, gradedTimes, gradedToDecimalString } from "@red-cup-engineering/exact-number-data-service/graded";
-import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
+import { canonicalJson, canonicalizeJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { open, posting, transaction } from "../accounting/ledger.mjs";
 import { printEntries } from "../accounting/report.mjs";
 import { resourcesOf, sumResources } from "./resources.mjs";
 import { assayerOf, createWorkArenaReader, houseSectionOf, offerAt } from "./work-arena.mjs";
-import { playerOfAct } from "../agency/cast.mjs";
+import { recordedPlayerOf } from "../agency/kinds.mjs";
+import { admitAgencyWorkResult } from "../work/schema.mjs";
 
 /** Judgment registers; x402-settlement is retained solely to read historical payment claims. */
 export const OUTCOME_SOURCES = Object.freeze(["work-arena", "work-discharge", "inference-market", "editor", "customer", "x402-settlement", "royalty"]);
@@ -98,7 +99,10 @@ function marketOf(market) {
  * the judged work exercised), `player` (`{by, bearer?, hand?}`: the mask the work was played under,
  * the character wearing it, the session that carried it), `market` (the inference market's coordinate `{provider, offer, taskClass, receipt, configuration?}`), `value`
  * (`{amount, currency, basis, account?, settledTo?}`), `unmet` and `reason` (a rejection's), and
- * `resources` (what the work witnessed consuming). The id is the content address of the rest.
+ * `resources` (what the work witnessed consuming), and `reportedResult` (the admitted native or
+ * legacy work report, only for work-discharge). The verdict of an error report does not accept
+ * or reject fulfillment of the requested work. Every report still carries its attempt and cost.
+ * The id is the content address of the rest; records without reportedResult retain their ids.
  * @param {object} input
  */
 export function outcomeOf(input) {
@@ -114,13 +118,26 @@ export function outcomeOf(input) {
   if (evidence.length === 0) throw new TypeError("an outcome rests on evidence");
   const value = valueOf(input.value);
   const market = marketOf(input.market);
-  const player = playerOfAct(undefined, { player: input.player });
+  const player = recordedPlayerOf(input.player);
   const resources = input.resources === undefined ? undefined : resourcesOf(input.resources, "outcome resources");
+  if (input.reportedResult !== undefined && source !== "work-discharge") throw new TypeError("a reported work result belongs to a work-discharge outcome");
+  // The legacy result validator preserves its caller value. The outcome, however, is an
+  // immutable content-addressed record: take the actual JSON codec's detached deep-frozen
+  // snapshot, without SCA/NFC normalization of literal legacy keys or values.
+  const reportedResult = input.reportedResult === undefined ? undefined
+    : canonicalizeJson(admitAgencyWorkResult(input.reportedResult), JSON_RESOURCE_ENVELOPE).value;
+  if (input.receivingReceipt !== undefined && (source !== "work-discharge" || !text(input.receivingReceipt))) throw new TypeError("a receiving receipt belongs to a work-discharge outcome");
+  if (input.receivingAuthorizationReceipt !== undefined && (source !== "work-discharge" || !text(input.receivingReceipt) || !text(input.receivingAuthorizationReceipt))) throw new TypeError("receiving authorization provenance requires an admitted work-discharge receiving receipt");
+  if (input.atPrecision !== undefined && (source !== "work-discharge" || input.atPrecision !== "day" || !/^\d{4}-\d\d-\d\dT00:00:00(?:\.0+)?Z$/u.test(input.at))) throw new TypeError("outcome time precision is day when no original clock time was witnessed");
   const body = {
     kind: OUTCOME_KIND, version: 1, source,
     lot: required(input, "lot"), delivery: required(input, "delivery"),
     provider: required(input, "provider"), judge: required(input, "judge"),
     verdict, at: input.at, evidence,
+    ...(input.receivingReceipt === undefined ? {} : { receivingReceipt: input.receivingReceipt }),
+    ...(input.atPrecision === undefined ? {} : { atPrecision: input.atPrecision }),
+    ...(input.receivingAuthorizationReceipt === undefined ? {} : { receivingAuthorizationReceipt: input.receivingAuthorizationReceipt }),
+    ...(reportedResult === undefined ? {} : { reportedResult }),
     ...(verdict === "voided" ? { voids: input.voids } : {}),
     ...(text(input.carrier) ? { carrier: input.carrier } : {}),
     ...(text(input.taskClass) ? { taskClass: input.taskClass } : {}),
@@ -134,6 +151,17 @@ export function outcomeOf(input) {
   };
   return Object.freeze({ id: makeNiUri(Buffer.from(canonicalJson(body), "utf8")), ...body });
 }
+
+/** The receiver's verdict remains the judgment of the report it inspected. A
+ * reported error cannot establish completed work, even when that report was
+ * accepted. Legacy outcomes carry their original delivered-work meaning. */
+export const isFailedWorkReport = outcome => outcome.reportedResult?.kind === "skill-error";
+export const isAcceptedWorkOutcome = outcome => outcome.verdict === "accepted" && !isFailedWorkReport(outcome);
+export const isRejectedWorkOutcome = outcome => outcome.verdict === "rejected" && !isFailedWorkReport(outcome);
+const reportJudgmentsOf = outcomes => Object.freeze({
+  accepted: outcomes.filter(outcome => isFailedWorkReport(outcome) && outcome.verdict === "accepted").length,
+  rejected: outcomes.filter(outcome => isFailedWorkReport(outcome) && outcome.verdict === "rejected").length,
+});
 
 /** The journal kind the work arena's moves are recorded under (FeltOS's work board). */
 export const WORK_ARENA_MOVE_KIND = "work-arena-move";
@@ -195,8 +223,8 @@ export function outcomeJournal(root, { now = () => new Date().toISOString(), ded
     for (const row of journal.queryCategories({ categories: OUTCOME_SOURCES })) {
       const outcome = row.record;
       if (outcome?.kind !== OUTCOME_KIND || seen.has(outcome.id)) continue;
-      if ((from !== undefined && outcome.at < from) || (to !== undefined && outcome.at >= to)) continue;
-      seen.set(outcome.id, Object.freeze(outcome));
+      if ((from !== undefined && Date.parse(outcome.at) < Date.parse(from)) || (to !== undefined && Date.parse(outcome.at) >= Date.parse(to))) continue;
+      seen.set(outcome.id, canonicalizeJson(outcome).value);
     }
     return Object.freeze([...seen.values()].sort((a, b) => a.at.localeCompare(b.at) || a.id.localeCompare(b.id)));
   };
@@ -223,18 +251,33 @@ export function outcomeJournal(root, { now = () => new Date().toISOString(), ded
 
 /**
  * The outcomes that stand: each told once, voids and what they void removed, and of several
- * judgments one judge made of one delivery the latest.
+ * judgments one judge made of one delivery the latest. Timestamp-only consecutive replays of
+ * the same work-discharge body retain their original instant; a changed judgment or a distinct
+ * receiving receipt is a different act. Historical rows and content addresses stay unchanged.
  * @param {ReadonlyArray<object>} outcomes
  */
 export function standingOutcomes(outcomes) {
   const voided = new Set(outcomes.filter((outcome) => outcome.source !== "x402-settlement" && outcome.verdict === "voided").map((outcome) => outcome.voids));
   const latest = new Map();
-  for (const outcome of outcomes) {
+  const previousJudgment = new Map();
+  const timeOrder = (a, b) => Date.parse(a.at) - Date.parse(b.at) || a.id.localeCompare(b.id);
+  const replayBody = ({ id, at, ...body }) => canonicalJson(body);
+  for (const outcome of [...outcomes].sort(timeOrder)) {
     // Historical payment-as-acceptance rows remain readable as claims, not standing judgments.
-    if (outcome.source === "x402-settlement" || outcome.verdict === "voided" || voided.has(outcome.id)) continue;
+    if (outcome.source === "x402-settlement" || outcome.verdict === "voided") continue;
     const key = `${outcome.source}\u0000${outcome.delivery}\u0000${outcome.judge}`;
+    const previous = previousJudgment.get(key);
+    previousJudgment.set(key, outcome);
+    // A withdrawn B still separates the two genuine acts in A -> B -> A.
+    // Withdrawal changes standing, not the original chronology of receiving.
+    if (voided.has(outcome.id)) continue;
     const held = latest.get(key);
-    if (held === undefined || held.at < outcome.at || (held.at === outcome.at && held.id < outcome.id)) latest.set(key, outcome);
+    // The old receiver used the retry clock in the content address. Folding identical
+    // consecutive bodies at their first instant prevents those historic duplicate rows
+    // from moving cost to a later period. A -> B -> A remains three genuine revisions.
+    if (held?.source === "work-discharge" && previous !== undefined
+      && replayBody(previous) === replayBody(outcome) && replayBody(held) === replayBody(outcome)) continue;
+    latest.set(key, outcome);
   }
   return Object.freeze([...latest.values()].sort((a, b) => a.at.localeCompare(b.at) || a.id.localeCompare(b.id)));
 }
@@ -242,7 +285,7 @@ export function standingOutcomes(outcomes) {
 /** A delivery's reading in FOUR from the standing judgments of it: held, denied, contested or unknown. */
 export function deliveryReadingOf(outcomes) {
   const standing = standingOutcomes(outcomes);
-  return readingOfSides("extremal", standing.some((outcome) => outcome.verdict === "accepted"), standing.some((outcome) => outcome.verdict === "rejected"));
+  return readingOfSides("extremal", standing.some(isAcceptedWorkOutcome), standing.some(isRejectedWorkOutcome));
 }
 
 /**
@@ -257,7 +300,7 @@ export function standingOf(outcomes, { keyOf = (outcome) => outcome.carrier } = 
     const key = keyOf(outcome);
     if (!text(key)) continue;
     const prior = standing.get(key) ?? { accepted: 0, attempts: 0 };
-    standing.set(key, { accepted: prior.accepted + (outcome.verdict === "accepted" ? 1 : 0), attempts: prior.attempts + 1 });
+    standing.set(key, { accepted: prior.accepted + (isAcceptedWorkOutcome(outcome) ? 1 : 0), attempts: prior.attempts + 1 });
   }
   return standing;
 }
@@ -294,7 +337,7 @@ export function marketJudgmentsIndexOf(outcomes, { at, digest } = {}) {
   return Object.freeze({
     kind: "organizing.enterprise.market-judgments", at, digest,
     judgments: Object.freeze(standingOutcomes(outcomes).filter((outcome) => outcome.source !== "inference-market" && outcome.market !== undefined)
-      .map((outcome) => Object.freeze({ id: outcome.id, source: outcome.source, verdict: outcome.verdict, at: outcome.at, judge: outcome.judge, market: outcome.market }))),
+      .map((outcome) => Object.freeze({ id: outcome.id, source: outcome.source, verdict: outcome.verdict, at: outcome.at, judge: outcome.judge, market: outcome.market, ...(outcome.reportedResult === undefined ? {} : { reportedResult: outcome.reportedResult }) }))),
   });
 }
 
@@ -317,7 +360,7 @@ export const USD_PEGGED = Object.freeze(["USD", "USDC"]);
 export function judgedSettlementsOf(outcomes, { partyOf } = {}) {
   const receipts = {};
   for (const outcome of standingOutcomes(outcomes)) {
-    if (outcome.verdict !== "accepted" || outcome.value === undefined || !USD_PEGGED.includes(outcome.value.currency)) continue;
+    if (!isAcceptedWorkOutcome(outcome) || outcome.value === undefined || outcome.value.basis === "cost" || !USD_PEGGED.includes(outcome.value.currency)) continue;
     const seam = seamOfOutcome(outcome, partyOf);
     const enterprise = partyOf?.(outcome.provider)?.enterprise;
     if (!BOOKED_SEAMS.includes(seam) || enterprise === undefined) continue;
@@ -408,7 +451,7 @@ const linkOf = (outcome) => `outcome-${Buffer.from(outcome.id.split(";").at(-1),
  * judgment inside the entity books nothing: the Group paying itself is no sale.
  */
 export function outcomePostingsOf(outcome, partyOf) {
-  if (outcome.source === "x402-settlement" || outcome.verdict !== "accepted" || outcome.value === undefined || !BOOKED_SEAMS.includes(seamOfOutcome(outcome, partyOf))) return Object.freeze([]);
+  if (outcome.source === "x402-settlement" || !isAcceptedWorkOutcome(outcome) || outcome.value === undefined || outcome.value.basis === "cost" || !BOOKED_SEAMS.includes(seamOfOutcome(outcome, partyOf))) return Object.freeze([]);
   const amount = gradedOfDecimal(outcome.value.amount, outcome.value.currency);
   return Object.freeze([
     posting({ account: outcome.value.settledTo ?? "Assets:Receivables:Trade", amount }),
@@ -473,7 +516,11 @@ function costOf(resources, priceOf) {
     const cost = gradedTimes(gradedOfDecimal(price.amount, price.currency), gradedFromParts(resource.amount, 1, resource.unit), price.currency);
     priced.push({ amount: gradedToDecimalString(cost), currency: price.currency });
   }
-  return Object.freeze({ cost: moneySum(priced), unpriced: sumResources(unpriced) });
+  const summed = moneySum(priced);
+  // A witnessed zero price is known zero, not an absent price.
+  const cost = Object.freeze(Object.fromEntries([...new Set(priced.map(value => value.currency))].sort()
+    .map(currency => [currency, summed[currency] ?? "0"])));
+  return Object.freeze({ cost, unpriced: sumResources(unpriced) });
 }
 
 /**
@@ -521,18 +568,31 @@ const decimalPerUnit = (amount, count) => {
   return fixed.replace(/(\.\d*?)0+$/u, "$1").replace(/\.$/u, "");
 };
 
-/** One row of the readout: what a set of outcomes accepted, rejected, consumed and cost. */
+/** One row: accepted/rejected work, observed failed reports, every attempt and its full cost. */
 function rowOf(key, outcomes, priceOf) {
-  const accepted = outcomes.filter((outcome) => outcome.verdict === "accepted").length;
-  const rejected = outcomes.filter((outcome) => outcome.verdict === "rejected").length;
+  const accepted = outcomes.filter(isAcceptedWorkOutcome).length;
+  const rejected = outcomes.filter(isRejectedWorkOutcome).length;
+  const failed = outcomes.filter(isFailedWorkReport).length;
+  const attempts = outcomes.length;
   const resources = sumResources(outcomes.map((outcome) => outcome.resources ?? []));
-  const { cost, unpriced } = costOf(resources, priceOf);
+  // An explicit incurred cost is the monetary witness for this attempt. Do not
+  // count the same attempt's resource-price estimate a second time. Attempts
+  // without that witness retain their original resource pricing/unknowns.
+  const priced = outcomes.map(outcome => outcome.value?.basis === "cost"
+    ? { cost: { [outcome.value.currency]: outcome.value.amount }, unpriced: [] }
+    : costOf(outcome.resources ?? [], priceOf));
+  const amounts = priced.flatMap(row => Object.entries(row.cost).map(([currency, amount]) => ({ currency, amount })));
+  const summed = moneySum(amounts);
+  const cost = Object.freeze(Object.fromEntries([...new Set(amounts.map(value => value.currency))].sort()
+    .map(currency => [currency, summed[currency] ?? "0"])));
+  const unpriced = sumResources(priced.map(row => row.unpriced));
   return Object.freeze({
-    ...key, accepted, rejected, judged: accepted + rejected,
-    posterior: posteriorOf({ accepted, attempts: accepted + rejected }),
+    ...key, accepted, rejected, judged: attempts,
+    ...(failed === 0 ? {} : { failed, reportJudgments: reportJudgmentsOf(outcomes) }),
+    posterior: posteriorOf({ accepted, attempts }),
     // What one accepted unit took in judged attempts: the denominator of staffing's expected cost
     // (price / acceptance), known from records alone; none until something was accepted.
-    attemptsPerAccepted: accepted === 0 ? null : Number(((accepted + rejected) / accepted).toFixed(3)),
+    attemptsPerAccepted: accepted === 0 ? null : Number((attempts / accepted).toFixed(3)),
     resources,
     witnessedResources: outcomes.filter((outcome) => (outcome.resources ?? []).length > 0).length,
     cost,
@@ -571,17 +631,18 @@ function groupBy(outcomes, keyOf) {
  * @param {{from: string, to: string, partyOf?: Function, priceOf?: Function}} options
  */
 export function acceptanceReadoutOf(outcomes, { from, to, partyOf, priceOf } = {}) {
-  if (!INSTANT.test(from ?? "") || !INSTANT.test(to ?? "") || from >= to) throw new TypeError("an acceptance readout reads a period [from, to) of ISO instants");
-  const inPeriod = standingOutcomes(outcomes).filter((outcome) => outcome.at >= from && outcome.at < to);
+  if (!INSTANT.test(from ?? "") || !INSTANT.test(to ?? "") || Date.parse(from) >= Date.parse(to)) throw new TypeError("an acceptance readout reads a period [from, to) of ISO instants");
+  const inPeriod = standingOutcomes(outcomes).filter((outcome) => Date.parse(outcome.at) >= Date.parse(from) && Date.parse(outcome.at) < Date.parse(to));
   const enterpriseOf = (actor) => partyOf?.(actor)?.enterprise ?? actor;
-  const valued = inPeriod.filter((outcome) => outcome.verdict === "accepted" && outcome.value !== undefined);
+  const valued = inPeriod.filter((outcome) => isAcceptedWorkOutcome(outcome) && outcome.value !== undefined && outcome.value.basis !== "cost");
   const bySeam = (seam) => valued.filter((outcome) => seamOfOutcome(outcome, partyOf) === seam);
   const external = bySeam("external");
   return Object.freeze({
     kind: "organizing.enterprise.acceptance-readout",
     from, to,
-    recognition: "Every judgment of delivered work told as one outcome: accepted and rejected deliveries per register, carrier and enterprise, with the Beta(1,1) posterior (accepted + 1) / (judged + 2). Cost per accepted unit is stated only where every consumed resource is priced; unknown is never zero. Money paid by the Group's own wallets is the Group paying itself and is no sale.",
-    judged: Object.freeze({ accepted: inPeriod.filter((outcome) => outcome.verdict === "accepted").length, rejected: inPeriod.filter((outcome) => outcome.verdict === "rejected").length }),
+    recognition: "Every judgment of delivered work told as one outcome: accepted and rejected deliveries per register, carrier and enterprise, with the Beta(1,1) posterior (accepted work + 1) / (all judged attempts + 2). Error reports retain their verdict, native failure and cost without satisfying work. Cost per accepted unit is stated only where every consumed resource is priced; unknown is never zero. Money paid by the Group's own wallets is the Group paying itself and is no sale.",
+    judged: Object.freeze({ accepted: inPeriod.filter(isAcceptedWorkOutcome).length, rejected: inPeriod.filter(isRejectedWorkOutcome).length }),
+    ...(inPeriod.some(isFailedWorkReport) ? { failed: inPeriod.filter(isFailedWorkReport).length, reportJudgments: reportJudgmentsOf(inPeriod) } : {}),
     readings: readingsCensusOf(groupBy(inPeriod, (outcome) => outcome.delivery).map(({ outcomes: judged }) => deliveryReadingOf(judged))),
     bySource: Object.freeze(groupBy(inPeriod, (outcome) => ({ source: outcome.source })).map(({ key, outcomes: list }) => rowOf(key, list, priceOf))),
     byCarrier: Object.freeze(groupBy(inPeriod, (outcome) => ({ carrier: outcome.carrier ?? null })).map(({ key, outcomes: list }) => rowOf(key, list, priceOf))),

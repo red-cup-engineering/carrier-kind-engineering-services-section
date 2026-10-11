@@ -41,7 +41,7 @@ const BOARD_KIND = "work-arena-move";
 const byTimeThenAddress = (a, b) => String(a.record.at).localeCompare(String(b.record.at)) || a.id.localeCompare(b.id);
 
 /** The entries of a board journal, as { id, record }. */
-export const entriesOfJournal = (journal) => journal.query({ category: "move" }).map(({ id, record }) => Object.freeze({ id, record }));
+export const entriesOfJournal = (journal) => journal.query({ category: "move" }).map(({ id, record, causes }) => Object.freeze({ id, record, ...(causes === undefined || causes.length === 0 ? {} : { causes }) }));
 
 /**
  * Whether one move is coordination-free, given the kinds of the threads it can answer:
@@ -237,13 +237,13 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     if (observation === undefined) throw new TypeError("failed work delivery names no selected recipient");
     observation.failed.push(Object.freeze({ id: moveId, why: String(error?.message ?? error), away: deliveryAway(error) }));
   };
-  const ship = async ({ id, record }) => {
+  const ship = async ({ id, record, causes }) => {
     moveId = id;
     const opening = OPENING_MOVES.includes(record.move);
     const decided = !opening && !isReplicable(record, kindsOf(entries));
-    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, opening: record })
+    const thunk = opening ? prepareWorkOpeningDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, opening: record, causes })
       : decided ? prepareWorkDecisionDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, decision: { ...record, decidedBy: host } })
-        : prepareWorkTellingDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, telling: record });
+        : prepareWorkTellingDelivery({ config, provider, deliver: observedDelivery, onPeerFailure, telling: record, causes });
     if (thunk === undefined) throw new TypeError("no work peer is configured");
     // A move held for a known-intermittent peer is handed on: the peer pulls it, so it is not sent again.
     for (const value of await thunk() ?? []) {
@@ -399,3 +399,4 @@ export function workReplicationOperations({ config, binding, provider, host }) {
     },
   })]);
 }
+

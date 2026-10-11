@@ -1,5 +1,6 @@
 /** argv/stdin adaptation into the protocol-neutral RPC dispatcher. */
 
+import { canonicalJson, requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { dispatch } from "./dispatch.mjs";
 import { invocation } from "./invocation.mjs";
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
@@ -68,7 +69,42 @@ export async function dispatchWire(
     observedAt,
     causes: options.causes ?? [],
   });
-  const receipt = await dispatch({ catalog, witness: options.witness, authorize, now: options.now, ...(options.beforeExecute === undefined ? {} : { beforeExecute: options.beforeExecute }), ...(options.coordinate === undefined ? {} : { coordinate: options.coordinate }) }, candidate);
+  // This port is supplied by the receiving host, never argv, stdin or caller claims.
+  // A handler can preflight the selected wire codec before its local success effects.
+  // The dispatcher then requires that exact projected value after the handler returns.
+  let projected;
+  const snapshot = value => {
+    const freeze = entry => {
+      if (entry !== null && typeof entry === "object") { Object.values(entry).forEach(freeze); Object.freeze(entry); }
+      return entry;
+    };
+    return freeze(JSON.parse(canonicalJson(requireJsonValue(value, "projected operation result"))));
+  };
+  const admitProjection = projected => {
+    const admitted = options.projectResult(projected);
+    if (admitted?.then !== undefined) {
+      Promise.resolve(admitted).catch(() => {});
+      throw new TypeError("host result projection must be synchronous");
+    }
+  };
+  const resultProjection = options.projectResult === undefined ? undefined : {
+    project(value) {
+      const held = snapshot(value);
+      operation.codomain?.assert(held, `operation ${operation.verb} output`);
+      const stdout = wireCodec(outputFormat).encode(held);
+      if (projected !== undefined && projected.stdout !== stdout) throw new TypeError("operation changed its preflighted result");
+      admitProjection(Object.freeze({ code: 0, stdout, stderr: "" }));
+      projected ??= Object.freeze({ value: held, stdout });
+      return projected.value;
+    },
+    verify(value) {
+      if (projected === undefined) return;
+      if (wireCodec(outputFormat).encode(value) !== projected.stdout) throw new TypeError("operation changed its preflighted result");
+      // Revalidate host-held metadata before witnessing the successful outcome.
+      admitProjection(Object.freeze({ code: 0, stdout: projected.stdout, stderr: "" }));
+    },
+  };
+  const receipt = await dispatch({ catalog, witness: options.witness, authorize, now: options.now, resultProjection, ...(options.beforeExecute === undefined ? {} : { beforeExecute: options.beforeExecute }), ...(options.coordinate === undefined ? {} : { coordinate: options.coordinate }) }, candidate);
   if (!receipt.ok || receipt.value === undefined) {
     return {
       code: 1,
