@@ -6,7 +6,7 @@ import {
 } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 export const capabilityAssertionFeed = "capability-assertions";
 

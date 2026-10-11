@@ -1,6 +1,6 @@
 [submodule "services/web-services-section"]
-	path = services/web-services-section
-	url = https://github.com/red-cup-engineering/web-services-section.git
+	path = services/computer-web-engineering-services-section
+	url = https://github.com/red-cup-engineering/computer-web-engineering-services-section.git
 [submodule "services/blockchain-services-section/services/settlement-triggered-activity-publication-cell"]
 	path = services/blockchain-services-section/services/settlement-triggered-activity-publication-cell
 	url = https://github.com/red-cup-engineering/settlement-triggered-activity-publication-cell.git
@@ -19,12 +19,9 @@
 [submodule "services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat"]
 	path = services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat
 	url = https://github.com/emsenn/metroplat.git
-[submodule "services/computer-data-services-section"]
-	path = services/computer-data-services-section
-	url = https://github.com/red-cup-engineering/computer-data-services-section.git
 [submodule "services/semiotic-software-services-section"]
-	path = services/semiotic-software-services-section
-	url = https://github.com/red-cup-engineering/semiotic-software-services-section.git
+	path = services/semiotic-computer-system-services-section
+	url = https://github.com/red-cup-engineering/semiotic-computer-system-services-section.git
 [submodule "services/computer-operating-system-services-section/services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service"]
 	path = services/computer-operating-system-services-section/services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service
 	url = https://github.com/red-cup-engineering/systemd-unit-inventory-observation-service.git
@@ -38,13 +35,13 @@
 	path = services/computer-protocol-services-section/services/version-control-services-section/lib/legacy/2026-08-06-block-device-io-coordinator
 	url = https://github.com/red-cup-engineering/2026-08-06-block-device-io-coordinator.git
 [submodule "inference-services-section-root"]
-	path = services/inference-services-section
-	url = https://github.com/red-cup-engineering/inference-services-section.git
+	path = services/computer-inference-system-services-section
+	url = https://github.com/red-cup-engineering/computer-inference-system-services-section.git
 [submodule "services/computer-operating-system-services-section/services/linux-services-section/services/linux-time-services-section/services/clockkeeper-service"]
 	path = services/computer-operating-system-services-section/services/linux-services-section/services/linux-time-services-section/services/clockkeeper-service
 	url = https://github.com/red-cup-engineering/clockkeeper-service.git
 	branch = main
 [submodule "services/computer-coding-services-section"]
 	path = services/computer-coding-services-section
-	url = https://github.com/red-cup-engineering/computer-coding-services-section.git
+	url = https://github.com/red-cup-engineering/computer-code-engineering-services-section.git
 	branch = main

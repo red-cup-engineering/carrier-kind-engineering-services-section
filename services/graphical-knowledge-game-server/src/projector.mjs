@@ -5,14 +5,14 @@
 // comes from VICTOR's vault catalog, bodies are rendered by VICTOR, and the
 // browser engine is projected from the packages that own it.
 
-import { sha256Hex } from '@red-cup-engineering/cryptographic-data-service/integrity';
+import { sha256Hex } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
 import { readFile } from 'node:fs/promises';
 import { basename, dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 import { normalizeTufteModel } from '@red-cup-engineering/web-page-tiling-engine';
 import { openMarkdownVault } from '@red-cup-engineering/knowledge-system-server/markdown-vault';
-import { projectWebFeedArtifacts } from '@red-cup-engineering/computer-data-serialization-services-section/project-web-feed';
+import { projectWebFeedArtifacts } from '@red-cup-engineering/computer-serialized-content-engineering-services-section/project-web-feed';
 import { projectGlossaryIndex } from '@red-cup-engineering/term-engineering-services-section/glossary-index';
 import { DEFAULT_KNOWLEDGE_BASE, glossaryAudienceAdmits, projectGlossarySkos } from '@red-cup-engineering/term-engineering-services-section/glossary-skos';
 import { buildTilingGridLayout, spaceElements, tufteElements, vaultMazeManifest } from './compose.mjs';
@@ -207,10 +207,10 @@ export async function browserRuntime() {
   const gamingRulesPath = resolve(gamingRoot, 'src/running/rules.mjs');
   const gamingRules = (await readFile(gamingRulesPath, 'utf8'))
     .replace('@red-cup-engineering/json-services-section/canonical-json', './canonical-json.mjs')
-    .replace('@red-cup-engineering/cryptographic-data-service/portable-sha256', './portable-sha256.mjs');
+    .replace('@red-cup-engineering/cryptographic-computer-data-engineering-services-section/portable-sha256', './portable-sha256.mjs');
   artifacts.push({ path: 'js/gaming-rules.mjs', body: gamingRules, source: 'gaming:running/rules' });
   artifacts.push({ path: 'js/canonical-json.mjs', body: await readFile(resolve(gamingRoot, 'node_modules/@red-cup-engineering/json-services-section/scripts/canonical-json.mjs'), 'utf8'), source: 'json:canonical-json' });
-  artifacts.push({ path: 'js/portable-sha256.mjs', body: await readFile(resolve(gamingRoot, 'node_modules/@red-cup-engineering/cryptographic-data-service/portable-sha256'), 'utf8'), source: 'cryptography:portable-sha256' });
+  artifacts.push({ path: 'js/portable-sha256.mjs', body: await readFile(resolve(gamingRoot, 'node_modules/@red-cup-engineering/cryptographic-computer-data-engineering-services-section/portable-sha256'), 'utf8'), source: 'cryptography:portable-sha256' });
   artifacts.push({ path: `js/${SEARCH_MODULE}.mjs`, body: await readFile(fileURLToPath(import.meta.resolve('@red-cup-engineering/markdown-engineering-services-section/vault/room-index-search')), 'utf8'), source: 'cairn:room-index-search' });
   artifacts.push({ path: `js/${TUFTE_MODULE}.mjs`, body: await readFile(fileURLToPath(import.meta.resolve('@red-cup-engineering/web-page-tiling-engine/browser')), 'utf8'), source: 'tufte:browser' });
   for (const file of ['app.js', 'map.js', 'vaultmaze.css']) {

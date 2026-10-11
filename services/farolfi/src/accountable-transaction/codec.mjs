@@ -37,7 +37,7 @@ import {
   transactionFacetWireContract,
   accountableTransactionContract,
 } from "./schema.mjs";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 export {
   accountabilityReportContract,

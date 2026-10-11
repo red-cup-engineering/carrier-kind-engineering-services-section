@@ -9,7 +9,7 @@
  */
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { tmCarrier } from "@red-cup-engineering/relating";
-import { SEN_FORMS, mapSenImmediate } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { SEN_FORMS, mapSenImmediate } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { evaluate, step } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/eval";
 
 export const DAP_JSONRPC_VERSION = "2.0";

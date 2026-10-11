@@ -10,7 +10,7 @@ import { readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { composeIssue } from "@red-cup-engineering/newsletter-issue-production-services-section/scripts/compose-issue.mjs";
+import { composeIssue } from "@red-cup-engineering/email-newsletter-engineering-services-section/scripts/compose-issue.mjs";
 import { createDraftEmail } from "../src/buttondown.mjs";
 import { newsletterKey } from "../src/newsletter-keys.mjs";
 

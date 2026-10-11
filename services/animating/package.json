@@ -27,11 +27,11 @@
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-code-development-engine": "workspace:*",
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-code-fabrication-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/knowing": "workspace:*",
@@ -42,7 +42,7 @@
     "@red-cup-engineering/signcraft": "workspace:*",
     "@red-cup-engineering/signgraph": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "exports": {

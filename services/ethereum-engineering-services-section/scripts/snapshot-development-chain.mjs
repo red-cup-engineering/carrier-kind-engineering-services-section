@@ -7,8 +7,8 @@ import { mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs"
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { argument as option } from "@red-cup-engineering/javascript-node-services-section/argv";
-import { writeFileBytesSync } from "@red-cup-engineering/file-services/write-file";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { writeFileBytesSync } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 

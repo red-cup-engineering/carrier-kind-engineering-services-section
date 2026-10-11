@@ -11,7 +11,7 @@ import {
   admitServedRequestArrival,
 
 } from "@red-cup-engineering/metroplat/presentation/serving";
-import { sseEventFrame, sseHeaders } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { sseEventFrame, sseHeaders } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 
 function statusOf(condition) {
   if (condition === "unauthorized") return 401;

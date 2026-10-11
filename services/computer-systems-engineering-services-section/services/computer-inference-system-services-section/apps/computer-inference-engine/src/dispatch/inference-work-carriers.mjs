@@ -2,7 +2,7 @@ import requestSchema from "../../content/dispatch/schemas/inference-work-request
 import resultSchema from "../../content/dispatch/schemas/inference-work-result.schema.json" with { type: "json" };
 import refusalSchema from "../../content/dispatch/schemas/inference-work-refusal.schema.json" with { type: "json" };
 import { COMPUTER_ENGINEERING_SPECIFICATION_ID } from "@red-cup-engineering/computer-system-engine/specification";
-import { admit, defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { admit, defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 import { admitOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 import { CHAT_COMPLETION_TURN_INPUT_SCHEMA } from "@red-cup-engineering/computer-inference-engine/openai/chat-turn-contract";
 

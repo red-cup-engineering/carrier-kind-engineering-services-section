@@ -11,7 +11,7 @@
  *
  * @metroplatSubject addressing
  */
-import { artifactTiers } from "@red-cup-engineering/eavt/statement";
+import { artifactTiers } from "@red-cup-engineering/eavt-services-section/statement";
 
 /** The finite legibility vocabulary. `carried:${family}` is open on the
  *  family name a caller's codec-admissible reading supplies. */

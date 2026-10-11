@@ -1,7 +1,9 @@
 import { startLocalWitnessJournalProviderProcess } from "@red-cup-engineering/witness-journal-document-service/local-provider";
 import { createServer } from "./server.mjs";
 
-const witnessJournal = await startLocalWitnessJournalProviderProcess({ port: Number(process.env.WITNESS_JOURNAL_LOCAL_PORT ?? 19764) });
+// The local witness journal keeps what it witnesses (settlement witnesses among them) under the
+// deployment's WITNESS_JOURNAL_ROOT; a provider that keeps them refuses to start without one.
+const witnessJournal = await startLocalWitnessJournalProviderProcess({ root: process.env.WITNESS_JOURNAL_ROOT, port: Number(process.env.WITNESS_JOURNAL_LOCAL_PORT ?? 19764) });
 const env = { ...process.env, WITNESS_JOURNAL_RDF_AGENT: witnessJournal.agentCardUrl };
 const { app, network, facilitatorUrl, payTo, price, port } = createServer(env);
 const server = app.listen(port, "0.0.0.0", () => console.log(JSON.stringify({

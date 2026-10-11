@@ -38,6 +38,7 @@
     "@red-cup-engineering/a2a-contracted-agent-service": "2.0.7",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.2",
+    "@red-cup-engineering/agent-harness-computer-system-engineering-services-section": "workspace:*",
     "@red-cup-engineering/ni-uri-services-section": "0.1.1",
     "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
     "jose": "6.2.3"

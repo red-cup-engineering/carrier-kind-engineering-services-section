@@ -74,7 +74,8 @@
     "./rpc/wire-dispatch": "./src/rpc/wire-dispatch.mjs",
     "./rpc/node": "./src/rpc/node.mjs",
     "./rpc/actor-processing": "./src/rpc/actor-processing.mjs",
-    "./rpc/actor-client": "./src/rpc/actor-client.mjs"
+    "./rpc/actor-client": "./src/rpc/actor-client.mjs",
+    "./legacy-sqlite-reader": "./src/legacy-sqlite-reader.mjs"
   },
   "files": [
     "src",
@@ -97,8 +98,8 @@
     "@red-cup-engineering/computer-content-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "0.1.0",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
-    "@red-cup-engineering/eavt": "0.10.4",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "0.10.4",
     "@red-cup-engineering/html-structural-projection-service": "0.3.0",
     "@red-cup-engineering/http-services-section": "0.6.1",
     "@red-cup-engineering/immutable-content-custody-service": "0.3.0",
@@ -119,6 +120,6 @@
     "@red-cup-engineering/signgraph": "workspace:*",
     "@red-cup-engineering/a2a-services-section": "workspace:*",
     "@red-cup-engineering/activitypub-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   }
 }

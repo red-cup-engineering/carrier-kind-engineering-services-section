@@ -6,9 +6,9 @@ import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { constitute } from "@red-cup-engineering/eavt/constitute-entity";
-import { appendEavtRow } from "@red-cup-engineering/eavt/append-eavt-row";
-import { readEavtEntries } from "@red-cup-engineering/eavt/read-eavt-entries";
+import { constitute } from "@red-cup-engineering/eavt-services-section/constitute-entity";
+import { appendEavtRow } from "@red-cup-engineering/eavt-services-section/append-eavt-row";
+import { readEavtEntries } from "@red-cup-engineering/eavt-services-section/read-eavt-entries";
 import { lookWorld } from "@red-cup-engineering/flatfile-resource-graph-service/lagoon-world";
 import { deriveOfficeSeeds, readActorGenesis, readWieldedInstruments, seed } from "../scripts/seed-offices.mjs";
 

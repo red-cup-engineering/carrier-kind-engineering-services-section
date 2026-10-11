@@ -6,7 +6,7 @@
  * private evaluator structure and are never exported through this index.
  */
 
-import { inferTy, checkTy, isClosed } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/typing";
+import { inferTy, checkTy, isClosed } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";
 import { evaluate, normalize } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/eval";
 import { parseNamedSen } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/named-codec";
 

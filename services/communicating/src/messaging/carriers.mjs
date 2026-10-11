@@ -54,7 +54,7 @@ export const messageSchema = {
   title: "MessageCarrier",
   description: "A message placed in transit on a channel and tracked as a once-consumed linear resource.",
   type: "object",
-  required: ["kind", "text", "content", "speaker", "listener", "channel", "status", "reading"],
+  required: ["kind", "text", "content", "speaker", "listener", "channel", "status", "evidence"],
   additionalProperties: false,
   properties: {
     kind: { const: "communicating.messaging.message" },
@@ -64,7 +64,7 @@ export const messageSchema = {
     listener: {},
     channel: {},
     status: MessageStatusSchema,
-    reading: {},
+    evidence: {},
   },
 };
 export const messageCarrier = schemaFrom(messageSchema);
@@ -74,13 +74,13 @@ export const uptakeSchema = {
   title: "UptakeCarrier",
   description: "A listener's uptake: the settled record of restricting an in-transit message.",
   type: "object",
-  required: ["kind", "consumed", "reading", "reading"],
+  required: ["kind", "consumed", "reading", "evidence"],
   additionalProperties: false,
   properties: {
     kind: { const: "communicating.messaging.uptake" },
     consumed: {},
     reading: {},
-    reading: {},
+    evidence: {},
   },
 };
 export const uptakeCarrier = schemaFrom(uptakeSchema);

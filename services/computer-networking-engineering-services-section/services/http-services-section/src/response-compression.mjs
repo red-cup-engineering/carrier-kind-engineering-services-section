@@ -1,8 +1,8 @@
-import { compressStream, supportedCompressionCodings } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
-import { isCompressible } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/media-type";
+import { compressStream, supportedCompressionCodings } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
+import { isCompressible } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/media-type";
 import { negotiateEncoding } from "./negotiation.mjs";
-import "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
-import { isEventStream } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
+import { isEventStream } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 export function bodyForbidden(status) {
     return status === 204 || status === 304 || status >= 100 && status < 200;
 }

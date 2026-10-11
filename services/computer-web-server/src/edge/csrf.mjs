@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { unsignCookieValue } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/signed-cookie";
+import { unsignCookieValue } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/signed-cookie";
 import { getSignedCookie, setSignedCookie } from "@red-cup-engineering/http-services-section/cookies";
 const SAFE_METHODS = new Set([
     "GET",

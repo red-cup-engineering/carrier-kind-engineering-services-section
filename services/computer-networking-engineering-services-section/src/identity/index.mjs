@@ -5,7 +5,7 @@
 
 import { assertNonemptyString as nonempty } from "@red-cup-engineering/json-services-section/assert-nonempty-string";
 import { createSign, createVerify } from "node:crypto";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { claim, mark } from "@red-cup-engineering/signcell/utterance";
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
@@ -20,8 +20,8 @@ import {
   verificationMethodSchema,
   verifiableCredentialSchema,
 } from "./schema.mjs";
-import { eavtRecord, toEavt, foldJson, unfoldJson } from "@red-cup-engineering/eavt/row";
-import { sha256 } from "@red-cup-engineering/cryptographic-data-service/hash";
+import { eavtRecord, toEavt, foldJson, unfoldJson } from "@red-cup-engineering/eavt-services-section/row";
+import { sha256 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
 
 export {
   credentialSubjectSchema,

@@ -23,9 +23,9 @@
  *   RelMath.Chu.dual_involution            (same, at the Chu namespace)
  *   RelMath.four_negate_involution         (negate (negate x) = x, as standalone)
  */
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
-import { arrayTerm, objectTerm, stringTerm, jsonToTerm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
-import { knowledgeBottom, negateReading, readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
+import { arrayTerm, objectTerm, stringTerm, jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
+import { knowledgeBottom, negateReading, readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 
 // Lower the scientific negation table into the JSON reading-name representation.

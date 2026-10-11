@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { parseFeed } from "@red-cup-engineering/computer-data-serialization-services-section/web-feed";
+import { parseFeed } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/web-feed";
 import { fetchText } from "@red-cup-engineering/http-services-section/fetch-text";
 
 const USER_AGENT = "@red-cup-engineering/turntide-islands-discord-platform signal ingest (https://turntide-islands.561.group)";

@@ -7,7 +7,7 @@
  * decide whether that hook persists rows, streams them, or ignores them.
  * Filesystem persistence is deliberately outside this module.
  */
-import { cell, } from "@red-cup-engineering/eavt/ledger/cells";
+import { cell, } from "@red-cup-engineering/eavt-services-section/ledger/cells";
 
 /** One scripted play. */
 

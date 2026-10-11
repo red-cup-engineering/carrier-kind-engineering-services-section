@@ -3,7 +3,7 @@ export {processAdmittedActorRequest} from '@red-cup-engineering/computer-system-
 import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
 import { processLeaseCoordinator } from '@red-cup-engineering/computer-system-engine/rpc/coordination';
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 import { ARRIVAL_PROCESS_FEED, ARRIVAL_PROCESS_TERM, arrivalDispatchClaimFromCloudEvent, admitCloudEventArrival } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { } from "@red-cup-engineering/json-services-section";
@@ -17,7 +17,7 @@ import {
 import { createOperationCatalog, operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { dispatchWire } from "@red-cup-engineering/computer-system-engine/rpc/wire-dispatch";
 import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** A receiver-local decision to bind received material to a local authority subject.
  * CloudEvent source and material claims are inputs to this decision, not authority. */

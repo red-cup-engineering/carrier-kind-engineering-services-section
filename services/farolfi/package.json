@@ -52,11 +52,11 @@
   "dependencies": {
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/ethereum-engineering-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "0.18.3",
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/gaming": "workspace:*",
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
@@ -67,7 +67,7 @@
     "@red-cup-engineering/treasury-observation-service": "workspace:*",
     "@red-cup-engineering/ucan-invocation-verification-service": "workspace:*",
     "@red-cup-engineering/x402-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "sideEffects": false

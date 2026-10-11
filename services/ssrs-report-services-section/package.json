@@ -20,7 +20,7 @@
     "src"
   ],
   "dependencies": {
-    "@red-cup-engineering/computer-data-serialization-services-section": "workspace:*"
+    "@red-cup-engineering/computer-serialized-content-engineering-services-section": "workspace:*"
   },
   "sideEffects": false
 }

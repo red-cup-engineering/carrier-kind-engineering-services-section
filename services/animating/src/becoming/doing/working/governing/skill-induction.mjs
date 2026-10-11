@@ -10,9 +10,9 @@ import { canonical } from "@red-cup-engineering/json-services-section";
 import {
   eavtRow as entry,
 
-} from "@red-cup-engineering/eavt/row";
-import { appendEavtEntries } from "@red-cup-engineering/eavt/append-eavt-entries";
-import { readEavtJournal } from "@red-cup-engineering/eavt/read-eavt-journal";
+} from "@red-cup-engineering/eavt-services-section/row";
+import { appendEavtEntries } from "@red-cup-engineering/eavt-services-section/append-eavt-entries";
+import { readEavtJournal } from "@red-cup-engineering/eavt-services-section/read-eavt-journal";
 import { grant, canInvoke } from "@red-cup-engineering/animating/capability";
 
 import { act, perceive } from "./agent.mjs";

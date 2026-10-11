@@ -1,5 +1,5 @@
-import { parseDirectiveList } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/header-value";
-import { parseHttpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
+import { parseDirectiveList } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/header-value";
+import { parseHttpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
 import { ifModifiedSince, ifNoneMatch } from "@red-cup-engineering/http-services-section/conditional-request";
 function cacheDirectives(header) {
     return parseDirectiveList(Array.isArray(header) ? header.map(String) : header == null ? undefined : String(header));

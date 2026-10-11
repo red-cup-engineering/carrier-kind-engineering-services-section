@@ -6,7 +6,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { grantAssertion, revokeAssertion } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { openJournal } from "../src/journal/journal.mjs";
 import { admitCapabilityAssertions, capabilityAssertionFeed, readCapabilityAssertions } from "../src/rpc/capability-assertions.mjs";
 import { authorizationFromCapabilityAssertions, authorizationFromStanding, dispatch } from "../src/rpc/dispatch.mjs";

@@ -6,9 +6,9 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-import { lintManuscript } from "@red-cup-engineering/ebook-production-services-section/lint-manuscript";
-import { fictionIssueFromEpisode, validateSerialManifest } from "@red-cup-engineering/newsletter-issue-production-services-section/fiction-serial";
-import { composeIssue } from "@red-cup-engineering/newsletter-issue-production-services-section/scripts/compose-issue.mjs";
+import { lintManuscript } from "@red-cup-engineering/ebook-engineering-services-section/lint-manuscript";
+import { fictionIssueFromEpisode, validateSerialManifest } from "@red-cup-engineering/email-newsletter-engineering-services-section/fiction-serial";
+import { composeIssue } from "@red-cup-engineering/email-newsletter-engineering-services-section/scripts/compose-issue.mjs";
 import { createDraftEmail } from "../src/buttondown.mjs";
 import { readNewsletterKey } from "../src/newsletter-keys.mjs";
 

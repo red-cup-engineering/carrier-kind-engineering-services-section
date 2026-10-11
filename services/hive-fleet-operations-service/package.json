@@ -36,7 +36,7 @@
     "./operations": "./src/operations.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/computing-with-hive": "workspace:*",
+    "@red-cup-engineering/hive-computing-service": "workspace:*",
     "@red-cup-engineering/activitypub-services-section": "workspace:*",
     "@red-cup-engineering/cbor-services-section": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
@@ -44,7 +44,7 @@
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-web-server": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/dcity-services-section": "workspace:*",
     "@red-cup-engineering/dcrops-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "0.18.3",
@@ -66,7 +66,7 @@
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
     "@red-cup-engineering/workerbee-services-section": "workspace:*",
     "@red-cup-engineering/hive-fleet-observation-service": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/exact-number-data-service": "workspace:*"
   },
   "devDependencies": {},

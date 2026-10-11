@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { createOperationExecutor, declareCapabilityOperation, executeOperation } from "@red-cup-engineering/computer-code-engineering-services-section/typed-operation";
 
 const text = schemaFrom({ $id: "test/local/text", type: "string" });

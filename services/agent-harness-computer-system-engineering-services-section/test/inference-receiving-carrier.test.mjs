@@ -83,3 +83,44 @@ test("only commits the repository answers to are inspected; a name it cannot fin
   assert.deepEqual(missing.map(({ label, found }) => [label, found]), [["commit:deadbee", false]]);
   assert.deepEqual(await readCommitEvidence(proposal, {}), []);
 });
+
+test("all receiving transports share the report-versus-work judgment meaning", async () => {
+  const { receivingMessages } = await import("../src/carrier/inference-receiving-carrier.mjs");
+  const { receivingJudgementMeaning, RECEIVING_JUDGEMENT_SCHEMA } = await import("../src/carrier/receiving-judgement.mjs");
+  const { skillSuccess, skillError } = await import("@red-cup-engineering/animating/becoming/doing/working/governing/skill");
+  const { workResultFromSkillResult, typedResultOf } = await import("@red-cup-engineering/organizing/work/schema");
+  for (const result of [
+    workResultFromSkillResult(skillError("Unresolvable", "Missing source", "read source", "recover witness")),
+    typedResultOf({ type: "integer" }, workResultFromSkillResult(skillSuccess("wrong"))),
+    { kind: "skill-error", error: "legacy failure" },
+  ]) {
+    const sample = { ...proposal, result };
+    const meaning = receivingJudgementMeaning(result);
+    assert.match(meaning, /accepted: inspected evidence verifies the reported failure/);
+    assert.match(meaning, /execution remains failed/);
+    assert.match(meaning, /receiverCondition remains unmet/);
+    const messages = receivingMessages({ ...review, proposal: sample, evidence: found });
+    assert.ok(messages[0].content.includes(meaning));
+    assert.match(messages[0].content, /Unverified is unknown, never a rejection/);
+    const userReport = messages[1].content.match(/PROPOSAL \(immutable\):\n([\s\S]+)\n\nINSPECTED EVIDENCE:/u)[1];
+    assert.deepEqual(JSON.parse(userReport).result, result);
+  }
+  assert.match(receivingJudgementMeaning(proposal.result), /verifies the delivery against the original receiverCondition/);
+  assert.deepEqual(RECEIVING_JUDGEMENT_SCHEMA.properties.decision.enum, ["accepted", "rejected", "unverified"]);
+});
+
+test("accepting an evidenced error report is durable while unverifiable error acceptance stays unknown", async () => {
+  const { workResultFromSkillResult } = await import("@red-cup-engineering/organizing/work/schema");
+  const { skillError } = await import("@red-cup-engineering/animating/becoming/doing/working/governing/skill");
+  const result = workResultFromSkillResult(skillError("Unresolvable", "Missing source", "read source", "recover witness"));
+  const failedReview = { ...review, proposal: { ...proposal, result } };
+  const { carrier, calls } = carrierWith([says("accepted")]);
+  const first = await carrier.receive(failedReview);
+  assert.equal(first.judgement.decision, "accepted");
+  assert.deepEqual(failedReview.proposal.result, result);
+  assert.deepEqual((await carrier.receive(failedReview)).judgement, first.judgement);
+  assert.equal(calls.length, 1);
+  const unsupported = carrierWith([says("accepted", ["invented:witness"])]);
+  assert.equal((await unsupported.carrier.receive(failedReview)).judgement.decision, "unverified");
+  assert.equal(unsupported.carrier.receivingJudged(failedReview), false);
+});

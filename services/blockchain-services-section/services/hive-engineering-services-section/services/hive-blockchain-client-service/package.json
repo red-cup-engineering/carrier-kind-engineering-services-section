@@ -53,7 +53,7 @@
   "private": false,
   "dependencies": {
     "@red-cup-engineering/exact-number-data-service": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-rpc-transport-service": "workspace:*",
     "@red-cup-engineering/base58-encoding-service": "workspace:*",
     "@red-cup-engineering/exact-order-book-service": "workspace:*",
@@ -61,7 +61,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/computer-services-section.git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
     "directory": "services/blockchain-services-section/services/hive-engineering-services-section/services/hive-blockchain-client-service"
   }
 }

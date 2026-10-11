@@ -10,7 +10,7 @@ import { roles } from "../listening/understanding/semantics/roles.mjs";
 import { polarity } from "../listening/understanding/semantics/polarity.mjs";
 import { temporal } from "../listening/understanding/semantics/tense.mjs";
 import { witnessedReading } from "@red-cup-engineering/signchain/bilattice";
-import { readingFamilies } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingFamilies } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 const english = load(rawBundle);
 
 /** A clause's evidence from its polarity reading, witnessed by the text it was read from. */

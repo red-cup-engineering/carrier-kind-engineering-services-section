@@ -3,17 +3,20 @@
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { lazyOperation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 
 /** What a node's Claude Code harness is projected from. A session reaches this node's own MetroPlat
- *  server over streamable HTTP, authenticating as the node's machine client through a helper that
- *  runs once per connection and again on a 401; no process is started per session or per event, and
+ *  server over streamable HTTP, signed in as its harness character's own password principal through a
+ *  helper that runs once per connection and again on a 401 (the lifecycle hook alone still uses the
+ *  node's machine client); no process is started per session or per event, and
  *  no lifecycle hooks are projected (the harness keeps its own transcripts). The standing
  *  instructions are the repository's AGENTS.md, the one instruction file every agent reads. */
 async function claudeHarnessHost(binding) {
   const { agencyRootOf, repositoryRootOf } = await import("@red-cup-engineering/metroplat/offices");
   const { credentialPath } = await import("@red-cup-engineering/credential-custody-service/keep");
-  // The machine client's secret is a credential of the host's store, rendered into CREDENTIALS_DIRECTORY.
+  const { agencyAt } = await import("@red-cup-engineering/organizing/agency/held");
+  // The machine client (the lifecycle hook's) secret is a credential of the host's store, rendered into CREDENTIALS_DIRECTORY.
   const clientEnvironment = () => process.env.METROPLAT_NODE_CLIENT_ENV ?? credentialPath("bare-cedar-fog.561.group-mcp-client.env");
   // A session names the server by the origin it declares as its protected resource: a client
   // checks the resource metadata against the URL it connected to, so the bind address fails.
@@ -23,13 +26,23 @@ async function claudeHarnessHost(binding) {
     if (!process.env.PORT) throw new Error("claude-harness-project needs this server's PORT (or METROPLAT_NODE_MCP_URL) to point sessions at it");
     return `http://${process.env.HOST ?? "127.0.0.1"}:${process.env.PORT}/mcp`;
   };
-  const tokenHelper = (url) => [
-    `set -a; . ${JSON.stringify(clientEnvironment())}; set +a;`,
-    `curl -sf -m 8 -X POST ${JSON.stringify(url.replace(/\/mcp$/u, "/oauth/token"))}`,
-    `--data-urlencode grant_type=client_credentials --data-urlencode "client_id=$MCP_CLIENT_ID"`,
-    `--data-urlencode "client_secret=$MCP_CLIENT_SECRET" --data-urlencode "resource=$MCP_ORIGIN/mcp"`,
-    // The session names itself when the harness tells its helper its id, so its hand outlives reconnects.
-    `| jq -c --arg s "\${CLAUDE_CODE_SESSION_ID:-}" '{Authorization: ("Bearer " + .access_token)} + (if $s == "" then {} else {"X-Harness-Session": $s} end)'`,
+  // The session signs in as its harness character's own password principal, not as the node's machine
+  // client and not as the founder: the helper reads the username from the character's metroplat
+  // sign-in organ and the password from the host credentials (claude-harness.env), drives the node's
+  // password sign-in and PKCE flow, and keeps the access token under the user's runtime directory.
+  // It prints the session's id too when the harness tells it, so the session's hand outlives reconnects.
+  const signInEnvironment = () => process.env.METROPLAT_CLAUDE_SIGN_IN_ENV ?? credentialPath("claude-harness.env");
+  const harnessCharacterId = () => {
+    const agency = agencyAt(agencyRootOf(binding));
+    const characters = [...agency.characters.values()].filter((c) => c.kind === "harness" && c.harness === "claude"
+      && (process.env.CREDENTIALS_HOST === undefined || c.host === process.env.CREDENTIALS_HOST));
+    if (characters.length !== 1) throw new Error(`claude-harness-project needs exactly one claude harness character on this host, found ${characters.length}`);
+    return characters[0].id;
+  };
+  const headersHelper = (url) => [
+    JSON.stringify(process.execPath), JSON.stringify(fileURLToPath(import.meta.resolve("@red-cup-engineering/agent-harness-computer-system-engineering-services-section/claude-code/mcp-headers"))),
+    "--url", JSON.stringify(url), "--agency-root", JSON.stringify(agencyRootOf(binding)),
+    "--character", JSON.stringify(harnessCharacterId()), "--credentials", JSON.stringify(signInEnvironment()),
   ].join(" ");
   // One harness event in on stdin, this node's answer out on stdout: the event is admitted as the
   // node's harness character, and a refusal answers nothing rather than landing in a session's context.
@@ -48,7 +61,7 @@ async function claudeHarnessHost(binding) {
     get repoRoot() { return repositoryRootOf(binding); },
     dataRoot: binding.dataRoot,
     get hookCommand() { return hookCommand(mcpUrl()); },
-    mcpServers: () => { const url = mcpUrl(); return { metroplat: { type: "http", url, headersHelper: tokenHelper(url) } }; },
+    mcpServers: () => { const url = mcpUrl(); return { metroplat: { type: "http", url, headersHelper: headersHelper(url) } }; },
     standing: () => "@../AGENTS.md",
     // The host declaration (FELTOS_ENTERPRISE_HOST) holds this host's harness policy; without one the
     // projection's own default deny list stands.

@@ -5,7 +5,7 @@ import {
 
 } from "@red-cup-engineering/computer-system-engine/wire";
 
-import { parse, toEavt } from "@red-cup-engineering/eavt/row";
+import { parse, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { serializeLines } from "@red-cup-engineering/jsonl-services-section";
 
 export * from "@red-cup-engineering/computer-system-engine/wire";

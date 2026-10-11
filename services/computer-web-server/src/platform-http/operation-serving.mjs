@@ -13,19 +13,19 @@ import { wellKnown } from "@red-cup-engineering/http-services-section/well-known
 import { induceSurface } from "@red-cup-engineering/computer-system-engine/rpc/induce";
 import { wireCodec, wireByMediaType, WIRE_CODEC_NAMES } from "@red-cup-engineering/computer-system-engine/wire";
 import { actionByMcpToolName, actionMcpPrompts, actionMcpResources, actionMcpToolsWithEndpoints, actionOpenApi } from "@red-cup-engineering/computer-system-engine/rpc/apex";
-import { sseFrame, sseHeaders } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
-import { isCompressible } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/media-type";
+import { sseFrame, sseHeaders } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
+import { isCompressible } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/media-type";
 import { leqK } from "@red-cup-engineering/computer-content-engineering-services-section/typed-resource-classification";
 import { negotiateType } from "@red-cup-engineering/http-services-section/negotiation";
 import { encodeFrame, acceptKey, FrameDecoder } from "@red-cup-engineering/code-websocket-frame-service";
 const isReadingInKnowledge = (name) => isReading(name, "knowledge");
 import { claim, conflicts, judge, sessionRegime, openSession } from "@red-cup-engineering/relating/running/session";
-import { eavtId } from "@red-cup-engineering/eavt/row";
+import { eavtId } from "@red-cup-engineering/eavt-services-section/row";
 import { jsonRepr } from "@red-cup-engineering/http-services-section/representation";
 import { mediaTypeCorner } from "@red-cup-engineering/computer-web-server/platform-http/codec/negotiation/media-type";
 import { exchangeClaim } from "@red-cup-engineering/computer-web-server/platform-http/claim-sessions/ws-session";
 import { negotiateRepresentation } from "@red-cup-engineering/computer-web-server/platform-http/codec/negotiation/representation";
-import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** Write one routed response ({ status, type, body, headers? }) to a Node response. */
 export function send(response, routed) {

@@ -9,7 +9,7 @@
 
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import {
   agentEventChronicleContract,
   agentEventChronicleSchema,
@@ -19,7 +19,7 @@ import {
   otlpTracesContract,
   otlpTracesSchema,
 } from "./otlp-schema.mjs";
-import { eavtKey, eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtKey, eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 
 export {

@@ -10,7 +10,7 @@ import test from "node:test";
 import { journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { capabilityGrant, grantAssertion } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
 import { admitCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
-import { parseSseStream } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { parseSseStream } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 import { inferenceProviderOperation } from "@red-cup-engineering/feltos/agents/inference/rpc";
 import { encounterExecutionControl } from "@red-cup-engineering/feltos/encounter/control";
 

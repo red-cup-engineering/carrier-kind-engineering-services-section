@@ -37,7 +37,7 @@ export function recordFounding(options = {}) {
     provider: ACTOR,
     recordedAt,
     built: {
-      packageName: "@red-cup-engineering/ebook-production-services-section",
+      packageName: "@red-cup-engineering/ebook-engineering-services-section",
       publishedVersion: "0.1.6",
       seatRationale:
         "pandoc-services-section's own README states its scope is codec conversion, explicitly not release to an audience surface; ebook production (multi-chapter assembly, cover art, deterministic build record, EPUB+PDF release) is the natural sibling book document-genre package, seated beside pandoc-services-section and articles-services-section under documents-services-section.",
@@ -81,7 +81,7 @@ export function recordFounding(options = {}) {
     recordedAt,
     record,
     told: { for: true, against: false },
-    relation: { subject: ACTOR, predicate: "founds", object: "@red-cup-engineering/ebook-production-services-section" },
+    relation: { subject: ACTOR, predicate: "founds", object: "@red-cup-engineering/ebook-engineering-services-section" },
   });
 }
 

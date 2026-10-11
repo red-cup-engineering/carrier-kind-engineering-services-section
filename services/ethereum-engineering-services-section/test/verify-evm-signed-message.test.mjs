@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { generateAccount, signMessage } from "@red-cup-engineering/cryptographic-data-service/evm";
+import { generateAccount, signMessage } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/evm";
 import { verifyEvmSignedMessage } from "../scripts/verify-evm-signed-message.mjs";
 
 // Throwaway accounts generated fresh per test run through the house

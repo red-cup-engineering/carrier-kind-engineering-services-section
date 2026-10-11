@@ -771,6 +771,20 @@ export function validateDeterministicExecution(value) {
   throw new TypeError("deterministic execution requires a supported exact acceptance gate");
 }
 
+export function evaluateDeterministicAcceptance(acceptance, receipt) {
+  if (acceptance?.kind === "command-exit-status" && Number.isInteger(acceptance.status)) {
+    return receipt?.result?.status === acceptance.status
+      ? Object.freeze({ accepted: true })
+      : Object.freeze({ accepted: false, reason: "command-exit-status-mismatch" });
+  }
+  if (acceptance?.kind === "exact-stdout" && typeof acceptance.stdout === "string") {
+    return receipt?.result?.status === 0 && receipt?.result?.stdout === acceptance.stdout
+      ? Object.freeze({ accepted: true })
+      : Object.freeze({ accepted: false, reason: "exact-stdout-mismatch" });
+  }
+  return Object.freeze({ accepted: false, reason: "unsupported-acceptance-gate" });
+}
+
 /** How much of an untyped result its error quotes, so the order's completer reads what was made. */
 const RETURNED_EXCERPT = 280;
 

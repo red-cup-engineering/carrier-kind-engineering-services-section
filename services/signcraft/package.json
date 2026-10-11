@@ -27,9 +27,12 @@
     "./page": "./src/page.mjs",
     "./settlement-signature": "./src/settlement-signature.mjs",
     "./history": "./src/history.mjs",
-    "./sql-history-store": "./src/sql-history-store.mjs",
     "./membrane": "./src/membrane.mjs",
-    "./primitives": "./src/primitives.mjs"
+    "./primitives": "./src/primitives.mjs",
+    "./content-history-store": "./src/content-history-store.mjs",
+    "./file-history-store": "./src/file-history-store.mjs",
+    "./key-value-history-store": "./src/key-value-history-store.mjs",
+    "./historical-history": "./src/historical-history.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/signcell": "workspace:*",
@@ -38,15 +41,17 @@
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/metrologic": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/html-structural-projection-service": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
   },
   "devDependencies": {
     "@red-cup-engineering/javascript-node-services-section": "workspace:*"
   },
   "scripts": {
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "test:legacy-sql": "node --test qualification/legacy-sql/*.test.mjs"
   }
 }

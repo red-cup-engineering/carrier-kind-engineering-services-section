@@ -2,7 +2,7 @@
  * Provider-neutral token-usage journal material: EAVT statement rows for a
  * token-usage event or summary. Ported from MetroPlat's
  * `src/integrations/token-usage/persistence.mts`. `toEavt` here is the same
- * plain `[e, a, v, t]` row shape `@red-cup-engineering/eavt` carries — a
+ * plain `[e, a, v, t]` row shape `@red-cup-engineering/eavt-services-section` carries — a
  * caller already holding that package's rows can pass them straight into
  * whatever journal it writes to.
  */

@@ -1,3 +1,4 @@
+import { Worker } from "node:worker_threads";
 import {createProgrammeCustody} from "@red-cup-engineering/feltos/program-custody";
 import {agentOfIdentity} from '@red-cup-engineering/feltos/identity';
 import {agentCardOfAgent,A2A_PROTOCOL_VERSION} from '@red-cup-engineering/feltos/capabilities';
@@ -6,7 +7,7 @@ import {createOperationCatalog} from '@red-cup-engineering/computer-system-engin
 import {describe} from '@red-cup-engineering/computer-system-engine/rpc/describe';
 import {agencyAt} from '@red-cup-engineering/metroplat/offices';
 import {defaultFilesystemBinding} from '@red-cup-engineering/computer-system-engine/rpc/binding';
-import { hostedWorkIntentAdmission, hostedWorkOpening } from "./federated-work.mjs";
+import { admitWorkPeerGrants, deliverOrHold, heldDeliveryResponse, hostedWorkIntentAdmission, hostedWorkOpening, signedRequestActor, workPeersOf } from "./federated-work.mjs";
 import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -22,18 +23,21 @@ import { processAdmittedActorRequest, actorPaymentMetadata } from '@red-cup-engi
 import { agentSenMessage } from '@red-cup-engineering/a2a-services-section/sen-part';
 import { deliverActivity } from '@red-cup-engineering/activitypub-services-section';
 import { reconcileDeclaredSchedules, runClockHeartbeat } from "@red-cup-engineering/organizing/work/recurring";
+import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
+import { processLeaseCoordinator } from "@red-cup-engineering/computer-system-engine/rpc/coordination";
 import { parseEnvFileText } from "@red-cup-engineering/key-management-services-section/env-file";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
 import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
-import { systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse } from "@red-cup-engineering/computer-system-engine/rpc/node";
-import { mergeSettlementTransfer, settlementHoldings } from "@red-cup-engineering/computer-system-engine/journal/exchange";
+import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse, SETTLEMENT_EXCHANGE_PATHS } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { mergeSettlementTransfer, settlementHoldings, settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
 import { createEnterpriseEntrance } from "./entrance.mjs";
-import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment } from "./activitypub-node.mjs";
+import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment, heldArrival } from "./activitypub-node.mjs";
 import { enterpriseWebConfig } from "./instance-config.mjs";
 import { installedEnterpriseWeb } from "./installed-web.mjs";
 import { enterpriseOperationRuntime } from "./enterprise-runtime.mjs";
 import { EnterpriseExecutionWorker } from "./enterprise-execution.mjs";
 import { linkLiveModules } from "./probe-link.mjs";
+import { startNativeActorService, nativeActorReadiness } from "./native-actor-service.mjs";
 
 export function metroplatEnvironment(config) {
   return {
@@ -98,16 +102,22 @@ function clockConfiguration(environment, declaredClock) {
   return Object.freeze({ subject, intervalMs });
 }
 
+export function companionListenOptions(companion, settings = {}, environment = {}) {
+  const host = settings.HOST ?? companion.host ?? environment.HOST ?? "127.0.0.1";
+  const port = Number(settings.PORT ?? companion.port);
+  if (typeof host !== "string" || host.trim() === "") throw new TypeError("Enterprise host companion host must be a nonempty string");
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) throw new TypeError("Enterprise host companion port must be an integer from 1 to 65535");
+  return Object.freeze({ host, port });
+}
+
 async function startCompanion(companion, environment) {
   const file = environment[companion.environmentFileKey]?.trim();
   if (!file) return Object.freeze({ skipped: true, close: async () => undefined });
   const settings = parseEnvFileText(readFileSync(file, "utf8"));
   const app = await companion.factory(settings);
-  const service = await startNativeApplication(app, {
-    host: settings.HOST ?? "127.0.0.1",
-    port: Number(settings.PORT ?? companion.port),
-  });
-  process.stderr.write(`[feltos-enterprise-host] companion ${companion.module} on ${settings.HOST ?? "127.0.0.1"}:${service.port}\n`);
+  const listen = companionListenOptions(companion, settings, environment);
+  const service = await startNativeApplication(app, listen);
+  process.stderr.write(`[feltos-enterprise-host] companion ${companion.module} on ${listen.host}:${service.port}\n`);
   return service;
 }
 
@@ -164,7 +174,7 @@ export async function activityPubProvider(config, environment, {operationSurface
   const actorPayments=new Map();
   const onActivity=createActivityPubNodeArrivalHandler({
     dataRoot:config.metroplatDataRoot,rootName:config.instance.name,origin:config.activityPub.origin,actors,resolveActor:currentActor,
-    workPeerActor:config.workPeerActor,agencyRoot:config.agencyRoot,host:node??config.instance.name,
+    agencyRoot:config.agencyRoot,host:node??config.instance.name,
     executeRequest:async ({event,authenticatedActor,admission,recipient,recipientActor})=>{
       if(typeof operationSurface!=="function")throw new TypeError("actor requests need the installed operation surface");
       if(recipientActor.character!==undefined)throw new TypeError("a character inbox receives messages; invoke its offering enterprise actor");
@@ -182,12 +192,22 @@ export async function activityPubProvider(config, environment, {operationSurface
       const activity=projectSenActivity({type:"Accept",origin:config.activityPub.origin,identifier,recipient,
         objectBytes:bytes,a2aMessage:{...agentSenMessage(bytes),...(result.taskId===undefined?{}:{taskId:result.taskId}),metadata:actorPaymentMetadata(result)},
         agentCard:new URL('/.well-known/agent-card.json',config.activityPub.origin).href,eventTime:new Date().toISOString()});
-      return deliverActivity(activityPub.provider,{identifier,recipient,inbox,activity});
+      // A known-intermittent requester cannot be pushed to: its result is held for it to pull.
+      return deliverOrHold({config,provider:activityPub.provider,deliver:deliverActivity,request:{identifier,recipient,inbox,activity}});
     },
   });
   activityPub=await createLocalActivityPubProvider({environment,...config.activityPub,...(node===undefined?{}:{actors,dynamicActors:true,resolveActor:currentActor}),onActivity});
   const native=activityPub.provider;
-  const projected={...native,routeCapabilities:Object.freeze({...native.routeCapabilities,actorPrograms:typeof operationSurface==="function",programmeBytes:typeof operationSurface==="function",actorAgentCards:true}),fetch:async request=>{
+  const projected={...native,routeCapabilities:Object.freeze({...native.routeCapabilities,actorPrograms:typeof operationSurface==="function",programmeBytes:typeof operationSurface==="function",actorAgentCards:true}),
+  // An activity a known-intermittent node pulled from a peer enters as the arrival a push would have been.
+  admitHeld:async(jsonLd,{peer})=>{
+    const arrival=heldArrival({activity:jsonLd,peer,origin:config.activityPub.origin});
+    await activityPub.inbox?.retain?.(arrival);
+    return onActivity(arrival);
+  },
+  fetch:async request=>{
+    const held=await heldDeliveryResponse({config,request,signerOf:signed=>signedRequestActor(native,signed)});
+    if(held!==undefined)return held;
     if(programmes.matches(request.url)){
       if(typeof operationSurface==='function'){
         const surface=await operationSurface();await programmes.retain(surface.operations??surface.apex?.catalog.operations??surface.catalog?.operations);
@@ -221,22 +241,6 @@ export async function activityPubProvider(config, environment, {operationSurface
   return Object.freeze({...activityPub,provider:Object.freeze(projected)});
 }
 
-// Stop ingress before provider storage/queues. Always release the federation even if
-// another close fails; callers and the platform own this one composite lifetime.
-async function closeFederation({ activityPubProjection, activityPub, federation, queueAbort, queueWorker }) {
-  const failures = [];
-  for (const close of [
-    () => activityPubProjection?.close(),
-    async () => { queueAbort?.abort(); await queueWorker; },
-    () => activityPub?.close(),
-    () => federation.close(),
-  ]) {
-    try { await close(); }
-    catch (error) { failures.push(error); }
-  }
-  if (failures.length) throw new AggregateError(failures, "enterprise federation release failed");
-}
-
 /** Compose one already-admitted instance as a supervised capability platform. */
 const FEDERATION_HEALTH_MS = 2_000;
 
@@ -262,12 +266,19 @@ export function createEnterpriseServicePlatform({
     installed, config, environment,
     sourceWorkspaces: services.sourceWorkspaces,
     sourceReadResource: services.sourceReadResource,
-    activityPubProvider: () => platform.capabilities().federation?.activityPub?.provider,
-    activityPubInbox: () => platform.capabilities().federation?.activityPub?.inbox,
+    activityPubProvider: () => {
+      const actor = platform.capabilities()["native-actor"];
+      return actor?.state() === "running" ? actor.activityPub.provider : undefined;
+    },
+    activityPubInbox: () => {
+      const actor = platform.capabilities()["native-actor"];
+      return actor?.state() === "running" ? actor.activityPub.inbox : undefined;
+    },
     executeIsolatedWork: (request) => executionWorker.execute(request),
   });
   const schedules = runtime.schedules;
   const probe = probeOf(environment);
+  const requiresNativeActor = probe === undefined && config.activityPub !== undefined;
   let families;
   // A probe never runs the execution worker or the carriers, so it links them: the worker's own
   // module graph, and every carrier entry point (probe-link.mjs). A failure is a failed family.
@@ -283,7 +294,6 @@ export function createEnterpriseServicePlatform({
   // A probe runs none of it: the live node it stands beside owns the clock.
   const configuredClock = probe !== undefined ? undefined : clockConfiguration(environment, schedules.length === 0 ? undefined
     : Object.freeze({ subject: installed.identity.id, intervalMs: 30_000 }));
-  const clockStateRoot = path.join(config.stateDir, "clock");
   let entrance;
   let bootstrapFederation;
 
@@ -311,11 +321,13 @@ export function createEnterpriseServicePlatform({
       }
       // A probe whose families did not all load and link is not ready, whatever the supervisor says.
       const unloaded = probe !== undefined && (families === undefined || families.failed.length > 0);
-      const ok = !unloaded && (report.state === "ready" || report.state === "degraded");
+      const nativeActor = nativeActorReadiness(platform.capabilities()["native-actor"], requiresNativeActor);
+      const ok = !unloaded && nativeActor.ok && (report.state === "ready" || report.state === "degraded");
       return Response.json({
         ok,
         service: config.instance.name,
-        workPeerActor: config.workPeerActor ?? null,
+        workPeers: workPeersOf(config),
+        workPeerPresence: config.workPeerPresence ?? null,
         release: environment.GUIX_MACHINE_RELEASE_ID ?? null,
         releasePipeline: environment.GUIX_MACHINE_ARTIFACT ? "github-guix" : null,
         releaseProtocolVersion: environment.GUIX_MACHINE_ARTIFACT ? 1 : null,
@@ -335,7 +347,8 @@ export function createEnterpriseServicePlatform({
             return metadata.repositories.map(({repository,commit})=>({repository,commit,url:`https://github.com/${repository}/commit/${commit}`}));
           } catch { return null; }
         })(),
-        state: unloaded ? "unready" : report.state,
+        state: !nativeActor.ok ? "failed" : unloaded ? "unready" : report.state,
+        nativeActor,
         phases: report.providers,
         ...(probe === undefined ? {} : { probe: true, families }),
         ...(availability === undefined ? {} : { federation: availability }),
@@ -352,7 +365,7 @@ export function createEnterpriseServicePlatform({
     start: async () => {
       if (probe === undefined) reconcileDeclaredSchedules(runtime.binding, installed.identity.id, schedules);
       const host = await openHost({
-        dataRoot: config.metroplatDataRoot, clockStateRoot, environment,
+        dataRoot: config.metroplatDataRoot, environment,
         instancePath: config.instance.manifest, moduleBasePath: installed.web.hostPath,
         operationSources: runtime.operationSources,
         createWorkOptions: runtime.createWorkOptions,
@@ -372,7 +385,25 @@ export function createEnterpriseServicePlatform({
       }
       return host;
     },
-  }, {
+  }, ...(requiresNativeActor ? [{
+    // Local work admission is required. Remote MCP startup/retry never owns this actor.
+    name: "native-actor",
+    optional: false,
+    // Actor enumeration and local queue opening walk the installed agency. On the
+    // loaded Cold Red Gate host this exceeds the platform default 10s timeout;
+    // that deadline killed the required actor before HTTP ingress could start.
+    // Remain required/fail-closed, but use the same bounded 180s budget as MetroPlat.
+    startMs: 180_000,
+    start: (capabilities) => startNativeActorService({
+      open: () => createActivityPub(config, environment, {
+        operationSurface: capabilities["metroplat-host"].operationSurface, binding: runtime.binding,
+      }),
+      ...(config.activityPubProjection === undefined ? {} : {
+        project: (provider) => startApplication(activityPubApplication(provider), config.activityPubProjection),
+      }),
+    }),
+    close: (actor) => actor.close(),
+  }] : []), {
     name: "entrance",
     start: async (capabilities) => {
       bootstrapFederation = await federate(baseUpstreams(capabilities["metroplat-host"], config), {
@@ -380,6 +411,7 @@ export function createEnterpriseServicePlatform({
       });
       const initial = entranceFactory(config, {
         federation: bootstrapFederation,
+        activityPubProvider: capabilities["native-actor"]?.activityPub.provider,
         sessionCookiePrefix: installed.web.cookiePrefix ?? "metroplat",
         grantStoreProfile,
         applications: installed.applications,
@@ -424,44 +456,27 @@ export function createEnterpriseServicePlatform({
       for (const { prefix, reason } of federation.unavailable ?? []) {
         process.stderr.write(`[feltos-enterprise-host] ${prefix} unavailable: ${reason}\n`);
       }
-      let activityPub;
-      let activityPubProjection;
-      const queueAbort = new AbortController();
-      let queueWorker;
       try {
-        activityPub = probe === undefined ? await createActivityPub(config, environment, {operationSurface:capabilities["metroplat-host"].operationSurface,binding:runtime.binding}) : undefined;
-        if (config.activityPubProjection !== undefined && probe === undefined) {
-          // Same provider, finite canonical routes, separate loopback ingress.
-          // Binding precedes installation, so a failed bind cannot leave stale
-          // provider routes in the full entrance while supervision retries.
-          activityPubProjection = await startApplication(
-            activityPubApplication(activityPub?.provider), config.activityPubProjection,
-          );
-        }
         const full = entranceFactory(config, {
           federation,
-          activityPubProvider: activityPub?.provider,
+          activityPubProvider: capabilities["native-actor"]?.activityPub.provider,
           sessionCookiePrefix: installed.web.cookiePrefix ?? "metroplat",
           grantStoreProfile,
           applications: installed.applications,
           rootRoutes,
         });
         entrance.install(full.app);
-        if (activityPub) queueWorker = activityPub.provider.federation.startQueue(undefined, { signal: queueAbort.signal })
-          .catch((error) => {
-            if (!queueAbort.signal.aborted) process.stderr.write(`[feltos-enterprise-host] ActivityPub queue stopped: ${error?.message ?? error}\n`);
-          });
-        return Object.freeze({ federation, activityPub, activityPubProjection, queueAbort, queueWorker });
+        return Object.freeze({ federation });
       } catch (error) {
         entrance.reset();
-        try { await closeFederation({ activityPubProjection, activityPub, federation }); }
+        try { await federation.close(); }
         catch (cleanup) { throw new AggregateError([error, cleanup], "enterprise federation startup failed"); }
         throw error;
       }
     },
     close: async (capability) => {
       entrance.reset();
-      await closeFederation(capability);
+      await capability.federation.close();
     },
   }, ...(configuredClock === undefined ? [] : [{
     name: "enterprise-execution-worker",
@@ -474,11 +489,12 @@ export function createEnterpriseServicePlatform({
       const abort = new AbortController();
       const run = runClockHeartbeat(() => capabilities["metroplat-host"].operationSurface(), {
         ...configuredClock,
-        dataRoot: config.metroplatDataRoot,
-        clockStateRoot,
-        rootName: installed.identity.id,
+        // The clock's state root is the surface's binding (data/state/clock under the data root); the
+        // heartbeat reads it only through the surface, so it holds no root of its own.
+        witness: journalRpcWitness(config.metroplatDataRoot, { namespace: installed.identity.id }),
+        coordinate: processLeaseCoordinator(config.metroplatDataRoot),
         signal: abort.signal,
-        onObstruction: (result) => process.stderr.write(`[feltos-enterprise-host] clock tick was not admitted: ${result.stderr.trim()}\n`),
+        onObstruction: (obstruction) => process.stderr.write(`[feltos-enterprise-host] clock obstruction: ${JSON.stringify(obstruction)}\n`),
       }).catch((error) => process.stderr.write(`[feltos-enterprise-host] clock stopped: ${error instanceof Error ? error.message : String(error)}\n`));
       return Object.freeze({ close: async () => { abort.abort(); await run; } });
     },
@@ -491,20 +507,29 @@ export function createEnterpriseServicePlatform({
 
 /** One FeltOS host executable interprets its own host declaration and the selected MetroPlat instance. */
 export async function serveEnterpriseInstance({ hostPath, environment = process.env, requireTls = true, shutdown = {} } = {}) {
+  if (environment.GUIX_MACHINE_DEPLOYMENT_STATUS && environment.METROPLAT_PROBE !== "1") {
+    const diagnostic = new Worker(new URL("./startup-cpu-profile.mjs", import.meta.url), { workerData: { statusPath: environment.GUIX_MACHINE_DEPLOYMENT_STATUS } });
+    diagnostic.on("error", error => process.stderr.write(`[startup-cpu] ${error.message}\n`));
+    diagnostic.unref();
+  }
   if (typeof hostPath !== "string" || !hostPath) throw new TypeError("FELTOS_ENTERPRISE_HOST is required");
   const web = await installedEnterpriseWeb(hostPath);
   const instancePath = web.instancePath;
   const metroplat = await installedMetroplatInstance(instancePath, null, {}, hostPath);
   const installed = { ...metroplat, web };
   const config = enterpriseWebConfig(installed, instancePath, environment, { requireTls });
+  // Declared peers become grants in this node's own feed before anything is delivered or received;
+  // from then on a peer's authority is its standing there.
+  admitWorkPeerGrants({ dataRoot: config.metroplatDataRoot, rootName: config.instance.name, origin: config.publicBaseUrl,
+    issuer: config.peeringOffice, peers: config.workPeers, at: new Date().toISOString() });
   const node = systemNodeFromProcessEnvironment(environment);
   const nodeKey = systemNodeKeyFromProcessEnvironment(environment);
   if (node !== undefined && node.origin !== config.publicBaseUrl) throw new TypeError("System node origin differs from the instance origin");
   if (node !== undefined && nodeKey === undefined) throw new TypeError("A federating System node requires SYSTEM_NODE_KEY");
-  const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey);
+  const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey, fetch, { declaredKeys: systemNodeDeclaredPeerKeys(environment, node) });
   const settlementGrants = node === undefined ? undefined : systemSettlementFeedGrants(environment, node);
   const rootRoutes = node === undefined ? [] : [systemNodeResource(node)];
-  if (peering !== undefined) for (const pathname of ["/settlement/holdings", "/settlement/transfer"]) {
+  if (peering !== undefined) for (const pathname of SETTLEMENT_EXCHANGE_PATHS) {
     rootRoutes.push({
       id: `system${pathname.replaceAll("/", ".")}`,
       match: pathname,
@@ -516,6 +541,7 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
           feedLabelsFor: settlementGrants.labelsFor,
           holdings: (date, feedLabels) => settlementHoldings(config.metroplatDataRoot, date, { feedLabels }),
           merge: (transfer, feedLabels) => mergeSettlementTransfer(config.metroplatDataRoot, transfer, { feedLabels }),
+          transfer: (date, holdings, limit, feedLabels) => settlementTransfer(config.metroplatDataRoot, date, holdings, { limit, feedLabels }),
         });
         return Response.json(answer.value, { status: answer.status });
       },

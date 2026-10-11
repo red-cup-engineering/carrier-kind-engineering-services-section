@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto";
 import { setTrailerHeader, writeResponseTrailers } from "./trailers.mjs";
-import { contentRange, multipartByterangesBody, multipartRangeBoundary, parseRanges } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/byte-range";
-import { cacheControl } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cache-control";
-import { httpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
+import { contentRange, multipartByterangesBody, multipartRangeBoundary, parseRanges } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/byte-range";
+import { cacheControl } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cache-control";
+import { httpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
 import { ifMatch, ifModifiedSince, ifNoneMatch, ifRange, ifUnmodifiedSince } from "./conditional-request.mjs";
-import { isCompressible } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/media-type";
+import { isCompressible } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/media-type";
 import { negotiateEncoding } from "./negotiation.mjs";
-import { compress, supportedCompressionCodings } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
+import { compress, supportedCompressionCodings } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
 function strongEtag(data) {
     return `"${createHash("sha1").update(data).digest("hex")}"`;
 }

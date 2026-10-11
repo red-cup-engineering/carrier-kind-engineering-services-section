@@ -5,7 +5,7 @@
  * event. This service owns the filesystem append into data/journals.
  */
 import path from "node:path";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 
@@ -21,7 +21,7 @@ import { agentSessionTokenUsageFeed } from "@red-cup-engineering/computer-infere
 import { agentSessionTokenUsageStatementRows } from "@red-cup-engineering/computer-inference-engine/cost/token-usage/persistence";
 import { claudeSessionTokenUsageOfContent } from "@red-cup-engineering/computer-inference-engine/anthropic/token-usage";
 import { codexSessionTokenUsageOfContent } from "@red-cup-engineering/feltos/agents/sessions/codex/token-usage";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** Tool-input keys that name a target file, never carry its content. */
 const TARGET_FILE_PATH_KEYS = Object.freeze(["file_path", "notebook_path", "path", "filePath"]);

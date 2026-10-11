@@ -34,7 +34,7 @@ import { designReading, support, supportKeys } from "../design.mjs";
 import { interactionReport } from "../../strategizing/interaction.mjs";
 import { locusFromKey, locusKey } from "../locus.mjs";
 import { biorthogonalClosure, orthogonalOf } from "./behaviour.mjs";
-import { knowledgeLeqReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeLeqReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** Same membership key as `behaviour.mjs` (private there) â€” additive-safe local copy. */
 const designKey = (d        )         =>

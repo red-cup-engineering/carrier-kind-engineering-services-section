@@ -1,5 +1,5 @@
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 import { admitCloudEventArrival, arrivalDispatchClaimFromCloudEvent, arrivalReceiptWithAdmission, ARRIVAL_ADMISSION_TERM, ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { } from "@red-cup-engineering/json-services-section";
@@ -8,9 +8,9 @@ import { arrivalUtteranceFromCloudEvent, cloudEventContract } from "@red-cup-eng
 import { writeFileAtomic } from "@red-cup-engineering/computer-system-engine/filesystem";
 import { openJournal, journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { journalAppendAddress } from "@red-cup-engineering/computer-system-engine/journal/filesystem/operations";
-import { statementValue } from "@red-cup-engineering/eavt/statement";
+import { statementValue } from "@red-cup-engineering/eavt-services-section/statement";
 import { address, utteranceCell } from "@red-cup-engineering/signcell/cell";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** An uttered claim's reflexive SignCell and its address. */
 const utteredCell = (token, claim) => { const told = utteranceCell(token, claim); return Object.freeze({ cell: told, address: address(told) }); };

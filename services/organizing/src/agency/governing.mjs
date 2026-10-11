@@ -244,7 +244,7 @@ export function seatingOf(agency, enterprise, officeRef, winner, { at } = {}) {
 }
 
 /**
- * The act entries founding an office: the office record, the duty it bears, the work that duty is
+ * The act entries founding an office: the office record and the duty carrying the work it is
  * owed toward (each in the enterprise's own section, the office reporting to its line office), and the
  * enterprise's own record listing it. The skill is one the registry already holds: founding an
  * office conveys no verb the house has not already described.
@@ -257,6 +257,8 @@ export function foundingOf(agency, enterprise, { office, duty, work, skill }) {
   const section = enterprise.sectionPath;
   const workId = work?.id ?? office.id;
   const dutyId = duty?.id ?? office.id;
+  const rank = office.rank;
+  let reporting = line;
   if (office.rank !== undefined) {
     if (!["senior", "junior"].includes(office.rank)) fail("a section service officer is senior or junior");
     if (office.verifies !== undefined) fail("verifier and section officer are distinct forms");
@@ -293,7 +295,8 @@ export function foundingOf(agency, enterprise, { office, duty, work, skill }) {
   }
   const officeRecord = {
     id: office.id, name: office.name, kind: "office",
-    "reports-to": resolve(agency, "offices", line.id, section)?.key === line.key ? line.id : line.key,
+    "reports-to": resolve(agency, "offices", reporting.id, section)?.key === reporting.key ? reporting.id : reporting.key,
+    ...(rank === undefined ? {} : { rank }),
     jurisdiction: line.jurisdiction,
     "bears-duty": [dutyId], "provides-skill": [skillRecord.id],
     "deontic-profile": { [workId]: "duty" },
@@ -304,15 +307,12 @@ export function foundingOf(agency, enterprise, { office, duty, work, skill }) {
   const dutyRecord = {
     id: dutyId, name: duty?.name ?? office.name, authority: line.id, claim: line.id, work: workId,
     skills: [skillRecord.id], delegation: true,
+    from: work.from, to: work.to, cost: work.cost, needs: [skillRecord.id],
+    ...(work.otherwise === undefined ? {} : { otherwise: work.otherwise }),
     ...(duty?.["receiver-condition"] === undefined ? {} : { "receiver-condition": duty["receiver-condition"] }),
-  };
-  const workRecord = {
-    id: workId, name: work?.name ?? office.name, from: work.from, to: work.to, cost: work.cost,
-    needs: [skillRecord.id], ...(work.otherwise === undefined ? {} : { otherwise: work.otherwise }),
   };
   const listed = strings(enterprise.authored.offices);
   return Object.freeze([
-    Object.freeze({ pool: "works", id: workId, section, expectedRevision: resolve(agency, "works", `${section}#${workId}`)?.revision ?? null, record: workRecord }),
     Object.freeze({ pool: "duties", id: dutyId, section, expectedRevision: resolve(agency, "duties", `${section}#${dutyId}`)?.revision ?? null, record: dutyRecord }),
     Object.freeze({ pool: "offices", id: office.id, section, expectedRevision: agency.offices.get(`${section}#${office.id}`)?.revision ?? null, record: officeRecord }),
     Object.freeze({

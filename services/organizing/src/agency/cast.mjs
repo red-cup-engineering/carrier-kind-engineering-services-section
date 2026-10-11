@@ -22,7 +22,7 @@ import { locus, locusKey } from "@red-cup-engineering/playing/structuring/concur
 import { accountabilityOf } from "./control.mjs";
 import { houseSectionOf } from "../enterprise/work-arena.mjs";
 import { agencyKey, bearersHandedBy, bodiesOf, bodyMembers, bodyOf, canonicalPlayer, headsOf, officeReading, resolve, seatOf } from "./index.mjs";
-import { BODY_KINDS } from "./kinds.mjs";
+import { BODY_KINDS, recordedPlayerOf } from "./kinds.mjs";
 import { bodyNatural, carrierSource, embodiedPlayers, organsOf } from "./organs.mjs";
 
 const named = (record, ref) => ref === record.id || ref === record.key || ref === record.name;
@@ -262,13 +262,7 @@ function maskAmong(agency, held, subject, as, sections) {
  *   No agency is read, so `agency` may be undefined.
  */
 export function playerOfAct(agency, act = {}) {
-  if ("player" in act) {
-    const { player } = act;
-    if (player === undefined || player === null) return undefined;
-    const told = (value) => typeof value === "string" && value.trim() !== "";
-    if (!told(player.by)) throw new TypeError("a recorded player names the mask it was played as");
-    return Object.freeze({ by: player.by, ...(told(player.bearer) ? { bearer: player.bearer } : {}), ...(told(player.hand) ? { hand: player.hand } : {}) });
-  }
+  if ("player" in act) return recordedPlayerOf(act.player);
   const { invocation, decision, held, as, sections = [] } = act;
   const subject = subjectOf(invocation);
   if (typeof subject !== "string" || subject === "") return undefined;

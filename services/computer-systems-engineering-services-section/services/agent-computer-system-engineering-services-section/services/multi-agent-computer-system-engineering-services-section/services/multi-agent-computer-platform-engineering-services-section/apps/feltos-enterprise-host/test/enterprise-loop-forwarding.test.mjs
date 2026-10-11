@@ -23,7 +23,7 @@ async function turnWith({ port }) {
   mkdirSync(agencyRoot, { recursive: true });
   const binding = defaultFilesystemBinding(join(dir, "root"));
   const delivered = [];
-  const config = { instance: { name: "bare" }, publicBaseUrl: "https://bare.example", agencyRoot, workPeerActor: "https://cold.example/actors/metroplat", activityPub: { instanceActor: { identifier: "metroplat" } } };
+  const config = { instance: { name: "bare" }, publicBaseUrl: "https://bare.example", agencyRoot, workPeers: [{ actor: "https://cold.example/actors/metroplat" }], activityPub: { instanceActor: { identifier: "metroplat" } } };
   // The host's own telling port forwards a coordinated move to the node its thread is home on.
   const tell = hostedWorkTelling({ config, binding, provider: () => ({}), host: "bare-cedar-fog", enterprises: () => ENTERPRISES, deliver: async (_provider, delivery) => { delivered.push(delivery); } });
   const board = workBoardStore(binding, { homes: HOMES });
@@ -41,7 +41,7 @@ test("an enterprise loop's coordinated move on a thread homed elsewhere is forwa
     assert.equal(run.home, "cold-red-gate");
     assert.equal(run.turned.derived[0].settled, 1);
     assert.equal(run.delivered.length, 1, "one forward went to the peer");
-    assert.equal(run.delivered[0].recipient, run.config.workPeerActor);
+    assert.equal(run.delivered[0].recipient, run.config.workPeers[0].actor);
     assert.equal(run.standing(), "open", "not played here: this node is not the home");
   } finally { rmSync(run.dir, { recursive: true, force: true }); }
 });

@@ -17,7 +17,7 @@
  * carry $\bot$.
  */
 import { locusKey, locusFromKey, root } from "./locus.mjs";
-import { samePoint } from "@red-cup-engineering/computer-data-services-section/four";
+import { samePoint } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const ACT_TO_CHARGE = {
   proponent: "potential",

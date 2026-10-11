@@ -1,4 +1,4 @@
-import { sseCommentFrame, sseFrame, sseHeaders } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { sseCommentFrame, sseFrame, sseHeaders } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 export function sse(req, res, onClose) {
     res.writeHead(200, sseHeaders());
     res.flushHeaders?.();

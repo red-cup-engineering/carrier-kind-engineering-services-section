@@ -1,5 +1,5 @@
-import { parseHttpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
-import { firstHeader } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/header-value";
+import { parseHttpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
+import { firstHeader } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/header-value";
 export function etagList(value) {
     const raw = Array.isArray(value) ? value.join(",") : String(value);
     return raw.split(",").map((etag)=>etag.trim()).filter(Boolean);

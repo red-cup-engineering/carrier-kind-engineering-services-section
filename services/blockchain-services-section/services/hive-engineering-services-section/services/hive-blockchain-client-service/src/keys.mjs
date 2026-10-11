@@ -3,9 +3,9 @@
 // wraps the 33-byte compressed point (encoded as PREFIX + base58, RIPEMD-160 checksum).
 import { encode } from "@red-cup-engineering/base58-encoding-service";
 import { decode } from "@red-cup-engineering/base58-encoding-service";
-import { sha256, sha256d, ripemd160 } from "@red-cup-engineering/cryptographic-data-service/hash";
-import { N, getPublicKey } from "@red-cup-engineering/cryptographic-data-service/secp256k1";
-import { sign } from "@red-cup-engineering/cryptographic-data-service/secp256k1";
+import { sha256, sha256d, ripemd160 } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/hash";
+import { N, getPublicKey } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/secp256k1";
+import { sign } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/secp256k1";
 
 const WIF_VERSION_BYTE = 0x80;
 

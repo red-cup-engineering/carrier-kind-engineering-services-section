@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { access, appendFile, mkdir, open, readFile } from "node:fs/promises";
 import path from "node:path";
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export function oneTimeSessionTokenDigest(token) {
   return `sha256:${sha256Base64Url(token)}`;

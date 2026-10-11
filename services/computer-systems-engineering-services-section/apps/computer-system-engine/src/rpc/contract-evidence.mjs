@@ -2,7 +2,7 @@
 
 import { openJournal, journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { programContractEvidenceContract } from "./contract.mjs";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 function isEvidence(value) {
   return programContractEvidenceContract.validate(value);

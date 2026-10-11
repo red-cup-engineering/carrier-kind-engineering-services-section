@@ -107,14 +107,14 @@
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computing": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "0.18.3",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/tex-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "scripts": {
     "check": "for f in $(find src -name '*.mjs'); do node --check \"$f\" || exit 1; done",

@@ -61,7 +61,7 @@ import { isDirectoryManifest } from "@red-cup-engineering/metroplat/resources/di
 import { cornerOf, rungOf } from "@red-cup-engineering/computer-content-engineering-services-section/typed-resource-classification";
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { isArtifactAct, artifactAddressTyping, artifactActTier } from "@red-cup-engineering/computer-system-engine/addressing/path-term";
-import { parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt/data-artifact-address";
+import { parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { feedTokenFamilyMember } from "@red-cup-engineering/feltos/agents/addressing/feed-token";
 import { openJournal, journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import {
@@ -79,7 +79,7 @@ import {
   runVersoWorkspaceCommand,
 } from "@red-cup-engineering/feltos/lean/tex/workspace-service";
 import { readTexWorkspace } from "@red-cup-engineering/lean-system-services-section/tex/workspace-service";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** An uttered claim's reflexive SignCell and its address. */
 const utteredCell = (token, claim) => { const told = utteranceCell(token, claim); return Object.freeze({ cell: told, address: address(told) }); };

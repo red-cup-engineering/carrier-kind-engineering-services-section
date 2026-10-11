@@ -4,7 +4,5 @@
   "private": true,
   "type": "module",
   "description": "Circuit board whose independently contractible software-development dies are seated under services/; the board owns no aggregate runtime.",
-  "exports": {
-    "./lib/management/skills/enforcing-mesh-scope/scripts/mesh-scope.js": "./lib/management/skills/enforcing-mesh-scope/scripts/mesh-scope.js"
-  }
+  "exports": {}
 }

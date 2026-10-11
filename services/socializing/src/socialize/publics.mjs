@@ -17,7 +17,7 @@ import { coordinationCurrency } from "./currency.mjs";
 import { commonKnowledge } from "./epistemics.mjs";
 import { comparisonEdges } from "./field.mjs";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const THEORY = Object.freeze({
   publicSphere: "a public is an addressed audience whose issue becomes common knowledge",

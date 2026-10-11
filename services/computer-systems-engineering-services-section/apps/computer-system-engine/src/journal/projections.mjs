@@ -1,17 +1,17 @@
 // Journal-derived filesystem projection functions.
 // Callers import projection legs here so journal can stay the durable append/read substrate instead of the public projection surface.
-import { dataArtifactHandlePath, projectDataArtifactPath, dataStoreFromRecordPath } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataArtifactHandlePath, projectDataArtifactPath, dataStoreFromRecordPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { writeFileAtomic } from "@red-cup-engineering/computer-system-engine/filesystem";
 import { observeJournalOperation, journalContentArtifact, journalObservation, journalRecordArtifact, journalStateArtifact } from "@red-cup-engineering/computer-system-engine/journal/filesystem/operations";
 import { feedResponseCollector, feedResponseFromProjection } from "@red-cup-engineering/http-services-section/statement-log-stream";
-import { projectContentDocuments } from "@red-cup-engineering/eavt/ledger/content";
-import { statementIdentity } from "@red-cup-engineering/eavt/statement";
+import { projectContentDocuments } from "@red-cup-engineering/eavt-services-section/ledger/content";
+import { statementIdentity } from "@red-cup-engineering/eavt-services-section/statement";
 import { parse } from "@red-cup-engineering/json-services-section";
 import { mementoDatetimeSelector, mementoStateAtCollector, mementoTimeMapCollector } from "@red-cup-engineering/http-services-section/memento-datetime";
-import { foldStateAccumRow, initialStateAccum, closeStateAccum } from "@red-cup-engineering/eavt/ledger/state-fold";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { foldStateAccumRow, initialStateAccum, closeStateAccum } from "@red-cup-engineering/eavt-services-section/ledger/state-fold";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 
 /** Project a durable source log artifact into a lensed SSE feed response. */

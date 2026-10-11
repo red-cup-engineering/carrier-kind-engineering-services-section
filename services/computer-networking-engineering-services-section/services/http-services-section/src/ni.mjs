@@ -5,7 +5,7 @@
  * immutable content custody, asked in order. Content never changes under its name, so the
  * answer is cacheable forever and its ETag is the name.
  */
-import { parseRange, contentRange } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/byte-range";
+import { parseRange, contentRange } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/byte-range";
 import { NI_WELL_KNOWN_PREFIX, niUriOfWellKnownPath } from "@red-cup-engineering/uri-services-section/ni-uri";
 
 export function niResource(contents, { id = "ni-well-known", cacheControl = "private, max-age=31536000, immutable" } = {}) {

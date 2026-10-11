@@ -51,10 +51,58 @@
             "type": "object"
           }
         },
+        "workPeerHealth": {
+          "description": "Optional health contracts for separately admitted work peers. A declaration grants no work authority. The existing catch-up observes only selected, held peers; /healthz is fixed on the actor's HTTPS origin.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "actor",
+              "kind",
+              "service"
+            ],
+            "properties": {
+              "actor": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://[^/?#@]+/actors/[a-z0-9][a-z0-9._-]*$",
+                "description": "A unique canonical HTTPS instance actor, without credentials, query, or fragment; the loader also checks URL canonical form."
+              },
+              "kind": {
+                "const": "metroplat-supervised-health"
+              },
+              "service": {
+                "type": "string",
+                "pattern": "\\S"
+              }
+            }
+          }
+        },
         "companions": {
           "type": "array",
           "items": {
             "type": "object"
+          }
+        },
+        "presence": {
+          "description": "This node is continuous unless declared known-intermittent, in which case it pulls held deliveries on catch-up.",
+          "enum": [
+            "continuous",
+            "known-intermittent"
+          ]
+        },
+        "peerPresences": {
+          "description": "Presence of separately identified peer actors. It admits no work peer or grant.",
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^https://[^/?#@]+/actors/[a-z0-9][a-z0-9._-]*$"
+          },
+          "additionalProperties": {
+            "enum": [
+              "continuous",
+              "known-intermittent"
+            ]
           }
         }
       }

@@ -10,7 +10,7 @@ import { codexNodeOptions } from "@red-cup-engineering/agent-harness-computer-sy
 import { claudeCodeAgencyWorkProvider, officeAgentDefinition } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/claude-code/agency-work";
 import { antigravityAgencyWorkProvider } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/antigravity/agency-work";
 import { BOUNDED_INFERENCE_SERVICE_MODEL } from "@red-cup-engineering/computer-inference-engine/dispatch/inference-work-lot-source";
-import { recordAcceptedWorkInferenceOutcome } from "@red-cup-engineering/computer-inference-engine/dispatch/accepted-work-outcome";
+import { workInferenceCoordinate } from "@red-cup-engineering/computer-inference-engine/dispatch/work-inference-coordinate";
 import { allowanceLedgerPath, readAllowanceLedger } from "@red-cup-engineering/computer-inference-engine/media/allowance-ledger";
 import { subscriptionAllowance } from "@red-cup-engineering/computer-inference-engine/media/subscription-allowances";
 import { selectInferenceSource } from "@red-cup-engineering/computer-inference-engine/dispatch/source-selection";
@@ -28,15 +28,16 @@ import { capabilityGrant, grantAssertion } from "@red-cup-engineering/computer-n
 import { firmPoolAuthorityResolver } from "@red-cup-engineering/metroplat/firm-pool-authority";
 import { agencyAt, admitCharacterMasks, admitHarnessCarriers, coordinatingOffice, coordinatingOfficeSession, currentHarnessCarrier, currentHarnessCarriers, delegatingOffice, harnessModelCharacterResolver, isMaskedCharacter, officeServiceSession, officesOfAccount, providerDelegationOffices, providersOfAccount } from "@red-cup-engineering/metroplat/offices";
 import { resolve } from "@red-cup-engineering/organizing/agency";
+import { addressFrom, estateRootOf, houseReference, houseResolver, reciprocates } from "@red-cup-engineering/organizing/agency/houses";
 import { workResultProposalByReceipt } from "@red-cup-engineering/feltos/work/work-result-proposal";
 import { admitWorkDischargeWithProposal, resolveWorkDischarge, workResultReceivingBySession } from "@red-cup-engineering/feltos/work/work-discharge";
 import { bestStaffing, joinStandings, thompsonDraw } from "@red-cup-engineering/organizing/work/staffing";
-import { outcomeJournal, outcomeOf, outcomeStandingIndexOf, perishablePrice, pricedCostOf, proposalResources, readStandingIndex, resourcePricesAt, resourcePricesIndexOf } from "@red-cup-engineering/organizing/enterprise";
+import { outcomeStandingIndexOf, perishablePrice, pricedCostOf, readStandingIndex, resourcePricesAt, resourcePricesIndexOf } from "@red-cup-engineering/organizing/enterprise";
 import { carrierStandingOfQueue } from "@red-cup-engineering/feltos/work/allocation-control";
 import { processIsoNow } from "@red-cup-engineering/node-process-services-section/clock";
 import { inferenceReceivingCarrier, directEndpointReceivingTransport } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/carrier/inference-receiving-carrier";
 import { loadDirectEndpointProviderDescriptors } from "@red-cup-engineering/computer-inference-engine/dispatch/direct-endpoint-provider";
-import { modelFamily, rankReceivers, receivedOutcomeFields } from "./receiver-independence.mjs";
+import { modelFamily, rankReceivers, recordReceivedOutcome } from "./receiver-independence.mjs";
 import { publicationPlanForHostedOutcome } from "./publication-plan-resource.mjs";
 
 function positiveInteger(value, name) {
@@ -78,13 +79,27 @@ export function servedOfficesOf(agency, serves = []) {
 
 /** The offices a character's carrier may serve when it is bounded to its reach: the offices the
  *  character holds or its deployment declares it serves (a carrier that holds no seat serves by
- *  allocation, so its reach is what the host declares for it), and every office those preside over. */
-export function officeReach(binding, agency, character, serves = []) {
+ *  allocation, so its reach is what the host declares for it), and every office those preside over.
+ *  An office in another house (`<house-section-path>#<id>`, resolved through that house's mounted
+ *  pool) joins only when its own record names the edge back: `reports-to` the presiding office, or
+ *  `served-by` an office the character holds. Without that it resolves and is shown
+ *  (organizing/agency/houses crossHouseEdges) but grants nothing. */
+export function officeReach(binding, agency, character, serves = [], { estateRoot = agency?.root ? estateRootOf(agency.root) : undefined } = {}) {
   const reach = new Set();
-  const pending = [
-    ...officesOfAccount(binding, character, agency).map(({ office }) => office),
-    ...servedOfficesOf(agency, serves),
-  ];
+  const held = officesOfAccount(binding, character, agency).map(({ office }) => office);
+  const pending = [...held, ...servedOfficesOf(agency, serves)];
+  // An office in another house joins the reach only when that house's own record names the edge back:
+  // one house never grants itself standing over another's offices on its own say-so (organizing/agency/houses).
+  const across = estateRoot ? houseResolver(estateRoot) : undefined;
+  const crossHouse = (ref, fromSectionPath, kind, granters) => {
+    if (!across || houseReference(ref) === undefined || resolve(agency, "offices", ref, fromSectionPath) !== undefined) return;
+    const reading = across(agency, "offices", ref, fromSectionPath);
+    if (reading.reading !== "resolved" || reading.house === null) return;
+    // Keyed by the full cross-house address, section included, so same-id offices in different sections of one house never collide.
+    const at = reading.record.sectionPath ? `${reading.house}/${reading.record.sectionPath}#${reading.record.id}` : `${reading.house}#${reading.record.id}`;
+    if (granters.some((record) => record && reciprocates(reading.record, kind, addressFrom(estateRoot, agency, record)))) reach.add(at);
+  };
+  for (const entry of serves) crossHouse(entry, "", "serves", held.map((key) => agency.offices.get(key)));
   while (pending.length > 0) {
     const key = pending.pop();
     if (reach.has(key)) continue;
@@ -93,6 +108,7 @@ export function officeReach(binding, agency, character, serves = []) {
     for (const ref of record?.presidesOver ?? []) {
       const presided = resolve(agency, "offices", ref, record.sectionPath)?.key;
       if (presided !== undefined) pending.push(presided);
+      else crossHouse(ref, record.sectionPath, "presides-over", [record]);
     }
   }
   return reach;
@@ -264,12 +280,9 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
   }));
 }
 
-// One outcome journal per root (organizing/enterprise/outcomes), told into without reading it: a
-// received result's outcome is unique by its receipt, so the day's segment admits it once. Staffing
-// reads the carrier standing the acceptance readout folds from the journal (its standing index), at
-// most once a minute, never the journal itself.
-const outcomeJournals = new Map();
-const outcomeJournalOf = (root) => outcomeJournals.get(root) ?? outcomeJournals.set(root, outcomeJournal(root, { dedupe: "day" })).get(root);
+// Staffing reads the carrier standing the acceptance readout folds from the journal (its standing
+// index), at most once a minute, never the journal itself. Receiving is recorded by the shared
+// receiver-independence outcome function after the real admission boundary.
 const standingIndexes = new Map();
 function journalStandingOf(environment) {
   const path = outcomeStandingIndexOf({ environment });
@@ -428,7 +441,7 @@ export function enterpriseAgencyWorkOptions({
       admitCharacterMasks({ dataRoot, date: at.slice(0, 10), masks: [{ kind: "metroplat.character-mask", account: `session:${session.id}`, character: workerId, reading: "held", issuer: identity.id, at }] });
     }
     executeInferredWork = async (item) => ({ ...await executeAgencyWorkProvider(item, {
-      surface: operationSurface(), dataRoot: owning.dataRoot, rootName, workerId, provider: configured.provider, enterprise,
+      surface: operationSurface(), dataRoot: owning.dataRoot, capabilityDataRoot: binding.dataRoot, rootName, workerId, provider: configured.provider, enterprise,
       model: workerModel, inference, now: processIsoNow, agentBounds: AGENT_WORKER_BOUNDS,
       // Its acts are played by the hand the host admits: the standing session, told as a mask of the worker.
       session: session.id,
@@ -520,10 +533,6 @@ export function enterpriseAgencyWorkOptions({
   const hostedCharacter = character => !hosts(character) ? character : {
     ...character, capabilities: surfaceVerbs(),
   };
-  const onAcceptedWork = workerId === undefined || !environment.EXPECTED_RESOLUTION_PRICING_ROOT ? undefined
-    : ({ proposal, discharge }) => recordAcceptedWorkInferenceOutcome({
-      proposal, discharge, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
-    });
   // Receiving is the power to admit a work discharge. The host admits the receiver's judgement
   // into the root that owns the proposal, as it admits execution's proposal there: every
   // micro-enterprise's work is received in its own root. Any carrier whose character holds an
@@ -534,13 +543,23 @@ export function enterpriseAgencyWorkOptions({
   // What every register other than the queue's own receipts judged of each carrier's work (arena
   // assays, editors, the inference market), joined into allocation's and receiving's staffing.
   const readCarrierStanding = () => journalStandingOf(environment);
-  // Every received result is a judgment of delivered work, told once as an outcome in the node's
+  // Every received report carries its exact result and independent verdict into the node's
   // journal: its receiving office judged the work its origin office delivered, carried by the
   // origin's model. A failure to tell never undoes the receipt.
   const tellReceivedOutcome = ({ proposal, discharge, office, at }) => {
     try {
-      if (proposal?.origin?.office === undefined || discharge.result?.kind !== "skill-result") return;
-      outcomeJournalOf(binding.dataRoot).record(outcomeOf({ ...receivedOutcomeFields({ proposal, discharge, office, at }), resources: proposalResources(proposal) }));
+      if (proposal?.origin?.office === undefined) return;
+      // The delivery coordinate is optional provenance. An unavailable pricing
+      // record must not prevent telling the independently received native outcome.
+      let market;
+      try {
+        market = workInferenceCoordinate({
+          proposal, pricingRoot: environment.EXPECTED_RESOLUTION_PRICING_ROOT, workProvider: workerId,
+        });
+      } catch (error) {
+        console.error("[work-discharge] inference coordinate remains unlinked:", error instanceof Error ? error.message : String(error));
+      }
+      recordReceivedOutcome({ dataRoot: binding.dataRoot, proposal, discharge, office, at, market });
     } catch (error) {
       console.error("[work-discharge] outcome remains untold:", error instanceof Error ? error.message : String(error));
     }
@@ -568,7 +587,7 @@ export function enterpriseAgencyWorkOptions({
     return (read?.queue ?? []).filter(item => item.reasons?.includes("result-awaiting-receipt") && item.execution?.receipt !== undefined).flatMap(item => {
       // A receipt is read in the causal subject that recorded it: the execution's, not the duty's derived subject.
       const proposal = workResultProposalByReceipt(owningBinding, item.execution.receipt, item.execution.subject ?? item.subject);
-      if (proposal.origin === undefined || proposal.result.kind !== "skill-result") return [];
+      if (proposal.origin === undefined) return [];
       const qualified = receiversOf.filter(receiver => receiver.office !== proposal.origin.office && receiver.receivesFrom.includes(proposal.origin.office));
       if (qualified.length === 0) return [];
       // Most independent first (receiver-independence.mjs), then cheapest; a receiver that cannot take the receipt
@@ -597,8 +616,6 @@ export function enterpriseAgencyWorkOptions({
     const prior = (session) => workResultReceivingBySession(owning, review.proposal, { ...receiver, session });
     const outcome = await carrier.adapter.receive(review);
     if (outcome.session === undefined) throw new TypeError("independent receiving ended without an observed native session");
-    const already = prior(outcome.session.id);
-    if (already !== undefined) return { ...already, task: outcome.task, usage: outcome.usage };
     if (outcome.judgement === undefined) throw new TypeError(`independent receiving returned no typed judgement (${outcome.task}, exit ${outcome.exitCode}${outcome.errors?.length ? `: ${outcome.errors.join("; ")}` : ""})`);
     // A receiver that could not inspect the evidence judged nothing: no discharge is admitted, the
     // work stays awaiting receipt, and the carrier's next attempt receives it again.
@@ -614,12 +631,8 @@ export function enterpriseAgencyWorkOptions({
     const receiverAuthorization = authorizeWorkDischargeReceiver({ receiver: carrier.workerId, office: review.office,
       session: outcome.session.id, model: outcome.session.model, invocation,
       scope: discharge.scope, operation: receivingVerb, at });
-    const { proposal } = admitWorkDischargeWithProposal(owning, discharge, { at: at.slice(0, 10), receiverAuthorization });
-    tellReceivedOutcome({ proposal, discharge, office: review.office, at });
-    if (onAcceptedWork !== undefined && discharge.result.kind === "skill-result" && discharge.decision !== "rejected") {
-      try { await onAcceptedWork({ proposal, discharge }); }
-      catch (error) { console.error("[work-discharge] derived inference outcome remains unrecorded:", error instanceof Error ? error.message : String(error)); }
-    }
+    const { proposal, receiving } = admitWorkDischargeWithProposal(owning, discharge, { at: at.slice(0, 10), receivedAt: at, receiverAuthorization });
+    tellReceivedOutcome({ proposal, discharge, office: receiving.office, at: receiving.at });
     const received = prior(outcome.session.id);
     if (received === undefined) throw new TypeError(`independent receiving recorded no native admission (${outcome.task})`);
     return { ...received, task: outcome.task, usage: outcome.usage };
@@ -706,7 +719,7 @@ export function enterpriseAgencyWorkOptions({
       finally { await carrier.adapter.release(lease); }
     },
     ...(authorizeWorkDischargeReceiver === undefined ? {} : { authorizeWorkDischargeReceiver }),
-    ...(onAcceptedWork === undefined ? {} : { onAcceptedWork }),
+    onWorkDischarged: tellReceivedOutcome,
     agencyWorkProviders,
     // Carriers expose a cross-process atomic provider reservation. Other
     // adapters keep the existing same-carrier admission gate until they do.
@@ -729,10 +742,10 @@ export function enterpriseAgencyWorkOptions({
       return recordHostedSession(item, await carrier.adapter.recover(item));
     },
     providersOfSubject: (subject) => providersOfAccount(binding, subject),
-    // A tick takes every ready item admitted capacity allows; only an explicit
-    // operator allocation cuts it.
-    ...(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK === undefined || environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK.trim() === "" ? {}
-      : { agencyWorkPumpMaxPerTick: positiveInteger(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK, "METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK") }),
+    // Pump within admitted capacity to quiescence, bounded to 32 attempts per
+    // tick by default. An explicit positive operator limit changes that bound.
+    agencyWorkPumpMaxPerTick: environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK === undefined || environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK.trim() === ""
+      ? 32 : positiveInteger(environment.METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK, "METROPLAT_AGENCY_WORK_PUMP_MAX_PER_TICK"),
     ...(executeAgencyWork === undefined ? {} : { executeAgencyWork }),
   });
 }

@@ -6,7 +6,7 @@
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 
 /**
  * @param {{source: string, destination: string}} directories the science section's

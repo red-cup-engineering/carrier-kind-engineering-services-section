@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { semanticDigest } from "@red-cup-engineering/base-pre-sign-policy-service";
-import { sha256Digest } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Digest } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const read = (path) => JSON.parse(readFileSync(join(ROOT, path), "utf8"));
@@ -57,7 +57,7 @@ function formation() {
   const manifest = foundingManifest(), manifestDigest = semanticDigest("blockchain-trashpanda.founding-manifest", manifest);
   const receiptPath = "data/formation/receiver-induction-receipt.json";
   const receipt = has(receiptPath) ? read(receiptPath) : null;
-  const held = pkg.name === "@red-cup-engineering/blockchain-trashpanda" && charter["issued-to"] === office.id
+  const held = pkg.name === "@red-cup-engineering/blockchain-trashpanda-services-section" && charter["issued-to"] === office.id
     && character.kind === "session" && incumbency.office === office.id && incumbency.holder === character.id
     && incumbency.recognition === "t" && incumbency.induction === "t" && micro.bundle === work.id
     && contentValid(receipt) && exactKeys(receipt, ["id", "type", "contract", "receiver", "customer", "provider", "allocationId", "idempotencyKey", "nodeId", "targetRoot", "manifestDigest", "installation", "createOnly", "overwrite", "priorTargetAbsent", "postState", "rollback", "lifecycle", "resourceReceipt", "recordedAt"])

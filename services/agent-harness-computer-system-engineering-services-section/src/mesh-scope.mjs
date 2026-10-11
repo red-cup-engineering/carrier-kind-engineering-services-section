@@ -20,7 +20,7 @@
 
 import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const INSTALLERS = new Set(["claude", "codex"]);
 const OPERATIONS = new Set(["list", "install", "reinstall", "clean"]);

@@ -1,7 +1,7 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { renderJsonSchemaModule } from "@red-cup-engineering/javascript-node-code-fabrication-services-section/transform-json-schema-to-typescript";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { softwareWorkIdentity, witnessSoftwareWork } from "../software-change.mjs";
 import { nearestSoftwareOwner } from "./owner-declaration.mjs";
 import { concludeSoftwareWork, proposeSoftwareWork, readSoftwareWorkProposal } from "./work-journal.mjs";
@@ -74,7 +74,7 @@ export async function generateSemanticCarriersWork({ specificationsDir, outFile,
   if (write && check) throw new TypeError("write and check are distinct actions");
   const owner = await generationOwner(specificationsDir, outFile);
   const normalized = { specificationsDir, outFile, actor, owner,
-    schemaTypeImport: schemaTypeImport ?? "@red-cup-engineering/computer-data-services-section/type-system/schema-type" };
+    schemaTypeImport: schemaTypeImport ?? "@red-cup-engineering/computer-data-engineering-services-section/type-system/schema-type" };
   const intent = intentOf(normalized);
   const work = softwareWorkIdentity(intent);
   const projected = await projection(normalized.specificationsDir, normalized.outFile, normalized.schemaTypeImport);

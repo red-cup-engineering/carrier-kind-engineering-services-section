@@ -41,11 +41,11 @@ import {
 import { readThroughDateEvents, readThroughTerritoryEvents } from "./filesystem/territory-cache.mjs";
 import { causalGraphOf, topologicalOrder } from "@red-cup-engineering/semiotic-eavt-services-section/journal/causal-graph";
 import { journalAppendAddress, journalLogArtifact } from "./filesystem/operations/index.mjs";
-import { dataArtifactHandlePath, dataTierDirectory, mementoStateArtifactPath, parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt/data-artifact-address";
+import { dataArtifactHandlePath, dataTierDirectory, mementoStateArtifactPath, parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 
 import { parse } from "@red-cup-engineering/json-services-section";
 import { journalDirectoryOf, settlementRootOf } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 function artifactOf(handle) {
   return typeof handle === "object" && handle !== null && "artifact" in handle
@@ -379,9 +379,23 @@ export const journal = Object.freeze({
     throughDate,
     initial,
     fold,
+    { withSource = false } = {},
   ) {
     const paths = causalSubjectLogPathsInternal(root, subject, throughDate);
-    const scanned = scanCausalEvents(paths.flatMap((logPath) => readRowEvents(logPath)), initial, fold);
+    const sourceByWitness = withSource ? new Map() : undefined;
+    const events = paths.flatMap(logPath => {
+      const events = readRowEvents(logPath);
+      if (sourceByWitness !== undefined) for (const event of events) {
+        const prior = sourceByWitness.get(event.id);
+        // Old releases could copy an identical witness into a later partition. Its
+        // first admitted partition, not that replay, bounds the original date.
+        if (prior === undefined || logPath < prior) sourceByWitness.set(event.id, logPath);
+      }
+      return events;
+    });
+    const scanned = scanCausalEvents(events, initial, withSource
+      ? (state, row, event) => fold(state, row, event, sourceByWitness.get(event.id))
+      : fold);
     return Object.freeze({ ...scanned, feeds: paths.length });
   },
 

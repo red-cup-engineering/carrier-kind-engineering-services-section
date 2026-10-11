@@ -10,8 +10,8 @@
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { canonical } from "@red-cup-engineering/json-services-section";
-import { cell } from "@red-cup-engineering/eavt/ledger/cells";
-import { projectStateView } from "@red-cup-engineering/eavt/ledger/state";
+import { cell } from "@red-cup-engineering/eavt-services-section/ledger/cells";
+import { projectStateView } from "@red-cup-engineering/eavt-services-section/ledger/state";
 
 const positiveIntegerSchema = { type: "integer", minimum: 1 };
 const nonnegativeIntegerSchema = { type: "integer", minimum: 0 };

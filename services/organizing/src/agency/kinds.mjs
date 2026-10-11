@@ -68,3 +68,12 @@ export const BODY_KINDS = Object.freeze({
   /** A polity: a charter and investiture; its members hold its seated offices at dignitas. */
   polity: Object.freeze({ recognizes: "offices", seeds: [], plays: true, face: "head", decides: "charter", rule: "head", authority: "rational-legal", fromRecords: true }),
 });
+
+/** The recorded player value, without consulting an authored registry or granting
+ * a bearer authority. Shared by act reading and content-addressed outcomes. */
+export function recordedPlayerOf(player) {
+  if (player === undefined || player === null) return undefined;
+  const told = (value) => typeof value === "string" && value.trim() !== "";
+  if (!told(player.by)) throw new TypeError("a recorded player names the mask it was played as");
+  return Object.freeze({ by: player.by, ...(told(player.bearer) ? { bearer: player.bearer } : {}), ...(told(player.hand) ? { hand: player.hand } : {}) });
+}

@@ -1,12 +1,10 @@
 {
   "name": "@red-cup-engineering/solidity-services-section",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
-  "description": "Circuit board for Solidity-specific software-development services.",
+  "description": "Solidity-specific software-development services.",
   "scripts": {
     "check": "node --check services/search-path-for-relations/src/search-solidity-path-for-relations.mjs && node --check services/search-path-for-relations/scripts/search-path-for-relations.mjs",
-    "test": "node --test services/search-path-for-relations/test/*.test.mjs",
-    "verify": "npm run check && npm test"
+    "test": "node --test services/search-path-for-relations/test/*.test.mjs"
   }
 }

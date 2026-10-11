@@ -1,4 +1,4 @@
-import { evaluateMarketActionAdmission } from "@red-cup-engineering/blockchain-trashpanda/market-action-admission";
+import { evaluateMarketActionAdmission } from "@red-cup-engineering/blockchain-trashpanda-services-section/market-action-admission";
 
 export const VIRTUALS_MARKET_ACTION_OFFERING_NAME = "market_action_admission_v1";
 export const VIRTUALS_MARKET_ACTION_PRICE = "0.05";

@@ -166,6 +166,44 @@ export function mcpToolCatalogTransport(
   });
 }
 
+function mcpLooseNameKey(name) {
+  return name.replace(/[-_]/gu, "-");
+}
+
+/**
+ * Assay the exact MCP `tools/list` -> `tools/call` name transport.
+ *
+ * Near-miss diagnostics are evidence only and are never aliases: transport identity is exact name
+ * equality, so a deployment that advertises `foo_bar` while dispatching only `foo-bar` is
+ * obstructed rather than silently rewritten.
+ */
+export function assayMcpCatalogDispatch(projection, callableTools) {
+  const transport = mcpToolCatalogTransport(projection, callableTools);
+  const callableNames = callableTools.map(callableToolName);
+  const nearMisses = [];
+  for (const advertised of transport.missing) {
+    const key = mcpLooseNameKey(advertised);
+    for (const callable of callableNames) {
+      if (callable !== advertised && mcpLooseNameKey(callable) === key) {
+        nearMisses.push(Object.freeze({ advertised, callable, relation: "underscore-hyphen-normalization" }));
+      }
+    }
+  }
+  const ok = transport.missing.length === 0;
+  return Object.freeze({
+    kind: ok ? "metroplat.mcp.catalog-dispatch:witness" : "metroplat.mcp.catalog-dispatch-obstruction",
+    ok,
+    transport,
+    nearMisses: Object.freeze(nearMisses),
+    evidence: Object.freeze([
+      `advertised:${projection.tools.length}`,
+      `bound:${transport.bound.length}`,
+      `missing:${transport.missing.length}`,
+      `near-misses:${nearMisses.length}`,
+    ]),
+  });
+}
+
 function projectMcpCatalogTool(tool) {
   return Object.freeze({
     kind: "metroplat.mcp.catalog-tool",

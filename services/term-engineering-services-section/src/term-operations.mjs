@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { admitTermMarkdown, readTermMarkdown, recognizeTermMarkdown, renderTermMarkdown } from "./term-carrier.mjs";
 
 export async function readTerm(path) {

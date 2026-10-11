@@ -4,7 +4,7 @@
 // {id, ok, value} or {id, ok: false, error}. Invents and ports nothing of its own domain logic —
 // every verb is a direct call to a function its --verbs module already publishes.
 //
-// Generalized from @red-cup-engineering/eavt's former standalone stdio worker script (itself
+// Generalized from @red-cup-engineering/eavt-services-section's former standalone stdio worker script (itself
 // split out of computer-deployment-engine's former composite worker script on 2026-09-22), so
 // this is the only stdio verb loop in the tree: every owner that used to hand-roll its own loop,
 // or compose itself into someone else's, now just exports a plain verbs module for this server to
@@ -47,8 +47,8 @@
 //                                    maintain.
 
 import { createInterface } from "node:readline";
-import { defineType, collectTypeSystem, admit } from "@red-cup-engineering/computer-data-services-section/type-system";
-import { typeSystemDocument } from "@red-cup-engineering/computer-data-services-section/type-system/document";
+import { defineType, collectTypeSystem, admit } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
+import { typeSystemDocument } from "@red-cup-engineering/computer-data-engineering-services-section/type-system/document";
 import { REFUSAL_SCHEMA } from "../src/verb-refusal-schema.mjs";
 
 // Re-exported for convenience (this is the path most of the tree already imported it from, back

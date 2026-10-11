@@ -27,7 +27,7 @@ import {
   runMarkdownFileWorkbench,
 
 } from "./markdown.mjs";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 const arc42SadWorkbenchRequestSchema = {
   $id: "metroplat/filesystem/arc42-sad-workbench-request",

@@ -8,9 +8,9 @@
 // frames — coordination-free, the same CALM property the log itself has. Pure: no
 // I/O (the caller reads the log via ./store and binds the HTTP response).
 
-import { sseFrame, sseHeaders } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { sseFrame, sseHeaders } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 
-import { eavtKey } from "@red-cup-engineering/eavt/row";
+import { eavtKey } from "@red-cup-engineering/eavt-services-section/row";
 
 /** The SSE event name carrying one recorded EAVT row. */
 export const EAVT_EVENT = "datom";

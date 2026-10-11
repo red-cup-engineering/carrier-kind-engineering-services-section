@@ -1,6 +1,13 @@
 import { existsSync } from "node:fs";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 
+/**
+ * How present a work peer is. A continuous peer answers whenever it is asked, so a delivery it does
+ * not take has failed. A known-intermittent peer (a colony in an ephemeral cloud environment, say) is
+ * away as a matter of course, so a delivery that could not reach it is held, not failed.
+ */
+export const WORK_PEER_PRESENCES = Object.freeze(["continuous", "known-intermittent"]);
+
 const present = (value) => typeof value === "string" && value.trim() ? value.trim() : undefined;
 const required = (value, name) => {
   const result = present(value);
@@ -22,6 +29,21 @@ export function publicOrigin(value, { requireTls = true } = {}) {
   }
   if (requireTls && url.protocol !== "https:") throw new TypeError("PUBLIC_BASE_URL must use https");
   return url.origin;
+}
+
+/**
+ * Google sign-in is all-or-none, as ActivityPub is. A node with no Google client still admits its
+ * password, Hive and machine principals: a colony whose origin no Google client has registered
+ * (one that lives in an ephemeral cloud environment, say) is not thereby unable to start.
+ */
+function googleSignIn(environment) {
+  const clientId = present(environment.GOOGLE_CLIENT_ID);
+  const clientSecret = present(environment.GOOGLE_CLIENT_SECRET);
+  if (clientId === undefined && clientSecret === undefined) return undefined;
+  const missing = [["GOOGLE_CLIENT_ID", clientId], ["GOOGLE_CLIENT_SECRET", clientSecret]]
+    .filter(([, value]) => value === undefined).map(([name]) => name);
+  if (missing.length) throw new TypeError(`Google sign-in configuration is all-or-none; missing ${missing.join(", ")}`);
+  return Object.freeze({ clientId, clientSecret });
 }
 
 const AP_KEYS = ["ACTIVITYPUB_ORIGIN", "ACTIVITYPUB_IDENTIFIER", "ACTIVITYPUB_ACTOR_NAME", "ACTIVITYPUB_ACTOR_SUMMARY", "ACTIVITYPUB_KEYS_PATH"];
@@ -82,6 +104,64 @@ function defaultPath(repository, value, name) {
   return resolve(repository, value);
 }
 
+const WORK_MOVES = Object.freeze(["opening", "telling", "decision", "forward", "refusal"]);
+
+/**
+ * The peers this node is configured with, as the grants its peering office admits to each: an
+ * instance actor and the work moves the pair agrees (all of them unless named). These are admitted
+ * into the node's capability-assertions feed at start and authority is read from there; nothing
+ * here is compared with a sender. The single `METROPLAT_WORK_PEER_ACTOR` (deployed under the alias
+ * `GROUP_PEER_ACTOR`) is read only as such a declaration, so a node migrating from it admits its
+ * peer's grants; once they are admitted the setting can be removed from the environment.
+ */
+function workPeersDeclared(web, legacyActor, origin, activityPubConfig) {
+  if (web.workPeers !== undefined && !Array.isArray(web.workPeers)) throw new TypeError("Enterprise host web workPeers must be an array");
+  const declared = [...(web.workPeers ?? []), ...[legacyActor ?? web.workPeerActor].filter((actor) => actor !== undefined).map((actor) => ({ actor }))];
+  if (web.peeringOffice !== undefined && (typeof web.peeringOffice !== "string" || web.peeringOffice.trim() === "")) {
+    throw new TypeError("Enterprise host web peeringOffice must name the office that holds peering authority");
+  }
+  const peers = new Map();
+  for (const entry of declared) {
+    const peer = new URL(typeof entry?.actor === "string" ? entry.actor : "invalid:");
+    if (peer.protocol !== "https:" || peer.username || peer.password || peer.search || peer.hash
+      || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(peer.pathname) || peer.origin === origin
+      || activityPubConfig?.instanceActor?.identifier === undefined) {
+      throw new TypeError("a work peer requires a different HTTPS instance actor and a local instance actor");
+    }
+    const moves = entry.moves ?? WORK_MOVES;
+    if (!Array.isArray(moves) || moves.length === 0 || moves.some((move) => !WORK_MOVES.includes(move))) {
+      throw new TypeError(`work peer ${peer.href} moves must name some of ${WORK_MOVES.join(", ")}`);
+    }
+    peers.set(peer.href, [...new Set([...(peers.get(peer.href) ?? []), ...moves])]);
+  }
+  return Object.freeze([...peers].map(([actor, moves]) => Object.freeze({ actor, moves: Object.freeze(moves) })));
+}
+
+/**
+ * How present each peer actor is, beside the work peers' shared presence: a map from an HTTPS actor
+ * to one of `WORK_PEER_PRESENCES`. Declaring a peer known-intermittent here grants it nothing: it
+ * only says that what this node addresses to that actor is held for it to pull, not pushed
+ * (`federated-work.mjs` `deliverOrHold`), and that it may pull what is held for it.
+ */
+function peerPresencesDeclared(web) {
+  if (web.peerPresences === undefined) return Object.freeze({});
+  if (web.peerPresences === null || typeof web.peerPresences !== "object" || Array.isArray(web.peerPresences)) {
+    throw new TypeError("Enterprise host web peerPresences must map peer actors to a presence");
+  }
+  const presences = {};
+  for (const [actor, presence] of Object.entries(web.peerPresences)) {
+    const peer = new URL(/^https:\/\//u.test(actor) ? actor : "invalid:");
+    if (peer.username || peer.password || peer.search || peer.hash || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(peer.pathname)) {
+      throw new TypeError(`Enterprise host web peerPresences names ${actor}, which is not an HTTPS actor`);
+    }
+    if (!WORK_PEER_PRESENCES.includes(presence)) {
+      throw new TypeError(`Enterprise host web peerPresences ${actor} must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+    }
+    presences[peer.href] = presence;
+  }
+  return Object.freeze(presences);
+}
+
 /** The process consumes deployment settings and admitted instance data. No organization path or tool is built in. */
 export function enterpriseWebConfig(installed, instancePath, environment = process.env, { requireTls = true } = {}) {
   const setting = (name) => present(environment[name] ?? environment[installed.web.environmentAliases?.[name]]);
@@ -95,8 +175,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     throw new TypeError("MetroPlat instance origin differs from PUBLIC_BASE_URL");
   }
   const stateDir = resolve(required(setting("METROPLAT_WEB_STATE_DIR"), "METROPLAT_WEB_STATE_DIR"));
-  const googleClientId = required(environment.GOOGLE_CLIENT_ID, "GOOGLE_CLIENT_ID for MetroPlat Google sign-in");
-  const googleClientSecret = required(environment.GOOGLE_CLIENT_SECRET, "GOOGLE_CLIENT_SECRET for MetroPlat Google sign-in");
+  const google = googleSignIn(environment);
   const defaults = installed.web.defaultPaths ?? {};
   const pathSetting = (key, fallback, base = repository) => {
     const value = setting(key);
@@ -118,16 +197,22 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
   const host = present(environment.HOST) ?? "127.0.0.1";
   const port = Number(present(environment.PORT) ?? "18807");
   const projection = activityPubProjection(environment, host, port, activityPubConfig, origin);
-  const peerSetting = setting("METROPLAT_WORK_PEER_ACTOR") ?? installed.web.workPeerActor;
-  let workPeerActor;
-  if (peerSetting !== undefined) {
-    const peer = new URL(peerSetting);
-    if (peer.protocol !== "https:" || peer.username || peer.password || peer.search || peer.hash
-      || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(peer.pathname) || peer.origin === origin
-      || activityPubConfig?.instanceActor?.identifier === undefined) {
-      throw new TypeError("METROPLAT_WORK_PEER_ACTOR requires a different HTTPS instance actor and a local instance actor");
-    }
-    workPeerActor = peer.href;
+  const workPeers = workPeersDeclared(installed.web, setting("METROPLAT_WORK_PEER_ACTOR"), origin, activityPubConfig);
+  const workPeerPresence = setting("METROPLAT_WORK_PEER_PRESENCE") ?? installed.web.workPeerPresence ?? "continuous";
+  if (!WORK_PEER_PRESENCES.includes(workPeerPresence)) {
+    throw new TypeError(`METROPLAT_WORK_PEER_PRESENCE must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+  }
+  // This node's own presence: a known-intermittent node (a colony in an ephemeral cloud environment)
+  // cannot be pushed to, so it pulls what its peers hold for it whenever it runs its catch-up.
+  const presence = setting("METROPLAT_PRESENCE") ?? installed.web.presence ?? "continuous";
+  if (!WORK_PEER_PRESENCES.includes(presence)) {
+    throw new TypeError(`METROPLAT_PRESENCE must be one of ${WORK_PEER_PRESENCES.join(", ")}`);
+  }
+  const peerPresences = peerPresencesDeclared(installed.web);
+  const suspicionSetting = setting("METROPLAT_WORK_PEER_SUSPICION_SECONDS") ?? installed.web.workPeerSuspicionSeconds;
+  const workPeerSuspicionSeconds = suspicionSetting === undefined ? undefined : Number(suspicionSetting);
+  if (workPeerSuspicionSeconds !== undefined && !(Number.isInteger(workPeerSuspicionSeconds) && workPeerSuspicionSeconds > 0)) {
+    throw new TypeError("METROPLAT_WORK_PEER_SUSPICION_SECONDS must be a positive whole number of seconds");
   }
   return Object.freeze({
     instance: Object.freeze({
@@ -142,7 +227,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     stateDir,
     sessionSecret: required(environment.SESSION_SECRET, "SESSION_SECRET"),
     allowedEmail: setting("METROPLAT_ALLOWED_EMAIL")?.toLowerCase(),
-    google: Object.freeze({ clientId: googleClientId, clientSecret: googleClientSecret }),
+    google,
     dataDir: present(setting("METROPLAT_WEB_DATA_DIR")) === undefined ? undefined : resolve(setting("METROPLAT_WEB_DATA_DIR")),
     metroplatSubject: present(setting("METROPLAT_MCP_SUBJECT")) ?? installed.identity.id,
     metroplatCapabilities: installed.capabilities ?? Object.freeze([]),
@@ -155,7 +240,12 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     upstreams: Object.freeze(upstreams),
     activityPub: activityPubConfig,
     activityPubProjection: projection,
-    workPeerActor,
+    workPeers,
+    workPeerHealth: installed.web.workPeerHealth,
+    peeringOffice: installed.web.peeringOffice ?? installed.identity.id,
+    presence,
+    peerPresences,
+    ...(workPeers.length === 0 ? {} : { workPeerPresence, ...(workPeerSuspicionSeconds === undefined ? {} : { workPeerSuspicionSeconds }) }),
     deliverWorkToPeer: installed.web.deliverWorkToPeer !== false,
   });
 }

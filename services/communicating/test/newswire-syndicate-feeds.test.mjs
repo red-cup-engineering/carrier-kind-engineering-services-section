@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { parseFeed } from "@red-cup-engineering/computer-data-serialization-services-section/web-feed";
+import { parseFeed } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/web-feed";
 import { admitSyndicateRoutes, projectSyndicateFeeds, syndicateFeedSnapshot } from "../src/messaging/newswire/syndicate-feeds.mjs";
 
 const observedAt = "2026-09-28T12:00:00.000Z";

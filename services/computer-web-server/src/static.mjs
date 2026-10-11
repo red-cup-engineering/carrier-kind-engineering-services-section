@@ -2,14 +2,14 @@ import { stat, readFile } from "node:fs/promises";
 import * as nodeFs from "node:fs";
 import { join, resolve, normalize } from "node:path";
 import { sep } from "node:path";
-import { extensionType, isCompressible } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/media-type";
+import { extensionType, isCompressible } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/media-type";
 import { negotiateEncoding } from "@red-cup-engineering/http-services-section/negotiation";
-import "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
-import { byterangesCloseDelimiter, byterangesPartHeader, contentRange, multipartRangeBoundary, parseRanges } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/byte-range";
-import { httpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
+import "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
+import { byterangesCloseDelimiter, byterangesPartHeader, contentRange, multipartRangeBoundary, parseRanges } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/byte-range";
+import { httpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
 import { ifMatch, ifModifiedSince, ifNoneMatch, ifRange, ifUnmodifiedSince } from "@red-cup-engineering/http-services-section/conditional-request";
 import { appendVary, ensureDateHeader, applyCacheControl, applySecurityHeaders } from "@red-cup-engineering/http-services-section/response";
-import { compress, supportedCompressionCodings } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
+import { compress, supportedCompressionCodings } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
 export const DEFAULT_TYPES = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",

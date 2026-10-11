@@ -25,14 +25,14 @@
 //   - SignCell/SignChain readings - the four-bilattice
 //     values (potential/active/absurd/stable) and their names
 
-import { foldEavtEvidence, sectionEavtEvidence } from "@red-cup-engineering/eavt";
+import { foldEavtEvidence, sectionEavtEvidence } from "@red-cup-engineering/eavt-services-section";
 import { canonicalCborToNiUri, encodeCanonical } from "@red-cup-engineering/cbor-services-section";
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
 import { sectionSpace } from "@red-cup-engineering/metrologic/articulation/predicating/positing/independent-evidence";
 import { governAction } from "@red-cup-engineering/computer/distribution/governance";
 import { allocateProcess } from "@red-cup-engineering/computer/process-runtime/allocation";
 import { pointWitnesses } from "@red-cup-engineering/metrologic/chu";
-import { readingAs } from "@red-cup-engineering/computer-data-services-section/four";
+import { readingAs } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 // === the recognition CONE: a principal's identity as a Chu space ============================
 // A principal's identity is "the recognition graph" — and a graph of (party recognizes principal-AS-X)

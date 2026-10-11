@@ -12,7 +12,7 @@ import {
   httpServicePolicyContract,
 
 } from "./policy-schema.mjs";
-import { supportedCompressionCodings } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
+import { supportedCompressionCodings } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
 
 /** The service-side HTTP policy actually used by the package HTTP bindings. */
 export function httpServicePolicy() {
@@ -40,7 +40,7 @@ export function httpServicePolicy() {
     ]),
     evidence: Object.freeze([
       "services/http/body-read.mts",
-      "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding",
+      "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding",
       "services/http/server.mts",
       "services/http/sse.mts",
       "src/integrations/http/schema.mts",

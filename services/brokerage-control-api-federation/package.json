@@ -8,7 +8,7 @@
     "@red-cup-engineering/brokerage-independent-witness-and-books": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/mandate-portfolio-allocation-service": "workspace:*",
@@ -28,7 +28,8 @@
   },
   "description": "Scalable customer-wallet-funded market in metered brokerage-control APIs.",
   "devDependencies": {
-    "@red-cup-engineering/computer-system-engine": "workspace:*"
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@rsc-quiescent/obsmetrologia-alpha-selection-proof-service": "workspace:*"
   },
   "exports": {
     ".": "./src/contract-kernel.mjs",
@@ -36,8 +37,6 @@
     "./virtuals-runtime": "./src/virtuals-runtime.mjs",
     "./union-runtime": "./src/union-runtime.mjs",
     "./esther-onboarding": "./src/esther-onboarding.mjs",
-    "./principal-contract": "./services/principal-brokerage-interface/src/principal-contract.mjs",
-    "./obsmetrologia-promotion": "./services/obsmetrologia-alpha-selection-proof-service/src/promotion-certificate.mjs",
     "./readiness": "./src/readiness.mjs",
     "./autonomous-portfolio": "./src/autonomous-portfolio.mjs",
     "./principal-brokerage-system": "./src/principal-brokerage-system.mjs",
@@ -72,7 +71,7 @@
     "./live-mcp": "./src/live-mcp.mjs",
     "./live-runtime": "./src/live-runtime.mjs"
   },
-  "name": "@red-cup-engineering/brokerage-control-api-federation",
+  "name": "@red-cup-engineering/alpaca-services-section",
   "scripts": {
     "start:x402": "node src/market-runtime.mjs",
     "start:virtuals": "node src/virtuals-runtime.mjs",

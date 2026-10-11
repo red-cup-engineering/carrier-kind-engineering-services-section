@@ -14,9 +14,9 @@ import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/co
 import { semanticHex } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
 
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
-import { cell } from "@red-cup-engineering/eavt/ledger/cells";
-import { projectStateView } from "@red-cup-engineering/eavt/ledger/state";
-import { eavtRecord } from "@red-cup-engineering/eavt/row";
+import { cell } from "@red-cup-engineering/eavt-services-section/ledger/cells";
+import { projectStateView } from "@red-cup-engineering/eavt-services-section/ledger/state";
+import { eavtRecord } from "@red-cup-engineering/eavt-services-section/row";
 
 const jsonResource = (value, context) => {
   const resource = JSON.parse(JSON.stringify(value));

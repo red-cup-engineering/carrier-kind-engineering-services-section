@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { juralRelationClaimCell } from "@red-cup-engineering/socializing";
+import { juralRelationClaimCell } from "@red-cup-engineering/socializing/office";
 import { skillSuccess, skillError } from "@red-cup-engineering/animating/becoming/doing/working/governing/skill";
 import { workResultFromSkillResult, workResultSkillContext, typedResultOf, workSourceClosureContract } from "../src/work/schema.mjs";
 import { agencyWorkExecutionOfRow } from "../src/work/observations.mjs";
@@ -173,4 +173,29 @@ test("paged dispatch retains native context and early native reasons within the 
       assert.ok(receiving.queue[0].reasons.includes("native-skill-reading:" + context.reading));
     }
   }
+});
+
+test("failed typed reports await independent receipt without becoming executable or completed work", () => {
+  for (const result of nativeCases()) {
+    const collector = collectorFor(result);
+    const before = dispatch(collector);
+    const pending = pageAgentWorkDispatchReadout(before, { view: "receiving", limit: 1 });
+    assert.equal(pending.queue.length, 1);
+    assert.equal(pending.queue[0].execution.receipt, "fixture:proposal");
+    assert.equal(pending.queue[0].state, "blocked");
+    if (result.kind === "skill-error") assert.equal(pending.queue[0].execution.state, "failed");
+    collector.push(receiptRow("accepted", "fixture:other-proposal"), subject, witness("fixture:other-receipt"));
+    assert.equal(pageAgentWorkDispatchReadout(dispatch(collector), { view: "receiving" }).queue.length, 1);
+    collector.push(receiptRow("accepted"), subject, witness("fixture:received", ["fixture:proposal"]));
+    if (result.kind === "skill-error") {
+      const after = dispatch(collector);
+      assert.equal(pageAgentWorkDispatchReadout(after, { view: "receiving" }).queue.length, 0);
+      assert.equal(after.queue[0].execution.state, "failed");
+      assert.notEqual(after.queue[0].status, "discharged");
+    }
+  }
+  const collector = collectorFor(workResultFromSkillResult(skillSuccess(1)));
+  collector.push(row({ role: "office-service-execution", execution: { allocation, scope, state: "failed", error: "transport-failure" } }), subject, witness("fixture:transport-failed"));
+  assert.equal(pageAgentWorkDispatchReadout(dispatch(collector), { view: "receiving" }).queue.length, 0,
+    "a failed start without an admitted result is no report to receive");
 });

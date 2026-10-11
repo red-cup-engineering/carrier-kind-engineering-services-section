@@ -14,7 +14,7 @@ import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/co
 import { canonical } from "@red-cup-engineering/json-services-section";
 import { evidenceSchema, knowledgeJoin, noEvidence } from "@red-cup-engineering/signchain/bilattice";
 import { evidence, knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 const writeSchema = {
   type: "object",

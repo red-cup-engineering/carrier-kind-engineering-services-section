@@ -4,7 +4,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { io as defaultIo } from "socket.io-client";
-import { readFileText } from "@red-cup-engineering/file-services/read-file";
+import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
 import { evaluateBasePreSignPolicy } from "@red-cup-engineering/base-pre-sign-policy-service";
 import { BASE_CHAIN_ID, PILOT_OFFERING_NAME } from "./virtuals-commercial-pilot-guard.mjs";
 import { createIfAbsent } from "./create-if-absent.mjs";
@@ -13,7 +13,7 @@ import {
   VIRTUALS_LITE_SOCKET_ORIGIN,
   YANAGI_OPERATOR_WALLET,
 } from "./virtuals-lite-commercial-pilot.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export const VIRTUALS_PRODUCTION_PRICE = "0.05";
 export const VIRTUALS_PRODUCTION_USDC_BASE_UNITS = 50_000n;
@@ -47,7 +47,7 @@ const MODULE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 // actual signing capability plus a priced offer, not a process record.
 const DEFAULT_SIGNER_KEYS_PATH = join(homedir(), ".config", "acp-cli", "signer-keys.json");
 const DEFAULT_PRICING_PATH = join(
-  dirname(createRequire(import.meta.url).resolve("@red-cup-engineering/blockchain-trashpanda/package.json")),
+  dirname(createRequire(import.meta.url).resolve("@red-cup-engineering/blockchain-trashpanda-services-section/package.json")),
   "data", "evidence", "2026-07-22-virtuals-market-pricing.json",
 );
 const DECIMAL_ID = /^(?:0|[1-9][0-9]*)$/u;

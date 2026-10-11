@@ -6,7 +6,7 @@
  * token-usage engine owns. Ported from MetroPlat's
  * `src/integrations/anthropic/token-usage.mts`.
  */
-import { parseSseStream } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { parseSseStream } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
 import { parseLines } from "@red-cup-engineering/jsonl-services-section";
 import {

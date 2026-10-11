@@ -59,7 +59,7 @@ function skillFor(agency, enterprise) {
   const listed = enterpriseOffices(agency, enterprise);
   const lines = [...listed.filter((office) => office.authored?.verifies !== undefined), lineOfficeOf(agency, enterprise)].filter(Boolean);
   for (const office of lines) {
-    for (const ref of [office.authored?.["provides-skill"] ?? []].flat()) {
+    for (const ref of [office.providesSkill ?? []].flat()) {
       const skill = resolve(agency, "skills", ref, office.sectionPath) ?? resolve(agency, "skills", ref, enterprise.sectionPath);
       if (skill !== undefined && resolve(agency, "skills", skill.id, enterprise.sectionPath) !== undefined) return skill.id;
     }

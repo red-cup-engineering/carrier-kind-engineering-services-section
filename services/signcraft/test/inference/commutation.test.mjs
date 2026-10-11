@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { makeContext, lawfulBasis } from "@red-cup-engineering/metrologic/closure/formal-context";
 import { makeValuation, withReading, readingAt, sigma, delta } from "../../src/inference/nuclei.mjs";
-import { samePoint as eqFour } from "@red-cup-engineering/computer-data-services-section/four";
+import { samePoint as eqFour } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { mulberry32 } from "../../src/inference/learn.mjs";
 
 // Property check of the settling square's commutation on the kernel's REAL

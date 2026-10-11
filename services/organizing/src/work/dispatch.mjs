@@ -1,4 +1,4 @@
-import { WORK_LEVELS } from "@red-cup-engineering/socializing";
+import { WORK_LEVELS } from "@red-cup-engineering/socializing/office";
 
   
 
@@ -52,7 +52,7 @@ function stateOfDuty(duty, signedAction) {
 
 function reasonsOfDuty(duty, level, signedAction) {
   const reasons = [
-    ...(duty.execution?.state === "proposed" && duty.status !== "discharged" ? ["result-awaiting-receipt"] : []),
+    ...((duty.execution?.state === "proposed" || (duty.execution?.state === "failed" && duty.execution.resultKind === "skill-error")) && duty.execution.receiverReceipt === undefined && duty.status !== "discharged" ? ["result-awaiting-receipt"] : []),
     ...(duty.execution?.state === "failed" ? [`provider-execution-failed:${duty.execution.error ?? "unknown"}`] : []),
     ...(duty.execution?.skillOutcome === undefined ? [] : [
       `native-skill-routing:${duty.execution.skillOutcome.routing}`,

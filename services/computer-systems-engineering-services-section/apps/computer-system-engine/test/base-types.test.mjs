@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { admit } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { admit } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 import { receiptType, refusalType, ruleType } from "../src/generated/specification-declarations.mjs";
 import { cellType, claimType, evidenceType, statementType } from "@red-cup-engineering/signcell/semantic-carriers";
 const evidence = Object.freeze({

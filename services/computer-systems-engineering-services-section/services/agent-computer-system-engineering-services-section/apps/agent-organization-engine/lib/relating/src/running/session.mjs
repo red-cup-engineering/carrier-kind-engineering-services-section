@@ -23,13 +23,13 @@ import { pricedNerve } from "@red-cup-engineering/signgraph/cohomology";
 import { assignments, empiricalModel, hasGlobalSection, measurementScenario } from "@red-cup-engineering/metrologic/models/physics/models/quantum-contextuality/measurement-scenario";
 import { logicallyContextual } from "@red-cup-engineering/metrologic/models/physics/models/quantum-contextuality/contextual-obstruction";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
-import { statementCell } from "@red-cup-engineering/eavt/statement";
+import { statementCell } from "@red-cup-engineering/eavt-services-section/statement";
 import { address, utteranceCell } from "@red-cup-engineering/signcell/cell";
 import { claimSessionObservationContract, claimSessionRegimeAt } from "./session-schema.mjs";
 import { omegaOrdinal } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/closure";
 import { ofNat } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/ordinal-closure";
 import { isJsonRecord } from "@red-cup-engineering/json-services-section";
-import { knowledgeJoinReading, isReading, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinReading, isReading, readingAs, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** An uttered claim's reflexive SignCell and its address. */
 const utteredCell = (token, claim) => { const told = utteranceCell(token, claim); return Object.freeze({ cell: told, address: address(told) }); };

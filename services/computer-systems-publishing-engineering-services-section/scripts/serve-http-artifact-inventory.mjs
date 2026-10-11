@@ -1,4 +1,4 @@
-import { extensionType } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/media-type";
+import { extensionType } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/media-type";
 import { strongEtag } from "@red-cup-engineering/http-services-section/response";
 
 const DEFAULT_INDEX = Object.freeze(["index.html"]);

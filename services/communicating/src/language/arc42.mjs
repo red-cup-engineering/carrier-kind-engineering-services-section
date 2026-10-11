@@ -27,7 +27,7 @@ import {
 
 } from "@red-cup-engineering/html-structural-projection-service/document-nodes";
 
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { addressTextDocument } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import {

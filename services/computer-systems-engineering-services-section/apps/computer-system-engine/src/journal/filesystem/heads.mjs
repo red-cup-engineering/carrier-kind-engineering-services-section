@@ -3,8 +3,8 @@
  *  document at this path live in `write-journal-store.mjs`, which imports
  *  this law rather than recomputing it. */
 import path from "node:path";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
-import { dataTierDirectory } from "@red-cup-engineering/eavt/data-artifact-address";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+import { dataTierDirectory } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 
 /** The exact file path one namespaced head (`root`/`at`/`namespace`/`key`) resolves to. */
 export function headPath(root, at, namespace, key) {

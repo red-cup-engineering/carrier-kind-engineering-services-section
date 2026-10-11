@@ -1,3 +1,6 @@
+import { RECEIVING_DECISIONS, RECEIVING_JUDGEMENT_SHAPE, receivingJudgementMeaning } from "./receiving-judgement.mjs";
+export { RECEIVING_DECISIONS, RECEIVING_JUDGEMENT_SCHEMA, receivingJudgementMeaning } from "./receiving-judgement.mjs";
+
 /**
  * The carrier contract of the work rail: a ready office duty allocated to a harness character is
  * done by one agent-CLI session on this machine, whichever CLI carries it (a dialect of
@@ -26,7 +29,7 @@ import path from "node:path";
 import { allowanceLedgerPath, recordAllowanceEvidence } from "@red-cup-engineering/computer-inference-engine/media/allowance-ledger";
 import { subscriptionAllowance, subscriptionReadings } from "@red-cup-engineering/computer-inference-engine/media/subscription-allowances";
 import { sessionContextImage } from "@red-cup-engineering/feltos/agents/context-image";
-import { tokenUsageResources } from "@red-cup-engineering/organizing/enterprise";
+import { tokenUsageResources } from "@red-cup-engineering/organizing/enterprise/resources";
 
 import {
   harnessTaskArtifactDirectory, inProviderTurn, readHarnessSessionArtifacts, recoverHarnessSession, releaseProviderTurn,
@@ -49,21 +52,8 @@ export function agencyOutcomeSchema(returns) {
   });
 }
 
-/**
- * A receiver's three answers: accepted and rejected judge inspected evidence; unverified says the
- * evidence could not be inspected (a tool failed, a read timed out, a subject was unreachable).
- * Unverified is unknown, never a rejection: it admits no discharge and the work is received again.
- */
-export const RECEIVING_DECISIONS = Object.freeze(["accepted", "rejected", "unverified"]);
 const RECEIVING_ATTEMPTS = 4;
 const RECEIVING_RETRY_MS = 10 * 60_000;
-const RECEIVING_JUDGEMENT_SHAPE = Object.freeze({ decision: RECEIVING_DECISIONS.join("|"), text: "judgement", evidence: ["inspected evidence"] });
-export const RECEIVING_JUDGEMENT_SCHEMA = Object.freeze({
-  type: "object",
-  properties: { decision: { enum: RECEIVING_DECISIONS }, text: { type: "string", minLength: 1 }, evidence: { type: "array", items: { type: "string", minLength: 1 } } },
-  required: ["decision", "text", "evidence"],
-  additionalProperties: false,
-});
 
 /** How a carrier's session is told to reach this node's MetroPlat: its harness's own names for the
  *  server's connect and command tools. */
@@ -370,8 +360,9 @@ export function agencyWorkCarrier({ dialect, workerId, dataRoot, formerRoots = [
       capabilities: [
         `The owning node is ${nodeName}. For evidence that needs MetroPlat, use exactly the ${mcpServer} MCP server via ${access?.connect ?? "its world connect tool"} then ${access?.command ?? "its world command tool"} (a verb, space, JSON input); read only.`,
         "The host has resolved the exact immutable proposal below from its journal and checked the actual held receiving office and its authored receivesFrom relation. It admits your judgement after observing your actual session, rechecking current process-bound authority. Do not reread office catalogs or whole dispatch queues to establish those facts. Inspect only evidence necessary for the stated receiving condition; use bounded repository reads or an exact native subject when the condition requires it.",
-        "The host selects only a skill-result for independent receiving. Accept it only when evidence you inspected verifies it against the original receiverCondition. Reject it only when evidence you inspected shows the receiverCondition unmet, or the result names no evidence, or evidence it names does not exist. When you could not inspect the evidence (a tool failed, a read timed out, a subject or server was unreachable), return unverified: that is unknown, not a rejection, and the work is received again later. Producer-reported failures are recorded as failed attempts without this review and never satisfy the original work. Do not perform the producing work or accept its parent business demand.",
-        `Return only JSON: ${JSON.stringify(RECEIVING_JUDGEMENT_SHAPE)}. decision is accepted, rejected or unverified; text is your concise judgement against the receiverCondition, or for unverified precisely what could not be read and why; evidence lists only what you actually inspected (paths, commits, receipts, subjects). Never fabricate acceptance.`,
+        receivingJudgementMeaning(proposal.result),
+        "When you could not inspect the evidence (a tool failed, a read timed out, a subject or server was unreachable), return unverified: that is unknown, not a rejection, and the report is received again later. Do not perform the producing work or accept its parent business demand.",
+        `Return only JSON: ${JSON.stringify(RECEIVING_JUDGEMENT_SHAPE)}. decision is accepted, rejected or unverified; text is your concise judgement of the report under the rule above, or for unverified precisely what could not be read and why; evidence lists only what you actually inspected (paths, commits, receipts, subjects). Never fabricate acceptance.`,
       ],
       mission: [
         `Receiving office: ${office}`,

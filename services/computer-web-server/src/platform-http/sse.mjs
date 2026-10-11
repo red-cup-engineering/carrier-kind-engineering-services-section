@@ -4,7 +4,7 @@
  * Live Node SSE socket binding for the pure HTTP SSE transport projection.
  */
 
-import { sseCommentFrame, sseFrame, sseHeaders } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { sseCommentFrame, sseFrame, sseHeaders } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 import {
   observeSseTransport,
 

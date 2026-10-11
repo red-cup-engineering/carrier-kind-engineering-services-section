@@ -5,7 +5,7 @@
 import { readJsonBody } from '@red-cup-engineering/http-services-section/body';
 import { htmlRepr, jsonRepr } from '@red-cup-engineering/http-services-section/representation';
 import { createHiveLoginApp } from '@red-cup-engineering/hive-keychain-login-service';
-import { sha256Hex } from '@red-cup-engineering/cryptographic-data-service/integrity';
+import { sha256Hex } from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
 import { admissionPage } from './page.mjs';
 import { clearedCookie, cookieValue, createSessionCookie, opaqueCookie, readSession, safeReturnTo, sealConfidential, unsealConfidential } from './session.mjs';
 

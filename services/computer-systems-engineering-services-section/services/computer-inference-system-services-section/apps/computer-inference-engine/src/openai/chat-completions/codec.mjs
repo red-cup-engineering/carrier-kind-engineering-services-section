@@ -14,7 +14,7 @@
  * @packageDocumentation
  */
 import { requireJsonValue, parse } from "@red-cup-engineering/json-services-section";
-import { parseSseStream } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { parseSseStream } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 import {
   openaiChatCompletionContract,
   openaiChatCompletionChunkContract,

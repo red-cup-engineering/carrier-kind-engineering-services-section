@@ -13,16 +13,16 @@ export * from "./running/index.mjs";
 export * from "./articulating/predicating/index.mjs";
 export * from "./articulating/predicating/positing/index.mjs";
 export * from "./articulating/predicating/positing/settling/index.mjs";
-export { readingDescriptorSchema, readingDescriptorCarrier, logReadingDescriptorSchema, logReadingDescriptorCarrier, coherenceReportSchema, coherenceReportCarrier, logCoherenceReportSchema, logCoherenceReportCarrier } from "@red-cup-engineering/eavt/ledger/reading-schema";
-export { structuralProvenanceSignatureSchema, structuralProvenanceSignatureCarrier, signedProvenanceSourceSchema, signedProvenanceSourceCarrier, attestationLinkSchema, attestationLinkCarrier, provenanceReadingSchema, provenanceReadingCarrier } from "@red-cup-engineering/eavt/ledger/provenance-schema";
-export { timeAnchorSchema, timeAnchorCarrier, timestampedWitnessSchema, timestampedWitnessCarrier, timeAnchorReadingSchema, timeAnchorReadingCarrier } from "@red-cup-engineering/eavt/ledger/time-anchor-schema";
-export { mementoSnapshotSchema, mementoSnapshotCarrier, timeMapSchema, timeMapCarrier } from "@red-cup-engineering/eavt/ledger/memento-schema";
+export { readingDescriptorSchema, readingDescriptorCarrier, logReadingDescriptorSchema, logReadingDescriptorCarrier, coherenceReportSchema, coherenceReportCarrier, logCoherenceReportSchema, logCoherenceReportCarrier } from "@red-cup-engineering/eavt-services-section/ledger/reading-schema";
+export { structuralProvenanceSignatureSchema, structuralProvenanceSignatureCarrier, signedProvenanceSourceSchema, signedProvenanceSourceCarrier, attestationLinkSchema, attestationLinkCarrier, provenanceReadingSchema, provenanceReadingCarrier } from "@red-cup-engineering/eavt-services-section/ledger/provenance-schema";
+export { timeAnchorSchema, timeAnchorCarrier, timestampedWitnessSchema, timestampedWitnessCarrier, timeAnchorReadingSchema, timeAnchorReadingCarrier } from "@red-cup-engineering/eavt-services-section/ledger/time-anchor-schema";
+export { mementoSnapshotSchema, mementoSnapshotCarrier, timeMapSchema, timeMapCarrier } from "@red-cup-engineering/eavt-services-section/ledger/memento-schema";
 export { presentedCategoryDiagramSchema, presentedCategoryDiagramCarrier } from "@red-cup-engineering/signgraph/diagram-schema";
 
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { cellSchema, utteranceSchema } from "@red-cup-engineering/signcell/cell";
 import { evidenceSchema } from "@red-cup-engineering/signchain/bilattice";
-import { TySchema, TmSchema } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { TySchema, TmSchema } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 
 /** The base admission carrier: an utterance, a token and a claim (SignCell). */
 export const utteranceCarrier = schemaFrom(utteranceSchema);

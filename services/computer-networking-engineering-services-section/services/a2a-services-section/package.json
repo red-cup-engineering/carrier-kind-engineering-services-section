@@ -7,6 +7,7 @@
   "exports": {
     "./a2a-client": "./scripts/a2a-client.mjs",
     "./a2a-server": "./scripts/a2a-server.mjs",
+    "./v1-core": "./scripts/v1-core.mjs",
     "./agent-card-signing": "./scripts/agent-card-signing.mjs",
     "./sen-part": "./scripts/sen-part.mjs",
     "./durable-task-store": "./scripts/durable-task-store.mjs",
@@ -26,8 +27,8 @@
   },
   "dependencies": {
     "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/uri-services-section": "workspace:*",

@@ -1,7 +1,7 @@
 import { Readable } from "node:stream";
-import { decompressStream, supportedCompressionCodings } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-coding";
-import { parseContentType } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/content-type";
-import { parseMultipartForm } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/multipart-form-data";
+import { decompressStream, supportedCompressionCodings } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-coding";
+import { parseContentType } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/content-type";
+import { parseMultipartForm } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/multipart-form-data";
 import { BodyReadError, readBodyStream, decodeBody, mediaType, parseJson } from "./body.mjs";
 export { BodyReadError } from "./body.mjs";
 const decode = (bytes, coding)=>{

@@ -18,7 +18,7 @@
   ],
   "dependencies": {
     "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "0.1.0"
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "0.1.0"
   },
   "scripts": {
     "check": "for f in src/*.mjs scripts/*.mjs test/*.mjs; do node --check \"$f\" || exit 1; done",
@@ -31,7 +31,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "https://github.com/red-cup-engineering/computer-services-section.git",
+    "url": "https://github.com/red-cup-engineering/computer-engineering-services-section.git",
     "directory": "services/blockchain-services-section/services/hive-engineering-services-section/services/hive-account-provisioning-service"
   }
 }

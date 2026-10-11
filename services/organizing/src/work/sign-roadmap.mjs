@@ -4,7 +4,7 @@
  * skills, resources, changes, actions, receipts, and milestones are cells;
  * their reasons and dependencies are witnessed typed edges.
  */
-import { defineType } from "@red-cup-engineering/computer-data-services-section/type-system";
+import { defineType } from "@red-cup-engineering/computer-data-engineering-services-section/type-system";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { createTypedMark, referenceOf } from "@red-cup-engineering/signcell/typed-mark";
 import { createSignGraph } from "@red-cup-engineering/signcell/semantic-graph";

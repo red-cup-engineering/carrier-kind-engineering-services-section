@@ -4,7 +4,7 @@
  * WebSub hub when one is configured, the favicon as the channel image) and
  * each post's hero image when present.
  */
-import { atom, jsonFeed, rss2 } from "@red-cup-engineering/computer-data-serialization-services-section/web-feed";
+import { atom, jsonFeed, rss2 } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/web-feed";
 
 /**
  * @typedef {object} FeedPost

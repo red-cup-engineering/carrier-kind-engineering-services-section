@@ -1,6 +1,6 @@
 import { witnessChainAct } from "./journal.mjs";
 import { WORKER_BEE_POOL_ACCOUNT, WORKER_BEE_POOL_DISTRIBUTION_CATEGORY, WORKER_BEE_POOL_DISTRIBUTION_SCHEMA } from "@red-cup-engineering/workerbee-services-section/pool";
-import { sha256Base64Url } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 function canonicalTimestamp(value) {
     if (typeof value !== "string") throw new TypeError("pool transfer timestamp is malformed");
     const milliseconds = Date.parse(value.endsWith("Z") ? value : `${value}Z`);

@@ -52,13 +52,13 @@
 //   disagreements(world, opts)     -> [{ subject, predicate, object, evidence, recognizedBy, disputedBy, value }]  the ⊤ cells
 
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
-import { eavtRow as assertRow } from "@red-cup-engineering/eavt/admit-row";
-import { identifyContentAddressedRow } from "@red-cup-engineering/eavt/identify-content-addressed-row";
-import { sectionEavtEvidence } from "@red-cup-engineering/eavt/section-eavt-evidence";
-import { settleEavtEvidence } from "@red-cup-engineering/eavt/settle-eavt-evidence";
-import { unique as dedupe } from "@red-cup-engineering/eavt/deduplicate-rows";
+import { eavtRow as assertRow } from "@red-cup-engineering/eavt-services-section/admit-row";
+import { identifyContentAddressedRow } from "@red-cup-engineering/eavt-services-section/identify-content-addressed-row";
+import { sectionEavtEvidence } from "@red-cup-engineering/eavt-services-section/section-eavt-evidence";
+import { settleEavtEvidence } from "@red-cup-engineering/eavt-services-section/settle-eavt-evidence";
+import { unique as dedupe } from "@red-cup-engineering/eavt-services-section/deduplicate-rows";
 import { sectionSpace } from "@red-cup-engineering/metrologic/articulation/predicating/positing/independent-evidence";
-import { isReading } from "@red-cup-engineering/computer-data-services-section/four";
+import { isReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 const rowId = (row) => identifyContentAddressedRow({ row }).identity;
 const isReadingInKnowledge = (name) => isReading(name, "knowledge");
  // the four-bilattice values (stable = a held disagreement) + their predicates

@@ -14,7 +14,7 @@ import { resolutionCreditPolicy, validateConsiderationPolicy } from "./considera
 import { executeAcceptanceCapsule, loadAcceptanceCapsule, materializeAcceptanceCapsule, validateAcceptanceCapsule } from "./acceptance-capsule.mjs";
 import { githubApi } from "@red-cup-engineering/github-services-section";
 import { actionBlocks, parseSoftwareMissionActionRecord } from "./action-record-parser.mjs";
-import { sha256Hex } from "@red-cup-engineering/cryptographic-data-service/integrity";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 export const ACTION_SCHEMA = {
   type: "object",

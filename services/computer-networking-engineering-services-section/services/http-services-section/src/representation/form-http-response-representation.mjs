@@ -1,5 +1,5 @@
-import { cacheControl as serializeCacheControl } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cache-control";
-import { httpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
+import { cacheControl as serializeCacheControl } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cache-control";
+import { httpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
 
 function representation(options) {
   const result = {};

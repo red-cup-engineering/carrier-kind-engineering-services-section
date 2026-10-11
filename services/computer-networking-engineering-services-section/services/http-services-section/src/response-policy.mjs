@@ -1,5 +1,5 @@
-import { cacheControl } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cache-control";
-import { httpDate } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/date";
+import { cacheControl } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cache-control";
+import { httpDate } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/date";
 export function ensureDateHeader(res, now) {
     if (now === undefined) throw new TypeError("ensureDateHeader: now (a Date, or milliseconds since the epoch) is required");
     if (!res.hasHeader("Date")) res.setHeader("Date", httpDate(now));

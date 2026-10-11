@@ -1,4 +1,4 @@
-import { writeFileText } from "@red-cup-engineering/file-services/write-file";
+import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 
 /**
  * Atomically creates path with text only if it is absent. Returns true when created, false when

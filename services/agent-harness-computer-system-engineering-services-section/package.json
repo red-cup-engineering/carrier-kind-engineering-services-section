@@ -27,6 +27,8 @@
     "./claude-code/install-claude-as-an-agent": "./services/claude-code-harness-services-section/src/install-claude-as-an-agent.mjs",
     "./claude-code/install-enterprise-in-claude": "./services/claude-code-harness-services-section/src/install-enterprise-in-claude.mjs",
     "./claude-code/enterprise-standing-block": "./services/claude-code-harness-services-section/src/enterprise-standing-block.mjs",
+    "./claude-code/sign-in": "./services/claude-code-harness-services-section/src/claude-sign-in.mjs",
+    "./claude-code/mcp-headers": "./services/claude-code-harness-services-section/scripts/claude-mcp-headers.mjs",
     "./claude-code/session": "./services/claude-code-harness-services-section/src/claude-code-session.mjs",
     "./claude-code/agency-work": "./services/claude-code-harness-services-section/src/agency-work.mjs",
     "./antigravity/session": "./services/antigravity-harness-services-section/src/antigravity-session.mjs",
@@ -76,10 +78,10 @@
     "@red-cup-engineering/computer-inference-engine": "workspace:*",
     "@red-cup-engineering/computer-system-engine": "workspace:*",
     "@red-cup-engineering/computer-code-development-engine": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
-    "@red-cup-engineering/eavt": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "0.18.3",
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/flatfile-resource-graph-service": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
@@ -88,7 +90,8 @@
     "@red-cup-engineering/node-process-services-section": "workspace:*",
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/witness-journal-document-service": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-file-services-section": "workspace:*"
   },
   "engines": {
     "node": ">=22"

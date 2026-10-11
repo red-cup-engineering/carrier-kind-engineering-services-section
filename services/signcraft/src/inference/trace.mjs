@@ -1,5 +1,5 @@
 // The machine's state from a witnessed trace: the kernel's context built
-// from EAVT rows through @red-cup-engineering/eavt's own strata (stratifyEavtEvidence:
+// from EAVT rows through @red-cup-engineering/eavt-services-section's own strata (stratifyEavtEvidence:
 // saturate = Fix σ, then transfer = Fix Δ; machine spec §1.5, identification
 // 1 — rows are trace steps, the two strata are the two nuclei's fixed sets).
 // Objects are entities; attributes are `predicate=object` cells; a settled
@@ -8,7 +8,7 @@
 // here. Each entity's asserted / saturated / settled strata stay readable
 // so a reading never stores its stratum as a field.
 
-import { stratifyEavtEvidence } from "@red-cup-engineering/eavt";
+import { stratifyEavtEvidence } from "@red-cup-engineering/eavt-services-section";
 import { makeContext } from "@red-cup-engineering/metrologic/closure/formal-context";
 import { makeValuation, withReading } from "./nuclei.mjs";
 

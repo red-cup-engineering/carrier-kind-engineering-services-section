@@ -1,4 +1,4 @@
-import { sseCommentFrame, sseFrame } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/server-sent-event";
+import { sseCommentFrame, sseFrame } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/server-sent-event";
 export function writeSseEvent(sink, name, data, id) {
     try {
         sink.write(sseFrame(name, data, id));

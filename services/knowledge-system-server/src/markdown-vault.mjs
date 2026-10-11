@@ -12,7 +12,7 @@ import { createTextIndex } from "@red-cup-engineering/markdown-engineering-servi
 import { openFullTextIndex } from "@red-cup-engineering/markdown-engineering-services-section/vault/full-text-index";
 import { projectMarkdownAssertions } from "@red-cup-engineering/markdown-engineering-services-section/project-markdown-assertions";
 import { TellingLog } from "@red-cup-engineering/signchain/log";
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { posix } from "node:path";
 import { browseDocuments } from "@red-cup-engineering/markdown-engineering-services-section/vault/directory-listing";
 import { DEFAULT_MARKDOWN_VAULT_EXCLUDES, observeMarkdownVaultDirectory } from "@red-cup-engineering/markdown-engineering-services-section/observe-markdown-vault-directory";

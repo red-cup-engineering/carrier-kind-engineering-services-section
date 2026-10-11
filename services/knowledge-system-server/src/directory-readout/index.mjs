@@ -12,7 +12,7 @@
  */
 import path from "node:path";
 
-import { tm } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation";
+import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { readLegibility } from "@red-cup-engineering/computer-code-development-engine/monitoring/filesystem/legibility/service";
 import { readFileCensus } from "@red-cup-engineering/computer-code-development-engine/monitoring/filesystem/file-census/service";
@@ -30,8 +30,8 @@ import {
 
 } from "@red-cup-engineering/knowledge-system-server/directory-readout/boundary/schema";
 
-import { artifactTier } from "@red-cup-engineering/eavt/statement";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt/row";
+import { artifactTier } from "@red-cup-engineering/eavt-services-section/statement";
+import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 export { directoryReadoutRecordSchemaContract, directoryReadoutSchemaContract };
 
 const DIRECTORY_READOUT_RECORD_ACTION = "record-directory-readout";

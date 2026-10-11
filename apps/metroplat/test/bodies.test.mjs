@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { agencyAt } from "@red-cup-engineering/organizing/agency/held";
 import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { toEavt } from "@red-cup-engineering/eavt/row";
+import { toEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { bodyOperations, livedBodyAt, readBodyRecords, readTokenUsageRows, WORDS_LIMIT } from "../src/bodies.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -83,4 +83,24 @@ test("a body's spend is the token-usage feed's turns of the sessions it wore, an
   assert.deepEqual(body.spend.tokens, { input: 16, cached: 102, output: 10 });
   assert.deepEqual(Object.keys(body.spend.bySession), ["sess-a"]);
   assert.deepEqual(livedBodyAt(dataRoot, agency, codex.id, { told: { masks } }).spend.tokens, {}, "another body wore none of those sessions");
+});
+
+test("reading only the sessions a body wore keeps exactly the turns the whole read keeps for them", () => {
+  const dataRoot = mkdtempSync(path.join(tmpdir(), "spend-filtered-"));
+  const journal = openJournal(dataRoot);
+  const feed = (day, rows) => journal.appendRows("agent-session-token-usage", rows, { at: day, subject: "agent-session-token-usage", caller: { transport: "test" } });
+  const usage = (n) => ({ inputTokens: 100 + n, cachedInputTokens: n % 3, cacheCreationInputTokens: n % 5, cacheReadInputTokens: 10 * n, outputTokens: 7 + n });
+  const days = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"];
+  for (const [d, day] of days.entries()) {
+    const rows = [];
+    for (let n = 0; n < 12; n += 1) rows.push(turn(`sess-${n % 4}`, d * 12 + n, usage(d * 12 + n), `${day}T10:${String(n).padStart(2, "0")}:00Z`, n % 2 ? "claude-opus" : "gpt-5"));
+    // A transcript re-admitted a day later carries its earlier turns again.
+    if (d > 0) rows.push(turn("sess-1", (d - 1) * 12 + 1, usage((d - 1) * 12 + 1), `${days[d - 1]}T10:01:00Z`, "claude-opus"));
+    feed(day, rows);
+  }
+  const whole = readTokenUsageRows(dataRoot, { today: "2026-10-04" });
+  for (const worn of [new Set(["sess-1"]), new Set(["sess-0", "sess-3"]), new Set(), new Set(["sess-0", "sess-1", "sess-2", "sess-3"])]) {
+    assert.deepEqual(readTokenUsageRows(dataRoot, { today: "2026-10-04", sessions: worn }), whole.filter((row) => worn.has(row.session)));
+  }
+  assert.equal(whole.filter((row) => row.session === "sess-1").length, 12, "each re-admitted turn counts once");
 });

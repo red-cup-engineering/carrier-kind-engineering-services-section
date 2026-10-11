@@ -1,4 +1,4 @@
-import { parseCacheControl } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/cache-control";
+import { parseCacheControl } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/cache-control";
 function requestOf(info) {
     if (info instanceof Request) return info;
     return new Request(String(info instanceof URL ? info.href : info));

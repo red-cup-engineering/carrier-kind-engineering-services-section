@@ -7,8 +7,8 @@
  * content-negotiated between the three.
  */
 import { iriRef, writeTurtle } from "@red-cup-engineering/turtle-services-section/turtle";
-import { tripleGraphToJsonLd } from "@red-cup-engineering/rdf-data-model-services-section/json-ld";
-import { assertTriple } from "@red-cup-engineering/eavt/triple";
+import { tripleGraphToJsonLd } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/json-ld";
+import { assertTriple } from "@red-cup-engineering/eavt-services-section/triple";
 import { negotiateType } from "./negotiation.mjs";
 import { paginateOffset } from "./pagination.mjs";
 import { jsonRepr, textRepr } from "./representation/form-http-response-representation.mjs";

@@ -1,4 +1,4 @@
-import { sparqlTerm } from "@red-cup-engineering/rdf-data-model-services-section/sparql-over-eavt";
+import { sparqlTerm } from "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section/sparql-over-eavt";
 import { projectCairnSnapshot } from "./markdown-vault.mjs";
 import { handleVocabularyRequest, ownsVocabularyRequest } from "./vocabulary.mjs";
 import { negotiateType } from "@red-cup-engineering/http-services-section/negotiation";

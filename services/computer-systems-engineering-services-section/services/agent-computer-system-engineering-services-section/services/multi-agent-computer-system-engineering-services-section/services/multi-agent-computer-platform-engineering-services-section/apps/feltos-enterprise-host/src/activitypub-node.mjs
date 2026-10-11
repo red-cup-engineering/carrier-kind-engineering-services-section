@@ -1,10 +1,10 @@
-import {sha256Hex} from '@red-cup-engineering/cryptographic-data-service/integrity';
+import {sha256Hex} from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
 import {seatedEnterprises} from '@red-cup-engineering/feltos/work/enterprise-loop';
 import { arrivalDispatchClaimFromCloudEvent } from '@red-cup-engineering/computer-system-engine/rpc/arrival';
 import path from "node:path";
 
 import { extractSenActivity, extractSignCellEvidenceActivity, SEN_MEDIA_TYPE, SIGNCELL_EVIDENCE_MEDIA_TYPE } from "@red-cup-engineering/activitypub-services-section/sen-activity";
-import { termToJson } from "@red-cup-engineering/computer-data-services-section/semiotic-expression-notation/json-codec";
+import { termToJson } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { admitNormalizedSemanticContent } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import { appendArrivalAtRoot } from "@red-cup-engineering/computer-system-engine/rpc/arrival-store";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
@@ -58,8 +58,40 @@ export async function activityPubActorsAtHost({ agencyRoot, host, keysDirectory,
   return Object.freeze(actors.sort((left, right) => left.identifier.localeCompare(right.identifier)));
 }
 
+/**
+ * An activity a peer held for this node, pulled from that peer (`pullHeldFromPeers`), as the inbox
+ * arrival it would have been had it been pushed. The peer's signed-pull response over HTTPS is what
+ * vouches for it, so its author must be an actor on the peer's own origin, and it must be addressed
+ * to an actor on this origin, which is its recipient. Admission still decides it as any arrival.
+ */
+export function heldArrival({ activity, peer, origin }) {
+  if (activity === null || typeof activity !== "object" || Array.isArray(activity)) throw new TypeError("a pulled delivery is one activity");
+  const author = typeof activity.actor === "string" ? activity.actor : activity.actor?.id;
+  let authorUrl;
+  try { authorUrl = new URL(author); } catch { throw new TypeError("a pulled delivery names its author"); }
+  if (authorUrl.origin !== new URL(peer).origin || !/^\/actors\/[a-z0-9][a-z0-9._-]*$/u.test(authorUrl.pathname)) {
+    throw new TypeError(`a delivery pulled from ${peer} must be authored by an actor on its origin`);
+  }
+  const own = new URL(origin).origin;
+  const recipients = [activity.to ?? []].flat().map((value) => (typeof value === "string" ? value : value?.id))
+    .flatMap((value) => {
+      try {
+        const url = new URL(value);
+        const match = /^\/actors\/([a-z0-9][a-z0-9._-]*)$/u.exec(url.pathname);
+        return url.origin === own && match ? [match[1]] : [];
+      } catch { return []; }
+    });
+  if (recipients.length !== 1) throw new TypeError("a pulled delivery must be addressed to exactly one actor on this node");
+  return Object.freeze({
+    recipient: recipients[0],
+    activity: Object.freeze({ actorId: authorUrl, actorIds: Object.freeze([authorUrl]) }),
+    jsonLd: activity,
+    sender: Object.freeze({ actorId: authorUrl.href, inboxId: `${authorUrl.href}/inbox`, sharedInboxId: null }),
+  });
+}
+
 /** Retain verified ActivityPub evidence in node arrivals and addressed character inboxes. */
-export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin, actors, resolveActor, workPeerActor, agencyRoot, host = rootName, executeRequest, reply } = {}) {
+export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin, actors, resolveActor, agencyRoot, host = rootName, executeRequest, reply } = {}) {
   if (typeof rootName !== "string" || rootName.trim() === "") throw new TypeError("ActivityPub arrival needs an admitted instance identity");
   const byIdentifier = new Map((actors??[]).map((actor) => [actor.identifier, actor]));
   const actorAt=resolveActor??(async identifier=>byIdentifier.get(identifier));
@@ -73,7 +105,7 @@ export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin
       const admitRefusal = preparePeerWorkRefusal({
         refused: arrival.jsonLd.object, rejectId: arrival.jsonLd.id, reason: arrival.jsonLd.summary,
         senderActorId: verifiedSender, ownActor: new URL(`/actors/${encodeURIComponent(recipientActor.identifier)}`, origin).href,
-        peerActor: workPeerActor, agencyRoot, binding: defaultFilesystemBinding(dataRoot),
+        origin, agencyRoot, binding: defaultFilesystemBinding(dataRoot),
       });
       return Object.freeze({ refusal: admitRefusal() });
     }
@@ -94,7 +126,7 @@ export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin
       });
       const {preparePeerWork}=await import("./federated-work.mjs");
       const admitWork = preparePeerWork({
-        projection: evidence, senderActorId: verifiedSender, peerActor: workPeerActor, agencyRoot, host,
+        projection: evidence, senderActorId: verifiedSender, origin, agencyRoot, host,
         binding: defaultFilesystemBinding(dataRoot),
       });
       const admittedArrival = appendArrivalAtRoot(dataRoot, evidence.cloudEvent, {

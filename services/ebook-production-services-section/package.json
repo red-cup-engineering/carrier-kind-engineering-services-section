@@ -1,5 +1,5 @@
 {
-  "name": "@red-cup-engineering/ebook-production-services-section",
+  "name": "@red-cup-engineering/ebook-engineering-services-section",
   "version": "0.3.3",
   "type": "module",
   "description": "Multi-chapter book assembly and a hash-verified deterministic build record; the invocation contract, not the program. Cover art generation calls an inference application and is not this substrate section's concern.",
@@ -45,8 +45,8 @@
     "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-inference-engine": "workspace:*",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
-    "@red-cup-engineering/file-services": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
     "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
@@ -57,7 +57,7 @@
     "sharp": "0.35.5",
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-services-section": "workspace:*"
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*"
   },
   "engines": {
     "node": ">=20"

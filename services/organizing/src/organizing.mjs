@@ -44,7 +44,7 @@ import { x } from "@red-cup-engineering/metrologic/articulation/predicating/posi
 import { count, magnitude, toCount } from "@red-cup-engineering/exact-number-data-service/exact-number";
 import { hodgeDecompositionOfWeights, weightsOfEdges, graphSpectrum } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/laplacian";
 
-import { cell } from "@red-cup-engineering/eavt/ledger/cells";
+import { cell } from "@red-cup-engineering/eavt-services-section/ledger/cells";
 import { admitSeed, descend } from "@red-cup-engineering/animating/becoming/descending";
 import { socializingFace, aggregatePreferences } from "@red-cup-engineering/socializing";
 import { computingFace } from "@red-cup-engineering/computing/face";
@@ -52,7 +52,7 @@ import { eventualConsistency } from "@red-cup-engineering/computing/consensus-co
 import { gamingFace, reachability } from "@red-cup-engineering/gaming";
 
 import { organizationSymmetryCarrier, organizationStanceCarrier, governanceCarrier, cohesionCarrier } from "./carriers.mjs";
-import { knowledgeJoinOfCensus } from "@red-cup-engineering/computer-data-services-section/four";
+import { knowledgeJoinOfCensus } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 // value reference so the TypeBox carriers register their $id in relating's category on import.
 void organizationSymmetryCarrier;
 void organizationStanceCarrier;

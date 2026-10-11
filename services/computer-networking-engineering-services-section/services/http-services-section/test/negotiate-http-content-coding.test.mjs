@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { negotiateEncoding } from "../src/negotiation.mjs";
-import { parseAcceptEncoding } from "@red-cup-engineering/computer-data-serialization-services-section/services/http-data-services-section/src/preferences";
+import { parseAcceptEncoding } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/preferences";
 test("selects only an acceptable offered content coding", ()=>{
     assert.equal(negotiateEncoding("gzip;q=0.4, br;q=1", [
         "gzip",

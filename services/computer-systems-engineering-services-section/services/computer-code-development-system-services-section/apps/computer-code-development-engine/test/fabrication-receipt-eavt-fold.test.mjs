@@ -1,12 +1,12 @@
 import { mkdtemp, mkdir, writeFile, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { decode } from "@red-cup-engineering/eavt";
+import { decode } from "@red-cup-engineering/eavt-services-section";
 import { admitFabricationReceipt, readBoundPackageOperations } from "../src/operations.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
-import { admitArtifactFabricationRealizationReceipt, admitArtifactFabricationSpecification } from "@red-cup-engineering/computer-data-services-section/artifact-fabrication";
+import { admitArtifactFabricationRealizationReceipt, admitArtifactFabricationSpecification } from "@red-cup-engineering/computer-data-engineering-services-section/artifact-fabrication";
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
 import { foldFabricationReceiptIntoWorldRows } from "../src/receipts.mjs";
 

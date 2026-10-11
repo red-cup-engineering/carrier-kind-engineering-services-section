@@ -12,12 +12,13 @@
   },
   "dependencies": {
     "@red-cup-engineering/credential-custody-service": "workspace:*",
-    "@red-cup-engineering/cryptographic-data-service": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/assisted-browser-services-section": "workspace:*"
   },
   "exports": {
     "./api": "./src/youtube-api.mjs",
     "./authorize": "./src/authorize.mjs",
-    "./credentials": "./src/credentials.mjs"
+    "./credentials": "./src/credentials.mjs",
+    "./studio": "./src/youtube-studio.mjs"
   }
 }
