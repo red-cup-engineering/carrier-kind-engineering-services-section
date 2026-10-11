@@ -201,7 +201,7 @@ test("sparse obstruction arrays cannot contribute unnamed benefit", () => {
   for (const atoms of [Array(1), ["named", , "another"]]) {
     const a = candidate("a");
     a.attention.held.atoms = atoms;
-    assert.throws(() => read([a]), /atoms item must be nonempty text/u);
+    assert.throws(() => read([a]), /atoms must be an array of nonempty text/u);
   }
 });
 
