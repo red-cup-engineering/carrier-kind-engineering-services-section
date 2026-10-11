@@ -55,7 +55,7 @@ export function createActorClient({provider,inbox,origin,admitSender}){
    const recipient=new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href;
    return {...page,items:page.items.map(activity=>{
     const sender=typeof activity.actor==='string'?activity.actor:activity.actor?.id;
-    try{const entry=readActorMessage(activity,sender,recipient);return {id:entry.id,sender,kind:entry.kind,value:entry.value,taskId:entry.projection.a2aMessage.taskId,metadata:entry.projection.a2aMessage.metadata,text:actorMessageText(entry).slice(0,4096)};}
+    try{const entry=readActorMessage(activity,sender,recipient);return {id:entry.id,sender,agentCard:entry.projection.agentCard,kind:entry.kind,value:entry.value,taskId:entry.projection.a2aMessage.taskId,metadata:entry.projection.a2aMessage.metadata,text:actorMessageText(entry).slice(0,4096)};}
     catch{return {id:activity.id,sender,kind:activity.type,value:activity,text:`Activity ${activity.type}${activity.summary?': '+activity.summary:''}`};}
    })};
   },

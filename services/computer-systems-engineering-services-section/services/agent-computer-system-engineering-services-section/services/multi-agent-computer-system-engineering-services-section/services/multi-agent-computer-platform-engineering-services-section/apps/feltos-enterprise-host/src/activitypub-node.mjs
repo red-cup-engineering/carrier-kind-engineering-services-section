@@ -151,7 +151,7 @@ export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin
       if(typeof authenticatedActor!=="string"||arrival.activity?.actorId?.href!==authenticatedActor)throw new TypeError("actor execution requires the signature-resolved sender");
       if(request.claimedSubject!==undefined&&request.claimedSubject!==authenticatedActor)throw new TypeError("actor request cannot substitute another principal");
       if(typeof executeRequest!=="function")throw new TypeError("actor request has no installed execution port");
-      const result=await executeRequest({event:projection.cloudEvent,authenticatedActor,admission,recipient,recipientActor});
+      const result=await executeRequest({event:projection.cloudEvent,authenticatedActor,admission,recipient,recipientActor,request:projection.envelopeNi,senderAgentCard:projection.agentCard});
       if(typeof reply!=="function")throw new TypeError("actor execution has no reply port");
       const delivery=await reply({identifier:recipientActor.identifier,recipient:authenticatedActor,inbox:arrival.sender.inboxId,
         request:projection.envelopeNi,result,at:projection.cloudEvent.time});

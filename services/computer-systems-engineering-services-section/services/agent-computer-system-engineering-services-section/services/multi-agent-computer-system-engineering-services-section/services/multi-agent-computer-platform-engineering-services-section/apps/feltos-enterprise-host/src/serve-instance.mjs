@@ -13,14 +13,12 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { activityPubApplication } from "@red-cup-engineering/activitypub-services-section/app";
 import { createLocalActivityPubProvider } from "@red-cup-engineering/activitypub-services-section/local-server";
-import { projectSenActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { createCapabilityPlatform } from "@red-cup-engineering/computer-system-platform/capability-lifecycle";
 import { startNativeApplication } from "@red-cup-engineering/computer-web-server/native-application";
 import { inheritedListenFd, installGracefulShutdown } from "@red-cup-engineering/http-services-section/node-server";
 import { federateMcpServers } from "@red-cup-engineering/mcp-engineering-services-section/federation";
 import { createMcpClient, mcpInProcessTransport } from "@red-cup-engineering/mcp-engineering-services-section/client";
-import { processAdmittedActorRequest, actorPaymentMetadata } from '@red-cup-engineering/computer-system-engine/rpc/actor-processing';
-import { agentSenMessage } from '@red-cup-engineering/a2a-services-section/sen-part';
+import { processAdmittedActorRequest, createActorResultProjection } from '@red-cup-engineering/computer-system-engine/rpc/actor-processing';
 import { deliverActivity } from '@red-cup-engineering/activitypub-services-section';
 import { reconcileDeclaredSchedules, runClockHeartbeat } from "@red-cup-engineering/organizing/work/recurring";
 import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
@@ -172,26 +170,33 @@ export async function activityPubProvider(config, environment, {operationSurface
   })).find(actor=>actor.identifier===identifier);
   let activityPub;
   const actorPayments=new Map();
+  const preparedReplies=new WeakMap();
   const onActivity=createActivityPubNodeArrivalHandler({
     dataRoot:config.metroplatDataRoot,rootName:config.instance.name,origin:config.activityPub.origin,actors,resolveActor:currentActor,
     agencyRoot:config.agencyRoot,host:node??config.instance.name,
-    executeRequest:async ({event,authenticatedActor,admission,recipient,recipientActor})=>{
+    executeRequest:async ({event,authenticatedActor,admission,recipient,recipientActor,request,senderAgentCard})=>{
       if(typeof operationSurface!=="function")throw new TypeError("actor requests need the installed operation surface");
       if(recipientActor.character!==undefined)throw new TypeError("a character inbox receives messages; invoke its offering enterprise actor");
       const surface=await operationSurface();
       const apex=surface.apex??surface;
       await programmes.retain(surface.operations??apex.catalog.operations);
-      return processAdmittedActorRequest({event,admission,authenticatedActor,
+      const projection=createActorResultProjection({origin:config.activityPub.origin,identifier:recipientActor.identifier,
+        recipient:authenticatedActor,request,agentCard:new URL('/.well-known/agent-card.json',config.activityPub.origin).href,eventTime:new Date().toISOString()});
+      return processAdmittedActorRequest({event,admission,authenticatedActor,senderAgentCard,
+        projectReply:value=>{const held=projection.project(value);preparedReplies.set(held,projection.activity(held));return held;},
         operations:recipientActor.enterprise?operationsOfEnterprise(agencyAt(config.agencyRoot),recipientActor.enterprise,surface.operations??apex.catalog.operations):
           node===undefined?surface.operations??apex.catalog.operations:operationsOfInstance(agencyAt(config.agencyRoot),node,surface.operations??apex.catalog.operations),recipient,
         binding:owningBinding??defaultFilesystemBinding(config.metroplatDataRoot,{rootName:config.instance.name}),authorize:apex.authorize,
          payment:await enterpriseActorPayment(recipientActor,recipient,actorPayments)});
     },
     reply:async ({identifier,recipient,inbox,request,result})=>{
-      const bytes=senActivityObjectBytes({objectKind:"metroplat.dispatch.result",value:{request,result}});
-      const activity=projectSenActivity({type:"Accept",origin:config.activityPub.origin,identifier,recipient,
-        objectBytes:bytes,a2aMessage:{...agentSenMessage(bytes),...(result.taskId===undefined?{}:{taskId:result.taskId}),metadata:actorPaymentMetadata(result)},
-        agentCard:new URL('/.well-known/agent-card.json',config.activityPub.origin).href,eventTime:new Date().toISOString()});
+      let activity=preparedReplies.get(result);
+      if(activity===undefined){
+        const projection=createActorResultProjection({origin:config.activityPub.origin,identifier,recipient,request,
+          agentCard:new URL('/.well-known/agent-card.json',config.activityPub.origin).href,eventTime:new Date().toISOString()});
+        const held=projection.project(result);
+        activity=projection.activity(held);
+      }
       // A known-intermittent requester cannot be pushed to: its result is held for it to pull.
       return deliverOrHold({config,provider:activityPub.provider,deliver:deliverActivity,request:{identifier,recipient,inbox,activity}});
     },
