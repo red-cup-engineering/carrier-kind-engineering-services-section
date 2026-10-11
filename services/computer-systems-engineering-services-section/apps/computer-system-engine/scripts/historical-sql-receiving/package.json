@@ -1,0 +1,17 @@
+{
+  "name": "@red-cup-engineering/historical-sql-reader-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Explicit offline legacy SQL reader, excluded from the native system engine.",
+  "exports": {
+    ".": "./legacy-sqlite-reader.mjs"
+  },
+  "files": [
+    "legacy-sqlite-reader.mjs",
+    "read-legacy-sqlite.py"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

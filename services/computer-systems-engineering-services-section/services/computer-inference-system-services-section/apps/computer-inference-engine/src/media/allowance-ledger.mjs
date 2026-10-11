@@ -26,14 +26,12 @@
  *
  * The ledger is a semantic-record journal (`ledger-journal.mjs`): evidence, every state a hold
  * passes through, and every changed declaration are told records appended in order, and a reading
- * folds them; the last state recorded for a hold or declaration is the one that stands. A SQLite
- * ledger left at the store path from before is admitted into the journal once, read-only.
+ * folds them; the last state recorded for a hold or declaration is the one that stands. Historical custody is received explicitly offline into a distinct native destination.
  */
 import { createHash, randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { openLedgerJournal } from "./ledger-journal.mjs";
-import { admitSqlOnce, allowanceLedgerSqlRows } from "./import-sql-ledger.mjs";
 import { admitAllowanceEvidence, allowanceLapses, readAllowance } from "@red-cup-engineering/organizing/enterprise";
 
 const MINUTE = 60_000;
@@ -62,7 +60,6 @@ const latest = (records, keyOf) => { const held = new Map(); for (const record o
 
 function openLedger(path) {
   const journal = openLedgerJournal(path, OBJECT_KIND);
-  admitSqlOnce(journal, path, allowanceLedgerSqlRows);
   const evidenceOf = (allowance) => latest(journal.read("evidence").filter((row) => row.allowance === allowance).reverse(), (row) => row.source).reverse().sort(byAt);
   const holdsOf = (allowance) => latest(journal.read("hold").filter((row) => allowance === undefined || row.allowance === allowance), (row) => row.id);
   const declarationsOf = () => latest(journal.read("declaration"), (row) => row.allowance);
@@ -94,7 +91,7 @@ const withLedger = (storePath, work, allowance) => {
   const store = openLedger(storePath);
   try {
     // Every allowance a consumer draws on is known to the ledger as it was last presented.
-    if (Array.isArray(allowance?.meters)) store.declare(allowance);
+    if (Array.isArray(allowance?.meters)) store.transaction(() => store.declare(allowance));
     return work(store);
   } finally { store.close(); }
 };

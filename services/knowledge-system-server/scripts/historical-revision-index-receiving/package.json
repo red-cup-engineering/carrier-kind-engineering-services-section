@@ -1,0 +1,20 @@
+{
+  "name": "@red-cup-engineering/revision-index-historical-receiving-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Explicit offline prior CAIRN index custody receiving; not a server runtime dependency.",
+  "exports": {
+    ".": "./receive.mjs"
+  },
+  "files": [
+    "receive.mjs",
+    "custody.mjs"
+  ],
+  "scripts": {
+    "test:historical": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/historical-sql-reader-service": "workspace:*"
+  }
+}

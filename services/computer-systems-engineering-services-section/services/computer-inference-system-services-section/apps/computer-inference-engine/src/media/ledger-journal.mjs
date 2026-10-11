@@ -1,16 +1,16 @@
 /**
  * The media ledgers' one log: each ledger is a semantic-record journal (a witness journal of told,
  * content-addressed records) beside the name its SQLite store had, and nothing is updated in place.
- * A ledger named `…/allowance-ledger.sqlite` keeps its journal at `…/allowance-ledger.journal`; the
- * SQLite file, where one is left from before, is read once, read-only, into the journal, and a
- * receipt in the journal marks that admission so it is never repeated (`admitSqlOnce`, kept in
- * `import-sql-ledger.mjs`, the only place SQL is still read).
+ * A ledger named `…/allowance-ledger.sqlite` keeps its journal at `…/allowance-ledger.journal`; historical
+ * SQL file is received only through a separate explicit offline tool. Runtime opening does not
+ * read or convert original SQL custody.
  *
  * Readers fold the journal and see what other processes appended. A writer whose admission depends
  * on what it reads (a hold fitting its allowance, a compare-and-set) runs inside `exclusively`, a
  * lock directory beside the journal, so consumers on one host serialize as they did on the SQLite
  * store's IMMEDIATE transactions. A lock left by a process that died is taken over once stale.
  */
+import {assertNativeLedgerCustody} from "./native-ledger-custody.mjs";
 import { mkdirSync, rmSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
@@ -39,6 +39,7 @@ const recordedAt = instants();
 
 /** One ledger's journal: `record(category, record)` appends a held record; `read(category)` folds them in append order. */
 export function openLedgerJournal(storePath, objectKind) {
+  assertNativeLedgerCustody(storePath);
   const root = ledgerJournalRoot(storePath);
   mkdirSync(root, { recursive: true });
   const journal = createSemanticRecordJournal({ root, objectKind });
@@ -65,5 +66,3 @@ function exclusively(root, work) {
   }
   try { return work(); } finally { rmSync(lock, { recursive: true, force: true }); }
 }
-
-export { admitSqlOnce } from "./import-sql-ledger.mjs";

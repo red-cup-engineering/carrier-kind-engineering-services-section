@@ -6,9 +6,6 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { createSemanticRecordJournal } from '@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record';
 import { DISCORD_ADMISSION_OBJECT_KIND, DISCORD_ADMISSION_TABLES, createDiscordAdmissionStore } from "../src/admission/discord-store.mjs";
-import { writeLegacySqlite } from './fixtures/write-legacy-sqlite.mjs';
-import { importSqlDiscordAdmission } from "../src/admission/import-sql-discord-admission.mjs";
-import { ADMISSION_MIGRATIONS } from "./fixtures/legacy-d1-admission-schema.mjs";
 
 function freshRoot(t, name) {
   const root = mkdtempSync(join(tmpdir(), name));
@@ -60,44 +57,3 @@ test('a rate-limit window is one rewritten file per source, never a journal reco
   assert.throws(() => store.rateLimits.hit('../escape', 1, 60), TypeError);
 });
 
-test('a D1 admission database is admitted into the journal once', (t) => {
-  const root = freshRoot(t, 'discord-store-import-');
-  const file = join(root, 'admission.sqlite');
-  writeLegacySqlite(file, [
-    ...ADMISSION_MIGRATIONS.map((migration) => migration.sql),
-    ['INSERT INTO discord_oauth_sessions (session_hash, subject_hash, discord_user_id, display_name, authorization_ciphertext, authorization_version, token_expires_at, session_expires_at, retry_after, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      's1', 'h1', '345678901234567890', 'Reader', 'sealed', 2, 100, 200, 0, 1, 2],
-    ['INSERT INTO discord_command_login_challenges (challenge_hash, verifier_hash, expires_at, approved_at, consumed_at, subject_hash, discord_user_ciphertext, created_at) VALUES (?, ?, ?, NULL, NULL, NULL, NULL, ?)',
-      'c1', 'v1', 300, 3],
-    ['INSERT INTO discord_command_login_rate_limits (rate_key, attempts, reset_at) VALUES (?, 4, 400)', 'c'.repeat(64)],
-  ]);
-  const before = readFileSync(file);
-
-  const store = createDiscordAdmissionStore({ root: join(root, 'journal') });
-  assert.deepEqual(importSqlDiscordAdmission(file, store), {
-    discord_oauth_sessions: 1, discord_command_login_challenges: 1, discord_interaction_sessions: 0,
-  });
-  assert.deepEqual(store.oauthSessions.read('s1'), {
-    session_hash: 's1', subject_hash: 'h1', discord_user_id: '345678901234567890', display_name: 'Reader', authorization_ciphertext: 'sealed',
-    authorization_version: 2, token_expires_at: 100, session_expires_at: 200, retry_after: 0, created_at: 1, updated_at: 2,
-  });
-  assert.equal(store.commandChallenges.read('c1').approved_at, null);
-  assert.equal(store.rateLimits.read('c'.repeat(64)), null, 'a minute-long rate window is not admitted');
-
-  // The journal is now the store: a second reading admits nothing and changes nothing.
-  store.commandChallenges.write('c1', { ...store.commandChallenges.read('c1'), approved_at: 7 });
-  assert.deepEqual(Object.values(importSqlDiscordAdmission(file, store)), [0, 0, 0]);
-  assert.equal(store.commandChallenges.read('c1').approved_at, 7);
-  assert.ok(readFileSync(file).equals(before), 'the SQLite file is read, never written');
-  assert.deepEqual(readdirSync(root).sort(), ['admission.sqlite', 'journal'], 'no side file or scratch is left beside the source');
-});
-
-test('a legacy store with a pending write-ahead log is refused, not half-read', (t) => {
-  const root = freshRoot(t, 'discord-store-wal-');
-  const file = join(root, 'admission.sqlite');
-  writeLegacySqlite(file, [ADMISSION_MIGRATIONS[0].sql]);
-  writeFileSync(`${file}-wal`, 'pending');
-  const store = createDiscordAdmissionStore({ root: join(root, 'journal') });
-  assert.throws(() => importSqlDiscordAdmission(file, store), /-wal/);
-  assert.throws(() => importSqlDiscordAdmission(join(root, 'absent.sqlite'), store), /legacy store reader refused/);
-});

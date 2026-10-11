@@ -5,8 +5,6 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { writeLegacySqlite } from "./write-legacy-sqlite.mjs";
-import { importSqlRevisionIndex, isSqliteFile } from "../src/search/import-sql-revision-index.mjs";
 import { openRevisionJournal, snippetOf } from "../src/search/revision-journal.mjs";
 
 const scratch = (t) => {
@@ -105,45 +103,14 @@ test("a snippet marks the query's words in the words around the first of them", 
   assert.equal(snippetOf("Pheží salt", "phezi"), "«Pheží» salt");
 });
 
-test("an SQLite archive index is read once into the journal, with a receipt", (t) => {
-  const directory = scratch(t);
-  const file = path.join(directory, "revisions.sqlite");
-  // The layout the SQLite archive index wrote.
-  writeLegacySqlite(file, [
-    `CREATE TABLE body (id TEXT PRIMARY KEY, title TEXT, bytes INTEGER);
-    CREATE VIRTUAL TABLE body_text USING fts5 (id UNINDEXED, title, text, tokenize = 'unicode61 remove_diacritics 2');
-    CREATE TABLE occurrence (id TEXT, source TEXT, path TEXT, revision TEXT, at TEXT, deleted INTEGER, PRIMARY KEY (id, source, path, revision));
-    CREATE TABLE cursor (source TEXT, tip TEXT, PRIMARY KEY (source, tip));`,
-    ["INSERT INTO body VALUES (?, ?, ?)", blob(7), "Cedar", 9],
-    ["INSERT INTO body_text VALUES (?, ?, ?)", blob(7), "Cedar", "cedar fog"],
-    ["INSERT INTO occurrence VALUES (?, ?, ?, ?, ?, ?)", blob(7), "repo", "cedar.md", "c1", "2026-01-01T00:00:00Z", 0],
-    ["INSERT INTO occurrence VALUES (?, ?, ?, ?, ?, ?)", blob(7), "repo", "cedar.md", "c2", "2026-02-01T00:00:00Z", 1],
-    ["INSERT INTO cursor VALUES (?, ?)", "repo", "tip-a"],
-  ]);
-  const before = readFileSync(file);
-  assert.equal(isSqliteFile(file), true);
-  assert.equal(isSqliteFile(path.join(directory, "absent.sqlite")), false);
-
-  const root = `${file}.journal`;
-  const journal = openRevisionJournal({ root });
-  assert.equal(journal.admission, null);
-  assert.deepEqual({ ...importSqlRevisionIndex(file, journal) }, { from: file, bodies: 1, occurrences: 2, sources: 1 });
-
-  assert.ok(readFileSync(file).equals(before), "the SQLite file is read, never written");
-  const again = openRevisionJournal({ root });
-  assert.equal(again.admission.bodies, 1);
-  assert.equal(again.textOf(blob(7)), "cedar fog");
-  assert.deepEqual(again.cursorOf("repo"), ["tip-a"]);
-  assert.deepEqual(again.occurrencesOf(blob(7)), [{ source: "repo", path: "cedar.md", first: "2026-01-01T00:00:00Z", last: "2026-02-01T00:00:00Z", deleted: 1 }]);
-  assert.deepEqual(again.search("fog", { limit: 5 }).map((hit) => hit.key), [blob(7)]);
-  // Read again, nothing is held twice.
-  importSqlRevisionIndex(file, again);
-  assert.equal(openRevisionJournal({ root }).sources()[0].occurrences, 2);
-});
-
-test("SQL is read only in the read-once admission: no other module of the server holds any", () => {
+test("the native server has no historical SQL reader or fixture in its runtime source", () => {
   const holding = readdirSync(source, { recursive: true }).map(String)
-    .filter((file) => file.endsWith(".mjs") && !path.basename(file).startsWith("import-sql-"))
-    .filter((file) => SQL.test(readFileSync(path.join(source, file), "utf8")));
+    .filter((file) => file.endsWith(".mjs"))
+    .filter((file) => SQL.test(readFileSync(path.join(source, file), "utf8")) || /legacy-sqlite-reader|read-legacy-sqlite\.py|historical-revision-index-receiving/u.test(readFileSync(path.join(source, file), "utf8")));
   assert.deepEqual(holding, []);
+  const owner = JSON.parse(readFileSync(path.join(source, "../package.json"), "utf8"));
+  assert.ok(owner.files.includes("!scripts/historical-revision-index-receiving"));
+  assert.equal(owner.scripts.test, "node --test test/*.test.mjs");
+  assert.equal(Object.keys(owner.dependencies).some((name) => name.includes("historical-receiving")), false);
+  assert.equal(readdirSync(path.join(source, "../test")).includes("write-legacy-sqlite.mjs"), false);
 });

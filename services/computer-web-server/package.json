@@ -55,7 +55,6 @@
     "./admission/google": "./src/admission/google.mjs",
     "./admission/discord-command": "./src/admission/discord-command.mjs",
     "./admission/discord-store": "./src/admission/discord-store.mjs",
-    "./admission/import-sql-discord-admission": "./src/admission/import-sql-discord-admission.mjs",
     "./admission/password": "./src/admission/password.mjs",
     "./admission/hive": "./src/admission/hive.mjs",
     "./admission/principals": "./src/admission/principals.mjs",
@@ -81,7 +80,8 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node --test --test-concurrency=2 test/**/*.test.mjs test/*.test.mjs"
+    "test": "node --test --test-concurrency=2 test/**/*.test.mjs test/*.test.mjs",
+    "test:legacy-sql": "node --test scripts/historical-discord-receiving/test/*.test.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",

@@ -39,7 +39,8 @@
     "scripts",
     "src",
     "README.md",
-    "data"
+    "data",
+    "!scripts/historical-revision-index-receiving"
   ],
   "scripts": {
     "check": "node --check src/*.mjs scripts/*.mjs scripts/adapters/*.mjs",
