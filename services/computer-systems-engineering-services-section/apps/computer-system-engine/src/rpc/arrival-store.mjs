@@ -22,8 +22,8 @@ function packetDigest(value) {
   return sha256Hex(canonicalJson(value));
 }
 
-function writePacket(store, at, receipt) {
-  const packet = store.storePacket(at, canonicalJson(receipt.packet));
+function writePacket(store, log, receipt) {
+  const packet = store.storePacket(log, canonicalJson(receipt.packet));
   return Object.freeze({
     digest: packet.sha256,
     path: packet.path,
@@ -261,14 +261,14 @@ export function arrivalStatementRows(receipt, packet, at, rootName) {
 export function appendArrivalAtRoot(root, event, options = {}) {
   const at = options.at ?? event.time;
   const store = openJournal(root);
-  const rootName = journalAppendAddress(root, ARRIVAL_FEED, at, options).rootName;
+  const appendOptions = { ...options, at, subject: options.subject ?? "arrival" };
+  const feed = journalAppendAddress(root, ARRIVAL_FEED, at, appendOptions);
+  const rootName = feed.rootName;
   const receipt = admitCloudEventArrival(event);
-  const packet = writePacket(store, at, receipt);
+  const packet = writePacket(store, feed, receipt);
   const admission = store.appendRows(ARRIVAL_FEED, arrivalStatementRows(receipt, packet, at, rootName), {
-    ...options,
-    at,
+    ...appendOptions,
     rootName,
-    subject: options.subject ?? "arrival",
     caller: options.caller ?? Object.freeze({
       transport: "arrival-admission",
       cloudEventIdentity: receipt.cloudEventIdentity,

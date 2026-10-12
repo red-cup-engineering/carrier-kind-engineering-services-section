@@ -1,7 +1,7 @@
 // A JSON value as a canonical Entity/Ground graph: its nodes and grounding
 // edges as one SEN term of RELATIONAL_VALUE_TYPE, identified by the semantic
 // content address of its ascription.
-import { base64ToBytes, bytesCompare, bytesEqual, bytesToBase64, canonicalizeSemioticJson, concatBytes, decodeSemantic as decodeCanonical, ownedBytes, semanticBytes, semanticId, utf8Bytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { base64ToBytes, bytesCompare, bytesEqual, bytesToBase64, canonicalizeSemioticJson, concatBytes, decodeSemantic as decodeCanonical, ownedBytes, semanticBytes, semanticId, utf8Bytes } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { validateSenTerm, validateSenType } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { judgeSen } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/typing";

@@ -55,17 +55,17 @@ test("parseLegacyLineAsEvents round-trips a legacy EAVT line back through eventF
 // ── head-index path arithmetic ──
 
 test("headPath is a pure function of every argument: changing any one changes the path", () => {
-  const base = headPath("/data/root", "2026-09-21", "hook-sessions", "session-1");
-  assert.equal(headPath("/data/root", "2026-09-21", "hook-sessions", "session-1"), base);
-  assert.notEqual(headPath("/data/other-root", "2026-09-21", "hook-sessions", "session-1"), base);
-  assert.notEqual(headPath("/data/root", "2026-09-22", "hook-sessions", "session-1"), base);
-  assert.notEqual(headPath("/data/root", "2026-09-21", "other-namespace", "session-1"), base);
-  assert.notEqual(headPath("/data/root", "2026-09-21", "hook-sessions", "session-2"), base);
+  const base = headPath({ indexDirectory: "/data/root/data/state/log-state" }, "2026-09-21", "hook-sessions", "session-1");
+  assert.equal(headPath({ indexDirectory: "/data/root/data/state/log-state" }, "2026-09-21", "hook-sessions", "session-1"), base);
+  assert.notEqual(headPath({ indexDirectory: "/data/other-root/data/state/log-state" }, "2026-09-21", "hook-sessions", "session-1"), base);
+  assert.notEqual(headPath({ indexDirectory: "/data/root/data/state/log-state" }, "2026-09-22", "hook-sessions", "session-1"), base);
+  assert.notEqual(headPath({ indexDirectory: "/data/root/data/state/log-state" }, "2026-09-21", "other-namespace", "session-1"), base);
+  assert.notEqual(headPath({ indexDirectory: "/data/root/data/state/log-state" }, "2026-09-21", "hook-sessions", "session-2"), base);
 });
 
 test("headPath addresses a JSON document under the namespace directory, named by the key's digest", () => {
-  const path1 = headPath("/data/root", "2026-09-21", "hook-sessions", "session-1");
-  assert.match(path1, /\/index\/hook-sessions\/[0-9a-f]{64}\.json$/u);
+  const path1 = headPath({ indexDirectory: "/data/root/data/state/log-state" }, "2026-09-21", "hook-sessions", "session-1");
+  assert.match(path1, /\/heads\/2026-09-21\/hook-sessions\/[0-9a-f]{64}\.json$/u);
 });
 
 // ── territory ordering ──

@@ -7,11 +7,11 @@ import test from "node:test";
 import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
 import { eventForRow } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/events";
 import { segmentPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/segment-store";
-import { journalDirectoryOf } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
+import { journalFeedPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
 
 function fixture(run) {
   const root = mkdtempSync(path.join(tmpdir(), "metroplat-verified-read-"));
-  const logPath = path.join(journalDirectoryOf(root), "2026", "09", "07", "2026-09-07-admit-feed.jsonl");
+  const logPath = journalFeedPath(root, "feed", "2026-09-07");
   const statement = eventForRow(["entity", "attribute", "value", "2026-09-07T00:00:00.000Z"], "test");
   try {
     openJournal(root).appendEvents(logPath, [statement]);

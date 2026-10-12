@@ -23,6 +23,7 @@ import {
   readRowEvents,
   readEventsAsOf,
   readJournalHead,
+  readPacketText,
   readStateArtifactInternal,
   readStateInternal,
   scanDailyRowsInternal,
@@ -41,7 +42,7 @@ import {
 import { readThroughDateEvents, readThroughTerritoryEvents } from "./filesystem/territory-cache.mjs";
 import { causalGraphOf, topologicalOrder } from "@red-cup-engineering/semiotic-eavt-services-section/journal/causal-graph";
 import { journalAppendAddress, journalLogArtifact } from "./filesystem/operations/index.mjs";
-import { dataArtifactHandlePath, dataTierDirectory, mementoStateArtifactPath, parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
+import { dataArtifactHandlePath, dataArtifactOfPath, mementoStateArtifactPath, parseArtifactStem, projectDataArtifactPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 
 import { parse } from "@red-cup-engineering/json-services-section";
 import { journalDirectoryOf, settlementRootOf } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
@@ -175,8 +176,17 @@ export class FilesystemJournal {
     });
   }
 
-  storePacket(at, text) {
-    return writePacketText(dataTierDirectory(this.root, "log", at), text);
+  /** The packet reference is relative to this actual feed, not an inferred date. */
+  storePacket(log, text) {
+    const logPath = path.resolve(dataArtifactHandlePath(artifactOf(log), "log"));
+    const coordinate = dataArtifactOfPath(logPath);
+    if (coordinate?.tier !== "log" || coordinate.act !== "admit"
+      || settlementRootOf(logPath) !== path.resolve(this.root)
+      || journalAppendAddress(path.resolve(this.root), coordinate.token, coordinate.date,
+        { subject: coordinate.subject }).path !== logPath) {
+      throw new TypeError("storePacket requires a feed of this journal root");
+    }
+    return writePacketText(logPath, text);
   }
 
   readHead(at, namespace, key) {
@@ -500,7 +510,7 @@ export const journal = Object.freeze({
 
   readPacket(log, relativePath, options) {
     const logPath = dataArtifactHandlePath(artifactOf(log), "log");
-    return parse(options.readFileUtf8(path.join(path.dirname(logPath), relativePath)));
+    return parse(readPacketText(logPath, relativePath, options));
   },
 
 });

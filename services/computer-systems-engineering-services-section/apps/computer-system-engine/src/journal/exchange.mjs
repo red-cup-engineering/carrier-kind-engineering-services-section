@@ -12,7 +12,7 @@
  * travel.
  */
 import path from "node:path";
-import { dataTierDirectory } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
+import { dataArtifactAddress, dataArtifactOfPath } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
 import { admitEvents, listDailyFeedsInternal, readArtifactSource, readEvents } from "./filesystem/write-journal-store.mjs";
 
 const feedName = (root, logPath) => path.relative(root, logPath).split(path.sep).join("/");
@@ -23,14 +23,14 @@ function feedLabel(root, feed, date) {
   }
   const settlement = path.resolve(root);
   const resolved = path.resolve(settlement, feed);
-  const basename = path.basename(resolved);
-  const prefix = `${date}-admit-`;
-  if (path.dirname(resolved) !== path.resolve(dataTierDirectory(settlement, "log", date))
-    || feedName(settlement, resolved) !== feed || !basename.startsWith(prefix) || !basename.endsWith(".jsonl")) {
+  const coordinate = dataArtifactOfPath(resolved);
+  if (coordinate?.tier !== "log" || coordinate.act !== "admit" || coordinate.date !== date
+    || path.resolve(coordinate.root) !== settlement || feedName(settlement, resolved) !== feed
+    || dataArtifactAddress({ root: settlement, tier: "log", encoding: "jsonl", at: date,
+      subject: coordinate.subject, action: coordinate.token }).path !== resolved) {
     throw new TypeError(`settlement exchange: feed ${feed} is not a journal feed of this settlement`);
   }
-  const label = basename.slice(prefix.length, -".jsonl".length);
-  if (!label) throw new TypeError("settlement exchange: feed label is empty");
+  const label = coordinate.token;
   return label;
 }
 

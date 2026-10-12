@@ -6,13 +6,14 @@
 // recomputing them.
 //
 //   <logDir>/<feed>.jsonl.statements/sha256/*.json  content-addressed source statements
-//   <logDir>/packets/sha256/*.json          immutable oversized source packets
+//   <store>/journal-packet-logs/sha256/*.json          immutable oversized source packets
 //   <logDir>/<feed>.jsonl      deterministic EAVT feed projection
 //   <stateDir>/<feed>.json     the current view, projected from the log (bulk)
 //   <recordDir>/<feed>.jsonl   settled invariants (Datoms), projected from source
 //   <contentDir>/<term>/<term>.<type>  content-tier cuts read from records
 
 import path from "node:path";
+import { journalPacketDirectory } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
 import { jsonToTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { eavtKey } from "@red-cup-engineering/eavt-services-section/row";
 
@@ -28,12 +29,12 @@ export const STATEMENT_LOG_READ_MAX_BYTES = 256 * 1024 * 1024;
  *  deleting the boundary value it came from. */
 export const STATEMENT_ROW_MAX_BYTES = 64 * 1024;
 
-export function packetDirectoryPath(logDir) {
-  return path.join(logDir, "packets", "sha256");
+export function packetDirectoryPath(storeRoot) {
+  return path.join(journalPacketDirectory(storeRoot), "sha256");
 }
 
-export function packetArtifactPath(logDir, sha256) {
-  return path.join(packetDirectoryPath(logDir), `${sha256}.json`);
+export function packetArtifactPath(storeRoot, sha256) {
+  return path.join(packetDirectoryPath(storeRoot), `${sha256}.json`);
 }
 
 export function packetReferencePath(logDir, packetPath) {

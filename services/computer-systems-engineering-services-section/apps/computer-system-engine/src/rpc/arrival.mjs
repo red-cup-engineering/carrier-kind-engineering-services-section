@@ -21,7 +21,7 @@ import { termToJson } from '@red-cup-engineering/computer-data-engineering-servi
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
 import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { settleCausalSet } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/causal";
