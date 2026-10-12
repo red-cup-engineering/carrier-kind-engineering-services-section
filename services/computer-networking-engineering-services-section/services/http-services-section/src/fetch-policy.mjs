@@ -22,7 +22,10 @@ export async function authorizePublicHttpUrl(url, context, resolveHost = systemR
     if (addresses.some((address) => !isPublicAddress(address)))
         throw new TypeError("private or special-use network address is not allowed");
 }
-/** Fetch with authorization applied to the initial URL and every redirect hop. */
+/** Fetch with per-hop authorization and one propagated caller AbortSignal.
+ * Injected authorization, fetch and cancellation implementations must honor
+ * their own bounds; this helper does not impose a hard elapsed-time watchdog.
+ */
 export async function fetchWithPolicy(input, init, purpose, boundary = {}) {
     const fetchImpl = boundary.fetchImpl ?? globalThis.fetch;
     if (typeof fetchImpl !== "function")
@@ -33,17 +36,30 @@ export async function fetchWithPolicy(input, init, purpose, boundary = {}) {
         throw new RangeError("maxRedirects must be a non-negative integer");
     let url = new URL(input);
     let request = { ...init, redirect: "manual" };
+    const visited = new Set();
     for (let redirect = 0;; redirect += 1) {
+        request.signal?.throwIfAborted();
+        const key = `${(request.method ?? "GET").toUpperCase()} ${url.href}`;
+        if (visited.has(key)) throw new Error("network redirect loop");
+        visited.add(key);
         await authorize(url, { purpose, redirect });
+        request.signal?.throwIfAborted();
         const response = await fetchImpl(url.href, request);
         if (![301, 302, 303, 307, 308].includes(response.status))
             return response;
         const location = response.headers.get("location");
-        if (!location)
-            return response;
-        if (redirect >= maxRedirects)
-            throw new Error(`network request exceeded ${maxRedirects} redirects`);
-        url = new URL(location, response.url || url.href);
+        // With no destination this is the caller's terminal response, including
+        // its body. Preserve that existing ownership instead of consuming it.
+        if (!location) return response;
+        // Release every intermediate body, including refused redirects. Keeping
+        // unused streams open can exhaust the same bounded observation's pool.
+        try {
+            if (redirect >= maxRedirects)
+                throw new Error(`network request exceeded ${maxRedirects} redirects`);
+            url = new URL(location, response.url || url.href);
+        } finally {
+            await response.body?.cancel?.();
+        }
         if (response.status === 303 || ((response.status === 301 || response.status === 302) && request.method?.toUpperCase() === "POST")) {
             const { body: _body, ...withoutBody } = request;
             request = { ...withoutBody, method: "GET", redirect: "manual" };
@@ -80,3 +96,4 @@ export function isPublicAddress(raw) {
 async function systemResolveHost(hostname) {
     return (await lookup(hostname, { all: true, verbatim: true })).map(({ address }) => address);
 }
+
