@@ -27,10 +27,10 @@ own keys, `WorkingDirectory` pointed at the *same* shared release tree
 (`~/.local/share/561-group/releases/activitypub-services-section/current`) as
 `instance` — no separate code deploy per actor, just per-actor env vars.
 
-| Actor | Unit | Port | Keys | SQLite state | Outbox file |
+| Actor | Unit | Port | Keys | State directory | Outbox file |
 |---|---|---|---|---|---|
-| `crucible@ap.561.group` | `ap-561-group-crucible.service` | 8102 | `~/.local/share/emsenn/activitypub-crucible/keys.json` | `~/.local/share/emsenn/activitypub-crucible/state.sqlite` | `~/.local/share/emsenn/activitypub-561-games/crucible-outbox.json` |
-| `ruinfold@ap.561.group` | `ap-561-group-ruinfold.service` | 8103 | `~/.local/share/emsenn/activitypub-ruinfold/keys.json` | `~/.local/share/emsenn/activitypub-ruinfold/state.sqlite` | `~/.local/share/emsenn/activitypub-561-games/ruinfold-outbox.json` |
+| `crucible@ap.561.group` | `ap-561-group-crucible.service` | 8102 | `~/.local/share/emsenn/activitypub-crucible/keys.json` | `~/.local/share/emsenn/activitypub-crucible` | `~/.local/share/emsenn/activitypub-561-games/crucible-outbox.json` |
+| `ruinfold@ap.561.group` | `ap-561-group-ruinfold.service` | 8103 | `~/.local/share/emsenn/activitypub-ruinfold/keys.json` | `~/.local/share/emsenn/activitypub-ruinfold` | `~/.local/share/emsenn/activitypub-561-games/ruinfold-outbox.json` |
 
 Caddy routes: path-matched `/actors/crucible*` / `/actors/ruinfold*` plus
 query-matched `/.well-known/webfinger?resource=acct:{crucible,ruinfold}@ap.561.group`,

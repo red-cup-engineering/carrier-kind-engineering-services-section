@@ -3,12 +3,8 @@ import test from "node:test";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
-import { SqliteMessageQueue } from "@fedify/sqlite";
 import { createActivityPubJournalCustody } from "../src/journal-custody.mjs";
 import { FlatfileMessageQueue } from "../src/flatfile-queue.mjs";
-import { createActivityPubSqliteCustody } from "../src/sqlite-custody.mjs";
-import { admitSqlActivityPubCustody } from "../src/import-sql-custody.mjs";
 import { createActivityPubOutboxStore } from "../src/outbox-store.mjs";
 
 const scratch = (t, name) => {
@@ -117,59 +113,12 @@ test("queued deliveries are handed on in due order, once, and survive a restart"
   assert.deepEqual(await restarted.getDepth(), { queued: 0, ready: 0, delayed: 0 });
 });
 
-test("SQLite custody is admitted into the journal once, read-only, with its pending deliveries", async (t) => {
-  const directory = scratch(t, "ap-admit-");
-  const databasePath = path.join(directory, "activitypub.sqlite");
-  const database = new DatabaseSync(databasePath);
-  const legacy = createActivityPubSqliteCustody({ database });
-  await legacy.inbox.retain({ recipient: "metroplat", jsonLd: { type: "Create", id: "https://remote.example/arrived" } });
-  await legacy.followers.add({ identifier: "metroplat", actorId: "https://bare-cedar-fog.example/actors/metroplat", inboxId: "https://bare-cedar-fog.example/actors/metroplat/inbox" });
-  await legacy.outbox.append(note(7));
-  await legacy.kv.set(["remote", "key"], { cached: true });
-  await new SqliteMessageQueue(database).enqueue({ deliver: "pending" });
-  database.close();
-  const before = readFileSync(databasePath);
-
-  const custody = createActivityPubJournalCustody({ stateDirectory: path.join(directory, "activitypub.state") });
-  const queue = new FlatfileMessageQueue({ directory: path.join(directory, "activitypub.state", "queue") });
-  const receipt = await admitSqlActivityPubCustody({ databasePath, custody, queue });
-  assert.deepEqual({ arrivals: receipt.arrivals, followers: receipt.followers, outgoing: receipt.outgoing, kv: receipt.kv, messages: receipt.messages }, { arrivals: 1, followers: 1, outgoing: 1, kv: 1, messages: 1 });
-  assert.ok(readFileSync(databasePath).equals(before), "the SQLite file is read, never written");
-  assert.equal((await custody.inboxIndex.list({})).items[0].id, "https://remote.example/arrived");
-  assert.equal(await custody.followers.count({ identifier: "metroplat" }), 1);
-  assert.equal((await custody.outbox.get({ activityId: note(7).id })).id.href, note(7).id);
-  assert.deepEqual(await custody.kv.get(["remote", "key"]), { cached: true });
-  assert.equal((await queue.getDepth()).queued, 1);
-  assert.deepEqual(await admitSqlActivityPubCustody({ databasePath, custody, queue }), receipt, "a second admission returns the first receipt");
-  assert.equal(custody.outbox.count({}), 1);
-});
-
-test("a standalone outbox store admits its SQLite outbox once and appends to the journal", async (t) => {
+test("a standalone outbox store appends to the journal and keeps authored JSON as input only", async (t) => {
   const directory = scratch(t, "ap-outbox-store-");
   const outboxPath = path.join(directory, "outbox.json");
-  const database = new DatabaseSync(`${outboxPath}.sqlite`);
-  await createActivityPubSqliteCustody({ database }).outbox.append(note(1));
-  database.close();
   const store = await createActivityPubOutboxStore({ outboxPath });
-  assert.equal(store.count({}), 1);
+  await store.append(note(1));
   await store.append(note(2));
   const reopened = await createActivityPubOutboxStore({ outboxPath });
   assert.equal(reopened.count({}), 2);
-  assert.ok(existsSync(path.join(`${outboxPath}.journal`, "sql-admission.json")));
-});
-
-
-test("read-once admission refuses changed legacy arrival bytes before writing the journal", async (t) => {
-  const directory = scratch(t, "activitypub-source-commitment-");
-  const databasePath = path.join(directory, "source.sqlite");
-  const database = new DatabaseSync(databasePath);
-  const original = createActivityPubSqliteCustody({ database });
-  await original.inbox.retain({ jsonLd: note("held"), recipient: "metroplat" });
-  database.prepare("UPDATE activitypub_verified_arrivals SET activity_json = ?").run(JSON.stringify(note("changed")));
-  database.close();
-  const custody = createActivityPubJournalCustody({ stateDirectory: path.join(directory, "received") });
-  const queue = new FlatfileMessageQueue({ directory: path.join(directory, "queue") });
-  await assert.rejects(admitSqlActivityPubCustody({ databasePath, custody, queue }), /original custody commitment/u);
-  assert.equal((await custody.inbox.list()).totalItems, 0);
-  assert.equal(existsSync(path.join(custody.root, "sql-admission.json")), false);
 });

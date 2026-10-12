@@ -36,7 +36,7 @@
 // an authenticated publish route the store backs: POST /actors/{identifier}/outbox
 // (provider.mjs's `publish()`). So "publish" here means: authenticate with the actor's own
 // inbox bearer token (the same 0600 file src/server.mjs's readBearerToken / local-server.mjs's
-// resolveBearerToken already persist at <dirname(ACTIVITYPUB_SQLITE_PATH)>/bearer-token) and
+// resolveBearerToken already persist at <ACTIVITYPUB_STATE_DIR>/bearer-token) and
 // POST one signed-shape Create{Note} to that route. The route appends it to the actor's durable
 // outbox -- idempotent by activity id (`<actor>/posts/daily-<date>` or
 // `<actor>/posts/results-<date>`), so running twice in one day is a no-op, not a duplicate post
@@ -54,7 +54,7 @@ import path from "node:path";
 import { ACTIVITYSTREAMS_PUBLIC } from "../../src/activitystreams.mjs";
 
 const ORIGIN = process.env.PALAVERSE_ORIGIN ?? "https://ap.561.group";
-// Root of each actor's own state directory (keys, SQLite state, and the inbox/outbox bearer
+// Root of each actor's own state directory (keys, journal custody, and the inbox/outbox bearer
 // token) -- see the live-deploy runbook's "Actors" table and ops/palaverse-poster/README.md's
 // own table for the exact box paths this defaults to.
 const STATE_DIR_ROOT = process.env.PALAVERSE_STATE_DIR_ROOT
@@ -139,7 +139,7 @@ async function liveReplayUrl(game, dateStr) {
 
 /** Read the actor's inbox/outbox bearer token fresh on every run (never cached, never logged) --
  *  the same 0600 file server.mjs's readBearerToken / local-server.mjs's resolveBearerToken
- *  persist at `<dirname(ACTIVITYPUB_SQLITE_PATH)>/bearer-token`. Reading it fresh means a
+ *  persist at `<ACTIVITYPUB_STATE_DIR>/bearer-token`. Reading it fresh means a
  *  rotated token (ACTIVITYPUB_ROTATE_BEARER_TOKEN, per the live-deploy runbook's "Bearer token"
  *  section) is picked up on the very next poster run with no separate config to update here. */
 async function readBearerToken(stateDir) {

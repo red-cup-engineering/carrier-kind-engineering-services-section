@@ -53,7 +53,7 @@ Durable customer source data remains outside this protocol provider. The Node
 server export is an adapter host: callers must inject their KV, inbox custody,
 and queue implementations. Its explicit
 `testOnlyInProcess` option permits queue-free loopback tests and must never be
-used for a live service. The SQLite adapters below provide durable delivery and custody on the active
+used for a live service. The journal custody and flat-file queue below provide durable delivery and custody on the active
 Node host. The retired Google Cloud Tasks runtime has been removed.
 
 ## Publication profile
@@ -98,7 +98,7 @@ site artifact routes.
 
 Fedify owns the protocol; this package wires it. `createActivityPubProvider`
 accepts an optional `followers` adapter (`add`, `remove`, `list`, `count` —
-see `./sqlite-custody`'s SQLite-backed implementation) and, when one is
+see `./journal-custody`'s journal-backed implementation) and, when one is
 supplied:
 
 - an inbound, signature-verified `Follow` addressed to the actor is retained
@@ -116,7 +116,7 @@ supplied:
 
 Without a `followers` adapter, none of the above wires up: the actor's
 `followers` field stays absent (as before), and a `Follow` is retained as a
-plain unanswered arrival, same as any other unhandled activity type. The `./local-server` SQLite path supplies this adapter.
+plain unanswered arrival, same as any other unhandled activity type. The `./local-server` journal custody supplies this adapter.
 
 Follower storage only remembers each follower's own actor ID; the inbox used
 to send the `Accept` is resolved live from the verified actor document at
@@ -131,15 +131,12 @@ stands.
 
 ## Running a local instance
 
-`./local-server` (bin `serve-local-activitypub-provider`) uses one local
-`node:sqlite` file, opened once,
-backs the Fedify KV store and message queue (both from the official
-`@fedify/sqlite` package, pinned to the same `2.3.1` Fedify release this
-package already depends on) and a small local verified-arrival custody table
-(`./sqlite-custody`) that also serves the actor's own inbox collection and
-follower storage. No network credentials, no external service — state and
-any pending queued deliveries survive a process restart because they live in
-the one file.
+`./local-server` (bin `serve-local-activitypub-provider`) keeps one state directory:
+verified arrivals, followers and the outbox as immutable records in the
+semiotic-eavt store (`./journal-custody`), a flat-file Fedify KV store
+(`./flatfile-kv`) and a flat-file message queue (`./flatfile-queue`). No network
+credentials, no external service — state and any pending queued deliveries
+survive a process restart because they live in that directory.
 
 Generate keys and start one actor:
 
@@ -151,7 +148,7 @@ ACTIVITYPUB_IDENTIFIER=alice \
 ACTIVITYPUB_ACTOR_NAME=Alice \
 ACTIVITYPUB_ACTOR_SUMMARY="Alice, a local devbox actor" \
 ACTIVITYPUB_KEYS_PATH=./alice/keys.json \
-ACTIVITYPUB_SQLITE_PATH=./alice/fedify.sqlite \
+ACTIVITYPUB_STATE_DIR=./alice \
 HOST=127.0.0.1 PORT=8001 \
   node src/local-server.mjs
 ```
@@ -161,7 +158,7 @@ and serves WebFinger, the actor document, and NodeInfo immediately. The
 inbox bearer token itself is never printed — not to stdout, not to stderr,
 so it never lands in a service journal — only where it was persisted:
 
-- by default, `<dirname(ACTIVITYPUB_SQLITE_PATH)>/bearer-token` — e.g.
+- by default, `<ACTIVITYPUB_STATE_DIR>/bearer-token` — e.g.
   `./alice/bearer-token` above — written 0600 the first time it's needed;
 - or the exact path named in `ACTIVITYPUB_INBOX_BEARER_TOKEN_FILE`, if set —
   the same env var and file contract (one private regular file, mode
@@ -210,10 +207,10 @@ curl -H "accept: application/activity+json" -H "authorization: Bearer $BOB_TOKEN
 ```
 
 The delivered activity's Data Integrity proof is verified by Fedify before
-`onActivity` ever fires; the SQLite custody table then retains it
+`onActivity` ever fires; the journal custody then retains it
 content-addressed and immutable, exactly as `./r2-custody` does for the cloud
 path. Killing and restarting Bob's process against the same
-`ACTIVITYPUB_SQLITE_PATH` file leaves `totalItems` on his inbox collection
+`ACTIVITYPUB_STATE_DIR` leaves `totalItems` on his inbox collection
 unchanged — this was verified directly, not assumed.
 
 Two honest limits of this v1 local proof: both actors ran as loopback

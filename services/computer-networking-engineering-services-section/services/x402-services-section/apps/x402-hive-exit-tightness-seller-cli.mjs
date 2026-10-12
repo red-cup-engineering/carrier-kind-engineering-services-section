@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { sellHiveExitTightnessResource } from "../src/hive/sell-hive-exit-tightness-resource.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -25,17 +25,8 @@ export async function serveHiveExitTightnessX402Resource(request) {
     reportCommand: { command: "node", arguments: [HIVE_ENGINE_EXIT_TIGHTNESS_SCRIPT, ...args], directory: HERE },
   });
   if (response.body?.settlement && journalRoot) {
-    const journal = createSemanticRecordJournal({
-      root: journalRoot,
-      objectKind: "red-cup-engineering.x402-hbd-purchase-settlement-record",
-    });
-    const receipt = journal.record({
-      category: "settlement",
-      record: response.body.settlement,
-      recordedAt: new Date().toISOString(),
-      told: { for: true, against: false },
-    });
-    response.body.settlement = { ...response.body.settlement, journal: { id: receipt.id, objectKind: receipt.objectKind } };
+    const address = put(journalRoot, "x402-hbd-purchase-settlement", { ...response.body.settlement, at: new Date().toISOString() });
+    response.body.settlement = { ...response.body.settlement, journal: { id: address, type: "x402-hbd-purchase-settlement" } };
   }
   return response;
 }
