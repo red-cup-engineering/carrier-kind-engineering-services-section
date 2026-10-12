@@ -15,16 +15,15 @@
  * `decode = read`,
  * `encode = write`, `mediaType` from a corner-tagged table, and the projector's
  * content `corner` ⟨addressability, assertivity⟩ and completion `rung` are
- * inherited. The wire therefore carries the decidability invariant for free — a
- * `transfinite-bounded` or `aperiodic` `read` can never become a wire, because `wireOf` rejects
- * any projector whose `read` is not decidable. An unknown name is rejected (a
+ * inherited. `wireOf` rejects a projector whose actual read is not admitted by
+ * the supplier's finite-decidability law. An omega-limit semantic completion
+ * does not establish finite parser or evaluator completion. An unknown name is rejected (a
  * finite vocabulary, witnessed).
  *
  * The SEN wire (`application/sen+json`) is admitted here: `senProjector` is corner
- * `assertion`, rung `scott`, so a closed, well-typed SEN body may travel as the
- * wire, inspected and replayed rather than hidden behind the endpoint. The wire
- * layer inherits the SEN admission boundary; it does not make arbitrary host code
- * safe to read.
+ * `assertion`, rung `strict`: parseSen admits the finite closed, well-typed
+ * syntax and returns it unreduced. Encoding enforces the same SEN domain.
+ * The wire does not evaluate that syntax or claim semantic termination.
  */
 import { canonical, parse as parseJson } from "@red-cup-engineering/json-services-section";
 import { jsonProjector } from "@red-cup-engineering/computer-content-engineering-services-section/json-projector";
@@ -68,9 +67,8 @@ const WIRE_MEDIA_TYPES                                   = Object.freeze({
  *  `decode` reads the boundary document into a single carrier value; `encode`
  *  writes a carrier value back to a document. The projector's content `corner` and
  *  completion `rung` are inherited, and the decidability invariant is enforced
- *  HERE: a projector whose `read` settles at a transfinite-bounded or aperiodic rung is not
- *  admissible as a wire (you would be depending on an undecidable completion to
- *  cross the boundary). A `name`/`mediaType`/`decode`/`encode` override lets a wire
+ *  HERE according to the supplier's finite-decidability law. A semantic
+ *  omega-limit does not itself authorize a completing boundary read. A `name`/`mediaType`/`decode`/`encode` override lets a wire
  *  pin its exact byte form (e.g. EAVT normalizes rows; `string` canonicalizes a
  *  non-string) while still inheriting the grading from its projector. */
 export function wireOf(
@@ -124,14 +122,10 @@ export const eavtCodec            = wireOf(eavtProjector, {
     serializeEavt((Array.isArray(value) ? value : [value])                                    ),
 });
 
-/** The SEN wire: an admitted SEN morphism body as `application/sen+json` (corner
- *  `assertion`, rung `scott`). The term IS JSON, so the wire shares JSON's
- *  read/write; admitting it lets an SEN-bodied action travel as the wire — the
- *  request or response carries the morphism itself. */
-export const senCodec            = wireOf(senProjector, {
-  decode: (document        )            => parseJson(document),
-  encode: (value           )         => `${canonical(value)}\n`,
-});
+/** The SEN wire carries admitted closed, well-typed syntax as application/sen+json.
+ *  It inherits the finite parser read and checked canonical write, not evaluation.
+ *  Valid SEN retains its exact unreduced carrier and canonical JSON newline form. */
+export const senCodec = wireOf(senProjector);
 
 /** The SVG wire: a geometric realization of the presented-category diagram carrier. */
 export const svgCodec            = wireOf(svgProjector                        , {

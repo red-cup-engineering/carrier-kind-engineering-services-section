@@ -2,17 +2,18 @@
  * SEN projection adapter.
  *
  * The formal core owns both SEN admission and the pure projector lattice.
+ * The strict grade belongs to finite syntax admission, not evaluation of the
+ * carried term. No semantic completion is performed by this adapter.
  */
-import { parse as parseJson } from "@red-cup-engineering/json-services-section";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { isRelationalTerm } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/reader";
+import { isRelationalTerm, parseSen } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/reader";
 import { restrict } from "@red-cup-engineering/computer-content-engineering-services-section/typed-resource-classification";
 import { jsonProjector } from "@red-cup-engineering/computer-content-engineering-services-section/json-projector";
 
 export const senProjector = restrict(jsonProjector, {
   type: "sen",
   corner: "assertion",
-  rung: "scott",
+  rung: "strict",
   recognize: (resource) => {
     try {
       return isRelationalTerm(JSON.parse(resource.content));
@@ -20,6 +21,11 @@ export const senProjector = restrict(jsonProjector, {
       return false;
     }
   },
-  read: (resource) => [parseJson(resource.content)],
-  write: (items) => items.map((item) => canonicalJson(item)).join("\n"),
+  read: (resource) => [parseSen(resource.content)],
+  // Preserve this adapter's existing multi-item, no-final-newline byte form.
+  write: (items) => items.map((item) => {
+    const document = canonicalJson(item);
+    parseSen(document);
+    return document;
+  }).join("\n"),
 });
