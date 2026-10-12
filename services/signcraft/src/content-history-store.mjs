@@ -1,4 +1,4 @@
-import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
+import {semanticId} from '@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address';
 import {coincides} from '@red-cup-engineering/signcell/cell';
 import {checkpointHistory,bindHistoryArchive,historyHeads,historySectionOfCells,historySize,historySubjectCells,identifyHistoryCheckpoint,identifyRevision,restoreHistory,retainHistoryCell,validateHistory} from './history.mjs';
 

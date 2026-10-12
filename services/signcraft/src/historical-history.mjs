@@ -1,4 +1,4 @@
-import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
+import {semanticId} from '@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address';
 import {bindHistoryArchive,checkpointHistory,materializeHistory,restoreHistory} from './history.mjs';
 
 /** One-time receiving of the earlier relational representation of SignCraft history.

@@ -6,7 +6,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { address, cell, triple } from "@red-cup-engineering/signcell/cell";
 import { rule } from "@red-cup-engineering/signchain/rules";
-import { coincidenceKey } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { coincidenceKey } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import * as metrologic from "@red-cup-engineering/metrologic/obstruction/settling";
 import {
   settleCells, relate, evidenceIn, settlementAdmits, settlementEvidence, filtration, filtrationOf, increments, firings,

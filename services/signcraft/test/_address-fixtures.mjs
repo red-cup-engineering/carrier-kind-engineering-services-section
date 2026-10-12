@@ -1,5 +1,5 @@
 // Fixed values whose content addresses must never change (portability migration guard).
-import { semanticId, semanticHex } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId, semanticHex } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { cell } from "@red-cup-engineering/signcell/cell";
 import { address } from "@red-cup-engineering/signcell/cell";
 import { createHistory, historyHeads, observeHistory } from "../src/history.mjs";

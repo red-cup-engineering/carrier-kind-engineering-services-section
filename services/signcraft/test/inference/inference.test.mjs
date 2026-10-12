@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { makeInference, infer, inferSettled } from "../../src/inference/infer.mjs";
 import { rule } from "@red-cup-engineering/signchain/rules";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
 // Raw inference over a real house domain: the import-stratification law and
 // custody rules, encoded as data. The kernel derives lawfulness verdicts a
