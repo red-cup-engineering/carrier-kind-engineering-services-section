@@ -42,7 +42,8 @@
   },
   "dependencies": {
     "@red-cup-engineering/communicating": "workspace:*",
-    "@red-cup-engineering/relating": "workspace:*"
+    "@red-cup-engineering/relating": "workspace:*",
+    "@red-cup-engineering/computer-language-systems-engineering-services-section": "workspace:*"
   },
   "sideEffects": false
 }
