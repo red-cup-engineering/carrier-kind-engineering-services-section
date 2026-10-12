@@ -22,6 +22,7 @@
  * @module
  */
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { historyDerivation } from "@red-cup-engineering/signcraft/history";
 import { resolve } from "@red-cup-engineering/organizing/agency";
 import { subjects, cells, certainValue, exitsOf } from "@red-cup-engineering/feltos/world";
 import { OPENING_MOVES, gistOfOpening, houseSectionOf, sectionsOf } from "@red-cup-engineering/organizing/enterprise";
@@ -135,10 +136,26 @@ export function proseOf(move, opening, nameOf = (player) => player) {
  * enclosing them all, as its home is the enterprise seated deepest over what it is about; one about
  * none, in its player's hall; one whose player has no hall, in the plaza. A room hears what is told
  * in it and in every room it encloses; the plaza hears the whole city.
- * `characterName(player)` names a character of the agency's cast, or nothing.
- * @param {{ game: { rooms: Record<string, { name: string, exits: Record<string, string> }>, assertions: ReadonlyArray<object> }, agency: object, plaza: string }} world
+ * `characterName(player)` names a character of the agency's cast, or nothing. Pass the same
+ * function for one immutable naming context, and a new function when that context changes.
+ * @param {{ world: object, agency: object, plaza: string, characterName?: Function }} context
  */
-export function worldPlaces({ world, agency, plaza, characterName = () => undefined }) {
+const unnamedCharacter = () => undefined;
+const placements = new WeakMap();
+/** Reuse one derivation for an immutable agency and name-resolution context. The broad
+ * subjects query deliberately invalidates it on every world-cell change, including reads
+ * made later by its callbacks. Do not narrow that dependency without deriving those reads. */
+export function worldPlaces({ world, agency, plaza, characterName = unnamedCharacter }) {
+  let names = placements.get(agency);
+  if (names === undefined) placements.set(agency, names = new WeakMap());
+  let plazas = names.get(characterName);
+  if (plazas === undefined) names.set(characterName, plazas = new Map());
+  let derive = plazas.get(plaza);
+  if (derive === undefined) plazas.set(plaza, derive = historyDerivation((world) => deriveWorldPlaces({ world, agency, plaza, characterName })));
+  return derive(world);
+}
+
+function deriveWorldPlaces({ world, agency, plaza, characterName }) {
   const roomOf = new Map(), sectionAt = new Map(), thingsOfOffice = new Map();
   for (const subject of subjects(world)) {
     const path = certainValue(world, subject, "section-path");
