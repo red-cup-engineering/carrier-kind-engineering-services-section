@@ -416,7 +416,7 @@ function preparePeerDelivery({ config, provider, deliver, activityOf, onPeerFail
   if (config.deliverWorkToPeer === false) return undefined;
   const peers = workPeersOf(config);
   if (peers.length === 0) return undefined;
-  if (provider === undefined || config.activityPub?.instanceActor?.identifier === undefined) {
+  if ((provider === undefined && deliver === deliverActivity) || config.activityPub?.instanceActor?.identifier === undefined) {
     throw new TypeError("federated work requires the instance ActivityPub actor");
   }
   const identifier = config.activityPub.instanceActor.identifier;

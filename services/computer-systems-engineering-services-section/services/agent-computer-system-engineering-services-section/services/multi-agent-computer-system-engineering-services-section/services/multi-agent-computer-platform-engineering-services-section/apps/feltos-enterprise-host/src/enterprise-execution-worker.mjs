@@ -7,10 +7,23 @@ import { installedEnterpriseWeb } from "./installed-web.mjs";
 import { enterpriseOperationRuntime } from "./enterprise-runtime.mjs";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
 import { metroplatEnvironment } from "./serve-instance.mjs";
+import { boundedWorkerMessage, receivedWorkerError, RESIDENT_OPERATIONS, workerError } from "./enterprise-worker-message.mjs";
 
 const environment = { ...workerData.environment };
 const executionContext = new AsyncLocalStorage();
 const pendingOpenings = new Map();
+const pendingPorts = new Map();
+
+function replicationPort(port, input) {
+  const executionId = executionContext.getStore();
+  if (typeof executionId !== "string") throw new TypeError("native replication port requires an active authorized invocation");
+  const id = randomUUID();
+  return new Promise((resolve, reject) => {
+    pendingPorts.set(id, { resolve, reject });
+    try { parentPort.postMessage(boundedWorkerMessage({ kind: "replication-port", id, executionId, port, input })); }
+    catch (error) { pendingPorts.delete(id); reject(error); }
+  });
+}
 
 function openOnHost(opening) {
   const executionId = executionContext.getStore();
@@ -18,7 +31,7 @@ function openOnHost(opening) {
   const id = randomUUID();
   return new Promise((resolve, reject) => {
     pendingOpenings.set(id, { resolve, reject });
-    try { parentPort.postMessage({ kind: "open-work", id, executionId, opening }); }
+    try { parentPort.postMessage(boundedWorkerMessage({ kind: "open-work", id, executionId, opening })); }
     catch (error) { pendingOpenings.delete(id); reject(error); }
   });
 }
@@ -30,7 +43,13 @@ async function openExecutionSurface() {
   const installed = { ...installedMetroplat, web };
   const config = enterpriseWebConfig(installed, instancePath, environment, { requireTls: true });
   Object.assign(environment, Object.fromEntries(Object.entries(metroplatEnvironment(config)).filter(([, value]) => value !== undefined)));
-  const runtime = enterpriseOperationRuntime({ installed, config, environment, activityPubProvider: () => undefined, openWork: openOnHost });
+  const runtime = enterpriseOperationRuntime({ installed, config, environment, activityPubProvider: () => undefined, openWork: openOnHost,
+    replicationTransport: {
+      deliver: (_provider, request) => replicationPort("deliver", request),
+      signedGet: url => replicationPort("signed-get", url),
+      admit: (activity, peer) => replicationPort("admit-held", { activity, peer }),
+    },
+  });
   const metroplat = await openMetroplatMcp({
     dataRoot: config.metroplatDataRoot,
     environment,
@@ -44,9 +63,9 @@ async function openExecutionSurface() {
   // Intake and execution bodies run here; an opening alone crosses back to the
   // host thread, where the supervised ActivityPub provider and queue remain owned.
   const operations = new Map(surface.operations
-    .filter((candidate) => candidate.verb === "enterprise-loop-run" || candidate.verb === "enterprise-work-run")
+    .filter((candidate) => RESIDENT_OPERATIONS.includes(candidate.verb))
     .map((candidate) => [candidate.verb, candidate]));
-  if (operations.size !== 2) throw new TypeError("enterprise execution worker has no complete enterprise turn operation family");
+  if (operations.size !== RESIDENT_OPERATIONS.length) throw new TypeError("enterprise execution worker has no complete resident operation family");
   return operations;
 }
 
@@ -60,15 +79,22 @@ const ready = workerData.linkOnly === true
   });
 
 parentPort.on("message", async (message) => {
+  boundedWorkerMessage(message);
+  if (message?.kind === "replication-port-result") {
+    const pending = pendingPorts.get(message.id);
+    if (pending === undefined) return;
+    pendingPorts.delete(message.id);
+    if (message.ok) pending.resolve(message.value);
+    else pending.reject(receivedWorkerError(message.error));
+    return;
+  }
   if (message?.kind === "open-work-result") {
     const pending = pendingOpenings.get(message.id);
     if (pending === undefined) return;
     pendingOpenings.delete(message.id);
     if (message.ok) pending.resolve(message.value);
     else {
-      const error = new Error(message.error?.message ?? "host work opening failed");
-      error.name = message.error?.name ?? "Error";
-      pending.reject(error);
+      pending.reject(receivedWorkerError(message.error));
     }
     return;
   }
@@ -82,9 +108,9 @@ parentPort.on("message", async (message) => {
       kind: "metroplat.rpc.execution-context", invocation: context.invocation, decision: context.decision, operation,
       startedAt: context.startedAt, evidence: context.evidence,
     })));
-    parentPort.postMessage({ kind: "result", id, value });
+    parentPort.postMessage(boundedWorkerMessage({ kind: "result", id, value }));
   } catch (error) {
-    parentPort.postMessage({ kind: "error", id, error: { name: error?.name ?? "Error", message: error instanceof Error ? error.message : String(error) } });
+    parentPort.postMessage({ kind: "error", id, error: workerError(error) });
   }
 });
 
