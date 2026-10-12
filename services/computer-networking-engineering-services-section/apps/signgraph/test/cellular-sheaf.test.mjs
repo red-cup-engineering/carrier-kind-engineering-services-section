@@ -4,7 +4,7 @@ import { cell } from "@red-cup-engineering/signcell/cell";
 import { cohomologyReceiptOfCells } from "../src/cohomology.mjs";
 import {
   apply, applyLaplacian, cellularSheaf, cellularSheafCohomology, coboundary, cochain, constantSheaf,
-  diffuse, harmonicProjection, hodgeCheck, rigidityReceipt, rigiditySheaf, sheafLaplacian,
+  completeCochain, diffuse, harmonicProjection, hodgeCheck, rigidityReceipt, rigiditySheaf, sheafLaplacian,
 } from "../src/cellular-sheaf.mjs";
 
 const near = (a, b, eps = 1e-9) => assert.ok(Math.abs(a - b) <= eps, `${a} !~ ${b}`);
@@ -182,4 +182,34 @@ test("body-bar: equilibrium of a loaded rigid pair via solveNormal (unit rows ar
   assert.ok(r.consistent);
   // tension is negative compression; moment balance puts the whole weight on the two bars at y = 0
   near(r.section[0], -1.5, 1e-9); near(r.section[1], -1.5, 1e-9); near(r.section[2], 0, 1e-9);
+});
+
+test("measured cochains do not conflate missing observations with numerical zero", () => {
+  const s = constantSheaf(["issuer", "venue", "news"], [["issuer", "venue"], ["venue", "news"]]);
+  assert.deepEqual(completeCochain(s, [
+    { vertex: "issuer", value: 0 }, { vertex: "venue", value: 0.02 }, { vertex: "news", value: -0.01 },
+  ]), [0, 0.02, -0.01]);
+  assert.throws(() => completeCochain(s, [{ vertex: "issuer", value: 0 }, { vertex: "venue", value: 0.02 }]), /unobserved vertices/);
+  assert.throws(() => completeCochain(s, [{ vertex: "issuer", value: 0 }, { vertex: "issuer", value: 0.01 },
+    { vertex: "venue", value: 0.02 }, { vertex: "news", value: 0.03 }]), /duplicate observed vertex/);
+  assert.equal(cochain(s, [{ vertex: "issuer", value: 0 }])[2], 0, "algebraic cochain retains intentional zero-fill semantics");
+});
+
+test("measured cochains refuse nonfinite, coerced or incomplete stalk vectors", () => {
+  const s = constantSheaf(["a", "b"], [["a", "b"]], 2);
+  assert.deepEqual(completeCochain(s, [
+    { vertex: "a", value: [0, 1] }, { vertex: "b", value: [-2, 3] },
+  ]), [0, 1, -2, 3]);
+  for (const bad of [NaN, Infinity, "0", null, undefined]) {
+    assert.throws(() => completeCochain(s, [{ vertex: "a", value: [0, bad] },
+      { vertex: "b", value: [-2, 3] }]), /finite observed stalk coordinates/);
+  }
+  assert.throws(() => completeCochain(s, [{ vertex: "a", value: [0] },
+    { vertex: "b", value: [-2, 3] }]), /finite observed stalk coordinates/);
+  assert.throws(() => completeCochain(s, [{ vertex: "a", value: [0, 1] },
+    { vertex: "other", value: [-2, 3] }]), /unrecognized observed vertex/);
+  const observed = completeCochain(s, [
+    { vertex: "a", value: [0, 1] }, { vertex: "b", value: [-2, 3] },
+  ]);
+  assert.ok(Object.isFrozen(observed));
 });
