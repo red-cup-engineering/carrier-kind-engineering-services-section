@@ -224,16 +224,33 @@ function recordedAt(time, fallback) {
  * (`work-item-causal-set.mts`'s `WorkItemObservation.parent` docstring).
  */
 
+/** Whether a witnessed consequence actually depends on this exact opening. */
+export function causallyFollows(directCauses, obligation, causesByWitness) {
+  const pending = [...(directCauses ?? [])];
+  const visited = new Set();
+  while (pending.length > 0) {
+    const cause = pending.pop();
+    if (cause === obligation) return true;
+    if (visited.has(cause)) continue;
+    visited.add(cause);
+    pending.push(...(causesByWitness.get(cause) ?? []));
+  }
+  return false;
+}
+
 export function workItemObservationCollector() {
   const state = new Map();
   const openObservationIndex = new Map();
   const observations = [];
   const withdrawn = new Set();
+  const causesByWitness = new Map();
+  const witnessedDeclarations = new Set();
   let index = 0;
   const push = (
     row,
     witness,
   ) => {
+    if (witness?.id !== undefined) causesByWitness.set(witness.id, witness.core.causes);
     const [, attribute, value, time] = row;
     const cellField = recordAt(attribute, "cell");
     const readingField = recordAt(attribute, "reading");
@@ -252,6 +269,10 @@ export function workItemObservationCollector() {
       return;
     }
     const obligation = workLedgerObligationOfRow(row);
+    if (obligation !== undefined) {
+      if (obligation.source?.startsWith("structured-work-intent:") && witness !== undefined) witnessedDeclarations.add(scope);
+      else witnessedDeclarations.delete(scope);
+    }
     if (obligation !== undefined && withdrawn.has(scope)) {
       const opening = observations[openObservationIndex.get(scope)];
       if (witness?.id === opening?.obligationWitness?.witness) return;
@@ -290,6 +311,12 @@ export function workItemObservationCollector() {
     }
     if (discharged || (terminal && current === "open")) {
       if (current !== "open") return;
+      const currentOpening = observations[openObservationIndex.get(scope)];
+      // A received report remains evidence about its original declaration.
+      // It cannot settle a different canonical opening merely because its row
+      // follows that opening in a deterministic order of concurrent witnesses.
+      if (discharged && witness !== undefined && currentOpening?.obligationWitness?.witness !== undefined
+          && !causallyFollows(witness.core.causes, currentOpening.obligationWitness.witness, causesByWitness)) return;
       event = "settled";
       state.set(scope, "settled");
       const openingIndex = openObservationIndex.get(scope);
@@ -303,6 +330,11 @@ export function workItemObservationCollector() {
       }
       openObservationIndex.delete(scope);
     } else if (current !== "open") {
+      // A settled witnessed declaration is reopened by another declaration,
+      // not by late execution, proposal or receiving metadata. Those rows keep
+      // their journal and causal evidence without manufacturing an anonymous
+      // opening through which an older discharge could settle different work.
+      if (current === "settled" && witnessedDeclarations.has(scope) && obligation === undefined) return;
       event = "opened";
       state.set(scope, "open");
     } else {

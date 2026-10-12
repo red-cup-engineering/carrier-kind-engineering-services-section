@@ -98,6 +98,22 @@ async function heldFixture(t) {
   return { dataRoot, recipient, put, read };
 }
 
+test("journal normalization cannot rehold received content, while changed content stays distinct", async t => {
+  const { dataRoot, recipient, read } = await heldFixture(t);
+  const activity = { id: "https://holder.invalid/activities/order", actor: "https://holder.invalid/actors/metroplat",
+    to: [recipient], object: { z: "last", a: "first" } };
+  const first = holdForPeer({ dataRoot, recipient, activity, at: "2026-10-10T12:00:00Z" });
+  const page = read();
+  assert.equal(page.items.length, 1);
+  const normalized = { object: { a: "first", z: "last" }, to: [recipient], actor: activity.actor, id: activity.id };
+  const replay = holdForPeer({ dataRoot, recipient, activity: normalized, at: "2026-10-11T12:00:00Z" });
+  assert.equal(replay.id, first.id);
+  assert.deepEqual(read(page.after).items, []);
+  const changed = holdForPeer({ dataRoot, recipient, activity: { ...normalized, object: { a: "changed", z: "last" } } });
+  assert.notEqual(changed.id, first.id);
+  assert.deepEqual(read(page.after).items.map(row => row.id), [changed.id]);
+});
+
 test("admission cursors retain same-day clock rollback and safely replay legacy address cursors", async t => {
   const { dataRoot, recipient, put, read } = await heldFixture(t);
   const first = put("first", "2026-10-10T12:00:00Z");

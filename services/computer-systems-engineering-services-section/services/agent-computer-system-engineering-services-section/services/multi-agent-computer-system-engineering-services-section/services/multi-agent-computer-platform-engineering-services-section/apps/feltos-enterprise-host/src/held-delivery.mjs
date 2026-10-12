@@ -45,8 +45,8 @@ export function holdForPeer({ dataRoot, recipient, activity, at = new Date().toI
   if (typeof recipient !== "string" || recipient === "") throw new TypeError("a held delivery names the actor it is held for");
   if (activity === null || typeof activity !== "object" || Array.isArray(activity)) throw new TypeError("a held delivery is one authored activity");
   const record = JSON.parse(JSON.stringify({ recipient, activity }));
-  const bytes = JSON.stringify(record.activity);
-  const known = heldRows(dataRoot, recipient).find((row) => JSON.stringify(row.activity) === bytes);
+  const bytes = canonicalJson(record.activity);
+  const known = heldRows(dataRoot, recipient).find((row) => canonicalJson(row.activity) === bytes);
   if (known !== undefined) return Object.freeze({ held: true, recipient, id: known.id });
   const { id } = heldJournal(dataRoot).record({ category: "held", recordedAt: at, record, told: { for: true, against: false } });
   return Object.freeze({ held: true, recipient, id });
