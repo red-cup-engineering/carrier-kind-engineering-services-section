@@ -1,8 +1,0 @@
-{
-  "name": "@red-cup-engineering/node-job-service",
-  "version": "0.1.0",
-  "type": "module",
-  "exports": {
-    ".": "./src/node-job.mjs"
-  }
-}
