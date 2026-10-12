@@ -21,7 +21,7 @@ import { causalOrder, firingEvent, orderingFraction } from "@red-cup-engineering
  * directly via `membraneMeme` ∘ `relationGraphOfCells`. Total over any membrane. A LEAF over relating +
  * the package's own meme surface (does NOT import @red-cup-engineering/animating).
  */
-import { utteranceCarrier } from "@red-cup-engineering/relating";
+import { utteranceCarrier } from "@red-cup-engineering/relating/carriers";
 import { cohomologyReceiptOfCells } from "@red-cup-engineering/signgraph/cohomology";
 import { receipt } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/chromatic-lorentzian";
 import { cell } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/transfinite-cell-complex";

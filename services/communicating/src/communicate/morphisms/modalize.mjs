@@ -1,5 +1,5 @@
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
-import { memeCarrier } from "@red-cup-engineering/relating";
+import { memeCarrier } from "@red-cup-engineering/relating/carriers";
 
 import { modalizeInputCarrier } from "../carriers.mjs";
 import { modalizeTerm } from "../expressing.mjs";

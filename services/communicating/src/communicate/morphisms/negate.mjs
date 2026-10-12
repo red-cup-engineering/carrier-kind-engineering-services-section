@@ -2,7 +2,7 @@
  * communicate/morphisms/negate - the polarity involution (Meme -> Meme).
  */
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
-import { memeCarrier } from "@red-cup-engineering/relating";
+import { memeCarrier } from "@red-cup-engineering/relating/carriers";
 import { negateTerm } from "../expressing.mjs";
 
 export const negateAction = operation({

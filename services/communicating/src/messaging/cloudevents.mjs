@@ -7,7 +7,7 @@
  * functorial view of `UtteranceCarrier`, not a parallel event ontology.
  */
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
 
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 import { mark, utterance } from "@red-cup-engineering/signcell/utterance";

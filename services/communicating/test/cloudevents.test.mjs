@@ -6,7 +6,7 @@ import { mark, utterance } from "@red-cup-engineering/signcell/utterance";
 import {
   EMPTY_WITNESS_ROOT,
   identifyJsonSemanticContent,
-} from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
+} from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
 import {
   CLOUDEVENTS_DATA_CONTENT_TYPE,
   CLOUDEVENTS_JSON_CONTENT_TYPE,
