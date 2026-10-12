@@ -1,6 +1,6 @@
 {
   "name": "@lenticule-science/astronomy-position-computation-service",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "type": "module",
   "description": "Pure, provenance-carrying geocentric ecliptic position computation for astronomy consumers.",
   "engines": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "check": "node --check src/index.mjs && node --check src/astronomy-positions.mjs && node --check src/precision-provider.mjs && node --check src/event-products.mjs && node --check src/time.mjs",
+    "check": "node --check src/index.mjs && node --check src/astronomy-positions.mjs && node --check src/precision-provider.mjs && node --check src/event-products.mjs && node --check src/time.mjs && node --check src/angular-geometry.mjs",
     "prepack": "npm test"
   },
   "main": "./src/index.mjs",
