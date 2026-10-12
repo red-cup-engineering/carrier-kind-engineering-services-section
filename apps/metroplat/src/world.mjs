@@ -633,7 +633,7 @@ export function createMetroplatWorld({ binding, operations, identity, characterC
       const subject = [...actors].find(([, character]) => actorIdFor(character) === actor)?.[0] ?? actor;
       return projectOperationAffordances(operation === undefined ? [...catalog.values()] : [operation], readStanding(binding, subject), subject);
     };
-    const world = { agency, game, actors, root, affordances };
+    const world = { agency, game, actors, root, affordances, characterName: (player) => characterNameIn(agency, player) };
     const server = createMudServer(game, { runtime: composeCapabilities([worldCapability({ verbs: catalog, affordances, work: workOf(world) })]) });
     state = Object.assign(world, { server });
     return state;
@@ -652,7 +652,7 @@ export function createMetroplatWorld({ binding, operations, identity, characterC
   // board's quests read through it. What a command showed as data waits for its turn here.
   const stashed = new Map();
   const heardTo = new Map();
-  const placesOf = (world) => worldPlaces({ world: world.server.engine().world, agency: world.agency, plaza: PLAZA, characterName: (player) => characterNameIn(world.agency, player) });
+  const placesOf = (world) => worldPlaces({ world: world.server.engine().world, agency: world.agency, plaza: PLAZA, characterName: world.characterName });
   const workOf = (world) => Object.freeze({
     places: () => placesOf(world),
     tellings: () => (tellings ??= createTellings({ dataRoot: binding.dataRoot })).read(placesOf(world)),

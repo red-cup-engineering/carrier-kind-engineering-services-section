@@ -13,8 +13,8 @@
  * the arena's readings of the board (`threadSummary`, `duesOf`, `agendaOf`), never the world's.
  *
  * The board is the settlement's own (feltos/work/work-board), replayed from the record index the
- * enterprise loops replay; it is read again at most every `FRESH` milliseconds, so a crowd asking
- * after quests costs one replay, and at once after a character's own move, so it sees what it did.
+ * enterprise loops replay. Its reader owns replay reuse by actual journal, agency and clock
+ * inputs; an outer timeout must not conceal a new move or a changed time horizon.
  * @module
  */
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
@@ -22,7 +22,7 @@ import { canonicalPlayer } from "@red-cup-engineering/organizing/agency";
 import { CLOSED_STANDINGS, HORIZONS, agendaOf, attentionOf, byAttention, duesOf, horizonOf, sectionsOf, territoriesOf, threadSummary, workHomesOf } from "@red-cup-engineering/organizing/enterprise";
 import { clip, handleOf } from "./world-tellings.mjs";
 
-/** How long one reading of the board serves, in milliseconds. */
+/** Legacy refresh interval, retained for callers; freshness now belongs to the board reader. */
 export const FRESH = 10_000;
 /** How many quests a room lists at once. */
 export const QUESTS = 12;
@@ -75,12 +75,12 @@ export const journalSchema = Object.freeze({
  */
 export function createQuests({ binding, agency, now = Date.now }) {
   const store = workBoardStore(binding, { territories: () => territoriesOf([...agency().enterprises.values()]), agency, homes: workHomesOf(agency) });
-  let reading, readAt = -Infinity, placedFor;
+  let reading, placedFor, placedOpenings = [], placed;
   const read = (places) => {
     const instant = now();
-    if (reading === undefined || instant - readAt >= FRESH) {
-      readAt = instant;
-      const board = store.read(new Date(instant).toISOString());
+    const currentAgency = agency();
+    const board = store.read(new Date(instant).toISOString());
+    if (reading === undefined || reading.board !== board || reading.agency !== currentAgency) {
       const order = byAttention(attentionOf(board));
       const rank = (thread) => HORIZONS.indexOf(horizonOf(thread) ?? "eventually");
       const open = board.threads.filter((thread) => !CLOSED_STANDINGS.includes(thread.standing))
@@ -88,19 +88,24 @@ export function createQuests({ binding, agency, now = Date.now }) {
       const byHandle = new Map(), byId = new Map(board.threads.map((thread) => [thread.id, thread]));
       for (const thread of board.threads) byHandle.set(handleOf(thread.id), [...(byHandle.get(handleOf(thread.id)) ?? []), thread]);
       const position = new Map(open.map((thread, index) => [thread.id, index]));
-      reading = { board, open, byHandle, byId, rank: (id) => position.get(id) ?? open.length, agendas: new Map(), placed: undefined };
+      reading = { board, agency: currentAgency, open, byHandle, byId, rank: (id) => position.get(id) ?? open.length, agendas: new Map(), placed: undefined };
     }
-    // A thread's room depends on the world it is placed in; it is placed again when either moves.
-    if (reading.placed === undefined || placedFor !== places) {
-      reading.placed = new Map(reading.board.threads.map((thread) => [thread.id, places.placeOf({ sections: sectionsOf(thread), by: thread.opening.by })]));
+    // A clock-only board reading changes attention, not an unchanged opening's room.
+    // Keep only this board's immutable opening inputs and this world's placement context.
+    const openings = board.threads.map(thread => thread.opening);
+    if (placed === undefined || placedFor !== places || placedOpenings.length !== openings.length
+      || openings.some((opening, index) => opening !== placedOpenings[index])) {
+      placed = new Map(board.threads.map((thread) => [thread.id, places.placeOf({ sections: sectionsOf(thread), by: thread.opening.by })]));
       placedFor = places;
+      placedOpenings = openings;
     }
+    reading.placed = placed;
     return reading;
   };
   // One player's agenda, once per reading of the board.
   const agendaFor = (reading, player) => {
     if (!reading.agendas.has(player)) {
-      const agency_ = agency();
+      const agency_ = reading.agency;
       reading.agendas.set(player, agendaOf(reading.board, player, { playerIdentity: (other) => canonicalPlayer(agency_, other) }));
     }
     return reading.agendas.get(player);
@@ -157,12 +162,14 @@ export function createQuests({ binding, agency, now = Date.now }) {
     },
     /** Read the board again when next asked: a move was played on it. */
     forget() {
-      readAt = -Infinity;
+      reading = undefined;
     },
     /** One thread as a room tells it: its quest, its whole summary and who owes what. */
     detail(thread, places) {
-      const { placed } = read(places);
-      return Object.freeze({ quest: questOf(thread, placed), summary: threadSummary(thread), dues: duesOf(thread) });
+      const { placed, byId } = read(places);
+      const current = byId.get(thread.id);
+      if (current === undefined) throw new TypeError(`world-quests: thread ${thread.id} is not in the current board`);
+      return Object.freeze({ quest: questOf(current, placed), summary: threadSummary(current), dues: duesOf(current) });
     },
   });
 }
