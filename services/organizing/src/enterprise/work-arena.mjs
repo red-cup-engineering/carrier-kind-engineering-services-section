@@ -168,7 +168,7 @@
  * on the record (`retaken`, `lapsedSubjectsOf`), never rewritten.
  * @packageDocumentation
  */
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 import { gameRules, hashPosition } from "@red-cup-engineering/gaming/running/rules";
 import { readingOfSides, truthMeetReading } from "@red-cup-engineering/computer-data-engineering-services-section/four";

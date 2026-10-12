@@ -6,7 +6,7 @@ import {
 } from "./causal-set.mjs";
 import { dutiesOfAgent, juralRelationsOfClaimRows, workItemOfCell, workLevelBelow } from "@red-cup-engineering/socializing/office";
 import { readJuralRelations } from "@red-cup-engineering/socializing/jural";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import {
   causalHeightStrata,
   settleCausalSet,

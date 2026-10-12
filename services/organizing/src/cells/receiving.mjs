@@ -5,7 +5,7 @@
  * Receiving acceptance is derived from source assertions tied to the exact
  * receiver + subject + execution receipt; callers cannot inject "held".
  */
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 function nonempty(value, label) {

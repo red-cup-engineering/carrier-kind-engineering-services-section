@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { canonicalJson, parseJsonValue } from "@red-cup-engineering/json-services-section";
-import { canonicalCarrier, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { canonicalCarrier, semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { skillSuccess } from "@red-cup-engineering/animating/becoming/doing/working/governing/skill";
 import { admitAgencyWorkResult, typedResultOf, workResultFromSkillResult } from "../src/work/schema.mjs";
 

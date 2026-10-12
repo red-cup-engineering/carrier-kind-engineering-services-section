@@ -8,7 +8,7 @@ import { makeNiUri, isNiUri } from "@red-cup-engineering/uri-services-section/ni
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { gitSourceWorkingCopyBindingSchema } from "@red-cup-engineering/git-services-section/git-command-codec";
 import { parseGitmodules } from "@red-cup-engineering/git-services-section/gitmodules";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { revisionOf } from "./acts.mjs";

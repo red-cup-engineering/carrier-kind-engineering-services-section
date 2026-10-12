@@ -21,7 +21,7 @@ import {
 } from "@red-cup-engineering/gaming";
 
 import { traceTile } from "@red-cup-engineering/computing/trace-holography";
-import { semanticHex } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticHex } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
 
 export const observationGameProjectionSchema = {
