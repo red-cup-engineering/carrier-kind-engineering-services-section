@@ -1,0 +1,251 @@
+{
+  "recordType": "561-group.x402-market-402index-registration-receipt",
+  "date": "2026-09-12",
+  "market": "market.561.group",
+  "face": "edge",
+  "index": "https://402index.io",
+  "endpoint": "https://402index.io/api/v1/register",
+  "domainVerification": {
+    "method": "INDEX_VERIFICATION_HASH secret on the edge face",
+    "verified": true
+  },
+  "derivedBy": "scripts/derive-402index-registrations.mjs --runtime edge",
+  "contact": "morgan.sennhauser@gmail.com",
+  "note": "Every edge offer the live face serves was registered once; each row is the request body the derivation produced and the index's response verbatim. The seven node-only offers are not registered until the Node runner is live. The three medical-glossary offers were registered on the redeployment at app 0.2.1 (Worker 22b9af02).",
+  "summary": {
+    "registered": 20,
+    "refused": 0
+  },
+  "registrations": [
+    {
+      "recordedAt": "2026-09-12T05:55:40Z",
+      "status": 201,
+      "gateway": "ephemeris",
+      "name": "Moment Essentials",
+      "url": "https://market.561.group/v1/ephemeris/moment/2026-07-21T00:00:00Z",
+      "priceUsd": 0.04,
+      "serviceId": "942135da-3ceb-4c36-ad40-3c0eb5320d98",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:55:44Z",
+      "status": 201,
+      "gateway": "astronomy",
+      "name": "Astronomy Positions",
+      "url": "https://market.561.group/v1/astronomy/positions/2026-07-21T00:00:00Z",
+      "priceUsd": 0.04,
+      "serviceId": "019f13bd-4592-4b94-84cb-2bac4ceaf222",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:55:47Z",
+      "status": 201,
+      "gateway": "x402-market",
+      "name": "x402 Market Observation",
+      "url": "https://market.561.group/v1/x402-market/observation",
+      "priceUsd": 0.1,
+      "serviceId": "5ad0c336-48ac-4c9d-8d4b-fdb837e1a522",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:55:53Z",
+      "status": 201,
+      "gateway": "pacing",
+      "name": "Pacing Analysis",
+      "url": "https://market.561.group/v1/pacing/analysis",
+      "priceUsd": 0.05,
+      "serviceId": "9299f2c1-1728-42fc-912d-99024d099199",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:55:56Z",
+      "status": 201,
+      "gateway": "pacing",
+      "name": "Heart-Rate Threshold",
+      "url": "https://market.561.group/v1/pacing/heart-rate-threshold",
+      "priceUsd": 0.01,
+      "serviceId": "8c8f84d4-b085-404c-a4f3-80419d1fff1f",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:55:59Z",
+      "status": 201,
+      "gateway": "value-chain",
+      "name": "Value-Chain Shares",
+      "url": "https://market.561.group/value-chain/shares",
+      "priceUsd": 0.04,
+      "serviceId": "715365b8-93e8-49ab-b4dc-8d8dac98781f",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:02Z",
+      "status": 201,
+      "gateway": "territory",
+      "name": "Territory Readout",
+      "url": "https://market.561.group/territory/readout",
+      "priceUsd": 0.08,
+      "serviceId": "f8c44bfb-de74-4683-8d2c-9b7bcc91ecc2",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:04Z",
+      "status": 201,
+      "gateway": "orphan-patch",
+      "name": "Orphan-Patch Score",
+      "url": "https://market.561.group/v1/orphan-patch/score",
+      "priceUsd": 0.02,
+      "serviceId": "e60924a2-7d7d-4cbf-991b-b64ebca1cb92",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:07Z",
+      "status": 201,
+      "gateway": "base-chain",
+      "name": "Base Address Balance",
+      "url": "https://market.561.group/v1/base-chain/balance?address=0x4200000000000000000000000000000000000006",
+      "priceUsd": 0.001,
+      "serviceId": "77bfe6b0-8e80-4c94-ae13-64a5b504e899",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:11Z",
+      "status": 201,
+      "gateway": "base-chain",
+      "name": "Base Gas Oracle",
+      "url": "https://market.561.group/v1/base-chain/gas-oracle",
+      "priceUsd": 0.001,
+      "serviceId": "21e3cefc-7fe6-41ea-9a48-e41a59e669ec",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:14Z",
+      "status": 201,
+      "gateway": "base-chain",
+      "name": "Base Transaction Check",
+      "url": "https://market.561.group/v1/base-chain/transaction?hash=0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "priceUsd": 0.002,
+      "serviceId": "7720d0b4-51f9-4f79-acb7-87b793a6e9ff",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:17Z",
+      "status": 201,
+      "gateway": "pre-sign",
+      "name": "Trashpanda Base Pre-Sign Policy Conformance",
+      "url": "https://market.561.group/v1/pre-sign/conformance",
+      "priceUsd": 0.03,
+      "serviceId": "e8b3ac49-6202-4d10-8f99-10c1c88e1ab9",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:20Z",
+      "status": 201,
+      "gateway": "market-action",
+      "name": "Trashpanda Market Action Admission",
+      "url": "https://market.561.group/v1/market-action/admission",
+      "priceUsd": 0.04,
+      "serviceId": "ac75233b-2d9e-462b-881c-10d6a5ed0299",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:23Z",
+      "status": 201,
+      "gateway": "issuer-evidence",
+      "name": "Brokerage Issuer Evidence",
+      "url": "https://market.561.group/v1/issuer-evidence",
+      "priceUsd": 0.25,
+      "serviceId": "3604a5d8-2fe5-4a69-9067-f3814d8c883f",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:28Z",
+      "status": 201,
+      "gateway": "aggressive-alpha",
+      "name": "Brokerage Aggressive Alpha",
+      "url": "https://market.561.group/v1/aggressive-alpha",
+      "priceUsd": 1,
+      "serviceId": "e8a3606f-abb9-4f33-beba-bc2c47b4f2dc",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:31Z",
+      "status": 201,
+      "gateway": "paper-intent",
+      "name": "Brokerage Paper Intent",
+      "url": "https://market.561.group/v1/paper-intent",
+      "priceUsd": 2,
+      "serviceId": "3d909a26-51b4-4440-88b2-f983d23eabda",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T05:56:34Z",
+      "status": 201,
+      "gateway": "report-graphics",
+      "name": "Brokerage Report Graphic Render",
+      "url": "https://market.561.group/v1/report-graphics/render",
+      "priceUsd": 0.12,
+      "serviceId": "e861db2f-f1ec-4f6e-9d2f-708381e1f29a",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T06:41:48Z",
+      "status": 201,
+      "gateway": "medical-glossary",
+      "name": "Medical Term",
+      "url": "https://market.561.group/v1/medical-glossary/term/catatonia",
+      "priceUsd": 0.01,
+      "serviceId": "8befdc16-800e-4c2a-9f9c-39d19ab6ace3",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T06:41:52Z",
+      "status": 201,
+      "gateway": "medical-glossary",
+      "name": "Medical Term Neighborhood",
+      "url": "https://market.561.group/v1/medical-glossary/neighborhood/catatonia",
+      "priceUsd": 0.03,
+      "serviceId": "c035a1c0-786b-42da-a0d7-658391e686b4",
+      "message": "Service registered and live (domain verified)."
+    },
+    {
+      "recordedAt": "2026-09-12T06:41:55Z",
+      "status": 201,
+      "gateway": "medical-glossary",
+      "name": "Medical Glossary Search",
+      "url": "https://market.561.group/v1/medical-glossary/search?q=catatonia&limit=5",
+      "priceUsd": 0.02,
+      "serviceId": "affa0204-931e-4340-9562-f1f09b5a3444",
+      "message": "Service registered and live (domain verified)."
+    }
+  ],
+  "residual": {
+    "staleListingsOfRetiredRunners": {
+      "note": "Listings the retired runners registered earlier remain at 402index. The index soft-deletes a listing only for a verified owner of the listing's own domain, and those hostnames are retired (no service answers), so they are left for the index's health probes to retire; the Founder ruled no ephemeris.561.group, so the hostnames are not re-served to pass a claim.",
+      "ephemeris.561.group": [
+        "759629b7-d88f-4593-96f1-d79d0a23e502",
+        "a2e57056-4f2e-4626-8e09-5d474e23e319",
+        "540cc01a-a8b6-4edf-aa87-e4b7741ec493",
+        "8dd1cc23-d494-4775-b288-ea95c5c551f5",
+        "9c846ae8-3eba-4a03-afb5-24cf328fd635",
+        "f99aca66-3317-4f91-b0b3-e910ae62b7e3",
+        "337e8764-785b-4da6-87a7-ac7b18a464e6"
+      ],
+      "api.pacing.561.group": [
+        "de8162ef-87ea-4648-aa6d-d49b0b6b8e1f",
+        "0c9a770b-d13a-40c2-a2c1-a3865bf70a8b"
+      ],
+      "orphan-patch.561.group": [
+        "da57b5f7-548f-466e-b64d-751149919532"
+      ]
+    },
+    "nodeOnlyOffersUnregistered": [
+      "ephemeris/precision-moment",
+      "astronomy/astronomy-precision-positions",
+      "inference/meter-inference",
+      "brokerage-control/daily-divination-reading",
+      "brokerage-control/occupation-entropy",
+      "brokerage-control/strategy-synthesis",
+      "brokerage-control/account-reconciliation"
+    ]
+  }
+}

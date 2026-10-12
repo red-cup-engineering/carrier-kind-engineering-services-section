@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily UTC-morning trigger for the crucible Palaverse poster
+
+[Timer]
+OnCalendar=*-*-* 08:00:00 UTC
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

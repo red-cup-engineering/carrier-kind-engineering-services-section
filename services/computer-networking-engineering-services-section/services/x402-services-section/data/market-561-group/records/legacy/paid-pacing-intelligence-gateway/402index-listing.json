@@ -1,0 +1,53 @@
+{
+  "note": "On 2026-09-08, the seller moved its directory boundary from the shared workers.dev hostname to api.pacing.561.group, a Group-controlled custom domain. POST /api/v1/claim returned a verification hash, the Worker publishes that hash at /.well-known/402index-verify.txt from its INDEX_VERIFICATION_HASH secret, and POST /api/v1/claim/verify returned {\"domain\":\"api.pacing.561.group\",\"status\":\"verified\",\"services_count\":0}. Both listings were then registered at the verified custom-domain URLs. Each registration returned HTTP 201, status active, health_status healthy, approval_reason domain-verified, and an independently observed Base-mainnet x402 HTTP 402 challenge. The earlier workers.dev registrations remain historical pending entries because that shared hostname cannot be domain-claimed by this seller.",
+  "status": "live (Cloudflare Workers at https://api.pacing.561.group; Base mainnet settlement via facilitator.payai.network)",
+  "provider": "561 Group",
+  "listings": [
+    {
+      "title": "Pacing Analysis",
+      "description": "The full analyzePacing report over caller-submitted biometric observations: rolling baselines, morning deviation, resting-heart-rate threshold estimate, and conservative PEM risk flags, each with citations and epistemic labels. Stateless: nothing submitted or computed is stored.",
+      "category": "health",
+      "network": "Base",
+      "method": "POST",
+      "url": "https://api.pacing.561.group/v1/pacing/analysis",
+      "probeBody": "{\"observations\":[{\"recordType\":\"nutrition-biometric-observation\",\"schemaVersion\":\"1.0.0\",\"metric\":\"hrv-rmssd\",\"measuredAt\":\"2026-08-30T07:00:00Z\",\"measurement\":{\"value\":\"42.1\",\"unit\":\"ms\",\"precision\":\"1\"},\"missingness\":{\"status\":\"observed\"}}],\"windowDays\":14}",
+      "price": "$0.05",
+      "priceAtomicUsdc": "50000",
+      "registration": {
+        "request": "POST https://402index.io/api/v1/register {\"url\":\"https://api.pacing.561.group/v1/pacing/analysis\",\"name\":\"Pacing Analysis\",\"protocol\":\"x402\",...}",
+        "httpStatus": 201,
+        "registeredAt": "2026-09-08 22:07:06"
+      },
+      "402indexServiceId": "de8162ef-87ea-4648-aa6d-d49b0b6b8e1f",
+      "statusAtRegistration": {
+        "status": "active",
+        "health_status": "healthy",
+        "x402_payment_valid": null,
+        "approval_reason": "domain-verified"
+      }
+    },
+    {
+      "title": "Heart-Rate Threshold",
+      "description": "The Workwell Foundation resting-heart-rate+15bpm pacing-ceiling heuristic alone, labeled an unvalidated clinical rule of thumb. Stateless: nothing submitted or computed is stored.",
+      "category": "health",
+      "network": "Base",
+      "method": "POST",
+      "url": "https://api.pacing.561.group/v1/pacing/heart-rate-threshold",
+      "probeBody": "{\"restingHr\":60}",
+      "price": "$0.01",
+      "priceAtomicUsdc": "10000",
+      "registration": {
+        "request": "POST https://402index.io/api/v1/register {\"url\":\"https://api.pacing.561.group/v1/pacing/heart-rate-threshold\",\"name\":\"Heart-Rate Threshold\",\"protocol\":\"x402\",...}",
+        "httpStatus": 201,
+        "registeredAt": "2026-09-08 22:07:07"
+      },
+      "402indexServiceId": "0c9a770b-d13a-40c2-a2c1-a3865bf70a8b",
+      "statusAtRegistration": {
+        "status": "active",
+        "health_status": "healthy",
+        "x402_payment_valid": null,
+        "approval_reason": "domain-verified"
+      }
+    }
+  ]
+}

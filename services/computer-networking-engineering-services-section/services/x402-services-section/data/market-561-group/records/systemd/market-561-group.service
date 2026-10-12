@@ -1,0 +1,33 @@
+[Unit]
+Description=market.561.group, the one x402 market of the 561 Group
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/.local/share/561-group/releases/market-561-group/current
+ExecStart=/usr/bin/node scripts/serve-market.mjs
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=4021
+Environment=X402_NETWORK=eip155:8453
+Environment=X402_FACILITATOR=https://facilitator.payai.network
+Environment=MARKET_DATA_ROOT=/home/emsenn/.local/share/561-group/market-561-group
+# X402_PAY_TO is the ruled payout address, resolved at deploy time through
+# key-management-services-section's resolve-payment-receiver and supplied by
+# EnvironmentFile, never typed here (x402 payto decision, 2026-08-31).
+EnvironmentFile=/home/emsenn/.config/red-cup-engineering/market-561-group/rails.env
+# OXIEPH_BIN and OXIEPH_DE bind the DE440 precision supplier for the
+# ephemeris and astronomy precision offers; without them those two offers
+# refuse at compute, and every other offer is unaffected.
+EnvironmentFile=-/home/emsenn/.config/red-cup-engineering/market-561-group/precision.env
+Restart=on-failure
+RestartSec=3s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/emsenn/.local/share/561-group/market-561-group
+
+[Install]
+WantedBy=default.target

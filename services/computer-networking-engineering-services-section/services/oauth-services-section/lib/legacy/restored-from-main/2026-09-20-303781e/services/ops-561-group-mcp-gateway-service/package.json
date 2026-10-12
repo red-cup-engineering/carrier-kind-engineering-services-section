@@ -1,0 +1,65 @@
+{
+  "name": "@red-cup-engineering/ops-561-group-mcp-gateway-service",
+  "version": "0.14.1",
+  "type": "module",
+  "description": "The ops.561.group admission and loopback reverse-proxy membrane for MetroPlat, an optional ActivityPub actor, the /operations bearer-gated HTTP-only operation surface, and read-only control-plane rooms (/world, /records, /tasks, /tasks/view, /books, /books/view, /books/report). /login offers Hive Keychain sign-in first (verified against live posting/active account authority) with Google reachable at /login/google but never the default; a deployment may configure either or both.",
+  "exports": {
+    ".": "./src/app.mjs",
+    "./auth": "./src/auth.mjs",
+    "./books": "./src/books.mjs",
+    "./browser-session": "./src/browser-session.mjs",
+    "./config": "./src/config.mjs",
+    "./control-plane": "./src/control-plane.mjs",
+    "./proxy": "./src/proxy.mjs",
+    "./task-list": "./src/task-list.mjs",
+    "./machine-token-client": "./src/machine-token-client.mjs",
+    "./rail-client": "./src/rail-client.mjs"
+  },
+  "files": [
+    ".env.example",
+    "README.md",
+    "content/",
+    "scripts/",
+    "src/"
+  ],
+  "bin": {
+    "serve-ops-561-group-mcp-gateway": "./scripts/serve.mjs",
+    "preflight-ops-561-group-mcp-gateway": "./scripts/preflight.mjs",
+    "admit-ops-mcp-principal": "./scripts/admit-principal.mjs",
+    "revoke-ops-mcp-principal": "./scripts/revoke-principal.mjs",
+    "serve-ops-mcp-stdio": "./scripts/serve-ops-mcp-stdio.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/auth.mjs && node --check src/books.mjs && node --check src/browser-session.mjs && node --check src/config.mjs && node --check src/control-plane.mjs && node --check src/task-list.mjs && node --check src/proxy.mjs && node --check src/pure-operations.mjs && node --check src/app.mjs && node --check src/principal-registry.mjs && node --check src/machine-credentials.mjs && node --check src/hive-login.mjs && node --check src/hive-login-nonce.mjs && node --check src/login-page.mjs && node --check scripts/serve.mjs && node --check scripts/preflight.mjs && node --check scripts/admit-principal.mjs && node --check scripts/revoke-principal.mjs && node --check scripts/push-ops-data.mjs && node --check scripts/serve-ops-mcp-stdio.mjs",
+    "test": "node --test test/*.test.mjs",
+    "test:provenance": "node --test test/repository/recovery-provenance.test.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "@red-cup-engineering/activitypub-services-section": "0.8.1",
+    "@red-cup-engineering/code-http-cookie-service": "0.1.1",
+    "@red-cup-engineering/compose-http-application-service": "0.1.1",
+    "@red-cup-engineering/computer-business-systems-engineering-services-section": "0.2.2",
+    "@red-cup-engineering/eavt": "0.10.4",
+    "@red-cup-engineering/form-http-response-representation-service": "0.1.1",
+    "@red-cup-engineering/guard-http-request-service": "0.1.1",
+    "@red-cup-engineering/hive-keychain-login-service": "file:../../../../../computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/hive-keychain-login-service",
+    "@red-cup-engineering/holofoam": "0.1.2",
+    "@red-cup-engineering/html-document-render-service": "0.1.0",
+    "@red-cup-engineering/html-structural-projection-service": "0.3.0",
+    "@red-cup-engineering/javascript-file-main-guard-service": "0.1.3",
+    "@red-cup-engineering/oauth-services-section": "0.1.0",
+    "@red-cup-engineering/personal-intelligence-systems-services-section": "0.2.0",
+    "@red-cup-engineering/read-http-request-body-service": "0.2.2",
+    "@red-cup-engineering/serve-google-oauth-service": "0.1.5",
+    "@red-cup-engineering/sign-http-cookie-value-service": "0.1.1",
+    "@red-cup-engineering/verify-hive-signed-message-service": "0.1.0",
+    "@red-cup-engineering/web-tufte-gui-services-section": "0.12.0",
+    "@red-cup-engineering/web-server-services-section": "0.5.0",
+    "@lenticule-science/articulating": "0.5.1"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "license": "UNLICENSED"
+}

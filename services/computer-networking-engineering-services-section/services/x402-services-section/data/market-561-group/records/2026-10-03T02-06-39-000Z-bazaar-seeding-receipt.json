@@ -1,0 +1,70 @@
+{
+  "recordType": "561-group.x402-market-bazaar-seeding-receipt",
+  "observedAt": "2026-10-03T02:06:39.000Z",
+  "bazaar": "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources",
+  "payer": "0x42f72c0a340a4a55c082fe42483e87691d2bff64",
+  "payTo": "0x32886f6f361c1d570255c2762967a2e41d0e9b1a",
+  "dryRun": false,
+  "capUsd": 0.5,
+  "perCallUsd": 0.05,
+  "recovered": {
+    "reason": "the run aborted on an unbounded route (/v1/reference-check) before writing its receipt; its payments are read back from Base USDC Transfer logs payer->payTo",
+    "blocks": [
+      52101926,
+      52101930
+    ],
+    "attribution": "equal-price transfers are attributed to routes in the run's cheapest-first purchase order; every attributed route is now listed in the Bazaar"
+  },
+  "summary": {
+    "bought": 5,
+    "spentUsd": 0.052
+  },
+  "purchases": [
+    {
+      "url": "https://market.561.group/v1/book-record",
+      "status": 200,
+      "amount": "2000",
+      "transaction": "0xa46a4050d494637c9ae4c5c7a14bb653c146dfc28fd213b3497c3171dd344c62",
+      "network": "eip155:8453",
+      "success": true,
+      "block": 52101926
+    },
+    {
+      "url": "https://market.561.group/v1/pacing/heart-rate-threshold",
+      "status": 200,
+      "amount": "10000",
+      "transaction": "0xe4f93dab9231af325f97a577864da60bda37e5b3edc41bd6e5110c9c8d597c75",
+      "network": "eip155:8453",
+      "success": true,
+      "block": 52101927
+    },
+    {
+      "url": "https://market.561.group/v1/translate/en-zh/cdrama-subtitles",
+      "status": 200,
+      "amount": "10000",
+      "transaction": "0xc05f97a97d7647150e113716ed729f0e7a5024fc3b6a66667d4d8604480dbe5c",
+      "network": "eip155:8453",
+      "success": true,
+      "block": 52101929
+    },
+    {
+      "url": "https://market.561.group/v1/structural-claims/option-value",
+      "status": 200,
+      "amount": "10000",
+      "transaction": "0x63ff38dc9305a5e172e3ed8aeb16987b2049811a9f7e012d5cf7d8158f510cd1",
+      "network": "eip155:8453",
+      "success": true,
+      "block": 52101930
+    },
+    {
+      "url": "https://market.561.group/v1/orphan-patch/score",
+      "status": 200,
+      "amount": "20000",
+      "transaction": "0x48cf65654630eb40813bb907ca16c75bac56fdf6120c16493ad0938fa66f0e0a",
+      "network": "eip155:8453",
+      "success": true,
+      "block": 52101930
+    }
+  ],
+  "skipped": []
+}

@@ -1,0 +1,74 @@
+{
+  "name": "@red-cup-engineering/activitypub-services-section",
+  "version": "0.8.1",
+  "type": "module",
+  "description": "The Union's public transport: ActivityPub federation carrying CloudEvents whose data is an A2A message with one RMN part.",
+  "files": [
+    "README.md",
+    "scripts/seat-activitypub-face.sh",
+    "scripts/materialize-sen-outbox-activity.mjs",
+    "src"
+  ],
+  "exports": {
+    ".": "./src/provider.mjs",
+    "./deliver": "./src/deliver.mjs",
+    "./bounded-exchange": "./src/exchange.mjs",
+    "./sqlite-runtime": "./src/sqlite-runtime.mjs",
+    "./sqlite-custody": "./src/sqlite-custody.mjs",
+    "./outbox-store": "./src/outbox-store.mjs",
+    "./local-server": "./src/local-server.mjs",
+    "./sen-activity": "./src/sen-activity.mjs",
+    "./sen-history": "./src/sen-history.mjs",
+    "./sen-outbox-client": "./src/sen-outbox-client.mjs",
+    "./publication": "./src/publication.mjs",
+    "./app": {
+      "import": "./src/app.mjs"
+    },
+    "./keys": "./src/keys.mjs",
+    "./onchain": "./src/onchain.mjs",
+    "./src/onchain.mjs": "./src/onchain.mjs",
+    "./serve-activitypub-network": "./scripts/serve-activitypub-network.mjs",
+    "./activitystreams": "./src/activitystreams.mjs",
+    "./journal-custody": "./src/journal-custody.mjs",
+    "./flatfile-runtime": "./src/flatfile-runtime.mjs",
+    "./flatfile-kv": "./src/flatfile-kv.mjs",
+    "./flatfile-queue": "./src/flatfile-queue.mjs",
+    "./import-sql-custody": "./src/import-sql-custody.mjs"
+  },
+  "bin": {
+    "deliver-activitypub-activity": "./src/deliver.mjs",
+    "generate-activitypub-keys": "./src/keys.mjs",
+    "generate-encrypted-evm-wallet": "./src/generate-encrypted-evm-wallet.mjs",
+    "materialize-sen-outbox-activity": "./scripts/materialize-sen-outbox-activity.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@fedify/fedify": "2.3.1",
+    "@fedify/sqlite": "2.3.1",
+    "@fedify/vocab": "2.3.1",
+    "@red-cup-engineering/a2a-services-section": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/http-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-file-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/uri-services-section": "workspace:*",
+    "ethers": "6.17.0",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/signgraph": "workspace:*"
+  }
+}

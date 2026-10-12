@@ -1,0 +1,66 @@
+{
+  "type": "X402SettlementCandidateRecord",
+  "version": 1,
+  "observedAt": "2026-09-08T04:33:59.367Z",
+  "network": "eip155:8453",
+  "gateway": "paid-ephemeris-gateway",
+  "receiver": "0x32886F6F361C1d570255c2762967A2e41D0E9B1a",
+  "fromBlock": 51026247,
+  "toBlock": 51026346,
+  "windowBlocks": 100,
+  "windowDiscovery": [
+    {
+      "windowBlocks": 50000,
+      "ok": false,
+      "reason": "logs filter spans more than 20000 blocks"
+    },
+    {
+      "windowBlocks": 20000,
+      "ok": false,
+      "reason": "public EVM read providers exhausted"
+    },
+    {
+      "windowBlocks": 10000,
+      "ok": false,
+      "reason": "public EVM read providers exhausted"
+    },
+    {
+      "windowBlocks": 5000,
+      "ok": false,
+      "reason": "public EVM read providers exhausted"
+    },
+    {
+      "windowBlocks": 2000,
+      "ok": false,
+      "reason": "public EVM read providers exhausted"
+    },
+    {
+      "windowBlocks": 1000,
+      "ok": false,
+      "reason": "public EVM read providers exhausted"
+    },
+    {
+      "windowBlocks": 500,
+      "ok": false,
+      "reason": "public EVM read providers exhausted"
+    },
+    {
+      "windowBlocks": 200,
+      "ok": false,
+      "reason": "public EVM read providers exhausted"
+    },
+    {
+      "windowBlocks": 100,
+      "ok": true,
+      "reason": null
+    }
+  ],
+  "settlementCount": 0,
+  "disagreements": [],
+  "settlements": [],
+  "transactionCount": 0,
+  "refusals": [],
+  "beancountTransactionCandidates": [],
+  "gatewayAttributionLimitation": "The receiver settles for several x402 gateways sharing one payout address; this record attributes every observed settlement to gateway \"paid-ephemeris-gateway\" on the operator's own say-so, never from a per-gateway signal present in the chain read itself.",
+  "journalId": "ni:///sha-256;1hqkRBc9e7ARNGpQ8t95sC93PqVL-asZbHnmxThqQQ4"
+}

@@ -1,0 +1,26 @@
+[Unit]
+Description=Hive Engine exit-tightness paid report service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/.local/share/561-group/releases/x402-services-section/current
+ExecStart=/usr/bin/node apps/serve-hive-exit-tightness.mjs
+Environment=NODE_ENV=production
+Environment=HIVE_EXIT_TIGHTNESS_HOST=127.0.0.1
+Environment=HIVE_EXIT_TIGHTNESS_PORT=8788
+Environment=HIVE_EXIT_TIGHTNESS_JOURNAL_ROOT=/home/emsenn/.local/share/561-group/hive-exit-tightness
+# This is a public receiving account, not a signing credential. Deployers can
+# override it with the product's service environment when the receiver changes.
+Environment=HIVE_EXIT_TIGHTNESS_SELLER_ACCOUNT=emsenn0
+Restart=on-failure
+RestartSec=3s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/emsenn/.local/share/561-group/hive-exit-tightness
+
+[Install]
+WantedBy=default.target

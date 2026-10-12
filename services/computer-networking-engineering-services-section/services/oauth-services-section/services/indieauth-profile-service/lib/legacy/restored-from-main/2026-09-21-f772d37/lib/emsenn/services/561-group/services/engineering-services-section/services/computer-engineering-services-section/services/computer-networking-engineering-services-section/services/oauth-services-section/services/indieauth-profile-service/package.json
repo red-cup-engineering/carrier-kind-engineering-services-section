@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/indieauth-profile-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Discover and validate IndieAuth profiles, client ID metadata, endpoints, redirects, and rel=me claims around the shared OAuth services.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/indieauth-profile.mjs"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/http-services-section": "file:../../../http-services-section",
+    "@red-cup-engineering/oauth-services-section": "0.1.0"
+  },
+  "sideEffects": false
+}

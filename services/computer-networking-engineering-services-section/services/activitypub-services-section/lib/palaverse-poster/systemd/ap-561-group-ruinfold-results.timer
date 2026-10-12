@@ -1,0 +1,10 @@
+[Unit]
+Description=Just-after-UTC-midnight trigger for ruinfold's closed-day results post
+
+[Timer]
+OnCalendar=*-*-* 00:10:00 UTC
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

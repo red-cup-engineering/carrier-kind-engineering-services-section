@@ -1,0 +1,71 @@
+{
+  "name": "@emsenn/activitypub-services-section",
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Independently hireable standards-conforming ActivityPub, ActivityStreams, WebFinger, and NodeInfo service.",
+  "exports": {
+    ".": {
+      "types": "./types/provider.d.mts",
+      "import": "./src/provider.mjs"
+    },
+    "./server": {
+      "types": "./types/server.d.mts",
+      "import": "./src/server.mjs"
+    },
+    "./keys": "./src/keys.mjs"
+  },
+  "bin": {
+    "serve-activitypub-provider": "./src/server.mjs",
+    "deliver-activitypub-activity": "./src/deliver.mjs",
+    "generate-activitypub-keys": "./src/keys.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/provider.mjs && node --check src/server.mjs && node --check src/deliver.mjs && node --check src/keys.mjs && node --check test/provider.test.mjs",
+    "test": "node --test test/provider.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@fedify/fedify": "2.3.1",
+    "@fedify/sqlite": "2.3.1",
+    "@fedify/vocab": "2.3.1",
+    "@hono/node-server": "1.19.14"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "@opentelemetry/core": "2.8.0",
+    "@opentelemetry/resources": "2.8.0",
+    "@opentelemetry/sdk-metrics": "2.8.0"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "activitypub-services-section",
+    "organizational-kind": "public-protocol-provider",
+    "owners": [
+      "web-services-section"
+    ],
+    "admission": "ActivityPub and ActivityStreams 2.0 objects admitted by Fedify with verified signatures or integrity proofs at inbox boundaries",
+    "refusal": "invalid actor, signature, proof, content negotiation, WebFinger identifier, or customer callback refusal",
+    "operation-catalog": {
+      "serve-federation": {
+        "protocols": [
+          "ActivityPub",
+          "ActivityStreams 2.0",
+          "WebFinger",
+          "NodeInfo 2.1"
+        ],
+        "implementation": "Fedify 2.3.1",
+        "legacyCompatibility": false
+      },
+      "deliver-activitypub-activity": {
+        "contract": "activitypub-services-section/signed-delivery/v1",
+        "accepts": "customer-authored ActivityStreams Activity on standard input",
+        "returns": "Accept<ActivityPubDeliveryReceipt> or transport failure",
+        "effects": [
+          "signed HTTPS POST to one exact recipient inbox"
+        ],
+        "customerAuthorshipPreserved": true
+      }
+    }
+  }
+}
