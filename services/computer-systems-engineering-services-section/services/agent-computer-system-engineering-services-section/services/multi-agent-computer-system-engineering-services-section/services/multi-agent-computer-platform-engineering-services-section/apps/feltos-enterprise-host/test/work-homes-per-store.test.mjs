@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 
@@ -16,8 +16,7 @@ test("two stores with different homes in one process judge the same peer decisio
     const first = workBoardStore(binding, { homes: homedOn("cold-red-gate") });
     const opened = first.play({ move: "aim", by: "enterprise:beta", purpose: "The harbour stays navigable", scope: ["section:services/alpha-section"], at: "2026-10-03T09:00:00Z" });
     const decision = { move: "withdraw", thread: opened.id, by: "enterprise:beta", at: "2026-10-03T10:00:00Z", decidedBy: "cold-red-gate" };
-    createSemanticRecordJournal({ root, objectKind: "work-arena-move" })
-      .record({ category: "move", recordedAt: decision.at, record: decision, told: { for: true, against: false } });
+    put(root, "work-arena-move", decision);
     const standing = (board) => board.read("2026-10-03T11:00:00Z").threads.find((thread) => thread.id === opened.id).standing;
     const agrees = workBoardStore(binding, { homes: homedOn("cold-red-gate") });
     const disagrees = workBoardStore(binding, { homes: homedOn("bare-cedar-fog") });

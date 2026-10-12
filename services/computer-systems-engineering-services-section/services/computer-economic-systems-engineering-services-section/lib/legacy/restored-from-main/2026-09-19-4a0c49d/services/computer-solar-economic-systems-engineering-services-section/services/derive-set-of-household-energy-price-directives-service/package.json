@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/derive-set-of-household-energy-price-directives-service",
+  "version": "0.1.0",
+  "description": "Derives Beancount `KWH`/`PROPANE_GAL`/`DIESEL_GAL` price directives for one household from its own `energy-tariff` record and weekly fuel series, composing `@red-cup-engineering/derive-set-of-energy-price-directives-service` for all pricing and rendering.",
+  "type": "module",
+  "private": false,
+  "license": "UNLICENSED",
+  "exports": "./scripts/derive-set-of-household-energy-price-directives.mjs",
+  "bin": {
+    "derive-set-of-household-energy-price-directives": "scripts/derive-set-of-household-energy-price-directives.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/derive-set-of-energy-price-directives-service": "0.1.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/derive-set-of-household-energy-price-directives.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

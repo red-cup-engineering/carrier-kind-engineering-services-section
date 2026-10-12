@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/spotcomp/trace-monoid-settlement-profile.schema.json",
+  "title": "SPOTCOMP Trace Monoid Settlement Profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "historyObject",
+    "independenceRelation",
+    "valuationAction",
+    "settlementFunctor",
+    "crdtConvergence",
+    "foataPrefixEvidence",
+    "orderBoundaries",
+    "federationBoundary",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    }
+  }
+}

@@ -3,7 +3,7 @@ import {seatedEnterprises} from '@red-cup-engineering/feltos/work/enterprise-loo
 import { arrivalDispatchClaimFromCloudEvent } from '@red-cup-engineering/computer-system-engine/rpc/arrival';
 import path from "node:path";
 
-import { extractSenActivity, extractSignCellEvidenceActivity, SEN_MEDIA_TYPE, SIGNCELL_EVIDENCE_MEDIA_TYPE } from "@red-cup-engineering/activitypub-services-section/sen-activity";
+import { extractSenActivity, extractSignStuffEvidenceActivity, SEN_MEDIA_TYPE, SIGNSTUFF_EVIDENCE_MEDIA_TYPE } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { termToJson } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 import { admitNormalizedSemanticContent } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import { appendArrivalAtRoot } from "@red-cup-engineering/computer-system-engine/rpc/arrival-store";
@@ -96,7 +96,7 @@ export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin
   const byIdentifier = new Map((actors??[]).map((actor) => [actor.identifier, actor]));
   const actorAt=resolveActor??(async identifier=>byIdentifier.get(identifier));
   return async (arrival) => {
-    if (arrival.jsonLd?.type === "Reject" && arrival.jsonLd.object?.object?.mediaType === SIGNCELL_EVIDENCE_MEDIA_TYPE) {
+    if (arrival.jsonLd?.type === "Reject" && arrival.jsonLd.object?.object?.mediaType === SIGNSTUFF_EVIDENCE_MEDIA_TYPE) {
       const recipientActor = await actorAt(arrival.recipient);
       if (recipientActor === undefined || recipientActor.character !== undefined) throw new TypeError("a refusal of service evidence needs an instance recipient");
       const verifiedSender = arrival.sender?.actorId;
@@ -110,18 +110,18 @@ export function createActivityPubNodeArrivalHandler({ dataRoot, rootName, origin
       return Object.freeze({ refusal: admitRefusal() });
     }
     const mediaType = arrival.jsonLd?.object?.mediaType;
-    if (mediaType !== SEN_MEDIA_TYPE && mediaType !== SIGNCELL_EVIDENCE_MEDIA_TYPE) return undefined;
+    if (mediaType !== SEN_MEDIA_TYPE && mediaType !== SIGNSTUFF_EVIDENCE_MEDIA_TYPE) return undefined;
     const recipientActor = await actorAt(arrival.recipient);
     if (recipientActor === undefined) throw new TypeError("ActivityPub arrival names no actor on this node");
     const recipient = new URL(`/actors/${encodeURIComponent(recipientActor.identifier)}`, origin).href;
     const senderActorId = arrival.sender?.actorId ?? arrival.activity?.actorId?.href ?? arrival.activity?.actorIds?.[0]?.href;
     if (typeof senderActorId !== "string") throw new TypeError("ActivityPub SEN arrival requires a resolved signed sender actor");
-    if (mediaType === SIGNCELL_EVIDENCE_MEDIA_TYPE) {
+    if (mediaType === SIGNSTUFF_EVIDENCE_MEDIA_TYPE) {
       if (recipientActor.character !== undefined) throw new TypeError("SignStuff service evidence needs an instance recipient");
       const verifiedSender = arrival.sender?.actorId;
       if (typeof verifiedSender !== "string") throw new TypeError("SignStuff service evidence requires a resolved signed sender actor");
       if (arrival.activity?.actorId?.href !== verifiedSender) throw new TypeError("SignStuff service evidence actor must match its signed sender");
-      const evidence = extractSignCellEvidenceActivity({ ...arrival.jsonLd, actor: verifiedSender }, {
+      const evidence = extractSignStuffEvidenceActivity({ ...arrival.jsonLd, actor: verifiedSender }, {
         expectedActor: verifiedSender, expectedRecipient: recipient,
       });
       const {preparePeerWork}=await import("./federated-work.mjs");

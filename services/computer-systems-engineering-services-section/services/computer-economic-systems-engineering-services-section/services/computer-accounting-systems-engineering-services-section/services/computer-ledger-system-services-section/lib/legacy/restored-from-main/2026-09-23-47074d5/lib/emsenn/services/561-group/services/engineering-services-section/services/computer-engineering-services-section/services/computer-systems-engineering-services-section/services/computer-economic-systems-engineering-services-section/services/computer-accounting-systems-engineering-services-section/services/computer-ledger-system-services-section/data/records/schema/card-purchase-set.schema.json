@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:red-cup-engineering:schema:card-purchase-set:1",
+  "title": "CardPurchaseSet",
+  "description": "A dated set of card-purchase rows awaiting statement-line prices, one row per ordered item. Field names follow the schema.org Order/OrderItem vocabulary (Order.orderDate, Order.paymentMethod, OrderItem.orderedItem, PriceSpecification price/priceCurrency) so the record reads directly against that vocabulary.",
+  "type": "object",
+  "required": ["type", "version", "recordedAt", "sourceId", "sourceStatus", "purchases"],
+  "additionalProperties": false,
+  "properties": {
+    "type": { "const": "CardPurchaseSet" },
+    "version": { "const": 1 },
+    "recordedAt": { "type": "string", "minLength": 1, "description": "The date or date-time the set was recorded." },
+    "sourceId": { "type": "string", "minLength": 1, "description": "The card statement or observation source id shared by every row that does not carry its own sourceId." },
+    "sourceStatus": { "type": "string", "minLength": 1, "description": "The evidential status of the source, e.g. statement-lines-pending before the card statement posts exact amounts." },
+    "purchases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CardPurchase" }
+    }
+  },
+  "$defs": {
+    "CardPurchase": {
+      "type": "object",
+      "required": ["purchaseId", "orderDate", "orderedItem", "price", "paymentMethod", "owner", "treatment", "usedFor"],
+      "additionalProperties": false,
+      "properties": {
+        "purchaseId": { "type": "string", "minLength": 1, "description": "This row's own identifier, unique within the set." },
+        "orderDate": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "The order date, per schema.org Order.orderDate, as YYYY-MM-DD."
+        },
+        "orderedItem": {
+          "type": "object",
+          "required": ["name", "description", "quantity"],
+          "additionalProperties": false,
+          "description": "The item ordered, per schema.org OrderItem.orderedItem.",
+          "properties": {
+            "name": { "type": "string", "minLength": 1, "description": "The item's name, per schema.org Product.name / Thing.name." },
+            "description": { "type": "string", "minLength": 1, "description": "The item's description, per schema.org Thing.description." },
+            "quantity": { "type": "integer", "minimum": 1, "description": "The ordered quantity, per schema.org OrderItem.orderQuantity." }
+          }
+        },
+        "price": {
+          "description": "The line's price, per schema.org PriceSpecification (price/priceCurrency); null when the statement line has not yet posted an exact amount.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["value", "currency"],
+              "additionalProperties": false,
+              "properties": {
+                "value": { "type": "string", "pattern": "^-?\\d+(\\.\\d+)?$", "description": "The exact price as a plain decimal string, per schema.org PriceSpecification.price; never a floating-point number." },
+                "currency": { "type": "string", "minLength": 1, "description": "The ISO 4217 currency code, per schema.org PriceSpecification.priceCurrency." }
+              }
+            }
+          ]
+        },
+        "paymentMethod": {
+          "type": "object",
+          "required": ["party", "instrument", "label"],
+          "additionalProperties": false,
+          "description": "The payment method, per schema.org Order.paymentMethod.",
+          "properties": {
+            "party": { "type": "string", "minLength": 1, "description": "The name of the party whose payment instrument was charged." },
+            "instrument": {
+              "enum": ["credit-card", "debit-card", "cash", "bank-transfer", "crypto"],
+              "description": "The kind of payment instrument, aligned with schema.org's PaymentMethod enumeration members (CreditCard, cash, ...)."
+            },
+            "label": { "type": "string", "minLength": 1, "description": "A human-readable label for the instrument. Never the card number." }
+          }
+        },
+        "owner": { "type": "string", "minLength": 1, "description": "The name of the party whose book the ordered item is an asset of." },
+        "treatment": {
+          "enum": ["capitalize", "expense"],
+          "description": "Whether the owner's book capitalizes the item as a fixed asset or expenses it."
+        },
+        "expenseAccount": { "type": "string", "minLength": 1, "description": "The Beancount expense account for an expense-treatment row; defaults to Expenses:Equipment when absent." },
+        "assetId": { "type": "string", "minLength": 1, "description": "The fixed-asset register id for the item, when one is assigned." },
+        "assetCategory": {
+          "enum": ["computer-equipment", "other-equipment"],
+          "description": "The fixed-asset register category the item belongs to, when one is assigned."
+        },
+        "usedFor": { "type": "string", "minLength": 1, "description": "What the item is used for, supporting the ownership and treatment classification." },
+        "seller": { "type": "string", "minLength": 1, "description": "The seller of the item, per schema.org Order.seller, when known." },
+        "sourceId": { "type": "string", "minLength": 1, "description": "This row's own source id, overriding the set's sourceId, when the row was independently witnessed." }
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "stage": "B2b2b-custody",
+  "status": "exact host-byte comparison corrected; unique initialization scanner needs public corrections",
+  "sourceSha256": "8ecda5b5768650c0c73b053db679ba7e6c053cf752eef766a4c04952f42f14b1",
+  "findings": [
+    {
+      "clause": "F-S10/F-S13",
+      "location": "staging recognition",
+      "problem": "sourceStaging is called with the same stripped string as both name and finalName, so it cannot match its required suffix. Valid staging files are always refused.",
+      "requiredEffect": "Use the exact F-S10 unique staging grammar and verify regular nonsymlink type. Exclude staging bodies from every semantic/physical byte and file count; do not delete them."
+    },
+    {
+      "clause": "F-S10/F-S13",
+      "location": "discovery work",
+      "problem": "chargeWork(total) and chargeWork(namedBefore.size) add final and staging body bytes to the names-only discovery counter.",
+      "requiredEffect": "Charge only each encountered root-relative UTF-8 entry name plus one. Keep discovery work independent from physically deduplicated source bytes."
+    },
+    {
+      "clause": "F-S13",
+      "location": "physical accounting",
+      "problem": "The byte preflight charges opened.size against remaining sourceBytes before checking physical identity, while source-file count is checked only after read/parse and insertion into the set.",
+      "requiredEffect": "Determine whether the verified device/inode is new and check both remaining file count and byte capacity before allocation/read or growing tracking sets. Charge each physical source once; still inspect and verify every named alias."
+    },
+    {
+      "clause": "F-S04/F-S10/F-S13",
+      "location": "early unique envelope bound",
+      "problem": "The scanner bounds allocation/read by maxBatchBytes only. A source beyond the fixed unique JSON source envelope is allocated/read before parseUniqueSource refuses it as source-corrupt.",
+      "requiredEffect": "Before allocation/read enforce both configured physical capacity and the fixed unique source envelope plus its LF. Oversize capacity is resource-limit. Preserve the bounded loop and excess-detection byte."
+    },
+    {
+      "clause": "F-S10/F-S13",
+      "location": "source family grammar diagnostics",
+      "problem": "Unexpected versions, malformed source filenames and several malformed unique family/version types are reported as storage-unavailable despite occurring inside a recognized source family.",
+      "requiredEffect": "Use source-corrupt for malformed recognized source-family names, versions and types, preserving host diagnostics for actual I/O or binding failures and resource-limit for quotas. Include the exact F-S10 grammar supplied with this correction."
+    },
+    {
+      "clause": "F-S13",
+      "location": "I/O translation",
+      "problem": "The source-read catch maps only EIO/EACCES to host failure; ENOENT, ELOOP, EMFILE, EBADF, ENOTDIR and other real filesystem errors become source-corrupt.",
+      "requiredEffect": "Keep parser refusals from the shared parser as their existing branded diagnostics; translate actual filesystem failures through the existing host I/O boundary instead of a two-code whitelist."
+    },
+    {
+      "clause": "F-S13",
+      "location": "cleanup and first failure",
+      "problem": "closeDirectory and the inner file-close handler set failed and continue scanning. A later error unconditionally replaces the earlier failure in the outer catch.",
+      "requiredEffect": "A lone cleanup failure must stop new work and unwind all already owned descriptors. Preserve the first primary failure, including undefined, with a separate flag; later cleanup failures cannot replace it. Do not discard failed directory-close ownership silently."
+    },
+    {
+      "clause": "F-S13",
+      "location": "captured root and exact named lengths",
+      "problem": "The scanner binds a fresh root descriptor without comparing it to the captured root; it also omits namedBefore.size versus opened.size and namedAfter.size/type checks.",
+      "requiredEffect": "Assert the captured root before/after scanning and require its bound identity to match the held scanner root. Verify before/after named and descriptor identity, regular-file type and exact lengths. Recheck held parents before opening below them and before scanner success."
+    }
+  ],
+  "hostCleanupMayProceed": false,
+  "B2cMayProceed": false,
+  "completeReceivingMayProceed": false,
+  "privateReceivingRun": false,
+  "promoted": false
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@red-cup-engineering/watershed-simulation-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A discrete watershed flow-routing simulation engine.",
+  "exports": "./src/simulate-watershed-flow.mjs",
+  "bin": {
+    "watershed-simulation-engine": "./scripts/simulate-watershed-flow.mjs"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "sideEffects": false
+}

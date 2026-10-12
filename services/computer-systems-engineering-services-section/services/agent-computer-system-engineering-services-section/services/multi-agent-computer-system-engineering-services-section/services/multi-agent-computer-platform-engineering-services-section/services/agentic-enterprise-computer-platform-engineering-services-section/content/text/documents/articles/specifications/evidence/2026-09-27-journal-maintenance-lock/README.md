@@ -1,0 +1,7 @@
+# Journal maintenance ordering: host observation
+
+L-J07 requires ordering from closure discovery through acknowledgment against destructive maintenance. These two controlled experiments exercise an inherited file descriptor with util-linux flock on this local host. Both Python and Node owners retain the lock after the short-lived acquiring helper exits. Another process is excluded; closing the owner descriptor or killing the owner releases the lock without deleting the lock file or reclaiming a PID lease.
+
+This supports selecting an owner-held kernel lock for a local Linux realization. It avoids relying on a separate long-lived helper whose unexpected death could release protection while the journal process continues. The lock file must retain its inode; unlinking and recreating it would create competing lock domains. Every destructive consumer must use the same root-bound lock. An advisory lock cannot constrain a bypassing writer.
+
+These observations do not establish journal integration, closure retention, replacement durability, power-loss behavior, arbitrary filesystem support, or distributed exclusion. The storage fabrication order still must close the complete consumer path before unique admission is enabled. The existing compactor uses an exclusive-created marker, deletes that marker on exit, and removes old source directories after readable-copy verification without a durability barrier; it does not yet satisfy L-J07.

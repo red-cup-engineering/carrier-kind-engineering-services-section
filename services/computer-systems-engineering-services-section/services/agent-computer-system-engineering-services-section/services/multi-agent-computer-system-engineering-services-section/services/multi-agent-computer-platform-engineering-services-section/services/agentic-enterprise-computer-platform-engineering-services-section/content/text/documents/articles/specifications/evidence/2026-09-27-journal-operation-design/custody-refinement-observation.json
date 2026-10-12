@@ -1,0 +1,43 @@
+{
+  "method": "Existing unique-record constructor and parser; verified command body recovered from parsed record",
+  "source": {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/event.mjs",
+    "sha256": "6069defbde3eef4ec64bb4ae2e1d6c9b3951b92f69f16c3ff7bea7695dce7970"
+  },
+  "findings": {
+    "payloadNotInListedSourcePairs": true,
+    "parsedCommandAddressesToReturnedPayload": true,
+    "bodyIndependentlyVerified": true,
+    "commandRoundTrip": true
+  },
+  "measurements": {
+    "listedSourcePairs": 6,
+    "commandCanonicalBytes": 293
+  },
+  "limits": [
+    "No source owner, filesystem durability, domain authority or assistant workflow exercised."
+  ],
+  "priorOperationSha256": "679927505921b00e316763306537b72ddebbae9d31067a7383fa0a05a52a4155",
+  "operationSha256": "43db994366d1772f0e510e4c105d26feff91426da2d7d53366aa688ea196911f",
+  "probe": {
+    "path": "muse-command-custody-observation.mjs",
+    "sha256": "1b39606f6d1e1ac71fc7d49565c34dd47302db814d7290997c8c3b36cc3cf482"
+  },
+  "sources": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/event.mjs",
+      "sha256": "6069defbde3eef4ec64bb4ae2e1d6c9b3951b92f69f16c3ff7bea7695dce7970"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/filesystem.mjs",
+      "sha256": "1b6f01fe324bf25079f581369e44cf9e24b81c69e1debf3022217aaf11046621"
+    }
+  ],
+  "clauses": [
+    "L-O26",
+    "L-O27",
+    "L-O28"
+  ],
+  "runtimeAccepted": false,
+  "decision": "Register verified embedded command custody, define exact required closure and semantic charging, and specify a nonmutating barrier over sufficient physical custody."
+}

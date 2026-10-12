@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/check-set-of-hardcoded-payment-receivers-service",
+  "version": "0.1.0",
+  "description": "Scans files for hardcoded payment receivers with configurable allowlists and recipient distinctions.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/check-set-of-hardcoded-payment-receivers.mjs",
+  "bin": {
+    "check-set-of-hardcoded-payment-receivers": "scripts/check-set-of-hardcoded-payment-receivers.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/check-set-of-hardcoded-payment-receivers.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

@@ -4,10 +4,14 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
+import { readHead } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { admitRows, CLAIM_SESSION } from "./support/claim-session-thread.mjs";
+
+/** A subject's revision: the frontier of its thread (equal frontiers are equal readings). */
+const revisionOfSubject = (root, subject) => JSON.stringify(readHead(root, CLAIM_SESSION, subject)?.frontier ?? []);
 import { claimSessionFeed, claimSessionObservation, claimSessionStatementRows } from "@red-cup-engineering/relating/running/session";
 import { obsticulationDischargeObservations } from "@red-cup-engineering/organizing/work/obligations";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { proposalResources } from "@red-cup-engineering/organizing/enterprise/resources";
 import { recordReceivedOutcome, receivedOutcomeFields } from "../src/receiver-independence.mjs";
 import { skillSuccess, skillError } from "@red-cup-engineering/animating/becoming/doing/working/governing/skill";
@@ -117,9 +121,7 @@ function admitLegacyReceiving(binding, proposal, discharge, options = {}) {
           discharge.decision === "accepted" ? `skill-error:${proposal.result.error}` : `result-rejected:${discharge.text}`],
       }, caller: { protocol: "metroplat", session: `work-discharge-${discharge.id}`, surface: "work-ledger" },
     })];
-  openJournal(binding.dataRoot).appendRows(claimSessionFeed.name, [observation, ...fulfilled].flatMap(claimSessionStatementRows), {
-    at, subject: proposal.subject, caller: { transport: "work-discharge", session: discharge.id }, eventCauses: [proposal.receipt],
-  });
+  admitRows(binding.dataRoot, proposal.subject, [observation, ...fulfilled].flatMap(claimSessionStatementRows), { causes: [proposal.receipt] });
 }
 
 async function receivingFixture({ result, decision, failFirst = false, legacyReceiving = false, historicalOutcome, reviewCase }) {
@@ -237,7 +239,7 @@ async function receivingFixture({ result, decision, failFirst = false, legacyRec
         admitLegacyReceiving(binding, recorded, revised, { invocation: "same-day-second-invocation" });
         const second = exact(revised);
         assert.notEqual(first.receipt, second.receipt);
-        const revision = journal.revisionOfSubject(root, recorded.subject);
+        const revision = revisionOfSubject(root, recorded.subject);
         const record = value => recordReceivedOutcome({ dataRoot: root, proposal: recorded,
           discharge: resolveWorkDischarge(binding, value), office: "fixture#cto" });
         if (unique) {
@@ -251,7 +253,7 @@ async function receivingFixture({ result, decision, failFirst = false, legacyRec
           assert.throws(() => record(discharge), /ambiguous historical outcome-to-receiving pairing/u);
           assert.deepEqual(outcomeJournal(root).read(), [original], "ambiguity neither rewrites history nor fabricates a new outcome");
         }
-        assert.equal(journal.revisionOfSubject(root, recorded.subject), revision);
+        assert.equal(revisionOfSubject(root, recorded.subject), revision);
       } else if (reviewCase.startsWith("legacy-shared-context-")) {
         const exact = value => workResultReceivingByDischarge(binding, recorded, resolveWorkDischarge(binding, value));
         const invocation = reviewCase.endsWith("absent") ? undefined : "historical-reused-invocation";
@@ -266,7 +268,7 @@ async function receivingFixture({ result, decision, failFirst = false, legacyRec
         assert.notEqual(third.receipt, first.receipt, "full companion identity distinguishes judgments sharing an authorization");
         assert.equal(third.authorizationReceipt, first.authorizationReceipt, "shared authorization remains separately attributable");
         assert.equal(third.at, "2026-09-29T00:00:00.000Z");
-        const revision = journal.revisionOfSubject(root, recorded.subject);
+        const revision = revisionOfSubject(root, recorded.subject);
         const cold = coldReplay(root, revised, "2026-10-01T15:00:00Z");
         assert.equal(cold.admission.status, "already-admitted");
         assert.equal(cold.callbackAt, third.at);
@@ -274,7 +276,7 @@ async function receivingFixture({ result, decision, failFirst = false, legacyRec
         assert.equal(cold.outcomes.at(-1).receivingReceipt, third.receipt);
         assert.equal(cold.outcomes.at(-1).receivingAuthorizationReceipt, first.authorizationReceipt);
         assert.equal(standingOf(cold.outcomes).get("gpt-6-luna").accepted, result.kind === "skill-result" ? 1 : 0);
-        assert.equal(journal.revisionOfSubject(root, recorded.subject), revision);
+        assert.equal(revisionOfSubject(root, recorded.subject), revision);
         assert.equal(workResultReceivingBySession(binding, recorded, discharge.receiver).receipt, third.receipt);
         assert.equal(exact(discharge).receipt, first.receipt);
         admitLegacyReceiving(binding, recorded, revised, { at: "2026-10-02", invocation });
@@ -289,12 +291,12 @@ async function receivingFixture({ result, decision, failFirst = false, legacyRec
         // companion context. Do not select one by traversal order or retry time.
         admitLegacyReceiving(binding, recorded, discharge, { at: DATE, invocation: undefined });
         admitLegacyReceiving(binding, recorded, discharge, { at: "2026-09-28", invocation: undefined, receivesFrom: ["fixture#engineering"] });
-        const revision = journal.revisionOfSubject(root, recorded.subject);
+        const revision = revisionOfSubject(root, recorded.subject);
         const lookup = () => workResultReceivingByDischarge(binding, recorded, resolveWorkDischarge(binding, discharge));
         assert.throws(lookup, /ambiguous historical receiving authorization pairing/u);
         assert.throws(() => workResultReceivingBySession(binding, recorded, discharge.receiver), /ambiguous historical receiving authorization pairing/u);
         await assert.rejects(call(discharge, "2026-09-30T15:00:00Z"), /ambiguous historical receiving authorization pairing/u);
-        assert.equal(journal.revisionOfSubject(root, recorded.subject), revision);
+        assert.equal(revisionOfSubject(root, recorded.subject), revision);
         assert.deepEqual(outcomeJournal(root).read(), []);
         assert.equal(discharged.length, 0, "ambiguous provenance must not publish a derived outcome");
       } else if (reviewCase === "legacy-authorization-pair") {
@@ -380,14 +382,14 @@ async function receivingFixture({ result, decision, failFirst = false, legacyRec
     assert.equal(discharged[0].at, originalAt);
     assert.equal(discharged[0].discharge.decision, decision);
     assert.equal(outcomeJournal(root).read().length, historicalOutcome || !failFirst ? 1 : 0);
-    const revision = journal.revisionOfSubject(root, recorded.subject);
+    const revision = revisionOfSubject(root, recorded.subject);
     for (const retryAt of [`${DATE}T14:00:00.000Z`, "2026-09-29T16:00:00.000Z"]) {
       const cold = coldReplay(root, discharge, retryAt);
       assert.equal(cold.admission.status, "already-admitted");
       assert.equal(cold.callbackAt, originalAt);
       assert.equal(cold.outcomes.length, 1);
       assert.equal(cold.outcomes[0].at, historical?.at ?? originalAt);
-      assert.equal(journal.revisionOfSubject(root, recorded.subject), revision, "cold receiving replay appends no later authorization or discharge");
+      assert.equal(revisionOfSubject(root, recorded.subject), revision, "cold receiving replay appends no later authorization or discharge");
     }
     const booked = outcomeJournal(root).read();
     if (historical) assert.deepEqual(booked, [historical], "historical outcome bytes and original time stay unchanged");

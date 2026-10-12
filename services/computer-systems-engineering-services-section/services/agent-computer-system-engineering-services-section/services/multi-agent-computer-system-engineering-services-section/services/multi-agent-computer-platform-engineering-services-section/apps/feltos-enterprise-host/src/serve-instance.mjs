@@ -1,8 +1,9 @@
 import { Worker } from "node:worker_threads";
+import {settlementsRootOf} from '@red-cup-engineering/organizing/enterprise';
 import {createProgrammeCustody} from "@red-cup-engineering/feltos/program-custody";
 import {agentOfIdentity} from '@red-cup-engineering/feltos/identity';
 import {agentCardOfAgent,A2A_PROTOCOL_VERSION} from '@red-cup-engineering/feltos/capabilities';
-import {operationsOfEnterprise,operationsOfInstance} from './actor-mesh.mjs';
+import {operationsOfEnterprise,operationsOfInstance,servicesOfEnterprise,enterpriseServiceExecution} from './actor-mesh.mjs';
 import {createOperationCatalog} from '@red-cup-engineering/computer-system-engine/rpc/operation';
 import {describe} from '@red-cup-engineering/computer-system-engine/rpc/describe';
 import {agencyAt} from '@red-cup-engineering/metroplat/offices';
@@ -21,13 +22,12 @@ import { createMcpClient, mcpInProcessTransport } from "@red-cup-engineering/mcp
 import { processAdmittedActorRequest, createActorResultProjection } from '@red-cup-engineering/computer-system-engine/rpc/actor-processing';
 import { deliverActivity } from '@red-cup-engineering/activitypub-services-section';
 import { reconcileDeclaredSchedules, runClockHeartbeat } from "@red-cup-engineering/organizing/work/recurring";
-import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
-import { processLeaseCoordinator } from "@red-cup-engineering/computer-system-engine/rpc/coordination";
 import { parseEnvFileText } from "@red-cup-engineering/key-management-services-section/env-file";
 import { openMetroplatMcp } from "@red-cup-engineering/metroplat/mcp-host";
 import { installedMetroplatInstance } from "@red-cup-engineering/metroplat/instance";
-import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementFeedGrants, systemSettlementPeering, settlementExchangeResponse, SETTLEMENT_EXCHANGE_PATHS } from "@red-cup-engineering/computer-system-engine/rpc/node";
-import { mergeSettlementTransfer, settlementHoldings, settlementTransfer } from "@red-cup-engineering/computer-system-engine/journal/exchange";
+import { systemNodeDeclaredPeerKeys, systemNodeFromProcessEnvironment, systemNodeKeyFromProcessEnvironment, systemNodeResource, systemSettlementTypeGrants, systemSettlementPeering, settlementExchangeResponse, SETTLEMENT_EXCHANGE_PATHS } from "@red-cup-engineering/computer-system-engine/rpc/node";
+import { directoryRemote } from "@red-cup-engineering/semiotic-eavt-services-section/exchange";
+import { storeCallBound } from "./store-calls.mjs";
 import { createEnterpriseEntrance } from "./entrance.mjs";
 import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler, enterpriseActorPayment, heldArrival } from "./activitypub-node.mjs";
 import { enterpriseWebConfig } from "./instance-config.mjs";
@@ -50,6 +50,10 @@ export function metroplatEnvironment(config) {
     METROPLAT_MCP_SUBJECT: config.metroplatSubject,
     METROPLAT_MCP_CAPABILITIES: config.metroplatCapabilities.join(","),
     METROPLAT_MCP_GATEWAY_SUBJECTS: "1",
+    ...(config.lSpace === undefined ? {} : {
+      METROPLAT_LSPACE_MCP_URL: config.lSpace.mcpUrl,
+      METROPLAT_LSPACE_GATEWAY_TOKEN: config.lSpace.gatewayToken,
+    }),
   };
 }
 
@@ -181,14 +185,17 @@ export async function activityPubProvider(config, environment, {operationSurface
       const surface=await operationSurface();
       const apex=surface.apex??surface;
       await programmes.retain(surface.operations??apex.catalog.operations);
+      const executionBinding=owningBinding??defaultFilesystemBinding(config.metroplatDataRoot,{rootName:config.instance.name,agencyRoot:config.agencyRoot});
       const projection=createActorResultProjection({origin:config.activityPub.origin,identifier:recipientActor.identifier,
         recipient:authenticatedActor,request,agentCard:new URL('/.well-known/agent-card.json',config.activityPub.origin).href,eventTime:new Date().toISOString()});
       return processAdmittedActorRequest({event,admission,authenticatedActor,senderAgentCard,
         projectReply:value=>{const held=projection.project(value);preparedReplies.set(held,projection.activity(held));return held;},
-        operations:recipientActor.enterprise?operationsOfEnterprise(agencyAt(config.agencyRoot),recipientActor.enterprise,surface.operations??apex.catalog.operations):
-          node===undefined?surface.operations??apex.catalog.operations:operationsOfInstance(agencyAt(config.agencyRoot),node,surface.operations??apex.catalog.operations),recipient,
-        binding:owningBinding??defaultFilesystemBinding(config.metroplatDataRoot,{rootName:config.instance.name}),authorize:apex.authorize,
-         payment:await enterpriseActorPayment(recipientActor,recipient,actorPayments)});
+        operations:recipientActor.enterprise?operationsOfEnterprise(agencyAt(config.agencyRoot),recipientActor.enterprise,surface.operations??apex.catalog.operations,{config,binding:executionBinding,settlementsRoot:settlementsRootOf(environment)}):
+          node===undefined?surface.operations??apex.catalog.operations:operationsOfInstance(agencyAt(config.agencyRoot),node,surface.operations??apex.catalog.operations,{config,binding:executionBinding,settlementsRoot:settlementsRootOf(environment)}),recipient,
+        binding:executionBinding,authorize:apex.authorize,
+         payment:await enterpriseActorPayment(recipientActor,recipient,actorPayments),
+        ...(recipientActor.enterprise?{execution:enterpriseServiceExecution({config,binding:executionBinding,
+          enterprise:recipientActor.enterprise,operations:surface.operations??apex.catalog.operations,authorize:apex.authorize,settlementsRoot:settlementsRootOf(environment)})}:{})});
     },
     reply:async ({identifier,recipient,inbox,request,result})=>{
       let activity=preparedReplies.get(result);
@@ -234,11 +241,11 @@ export async function activityPubProvider(config, environment, {operationSurface
     }
     if(actor.character||typeof operationSurface!=='function')return new Response(null,{status:404});
     const surface=await operationSurface(),operations=surface.operations??surface.apex?.catalog.operations??surface.catalog.operations;
-    const offered=actor.enterprise?operationsOfEnterprise(agencyAt(config.agencyRoot),actor.enterprise,operations):
-     node===undefined?operations:operationsOfInstance(agencyAt(config.agencyRoot),node,operations);
+    const offered=actor.enterprise?operationsOfEnterprise(agencyAt(config.agencyRoot),actor.enterprise,operations,{config,binding:owningBinding??defaultFilesystemBinding(config.metroplatDataRoot),settlementsRoot:settlementsRootOf(environment)}):node===undefined?operations:operationsOfInstance(agencyAt(config.agencyRoot),node,operations,{config,binding:owningBinding??defaultFilesystemBinding(config.metroplatDataRoot),settlementsRoot:settlementsRootOf(environment)});
     await programmes.retain(offered);
     const payment=actor.enterprise?.x402;
-    return Response.json({...describe(createOperationCatalog(offered)),...(payment===undefined?{}:{payment:{
+    return Response.json({...describe(createOperationCatalog(offered)),...(actor.enterprise?{services:servicesOfEnterprise(agencyAt(config.agencyRoot),actor.enterprise,operations,{config,binding:owningBinding??defaultFilesystemBinding(config.metroplatDataRoot),settlementsRoot:settlementsRootOf(environment)})
+        .map(service=>({id:service.id,operation:service.operation.ref,requesters:service.policy.requesters,input:service.policy.input}))}:{}) ,...(payment===undefined?{}:{payment:{
      protocol:'x402',version:2,owner:{enterprise:actor.enterprise.id,entity:actor.enterprise.entity??null},
      price:payment.price,...(payment.requestPricing===undefined?{}:{requestPricing:payment.requestPricing}),
      payTo:payment.payTo,assetExtra:payment.assetExtra,facilitator:payment.facilitatorUrl,
@@ -276,7 +283,8 @@ export function createEnterpriseServicePlatform({
     return peer;
   };
   const executionWorker = new EnterpriseExecutionWorker({ hostPath: installed.web.hostPath, environment,
-    openWork: (opening) => runtime.openWork(opening),
+    openWork: (opening) => runtime.openWork(opening), requestOwnService: request=>runtime.requestOwnService(request),
+    executeWorld:move=>runtime.executeWorld(move),
     replication: {
       deliver: async request => {
         selectedPeer(request.recipient);
@@ -312,6 +320,8 @@ export function createEnterpriseServicePlatform({
       return actor?.state() === "running" ? actor.activityPub.inbox : undefined;
     },
     executeIsolatedWork: (request) => executionWorker.execute(request),
+    ...(services.createFilesystemBinding===undefined?{}:{createBinding:services.createFilesystemBinding}),
+    bindingOptions:services.bindingOptions??{},
   });
   const schedules = runtime.schedules;
   const probe = probeOf(environment);
@@ -374,7 +384,7 @@ export function createEnterpriseServicePlatform({
           if (!environment.GUIX_MACHINE_DEPLOYMENT_STATUS) return null;
           try {
             const value=JSON.parse(readFileSync(environment.GUIX_MACHINE_DEPLOYMENT_STATUS,'utf8'));
-            return Object.fromEntries(['outcome','machine','revision','repository','run','stage','at','reason','storePath','previous','retained'].filter(k=>Object.hasOwn(value,k)).map(k=>[k,value[k]]));
+            return Object.fromEntries(['outcome','machine','revision','repository','run','runAttempt','stage','at','reason','storePath','previous','retained'].filter(k=>Object.hasOwn(value,k)).map(k=>[k,value[k]]));
           } catch {return null}
         })(),
         sources: (() => {
@@ -487,6 +497,13 @@ export function createEnterpriseServicePlatform({
         if (!Array.isArray(supplied)) throw new TypeError(`${source.module}#${source.export} must supply upstream descriptors`);
         upstreams.push(...supplied);
       }
+      if (config.lSpace && probe === undefined) upstreams.push({
+        prefix: "lspace",
+        description: "L-Space knowledge garden",
+        only: ["search", "fetch"],
+        url: config.lSpace.mcpUrl,
+        headers: () => ({ authorization: `Bearer ${config.lSpace.gatewayToken}` }),
+      });
       const federation = await federate([...upstreams, ...(probe === undefined ? config.upstreams : [])], {
         clientInfo: { name: config.instance.name, version: "1.0.0" },
       });
@@ -524,14 +541,12 @@ export function createEnterpriseServicePlatform({
     name: "work-clock",
     start: (capabilities) => {
       const abort = new AbortController();
-      const run = runClockHeartbeat(() => capabilities["metroplat-host"].operationSurface(), {
-        ...configuredClock,
-        // The clock's state root is the surface's binding (data/state/clock under the data root); the
-        // heartbeat reads it only through the surface, so it holds no root of its own.
-        witness: journalRpcWitness(config.metroplatDataRoot, { namespace: installed.identity.id }),
-        coordinate: processLeaseCoordinator(config.metroplatDataRoot),
+      // The clock computes what is due from the schedules and their last runs in the binding's store,
+      // and runs each due job through the catalog its operations were assembled with; it holds no
+      // surface, writes nothing when nothing is due, and leaves one log line per run.
+      const run = runClockHeartbeat(runtime.binding, {
+        intervalMs: configuredClock.intervalMs,
         signal: abort.signal,
-        onObstruction: (obstruction) => process.stderr.write(`[feltos-enterprise-host] clock obstruction: ${JSON.stringify(obstruction)}\n`),
       }).catch((error) => process.stderr.write(`[feltos-enterprise-host] clock stopped: ${error instanceof Error ? error.message : String(error)}\n`));
       return Object.freeze({ close: async () => { abort.abort(); await run; } });
     },
@@ -564,24 +579,24 @@ export async function serveEnterpriseInstance({ hostPath, environment = process.
   if (node !== undefined && node.origin !== config.publicBaseUrl) throw new TypeError("System node origin differs from the instance origin");
   if (node !== undefined && nodeKey === undefined) throw new TypeError("A federating System node requires SYSTEM_NODE_KEY");
   const peering = node === undefined ? undefined : systemSettlementPeering(node, nodeKey, fetch, { declaredKeys: systemNodeDeclaredPeerKeys(environment, node) });
-  const settlementGrants = node === undefined ? undefined : systemSettlementFeedGrants(environment, node);
+  const settlementGrants = node === undefined ? undefined : systemSettlementTypeGrants(environment, node);
   const rootRoutes = node === undefined ? [] : [systemNodeResource(node)];
+  const storeCalls = storeCallBound();
   if (peering !== undefined) for (const pathname of SETTLEMENT_EXCHANGE_PATHS) {
     rootRoutes.push({
       id: `system${pathname.replaceAll("/", ".")}`,
       match: pathname,
       methods: ["POST"],
       produces: ["application/json"],
-      handler: async (ctx) => {
+      // A peer's exchange is served from the store's heads and records; the host holds at most 8 store calls in flight.
+      handler: (ctx) => storeCalls.tryRun(async () => {
         const answer = await settlementExchangeResponse(ctx.req, {
           verify: peering.verify,
-          feedLabelsFor: settlementGrants.labelsFor,
-          holdings: (date, feedLabels) => settlementHoldings(config.metroplatDataRoot, date, { feedLabels }),
-          merge: (transfer, feedLabels) => mergeSettlementTransfer(config.metroplatDataRoot, transfer, { feedLabels }),
-          transfer: (date, holdings, limit, feedLabels) => settlementTransfer(config.metroplatDataRoot, date, holdings, { limit, feedLabels }),
+          typesFor: settlementGrants.typesFor,
+          ...directoryRemote(config.metroplatDataRoot),
         });
         return Response.json(answer.value, { status: answer.status });
-      },
+      }, () => Response.json({ error: "store-calls-in-flight" }, { status: 503, headers: { "retry-after": "1" } })),
     });
   }
   await mkdir(config.stateDir, { recursive: true, mode: 0o700 });

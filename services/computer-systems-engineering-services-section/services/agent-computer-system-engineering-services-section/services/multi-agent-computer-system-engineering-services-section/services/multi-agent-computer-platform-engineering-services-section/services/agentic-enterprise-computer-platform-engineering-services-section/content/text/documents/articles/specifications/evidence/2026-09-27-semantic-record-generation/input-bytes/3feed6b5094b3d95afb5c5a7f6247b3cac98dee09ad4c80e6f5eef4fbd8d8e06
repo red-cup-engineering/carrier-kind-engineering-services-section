@@ -1,0 +1,146 @@
+#!/usr/bin/env node
+import { readFileSync as readCarrierInput } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { canonicalJson } from "@red-cup-engineering/json-services-section";
+import { dataArtifactAddress } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
+import {
+  EMPTY_WITNESS_ROOT,
+  identifyJsonSemanticContent,
+} from "../semiotic-expression-notation/runtime.mjs";
+import { termToJson } from "../semiotic-expression-notation/json-codec.mjs";
+import { tm } from "../semiotic-expression-notation/notation.mjs";
+import { readSeavtEntriesAtPath } from "./read-seavt-entries-at-path.mjs";
+import { journalDirectoryOf } from "./journal/store-root.mjs";
+import { segmentPath, segmentStatements } from "./journal/filesystem/segment-store.mjs";
+
+/** The feed every semantic record was appended to before records were journal witnesses. */
+const LEGACY_FEED = "witness-journal-seavt";
+const TOLD = Object.freeze({
+  unknown: Object.freeze({ for: false, against: false }),
+  held: Object.freeze({ for: true, against: false }),
+  denied: Object.freeze({ for: false, against: true }),
+  contested: Object.freeze({ for: true, against: true }),
+});
+const CHARGE_OF_CLAIM = new Map(Object.keys(TOLD).map((charge) => [canonicalJson(tm.mark(`semantic-record.${charge}`)), charge]));
+
+export const inputSchema = {
+  type: "object",
+  properties: {
+    root: { type: "string", minLength: 1 },
+    objectKind: { type: "string", minLength: 1 },
+    category: { type: "string", minLength: 1 },
+  },
+  required: ["root", "objectKind", "category"],
+  additionalProperties: false,
+};
+export const outputSchema = { type: "array", items: { type: "object" } };
+
+/** The dated directories (YYYY/MM/DD) under one tier directory, as dates, in order. */
+function datesUnder(directory) {
+  const dates = [];
+  const list = (path, pattern) => {
+    try {
+      return readdirSync(path, { withFileTypes: true }).filter((entry) => entry.isDirectory() && pattern.test(entry.name)).map((entry) => entry.name).sort();
+    } catch (error) {
+      if (error.code === "ENOENT") return [];
+      throw error;
+    }
+  };
+  for (const year of list(directory, /^\d{4}$/u)) {
+    for (const month of list(join(directory, year), /^\d{2}$/u)) {
+      for (const day of list(join(directory, year, month), /^\d{2}$/u)) dates.push(`${year}-${month}-${day}`);
+    }
+  }
+  return dates;
+}
+
+/** Records of one kind and category admitted into the journal as witnesses. */
+function journalRecords(root, kind, category) {
+  const records = [];
+  for (const date of datesUnder(journalDirectoryOf(root))) {
+    const logPath = dataArtifactAddress({ root, tier: "log", encoding: "jsonl", at: date, action: kind, subject: kind }).path;
+    if (!existsSync(segmentPath(logPath))) continue;
+    for (const statement of segmentStatements(logPath)) {
+      const row = statement.observation.payload;
+      if (!Array.isArray(row) || row.length !== 4) continue;
+      const [e, a, v, t] = row;
+      if (termToJson(a) !== category) continue;
+      const charge = CHARGE_OF_CLAIM.get(canonicalJson(statement.observation.claim));
+      if (charge === undefined) continue;
+      records.push(Object.freeze({
+        id: termToJson(e),
+        objectKind: kind,
+        category,
+        recordedAt: t,
+        record: termToJson(v),
+        told: TOLD[charge],
+        event: statement.id,
+        origin: statement.observation.seat,
+        causes: statement.core.causes,
+      }));
+    }
+  }
+  return records;
+}
+
+/** Records written to the SEAVT feed before records were journal witnesses: a record is of a kind when its id is its content's address under that kind. */
+function legacyRecords(root, kind, category) {
+  const records = [];
+  const files = (directory) => {
+    const found = [];
+    try {
+      for (const item of readdirSync(directory, { withFileTypes: true })) {
+        const path = join(directory, item.name);
+        if (item.isDirectory()) found.push(...files(path));
+        else if (item.isFile() && item.name === `${LEGACY_FEED}.jsonl`) found.push(path);
+      }
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+    return found.sort();
+  };
+  for (const path of files(join(root, "data", "logs"))) {
+    for (const row of readSeavtEntriesAtPath({ path })) {
+      if (termToJson(row.a) !== category) continue;
+      const id = termToJson(row.e);
+      const value = termToJson(row.v);
+      if (identifyJsonSemanticContent({ objectKind: kind, value, witnessRoot: EMPTY_WITNESS_ROOT }).id !== id) continue;
+      records.push(Object.freeze({ id, objectKind: kind, category, recordedAt: row.t, record: value }));
+    }
+  }
+  return records;
+}
+
+/** Every record of one kind and category, from the journal and from the earlier SEAVT feed, once each, in the order recorded. */
+export function querySemanticRecords({ root, objectKind, category } = {}) {
+  if (
+    typeof root !== "string" ||
+    !root ||
+    typeof objectKind !== "string" ||
+    !objectKind ||
+    typeof category !== "string" ||
+    !category
+  )
+    throw new TypeError(
+      "Semantic record journal root, objectKind, and category are required",
+    );
+  const custodyRoot = resolve(root);
+  const seen = new Set();
+  const records = [];
+  for (const record of [...legacyRecords(custodyRoot, objectKind, category), ...journalRecords(custodyRoot, objectKind, category)]) {
+    const key = canonicalJson([record.id, record.recordedAt]);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    records.push(record);
+  }
+  return Object.freeze(records.map((record, index) => ({ record, index }))
+    .sort((left, right) => String(left.record.recordedAt).localeCompare(String(right.record.recordedAt)) || left.index - right.index)
+    .map(({ record }) => record));
+}
+if (import.meta.main)
+  process.stdout.write(
+    JSON.stringify(
+      querySemanticRecords(JSON.parse(readCarrierInput(0, "utf8"))),
+    ) + "\n",
+  );

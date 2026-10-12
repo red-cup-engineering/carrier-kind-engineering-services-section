@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/swarm/electing-leader/library/leader-assignment/leader-assignment.schema.json",
+  "title": "Leader-assignment",
+  "description": "The output of the electing-leader morphism: a record naming, for a specific recognition-predicate, which entity holds the leader role in the swarm. The math: leader = arg-max over candidates of the count of verified recognition cells whose object is that candidate, across all players' settlings (recognition-discipline). Ties broken lexicographically by entity slug for determinism. When no cell with the recognition-predicate is verified anywhere in the swarm, leader is null and the assignment carries an empty candidate-list.",
+  "type": "object",
+  "required": [
+    "recognition-predicate",
+    "leader",
+    "tally"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "recognition-predicate": {
+      "$ref": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/settling/hacking/predicate/predicate.schema.json",
+      "description": "The predicate the discipline uses for recognition cells."
+    },
+    "leader": {
+      "oneOf": [
+        {
+          "$ref": "https://voidmath.active.development.561.group/library/hacking/entity/entity.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "The elected entity, or null if no recognition cells exist."
+    },
+    "tally": {
+      "type": "array",
+      "description": "Per-candidate vote totals, sorted desc by votes then asc by entity slug.",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate",
+          "votes"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "candidate": {
+            "$ref": "https://voidmath.active.development.561.group/library/hacking/entity/entity.schema.json"
+          },
+          "votes": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

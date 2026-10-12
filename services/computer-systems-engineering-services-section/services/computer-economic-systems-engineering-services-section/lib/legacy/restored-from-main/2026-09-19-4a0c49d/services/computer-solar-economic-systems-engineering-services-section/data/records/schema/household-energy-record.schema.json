@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "household-energy-record.schema.json",
+  "title": "HouseholdEnergyRecord",
+  "type": "object",
+  "required": ["type", "version", "householdId", "periodStart", "periodEnd", "kwhUsed", "kwhGenerated", "tariff"],
+  "properties": {
+    "type": { "const": "HouseholdEnergyRecord" },
+    "version": { "const": 1 },
+    "householdId": { "type": "string" },
+    "periodStart": { "type": "string", "format": "date" },
+    "periodEnd": { "type": "string", "format": "date" },
+    "kwhUsed": { "$ref": "#/$defs/witnessedValue" },
+    "kwhGenerated": { "$ref": "#/$defs/witnessedValue" },
+    "fuelOnHand": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["commodity", "amount", "unit", "asOf"],
+        "properties": {
+          "commodity": { "enum": ["PROPANE_GAL", "DIESEL_GAL", "CORD_WOOD"] },
+          "amount": { "type": "string" },
+          "unit": { "type": "string" },
+          "daysOfHeat": { "type": ["number", "null"] },
+          "asOf": { "type": "string", "format": "date" }
+        }
+      }
+    },
+    "tariff": { "$ref": "energy-tariff.schema.json" },
+    "panelTelemetrySummary": {
+      "type": ["object", "null"],
+      "properties": {
+        "kwhGeneratedReported": { "type": "string" },
+        "sourceKind": { "enum": ["inverter-export", "manufacturer-portal-export"] },
+        "asOf": { "type": "string", "format": "date" }
+      }
+    },
+    "assistanceClaims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["program", "amount", "status", "enforcementClass"],
+        "properties": {
+          "program": { "type": "string" },
+          "amount": { "type": "string" },
+          "status": { "enum": ["filed", "matched", "paid", "denied"] },
+          "enforcementClass": { "enum": ["structural", "aspirational", "decorative"] },
+          "citedRuleUrl": { "type": ["string", "null"] }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "witnessedValue": {
+      "type": "object",
+      "required": ["statementValue", "meterOrBankValue"],
+      "properties": {
+        "statementValue": { "type": "string" },
+        "meterOrBankValue": { "type": ["string", "null"] },
+        "mismatch": { "type": ["boolean", "null"] },
+        "mismatchAmount": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

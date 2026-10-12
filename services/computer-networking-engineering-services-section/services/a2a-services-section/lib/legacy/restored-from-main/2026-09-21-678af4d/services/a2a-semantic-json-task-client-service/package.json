@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/a2a-semantic-json-task-client-service",
+  "version": "0.1.7",
+  "private": false,
+  "type": "module",
+  "description": "Hires one exact A2A 1.0 provider with an addressed semantic JSON request and admits one addressed semantic JSON result.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/send-semantic-json-task.mjs"
+  },
+  "bin": {
+    "send-semantic-json-a2a-task": "scripts/send-semantic-json-task.mjs"
+  },
+  "files": [
+    "src",
+    "scripts"
+  ],
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check scripts/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.1.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "0.8.0",
+    "@red-cup-engineering/a2a-semantic-json-part-service": "0.1.3"
+  }
+}

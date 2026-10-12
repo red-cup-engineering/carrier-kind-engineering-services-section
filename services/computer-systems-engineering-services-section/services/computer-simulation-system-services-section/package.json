@@ -1,0 +1,7 @@
+{
+  "name": "@red-cup-engineering/computer-simulation-system-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Groups composed computer systems that model, run, and observe simulated dynamical systems.",
+  "dependencies": {}
+}

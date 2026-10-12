@@ -1,0 +1,48 @@
+{
+  "name": "@emsenn/communicating-in-latin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Communicating in Latin — the Latin fiber over @emsenn/communicating: the compiled Latin bundle and the runnable communicate/communicate-serve surface wired to Latin.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "prepack": "pnpm run rebuild",
+    "rebuild": "pnpm run clean && pnpm run build"
+  },
+  "main": "./src/index.mjs",
+  "bin": {
+    "communicate": "./src/scripts/communicate.mjs",
+    "communicate-serve": "./src/scripts/communicate-serve.mjs"
+  },
+  "files": [
+    "data",
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./bundle": {
+      "import": "./src/compiled.mjs"
+    },
+    "./manifest": {
+      "import": "./src/manifest.mjs"
+    },
+    "./actions": {
+      "import": "./src/actions.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@red-cup-engineering/communicating": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/feltos": "workspace:*",
+    "@red-cup-engineering/relating": "workspace:*"
+  },
+  "sideEffects": false
+}

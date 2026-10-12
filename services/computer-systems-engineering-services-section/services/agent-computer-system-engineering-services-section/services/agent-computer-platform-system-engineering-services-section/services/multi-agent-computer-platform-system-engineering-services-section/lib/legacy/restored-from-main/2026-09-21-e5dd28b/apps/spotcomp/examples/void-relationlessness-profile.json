@@ -1,0 +1,103 @@
+{
+  "profileId": "spotcomp-void-relationlessness-example",
+  "stageTranslation": {
+    "voidConeAsEarlierVocabulary": true,
+    "articulatingAperiodicReframe": true,
+    "predicatingTransfiniteReframe": true,
+    "positingScottContinuousReframe": true,
+    "settlingFiniteReframe": true,
+    "noFifthStageIntroduced": true,
+    "noFourExceptionalization": true,
+    "evidence": [
+      "development/experimental/spotcomp/PREDICATION-STAGES.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/narratives/void-cone-structure.md"
+    ]
+  },
+  "nullRelationlessness": {
+    "voidIsNullCase": true,
+    "relationlessnessDeclared": true,
+    "jsonNullFiniteWitnessDeclared": true,
+    "potentialCellBothSlotsVoid": true,
+    "tokenClaimSiblingBoundary": true,
+    "notErrorOrException": true,
+    "evidence": [
+      "development/active/library/void/void.schema.json",
+      "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/potential-aperiodic-predication-cell.schema.json",
+      "development/active/library/utterance/docs/dev/journal/2026-05-25.md"
+    ]
+  },
+  "voidFiltration": {
+    "descendingVoidFiltrationDeclared": true,
+    "limitVoidSeparateInvariant": true,
+    "closurePointedValueCategoryDeclared": true,
+    "supportRespectingClosureDeclared": true,
+    "regimeVoidShrinkageDeclared": true,
+    "permanentVoidNotH1": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/value-agnostic-void-cone.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/narratives/geometries-of-failure-dynamics-of-void.md"
+    ]
+  },
+  "cohomologyPairing": {
+    "associatedGradedDeclared": true,
+    "apexH1PairingDeclared": true,
+    "cosheafHomologyDeclared": true,
+    "verdierRouteDeclared": true,
+    "directChainRouteDeclared": true,
+    "legacyH0Reinterpreted": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/void-cone-cohomology.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/void-cone-associated-graded-direct.md"
+    ]
+  },
+  "valueAgnosticInstances": {
+    "bilatticeBottomInstanceDeclared": true,
+    "stochasticZeroInstanceDeclared": true,
+    "lawvereNoPathInstanceDeclared": true,
+    "lorentzianSpacelikeInstanceDeclared": true,
+    "conflationVoidFullnessAxisDeclared": true,
+    "negationTruthAxisSeparated": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/value-agnostic-void-cone.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/lorentzian-apex-void-as-timelike-spacelike.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/narratives/void-cone-structure.md"
+    ]
+  },
+  "failureGeometry": {
+    "failureGeometryAsStageObstruction": true,
+    "nonScottFiringsTracked": true,
+    "voidShrinkageDiscontinuitiesTracked": true,
+    "failureEventTypingDeclared": true,
+    "agenticContinuingAgencyAperiodicDeclared": true,
+    "noRuntimeFailureCollapse": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/narratives/geometries-of-failure-dynamics-of-void.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/questions/failure-event-moduli-stack.md"
+    ]
+  },
+  "weightedContinuousBoundary": {
+    "weightStabilityConeRequired": true,
+    "shapeSpecificConeDeclared": true,
+    "rankDropDowngradeDeclared": true,
+    "padovanOppositeOrderingDeclared": true,
+    "noArityOnlyContinuousRank": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/tropical-rank-collapse-classification.md"
+    ]
+  },
+  "implementationBoundary": {
+    "noExceptionHandlerAsVoid": true,
+    "noFiniteOnlyVoidOntology": true,
+    "noVoidPairingWithoutStageOrdinals": true,
+    "noPermanentVoidAsAssociatedGraded": true,
+    "noContinuousWeightsWithoutStabilityCone": true,
+    "unknownVoidScopeBlocksStrongConformance": true,
+    "codeRemainsProbe": true,
+    "evidence": [
+      "development/experimental/spotcomp/VOID-RELATIONLESSNESS-STAGES.md"
+    ]
+  },
+  "evidence": [
+    "development/experimental/spotcomp/VOID-RELATIONLESSNESS-STAGES.md"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "refused",
+  "reason": "I cannot supply a complete, coherent B2b2b patch from the provided excerpts without claiming host guarantees that the changes establish. In particular, the unique-custody scanner must preserve bounded physical accounting and parent provenance, and initialization must carry binding checks and publication uncertainty through the shared barrier and final descriptor release. A partial patch would leave the requested host phase incomplete.",
+  "changes": []
+}

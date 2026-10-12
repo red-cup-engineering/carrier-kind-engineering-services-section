@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/character/library/journaling/library/memory/library/user/user.schema.json",
+  "title": "user",
+  "description": "Predication-shape for a user memory: a fact about the operator's role, preferences, expertise, or relationship to the work that should inform how the character collaborates.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../memory.schema.json"
+    },
+    {
+      "required": [
+        "has-kind"
+      ],
+      "properties": {
+        "has-kind": {
+          "const": "user"
+        }
+      }
+    }
+  ]
+}

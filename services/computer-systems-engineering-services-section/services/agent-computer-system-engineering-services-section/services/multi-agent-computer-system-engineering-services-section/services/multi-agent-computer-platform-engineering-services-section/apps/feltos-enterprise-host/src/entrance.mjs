@@ -200,7 +200,7 @@ export function createEnterpriseEntrance(config, {
       tools: federation.tools.length, unavailable: federation.unavailable,
     }, { cacheControl: { noStore: true } }),
   }] };
-  const context = Object.freeze({ config, run, runAs, registry, admission, authorization,
+  const context = Object.freeze({ config, run, runAs, registry, admission, authorization, federation,
     ...(resolveGitHubReceivingBinding === undefined ? {} : { resolveGitHubReceivingBinding }) });
   const selected = typeof applications === "function" ? applications(context) : applications;
   if (!Array.isArray(selected)) throw new TypeError("MetroPlat applications must provide an array");

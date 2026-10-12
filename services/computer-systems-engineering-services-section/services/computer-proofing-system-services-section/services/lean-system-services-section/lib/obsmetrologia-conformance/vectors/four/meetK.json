@@ -1,0 +1,18 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.meetK","cases":[
+  {"op":"meetK","args":[[false,false],[false,false]],"result":[false,false]},
+  {"op":"meetK","args":[[false,false],[true,false]],"result":[false,false]},
+  {"op":"meetK","args":[[false,false],[false,true]],"result":[false,false]},
+  {"op":"meetK","args":[[false,false],[true,true]],"result":[false,false]},
+  {"op":"meetK","args":[[true,false],[false,false]],"result":[false,false]},
+  {"op":"meetK","args":[[true,false],[true,false]],"result":[true,false]},
+  {"op":"meetK","args":[[true,false],[false,true]],"result":[false,false]},
+  {"op":"meetK","args":[[true,false],[true,true]],"result":[true,false]},
+  {"op":"meetK","args":[[false,true],[false,false]],"result":[false,false]},
+  {"op":"meetK","args":[[false,true],[true,false]],"result":[false,false]},
+  {"op":"meetK","args":[[false,true],[false,true]],"result":[false,true]},
+  {"op":"meetK","args":[[false,true],[true,true]],"result":[false,true]},
+  {"op":"meetK","args":[[true,true],[false,false]],"result":[false,false]},
+  {"op":"meetK","args":[[true,true],[true,false]],"result":[true,false]},
+  {"op":"meetK","args":[[true,true],[false,true]],"result":[false,true]},
+  {"op":"meetK","args":[[true,true],[true,true]],"result":[true,true]}
+]}

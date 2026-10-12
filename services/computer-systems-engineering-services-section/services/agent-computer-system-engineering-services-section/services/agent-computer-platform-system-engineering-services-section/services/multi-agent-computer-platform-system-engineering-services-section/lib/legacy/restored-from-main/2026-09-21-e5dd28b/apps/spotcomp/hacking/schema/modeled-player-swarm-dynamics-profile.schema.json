@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://research-notes.561.group/development/experimental/spotcomp/schema/modeled-player-swarm-dynamics-profile.schema.json",
+  "title": "SPOTCOMP modeled player swarm dynamics profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "playerBoundary",
+    "ruledObserverSettling",
+    "agentivePositing",
+    "configurationTrajectory",
+    "networkSheafSwarm",
+    "strategyBoundary",
+    "dynamicsBoundary",
+    "aperiodicSwarmWitness",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "profileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "$ref": "#/$defs/evidence"
+    },
+    "playerBoundary": {
+      "$ref": "#/$defs/section"
+    },
+    "ruledObserverSettling": {
+      "$ref": "#/$defs/section"
+    },
+    "agentivePositing": {
+      "$ref": "#/$defs/section"
+    },
+    "configurationTrajectory": {
+      "$ref": "#/$defs/section"
+    },
+    "networkSheafSwarm": {
+      "$ref": "#/$defs/section"
+    },
+    "strategyBoundary": {
+      "$ref": "#/$defs/section"
+    },
+    "dynamicsBoundary": {
+      "$ref": "#/$defs/section"
+    },
+    "aperiodicSwarmWitness": {
+      "$ref": "#/$defs/section"
+    },
+    "implementationBoundary": {
+      "$ref": "#/$defs/section"
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "section": {
+      "type": "object",
+      "required": ["evidence"],
+      "additionalProperties": true,
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/evidence"
+        }
+      }
+    }
+  }
+}

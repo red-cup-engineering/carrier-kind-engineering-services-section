@@ -1,0 +1,18 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.leK","cases":[
+  {"op":"leK","args":[[false,false],[false,false]],"result":true},
+  {"op":"leK","args":[[false,false],[true,false]],"result":true},
+  {"op":"leK","args":[[false,false],[false,true]],"result":true},
+  {"op":"leK","args":[[false,false],[true,true]],"result":true},
+  {"op":"leK","args":[[true,false],[false,false]],"result":false},
+  {"op":"leK","args":[[true,false],[true,false]],"result":true},
+  {"op":"leK","args":[[true,false],[false,true]],"result":false},
+  {"op":"leK","args":[[true,false],[true,true]],"result":true},
+  {"op":"leK","args":[[false,true],[false,false]],"result":false},
+  {"op":"leK","args":[[false,true],[true,false]],"result":false},
+  {"op":"leK","args":[[false,true],[false,true]],"result":true},
+  {"op":"leK","args":[[false,true],[true,true]],"result":true},
+  {"op":"leK","args":[[true,true],[false,false]],"result":false},
+  {"op":"leK","args":[[true,true],[true,false]],"result":false},
+  {"op":"leK","args":[[true,true],[false,true]],"result":false},
+  {"op":"leK","args":[[true,true],[true,true]],"result":true}
+]}

@@ -400,8 +400,8 @@ export function captpStandingKey(row) {
  * that has never crossed into the statement log) into a real `EAVT` tuple. This is the pure
  * half of witnessing CapTP moves: it does not touch the filesystem or any
  * service; a caller with `dataRoot` access passes the result to
- * `openJournal` (`@red-cup-engineering/metroplat/integrations/filesystem/services/store`)
- * to actually make the move durable and replayable.
+ * `extend` (`@red-cup-engineering/semiotic-eavt-services-section/store`)
+ * to make the move durable and replayable.
  */
 export function captpStatementRowToEavt(row) {
   const admitted = captpStatementRowContract.assert(row, "CapTP EAVT row");

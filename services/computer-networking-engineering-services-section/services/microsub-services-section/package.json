@@ -1,0 +1,19 @@
+{
+  "name": "@red-cup-engineering/microsub-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Microsub (W3C draft): the channel, timeline, search and follow request grammar, timeline pages, and the Microsub endpoint.",
+  "exports": {
+    "./codec": "./src/codec.mjs",
+    "./timeline": "./src/timeline.mjs",
+    "./resource": "./src/resource.mjs",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-serialized-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/http-services-section": "workspace:*"
+  },
+  "sideEffects": false
+}

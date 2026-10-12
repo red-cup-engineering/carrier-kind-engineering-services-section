@@ -1,0 +1,20 @@
+{
+  "name": "@561-group/dispatching-a-task",
+  "version": "0.1.2",
+  "type": "module",
+  "description": "Hands a seated task to a seated office by raising a dispatch \u2014 the office/duty toolkit's dispatch verb, refusing an unseated task, an unseated office, or a second dispatch of an already-dispatched task.",
+  "exports": {
+    ".": "./src/dispatch-a-task.js",
+    "./src/dispatch-a-task.js": "./src/dispatch-a-task.js"
+  },
+  "bin": {
+    "dispatch-a-task": "src/dispatch-a-task.js"
+  },
+  "dependencies": {
+    "@561-group/resolving-an-identifier": "0.2.0"
+  },
+  "scripts": {
+    "check": "node --check src/dispatch-a-task.js",
+    "test": "node --test test/*.test.mjs"
+  }
+}

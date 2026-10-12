@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe.software.development.artifact.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "text",
+    "inputs",
+    "unresolved",
+    "basis",
+    "authority",
+    "derivation",
+    "readings",
+    "admission",
+    "semanticProof"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "prior-art-synthesis",
+        "system-operational-concept",
+        "software-requirements-specification",
+        "software-architecture-specification",
+        "high-level-design",
+        "low-level-design",
+        "artifact-specifications"
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "product": {
+      "type": "object"
+    },
+    "basis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "derivation": {
+      "type": "object"
+    },
+    "readings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "admission": {
+      "const": "machine-grounded-contribution"
+    },
+    "semanticProof": {
+      "const": "unestablished"
+    }
+  },
+  "x-codegen": {
+    "exportName": "engineeringArtifactSchema",
+    "typeName": "EngineeringArtifact",
+    "runtimeName": "engineeringArtifactType"
+  },
+  "title": "EngineeringArtifact",
+  "description": "A causally grounded engineering product consumed by the next development transformation"
+}

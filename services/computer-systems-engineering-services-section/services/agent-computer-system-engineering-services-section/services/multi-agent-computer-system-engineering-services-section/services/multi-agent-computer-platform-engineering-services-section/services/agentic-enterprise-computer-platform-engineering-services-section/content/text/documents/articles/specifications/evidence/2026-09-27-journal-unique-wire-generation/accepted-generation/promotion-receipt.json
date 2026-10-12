@@ -1,0 +1,17 @@
+{
+  "promotedAt": 1790543403.14401,
+  "inputs": {
+    "code/src/semiotic-eavt/journal/event.mjs": "69160a522e6f7f9319a6e4743d8940ef2cac00c44150591b845c992c594f1833"
+  },
+  "outputs": {
+    "code/src/semiotic-eavt/journal/event.mjs": "6069defbde3eef4ec64bb4ae2e1d6c9b3951b92f69f16c3ff7bea7695dce7970"
+  },
+  "workOrderSha256": "fdcc7d1df19831909688a64913eb582ec348972099a133b639630c856d4fb100",
+  "assessmentSha256": "7da591bb482d4818196fb7324e49009b80600c492d36985e2a1b0c1e937a187c",
+  "assayCommitmentSha256": "1b26f5937777d8c7707f7fb997421bc476e9dfe24b044ce2ff836acbd8b6e0bf",
+  "sourceReview": "Only admitted pure record functions and source-set compatibility; no I/O, authority or dispatch behavior introduced.",
+  "limits": [
+    "Pure record construction and verification only; no storage, authority, dispatch, or real assistant workflow.",
+    "Dependency bytes are read-only, namespace has no network or operational credentials."
+  ]
+}

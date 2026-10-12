@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/swarm/electing-leader/electing-leader.schema.json",
+  "title": "Electing-leader (morphism)",
+  "description": "The recognition-discipline morphism for a swarm: given a swarm and a recognition-predicate, produce a leader-assignment naming who the swarm has elected. The math (agentic-systems.md): authority in a swarm is the aggregate of recognition cells, not installed by office. A recognition cell has shape (voter-entity, recognition-predicate, candidate-entity) with settled value 𝐭 (verified); the discipline counts votes per candidate across all players' settlings and selects arg-max. Source: swarm × predicate. Target: leader-assignment.",
+  "type": "object",
+  "required": [
+    "swarm",
+    "recognition-predicate"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "swarm": {
+      "$ref": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/operating-system/library/computer-operating-system/hacking/library/spotcomp/hacking/library/swarm/swarm.schema.json"
+    },
+    "recognition-predicate": {
+      "$ref": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/settling/hacking/predicate/predicate.schema.json",
+      "description": "The predicate the discipline recognizes — e.g., 'recognizes-leader', 'recognizes-for-routing'."
+    }
+  }
+}

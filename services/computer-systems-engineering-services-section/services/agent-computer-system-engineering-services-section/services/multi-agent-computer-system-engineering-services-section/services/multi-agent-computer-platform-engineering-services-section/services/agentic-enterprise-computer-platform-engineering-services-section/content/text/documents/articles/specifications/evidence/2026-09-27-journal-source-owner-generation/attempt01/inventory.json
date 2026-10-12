@@ -1,0 +1,29 @@
+{
+  "kind": "source-patchset-input",
+  "version": 1,
+  "sourceRoot": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine",
+  "files": {
+    "package.json": {
+      "state": "present",
+      "sha256": "a5fba22cbeb5025b4f36d6f144149194c84a01ef06d4b8117e413725cf820e70"
+    },
+    "src/journal/filesystem/source-owner.mjs": {
+      "state": "absent"
+    },
+    "src/journal/diagnostics.mjs": {
+      "state": "absent"
+    }
+  },
+  "clauses": [
+    "F-S01",
+    "F-S02",
+    "F-S03",
+    "F-S04",
+    "F-S05",
+    "F-S06",
+    "F-S07",
+    "F-S08",
+    "F-S09",
+    "F-S10"
+  ]
+}

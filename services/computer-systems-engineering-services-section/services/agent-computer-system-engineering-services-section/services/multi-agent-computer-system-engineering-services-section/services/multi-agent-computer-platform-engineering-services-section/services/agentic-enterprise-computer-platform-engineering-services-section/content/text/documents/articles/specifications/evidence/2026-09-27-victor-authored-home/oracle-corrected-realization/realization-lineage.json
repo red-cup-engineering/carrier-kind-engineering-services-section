@@ -1,0 +1,10 @@
+{
+  "kind": "new-deterministic-realization-after-oracle-correction",
+  "sourceDerivationRun": "/tmp/muse-generation-eicd4it7",
+  "sourceResultSha256": "9840e47f6c3834deb977ca88ef10d96040282610aab2813b41ef02fc69c99187",
+  "sourceBytesChanged": false,
+  "newInferenceInvocation": false,
+  "assayRunnerSha256": "206f4e2ce3acb205f31263a1195d7bb8dd2802720428b60f2afe0bc88e0f3494",
+  "assayCommitmentSha256": "8a233cb2d375347753fd32d7961a60f9da3d7ad6405d4195e6dbd771a11869ac",
+  "chronology": "Original independent assay commitment preceded model source derivation. Corrected XML predicate instrumentation followed failed assessment and precedes this fresh deterministic materialization. Original source-stage rejection is retained."
+}

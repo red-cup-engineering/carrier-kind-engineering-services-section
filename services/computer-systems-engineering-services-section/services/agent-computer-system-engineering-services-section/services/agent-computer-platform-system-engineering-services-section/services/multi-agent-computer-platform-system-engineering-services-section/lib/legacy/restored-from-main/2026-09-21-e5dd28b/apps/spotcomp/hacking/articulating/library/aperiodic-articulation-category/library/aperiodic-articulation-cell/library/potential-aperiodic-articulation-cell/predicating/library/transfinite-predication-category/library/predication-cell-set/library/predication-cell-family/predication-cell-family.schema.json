@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell-family/predication-cell-family.schema.json",
+  "title": "Predication cell family",
+  "description": "The generated family of all predication-cell positions of a predication-cell-set: the Cartesian product Phi = E x Pi x E. Produced by the expanding morphism from the cell-set's two generators (entity-set and predicate-set). The count |E|*|Pi|*|E| is a derived fact.",
+  "type": "object",
+  "required": ["cells"],
+  "additionalProperties": false,
+  "properties": {
+    "cells": {
+      "type": "array",
+      "items": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/predication-cell.schema.json" }
+    }
+  }
+}

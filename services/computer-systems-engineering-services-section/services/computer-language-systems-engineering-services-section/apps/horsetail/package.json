@@ -1,0 +1,50 @@
+{
+  "name": "@561-group/horsetail",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Horsetail: a Lisp that lets users write programs in S-expressions and interprets them over SignCraft — every value a point of FOUR with its witnesses, every program a trace, settled to a Knaster–Tarski fixed point in a SignCraft knowledge base.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test \"src/**/*.test.mjs\""
+  },
+  "main": "./src/index.mjs",
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./types": {
+      "import": "./src/types.mjs"
+    },
+    "./reader": {
+      "import": "./src/reader.mjs"
+    },
+    "./value": {
+      "import": "./src/value.mjs"
+    },
+    "./evaluator": {
+      "import": "./src/evaluator.mjs"
+    },
+    "./world": {
+      "import": "./src/world.mjs"
+    },
+    "./pattern": {
+      "import": "./src/pattern.mjs"
+    },
+    "./json": {
+      "import": "./src/json.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/signcraft": "workspace:*"
+  },
+  "sideEffects": false
+}

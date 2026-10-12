@@ -1,0 +1,56 @@
+{
+  "description": "Expected slug/dir/kind/fm/edge structures for lib/conformance/fixture-corpus/, ported verbatim from gen-1's tests/conftest.py fixture_root. Both pyfars's substrate loader and jsfars's substrate/store.mjs must reproduce this exactly (design spec section 11, conformance vector #2).",
+  "notes": [
+    "alpha-example.md's slug is 'alpha-example', not to be confused with the 'examples' directory name.",
+    "edges are in the order gen-1's substrate.index.edges.build produces them: notes visited in path-sorted order (concepts/alpha.md, concepts/beta.md, examples/alpha-example.md, questions/open-question.md, theorems/alpha-property.md); within each note, its fm-relation edges precede its body-link edges."
+  ],
+  "notes_by_file": [
+    {
+      "slug": "alpha",
+      "dir": "concepts",
+      "kind": "concept",
+      "path": "concepts/alpha.md",
+      "fm": { "kind": "concept", "title": "Alpha" },
+      "body": "\nAlpha body.\n"
+    },
+    {
+      "slug": "beta",
+      "dir": "concepts",
+      "kind": "concept",
+      "path": "concepts/beta.md",
+      "fm": { "kind": "concept", "title": "Beta", "depends-on": ["alpha"] },
+      "body": "\nBeta cites [alpha](alpha.md).\n"
+    },
+    {
+      "slug": "alpha-property",
+      "dir": "theorems",
+      "kind": "theorem",
+      "path": "theorems/alpha-property.md",
+      "fm": { "kind": "theorem", "status": "proved", "depends-on": ["alpha"] },
+      "body": "\nTheorem about alpha.\n\n## Proof\n\n$\\square$\n"
+    },
+    {
+      "slug": "alpha-example",
+      "dir": "examples",
+      "kind": "example",
+      "path": "examples/alpha-example.md",
+      "fm": { "kind": "example", "instantiates": ["alpha"] },
+      "body": "\nAn example.\n"
+    },
+    {
+      "slug": "open-question",
+      "dir": "questions",
+      "kind": "question",
+      "path": "questions/open-question.md",
+      "fm": { "kind": "question", "status": "open", "explores": ["alpha"] },
+      "body": "\nQ?\n"
+    }
+  ],
+  "edges": [
+    { "src": "beta", "dst": "alpha", "kind": "depends-on", "source": "fm", "line": null },
+    { "src": "beta", "dst": "alpha", "kind": "link", "source": "body", "line": 2 },
+    { "src": "alpha-example", "dst": "alpha", "kind": "instantiates", "source": "fm", "line": null },
+    { "src": "open-question", "dst": "alpha", "kind": "explores", "source": "fm", "line": null },
+    { "src": "alpha-property", "dst": "alpha", "kind": "depends-on", "source": "fm", "line": null }
+  ]
+}

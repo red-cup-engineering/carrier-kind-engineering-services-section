@@ -1,0 +1,23 @@
+{
+  "status": "staged-unaccepted",
+  "workOrderSha256": "7ea93a35dd62ed47a3e3d646611e772847a92c451a6fb07ac4441ffdb9623fda",
+  "inputs": {
+    "src/MARSH.sol": "10d762d961e1ee86807c65b2d3679cc0add558e63c2aa43a458573d5041b4c87",
+    "test/MARSH.t.sol": "c618aa39456d14ddd45f8519b0294a2cefd4a4f297ad4dc8fc2e9ff78b6c3bb9",
+    "foundry.toml": "3898856eff7f2855b51f8fdba9d39a297f80c0a9c1f8e614e34efc83ef3a29e8",
+    "src/resource-read.mjs": "a5c51ad9d344daae8c857e9daea20030fb7ace4d2413bea3781c913a657e80b8",
+    "src/resource-operations.mjs": "7f04869dec8b02bb320547b3212e22332786b8cb08521bad80cbba6af0778ff9",
+    "protected/catalog/catalog.mjs": "ae1f56615fa1d37adc334d08f9251777c8176e59b911d618f16067ec826926bf",
+    "protected/data-resource/OnchainDataResource.sol": "180a3cad3ddc46c38a533857f9557302969555adcd0ceffeaef8fb26af962ebf",
+    "protected/identity-observation/fixed-block-contract-identity-observation.mjs": "24af033a126ef92a122a7118760ab08f8dd75aaa109e707863b6a41dd6cfea31"
+  },
+  "outputs": {
+    "src/MARSH.sol": "3853999734381791821beca7de40e209f29151b925ddee8a59935922122be1dd",
+    "test/MARSH.t.sol": "6d27c10da91c7d2a319a44f584470b44ad31d6c3f6a37df08d9f89dc7aed9f38"
+  },
+  "candidateSha256": "cf7377cd2bf6191c1bea1a7243a343c8f261ba4b2aba3a55c4e70c75e8f4ee8f",
+  "assayCommitment": {
+    "manifestSha256": "1448e38482d41508544ec76395deb8259a2ac27f464b3421649b92bac4af55c9",
+    "committedBeforeGeneration": true
+  }
+}

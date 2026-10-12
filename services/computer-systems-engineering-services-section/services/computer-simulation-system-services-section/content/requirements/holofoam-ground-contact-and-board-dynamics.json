@@ -1,0 +1,97 @@
+{
+  "id": "holofoam-ground-contact-and-board-dynamics",
+  "name": "Holofoam ground contact: a deterministic board ride on surfaces and rails, verified by replay",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "I want you putting more pressure on more of our systems at once to realize more of what we need at once, for example we've planned elsewhere trying to meet-then-beat Kerbal Space Program with our game engines, and then including in Farstone, our falgship MMORPG, a KSP-like game for folk (which is also part of how we justify our weird little MMORPG growing sci-fi wings)\n\n---\n\nThere are lots of threads like that where the code or notes we got into uploaded on Github are muuuuch thinner than our actual conversation and plans, and thinner than the actual underlying codebase that could support them, and I want you to add that to your set of things that you're doing, making sure that all our ideas have become fuller in the repo resources than in our chat conversations.\n\n(Farstone and KSP is just one example.)\n\n---\n\nI'm bringing it up for two things:\n\n1) I also want Farstone to grow Tony Hawk Pro Skater (and similar game) capabiliies: think Goat Simulator and similar, but we do want specifically to add skateboarding and such.\n2) We also already did some work on Farstone meet-then-beating Grand Theft Auto Online.\n\n---\n\nAND in a different direction I want to make sure that we are properly getting everything we can into an ASSIST program, that the ASSIST acronym, i.e. Agent-Supported Service Interface Simulation Topology?\n\nthe idea was to make ASSIST cleanly downstream of TUFTE (Tiling User Form Topology Engine), and then make a giant suite of ASSIST apps - we have some but want more: EVE Assist is one, Feng Shui Assist another, just a giant family of them.\n\nAlpaca Assist is another, uh, Kalshi Assist, etc etc: any personal services section basically should get its own assist app, i.e. kalshi.assist.561.group, and then assist.561.group becomes the general dashboard, since they should all share types, work, governance, etc etc",
+  "met-when": [
+    {
+      "cell": "holofoam-board:ride",
+      "target": "held",
+      "command": "sh -c 'node --test lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam/test/board.test.mjs'",
+      "expected-exit": 0
+    },
+    {
+      "cell": "holofoam-board:sandbox-bodies",
+      "target": "held",
+      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam/test/*ragdoll* lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam/test/*articulat* >/dev/null 2>&1'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "Farstone action-sandbox session (claude session session_0135quYk1Xi57Bu3QnxqLWG3), dispatched by the orchestrator session session_01NK9NsqzGweReSgA8X8VBif",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "basis": "The Leader's message of 2026-10-10T01:03Z in the orchestrator session. The raised-by field and asks are the Leader's own words; the requirements below are an EARS rendering of what those words ask and carry no scope the words do not, except where a rationale names the house rule it comes from.",
+    "signcell-conversion": "Written in the requirement.schema.json form pending the orchestrator's canonical call for recording requirements as signed cells (@red-cup-engineering/signcell predication cells, recorded through @red-cup-engineering/semiotic-eavt-services-section); convert this record when that call arrives.",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "Holofoam simulates a rider on a wheeled board in contact with a park of surfaces and rails (rolling, air, grind, manual, bail) as a law over its inputs, deterministic to the bit, so Farstone can verify a submitted skate run by replaying it and every client can predict it; and it grows toward the bodies and contacts a physics sandbox needs.",
+      "scope": [
+        "section:services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam"
+      ],
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "Holofoam shall derive a board ride (rolling with pushes and carving turns, ollies and edge launches, timed air actions and spins, grinds on rails, manuals, landings and bails) from its park, start and inputs at fixed ticks, with the same result on every run.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "The Leader: \"specifically to add skateboarding and such\"; and the earlier ruling that Holofoam become \"our physics simulation engine\" (requirement holofoam-as-physics-simulation-engine)."
+        },
+        {
+          "id": "R2",
+          "says": "Holofoam's board balance shall give every rider who asks for the same hold the same outcome, so a game grants a longer hold as a skill rather than testing reflexes over the network.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "A server-authoritative MMO must verify a run by replay; a reflex-based balance cannot be verified from inputs alone."
+        },
+        {
+          "id": "R3",
+          "says": "Holofoam shall simulate articulated bodies and contacts between bodies and objects, for a physics sandbox.",
+          "class": "functional",
+          "moscow": "should",
+          "rationale": "The Leader: \"think Goat Simulator and similar\"."
+        }
+      ],
+      "conditions": [
+        {
+          "id": "holofoam-board:ride",
+          "says": "Holofoam's board tests pass in a clone of the repository.",
+          "method": "test",
+          "verifies": [
+            "R1",
+            "R2"
+          ]
+        },
+        {
+          "id": "holofoam-board:sandbox-bodies",
+          "says": "A Holofoam test of articulated bodies in contact exists.",
+          "method": "assay",
+          "verifies": [
+            "R3"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "session": "claude session session_01NK9NsqzGweReSgA8X8VBif",
+          "event": "af1992ae-bdf3-41f5-b895-6d1824d12a15",
+          "at-utc": "2026-10-10T01:03:00",
+          "words": "I also want Farstone to grow Tony Hawk Pro Skater (and similar game) capabiliies: think Goat Simulator and similar, but we do want specifically to add skateboarding and such."
+        }
+      ],
+      "serves": [],
+      "after": [
+        "skateboard-and-physics-sandbox-motion",
+        "holofoam-as-physics-simulation-engine"
+      ],
+      "traces": []
+    },
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;6y0v4bHtOO_IaeZhD8VAhZIbl8aAEcVDRt243WPLzJc",
+      "cell": "ni:///sha-256;SZ7NlZMRkvwtpoQOT98HXnKGqUebalC66kFwC_pOtn0"
+    }
+  }
+}

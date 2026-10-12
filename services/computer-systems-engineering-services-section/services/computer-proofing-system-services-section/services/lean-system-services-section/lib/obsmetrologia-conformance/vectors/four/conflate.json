@@ -1,0 +1,6 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.conflate","cases":[
+  {"op":"conflate","args":[[false,false]],"result":[true,true]},
+  {"op":"conflate","args":[[true,false]],"result":[true,false]},
+  {"op":"conflate","args":[[false,true]],"result":[false,true]},
+  {"op":"conflate","args":[[true,true]],"result":[false,false]}
+]}

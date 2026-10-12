@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/generator-variance-profile.schema.json",
+  "title": "SPOTCOMP generator variance profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "variancePrinciples",
+    "extensionCriteria",
+    "restrictionCriteria",
+    "coincidenceCriteria",
+    "examples",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "variancePrinciples": { "$ref": "#/$defs/variancePrinciples" },
+    "extensionCriteria": { "$ref": "#/$defs/extensionCriteria" },
+    "restrictionCriteria": { "$ref": "#/$defs/restrictionCriteria" },
+    "coincidenceCriteria": { "$ref": "#/$defs/coincidenceCriteria" },
+    "examples": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/example" },
+      "minItems": 1
+    },
+    "implementationBoundary": { "$ref": "#/$defs/implementationBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "variancePrinciples": {
+      "type": "object",
+      "required": [
+        "categoryGeneratorCodomainRequired",
+        "varianceDeterminesCodomainShape",
+        "unknownVarianceBlocksStrongConformance",
+        "extensionRestrictionAreNotTopicLabels",
+        "sameNameDifferentPositionsRemainDistinct",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "categoryGeneratorCodomainRequired": { "const": true },
+        "varianceDeterminesCodomainShape": { "const": true },
+        "unknownVarianceBlocksStrongConformance": { "const": true },
+        "extensionRestrictionAreNotTopicLabels": { "const": true },
+        "sameNameDifferentPositionsRemainDistinct": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "extensionCriteria": {
+      "type": "object",
+      "required": [
+        "requiresStructurePreservingEmbedding",
+        "addsAdmissibleStructure",
+        "preservesBaseOperations",
+        "admitsNewRowsOrPositionsOrObjects",
+        "preorderLaws",
+        "examplesRequired",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "requiresStructurePreservingEmbedding": { "const": true },
+        "addsAdmissibleStructure": { "const": true },
+        "preservesBaseOperations": { "const": true },
+        "admitsNewRowsOrPositionsOrObjects": { "const": true },
+        "preorderLaws": {
+          "type": "array",
+          "items": { "enum": ["reflexive", "transitive"] },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "examplesRequired": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "restrictionCriteria": {
+      "type": "object",
+      "required": [
+        "selectsSubstructureOrView",
+        "forgetsOnlyDeclaredAxes",
+        "requiresSourceFrontierOrSubobject",
+        "codomainIsSubcategorySubfiberTraceOrProjection",
+        "mustDeclareForgottenAxes",
+        "examplesRequired",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "selectsSubstructureOrView": { "const": true },
+        "forgetsOnlyDeclaredAxes": { "const": true },
+        "requiresSourceFrontierOrSubobject": { "const": true },
+        "codomainIsSubcategorySubfiberTraceOrProjection": { "const": true },
+        "mustDeclareForgottenAxes": { "const": true },
+        "examplesRequired": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "coincidenceCriteria": {
+      "type": "object",
+      "required": [
+        "requiresTheoremName",
+        "requiresScope",
+        "doesNotCollapseMorphismPositions",
+        "offScopeRemainsDistinct",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "requiresTheoremName": { "const": true },
+        "requiresScope": { "const": true },
+        "doesNotCollapseMorphismPositions": { "const": true },
+        "offScopeRemainsDistinct": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "example": {
+      "type": "object",
+      "required": [
+        "exampleId",
+        "stage",
+        "variance",
+        "domainShape",
+        "codomainShape",
+        "reason",
+        "auditRowsRecordVariance",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "exampleId": { "type": "string", "minLength": 1 },
+        "stage": { "enum": ["articulating", "predicating", "positing", "settling", "cross-stage"] },
+        "variance": { "enum": ["extension", "restriction", "coincidence", "unknown"] },
+        "domainShape": { "type": "string", "minLength": 1 },
+        "codomainShape": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "addsStructure": { "type": "boolean" },
+        "preservesInput": { "type": "boolean" },
+        "embeddingWitness": { "type": "string", "minLength": 1 },
+        "forgottenOrSelectedAxes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "forgetsOnlyDeclaredAxes": { "type": "boolean" },
+        "sourceFrontierOrSubobject": { "type": "string", "minLength": 1 },
+        "theoremName": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "offScopeDistinct": { "type": "boolean" },
+        "blocksStrongConformance": { "type": "boolean" },
+        "auditRowsRecordVariance": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "implementationBoundary": {
+      "type": "object",
+      "required": [
+        "pathRoleGeneratorVarianceRequired",
+        "eavtAuditRowsRecordVariance",
+        "projectionArtifactsRequireRestrictionProof",
+        "extensionsRequireEmbeddingWitness",
+        "unknownVarianceRejectsStrongConformance",
+        "checksCannotInferFromDirectoryNameAlone",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "pathRoleGeneratorVarianceRequired": { "const": true },
+        "eavtAuditRowsRecordVariance": { "const": true },
+        "projectionArtifactsRequireRestrictionProof": { "const": true },
+        "extensionsRequireEmbeddingWitness": { "const": true },
+        "unknownVarianceRejectsStrongConformance": { "const": true },
+        "checksCannotInferFromDirectoryNameAlone": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}
+

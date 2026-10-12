@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/prelocutionary-ingress-profile.schema.json",
+  "title": "SPOTCOMP prelocutionary ingress profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "primitiveBoundary",
+    "articulatingIngress",
+    "speechActFactorization",
+    "handlerClasses",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "primitiveBoundary": { "$ref": "#/$defs/primitiveBoundary" },
+    "articulatingIngress": { "$ref": "#/$defs/articulatingIngress" },
+    "speechActFactorization": { "$ref": "#/$defs/speechActFactorization" },
+    "handlerClasses": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/handlerClass" },
+      "minItems": 1
+    },
+    "implementationBoundary": { "$ref": "#/$defs/implementationBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "primitiveBoundary": {
+      "type": "object",
+      "required": [
+        "tokenClaimPrimitive",
+        "utteranceOrderedPair",
+        "utteranceCarrierNotAct",
+        "stringPresentationNotIdentity",
+        "recursionGroundedByPrimitives",
+        "twoPrimitivesForceFourCellPartition",
+        "orderingDeclaredNotSilentlyFinal",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tokenClaimPrimitive": { "const": true },
+        "utteranceOrderedPair": { "const": true },
+        "utteranceCarrierNotAct": { "const": true },
+        "stringPresentationNotIdentity": { "const": true },
+        "recursionGroundedByPrimitives": { "const": true },
+        "twoPrimitivesForceFourCellPartition": { "const": true },
+        "orderingDeclaredNotSilentlyFinal": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "articulatingIngress": {
+      "type": "object",
+      "required": [
+        "domain",
+        "codomain",
+        "generatesAperiodicPredicationCategory",
+        "initialPresentationCarriesPotentialCell",
+        "downstreamCellLifeSeparate",
+        "noFiniteSettlementPrerequisite",
+        "noRowRecordAsArticulatingCodomain",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "domain": { "const": "utterance" },
+        "codomain": { "const": "aperiodic-predication-category" },
+        "generatesAperiodicPredicationCategory": { "const": true },
+        "initialPresentationCarriesPotentialCell": { "const": true },
+        "downstreamCellLifeSeparate": { "const": true },
+        "noFiniteSettlementPrerequisite": { "const": true },
+        "noRowRecordAsArticulatingCodomain": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "speechActFactorization": {
+      "type": "object",
+      "required": [
+        "order",
+        "locutionEnvironmentalDecoding",
+        "locutionCodomainTypedInput",
+        "illocutionEventBoundedPositing",
+        "perlocutionProcessBoundedClosure",
+        "noBundledWrapperAsProofObject",
+        "stageDeclarationPreservedBeforeIllocution",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "order": { "const": "locution -> illocution -> perlocution" },
+        "locutionEnvironmentalDecoding": { "const": true },
+        "locutionCodomainTypedInput": { "const": true },
+        "illocutionEventBoundedPositing": { "const": true },
+        "perlocutionProcessBoundedClosure": { "const": true },
+        "noBundledWrapperAsProofObject": { "const": true },
+        "stageDeclarationPreservedBeforeIllocution": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "handlerClass": {
+      "type": "object",
+      "required": [
+        "name",
+        "environmentalShape",
+        "typedCodomain",
+        "stageDeclarationRequired",
+        "parsesBeforeIllocution",
+        "validatesBeforeIllocution",
+        "targetMorphismRole",
+        "parseFailureBeforeIllocution",
+        "downstreamEffectsSeparate",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "enum": ["script-argv", "hook-payload", "http-request"] },
+        "environmentalShape": { "type": "string", "minLength": 1 },
+        "typedCodomain": { "type": "string", "minLength": 1 },
+        "stageDeclarationRequired": { "const": true },
+        "parsesBeforeIllocution": { "const": true },
+        "validatesBeforeIllocution": { "const": true },
+        "targetMorphismRole": { "enum": ["articulating", "predicating", "positing", "settling", "projection"] },
+        "parseFailureBeforeIllocution": { "const": true },
+        "downstreamEffectsSeparate": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "implementationBoundary": {
+      "type": "object",
+      "required": [
+        "environmentBytesNotTraceEvidence",
+        "typedInputRequiredBeforeIllocution",
+        "locutionCannotWriteEavtAsIllocution",
+        "pureIllocutionNoIo",
+        "perlocutionRequiresClosureProfile",
+        "stageProfileRequired",
+        "handlerCompositionNamesEachMorphism",
+        "eavtRowsExactAfterIllocution",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "environmentBytesNotTraceEvidence": { "const": true },
+        "typedInputRequiredBeforeIllocution": { "const": true },
+        "locutionCannotWriteEavtAsIllocution": { "const": true },
+        "pureIllocutionNoIo": { "const": true },
+        "perlocutionRequiresClosureProfile": { "const": true },
+        "stageProfileRequired": { "const": true },
+        "handlerCompositionNamesEachMorphism": { "const": true },
+        "eavtRowsExactAfterIllocution": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}
+

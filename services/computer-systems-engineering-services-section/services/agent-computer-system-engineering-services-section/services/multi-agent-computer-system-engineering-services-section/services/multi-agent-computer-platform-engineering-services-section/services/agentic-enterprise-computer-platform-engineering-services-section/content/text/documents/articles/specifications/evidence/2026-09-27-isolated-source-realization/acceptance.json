@@ -1,0 +1,71 @@
+{
+  "kind": "muse-isolated-source-realization-acceptance",
+  "status": "generated dependency installed and observed in isolated checkout",
+  "baseCommit": "1ea057a3b936912659c65503978b7d82885a32a5",
+  "worktree": "/home/emsenn/.codex/worktrees/muse-assist-integration/\\\\wsl.localhost\\Ubuntu\\home\\emsenn\\info",
+  "receiptSha256": "7447faf32b7cfc85db547a1d50bc75d9c8cac6b55792b2afd06a0a75cc8f30b0",
+  "assessmentSha256": "56ead0dd9d3a5240909200c61cc7a78dcc43055eeeff8c49449bfa7e34e355ca",
+  "observed": {
+    "kind": "installed-journal-request-recovery",
+    "authority": "fixture only; source custody does not authorize a personal request",
+    "firstDisposition": "created",
+    "retryDisposition": "existing",
+    "recoveredRequest": "Prepare my meeting briefing",
+    "requestId": "briefing-request",
+    "sourceUnchanged": true,
+    "uniqueSourceFiles": 1,
+    "sourceSha256": "530141cb910f3050ce1651d0b7154495b6fcd5af7243f54eb93ee4fb9adfe6bc",
+    "ownerSha256": "fcf416306ad105e6da04a10f1cd43ef304501dff8fb55677ba2f76b7d355851c",
+    "endToEndAssistant": false
+  },
+  "installedRuntime": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/substrate.mjs",
+      "sha256": "039871c716b629da807539e0cd6fe814cc2edabe4915594728f5693e7e6f4d21"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/canonical-json.mjs",
+      "sha256": "a10d27199ba7a00ff0e99fbf2f8a622317c99207da9f71ef5907375a02c60a50"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-json-value.mjs",
+      "sha256": "a82b23fd6e4846b8f5722b3b566cf69ff710ed2ede13f6c1818c56fcaa457be1"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/source-owner.mjs",
+      "sha256": "fcf416306ad105e6da04a10f1cd43ef304501dff8fb55677ba2f76b7d355851c"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/diagnostics.mjs",
+      "sha256": "dd05640aaaef58c0ddc5422bda7944fab50b4d873f69c5714c5aeb690cc13d7e"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/package.json",
+      "sha256": "f91dd213d37a5bb0e23f63cb6ad0fcde8d571532fb7878528e9691ebe3dd5d80"
+    }
+  ],
+  "sharedCheckoutRuntimeWrittenByThisAssembly": false,
+  "sharedCheckoutFinalHashComparison": "changed concurrently; interval-wide unchanged claim is not established",
+  "sharedCheckoutDrift": [
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/substrate.mjs",
+      "atPreparation": "bbeaf4c9a918f0e16787b461c46aefe46458aa31d47fbacfe8d8586d3151b84c",
+      "now": "039871c716b629da807539e0cd6fe814cc2edabe4915594728f5693e7e6f4d21"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/canonical-json.mjs",
+      "atPreparation": "21c4b0fb8d1ce06e7e95f0b4e40bde25613b4392a80bb40a36749f7375d4b1b3",
+      "now": "a10d27199ba7a00ff0e99fbf2f8a622317c99207da9f71ef5907375a02c60a50"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-json-value.mjs",
+      "atPreparation": "f154946c4578044ae978132103ad297826ea196ede2ec583ddd800e129cc25b7",
+      "now": "a82b23fd6e4846b8f5722b3b566cf69ff710ed2ede13f6c1818c56fcaa457be1"
+    }
+  ],
+  "sharedCheckoutObservation": "The three changed files now match the assessed generated dependency digests again. No causal attribution is established; no shared runtime write appears in this assembly\u2019s target list. Isolated target/input hashes remain unchanged.",
+  "consumerMigrationComplete": false,
+  "oldWriterRetired": false,
+  "endToEndAssistantAccepted": false,
+  "nextRequiredWork": "Generate the connected facade/domain/consumer realization under L-O06\u2013L-O21 and context admission F-C05; preserve request authority and original closure acknowledgment, demonstrate useful outcomes, then retire superseded writer routes."
+}

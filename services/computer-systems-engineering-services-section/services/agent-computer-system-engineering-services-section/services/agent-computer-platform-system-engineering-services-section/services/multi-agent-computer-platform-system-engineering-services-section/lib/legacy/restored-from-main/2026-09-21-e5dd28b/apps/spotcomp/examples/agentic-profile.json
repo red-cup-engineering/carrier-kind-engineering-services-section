@@ -1,0 +1,89 @@
+{
+  "profileId": "example-agentic-swarm",
+  "system": {
+    "id": "spotcomp-lab",
+    "memberSet": ["alice-character"],
+    "governanceProcess": "governance:example",
+    "governingSoul": "scope:spotcomp-lab",
+    "emitsCommunityActs": ["settle-frontier", "federate-delivery"],
+    "evidence": ["AGENTIC-EMBEDDING.md#1-source-invariant"]
+  },
+  "characters": [
+    {
+      "slug": "alice-character",
+      "agentKind": "tool-using-character",
+      "governanceRegime": "governance:example",
+      "skills": ["append-trace", "settle-frontier"],
+      "memberOf": ["spotcomp-lab"],
+      "identityKey": "key:alice-ed25519",
+      "behavioralSpaceBound": "behavioral-bound:alice",
+      "commutesWithSigma": true,
+      "commutesWithDelta": true,
+      "agenticConditions": {
+        "environmentalAction": "skill:append-trace",
+        "goalDirectedPlanning": "trace:plans/alice",
+        "persistentState": "trace:memory/alice"
+      },
+      "evidence": ["AGENTIC-EMBEDDING.md#4-agentic-conditions"]
+    }
+  ],
+  "skills": [
+    {
+      "slug": "append-trace",
+      "effectClass": "trace-append",
+      "capabilityBound": "capability:append-own-outbox",
+      "surface": "tool:trace-append",
+      "actionBound": "trace:outbox/alice",
+      "governance": "governance:example",
+      "evidence": ["AGENTIC-EMBEDDING.md#3-skills-as-generators"]
+    },
+    {
+      "slug": "settle-frontier",
+      "effectClass": "governance",
+      "capabilityBound": "capability:settle-local-frontier",
+      "surface": "script:settle-frontier",
+      "actionBound": "local-settling:player:alice",
+      "governance": "governance:example",
+      "evidence": ["AGENTIC-EMBEDDING.md#3-skills-as-generators"]
+    }
+  ],
+  "playerBindings": [
+    {
+      "character": "alice-character",
+      "playerId": "player:alice",
+      "inbox": "trace:inbox/alice",
+      "outbox": "trace:outbox/alice",
+      "localSettling": "local-settling:player:alice",
+      "cgsProfile": "example-cgs-modeled-player",
+      "handedness": {
+        "recv": "trace:inbox/alice",
+        "send": "trace:outbox/alice",
+        "actuate": "capability:append-own-outbox",
+        "observe": "frontier:local"
+      },
+      "evidence": ["AGENTIC-EMBEDDING.md#2-character-to-modeled-player"]
+    }
+  ],
+  "swarm": {
+    "id": "example-swarm",
+    "participants": ["alice-character"],
+    "coordinatesVia": "cell-graph:example",
+    "recognitionDiscipline": "recognition:example",
+    "governanceProcess": "governance:example",
+    "sharedTrace": "trace:shared/example",
+    "federationProfile": "example-aperiodic-trajectory",
+    "regimeProfile": "regime:example",
+    "leader": "alice-character",
+    "engagement": "engagement:derive-spotcomp",
+    "evidence": ["AGENTIC-EMBEDDING.md#5-swarm-coordination"]
+  },
+  "openObligations": [
+    "skill-admissibility-proof",
+    "recognition-cell-settlement",
+    "governance-algebra"
+  ],
+  "evidence": [
+    "AGENTIC-EMBEDDING.md",
+    "CHUNK-MAP.md#5-computers-to-agents"
+  ]
+}

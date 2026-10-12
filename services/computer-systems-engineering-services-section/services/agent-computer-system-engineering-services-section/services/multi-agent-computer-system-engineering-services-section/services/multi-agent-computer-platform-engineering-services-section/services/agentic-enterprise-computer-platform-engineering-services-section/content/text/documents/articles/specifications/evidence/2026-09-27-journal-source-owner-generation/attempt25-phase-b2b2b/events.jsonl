@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a0e5d0-04de-72e0-898c-601c54cff342"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"kind\":\"source-patchset\",\"version\":1,\"disposition\":\"refused\",\"reason\":\"I cannot supply a complete, coherent B2b2b patch from the provided excerpts without claiming host guarantees that the changes establish. In particular, the unique-custody scanner must preserve bounded physical accounting and parent provenance, and initialization must carry binding checks and publication uncertainty through the shared barrier and final descriptor release. A partial patch would leave the requested host phase incomplete.\",\"changes\":[]}"}}
+{"type":"turn.completed","usage":{"input_tokens":37343,"cached_input_tokens":9984,"cache_write_input_tokens":0,"output_tokens":2599,"reasoning_output_tokens":2491}}

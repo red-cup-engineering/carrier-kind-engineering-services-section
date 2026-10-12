@@ -1,0 +1,93 @@
+{
+  "profileId": "spotcomp-recognition-candidate",
+  "recognitionBoundary": {
+    "recognitionIsTraceAxis": true,
+    "finiteRowsDoNotCarryRecognitionInline": true,
+    "recognitionHasSeparateResourceOrProjection": true,
+    "shapeRecognitionIsCarrierCheckOnly": true,
+    "mathematicalRecognitionRequiresSettlement": true,
+    "aliasRecognitionNeedsScopedTheorem": true,
+    "evidence": [
+      "TRACE-AXES.md",
+      "development/active/proof-engine/predication-cell-trace-shape.mjs",
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/hacking/library/illocution/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "traceRecognitionAxis": {
+    "axisName": "recognition-fiber",
+    "preservedByDeclaredResource": true,
+    "forgottenByFiniteRowProjectionUnlessDeclared": true,
+    "receiverRelative": true,
+    "connectsToInformationObservation": true,
+    "connectsToSwarmAdmission": true,
+    "evidence": [
+      "TRACE-AXES.md",
+      "INFORMATION-GAMES.md",
+      "AGENTIC-EMBEDDING.md"
+    ]
+  },
+  "admissionPolicy": {
+    "signatureVerificationBeforeFederationAdmission": true,
+    "canonicalIdentityBeforeMerge": true,
+    "governanceBeforeSideEffectAdmission": true,
+    "capabilityBoundsBeforeActionAdmission": true,
+    "observationBoundsBeforeMoveAdmission": true,
+    "typedShapeRecognitionBeforeSettlementClaim": true,
+    "dualFilingBeforeLocalAdmission": true,
+    "failedRecognitionDowngradesOrRejects": true,
+    "evidence": [
+      "CANONICAL-IDENTITY.md",
+      "GOVERNANCE.md",
+      "TRC-LAYOUT.md",
+      "CGS-EMBEDDING.md",
+      "development/active/proof-engine/finite-predication-cell-trace-shape.mjs"
+    ]
+  },
+  "swarmRecognition": {
+    "rolesDerivedFromRecognitionCellsAndGovernance": true,
+    "leaderNotOutOfBand": true,
+    "validatorNotOutOfBand": true,
+    "participantsReferenceModeledPlayers": true,
+    "sharedTraceIsAdmittedTrace": true,
+    "recognitionDisciplineDeclared": true,
+    "evidence": [
+      "AGENTIC-EMBEDDING.md",
+      "PLAYER-CHARACTER-BOUNDARY.md",
+      "MODELED-PLAYERS.md"
+    ]
+  },
+  "cgsAdmission": {
+    "admittedFederateDeliveryRequiresVerificationAndGovernance": true,
+    "admittedMoveRequiresObservationActionCapabilityBounds": true,
+    "rejectedAdmissionsCanSupplyConflictEvidence": true,
+    "observationMapsArePlayerLocal": true,
+    "polarityNotIdentity": true,
+    "evidence": [
+      "CGS-EMBEDDING.md",
+      "PLAYER-CHARACTER-BOUNDARY.md",
+      "INFORMATION-GAMES.md"
+    ]
+  },
+  "implementationBoundary": {
+    "doNotTreatParseSuccessAsRecognitionFiber": true,
+    "doNotTreatRowPresenceAsAdmission": true,
+    "doNotInferRolesFromFlagsOnly": true,
+    "recordRecognitionEvidenceRows": true,
+    "separateShapeRecognitionFromMathematicalRecognition": true,
+    "unknownRecognitionBlocksStrongSwarmConformance": true,
+    "evidence": [
+      "RECOGNITION.md",
+      "TRACE-AXES.md",
+      "DERIVATION-OBLIGATIONS.md D18"
+    ]
+  },
+  "openObligations": [
+    "Derive recognition-cell settlement as a finite predication category surface rather than only declaring it.",
+    "Connect rejected admission evidence to CGS minimal conflict and cohomology audit slots.",
+    "Add runtime fixtures once a SPOTCOMP swarm implementation exposes signed delivery, local observation, and role-recognition paths."
+  ],
+  "evidence": [
+    "RECOGNITION.md",
+    "DERIVATION-OBLIGATIONS.md D18"
+  ]
+}

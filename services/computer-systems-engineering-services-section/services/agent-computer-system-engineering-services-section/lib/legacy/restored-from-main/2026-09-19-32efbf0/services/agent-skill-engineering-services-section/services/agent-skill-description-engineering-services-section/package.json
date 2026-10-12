@@ -1,0 +1,24 @@
+{
+  "name": "@red-cup-engineering/agent-skill-description-engineering-services-section",
+  "version": "0.1.2",
+  "description": "Admits bounded discovery descriptions that let an agent harness recognize when a SKILL.md applies.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./src/agent-skill-description.mjs",
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-content-description-engineering-services-section": "0.1.0"
+  },
+  "scripts": {
+    "check": "node --check src/agent-skill-description.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

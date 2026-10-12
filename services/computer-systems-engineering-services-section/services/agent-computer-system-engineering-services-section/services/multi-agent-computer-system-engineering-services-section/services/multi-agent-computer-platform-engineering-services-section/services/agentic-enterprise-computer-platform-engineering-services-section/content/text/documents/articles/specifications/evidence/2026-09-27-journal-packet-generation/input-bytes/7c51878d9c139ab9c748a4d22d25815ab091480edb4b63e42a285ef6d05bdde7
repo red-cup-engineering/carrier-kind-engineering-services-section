@@ -1,0 +1,9 @@
+{
+  "input": {
+    "type": "object",
+    "required": ["id", "source", "type"]
+  },
+  "output": {
+    "type": "object"
+  }
+}

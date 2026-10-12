@@ -1,0 +1,61 @@
+{
+  "id": "farstone-ksp-atmosphere-and-drag",
+  "name": "Farstone meets then beats Kerbal Space Program: fly through an atmosphere: drag, lift, Isp lowered by pressure, heating",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "I want us to start working toward Farstone having a full-on game like Kerbal Space Program in it, but obviously, we want to beat Kerbal Space Program using everything the world has learned between when it was designed and now, and critically, use our own math as much as we can to help us. [...] the goal you should aim toward is beating Kerbal Space Program with Farstone (I'm picturing orbital launch platforms being one kind of ship that folk can build)\n\n---\n\nwe've planned elsewhere trying to meet-then-beat Kerbal Space Program with our game engines, and then including in Farstone, our falgship MMORPG, a KSP-like game for folk (which is also part of how we justify our weird little MMORPG growing sci-fi wings)",
+  "met-when": [
+    {
+      "cell": "farstone-ksp-atmosphere-and-drag:check",
+      "target": "held",
+      "command": "sh -c 'cd lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam && grep -q \"atmospheric drag\" test/vessel.test.mjs && node --test --test-name-pattern=\"atmospheric drag\" test/vessel.test.mjs'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "Farstone sci-fi wings session (Claude Code, under the orchestrator of 2026-10-10)",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "realizes": [
+      "farstone-orbital-flight-game-capabilities#F17"
+    ],
+    "basis": "One job of the Kerbal Space Program meet-then-beat census, and the behavioral check of the capabilities it names under realizes (farstone-orbital-flight-game-capabilities, whose own conditions read its specification and design); the asks are the Leader's own words, the job and its check are this session's rendering. Marked for conversion to signed SignCell predication cells (four-valued charge) when the orchestrator's canonical call arrives.",
+    "census": "causeway-services/farstone data/records/2026-10-10-kerbal-space-program-capability-census.json job 6 (atmosphere-and-drag)",
+    "ledger": {
+      "job": "Fly through an atmosphere: drag, lift, Isp lowered by pressure, heating.",
+      "incumbent": {
+        "statement": "However, an atmosphere makes taking off from a planet more difficult (by producing aerodynamic drag and lowering engine Isp) and increases the minimum stable orbit altitude.",
+        "source": "https://wiki.kerbalspaceprogram.com/wiki/Atmosphere (fetched 2026-10-10T01:50:07Z, rendered headless)"
+      },
+      "verdict-2026-10-10": "partial",
+      "reason": "Drag on ascent, re-entry, aerobraking and KSP's minimum stable orbit are met; Isp does not fall with pressure, and there is no lift, heating or parachute.",
+      "next": "Isp by pressure, parachutes and landing, heating as diffusion over the part graph (F17)."
+    },
+    "sources": [
+      {
+        "session": "claude session 0fbf24cb-8855-48f1-9c7e-852e0b4fb748",
+        "at-utc": "2026-10-08T16:44:52",
+        "words": "I want us to start working toward Farstone having a full-on game like Kerbal Space Program in it [...]"
+      },
+      {
+        "session": "claude session b44bb98f-b73b-4dbe-8f1f-6cb78b396108",
+        "at-utc": "2026-10-10T00:56:42",
+        "words": "meet-then-beat Kerbal Space Program with our game engines, and then including in Farstone, our falgship MMORPG, a KSP-like game for folk"
+      },
+      {
+        "record": "lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/2026-08-26--2026-10-10.jsonl lines 1423, 1545"
+      }
+    ],
+    "serves": [
+      "farstone-orbital-flight-game-beyond-kerbal-space-program",
+      "farstone-orbital-flight-game-capabilities",
+      "holofoam-as-physics-simulation-engine"
+    ],
+    "conversion": "pending: signcell predication cell",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;_OGmolBO3Qw05edpnhVhd0m79RPw72rj2uQ6IqE-wRI"
+    }
+  }
+}

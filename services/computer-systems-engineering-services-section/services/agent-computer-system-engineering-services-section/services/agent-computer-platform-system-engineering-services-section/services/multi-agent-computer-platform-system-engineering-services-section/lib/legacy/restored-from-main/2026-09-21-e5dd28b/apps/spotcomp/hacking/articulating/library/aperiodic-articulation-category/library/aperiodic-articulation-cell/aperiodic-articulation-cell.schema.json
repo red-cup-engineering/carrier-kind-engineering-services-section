@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/aperiodic-articulation-cell.schema.json",
+  "title": "Aperiodic articulation cell",
+  "description": "The codomain term of articulating. An aperiodic-articulation-cell is the ordered pair of a carrier utterance and a pairing term. The carrier utterance fixes the token and claim schema coordinates. The pairing term is an ordered pair of articulation slots: the token-side slot is empty or singleton token, and the claim-side slot is empty or singleton claim. Absence is slot structure, not a third primitive. This cell's library refines this shape by fixing which slots are empty and which are singleton -- each refinement is one of the four phases.",
+  "type": "array",
+  "prefixItems": [
+    {
+      "$ref": "https://561.group/spotcomp/library/utterance/utterance.schema.json"
+    },
+    {
+      "type": "array",
+      "prefixItems": [
+        {"$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/token-articulation-slot/token-articulation-slot.schema.json"},
+        {"$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/claim-articulation-slot/claim-articulation-slot.schema.json"}
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    }
+  ],
+  "items": false,
+  "minItems": 2,
+  "maxItems": 2
+}

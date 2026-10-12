@@ -166,3 +166,64 @@ providers. It checks config refusal, actual loopback HTTP route exclusion,
 provider sharing, retry cleanup, late startup drain, and repeated close/port
 reuse. It creates no real actor keys, sends no external activity, and does not
 establish real federation or Group office authority.
+
+### Commands use the current actor mesh
+
+`world-command` reads current office standing before submitting a power.
+A submission pins the installed operation declaration, keeps the signed actor
+as the invocation subject, and returns a request identity and recipient. It is
+an undertaking to obtain an effect; it does not report that effect as completed.
+`messages [cursor]` reads this actor's private durable inbox, retaining the full
+correlated result in `Comm.Inbox`. `message actor@instance <words or request JSON>`
+uses the same transport as FeltOS human accounts.
+
+A hosted micro-enterprise has an `enterprise-<id>` inbox (non-handle identities
+use a stable digest). Its `programs.json` offers only installed verbs derived
+from its current offices; its Agent Card links that reading and the actual inbox.
+`@<enterprise-id> <power> <input>` submits to that enterprise's actor. A bare
+power submits to the offering instance actor. Actor identities, offers and
+current office standing derive from the authored agency and host-owned ports;
+withdrawal invalidates them. No command-local operation dispatcher remains.
+
+The host projects its own current network faces to their authored characters
+without substituting the signature-admitted principal. Foreign lookalike URLs
+have no such relationship. Receiving still checks native operation standing,
+applicable grants and law. A declaration address identifies the declaration;
+a hosted JavaScript closure still needs its own semantic proof and body identity.
+
+### Development acts on accepted source
+
+An authored software-change requirement declares sourceBase, the original
+immutable Git commit before its intended delivery. The host owns the territory,
+reading and writing lanes, checks and current office admission. Inquiry requires
+no Git delivery.
+
+aoe-develop-software consumes the requirement through research, architecture,
+HLD, LLD and artifact specifications, fabricates source and verifies the actual
+consumer. Before mutation it prepares only the proposed byte transformation over
+that exact original source. After local acceptance, current authority activates
+the existing source-receiving queue. It returns submitted with the candidate
+reference, commit and transformation identity. Independent receiving and runtime
+release remain further effects; a submitted candidate does not prove deployment.
+
+If authority or delivery fails after local acceptance, the response is
+awaiting-delivery and retains the accepted effect. The same operation takes
+resume: {question, effect} under the same current authored requirement and
+office. This submits the same immutable candidate without repeating inference or
+source mutation. Missing ancestry, substituted bytes and obsolete requirements
+are refused. Unrelated checkout contents, index and HEAD remain outside delivery.
+
+The controlled native demonstration follows actor intent to a generated consumer,
+queue discovery, independent source composition, byte-addressed materialization,
+atomic promotion and the released consumer's effect. Public host rollout and
+semantic Hoare proof require their own observed evidence.
+
+A seated enterprise can price its offered native operations by declaring `x402` terms on its existing agency record: `price: {amountAtomic, asset}` with the exact CAIP-19 ERC-20 asset, `payTo`, `assetExtra: {name, version}`, and `facilitatorUrl`. Optional `requestPricing` uses the existing canonical JSON byte-band tariff; `maxTimeoutSeconds` is from 1 through 3600 (default 300). These are owner-declared commercial terms, not intrinsic function prices or operation authority. No chain, token, treasury backing or exchange rate is inferred. Internal Besu settlement requires an actually deployed compatible asset and hired facilitator.
+
+The enterprise actor's `programs.json` carries these terms beside its actual operation descriptors. The existing signed ActivityPub++ client sends a SEN operation request. After native authority and domain admission, its addressed reply carries the official x402 v2 challenge in A2A message metadata and its native `taskId`. The owner signs that challenge with an x402 client and submits the same operation/input plus `taskId` and `paymentPayload` through `createActorClient.send`, the mesh's `submit` options, or those envelope fields in the existing structured message command. They stay outside the operation input. Full A2A JSON-RPC v0.1 extension conformance is not claimed: this is the ActivityPub++/SEN carrier with actual v2 protocol objects.
+
+Settlement is attempted once, retained before execution, and returned in the original private actor thread. A reported charge survives a failed native operation; an uncertain settlement holds the task without automatic repayment or execution. The existing processing journal retains the quote, signed attempt, ordered transitions and reported receipts; it does not manufacture buyer acceptance, independent transfer confirmation or sovereign book admission. A fresh signed continuation reuses this task state after restart. Native input, actor, recipient and operation substitutions are refused.
+
+Owned operations route to their actual offering enterprise; competing offers require an explicit enterprise selection. The instance no longer publishes or executes unpriced copies of seated enterprise operations, and character inboxes receive messages rather than act as duplicate compute providers. The bulk arrival collector skips ActivityPub++ actor invocations because the addressed signed inbox owns their authority and payment admission. Other admitted arrival processing remains available.
+
+The paid actor boundary depends directly on the official `@x402/core` and `@x402/evm` 2.19.0 SDKs. It does not import or install the commodity-market package and its seller applications. Native owner terms use exact asset-bound atomic amounts. Optional canonical-input byte bands are the seated owner’s actor tariff; the held SDK quote is payable, and the tariff is not measured compute cost or a currency conversion.

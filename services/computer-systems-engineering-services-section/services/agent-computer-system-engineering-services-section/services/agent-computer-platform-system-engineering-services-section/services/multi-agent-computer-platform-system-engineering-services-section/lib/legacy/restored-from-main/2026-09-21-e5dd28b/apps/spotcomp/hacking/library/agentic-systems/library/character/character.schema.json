@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/character/character.schema.json",
+  "title": "Character",
+  "description": "JSON Schema for a character instance: a record naming an agent-side dispositional nucleus χ on an entity's Heyting algebra. Carries the entity-fiber the nucleus acts on, the agent-kind and governance-regime, and the skills:G generator set the MCP harness exposes as the tool surface.",
+  "type": "object",
+  "required": [
+    "agent-kind",
+    "governance-regime",
+    "skills"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "agent-kind": {
+      "type": "string",
+      "description": "The kind of agent the character realizes (e.g., 'claude-character', 'human-operator-character')."
+    },
+    "governance-regime": {
+      "type": "string",
+      "description": "Reference to the governance regime under which the character operates."
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+      },
+      "description": "The skills:G generator set — slugs of skills the character directly invokes. Helper skills reached only by composes-chains are not listed."
+    },
+    "member-of": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+      },
+      "description": "Agentic-systems the character is a member of."
+    },
+    "has-identity-key": {
+      "type": "string",
+      "description": "Public key identifier (e.g., Ed25519 fingerprint) used to sign witness rows."
+    },
+    "behavioral-space-bound": {
+      "type": "string",
+      "description": "Description or reference to the sublattice F_χ — the propositions the character endorses."
+    },
+    "commutes-with-sigma": {
+      "type": "boolean"
+    },
+    "commutes-with-delta": {
+      "type": "boolean"
+    },
+    "enrolled-at": {
+      "type": "string",
+      "format": "date"
+    },
+    "enrolled-by": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/character/library/character-memory/character-memory.schema.json",
+  "title": "Character memory",
+  "description": "JSON Schema for a character-memory file: a typed, persisted-across-sessions memory record belonging to a character.",
+  "type": "object",
+  "required": [
+    "belongs-to",
+    "has-type",
+    "has-slug"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "belongs-to": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "has-type": {
+      "type": "string",
+      "enum": [
+        "feedback",
+        "reference",
+        "user",
+        "project"
+      ]
+    },
+    "has-slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$"
+    },
+    "authoritative-at": {
+      "type": "string"
+    },
+    "mirrored-to": {
+      "type": "string"
+    },
+    "written-at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

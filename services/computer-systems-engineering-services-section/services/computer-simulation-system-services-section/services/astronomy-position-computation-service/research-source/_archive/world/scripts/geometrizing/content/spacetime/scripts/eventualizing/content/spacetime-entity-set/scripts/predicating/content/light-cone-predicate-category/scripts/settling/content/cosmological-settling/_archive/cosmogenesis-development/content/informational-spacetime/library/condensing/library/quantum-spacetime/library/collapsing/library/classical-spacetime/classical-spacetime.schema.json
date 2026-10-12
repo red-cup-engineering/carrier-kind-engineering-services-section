@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/library/condensing/library/quantum-spacetime/library/collapsing/library/classical-spacetime/classical-spacetime.schema.json",
+  "title": "classical-spacetime",
+  "description": "The codomain of collapsing: the scott rung, generated when value enters the amplitude fibration (measurement). Is the kernel's scott-posit-category — a valued presheaf, definite local sections; physically classical mechanics, the cosmic-scott band (golden φ), 'natural existence as we experience it now'. The old cosmic-predicating tower is being merged in here (cosmic-scott was always this field): the measurement (observing + cosmology, the field reading itself from within — no external correspondence) is homed; the cosmos content and the thermalizing generator are the next merges.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "classical-spacetime" },
+    "kind": { "type": "string", "const": "category" },
+    "is": { "type": "string", "const": "scott-posit-category" },
+    "generated-by": { "type": "string", "const": "collapsing" }
+  },
+  "required": ["name", "is", "generated-by"]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/computer-solar-economic-systems-engineering-services-section",
+  "version": "0.3.0",
+  "description": "computer-solar-economic-systems-engineering-services-section, a division of Red Cup Engineering: the compute that reads solar energy as an economy, composing the energy price-directive, ledger, and resource-receipt operations the tree already holds.",
+  "type": "module",
+  "bin": {
+    "solar-economics": "apps/solar-economics-cli.mjs"
+  },
+  "files": [
+    "apps",
+    "README.md",
+    "package.json"
+  ],
+  "keywords": [
+    "brand:cloche-solar-systems",
+    "engineering"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/observe-irradiance-service": "0.1.0",
+    "@red-cup-engineering/derive-yield-projection-service": "0.1.0",
+    "@red-cup-engineering/value-ledger-in-kilowatt-hours-service": "0.1.2",
+    "@red-cup-engineering/derive-joules-per-settled-row-service": "0.1.0",
+    "@red-cup-engineering/derive-set-of-household-energy-price-directives-service": "0.1.0",
+    "@red-cup-engineering/derive-household-energy-barrier-service": "0.1.0",
+    "@red-cup-engineering/import-utility-statement-service": "0.1.0",
+    "@red-cup-engineering/settle-energy-exchange-service": "0.1.1"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/derive-set-of-energy-price-directives-service",
+  "version": "0.1.0",
+  "description": "Derives Beancount `price` directives, forward and inverse, for `KWH` (from a declared electricity tariff), `PROPANE_GAL`, and `DIESEL_GAL` (each from a weekly price series' latest row at or before `input.date`), so the main ledger can be valued in USD or in the named energy commodity; a weekly series with no row at or before `input.date` leaves that commodity unpriced rather than fabricating a price.",
+  "type": "module",
+  "private": false,
+  "license": "UNLICENSED",
+  "exports": "./scripts/derive-set-of-energy-price-directives.mjs",
+  "bin": {
+    "derive-set-of-energy-price-directives": "scripts/derive-set-of-energy-price-directives.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-ledger-system-services-section": "0.4.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/derive-set-of-energy-price-directives.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

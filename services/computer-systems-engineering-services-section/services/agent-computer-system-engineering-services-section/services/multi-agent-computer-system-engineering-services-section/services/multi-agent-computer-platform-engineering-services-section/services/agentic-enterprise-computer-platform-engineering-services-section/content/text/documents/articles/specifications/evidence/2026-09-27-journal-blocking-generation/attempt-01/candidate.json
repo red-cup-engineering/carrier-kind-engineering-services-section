@@ -1,0 +1,57 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "candidate",
+  "reason": "Adds validated retained obstruction snapshots to causal reconstruction, seeds historical blocks before source reception, and preserves blocked references and their decisions in substrate outputs.",
+  "changes": [
+    {
+      "operation": "edit",
+      "path": "src/semiotic-eavt/journal/substrate.mjs",
+      "inputSha256": "bbeaf4c9a918f0e16787b461c46aefe46458aa31d47fbacfe8d8586d3151b84c",
+      "replacements": [
+        {
+          "before": "import { addressPrimitiveArticulation, addressSiteConstitution, INITIAL_SITE_CONSTITUTION, verifyArtifact } from \"../identity/index.mjs\";",
+          "after": "import { addressPrimitiveArticulation, addressSiteConstitution, INITIAL_SITE_CONSTITUTION, isArtifactRef, verifyArtifact } from \"../identity/index.mjs\";\nimport { canonicalizeJson, JSON_RESOURCE_ENVELOPE } from \"@red-cup-engineering/json-services-section\";"
+        },
+        {
+          "before": "function sorted(values) {\n  return Object.freeze([...values].sort());\n}",
+          "after": "function sorted(values) {\n  return Object.freeze([...values].sort());\n}\n\nconst retainedStateBySubstrate = new WeakMap();\n\nfunction validateRetainedObstructions(input) {\n  try {\n    if (!Array.isArray(input) || Object.getPrototypeOf(input) !== Array.prototype) return undefined;\n    const lengthDescriptor = Object.getOwnPropertyDescriptor(input, \"length\");\n    if (lengthDescriptor === undefined || !(\"value\" in lengthDescriptor) || !Number.isSafeInteger(lengthDescriptor.value) || lengthDescriptor.value < 0) return undefined;\n    const length = lengthDescriptor.value;\n    const keys = Reflect.ownKeys(input);\n    if (keys.length !== length + 1 || !keys.includes(\"length\")) return undefined;\n    for (let index = 0; index < length; index += 1) {\n      const key = String(index);\n      if (!keys.includes(key)) return undefined;\n      const descriptor = Object.getOwnPropertyDescriptor(input, key);\n      if (descriptor === undefined || !(\"value\" in descriptor) || !descriptor.enumerable) return undefined;\n    }\n    const decisions = [];\n    for (let index = 0; index < length; index += 1) {\n      const descriptor = Object.getOwnPropertyDescriptor(input, String(index));\n      const canonical = canonicalizeJson(descriptor.value, JSON_RESOURCE_ENVELOPE);\n      const entry = canonical.value;\n      const entryKeys = Reflect.ownKeys(entry);\n      if (entryKeys.length !== 2 || !entryKeys.includes(\"event\") || !entryKeys.includes(\"obstruction\") || !isArtifactRef(entry.event)) return undefined;\n      decisions.push(Object.freeze({ event: entry.event, obstruction: entry.obstruction, text: canonicalizeJson(entry.obstruction, JSON_RESOURCE_ENVELOPE).text }));\n    }\n    decisions.sort((left, right) => left.event < right.event ? -1 : left.event > right.event ? 1 : left.text < right.text ? -1 : left.text > right.text ? 1 : 0);\n    const unique = [];\n    for (const decision of decisions) {\n      const prior = unique[unique.length - 1];\n      if (prior === undefined || prior.event !== decision.event || prior.text !== decision.text) unique.push(decision);\n    }\n    return Object.freeze(unique.map(({ event, obstruction }) => Object.freeze({ event, obstruction })));\n  } catch {\n    return undefined;\n  }\n}\n\nfunction retainedEvents(substrate) {\n  return retainedStateBySubstrate.get(substrate).events;\n}"
+        },
+        {
+          "before": "    this.site = site;\n    this.causalEnvelope = Object.freeze({ ...causalEnvelope });\n  }",
+          "after": "    this.site = site;\n    this.causalEnvelope = Object.freeze({ ...causalEnvelope });\n    retainedStateBySubstrate.set(this, { decisions: Object.freeze([]), events: new Set() });\n  }"
+        },
+        {
+          "before": "    if (witness !== undefined) {\n      this.coresByRef.set(witness.ref, witness);\n      this.quarantinedRefs.add(witness.ref);\n    }",
+          "after": "    if (witness !== undefined) {\n      this.coresByRef.set(witness.ref, witness);\n      if (retainedEvents(this).has(witness.ref)) {\n        this.blockedByRef.set(witness.ref, causalObstruction(\"retained-block\", \"$\", \"a retained journal admission decision blocks this witness\", [witness.ref]));\n      } else {\n        this.quarantinedRefs.add(witness.ref);\n      }\n    }"
+        },
+        {
+          "before": "    for (const [ref, witness] of stagedCores) {\n      this.coresByRef.set(ref, witness);\n      this.quarantinedRefs.add(ref);\n    }",
+          "after": "    for (const [ref, witness] of stagedCores) {\n      this.coresByRef.set(ref, witness);\n      if (retainedEvents(this).has(ref)) {\n        this.blockedByRef.set(ref, causalObstruction(\"retained-block\", \"$\", \"a retained journal admission decision blocks this witness\", [ref]));\n      } else {\n        this.quarantinedRefs.add(ref);\n      }\n    }"
+        },
+        {
+          "before": "  witnessState(reference) {\n    if (this.admittedRefs.has(reference)) return \"admitted\";",
+          "after": "  witnessState(reference) {\n    if (retainedEvents(this).has(reference)) return \"blocked\";\n    if (this.admittedRefs.has(reference)) return \"admitted\";"
+        },
+        {
+          "before": "  obstruction(reference) {\n    return this.blockedByRef.get(reference);\n  }\n\n  admittedWitnessRefs() {",
+          "after": "  obstruction(reference) {\n    if (retainedEvents(this).has(reference)) {\n      return causalObstruction(\"retained-block\", \"$\", \"a retained journal admission decision blocks this witness\", [reference]);\n    }\n    return this.blockedByRef.get(reference);\n  }\n\n  retainedObstructions() {\n    return retainedStateBySubstrate.get(this).decisions;\n  }\n\n  admittedWitnessRefs() {"
+        },
+        {
+          "before": "      blocked: sorted(this.blockedByRef.keys()),\n    });",
+          "after": "      blocked: sorted(new Set([...this.blockedByRef.keys(), ...retainedEvents(this)])),\n      retainedObstructions: this.retainedObstructions(),\n    });"
+        },
+        {
+          "before": "export function rebuildCausalSubstrate(\n  sources,\n  site = INITIAL_SITE_CONSTITUTION,\n  causalEnvelope = INITIAL_CAUSAL_RESOURCE_ENVELOPE,\n) {\n  const created = createCausalSubstrate(site, causalEnvelope);\n  if (!isCausalWitness(created)) return created;\n  return created.value.receiveSourceSet(sources);\n}",
+          "after": "export function rebuildCausalSubstrate(\n  sources,\n  site = INITIAL_SITE_CONSTITUTION,\n  causalEnvelope = INITIAL_CAUSAL_RESOURCE_ENVELOPE,\n  retainedObstructions = [],\n) {\n  const decisions = validateRetainedObstructions(retainedObstructions);\n  if (decisions === undefined) {\n    return causalObstruction(\"retained-obstruction-invalid\", \"$.retainedObstructions\", \"retained obstruction input is invalid\");\n  }\n  const created = createCausalSubstrate(site, causalEnvelope);\n  if (!isCausalWitness(created)) return created;\n  const events = new Set();\n  for (const decision of decisions) {\n    events.add(decision.event);\n    created.value.blockedByRef.set(decision.event, causalObstruction(\"retained-block\", \"$\", \"a retained journal admission decision blocks this witness\", [decision.event]));\n  }\n  retainedStateBySubstrate.set(created.value, { decisions, events });\n  return created.value.receiveSourceSet(sources);\n}"
+        }
+      ],
+      "clauses": [
+        "F-R01",
+        "F-R02",
+        "F-R03",
+        "F-R04"
+      ]
+    }
+  ]
+}

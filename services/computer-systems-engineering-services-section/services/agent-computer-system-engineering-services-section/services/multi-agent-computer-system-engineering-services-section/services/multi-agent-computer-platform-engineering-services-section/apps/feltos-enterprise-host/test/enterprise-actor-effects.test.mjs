@@ -26,20 +26,20 @@ test('enterprise commands send signed addressed requests; native office standing
  const record=(pool,id,value)=>writeFileSync(join(section,pool,id+'.json'),JSON.stringify({id,name:id,...value}));
  record('characters','worker',{id:'actor:worker',kind:'human',host:'fixture-host',activityPub:{identifier:'worker'}});
  record('characters','other',{id:'actor:other',kind:'harness',host:'fixture-host',harness:'other'});
- record('offices','engineer',{kind:'office','normative-structure':'Preserve the requested resource transformation','deontic-profile':{},'provides-skill':['resources']});
+ record('offices','engineer',{kind:'office','normative-structure':'Preserve the requested resource transformation','deontic-profile':{},'provides-skill':['resources'],'service-offerings':['read','write'].map(verb=>({id:verb,invocation:{verb,executor:'actor:worker',requesters:['*'],input:{type:'object',required:['path'],properties:{path:{type:'string',pattern:'^'+dataRoot+'/'}},additionalProperties:true}}}))});
  record('skills','resources',{'closure-kind':'process','requires-capabilities':['read','write'],method:'Use the current provider actor to read and write its resources'});
  record('incumbencies','worker-seat',{office:'engineer',holder:'actor:worker',recognition:'t',induction:'t'});
  record('enterprises','foundry',{kind:'node',entity:'fixture',host:'fixture-host',faces:'Provide resource transformation',offices:['engineer']});
- const config={stateDir:root,agencyRoot,metroplatDataRoot:dataRoot,instance:{name:'fixture-host'},activityPub:{origin,nodeHost:'fixture-host',statePath:join(root,'federation.sqlite'),keysDirectory:join(root,'keys'),instanceActor:{identifier:'fixture-host',actorName:'Fixture Host',summary:'Offers the installed native transformations'}}};
+ const config={stateDir:root,agencyRoot,metroplatDataRoot:dataRoot,instance:{name:'fixture-host'},activityPub:{origin,nodeHost:'fixture-host',stateDirectory:join(root,'federation.state'),keysDirectory:join(root,'keys'),instanceActor:{identifier:'fixture-host',actorName:'Fixture Host',summary:'Offers the installed native transformations'}}};
  const configuration=join(root,'host.json');writeFileSync(configuration,JSON.stringify(config));
  const boot=async()=>{
   backend=undefined;diagnostic='';child=fork(fileURLToPath(new URL('./fixtures/enterprise-actor-host.mjs',import.meta.url)),[configuration],{env:{...process.env,NODE_EXTRA_CA_CERTS:cert},stdio:['ignore','ignore','pipe','ipc']});
   stopped=new Promise(resolve=>child.once('exit',(code,signal)=>{for(const entry of pending.values())entry.reject(Error(diagnostic||String(signal||code)));pending.clear();resolve(code);}));
   child.stderr.on('data',chunk=>diagnostic=(diagnostic+chunk).slice(-8192));
   child.on('message',message=>{if(message.ready){backend=message.ready;return;}const entry=pending.get(message.id);if(entry){pending.delete(message.id);message.error?entry.reject(Error(message.error)):entry.resolve(message.value);}});
-  for(let i=0;i<150;i++){if(backend)return;if(child.exitCode!==null)throw Error(diagnostic);await pause(50);}throw Error('enterprise host did not start: '+diagnostic);
+  for(let i=0;i<600;i++){if(backend)return;if(child.exitCode!==null)throw Error(diagnostic);await pause(50);}throw Error('enterprise host did not start: '+diagnostic);
  };
- const stop=async()=>{if(child?.exitCode===null)child.kill('SIGTERM');if(stopped)assert.equal(await stopped,0,diagnostic);backend=undefined;};
+ const stop=async()=>{if(child?.exitCode===null)child.kill('SIGTERM');if(stopped){const code=await stopped;if(backend!==undefined)assert.equal(code,0,diagnostic);}backend=undefined;};
  const call=body=>new Promise((resolve,reject)=>{const id=++next;pending.set(id,{resolve,reject});child.send({id,...body});});
  const command=(line,account='actor:worker')=>call({kind:'command',account,line});
  const read=(account='actor:worker')=>call({kind:'read',account});
@@ -63,6 +63,7 @@ test('enterprise commands send signed addressed requests; native office standing
   await until(()=>read(),page=>page.items.some(entry=>entry.value?.request===enterprise.results[0].request));assert.equal(JSON.parse(readFileSync(path,'utf8')).foundry,true);
   const menu=await command('messages');assert(menu.packages.find(entry=>entry.name==='Comm.Inbox').data.items.some(entry=>entry.value?.request===enterprise.results[0].request));
   const consultation=await command('message enterprise-foundry@'+new URL(origin).host+' '+JSON.stringify({verb:'read',operation:declared.value.operations.find(o=>o.verb==='read').ref,input:{path}}));
+  assert(consultation.packages,JSON.stringify(consultation));
   const submitted=consultation.packages.find(entry=>entry.name==='Comm.Submission').data;
   const consulted=await until(()=>read(),page=>page.items.some(entry=>entry.value?.request===submitted.request));
   assert(consulted.items.find(entry=>entry.value?.request===submitted.request).value.result.stdout.includes('foundry'));

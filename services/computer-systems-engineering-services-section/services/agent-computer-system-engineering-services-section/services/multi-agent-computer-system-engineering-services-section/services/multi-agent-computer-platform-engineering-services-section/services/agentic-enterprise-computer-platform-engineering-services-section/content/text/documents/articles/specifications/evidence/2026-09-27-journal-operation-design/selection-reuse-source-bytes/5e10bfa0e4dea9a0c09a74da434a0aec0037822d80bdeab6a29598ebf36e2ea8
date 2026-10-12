@@ -1,0 +1,105 @@
+import { addressArtifact } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/identity";
+import { CAUSAL_PROFILE_ID } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/identity/site";
+import { CausalSubstrate } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/substrate";
+import {
+  isCausalWitness,
+  causalObstruction,
+  causalWitness,
+
+} from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/judgment";
+
+function addressFrontierArtifact(value) {
+  try {
+    return causalWitness(addressArtifact(value));
+  } catch (error) {
+    return causalObstruction("artifact-invalid", error.path ?? "$", error.message);
+  }
+}
+
+function normalizeSelection(
+  selected,
+  substrate,
+  causalEnvelope,
+) {
+  if (selected.length > causalEnvelope.maxObservedWitnesses) {
+    return causalObstruction("closure-limit", "$.witnesses", `observed closure exceeds ${causalEnvelope.maxObservedWitnesses} witnesses`);
+  }
+  const ordered = [...selected].sort();
+  for (let index = 1; index < ordered.length; index += 1) {
+    if (ordered[index - 1] === ordered[index]) {
+      return causalObstruction("duplicate-reference", `$.witnesses[${index}]`, "observed closure contains a duplicate WitnessRef", [ordered[index]]);
+    }
+  }
+  const selectedSet = new Set(ordered);
+  for (const ref of ordered) {
+    if (substrate.witnessState(ref) !== "admitted") {
+      return causalObstruction("closure-not-admitted", "$.witnesses", "observed closure contains a witness that is not structurally admitted", [ref]);
+    }
+    const witness = substrate.witness(ref);
+    const absentCauses = witness.core.causes.filter((cause) => !selectedSet.has(cause));
+    if (absentCauses.length > 0) {
+      return causalObstruction("closure-not-downclosed", "$.witnesses", "observed witness set omits causal dependencies", absentCauses);
+    }
+  }
+  return causalWitness(Object.freeze(ordered));
+}
+
+export function deriveFrontier(
+  substrate,
+  selected = substrate.admittedWitnessRefs(),
+  causalEnvelope = substrate.causalEnvelope,
+) {
+  const normalized = normalizeSelection(selected, substrate, causalEnvelope);
+  if (!isCausalWitness(normalized)) return normalized;
+  const witnesses = normalized.value;
+  const closure = Object.freeze({
+    kind: "metroplat.witness-closure",
+    version: 1,
+    site: substrate.site.ref,
+    witnesses,
+  });
+  const addressedClosure = addressFrontierArtifact(closure);
+  if (!isCausalWitness(addressedClosure)) return addressedClosure;
+  const validation = Object.freeze({
+    kind: "metroplat.witness-closure-validation",
+    version: 1,
+    causalProfile: CAUSAL_PROFILE_ID,
+    closureRoot: addressedClosure.value.ref,
+  });
+  const addressedValidation = addressFrontierArtifact(validation);
+  if (!isCausalWitness(addressedValidation)) return addressedValidation;
+  const dominated = new Set();
+  for (const ref of witnesses) {
+    for (const cause of substrate.witness(ref).core.causes) dominated.add(cause);
+  }
+  const tips = Object.freeze(witnesses.filter((ref) => !dominated.has(ref)));
+  const manifest = Object.freeze({
+    kind: "metroplat.frontier",
+    version: 1,
+    causalProfile: CAUSAL_PROFILE_ID,
+    tips,
+    closureRoot: addressedClosure.value.ref,
+    closureWitnessRoot: addressedValidation.value.ref,
+  });
+  const addressedManifest = addressFrontierArtifact(manifest);
+  if (!isCausalWitness(addressedManifest)) return addressedManifest;
+  return causalWitness(Object.freeze({
+    kind: "metroplat.journal.derived-frontier",
+    closure: Object.freeze({ ...addressedClosure.value, closure }),
+    validation: Object.freeze({ ...addressedValidation.value, validation }),
+    frontier: Object.freeze({ ...addressedManifest.value, frontier: manifest, ref: addressedManifest.value.ref }),
+  }));
+}
+
+export function mergeObservedFrontiers(
+  substrate,
+  left,
+  right,
+  causalEnvelope = substrate.causalEnvelope,
+) {
+  const union = new Set([
+    ...left.closure.closure.witnesses,
+    ...right.closure.closure.witnesses,
+  ]);
+  return deriveFrontier(substrate, [...union], causalEnvelope);
+}

@@ -1,0 +1,72 @@
+{
+  "kind": "jsnode.fabrication-receipt",
+  "packageName": "@red-cup-engineering/derive-set-of-guide-chapters-from-catalog-service",
+  "packageVersion": "0.1.0",
+  "sourceDigest": "sha256:76e6042fde1b110e1a9127dd4dbd9aa862d4372dfaaf984e23d371a43f441ec5",
+  "specificationDigest": "sha256:738c38a0d7c50f29f42a452efe477296378c2083adffc64604d5077295baa6f7",
+  "destination": "../../../tmp/claude-1000/-home-emsenn-info/eff4690b-198c-4bdf-95bd-93f1866daa46/scratchpad/no-buy-deploy-scratch/derive-set-of-guide-chapters-from-catalog-service",
+  "workOrder": "/tmp/claude-1000/-home-emsenn-info/eff4690b-198c-4bdf-95bd-93f1866daa46/scratchpad/no-buy-deploy-guide-chapters-work-order.md",
+  "assays": [
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "syntax",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "the-rule",
+      "status": "passed",
+      "scripts": 1,
+      "lines": 98
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "tests",
+      "status": "passed",
+      "paths": [
+        "test/derive-set-of-guide-chapters-from-catalog-faces.test.mjs",
+        "test/derive-set-of-guide-chapters-from-catalog.test.mjs"
+      ]
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "pack",
+      "status": "passed",
+      "filename": "red-cup-engineering-derive-set-of-guide-chapters-from-catalog-service-0.1.0.tgz",
+      "digest": "sha256:30019e1547efeb40789a468b8c580bf3238af24cee5cfb0b847870f21a3a97cb"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "clean-installation",
+      "status": "passed",
+      "javascriptFiles": 1,
+      "reachableJavascriptFiles": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "import-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "command-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "help",
+      "status": "passed"
+    }
+  ],
+  "recordedAt": "2026-09-05T23:07:37.981Z"
+}

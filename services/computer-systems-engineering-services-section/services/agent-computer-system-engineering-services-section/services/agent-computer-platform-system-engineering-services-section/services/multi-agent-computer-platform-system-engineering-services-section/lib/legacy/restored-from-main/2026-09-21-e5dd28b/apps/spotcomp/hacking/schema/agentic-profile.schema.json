@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/agentic-profile.schema.json",
+  "title": "SPOTCOMP agentic embedding profile",
+  "type": "object",
+  "required": ["profileId", "system", "characters", "skills", "playerBindings", "swarm", "evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "system": { "$ref": "#/$defs/system" },
+    "characters": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/character" }
+    },
+    "skills": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/skill" }
+    },
+    "playerBindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/playerBinding" }
+    },
+    "swarm": { "$ref": "#/$defs/swarm" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "system": {
+      "type": "object",
+      "required": ["id", "memberSet", "governanceProcess", "governingSoul", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "memberSet": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "governanceProcess": { "type": "string", "minLength": 1 },
+        "governingSoul": { "type": "string", "minLength": 1 },
+        "emitsCommunityActs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "character": {
+      "type": "object",
+      "required": [
+        "slug",
+        "agentKind",
+        "governanceRegime",
+        "skills",
+        "memberOf",
+        "identityKey",
+        "behavioralSpaceBound",
+        "commutesWithSigma",
+        "commutesWithDelta",
+        "agenticConditions",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "slug": { "$ref": "#/$defs/slug" },
+        "agentKind": { "type": "string", "minLength": 1 },
+        "governanceRegime": { "type": "string", "minLength": 1 },
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "memberOf": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "identityKey": { "type": "string", "minLength": 1 },
+        "behavioralSpaceBound": { "type": "string", "minLength": 1 },
+        "commutesWithSigma": { "type": "boolean" },
+        "commutesWithDelta": { "type": "boolean" },
+        "agenticConditions": {
+          "type": "object",
+          "required": ["environmentalAction", "goalDirectedPlanning", "persistentState"],
+          "additionalProperties": false,
+          "properties": {
+            "environmentalAction": { "type": "string", "minLength": 1 },
+            "goalDirectedPlanning": { "type": "string", "minLength": 1 },
+            "persistentState": { "type": "string", "minLength": 1 }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "skill": {
+      "type": "object",
+      "required": ["slug", "effectClass", "capabilityBound", "surface", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "slug": { "$ref": "#/$defs/slug" },
+        "effectClass": {
+          "enum": ["read-only", "trace-append", "tool-actuation", "federation", "governance"]
+        },
+        "capabilityBound": { "type": "string", "minLength": 1 },
+        "surface": { "type": "string", "minLength": 1 },
+        "actionBound": { "type": "string", "minLength": 1 },
+        "governance": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "playerBinding": {
+      "type": "object",
+      "required": ["character", "playerId", "inbox", "outbox", "localSettling", "cgsProfile", "handedness", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "character": { "$ref": "#/$defs/slug" },
+        "playerId": { "type": "string", "minLength": 1 },
+        "inbox": { "type": "string", "minLength": 1 },
+        "outbox": { "type": "string", "minLength": 1 },
+        "localSettling": { "type": "string", "minLength": 1 },
+        "cgsProfile": { "type": "string", "minLength": 1 },
+        "handedness": {
+          "type": "object",
+          "required": ["recv", "send", "actuate", "observe"],
+          "additionalProperties": false,
+          "properties": {
+            "recv": { "type": "string", "minLength": 1 },
+            "send": { "type": "string", "minLength": 1 },
+            "actuate": { "type": "string", "minLength": 1 },
+            "observe": { "type": "string", "minLength": 1 }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "swarm": {
+      "type": "object",
+      "required": [
+        "id",
+        "participants",
+        "coordinatesVia",
+        "recognitionDiscipline",
+        "governanceProcess",
+        "sharedTrace",
+        "federationProfile",
+        "regimeProfile",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "participants": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/slug" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "coordinatesVia": { "type": "string", "minLength": 1 },
+        "recognitionDiscipline": { "type": "string", "minLength": 1 },
+        "governanceProcess": { "type": "string", "minLength": 1 },
+        "sharedTrace": { "type": "string", "minLength": 1 },
+        "federationProfile": { "type": "string", "minLength": 1 },
+        "regimeProfile": { "type": "string", "minLength": 1 },
+        "leader": { "$ref": "#/$defs/slug" },
+        "engagement": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

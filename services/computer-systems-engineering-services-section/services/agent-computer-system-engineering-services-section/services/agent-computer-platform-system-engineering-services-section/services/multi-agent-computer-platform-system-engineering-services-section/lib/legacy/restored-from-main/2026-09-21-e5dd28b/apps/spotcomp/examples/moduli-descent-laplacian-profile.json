@@ -1,0 +1,80 @@
+{
+  "profileId": "spotcomp-moduli-descent-laplacian-example",
+  "metaModuliDescent": {
+    "settlingModuliStackReferenced": true,
+    "metaPrestackIsStackDeclared": true,
+    "closureOperatorDescentDeclared": true,
+    "closureEquivalenceNotRuleSyntax": true,
+    "effectiveDescentRequired": true,
+    "oneStackTruncationDeclared": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/meta-moduli-stack-theorem.md"
+    ]
+  },
+  "regimeStratification": {
+    "settlingRegimePartitionDeclared": true,
+    "metaRegimeByMaximumDeclared": true,
+    "ruleLanguageFragmentDeterminesMetaRegime": true,
+    "setTheoreticVsTopologicalSeparated": true,
+    "stepNRefinementTracked": true,
+    "namedSubstitutionsAreRegimeSensitive": true,
+    "padovanFibonacciTribonacciPlacementsTracked": true,
+    "singleRunNotMetaRegimeProof": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/regime-decomposition.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/meta-stratification-by-regime.md"
+    ]
+  },
+  "qEnrichedCohomology": {
+    "dFrameValueCategoryDeclared": true,
+    "tarskiLawvereLaplacianFrameworkDeclared": true,
+    "shadowFallbackSeparated": true,
+    "grothendieckSiteLayerDeclared": true,
+    "fiberedCellularLayerDeclared": true,
+    "transfiniteDirectLimitBoundaryDeclared": true,
+    "theoremScopeTracked": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/narratives/d-frame-cohomology-framework.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/narratives/cellular-extension-plan.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/tarski-lawvere-fixed-point-grothendieck-sites.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/q-enriched-aperiodic-direct-limit-cohomology.md"
+    ]
+  },
+  "verdierSixFunctor": {
+    "verdierSheafCosheafDualityDeclared": true,
+    "valueNegationComposedDualityDeclared": true,
+    "coClassificationScopeDeclared": true,
+    "directInverseImageFunctorsDeclared": true,
+    "sixFunctorAxiomsScopeTracked": true,
+    "properMorphismScopeTracked": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/verdier-duality-bitopological-site.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/q-enriched-sheaf-direct-inverse-image.md"
+    ]
+  },
+  "strongMld": {
+    "ordinaryMldSeparated": true,
+    "firingOrbitTypeFunctionDeclared": true,
+    "truthFalsityTopFiringTypesDeclared": true,
+    "valueSideAndSpatialSideTracked": true,
+    "strongInvariantRequiredForStrongClaim": true,
+    "cosheafSideEquivalentWhenInScope": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/strong-mld-via-composed-duality.md"
+    ]
+  },
+  "implementationBoundary": {
+    "noImplementationDefinesMath": true,
+    "noEndpointOnlyMetaRegime": true,
+    "noSingleH1ForDFrame": true,
+    "noStaleStatusMetadataAsDowngrade": true,
+    "unknownDescentBlocksStrongConformance": true,
+    "codeRemainsProbe": true,
+    "evidence": [
+      "development/experimental/spotcomp/MODULI-DESCENT-LAPLACIAN.md"
+    ]
+  },
+  "evidence": [
+    "development/experimental/spotcomp/MODULI-DESCENT-LAPLACIAN.md"
+  ]
+}

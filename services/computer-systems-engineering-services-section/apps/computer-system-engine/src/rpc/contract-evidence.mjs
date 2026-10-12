@@ -1,43 +1,39 @@
-/** Filesystem-journal projection for derived program-contract evidence. */
+/** Store records for derived program-contract evidence. */
 
-import { openJournal, journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
+import { extend, readHead, walk } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { programContractEvidenceContract } from "./contract.mjs";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
+
+/** The type of a measured contract receipt, and the one thread that keeps them all visible together. */
+export const programContractEvidenceType = "program-contract-evidence";
+export const programContractEvidenceThread = "program-contract";
+
+/** The most receipts one read follows. */
+const READ_LIMIT = 8_192;
 
 function isEvidence(value) {
   return programContractEvidenceContract.validate(value);
 }
 
-/** Admit one measured contract receipt through the journal's existing write door. */
+/** Admit one measured contract receipt: it follows every receipt the thread held when it was measured. */
 export function admitProgramContractEvidence(
   root,
   evidence,
   at,
 ) {
-  const admitted = programContractEvidenceContract.assert(evidence, "program contract journal evidence");
-  return openJournal(root).appendRows("program-contract", [toEavt({
-    e: admitted.contract,
-    a: Object.freeze({ kind: "metroplat.program.contract.evidence", reading: admitted.reading }),
-    v: admitted,
-    t: at,
-  })], {
-    at,
-    subject: "program-contract",
-    caller: Object.freeze({ kind: "metroplat.program.contract.oracle" }),
-  });
+  const admitted = programContractEvidenceContract.assert(evidence, "program contract store evidence");
+  return extend(root, programContractEvidenceType, programContractEvidenceThread, { at, evidence: admitted });
 }
 
 /**
- * Read all admitted contract receipts from the contract feed's immutable
- * statement files. This is intentionally a journal read, not a scan of
- * projected `data/contracts` artifacts: contradictory historical measurements
- * must remain visible to the FOUR fold.
+ * Read all admitted contract receipts, causes first. This reads the thread, not a scan of projected
+ * `data/contracts` artifacts: contradictory historical measurements must remain visible to the FOUR fold.
  */
 export function readProgramContractEvidence(root) {
-  const folded = journal.scanCausalSubject(root, "program-contract", "9999-12-31", [], (evidence, row) => {
-    const value = eavtRecord(row).v;
-    if (isEvidence(value)) evidence.push(value);
-    return evidence;
-  });
-  return Object.freeze(folded.result);
+  const head = readHead(root, programContractEvidenceType, programContractEvidenceThread);
+  if (head === undefined) return Object.freeze([]);
+  const evidence = [];
+  for (const step of walk(root, programContractEvidenceType, head.frontier, { limit: READ_LIMIT })) {
+    if (step.record !== undefined && isEvidence(step.record.evidence)) evidence.push(step.record.evidence);
+  }
+  return Object.freeze(evidence.reverse());
 }

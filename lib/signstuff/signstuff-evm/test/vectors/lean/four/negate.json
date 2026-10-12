@@ -1,0 +1,6 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.negate","cases":[
+  {"op":"negate","args":[[false,false]],"result":[false,false]},
+  {"op":"negate","args":[[true,false]],"result":[false,true]},
+  {"op":"negate","args":[[false,true]],"result":[true,false]},
+  {"op":"negate","args":[[true,true]],"result":[true,true]}
+]}

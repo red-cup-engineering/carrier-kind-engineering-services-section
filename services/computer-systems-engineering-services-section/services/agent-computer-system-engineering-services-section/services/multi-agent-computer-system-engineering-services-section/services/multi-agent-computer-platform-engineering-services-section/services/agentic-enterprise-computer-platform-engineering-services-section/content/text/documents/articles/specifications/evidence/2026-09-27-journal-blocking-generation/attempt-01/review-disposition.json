@@ -1,0 +1,11 @@
+{
+  "accepted": false,
+  "basis": "public generated-source inspection, not private receiving failure",
+  "sourceSha256": "744f03da7ed4aff791d1514db9c381ed16b81998eb22460555653857fc6d9076",
+  "findings": [
+    "validateRetainedObstructions calls keys.includes for every array index, introducing quadratic collection-shape work before per-entry validation.",
+    "It additionally rejects nonenumerable own data indices although the contract requires dense own data indices rather than enumeration."
+  ],
+  "privateReceivingPassed": 37,
+  "nextAction": "Refine public collection descriptor law and regenerate from original source; no private fixture/results supplied."
+}

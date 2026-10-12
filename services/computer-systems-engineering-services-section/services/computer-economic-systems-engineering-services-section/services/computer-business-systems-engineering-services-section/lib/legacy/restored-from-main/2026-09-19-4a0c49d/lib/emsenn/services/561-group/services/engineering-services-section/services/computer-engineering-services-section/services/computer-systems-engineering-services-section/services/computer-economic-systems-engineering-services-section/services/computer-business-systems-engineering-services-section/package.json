@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/computer-business-systems-engineering-services-section",
+  "version": "0.2.2",
+  "description": "Red Cup Engineering's business-systems division: the layer where circulation is measured and run (funnels, exchanges, the internal market, the games' economies), priced per crossing and settled per matched pair.",
+  "type": "module",
+  "exports": {
+    "./business-catalog": "./src/business-catalog.mjs",
+    "./read-business-catalog": "./src/read-business-catalog.mjs"
+  },
+  "files": [
+    "src/",
+    "scripts/"
+  ],
+  "bin": {
+    "read-business-catalog": "./scripts/read-business-catalog.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "business-systems",
+    "red-cup-engineering"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/javascript-file-main-guard-service": "0.1.3",
+    "@red-cup-engineering/path-walking-service": "0.5.0",
+    "@red-cup-engineering/read-text-file-service": "0.1.2"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "name": "@red-cup-engineering/market-561-group",
+  "version": "0.2.1",
+  "private": false,
+  "type": "module",
+  "description": "market.561.group: the one x402 market of the 561 Group. Composes the market engine over data/records/catalog.json, where every offer names the typed operation it sells by package and export; carries no compute, no per-offer transport, and no domain of its own beyond the market's. Adding an offer is a catalog entry and a dependency pin.",
+  "exports": {
+    ".": "./src/market.mjs",
+    "./settlement-journal": "./src/settlement-journal.mjs",
+    "./catalog": "./data/records/catalog.json",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "serve-market-561-group": "./scripts/serve-market.mjs",
+    "derive-paid-sellers": "./scripts/derive-paid-sellers.mjs",
+    "derive-402index-registrations": "./scripts/derive-402index-registrations.mjs",
+    "compile-catalog": "./scripts/compile-catalog.mjs"
+  },
+  "files": [
+    "data/records/catalog-identities.json",
+    "data/records/catalog-readouts.json",
+    "data/records/catalog.json",
+    "data/records/systemd/",
+    "scripts/",
+    "src/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "start": "node scripts/serve-market.mjs",
+    "check": "node --check src/market.mjs && node --check src/settlement-journal.mjs && node --check scripts/serve-market.mjs && node --check scripts/derive-paid-sellers.mjs && node --check scripts/derive-402index-registrations.mjs && node --check src/worker.mjs && node --check test/market-561-group.test.mjs && node --check test/settlement-journal.test.mjs && node --check scripts/compile-catalog.mjs && node --check src/edge-bindings.mjs",
+    "test": "node --test test/market-561-group.test.mjs test/settlement-journal.test.mjs",
+    "derive-paid-sellers": "node scripts/derive-paid-sellers.mjs",
+    "compile-catalog": "node scripts/compile-catalog.mjs"
+  },
+  "dependencies": {
+    "@lenticule-science/astronomy-services-section": "0.4.2",
+    "@lenticule-science/divination-services-section": "0.2.3",
+    "@lenticule-science/medical-science-services-section": "0.2.0",
+    "@red-cup-engineering/account-evidence-reconciliation-service": "0.1.4",
+    "@red-cup-engineering/alpha-portfolio-order-intent-service": "0.1.4",
+    "@red-cup-engineering/base-chain-data-gateway": "0.2.1",
+    "@red-cup-engineering/base-pre-sign-policy-service": "file:../../../../../../services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/services/base-pre-sign-policy-service",
+    "@red-cup-engineering/blockchain-trashpanda": "file:../../../../../../../../../public-services-section/services/public-media-services-section/services/public-personality-services-section/services/yanagi-services-section/blockchain-trashpanda-services-section",
+    "@red-cup-engineering/brokerage-control-api-federation": "0.1.2",
+    "@red-cup-engineering/coinbase-x402-bazaar-border": "0.2.0",
+    "@red-cup-engineering/ethereum-engineering-services-section": "0.15.0",
+    "@red-cup-engineering/file-services": "0.4.0",
+    "@red-cup-engineering/jsnode-package-vulnerability-triage-services-section": "0.1.0",
+    "@red-cup-engineering/computer-inference-engine/fabric/execute-typed-inference-effect": "0.2.5",
+    "@red-cup-engineering/pacing-intelligence-services-section": "0.2.0",
+    "@red-cup-engineering/witness-journal-document-service": "0.1.0",
+    "@red-cup-engineering/x402-market-observation-service": "0.3.0",
+    "@red-cup-engineering/x402-market-service": "0.1.3",
+    "@red-cup-engineering/x402-services-section": "0.10.4",
+    "@red-cup-engineering/eavt": "0.10.4",
+    "@red-cup-engineering/javascript-file-services-section": "0.1.0"
+  },
+  "keywords": [
+    "x402",
+    "market",
+    "typed-operation",
+    "561-group",
+    "market.561.group"
+  ]
+}

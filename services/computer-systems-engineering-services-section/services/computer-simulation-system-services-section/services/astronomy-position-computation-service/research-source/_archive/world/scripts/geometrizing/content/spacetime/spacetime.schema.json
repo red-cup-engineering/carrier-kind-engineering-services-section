@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astronomy/world/scripts/geometrizing/content/spacetime",
+  "title": "spacetime",
+  "description": "A four-dimensional Lorentzian manifold (M, g) — one world's internal structure read as geometry. Space and time are one continuum; the invariant interval, not separate distance or duration, is what all observers agree on. Under general relativity the metric is dynamic, curving in response to mass-energy and directing motion; its causal (light-cone) structure is the order the entity set carries. The geometric reading of our world.",
+  "type": "object",
+  "required": [
+    "of-world",
+    "lorentzian-manifold",
+    "metric"
+  ],
+  "properties": {
+    "of-world": {
+      "description": "the world whose internal structure this geometrizes",
+      "$ref": "astronomy/world"
+    },
+    "lorentzian-manifold": {
+      "description": "a 4-dimensional manifold with one time and three space dimensions",
+      "const": true
+    },
+    "metric": {
+      "description": "a Lorentzian metric g (Einstein equations, or the FLRW metric in ΛCDM) giving the invariant interval and the causal order",
+      "const": true
+    }
+  }
+}

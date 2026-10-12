@@ -1,0 +1,164 @@
+{
+  "profileId": "spotcomp-generator-variance-candidate",
+  "variancePrinciples": {
+    "categoryGeneratorCodomainRequired": true,
+    "varianceDeterminesCodomainShape": true,
+    "unknownVarianceBlocksStrongConformance": true,
+    "extensionRestrictionAreNotTopicLabels": true,
+    "sameNameDifferentPositionsRemainDistinct": true,
+    "evidence": [
+      "PATH-TYPING.md",
+      "CATEGORICAL-MACHINERY.md",
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/settling/hacking/library/local-settling/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "extensionCriteria": {
+    "requiresStructurePreservingEmbedding": true,
+    "addsAdmissibleStructure": true,
+    "preservesBaseOperations": true,
+    "admitsNewRowsOrPositionsOrObjects": true,
+    "preorderLaws": ["reflexive", "transitive"],
+    "examplesRequired": true,
+    "evidence": [
+      "lab/hacking/articulating/library/stable-articulation-cell/predicating/hacking/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/object/hacking/extending/extending.md",
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/docs/dev/journal/2026-05-27.md"
+    ]
+  },
+  "restrictionCriteria": {
+    "selectsSubstructureOrView": true,
+    "forgetsOnlyDeclaredAxes": true,
+    "requiresSourceFrontierOrSubobject": true,
+    "codomainIsSubcategorySubfiberTraceOrProjection": true,
+    "mustDeclareForgottenAxes": true,
+    "examplesRequired": true,
+    "evidence": [
+      "lab/hacking/articulating/library/stable-articulation-cell/predicating/hacking/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/object/specializing/specializing.md",
+      "lab/archive/library/humanities/library/math/library/categories/theories/predication-theory/prose/remarks/specialization-as-open-immersion.md",
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/slicing-to-predication-cell-trace/docs/dev/journal/2026-05-27.md"
+    ]
+  },
+  "coincidenceCriteria": {
+    "requiresTheoremName": true,
+    "requiresScope": true,
+    "doesNotCollapseMorphismPositions": true,
+    "offScopeRemainsDistinct": true,
+    "evidence": [
+      "CHL-LANGUAGE-CONES.md",
+      "POSITING.md",
+      "PATH-TYPING.md"
+    ]
+  },
+  "examples": [
+    {
+      "exampleId": "enumerating-predication-cell-set",
+      "stage": "predicating",
+      "variance": "extension",
+      "domainShape": "{entity-set: E, predicate-set: Pi}",
+      "codomainShape": "E x Pi x E",
+      "reason": "Adds implicit product positions as explicit predication cells while preserving the entity and predicate generators.",
+      "addsStructure": true,
+      "preservesInput": true,
+      "embeddingWitness": "The input generators embed into the generated finite product positions by subject, predicate, and object coordinates.",
+      "auditRowsRecordVariance": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/docs/dev/journal/2026-05-27.md"
+      ]
+    },
+    {
+      "exampleId": "sampling-a-predication-cell",
+      "stage": "settling",
+      "variance": "extension",
+      "domainShape": "{cell: phi, datum: q, transaction: t}",
+      "codomainShape": "finite-predication-cell-trace-sample",
+      "reason": "Adds a finite sample presentation for one generated cell and one supplied datum; no default truth is introduced.",
+      "addsStructure": true,
+      "preservesInput": true,
+      "embeddingWitness": "The sample retains the cell, datum, transaction, and optional provenance coordinates.",
+      "auditRowsRecordVariance": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/settling/sampling-a-predication-cell/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "exampleId": "slicing-to-predication-cell-trace",
+      "stage": "settling",
+      "variance": "restriction",
+      "domainShape": "{predication-cell: phi, predication-settling: v}",
+      "codomainShape": "predication-cell-trace T_{phi,v}",
+      "reason": "Fixes one cell and restricts a global settling trajectory to the value/evidence trace over that cell.",
+      "forgottenOrSelectedAxes": [
+        "selected-cell",
+        "non-selected-cells",
+        "global-valuation-map",
+        "non-value-trace-axes"
+      ],
+      "forgetsOnlyDeclaredAxes": true,
+      "sourceFrontierOrSubobject": "fixed predication-cell phi inside the global predication-cell-set",
+      "auditRowsRecordVariance": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/slicing-to-predication-cell-trace/docs/dev/journal/2026-05-27.md"
+      ]
+    },
+    {
+      "exampleId": "assembling-from-predication-settling",
+      "stage": "settling",
+      "variance": "restriction",
+      "domainShape": "{predication-cell-set: Phi, predication-settling: v}",
+      "codomainShape": "finite settling trace-family presentation",
+      "reason": "Enumerates cells, slices the valuation trajectory cellwise, and forgets global valuation maps after retaining trace presentations.",
+      "forgottenOrSelectedAxes": [
+        "cellwise-traces",
+        "global-valuation-map",
+        "non-trace-settling-machinery"
+      ],
+      "forgetsOnlyDeclaredAxes": true,
+      "sourceFrontierOrSubobject": "finite product Phi and supplied predication-settling trajectory",
+      "auditRowsRecordVariance": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/settling/assembling-from-predication-settling/docs/dev/journal/2026-05-27.md"
+      ]
+    },
+    {
+      "exampleId": "local-settling",
+      "stage": "settling",
+      "variance": "restriction",
+      "domainShape": "universal settling over Phi",
+      "codomainShape": "local sub-settling over Phi_X",
+      "reason": "Restricts closure to rules and cells mentioning the local region while remaining contained in the global fixed point.",
+      "forgottenOrSelectedAxes": [
+        "local-region-Phi_X",
+        "outside-region-cells",
+        "outside-region-rules"
+      ],
+      "forgetsOnlyDeclaredAxes": true,
+      "sourceFrontierOrSubobject": "Phi_X subset of Phi",
+      "auditRowsRecordVariance": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/settling/hacking/library/local-settling/docs/dev/journal/2026-05-24.md"
+      ]
+    }
+  ],
+  "implementationBoundary": {
+    "pathRoleGeneratorVarianceRequired": true,
+    "eavtAuditRowsRecordVariance": true,
+    "projectionArtifactsRequireRestrictionProof": true,
+    "extensionsRequireEmbeddingWitness": true,
+    "unknownVarianceRejectsStrongConformance": true,
+    "checksCannotInferFromDirectoryNameAlone": true,
+    "evidence": [
+      "GENERATOR-VARIANCE.md",
+      "PATH-TYPING.md",
+      "TRACE-AXES.md"
+    ]
+  },
+  "openObligations": [
+    "Prove each named embedding rather than relying on the declaration text.",
+    "Derive the EAVT audit row vocabulary for generator variance, embedding witnesses, and restriction-frontier claims.",
+    "Audit every active SPOTCOMP generator against this profile."
+  ],
+  "evidence": [
+    "GENERATOR-VARIANCE.md",
+    "DERIVATION-OBLIGATIONS.md D4"
+  ]
+}
+

@@ -1,0 +1,34 @@
+{
+  "name": "@red-cup-engineering/settlement-trace-chain-node-cell",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A2A status capability cell for the live Settlement Trace Chain (chain ID enforced in lib/status.mjs).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emsenn/settlement-trace-chain-node-cell.git"
+  },
+  "bin": {
+    "serve-settlement-trace-chain-a2a": "./scripts/server.mjs"
+  },
+  "exports": {
+    ".": "./lib/status.mjs",
+    "./protocol": "./lib/protocol.mjs"
+  },
+  "scripts": {
+    "check": "node --check lib/status.mjs && node --check lib/protocol.mjs && node --check scripts/execute-a2a-task.mjs && node --check scripts/server.mjs",
+    "legacy:anvil:check": "node --check legacy/anvil/scripts/run-chain.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-services-section": "0.9.0",
+    "@red-cup-engineering/a2a-services-section": "1.0.0",
+    "@red-cup-engineering/computer-code-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/computer-content-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/relation-model-notation-graph-services-section": "0.1.0"
+  },
+  "license": "UNLICENSED"
+}

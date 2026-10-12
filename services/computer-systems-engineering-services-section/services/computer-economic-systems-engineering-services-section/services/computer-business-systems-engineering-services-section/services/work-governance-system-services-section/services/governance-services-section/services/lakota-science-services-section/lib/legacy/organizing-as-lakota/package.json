@@ -1,0 +1,51 @@
+{
+  "name": "@emsenn/organizing-as-lakota",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "Organizing as Lakota — the Lakota fiber over @emsenn/organizing: a library of lakotaean becoming presented on the relating→animating→organizing web. The capstone fiber, so the whole becoming-chain arrives through organizing's imports: the four superior Wakȟáŋ (Tóbtób Kiŋ) ARE relating's four charges (the captain's substantive claim — the bilattice is Lakota cosmogony in algebraic notation, not the reverse), discharging is the cosmogonic settling out of Íŋyaŋ-in-Haŋhépi (the initial ⊤), wakȟáŋ is a cell-and-rule quality, and mitakuye oyasin is the global kinship-cosmos theorem. Built cosmogony-first; the kinship, lifeway (wólakȟota), and governance/wicozani tiers build up from here.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "pnpm run build && node --test \"test/*.test.mjs\"",
+    "verify": "pnpm run check && pnpm run build",
+    "prepack": "pnpm run rebuild",
+    "rebuild": "pnpm run clean && pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./iyokheya": {
+      "types": "./dist/iyokheya/index.d.mts",
+      "import": "./dist/iyokheya/index.mjs"
+    },
+    "./tobtob-kin": {
+      "types": "./dist/iyokheya/tobtob-kin/tobtob-kin.d.mts",
+      "import": "./dist/iyokheya/tobtob-kin/tobtob-kin.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@emsenn/relating": "workspace:*",
+    "@emsenn/animating": "workspace:*",
+    "@emsenn/organizing": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "sideEffects": false
+}

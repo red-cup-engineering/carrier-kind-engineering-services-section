@@ -1,0 +1,12 @@
+{
+  "status": "authenticated-supplier-and-provider-chain-active",
+  "notebookIdentityBound": true,
+  "providerStandingGrantAccepted": true,
+  "providerStandingGrantAcceptance": "urn:sha256:64b2c456832a1537f74c1f38c92bde9bb19068ec0ed5d10753bd57007d773f86",
+  "providerActivationObservedOn": "2026-07-22",
+  "sourceEffects": "active-only-for-exact-fresh-situated-path-free-curriculum-products",
+  "videoEffects": "active-only-for-admitted-source-state-and-modern-business-alternating-capacity",
+  "initialInventoryAdmission": "urn:sha256:0593b9960df61cb434ebf4b876df84a9ef11a3b78eac8770cba9342afffdf223",
+  "signedChannelDelivery": {"status":"enabled-active-under-user-systemd","serviceUnit":"emsweb-modern-business-notebook-explainer-a2a.service","artifactServiceUnit":"emsweb-modern-business-notebook-artifacts.service","customer":"urn:ame:modern-business-youtube-channel-enterprise","agentCardIdentity":"ni:///sha-256;V9FXvcUCYzLLqIgG1sV4wEsDhrH0G9Cy8rCYujsYF9E","artifactAuthority":"per-delivery bearer capability"},
+  "authorityWithheld": ["source deletion", "foreign or stale curriculum products", "off-allocation generation", "business advice warranty", "channel upload schedule or publication"]
+}

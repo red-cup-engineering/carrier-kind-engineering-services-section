@@ -1,0 +1,1 @@
+- Why are so many houses in [[Lincoln Park, Duluth, Minnesota]] light gray?

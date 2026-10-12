@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a0e5c1-c5a2-78b0-9316-b74ae3618b89"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"kind\":\"source-patchset\",\"version\":1,\"disposition\":\"refused\",\"reason\":\"I cannot supply a complete B2b2 transformation that satisfies the requested bound-descriptor barrier, shared initialization barrier, and all F-S13 host, scanner, invalidation, and cleanup corrections as exact transformations against these inputs. Returning a partial candidate would leave required durability and host behavior incomplete.\",\"changes\":[]}"}}
+{"type":"turn.completed","usage":{"input_tokens":82429,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":2075,"reasoning_output_tokens":1982}}

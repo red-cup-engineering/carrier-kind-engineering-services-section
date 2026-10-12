@@ -1,0 +1,13 @@
+{
+  "id": "latin-language-algebra",
+  "name": "latin-language-algebra",
+  "kind": "node",
+  "faces": "linguistics-services-section",
+  "internal-customer": "linguistics-services-section",
+  "bundle": "latin-language-presentation",
+  "package": "@lenticule-science/latin-language-algebra",
+  "roster": "services/latin-language-algebra",
+  "contracts": [
+    "tagging-latin-text"
+  ]
+}

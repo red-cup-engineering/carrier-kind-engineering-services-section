@@ -1,0 +1,67 @@
+{
+  "id": "swarm-silence-never-writes-false-trust",
+  "name": "A peer's silence never writes false to its trust grade",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must.",
+  "met-when": [
+    {
+      "cell": "swarm:silence-not-false",
+      "target": "held",
+      "command": "sh -c 'cd \"${COMPUTER_SERVICES_SECTION:?checkout of the owning repository}/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host\" && test -f test/peer-trust.test.mjs && node --test test/peer-trust.test.mjs'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "research-realization session (Lenticule research -> Red Cup engineering), dispatched by the orchestrator of 2026-10-10",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "convert-to-signed-cells": true,
+    "conversion-note": "Written in the requirement.schema.json form pending the canonical signcell call for requirement records; each met-when condition becomes a predication cell told held or denied by its command's exit.",
+    "basis": "The founder's demand that held research be realized in running code, carried with the research claim it realizes. The founder's words are quoted unedited; the research quote is the claim the tests exercise.",
+    "research": [
+      {
+        "path": "bare-cedar-fog engineering-services-section/content/text/documents/articles/notes/2026/06/20/2026-06-20-federation-trust-as-bilattice-graded.md",
+        "says": "Closed-world default … is a *policy choice* … the substrate's underlying state is ⊥"
+      }
+    ],
+    "owning-repository": "red-cup-engineering/computer-services-section",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "A peer record carries a four-valued trust grade with a witness chain; no sequence of away outcomes or silence produces f, only a recorded governance act does.",
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "The peer record shall carry a trust grade in FOUR with its witnesses.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R2",
+          "says": "No sequence of away deliveries or silence shall set the grade to false.",
+          "class": "functional",
+          "moscow": "must"
+        }
+      ],
+      "sources": [
+        {
+          "session": "session_01WFXZzAiqfYxQPLLLaH1sGU",
+          "at": "2026-09-03",
+          "words": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must."
+        },
+        {
+          "session": "session_01PnEE1T1PdzBe6LCAMGaN8E",
+          "at": "2026-10-09",
+          "words": "we need to realize, use-and-improve the existing theory/research we have on this, not spin up the thinnest thing an agent can imagine in one session."
+        }
+      ]
+    },
+    "checkout-variables": "Conditions read the owning repository from the named environment variable (a checkout at the commit under test).",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;ywAOBy4rUbpTh8Fd3WI-VaM-sL9uCtNFZXm7xMQl6oY",
+      "cell": "ni:///sha-256;kfRKPKJyl7kj_8paHJbm3TBCK8addcBeJaMYuBrITYY"
+    }
+  }
+}

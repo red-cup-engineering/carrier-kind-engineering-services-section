@@ -1,0 +1,60 @@
+{
+  "name": "@red-cup-engineering/agent-work-computer-system-engineering-services-section",
+  "version": "0.18.1",
+  "description": "Shared semantic models and deterministic operations for agent work. Provider and execution runtimes remain separate effect owners.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./duty-work-order-demand": "./src/duty-work-order-demand.mjs",
+    "./founder-utterance-reading": "./src/founder-utterance-reading.mjs",
+    "./structured-work-intent": "./src/structured-work-intent.mjs",
+    "./read-founder-utterances": "./apps/read-founder-utterances.mjs",
+    "./duty-discharge": {
+      "types": "./types/duty-discharge.d.mts",
+      "import": "./src/duty-discharge.mjs"
+    },
+    "./work-rail": "./src/work-rail.mjs"
+  },
+  "bin": {
+    "read-founder-utterances": "apps/read-founder-utterances.mjs"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@lenticule-science/articulating": "0.5.1",
+    "@red-cup-engineering/agentic-communication-engine": "0.1.0",
+    "@lenticule-science/english-language-algebra": "0.1.7",
+    "@red-cup-engineering/admit-javascript-node-command-execution-request-service": "0.1.1",
+    "@red-cup-engineering/classify-work-demand-service": "0.1.1",
+    "@red-cup-engineering/computer-data-engine": "0.11.2",
+    "@red-cup-engineering/data-custody-directory-service": "0.3.0",
+    "@red-cup-engineering/execute-javascript-node-command-service": "0.3.0",
+    "@red-cup-engineering/fabricate-markdown-jsnode-operation-package-service": "0.5.3",
+    "@red-cup-engineering/javascript-computer": "0.2.6",
+    "@red-cup-engineering/javascript-file-main-guard-service": "0.1.3",
+    "@red-cup-engineering/jsnode-package-services-section": "0.2.2",
+    "@red-cup-engineering/npm-workspace-publication-service": "0.6.1",
+    "@red-cup-engineering/ops-561-group-mcp-gateway-service": "0.14.1",
+    "@red-cup-engineering/read-bcp-14-requirements-service": "0.2.0",
+    "@red-cup-engineering/resolve-filepath-service": "0.1.1",
+    "@red-cup-engineering/semantic-record-journal-service": "0.5.0",
+    "@red-cup-engineering/write-text-file-service": "0.2.0",
+    "@red-cup-engineering/markdown-engineering-services-section": "0.5.0"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/audit-node-builtin-imports-service": "0.5.0"
+  },
+  "files": [
+    "src/carrier-falsehood-duty.mjs",
+    "src/duty-discharge.mjs",
+    "src/duty-hand.mjs",
+    "src/duty-work-order-demand.mjs",
+    "src/founder-utterance-reading.mjs",
+    "src/structured-work-intent.mjs",
+    "src/work-rail.mjs",
+    "apps/read-founder-utterances.mjs",
+    "types/duty-discharge.d.mts",
+    "content/text/documents/specifications/classify-work-demand.md"
+  ]
+}

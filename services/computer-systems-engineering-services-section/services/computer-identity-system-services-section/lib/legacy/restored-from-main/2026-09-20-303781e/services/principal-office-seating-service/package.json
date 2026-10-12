@@ -1,0 +1,23 @@
+{
+  "name": "@red-cup-engineering/principal-office-seating-service",
+  "version": "0.1.4",
+  "type": "module",
+  "description": "Dependency-free, pure admission of an authenticated principal to a bounded actor, character, and office seating.",
+  "engines": { "node": ">=22.18" },
+  "files": ["dist", "package.json"],
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "exports": {
+    ".": { "types": "./dist/index.d.mts", "import": "./dist/index.mjs" },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp",
+    "check": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mts",
+    "rebuild": "npm run clean && npm run build"
+  },
+  "devDependencies": { "@types/node": "22.20.1", "typescript": "5.9.3" },
+  "sideEffects": false
+}

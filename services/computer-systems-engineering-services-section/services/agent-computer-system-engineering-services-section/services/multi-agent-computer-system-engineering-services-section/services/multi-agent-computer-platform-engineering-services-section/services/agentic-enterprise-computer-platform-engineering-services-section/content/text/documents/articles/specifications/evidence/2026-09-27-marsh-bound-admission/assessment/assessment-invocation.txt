@@ -1,0 +1,11 @@
+Observed outer invocation:
+/usr/bin/bwrap --unshare-net --unshare-pid --ro-bind /usr /usr --ro-bind /lib /lib --ro-bind /lib64 /lib64 --dir /etc --ro-bind /etc/ssl /etc/ssl --proc /proc --dev /dev --ro-bind /tmp/muse-marsh-toolchain-20260927-01 /toolchain --bind /tmp/muse-marsh-assessment-20260927-01 /work --chdir /work --clearenv --setenv HOME /work/home --setenv TMPDIR /work/tmp --setenv PATH /toolchain/bin:/work:/usr/bin:/bin --setenv LANG C.UTF-8 /work/runtime-node /work/reader-assay/run.mjs
+
+Runner operations observed inside that namespace:
+- /toolchain/bin/forge build --use /toolchain/solc/solc-0.8.28 --offline reader-assay/ReaderFixture.sol
+- /toolchain/bin/forge test --use /toolchain/solc/solc-0.8.28 --offline -vv
+- Start local /toolchain/bin/anvil --chain-id 8453 --host 127.0.0.1 --port 8545.
+- Install the compiled local Multicall fixture at the canonical Multicall3 address using cast rpc anvil_setCode; deploy ReaderFixture using forge create --unlocked on localhost.
+- Run reader-check.mjs through the private ESM loader, which preserves the actual resource reader and actual public EVM read-pool implementation while routing the viem client to local Anvil.
+
+Assessment stdout was originally emitted in the tool transcript and not separately persisted by the runner; the exact five observed output lines are preserved in assessment.stdout.log. Raw per-test Foundry traces were captured in runner memory and summarized; no raw trace file was persisted.

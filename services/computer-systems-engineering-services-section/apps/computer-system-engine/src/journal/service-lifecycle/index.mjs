@@ -1,45 +1,38 @@
+import { append } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 
+/** The store type of a service lifecycle log: one line per boundary event. */
+export const SERVICE_LIFECYCLE_TYPE = "service-lifecycle";
 
-import {
-  serviceLifecycleEventRows,
-  serviceLifecycleFeed,
-  serviceLifecycleRecordRows,
-} from "./eavt-rows.mjs";
-import { openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
+const DETAIL_CHARS_MAX = 1024;
 
-/** Persist one service lifecycle event under `$root/data/journals/...`. */
+/** The plain line a boundary event is: what its readers read (who, which boundary, what happened, whether it went well) and when. */
+export function serviceLifecycleLine(event) {
+  return Object.freeze({
+    at: event.at,
+    service: event.service,
+    boundary: event.boundary,
+    event: event.event,
+    ok: event.ok,
+    ...(event.code === undefined ? {} : { code: event.code }),
+    ...(event.signal === undefined ? {} : { signal: event.signal }),
+    ...(event.detail === undefined ? {} : { detail: String(event.detail).slice(0, DETAIL_CHARS_MAX) }),
+  });
+}
+
+/** Append one service lifecycle event to the day's log of `$root/data/logs/service-lifecycle-logs`. */
 export function recordServiceLifecycleEvent(
   persistence,
   event,
 ) {
-  return openJournal(persistence.dataRoot).appendRows(serviceLifecycleFeed.name, serviceLifecycleEventRows(event), {
-    at: event.at,
-    rootName: persistence.rootName,
-    // One daily service-lifecycle feed: the subject token names the material,
-    // and each row's caller carries its service.
-    caller: Object.freeze({
-      service: event.service,
-      boundary: event.boundary,
-      event: event.event,
-    }),
-  });
+  append(persistence.dataRoot, SERVICE_LIFECYCLE_TYPE, serviceLifecycleLine(event));
 }
 
-/** Persist a finite service lifecycle record under `$root/data/journals/...`. */
+/** Append a finite service lifecycle record as its ordered event lines. */
 export function recordServiceLifecycleRecord(
   persistence,
   record,
 ) {
-  const at = record.events[record.events.length - 1]?.at ?? "0000-00-00";
-  return openJournal(persistence.dataRoot).appendRows(serviceLifecycleFeed.name, serviceLifecycleRecordRows(record), {
-    at,
-    rootName: persistence.rootName,
-    caller: Object.freeze({
-      service: record.service,
-      boundary: record.boundary,
-      record: "service-lifecycle",
-    }),
-  });
+  for (const event of record.events) recordServiceLifecycleEvent(persistence, event);
 }
 
 /** Build the event sink used by process/protocol services with the resolved process data root. */

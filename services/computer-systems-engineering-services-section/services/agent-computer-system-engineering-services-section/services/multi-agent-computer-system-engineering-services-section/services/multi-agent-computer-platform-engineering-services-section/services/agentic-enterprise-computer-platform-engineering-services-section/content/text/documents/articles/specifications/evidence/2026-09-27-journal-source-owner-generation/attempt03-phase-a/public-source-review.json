@@ -1,0 +1,8 @@
+{
+  "phaseBMayProceed": true,
+  "phaseAAccepted": false,
+  "privateReceivingRun": false,
+  "requiredPublicCorrections": "F-S13",
+  "sourceOwnerSha256": "60d2630a49bb84f0b04eb294ee2b7a195746e465bcd61d100a59a47f9527aca1",
+  "reason": "Complete the source view and listed public host-contract defects in one composed source generation; no promotion of the intermediate stage."
+}

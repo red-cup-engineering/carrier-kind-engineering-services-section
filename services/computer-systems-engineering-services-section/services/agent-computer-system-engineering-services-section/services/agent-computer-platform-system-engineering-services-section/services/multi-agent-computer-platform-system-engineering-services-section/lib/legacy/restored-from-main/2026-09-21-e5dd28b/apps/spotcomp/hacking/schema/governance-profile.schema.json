@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/governance-profile.schema.json",
+  "title": "SPOTCOMP governance profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "modalRestriction",
+    "principals",
+    "capabilities",
+    "authorizationRows",
+    "delegations",
+    "revocations",
+    "actionBounds",
+    "gates",
+    "settlementProjection",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "modalRestriction": { "$ref": "#/$defs/modalRestriction" },
+    "principals": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/principal" }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/capability" }
+    },
+    "authorizationRows": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/authorizationRow" }
+    },
+    "delegations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/delegation" }
+    },
+    "revocations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/revocation" }
+    },
+    "actionBounds": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/actionBound" }
+    },
+    "gates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate" }
+    },
+    "settlementProjection": { "$ref": "#/$defs/settlementProjection" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "eavt": {
+      "type": "object",
+      "required": ["e", "a", "v", "t"],
+      "additionalProperties": false,
+      "properties": {
+        "e": { "type": "string", "minLength": 1 },
+        "a": { "type": "string", "minLength": 1 },
+        "v": {},
+        "t": {}
+      }
+    },
+    "modalRestriction": {
+      "type": "object",
+      "required": ["oneEvaluator", "surfaces", "denialBehavior", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "oneEvaluator": { "const": true },
+        "surfaces": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "governance",
+              "trust-boundary",
+              "federation",
+              "capability",
+              "authentication",
+              "agent-self-queueing"
+            ]
+          },
+          "minItems": 6,
+          "uniqueItems": true
+        },
+        "denialBehavior": {
+          "enum": ["restrict-to-bottom", "no-cell", "no-state-advance"]
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "principal": {
+      "type": "object",
+      "required": ["id", "kind", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["player", "character", "swarm", "system", "operator"] },
+        "identityKey": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "capability": {
+      "type": "object",
+      "required": ["id", "surface", "action", "effectClass", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "surface": { "type": "string", "minLength": 1 },
+        "action": { "type": "string", "minLength": 1 },
+        "effectClass": {
+          "enum": ["read-only", "trace-append", "tool-actuation", "federation", "governance"]
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "authorizationRow": {
+      "type": "object",
+      "required": ["id", "subject", "capability", "value", "row", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "subject": { "type": "string", "minLength": 1 },
+        "capability": { "type": "string", "minLength": 1 },
+        "value": { "enum": ["grant", "deny", "bottom", "contest"] },
+        "row": { "$ref": "#/$defs/eavt" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "delegation": {
+      "type": "object",
+      "required": ["id", "from", "to", "capability", "nonAmplifying", "attenuation", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "from": { "type": "string", "minLength": 1 },
+        "to": { "type": "string", "minLength": 1 },
+        "capability": { "type": "string", "minLength": 1 },
+        "nonAmplifying": { "const": true },
+        "attenuation": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "revocation": {
+      "type": "object",
+      "required": ["id", "target", "targetKind", "row", "destructiveEdit", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "targetKind": { "enum": ["authorization-row", "delegation"] },
+        "row": { "$ref": "#/$defs/eavt" },
+        "destructiveEdit": { "const": false },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "actionBound": {
+      "type": "object",
+      "required": ["id", "capability", "maxScope", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "capability": { "type": "string", "minLength": 1 },
+        "maxScope": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "subject",
+        "requiredCapability",
+        "checkedBeforeEffect",
+        "denyBehavior",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": ["modal-authorization-restriction", "capability-check", "proposal-validator"]
+        },
+        "subject": { "type": "string", "minLength": 1 },
+        "requiredCapability": { "type": "string", "minLength": 1 },
+        "checkedBeforeEffect": { "const": true },
+        "denyBehavior": {
+          "enum": ["restrict-to-bottom", "no-cell", "no-state-advance", "surface-error"]
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "settlementProjection": {
+      "type": "object",
+      "required": ["id", "frontier", "ruleSystem", "finite", "inputs", "output", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "frontier": { "type": "string", "minLength": 1 },
+        "ruleSystem": { "type": "string", "minLength": 1 },
+        "finite": { "const": true },
+        "inputs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "output": { "enum": ["allow", "deny", "restricted", "contest"] },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

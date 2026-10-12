@@ -1,0 +1,25 @@
+{
+  "kind": "public-source-review",
+  "phase": "B2c unique publication and composition",
+  "sourceSha256": "451212d45137442763272c3d59b8df59e9e3bda971ed8fcd26e7da8370b45fbd",
+  "resolved": [
+    "Unique record validation uses existing command address and record parser laws.",
+    "Existing occupancy returns original parsed record; new publication uses protected create-only helper and refresh.",
+    "Retained and unique publication now share exact two-family parent discovery/creation/cleanup helpers.",
+    "Both explicit fabrication seams and their constant are removed."
+  ],
+  "findings": [
+    {
+      "contract": "F-S19 final coherent composition",
+      "issue": "sourceFamilyParents now returns {root,family,version,opened}, but publishRetainedInScope still calls checkSourceDirectory(parents.retained) twice. The field does not exist, so every new retained publication fails.",
+      "required": "Update both retained caller checks to the actual shared helper family field; preserve all prior retained publication behavior and shared helper contract."
+    },
+    {
+      "contract": "F-S06/F-S13 protected publication bindings",
+      "issue": "Captured publication parents are not rechecked after the source-view refresh on the created retained/unique paths, and the unique EEXIST recovery branch omits their revalidation entirely. A refreshed view can bind a replacement family after publication while the old captured parent is closed without a final check.",
+      "required": "On every successful created or recovered publication path, revalidate all held root/family/version directory bindings after the final refresh and before cleanup/acknowledgment. Keep those checks within the primary-failure capture so cleanup preserves the first failure and the outer possible-publication flag yields uncertainty. Do not change refresh semantics or introduce rebinding."
+    }
+  ],
+  "completeReceivingMayProceed": false,
+  "privateReceivingRun": false
+}

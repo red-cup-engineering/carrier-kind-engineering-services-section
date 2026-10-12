@@ -9,7 +9,7 @@ It carries no math (that is `@lenticule-science/metrologic`) and no agent,
 actor, or game content (that is `@red-cup-engineering/feltos`). Both of those
 packages import from here; this package imports from neither of them.
 
-Split out of `@red-cup-engineering/computer-data-engine` on 2026-09-22, along
+Split out of the retired `computer-data-engine` package on 2026-09-22, along
 with the same package's math into metrologic and its agent declarations into
 feltos, so that each of the three rules -- math, agent, normal computing --
 has exactly one home.

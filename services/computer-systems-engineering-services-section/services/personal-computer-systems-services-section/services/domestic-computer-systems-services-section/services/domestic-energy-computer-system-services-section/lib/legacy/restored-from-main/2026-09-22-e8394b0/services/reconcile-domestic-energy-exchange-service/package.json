@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/settle-energy-exchange-record-service",
+  "version": "0.1.0",
+  "description": "Computes settlement and content identity for one energy-exchange record without settlement, composing",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/settle-energy-exchange-record.mjs",
+  "bin": {
+    "settle-energy-exchange-record": "scripts/settle-energy-exchange-record.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/settle-energy-exchange-record.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

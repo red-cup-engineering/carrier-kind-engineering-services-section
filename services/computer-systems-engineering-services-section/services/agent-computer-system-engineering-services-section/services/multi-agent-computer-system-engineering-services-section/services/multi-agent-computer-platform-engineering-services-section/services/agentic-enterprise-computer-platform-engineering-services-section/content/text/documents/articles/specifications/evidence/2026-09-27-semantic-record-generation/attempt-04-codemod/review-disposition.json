@@ -1,0 +1,8 @@
+{
+  "accepted": true,
+  "scope": "F-E01/F-E02 resolver failure presence independent of thrown value; existing pure laws unchanged",
+  "candidateSourceSha256": "4cdd3b3e13f2445875d33f3d72ec0dfd7684f3615a27107d6049771a9163f248",
+  "originalSourceSha256": "52231cd0a864528ba06e6a3506de7157e0f7d1c68d6c7a3a995c2163ee9d531e",
+  "replacements": 3,
+  "privateFeedbackShared": false
+}

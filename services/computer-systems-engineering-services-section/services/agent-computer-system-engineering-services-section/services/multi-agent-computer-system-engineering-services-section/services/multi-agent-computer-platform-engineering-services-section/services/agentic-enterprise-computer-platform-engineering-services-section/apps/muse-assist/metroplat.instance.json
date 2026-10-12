@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "instanceOf": "@red-cup-engineering/metroplat",
+  "identity": {
+    "id": "muse-assist",
+    "title": "Muse Assist"
+  },
+  "operationSources": [
+    {
+      "module": "@561-group/muse-assist",
+      "export": "museAssistOperations"
+    }
+  ],
+  "applications": [
+    {
+      "module": "@red-cup-engineering/assist/metroplat",
+      "export": "assistMetroplatApplication",
+      "configuration": {
+        "path": "/assist",
+        "app": "muse"
+      }
+    }
+  ]
+}

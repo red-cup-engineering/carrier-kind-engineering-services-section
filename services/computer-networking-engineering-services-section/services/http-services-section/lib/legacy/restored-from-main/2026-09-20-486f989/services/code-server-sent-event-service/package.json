@@ -1,0 +1,32 @@
+{
+  "name": "@red-cup-engineering/code-server-sent-event-service",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Parse and form server-sent event streams and media headers.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/code-server-sent-event.d.mts",
+      "import": "./dist/code-server-sent-event.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "check": "tsc -p tsconfig.build.json --noEmit",
+    "build": "tsc -p tsconfig.build.json",
+    "test": "node --test test/*.test.mts",
+    "prepack": "npm run clean && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "sideEffects": false
+}

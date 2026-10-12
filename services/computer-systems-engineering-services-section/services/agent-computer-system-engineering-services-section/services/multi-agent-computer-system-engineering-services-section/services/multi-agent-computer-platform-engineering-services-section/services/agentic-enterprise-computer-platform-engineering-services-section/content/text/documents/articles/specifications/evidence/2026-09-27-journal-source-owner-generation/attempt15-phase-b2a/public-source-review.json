@@ -1,0 +1,39 @@
+{
+  "stage": "B2a",
+  "status": "read-scope-candidate-requires-public-corrections",
+  "sourceOwnerSha256": "dc41ed2901dc357e62978b05f633a901be05d6bb4bc5d563ff0cda76b017ecb8",
+  "hostReaderReconstructionPreserved": true,
+  "effectSeamsPreserved": true,
+  "syntaxChecked": true,
+  "privateReceivingRun": false,
+  "B2bMayProceed": false,
+  "corrections": "F-S05/F-S19, L-O02/L-O24, L-M02",
+  "findings": [
+    {
+      "requirement": "L-O24 exact ASCII YYYY-MM-DD",
+      "function": "scopeDate",
+      "defect": "The regex literal contains double-backslash d, matching a literal backslash rather than decimal digits. Admit the specified ten-character ASCII date including 0000-00-00, without a new calendar validator."
+    },
+    {
+      "requirement": "L-M02 exact admitted witness JSONL byte measurement",
+      "function": "sourceStatus",
+      "defect": "The template literal appends literal backslash+n, two bytes, rather than one LF. Charge UTF-8 bytes of the already verified canonical full witness envelope plus exactly one LF; do not serialize a string escape as the line terminator."
+    },
+    {
+      "requirement": "L-O02 Code causal order and supplied API correspondence",
+      "function": "sourceOrderedEnvelopes",
+      "defect": "CausalSubstrate.witness(ref) returns an addressed witness with ref and core, not id. causalGraphOf expects nodes with id and core. Passing these addressed objects collapses graph identity to undefined, and later envelope lookup by witness.id fails. Build the graph from actual event identities and verified cores using the supplied graph API; return the corresponding complete normalized envelopes, never the temporary graph nodes."
+    },
+    {
+      "requirement": "L-O02/L-O24 full required causal relation before selection restriction",
+      "function": "sourceOrderedEnvelopes/sourceAsOfRefs/sourceEvents",
+      "defect": "Ordering only selected refs loses known causal paths through out-of-feed cores, because causalGraphOf deliberately treats missing nodes as external. Expand and verify the required cause graph against the current protected root view (including core-only intermediate causes), apply the existing Code topological/ordinal order to that graph, then restrict to selected envelope identities. As-of must still validate all requested frontier closure before membership intersection. Do not require unrelated pending feeds to be ready, and do not invent envelopes for core-only graph nodes."
+    },
+    {
+      "requirement": "F-S05 descriptor-safe finite JSON arguments and existing feed law",
+      "function": "scopeFeed",
+      "defect": "safeSourceFeed checks separators but accepts malformed Unicode such as unpaired UTF-16 surrogates in runtime strings. Retained/unique feeds have already passed strict JSON admission. Reject malformed Unicode query feeds as programmer TypeError while retaining the specified feed grammar and capacity; do not introduce a stricter artifact-string limit that makes an admitted feed unqueryable."
+    }
+  ],
+  "promoted": false
+}

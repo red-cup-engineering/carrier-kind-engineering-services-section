@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:fh="http://purl.org/syndication/history/1.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>muse-assist — 561 Group</title>
+    <link>https://muse.561.group/</link>
+    <description>muse-assist — 561 Group</description>
+    <language>en-US</language>
+    <lastBuildDate>Sun, 27 Sep 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://muse.561.group/feed.rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>Assistant references and evidence limits — muse-assist</title>
+      <link>https://muse.561.group/comparison/</link>
+      <guid isPermaLink="false">ni:///sha-256;N7iyftAA1UeeMSPhtuQLWmq_7v1eFpC70qKzOeWKhOI</guid>
+      <pubDate>Sun, 27 Sep 2026 00:00:00 GMT</pubDate>
+      <description>A dated comparison frame separating supplier descriptions, muse-assist intent, and independent observations.</description>
+      <content:encoded><![CDATA[<h2 id="what-this-comparison-says">What this comparison says</h2>
+<p><code>muse-assist</code> is this 561 Group project. Meta&#39;s Muse is a distinct product and the primary reference that prompted this work. Microsoft Copilot Cowork and Google Gemini Spark are included as additional supplier-description references. The sources below were reviewed on 2026-09-27. They describe products; they are not independent measurements or endorsements. No live access, common task run, or whole-platform comparison has been performed.</p>
+<p>The comparison dimensions are useful effects to assess, not feature scores. Statements about the other products below summarize their suppliers&#39; published descriptions. A source that does not establish a behavior is not evidence that the product lacks it.</p>
+<h2 id="continuing-work">Continuing work</h2>
+<p>Meta describes Muse as able to handle concurrent tasks and continue work on schedules or events (<a href="https://introducing.muse.ai/">How We Designed Muse</a>). Google describes Spark as providing ongoing personal assistance and tasks through connected Workspace applications (<a href="https://gemini.google/overview/agent/spark/">Gemini Spark</a>). Microsoft&#39;s Cowork guide describes task execution across Microsoft 365 applications (<a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/use-cowork">Use Copilot Cowork</a>). These descriptions do not establish equivalent persistence behavior across the products. <code>muse-assist</code> intends to carry authorized work across interruptions; that end-to-end behavior has not been demonstrated.</p>
+<h2 id="connected-actions">Connected actions</h2>
+<p>Meta&#39;s description includes computer and browser use; Microsoft&#39;s guide discusses work across documents, mail, and meetings; Google&#39;s description discusses connected Workspace applications. These are supplier-described integration surfaces, not results from a shared task or verification of receiving-system outcomes. No <code>muse-assist</code> integration set or end-to-end connected action is claimed here.</p>
+<h2 id="context-and-correction">Context and correction</h2>
+<p>Meta describes editable memory. The cited Microsoft and Google references do not establish a directly comparable context-editing and correction path. This is a limit of the cited evidence, not a claim that those products lack such a path. <code>muse-assist</code> intends to preserve relevant context, provenance, and human corrections; this remains a design goal without an accepted integrated demonstration.</p>
+<h2 id="usable-artifacts">Usable artifacts</h2>
+<p>Meta&#39;s description includes usable artifacts. Microsoft&#39;s guide names work with documents and other Microsoft 365 resources. Those supplier descriptions do not report an independently assessed artifact or its acceptance by a receiving person or system. This project has not measured artifact usefulness or acceptance.</p>
+<h2 id="human-authority-and-security-boundaries">Human authority and security boundaries</h2>
+<p>Microsoft&#39;s Cowork guide describes approval before changes to shared systems. Meta separately describes an approach that places execution and credential/permission boundaries outside model control (<a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse">Meta security and safety account</a>). These remain supplier statements; this page reports no independent security review. The cited Google Spark description does not establish an equivalent authorization model, which is not evidence of its absence. <code>muse-assist</code> intends to keep consequential actions under attributable human authority; its enforcement path is not accepted or demonstrated.</p>
+<h2 id="outcomes-where-work-is-received">Outcomes where work is received</h2>
+<p>None of these sources supplies a common independent measure of whether work was accepted or had the intended effect in the receiving system. No comparative receiving-outcome results are available. Missing access and results limit what can be concluded; they do not indicate a competitor failure or a <code>muse-assist</code> advantage.</p>
+<h2 id="references">References</h2>
+<ul><li><a href="https://introducing.muse.ai/">Meta — How We Designed Muse</a> (supplier description; reviewed 2026-09-27).</li><li><a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse">Meta — How We Built Safety Into Muse</a> (supplier technical account; reviewed 2026-09-27).</li><li><a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/use-cowork">Microsoft — Use Copilot Cowork</a> (supplier documentation; reviewed 2026-09-27).</li><li><a href="https://gemini.google/overview/agent/spark/">Google — Gemini Spark</a> (supplier product description; reviewed 2026-09-27).</li></ul>
+<p>The <a href="/development/">development page</a> explains what this project has and has not realized.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>Development method and status — muse-assist</title>
+      <link>https://muse.561.group/development/</link>
+      <guid isPermaLink="false">ni:///sha-256;NUa7VYPVo2LQdrtxphGBDavRwL0U-EHScpIN0gbofBw</guid>
+      <pubDate>Sun, 27 Sep 2026 00:00:00 GMT</pubDate>
+      <description>How muse-assist is being derived from customer demand, what repository capabilities are evidence, and what remains unaccepted.</description>
+      <content:encoded><![CDATA[<h2 id="from-customer-demand-to-generated-software">From customer demand to generated software</h2>
+<p>The governing chain is <strong>Customer Demand → Requirements → arc42 → SAS → HLD → LLD → Specifications → codegen/codemod</strong>. Each stage constrains the next. Existing source is migration evidence: useful capabilities and information must be recovered, while the design follows the requirements.</p>
+<p>The target is a specialized MetroPlat server for personal, virtual, and executive assistance across continuing work: research, planning, coordination, computer operations, usable artifacts, evolving context, and follow-through.</p>
+<h2 id="current-status">Current status</h2>
+<p>The repository contains reusable journal and work-record transformations. VICTOR already renders public Markdown into a static site; that publishing capability does not demonstrate an integrated assistant. Those foundations do not yet establish the complete assistant. The design must connect them through enforceable authority and execution boundaries, shared-work coordination, and checks of outcomes where the work is received.</p>
+<p>The specifications distinguish a proposed action, an execution attempt, its reported result, and independent acceptance of that result. A recorded operation or a settled chain transaction does not by itself establish that the user&#39;s goal was achieved.</p>
+<p>The formal evidence model, isolated execution, shared-work resolution and EVM write path still require design and realization work. The project is early alpha, with specifications ahead of an accepted integrated implementation.</p>
+<h2 id="release-status">Release status</h2>
+<p>The project is being prepared for open-source release. Its license remains undecided, and no supported public package is available through this site. See the <a href="/">project overview</a> and <a href="/comparison/">dated supplier descriptions and comparison limits</a>.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>muse-assist: personal and executive assistance in development</title>
+      <link>https://muse.561.group/</link>
+      <guid isPermaLink="false">ni:///sha-256;YwXQhU-pLBtdhCC0wvGZJXJ4YvFu4Cq4t9oDA-FX4GI</guid>
+      <pubDate>Sun, 27 Sep 2026 00:00:00 GMT</pubDate>
+      <description>A 561 Group early-alpha project designing personal, virtual, and executive assistance as a specialized MetroPlat server.</description>
+      <content:encoded><![CDATA[<h2 id="assistance-that-follows-work-through">Assistance that follows work through</h2>
+<p><code>muse-assist</code> is the 561 Group&#39;s early-alpha project for personal, virtual, and executive assistance, designed as a specialized MetroPlat server.</p>
+<p>It is being designed to research decisions, coordinate appointments and follow-through, produce usable computer artifacts, and carry authorized work across interruptions. Relevant context, its sources, and your corrections should remain available as that work continues.</p>
+<p>An action is only part of the job. The design also calls for checking whether the intended result was received by the person or system that needed it, while keeping consequential actions under attributable human authority.</p>
+<h2 id="an-open-source-project-in-development">An open-source project in development</h2>
+<p>These are design targets. The complete assistant path has not yet been demonstrated, and this site offers neither a hosted assistant nor a supported public package. We are preparing for open-source release; licensing remains undecided.</p>
+<p>Read the <a href="/development/">development method and status</a> and the <a href="/comparison/">assistant references and comparison evidence</a>. Meta&#39;s Muse is a separate product and a reference for this work. No whole-platform parity or measured advantage is claimed.</p>]]></content:encoded>
+    </item>
+  </channel>
+</rss>

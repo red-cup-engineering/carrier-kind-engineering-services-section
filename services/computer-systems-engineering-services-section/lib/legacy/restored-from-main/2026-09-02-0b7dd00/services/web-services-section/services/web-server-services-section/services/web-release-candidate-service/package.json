@@ -1,0 +1,25 @@
+{
+  "name": "@red-cup-engineering/web-release-candidate-service",
+  "version": "0.1.0",
+  "description": "Deterministic web artifact release manifests, verification, and profile parity.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/web-release-candidate.d.mts",
+      "import": "./src/web-release-candidate.mjs"
+    }
+  },
+  "bin": {
+    "verify-web-release-directory": "./scripts/verify-web-release-directory.mjs"
+  },
+  "files": ["src", "scripts", "README.md"],
+  "scripts": {
+    "check": "node --check src/web-release-candidate.mjs && node --check src/verify-web-release-directory.mjs && node --check scripts/verify-web-release-directory.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": { "node": ">=22.18" },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@red-cup-engineering/parse-javascript-argv-service": "0.2.2"
+  }
+}

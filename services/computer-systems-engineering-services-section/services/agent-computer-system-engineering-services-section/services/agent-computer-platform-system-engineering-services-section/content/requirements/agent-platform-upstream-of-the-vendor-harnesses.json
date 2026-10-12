@@ -1,0 +1,151 @@
+{
+  "id": "agent-platform-upstream-of-the-vendor-harnesses",
+  "name": "The agent platform sits upstream of the Claude and Codex harnesses",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "The specific goal is moving shit that is duplicated as 'claude harness' stuff upstream, into our most highest level agentic platform stuff, such that we stop having NO coherent codebase and start having ONE set of systems.",
+  "met-when": [
+    {
+      "cell": "agent-platform-upstream-of-the-vendor-harnesses:held",
+      "target": "held",
+      "command": "test -f lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-computer-platform-system-engineering-services-section/content/requirements/agent-platform-upstream-of-the-vendor-harnesses.json",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "strategic",
+  "x-provenance": {
+    "recorded-by": "office agent of the 561 Group (Lenticule Science Senior and Red Cup Engineer Senior), development pass sigrid-publishing-1 of debt-2026-10-09-leader-words-held-in-corpus",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "basis": "The Leader's utterances cited in `sources`, read in full. `asks` and `sources[].words` are the Leader's own words; the requirements are an EARS rendering of what those words state and carry no scope the words do not.",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "The specific goal is moving shit that is duplicated as 'claude harness' stuff upstream, into our most highest level agentic platform stuff, such that we stop having NO coherent codebase and start having ONE set of systems.",
+      "scope": [
+        "section:services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-computer-platform-system-engineering-services-section"
+      ],
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "The agent platform shall hold, upstream of any one vendor's harness, each capability now duplicated as Claude-harness or Codex-harness code.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "[xvRco7i0guKc],[Q0B7Rjf1g62Y],[z8OylWWYAErY]: 'things that are currently located too specifically attached to Claude and Codex harness stuff, including the stuff that is mislocated specific to Bare Cedar Fog, upstream'."
+        },
+        {
+          "id": "R2",
+          "says": "The agent platform shall be one set of systems that builds from the most primitive software to the most complex, with no duplicate, competing or drifting system.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "[xvRco7i0guKc],[Q0B7Rjf1g62Y]."
+        },
+        {
+          "id": "R3",
+          "says": "The agent platform shall meet, and then beat, the current real-world agent and enterprise-resource-planning platforms used by humans and agents.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "[Q0B7Rjf1g62Y],[z8OylWWYAErY]."
+        },
+        {
+          "id": "R4",
+          "says": "The agent platform's data classes and functions shall be coherent with one shared model.",
+          "class": "functional",
+          "moscow": "should",
+          "rationale": "[z8OylWWYAErY]: 'improving the coherence of our data classes and functions within our agent stack'."
+        },
+        {
+          "id": "R5",
+          "says": "The agent platform shall deliver the work, policies and information an agent needs and the context search it uses.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "[8rYEiuViKU-w]: 'whatever harness shit you and codex share is clearly NOT delivering you enough information'; 'the weakness of our agent stuff is RIDICULOUS' given the LLM-focused code in info/, legacy content, cold-red-gate and GitHub."
+        }
+      ],
+      "conditions": [
+        {
+          "id": "C1",
+          "says": "Each vendor harness contains only adapters to the platform and no capability of its own.",
+          "method": "inspection",
+          "verifies": [
+            "R1",
+            "R2"
+          ]
+        },
+        {
+          "id": "C2",
+          "says": "A fresh session finds its work, policies and context through the platform without reading the repository tree.",
+          "method": "test",
+          "verifies": [
+            "R5"
+          ]
+        }
+      ],
+      "context": "The Founder's standard is stated in `session-charge.md`: 'the only valid way for the software to work is in line with our mathematical and scientific theories and standards conformance' ([xvRco7i0guKc]). Existing carriers: `no-harness-private-memory` (rule), the harness section's `src/utterances.mjs`, the agency's skills. A past agent's comment that something is 'genuinely intentional' does not decide placement.",
+      "sources": [
+        {
+          "address": "ni:///sha-256;wzYq95_L2GKdB0UsbcXJDGPXUuICE4MxvRco7i0guKc",
+          "at-utc": "2026-09-11T13:30:20.503Z",
+          "words": "The specific goal is moving shit that is duplicated as 'claude harness' stuff upstream, into our most highest level agentic platform stuff."
+        },
+        {
+          "address": "ni:///sha-256;9JxPVtKReNtL8VfmVgid3cXRAMI8eYIz8OylWWYAErY",
+          "at-utc": "2026-09-11T17:06:10.804Z",
+          "words": "Specifically you are to move things that are currently located too specifically attached to Claude and Codex harness stuff, including the stuff that is mislocated specific to Bare Cedar Fog, upstream."
+        },
+        {
+          "address": "ni:///sha-256;lh4gsV8A0NHjowCr8qwLFUF5QOSuucI8rYEiuViKU-w",
+          "at-utc": "2026-09-11T17:45:11.751Z",
+          "words": "Given how much agent/LLM focused code is here, in info/, both live and in legacy content, and over on cold-red-gate, AND on our github, the weakness of our agent stuff is RIDICULOUS"
+        }
+      ],
+      "serves": [
+        "debt-2026-10-09-leader-words-held-in-corpus"
+      ],
+      "after": [],
+      "traces": []
+    },
+    "utterances": [
+      "ni:///sha-256;dCfWqNo60ai3THIevuOA1tIROZGZtntiS1lku4lbNJk",
+      "ni:///sha-256;5m-_Z72bU6SJ17_DCEnXe_EbOc_NKL2SUe212l9UCXE",
+      "ni:///sha-256;B7Qt9dyYfuusmb3c8HCDGg0_HM7imggmKfbWglrpeVY",
+      "ni:///sha-256;MZR8gZxCbPuzuFZfmg20Qotd6CMnuFiVS3pw1PhXhy4"
+    ],
+    "utterances-added": [
+      {
+        "by": "the capture line (session_017x7ZhpkZQAx5VZSv2Hz5Q9), coverage batch 1, 2026-10-10",
+        "addresses": [
+          "ni:///sha-256;dCfWqNo60ai3THIevuOA1tIROZGZtntiS1lku4lbNJk",
+          "ni:///sha-256;5m-_Z72bU6SJ17_DCEnXe_EbOc_NKL2SUe212l9UCXE",
+          "ni:///sha-256;B7Qt9dyYfuusmb3c8HCDGg0_HM7imggmKfbWglrpeVY",
+          "ni:///sha-256;MZR8gZxCbPuzuFZfmg20Qotd6CMnuFiVS3pw1PhXhy4"
+        ],
+        "why": "Leader utterances restating this requirement, found NOT HELD or HELD-THINLY in the coverage passes."
+      }
+    ],
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;SSVDjwAQ8kF331bWqZxvf8tIIa7LHBM6OtMoPo48lBI",
+      "cell": "ni:///sha-256;SjXoi_qeqvCUCzwiqW7vj2fD_1nry4rIQIc_Xroz4eY"
+    },
+    "attestation": {
+      "claim": {
+        "kind": "computer-content.signed-content-claim",
+        "version": 1,
+        "purpose": "561-group.july-record-attestation.v1",
+        "issuer": "emsenn/services/561-group/services/operations-services-section/services/requirement-management-operation-services-section#requirements-management-team@claude-session-01C1PPvutxergQgomSSaWG9Z",
+        "issuedAt": "2026-10-10T06:53:58.052Z",
+        "content": {
+          "uri": "ni:///sha-256;yNcd0b6O6AYE2XsTA6fJ4qxrF-Mz-59C_-QpdJPbGXY",
+          "bytes": 57,
+          "mediaType": "text/plain"
+        },
+        "signature": {
+          "algorithm": "Ed25519",
+          "keyId": "ni:///sha-256;ckBB1fSoByEfYxnM1aPBrZFg7yfyTfhPEuww8Bk65ow",
+          "value": "y18PSq38suPxZWe2dxSgJ0DVIPxm6-VBZlBk2qWKMMuZzYR_gyDx9DUgg4RMmD3kB_QqGcmcuGytlcYNuVG6BQ"
+        }
+      },
+      "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAuRpAxhrz5bOFIn5GmicNWZtNDSSruqwfTGlBmKH1WOs=\n-----END PUBLIC KEY-----\n"
+    }
+  }
+}

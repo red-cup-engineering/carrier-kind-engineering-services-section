@@ -23,19 +23,20 @@ export function ifMatch(value, etag) {
     const candidates = etagList(value);
     return candidates.includes("*") || candidates.some((candidate)=>strongEtagMatch(candidate, etag));
 }
-export function ifModifiedSince(value, lastModified) {
-    const raw = firstHeader(value);
+export function ifModifiedSince(value, lastModified, dateOptions) {
+    const raw = Array.isArray(value) && value.length !== 1 ? undefined : firstHeader(value);
     if (!raw) return false;
-    const date = parseHttpDate(raw);
+    const date = parseHttpDate(raw, dateOptions);
     return date !== null && lastModified <= date;
 }
 export function ifUnmodifiedSince(value, lastModified) {
-    const raw = firstHeader(value);
+    const raw = Array.isArray(value) && value.length !== 1 ? undefined : firstHeader(value);
     if (!raw) return true;
     const date = parseHttpDate(raw);
     return date === null || lastModified <= date;
 }
 export function ifRange(value, current) {
+    if (Array.isArray(value) && value.length !== 1) return false;
     const raw = firstHeader(value);
     if (!raw) return true;
     const token = raw.trim();

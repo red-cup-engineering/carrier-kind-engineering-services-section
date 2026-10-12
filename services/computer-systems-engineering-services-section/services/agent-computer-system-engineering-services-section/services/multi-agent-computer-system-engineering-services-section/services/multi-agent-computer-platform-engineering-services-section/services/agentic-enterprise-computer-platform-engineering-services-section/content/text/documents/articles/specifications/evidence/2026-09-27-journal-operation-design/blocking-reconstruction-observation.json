@@ -1,0 +1,39 @@
+{
+  "method": "Actual existing journalWitness and sources-only rebuildCausalSubstrate on a synthetic cause and descendant. The historical decision is a separate retained record; the current API has no input for it. No runtime store read or modified.",
+  "sources": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/event.mjs",
+      "sha256": "6069defbde3eef4ec64bb4ae2e1d6c9b3951b92f69f16c3ff7bea7695dce7970"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/substrate.mjs",
+      "sha256": "bbeaf4c9a918f0e16787b461c46aefe46458aa31d47fbacfe8d8586d3151b84c"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/notation.mjs",
+      "sha256": "cb5c1d0f078378db043fc4e6a29ce5a1b35383ac24f8378f23385bf268b111d6"
+    }
+  ],
+  "observations": {
+    "retainedDecision": {
+      "kind": "metroplat.journal.retained-obstruction",
+      "version": 1,
+      "event": "ni:///sha-256;U0nQ7h3_LBe1jHSaUvseqX2wJPksmmWi8sCRN1xKYPE",
+      "obstruction": null
+    },
+    "reconstructedCauseState": "admitted",
+    "reconstructedDescendantState": "admitted",
+    "retainedDecisionAbsentFromReconstruction": true
+  },
+  "limitations": [
+    "Demonstrates why sources-only reconstruction cannot implement L-S01; not a claim that the old API promised a fourth argument.",
+    "No replacement implementation, host binding, persistence or production incident demonstrated."
+  ],
+  "probe": {
+    "path": "muse-blocking-reconstruction-observation.mjs",
+    "sha256": "4077aa543751e85bc91e5afbb5f6b4c391d81d94d00e8aafaf531deee2fc2839"
+  },
+  "clauses": [
+    "L-O22"
+  ]
+}

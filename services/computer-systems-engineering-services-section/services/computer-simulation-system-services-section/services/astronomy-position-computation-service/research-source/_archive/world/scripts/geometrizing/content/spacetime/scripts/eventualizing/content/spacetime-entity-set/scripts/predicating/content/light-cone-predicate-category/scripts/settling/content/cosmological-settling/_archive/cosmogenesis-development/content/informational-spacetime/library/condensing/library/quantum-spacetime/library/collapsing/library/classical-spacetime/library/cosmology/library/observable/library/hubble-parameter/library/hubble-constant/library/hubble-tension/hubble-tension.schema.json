@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/articulating/library/aperiodic-articulation-category/cosmogenerating/library/cosmos/hacking/library/cosmology/library/hubble-tension/hubble-tension.schema.json",
+  "title": "hubble-tension",
+  "description": "The Hubble tension as an intra-scott stage-offset: H₀ is a growth rate = the thermalization-spiral inflation factor λ read at a stage. Both pipelines read the one classical-spacetime (cosmic-scott, κ=ω, golden φ) spiral at different stages τ — the CMB at early scott (a past join propagated forward by flow), the distance ladder at the present observer-stage. The ~67-vs-~73 km/s/Mpc disagreement is the H¹ obstruction to gluing two stage-readings of an unconverged thermalization into one global section; it is the fixed signature of the field being not-yet-thermal (κ=ω), removed only by full thermalizing (= heat death), not gradually. A third resolution beside close-H¹ and new-physics.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "hubble-tension" },
+    "kind": { "type": "string", "const": "cell" },
+    "kind-of": { "type": "string", "const": "stage-offset" },
+    "member-of": { "type": "string", "const": "cosmology" },
+    "measures": { "type": "string", "const": "hubble-constant" },
+    "status": { "type": "string", "const": "hacking" }
+  },
+  "required": ["name", "kind-of", "measures"]
+}

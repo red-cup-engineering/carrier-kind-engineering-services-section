@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "stdout": "boundary-ok",
+  "stderr": "",
+  "profileSha256": "73f4b7c9faaeca55b4f5fc68f99ea95c3587585723eade35d071531ffe71f46e",
+  "limits": "Local namespace boundary only; provider-server trust remains."
+}

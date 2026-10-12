@@ -1,0 +1,6 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "classifyWorkDemandInput",
+  "type": "object",
+  "description": "A record with scope, optional text, and optional grammar parameters."
+}

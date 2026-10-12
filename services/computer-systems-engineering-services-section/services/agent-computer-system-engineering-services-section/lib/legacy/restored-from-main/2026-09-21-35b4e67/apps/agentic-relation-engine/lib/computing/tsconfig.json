@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": [
+    "src/**/*.mts",
+    "scripts/**/*.mts"
+  ]
+}

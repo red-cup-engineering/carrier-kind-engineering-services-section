@@ -1,0 +1,169 @@
+<!--
+  GENERATED FILE — do not hand-edit.
+  Regenerate with: {{ generation_command }}
+  Source template: pyfars.harnesses:repo-instructions/templates/README.md.j2
+  Last generated:  {{ generated_at }}
+-->
+
+# {{ polity.title or "(polity missing)" }}
+
+{% if is_polity_root %}
+{{ polity.title or "The polity" }} is a confederacy for Black Liberation and Indigenous Sovereignty (founded 2018-04-01). This repository is the polity's *meta-repo* — it holds the manifest and bootstrap for the family of repositories that together form the polity's operational and intellectual life. Each member retains its own git history; this repo coordinates them.
+
+## Layout
+
+```
+{{ polity_layout.short or "polity" }}/
+├── polity.yaml                       manifest of every member repo
+├── dev.sh                            enter the polity devshell with local sibling overrides
+{%- for m in polity_layout.civics %}
+├── {{ m.name }}/                          — {{ m.description or m.role }}
+{%- endfor %}
+{%- for platform_slug, realizations in polity_layout.platforms.items() %}
+├── platforms/{{ platform_slug }}/
+{%- for r in realizations %}
+│   ├── {{ r.name }}/                — {{ r.description or r.role }}
+{%- endfor %}
+{%- endfor %}
+{%- if polity_layout.tools %}
+└── tools/
+{%- for t in polity_layout.tools %}
+    └── {{ t.name }}/                — {{ t.description or t.role }}
+{%- endfor %}
+{%- endif %}
+```
+
+The platform-slug taxonomy (`platforms/<slug>/<realization>/`) mirrors the engineering-theory taxonomy in `civics/library/theories/engineering/.../predicated-computing/`. New realizations slot under their platform; new platforms appear as new subdirectories under `platforms/`.
+
+## Bootstrap
+
+```bash
+git clone {{ polity_layout.meta_repo_url or "git@github.com:emsenn/561.git" }}
+cd {{ polity_layout.short or "561" }}
+vcs import . < polity.yaml             # clones every member repo into its slot
+./dev.sh                                # enter the devshell with local sibling overrides
+```
+
+Without `vcstool`, you can read `polity.yaml` and `git clone` each repo manually into its declared path.
+
+`./dev.sh` enters the Nix devshell rooted at the polity. It applies `--override-input` for every sibling that exists locally, so editing a member repo (e.g. `platforms/agential-orchestration/pyfars/`) is reflected immediately in the devshell. Without an override, the devshell uses the pinned commit from `flake.lock`.
+
+For day-to-day work in the meta-repo, prefer `./dev.sh` over bare `nix develop`. Use bare `nix develop` when you intentionally want the pinned flake inputs without local member overrides.
+
+## Members
+
+| Path | Role | Description |
+|---|---|---|
+{%- for m in polity_layout.members %}
+| [`{{ m.path }}`]({{ m.path }}) | {{ m.role or "—" }} | {{ m.description or "—" }} |
+{%- endfor %}
+
+## What this meta-repo is *not*
+
+- It is **not** a monorepo. Each member is independently versioned and cloneable.
+- It is **not** the source of truth for which version of each runtime is deployed. That role belongs to `flake.lock`.
+- It does **not** track member-repo content via submodules. The siblings are gitignored here; they're real repos in their own right.
+
+---
+{% endif %}
+
+# How to navigate the corpus
+
+{% if ship -%}
+The operational substrate of **{{ ship.title }}**{% if ship.designation %} ({{ ship.designation }}){% endif %}, a ship of **{{ polity.title or "the polity" }}**.
+{%- else -%}
+The operational substrate of **{{ polity.title or "the polity" }}**.
+{%- endif %}
+{% if charter_path %}
+The polity's charter is recorded at [`{{ charter_path }}`]({{ charter_path }}).
+{% endif %}
+This corpus carries the math, engineering, and operational content of a working agential platform whose substrate is *predicated computing* — computers whose primary substrate is the predication (subject-predicate-object cell) rather than the addressed memory cell.
+
+## Corpus layout
+
+- **`library/`** — research content. The top-level research areas:
+{%- for t in top_theories %}
+  - [`{{ t.path }}`]({{ t.path }}) — {{ t.title or t.slug }}
+{%- endfor %}
+- **`operations/`** — the polity's working state. Command (charter, agents, personas, personnel, ships, computer-systems), engineering (services, skills, harnesses, agents, personas, records), science (research streams).
+
+The substrate runtime is the `pyfars` Python CLI (this repository's `pyfars` member, or a flake input when not run from the polity meta-repo). It walks the predication graph, validates content, runs queries, and serves the polity's MCP transport.
+
+## Nix flake — the polity's deployment carrier
+
+The `flake.nix` at the repo root *is* how {{ polity.title or "the polity" }}'s swarm is provisioned. The polity is not a single host — it's a federation of agents distributed across heterogeneous *computer-systems* (this VPS, the captain's laptop, future cloud workers, browser-bound agents reaching in via MCP, and routable LLM endpoints). The flake is the substrate's projection of itself into Nix: each registered computer-system gets its own `devShells.<system>.<computer-system-slug>` output, so entering the shell on a host drops you into the polity's environment with `pyfars` + `python` on `PATH`{% if computer_systems %}:
+
+| Computer-system | Role | Nix system | Entry |
+|---|---|---|---|
+{%- for cs in computer_systems %}
+| [`{{ cs.slug }}`](operations/command/group/computer-systems/{{ cs.slug }}.md) | {{ cs.role }} | `{{ cs.nix_system }}` | `nix develop .#{{ cs.slug }}` |
+{%- endfor %}
+
+{% endif %}
+
+The polity's substrate is one machine pinned to one set of inputs in `flake.lock`, then projected differently per host. Adding a host means adding one record under `operations/command/group/computer-systems/` with a `nix-system:` declaration and re-running `pyfars install-harness nix-flake`. The flake is regenerated; `nix develop .#<new-slug>` works on that host immediately.
+
+### Installing Nix
+
+The flake assumes a working multi-user Nix install. We use **[Determinate Nix](https://determinate.systems/)** as the canonical installer:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+```
+
+Reasons: flakes enabled by default, robust uninstall, and a more agent-friendly maintenance surface than the Ubuntu/Debian-packaged Nix (which we found to be broken on first install at `vps-mini-cold-red-gate` — see the friction-log). After install, open a new shell so `PATH` picks up `/nix/var/nix/profiles/default/bin`, then:
+
+```bash
+nix develop .#<your-computer-system-slug>
+```
+
+If your host isn't yet registered as a polity computer-system, `nix develop` (no attribute) gives a generic devshell with the same toolchain.
+
+### Why Nix carries the swarm, and not (yet) something else
+
+The captain's preference is Guix; Nix is today's pragma. The flake-as-deployment-spec story is mature in Nix in a way Guix's manifest story isn't yet, and getting the polity's swarm-projection working *now* matters more than getting the long-term-correct packaging story right. A future Guix harness will likely wrap the Nix layer rather than replace it.
+
+## Where to start
+
+For an agent given a substantive task aboard the polity:
+
+1. **Engineering theory** — [`predicated-computing/_index.md`](library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/_index.md). What a predicated computer *is*, what its substrate commits to.
+2. **Math foundation** — [`predication-categories/_index.md`](library/theories/humanities/theories/math/theories/categories/theories/predication-categories/_index.md). Bilattice values, predication fibrations, closure 2-monad, four-regime classification. Look here when an engineering claim cites a math object you don't recognize.
+3. **Sub-theories of predicated-computing**:
+{%- for st in predicated_computing_subtheories %}
+   - [`{{ st.slug }}/`]({{ st.path }}) — {{ st.title or st.slug }}
+{%- endfor %}
+4. **Working instructions** — [`CLAUDE.md`](CLAUDE.md). Generated alongside this file; covers reading, writing, editing, committing, validation conventions.
+
+## Tooling
+
+`pyfars` ({{ pyfars_verb_count }} registered verbs, paired with {{ skill_count }} engineering skills) is the polity's substrate CLI. Enter the polity's devshell (`nix develop .#<computer-system>` or plain `nix develop`) to get it on `PATH`.
+
+Common operations:
+
+- `pyfars validate` — run all validation rules against the corpus.
+- `pyfars stats` — corpus health overview.
+- `pyfars show <slug>` — pretty-print a note plus its in/out edges.
+- `pyfars search "<query>" --bm25` — ranked text + frontmatter search.
+- `pyfars context <slug> --depth 2` — bounded subgraph from a slug for LLM context.
+- `pyfars where <kind> <slug>` — suggest the canonical directory for a new note.
+- `pyfars install-harness` — list / install / uninstall harnesses (this file is generated by one).
+- `pyfars audit-commits` — bind commits to task records as substrate witnesses.
+
+See the [pyfars repository's README](https://github.com/emsenn/pyfars#readme) for the full toolkit guide.
+
+## Polity & ship
+
+{% if polity -%}
+- **Polity:** [{{ polity.title }}](operations/command/group/561-group.md) ({{ polity.slug or "—" }})
+{%- endif %}
+{% if ship -%}
+- **Ship:** [{{ ship.title }}](operations/command/group/ships/rsc-quiescent.md){% if ship.current_voyage %} — current voyage: *{{ ship.current_voyage }}*{% endif %}
+{%- endif %}
+{% if captain -%}
+- **Captain:** [{{ captain.title or captain.slug }}](operations/command/group/personnel/{{ captain.slug }}.md){% if captain.public_domain %} · [{{ captain.public_domain }}](https://{{ captain.public_domain }}){% endif %}
+{%- endif %}
+
+## License
+
+See [LICENSE](LICENSE).

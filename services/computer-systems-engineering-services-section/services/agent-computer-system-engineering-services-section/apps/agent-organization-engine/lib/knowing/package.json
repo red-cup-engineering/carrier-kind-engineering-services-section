@@ -1,0 +1,52 @@
+{
+  "name": "@red-cup-engineering/knowing",
+  "version": "0.1.0",
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "The Curry-Howard-Lambek correspondence, epistemically: proof search, concept formation, memory, research carriers, and the cognizing comonad over the knowledge order.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "dependencies": {
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/relating": "workspace:*",
+    "@red-cup-engineering/turtle-services-section": "workspace:*",
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/signgraph": "workspace:*",
+    "@red-cup-engineering/signcraft": "workspace:*",
+    "@red-cup-engineering/signchain": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/exact-number-data-service": "workspace:*"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./dreaming": "./src/dreaming/index.mjs",
+    "./cognizing/section": "./src/cognizing/section.mjs",
+    "./face": "./src/face.mjs",
+    "./cognizing/contextuality": "./src/cognizing/contextuality.mjs",
+    "./actions": "./src/actions.mjs",
+    "./dreaming/nightly": "./src/dreaming/nightly.mjs",
+    "./dreaming/observation": "./src/dreaming/observation.mjs",
+    "./dreaming/task": "./src/dreaming/task.mjs",
+    "./cognizing/expressing": "./src/cognizing/expressing.mjs",
+    "./cognizing/recognize": "./src/cognizing/recognize.mjs",
+    "./learning": "./src/learning/actions.mjs",
+    "./learning/consolidate": "./src/learning/consolidate.mjs",
+    "./learning/fiber": "./src/learning/fiber.mjs",
+    "./learning/vocabulary": "./src/learning/vocabulary.mjs",
+    "./claims": "./src/claims.mjs"
+  }
+}

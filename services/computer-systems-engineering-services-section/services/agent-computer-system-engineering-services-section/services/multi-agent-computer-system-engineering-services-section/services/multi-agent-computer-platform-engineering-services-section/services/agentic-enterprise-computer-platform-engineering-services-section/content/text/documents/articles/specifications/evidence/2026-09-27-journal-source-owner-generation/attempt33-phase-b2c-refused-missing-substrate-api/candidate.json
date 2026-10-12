@@ -1,0 +1,7 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "refused",
+  "reason": "Cannot supply a complete B2c patch from the bound inputs: they omit the Code causal-substrate implementation and API needed to determine root-wide admitted event IDs before and after publication. Guessing at that API would risk incorrect retention/admission deltas, so no candidate changes are provided.",
+  "changes": []
+}

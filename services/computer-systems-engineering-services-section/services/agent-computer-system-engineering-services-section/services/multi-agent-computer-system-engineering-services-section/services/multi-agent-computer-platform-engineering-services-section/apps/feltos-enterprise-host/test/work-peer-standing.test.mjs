@@ -6,11 +6,11 @@ import { test } from "node:test";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { admitCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
 import { revokeAssertion } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
-import { extractSignCellEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { extractSignStuffEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
+import { each } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import {
-  admitWorkPeerGrants, homeHostOf, hostedWorkOpening, preparePeerWork, WORK_ADMISSION_OBJECT_KIND,
+  admitWorkPeerGrants, homeHostOf, hostedWorkOpening, preparePeerWork, WORK_ADMISSION_TYPE,
   workDecisionActivity, workForwardActivity, workGrant, workPeersOf,
 } from "../src/federated-work.mjs";
 import { catchUpWorkPeer } from "../src/work-replication.mjs";
@@ -38,7 +38,7 @@ function nodes() {
       host, root, agencyRoot, binding: defaultFilesystemBinding(root),
       config: { instance: { name: host }, publicBaseUrl: ORIGINS[host], metroplatDataRoot: root, agencyRoot, activityPub: { instanceActor: { identifier: "metroplat" } } },
       board: () => workBoardStore(made[host].binding, { homes: HOMES }).read(),
-      witnesses: (category) => createSemanticRecordJournal({ root, objectKind: WORK_ADMISSION_OBJECT_KIND }).query({ category }).map(({ record }) => record),
+      witnesses: (disposition) => [...each(root, WORK_ADMISSION_TYPE)].map(({ record }) => record).filter((record) => record.disposition === disposition),
     };
   }
   return { bare: made["bare-cedar-fog"], cold: made["cold-red-gate"], drop: () => rmSync(state, { recursive: true, force: true }) };
@@ -47,7 +47,7 @@ function nodes() {
 /** The receiver reads the activity as signed evidence from the sender and admits it by the sender's standing. */
 const receiving = (from, to, refusals) => async (_provider, { activity, recipient }) => {
   assert.equal(recipient, actorOf(to.host));
-  const evidence = extractSignCellEvidenceActivity({ ...activity, actor: actorOf(from.host) }, { expectedActor: actorOf(from.host), expectedRecipient: actorOf(to.host) });
+  const evidence = extractSignStuffEvidenceActivity({ ...activity, actor: actorOf(from.host) }, { expectedActor: actorOf(from.host), expectedRecipient: actorOf(to.host) });
   try {
     return preparePeerWork({ projection: evidence, senderActorId: actorOf(from.host), origin: ORIGINS[to.host], binding: to.binding, agencyRoot: to.agencyRoot, host: to.host, enterprises: () => ENTERPRISES })?.();
   } catch (error) { refusals.push(error); throw error; }

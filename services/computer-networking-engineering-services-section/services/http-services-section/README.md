@@ -3,6 +3,15 @@
 This package owns HTTP transports, request-body handling, response representations,
 negotiation, and events. Its public entry points are declared in `package.json`.
 
+## Protocol capabilities
+
+`content-digest` generates and checks RFC 9530 Content-Digest over exact message-content bytes. `makeContentDigest({carrier,algorithms?})` accepts a strict media-typed Base64 carrier and SHA-256/SHA-512 selections; `verifyContentDigest({carrier,contentDigest})` reports supported matches and unsupported algorithms separately. A valid mismatch is an outcome; malformed fields are refused. This is not Repr-Digest, a signature, or authentication. The paid carrier admits 65536 decoded bytes and 16384 field bytes.
+
+Existing node message signatures retain their Ed25519/covered-component/peer-key profile while reading and writing native structured dictionaries and inner lists through the serialization supplier. The configured peer public key still decides signer authority.
+
+`json-api-query` reads a JSON HTTP API from a query that is data (`src/json-api-query.schema.json`): an RFC 6570 URI template expanded by `uri-services-section`, the variables every call shares, and RFC 6901 pointers to the response's result array and total count. `queryJsonApi(query, variables)` fetches through `fetch-json` and returns `{uri, count, results}`; an API is added by writing its query, not a client.
+
+
 ## Source receiving
 
 The 42 `src` modules, three exported scripts, 25 original tests, and manifest were

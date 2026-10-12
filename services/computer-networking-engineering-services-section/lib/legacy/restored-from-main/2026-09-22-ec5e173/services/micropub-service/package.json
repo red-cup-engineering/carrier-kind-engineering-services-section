@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/micropub-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Authorized Micropub config, source, create, update, delete, undelete, and media HTTP boundaries.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "package.json",
+    "src",
+    "test"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/http-services-section": "file:../http-services-section"
+  },
+  "sideEffects": false
+}

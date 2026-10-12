@@ -1,0 +1,13 @@
+{
+  "usage": [
+    {
+      "input_tokens": 49874,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 6525,
+      "reasoning_output_tokens": 3478
+    }
+  ],
+  "durationSeconds": 166.05450630187988,
+  "cashCost": "unavailable"
+}

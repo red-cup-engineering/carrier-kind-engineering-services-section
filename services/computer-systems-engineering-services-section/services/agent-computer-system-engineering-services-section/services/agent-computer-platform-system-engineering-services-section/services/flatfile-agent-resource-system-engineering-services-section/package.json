@@ -1,0 +1,13 @@
+{
+  "name": "@red-cup-engineering/flatfile-agent-resource-system-engineering-services-section",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "Groups FARS engineering and its shared conformance carriers; executable capabilities live in their JavaScript owners.",
+  "license": "UNLICENSED",
+  "exports": {
+    "./check-identity-vectors": "./scripts/check-identity-vectors.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/flatfile-resource-graph-service": "workspace:*"
+  }
+}

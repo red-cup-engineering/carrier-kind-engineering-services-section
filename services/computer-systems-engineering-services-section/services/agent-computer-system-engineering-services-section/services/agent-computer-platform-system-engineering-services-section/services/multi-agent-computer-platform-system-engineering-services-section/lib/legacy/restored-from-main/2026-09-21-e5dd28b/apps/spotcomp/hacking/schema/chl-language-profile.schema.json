@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/chl-language-profile.schema.json",
+  "title": "SPOTCOMP CHL language cone profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "languageApex",
+    "columnLegs",
+    "morphismInventory",
+    "coincidencePolicy",
+    "pathTheoryColumn",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "languageApex": { "$ref": "#/$defs/languageApex" },
+    "columnLegs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/columnLeg" },
+      "minItems": 5,
+      "uniqueItems": true
+    },
+    "morphismInventory": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/morphism" },
+      "minItems": 9
+    },
+    "coincidencePolicy": { "$ref": "#/$defs/coincidencePolicy" },
+    "pathTheoryColumn": { "$ref": "#/$defs/pathTheoryColumn" },
+    "implementationBoundary": { "$ref": "#/$defs/implementationBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "languageApex": {
+      "type": "object",
+      "required": [
+        "kind",
+        "openEndedColumns",
+        "classicalThreeColumnsSpecializationOnly",
+        "columnsProjectByConeLegFunctors",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "chl-language-category" },
+        "openEndedColumns": { "const": true },
+        "classicalThreeColumnsSpecializationOnly": { "const": true },
+        "columnsProjectByConeLegFunctors": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "columnLeg": {
+      "type": "object",
+      "required": [
+        "id",
+        "targetCategory",
+        "primaryMorphisms",
+        "codomainKind",
+        "distinctCategoricalPosition",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "enum": [
+            "type-theory",
+            "proof-theory",
+            "category-theory",
+            "domain-theory",
+            "path-theory",
+            "sigma-stable",
+            "delta-stable"
+          ]
+        },
+        "targetCategory": { "type": "string", "minLength": 1 },
+        "primaryMorphisms": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "codomainKind": { "type": "string", "minLength": 1 },
+        "distinctCategoricalPosition": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "morphism": {
+      "type": "object",
+      "required": [
+        "id",
+        "position",
+        "column",
+        "codomain",
+        "collapsedIntoGenericOperation",
+        "coincidenceRequiredForAlias",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "enum": [
+            "articulating",
+            "predicating",
+            "positing",
+            "settling",
+            "proving",
+            "term-instantiating",
+            "existential-push-forward",
+            "path-resolving",
+            "shp-projection"
+          ]
+        },
+        "position": { "type": "string", "minLength": 1 },
+        "column": { "type": "string", "minLength": 1 },
+        "codomain": { "type": "string", "minLength": 1 },
+        "collapsedIntoGenericOperation": { "const": false },
+        "coincidenceRequiredForAlias": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "coincidencePolicy": {
+      "type": "object",
+      "required": [
+        "theoremName",
+        "validOnlyOn",
+        "provedNotDefinition",
+        "offScopeColumnsDistinct",
+        "forbidUnprovedCollapse",
+        "requiredAliasSet",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "theoremName": { "const": "cross-tradition-coincidence" },
+        "validOnlyOn": { "const": "predication-settling-category" },
+        "provedNotDefinition": { "const": true },
+        "offScopeColumnsDistinct": { "const": true },
+        "forbidUnprovedCollapse": { "const": true },
+        "requiredAliasSet": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 4,
+          "uniqueItems": true
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "pathTheoryColumn": {
+      "type": "object",
+      "required": [
+        "posixPathCategory",
+        "yonedaPathIdentity",
+        "pathResolvingDistinct",
+        "schemaIdPathCoherence",
+        "scriptAsMorphismWitness",
+        "gapMarkersAreProofObligations",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "posixPathCategory": { "const": true },
+        "yonedaPathIdentity": { "const": true },
+        "pathResolvingDistinct": { "const": true },
+        "schemaIdPathCoherence": { "const": true },
+        "scriptAsMorphismWitness": { "const": true },
+        "gapMarkersAreProofObligations": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "implementationBoundary": {
+      "type": "object",
+      "required": [
+        "commandsMayComposeMorphisms",
+        "compositionsMustNameMorphisms",
+        "pureMorphismsSeparateFromWrappers",
+        "defaultExportNamesMorphismHandle",
+        "schemaValidationIsBoundaryTyping",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "commandsMayComposeMorphisms": { "const": true },
+        "compositionsMustNameMorphisms": { "const": true },
+        "pureMorphismsSeparateFromWrappers": { "const": true },
+        "defaultExportNamesMorphismHandle": { "const": true },
+        "schemaValidationIsBoundaryTyping": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

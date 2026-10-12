@@ -1,0 +1,22 @@
+{
+  "name": "@561-group/muse-assist",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "license": "LicenseRef-561Group-1.0",
+  "type": "module",
+  "description": "A local continuity assistant application composed on MetroPlat; unpublished while its release license is decided.",
+  "exports": {
+    ".": "./src/index.mjs",
+    "./operations": "./src/operations.mjs"
+  },
+  "scripts": {
+    "start": "metroplat-serve --instance ./metroplat.instance.json"
+  },
+  "dependencies": {
+    "@red-cup-engineering/assist": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/metroplat": "workspace:*"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "candidate",
+  "reason": "Correct the three remaining public F-S17 findings in the supplied B1a source while preserving the Stage-A host code and createSourceScope seam. This is an unaccepted physical-discovery candidate.",
+  "changes": [
+    {
+      "operation": "edit",
+      "path": "src/journal/filesystem/source-owner.mjs",
+      "inputSha256": "2f05f64af1056760dcd6a6f188af8c5d3175b88c754a97283da7d40007a838f9",
+      "replacements": [
+        {
+          "before": "    } catch (error) { failed = true; primary = error; }\n    if (iterator !== undefined) {",
+          "after": "    } catch (error) {\n      failed = true;\n      primary = isJournalUnavailable(error) ? error : ioFailure(error, \"source-directory-enumeration\");\n    }\n    if (iterator !== undefined) {"
+        },
+        {
+          "before": "    enumerate(rootBound, inspectRootEntry);\n    if (!requiredEntries.has(HOST_NAME) || !requiredEntries.has(LOCK_NAME)) {\n      throw unavailable(\"storage-unavailable\", \"required-root-entry-missing\");\n    }\n    if (!foundFamilies.has(\"retained\") && !foundFamilies.has(\"unique-admissions\")) return;\n    familyDirectory(rootBound, \"retained\");\n    familyDirectory(rootBound, \"unique-admissions\");",
+          "after": "    enumerate(rootBound, inspectRootEntry);\n    if (!requiredEntries.has(HOST_NAME) || !requiredEntries.has(LOCK_NAME)) {\n      throw unavailable(\"storage-unavailable\", \"required-root-entry-missing\");\n    }\n    familyDirectory(rootBound, \"retained\");\n    familyDirectory(rootBound, \"unique-admissions\");\n    checkSourceDirectory(rootBound);"
+        },
+        {
+          "before": "    if (name === \"compaction.jsonl\" || name === \"causal-admission\" || name === \"compacting.lock\"\n      || name === \"sen\" || name === \".statements\" || name.endsWith(\".statements\")",
+          "after": "    if (name === \"compaction.jsonl\" || name === \".statements\" || name.endsWith(\".statements\")"
+        },
+        {
+          "before": "  function inspectRootEntry(entry, relativeName) {",
+          "after": "  function inspectRootEntry(entry) {"
+        }
+      ],
+      "clauses": [
+        "F-S10",
+        "F-S16",
+        "F-S17"
+      ]
+    }
+  ]
+}

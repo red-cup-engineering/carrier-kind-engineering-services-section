@@ -1,0 +1,87 @@
+{
+  "profileId": "spotcomp-io-articulation-candidate",
+  "ioBoundary": {
+    "externalIoPresentedAsUtterance": true,
+    "transportBytesArePresentationOnly": true,
+    "tokenClaimUtterancePreserved": true,
+    "tokenBeforeClaimOrderingDeclared": true,
+    "noDirectExternalSettlement": true,
+    "noTransportShapeStageInference": true,
+    "evidence": [
+      "IO-ARTICULATION.md#1-token-claim-utterance",
+      "PRELOCUTIONARY-INGRESS.md#1-primitive-boundary"
+    ]
+  },
+  "articulatingGate": {
+    "domainUtterance": true,
+    "codomainAperiodicCategory": true,
+    "potentialCellInitialPresentation": true,
+    "locutionDistinctFromArticulating": true,
+    "illocutionAndPerlocutionDownstream": true,
+    "componentMorphismsNamedWhenBundled": true,
+    "evidence": [
+      "IO-ARTICULATION.md#2-articulating-is-the-io-gate",
+      "PREDICATION-STAGES.md#1-four-stage-categories"
+    ]
+  },
+  "llmBoundary": {
+    "llmExternalUnlessModeledPlayer": true,
+    "promptIsTransportPresentation": true,
+    "completionIsTransportPresentation": true,
+    "samplingIsNotClosure": true,
+    "hiddenContextNotTraceEvidence": true,
+    "toolCallLocutionaryUntilTyped": true,
+    "generatedClaimsRequireAdmission": true,
+    "modeledPlayerEvidenceRequiredForPlayerClaims": true,
+    "evidence": [
+      "IO-ARTICULATION.md#3-llm-and-outside-system-boundary",
+      "MODELED-PLAYERS.md",
+      "PLAYER-CHARACTER-BOUNDARY.md"
+    ]
+  },
+  "partialityBoundary": {
+    "unresolvedInputRemainsTyped": true,
+    "partialFunctionsNotHostExceptions": true,
+    "bottomDefaultExtensionsDeclared": true,
+    "closureOrbitCarriesNonFinalTrajectories": true,
+    "downgradeInsteadOfSilentDefault": true,
+    "trcTdpRecordsReplayableProofTree": true,
+    "evidence": [
+      "IO-ARTICULATION.md#4-irresolvable-and-partial-functions",
+      "CLOSURE-SETTLING.md",
+      "library/trc-tdp/specification.md"
+    ]
+  },
+  "standardsBoundary": {
+    "rfcAppliesAfterObjectBoundary": true,
+    "jsonConstrainsFiniteCarrier": true,
+    "canonicalizationConstrainsIdentityBytes": true,
+    "signaturesDoNotProveSettlement": true,
+    "httpFailureCanRemainPreIllocution": true,
+    "mediaTypesBindDerivedObjects": true,
+    "evidence": [
+      "IO-ARTICULATION.md#5-standards-boundary",
+      "IETF-CONFORMANCE.md",
+      "WIRE-PROFILES.md"
+    ]
+  },
+  "implementationBoundary": {
+    "noApiShortcutAsConformance": true,
+    "noParserAsProofEngine": true,
+    "noHiddenPromptContextAsEvidence": true,
+    "noToolCallAsPositingWithoutAdmission": true,
+    "noModelOutputAsWitnessWithoutSettlement": true,
+    "codeRemainsProbe": true,
+    "evidence": [
+      "IO-ARTICULATION.md#6-declaration-probe",
+      "IMPLEMENTATION.md"
+    ]
+  },
+  "evidence": [
+    "IO-ARTICULATION.md",
+    "development/active/library/token/docs/dev/journal/2026-05-25.md",
+    "development/active/library/claim/docs/dev/journal/2026-05-25.md",
+    "development/active/library/utterance/docs/dev/journal/2026-05-25.md",
+    "development/active/articulating/articulating.schema.json"
+  ]
+}

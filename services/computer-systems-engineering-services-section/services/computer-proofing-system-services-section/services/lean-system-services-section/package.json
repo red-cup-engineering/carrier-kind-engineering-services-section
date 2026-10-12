@@ -1,0 +1,133 @@
+{
+  "name": "@red-cup-engineering/lean-system-services-section",
+  "version": "0.2.0",
+  "type": "module",
+  "private": false,
+  "description": "Lean/Blueprint/Verso proofing-project domain logic: toolchain/Lakefile/module codecs, import-graph/theorem-spine/capability-surface readers, Blueprint claim-graph linting, Verso exposition welding, and a live Lean-workspace filesystem reader.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    "./schema": {
+      "import": "./src/schema.mjs"
+    },
+    "./view": {
+      "import": "./src/view.mjs"
+    },
+    "./metaprogramming": {
+      "import": "./src/metaprogramming.mjs"
+    },
+    "./codec/toolchain": {
+      "import": "./src/codec/toolchain.mjs"
+    },
+    "./codec/lakefile": {
+      "import": "./src/codec/lakefile.mjs"
+    },
+    "./codec/module": {
+      "import": "./src/codec/module.mjs"
+    },
+    "./codec/declaration-index": {
+      "import": "./src/codec/declaration-index.mjs"
+    },
+    "./codec/environment": {
+      "import": "./src/codec/environment.mjs"
+    },
+    "./golden-vector/codec": {
+      "import": "./src/golden-vector/codec.mjs"
+    },
+    "./blueprint/codec": {
+      "import": "./src/blueprint/codec.mjs"
+    },
+    "./blueprint/lint": {
+      "import": "./src/blueprint/lint.mjs"
+    },
+    "./blueprint/view": {
+      "import": "./src/blueprint/view.mjs"
+    },
+    "./blueprint/schema": {
+      "import": "./src/blueprint/schema.mjs"
+    },
+    "./blueprint/app": {
+      "import": "./src/blueprint/app.mjs"
+    },
+    "./verso/codec": {
+      "import": "./src/verso/codec.mjs"
+    },
+    "./verso/view": {
+      "import": "./src/verso/view.mjs"
+    },
+    "./verso/schema": {
+      "import": "./src/verso/schema.mjs"
+    },
+    "./verso/app": {
+      "import": "./src/verso/app.mjs"
+    },
+    "./tex/schema": {
+      "import": "./src/tex/schema.mjs"
+    },
+    "./tex/workspace-service": {
+      "import": "./src/tex/workspace-service.mjs"
+    },
+    "./workspace": {
+      "import": "./src/workspace/index.mjs"
+    },
+    "./workspace/service": {
+      "import": "./src/workspace/service.mjs"
+    },
+    "./workspace/platform/workspace": "./src/workspace/platform/workspace/index.mjs",
+    "./codec/build-oracle": "./src/codec/build-oracle.mjs",
+    "./check/plan": "./src/check/plan.mjs",
+    "./check/run": "./src/check/run.mjs",
+    "./operations": "./src/operations.mjs",
+    "./check/schema": "./src/check/schema.mjs",
+    "./golden-vector/judge": "./src/golden-vector/judge.mjs",
+    "./golden-vector/specification": "./src/golden-vector/specification.mjs",
+    "./golden-vector/suites": "./src/golden-vector/suites.mjs",
+    "./conformance-gate": "./src/conformance-gate.mjs"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "deploy",
+    "lib/obsmetrologia-conformance/**/*.lean",
+    "lib/obsmetrologia-conformance/lakefile.toml",
+    "lib/obsmetrologia-conformance/lean-toolchain",
+    "lib/obsmetrologia-conformance/lake-manifest.json",
+    "lib/obsmetrologia-conformance/*golden-vectors.jsonl",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computing": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
+    "@red-cup-engineering/feltos": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/metrologic": "workspace:*",
+    "@red-cup-engineering/signchain": "workspace:*",
+    "@red-cup-engineering/tex-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/organizing": "workspace:*"
+  },
+  "scripts": {
+    "check": "for f in $(find src -name '*.mjs'); do node --check \"$f\" || exit 1; done",
+    "test": "node --max-old-space-size=256 --test --test-concurrency=1 --test-timeout=15000 test/*.test.mjs"
+  },
+  "keywords": [
+    "lean",
+    "lean4",
+    "blueprint",
+    "verso",
+    "theorem-proving",
+    "proof-assistant"
+  ]
+}

@@ -1,11 +1,11 @@
 import { deliverOrHold } from "./held-delivery.mjs";
-export { presenceOf, HELD_DELIVERY_OBJECT_KIND, holdForPeer, heldFor, heldDeliveryPage, deliverOrHold, signedRequestActor, heldDeliveryResponse } from "./held-delivery.mjs";
+export { presenceOf, HELD_DELIVERY_TYPE, holdForPeer, heldFor, heldDeliveryPage, deliverOrHold, signedRequestActor, heldDeliveryResponse } from "./held-delivery.mjs";
 import { agencyAt, agencyRootOf, coordinatingOfficeSession } from "@red-cup-engineering/metroplat/offices";
 import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
-import { extractSignCellEvidenceActivity, projectSignCellEvidenceActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { extractSignStuffEvidenceActivity, projectSignStuffEvidenceActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
+import { put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { homeHostOf, moveOf, openingOf, OPENING_MOVES, readForward, responseOf, TOLD_MOVES, unreadReasonOf, workArenaLawOf, workHomesOf } from "@red-cup-engineering/organizing/enterprise";
-import { holderOf, settlementIntake, workBoardStore, workBoardCauses } from "@red-cup-engineering/feltos/work/work-board";
+import { holderOf, settlementIntake, workBoardStore, workBoardCauses, WORK_BOARD_KIND } from "@red-cup-engineering/feltos/work/work-board";
 import { admitCapabilityAssertions, readCapabilityAssertions } from "@red-cup-engineering/computer-system-engine/rpc/capability-assertions";
 import { authorizationFromCapabilityAssertions, authorizationFromStanding } from "@red-cup-engineering/computer-system-engine/rpc/dispatch";
 import { can, capabilityGrant, grantAssertion, PUBLIC_HOLDER } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
@@ -36,8 +36,8 @@ export function workGrant(origin, kind) {
   return capabilityGrant(new URL(origin).origin, `work-${kind}`);
 }
 
-/** The witness journal of every disposition a peer's delivery received. */
-export const WORK_ADMISSION_OBJECT_KIND = "federated-work-admission";
+/** The store type of the witness of every disposition a peer's delivery received (the witness names its `disposition`). */
+export const WORK_ADMISSION_TYPE = "federated-work-admission";
 
 /** The four standings the gate reads, in the specification's words (extremal reading names). */
 const STANDING = Object.freeze({ unknown: "unevidenced", held: "held", denied: "refused", contested: "contested" });
@@ -76,10 +76,9 @@ function admitByStanding({ kind, senderActorId, origin, binding, subject, value 
     // A held delivery keeps what it carried, so a repaired standing can admit it again.
     ...(disposition === "held" ? { value: JSON.parse(JSON.stringify(value ?? null)) } : {}),
   });
-  const receipt = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND })
-    .record({ category: disposition, recordedAt: at, record: JSON.parse(JSON.stringify(witness)), told: { for: true, against: false } });
+  const admitted = put(binding.dataRoot, WORK_ADMISSION_TYPE, JSON.parse(JSON.stringify(witness)));
   if (disposition === "refused") throw Object.assign(new TypeError(reasons[0]), { obstruction: witness });
-  return Object.freeze({ ...witness, events: receipt.events });
+  return Object.freeze({ ...witness, events: Object.freeze([admitted]) });
 }
 
 /** A delivery the sender's contested standing holds: witnessed, never played on the board. */
@@ -252,7 +251,7 @@ function workMoveActivity({ origin, identifier, peerActor, at, objectKind, value
   const causes = workBoardCauses(suppliedCauses);
   // Transport-only metadata. The arena still derives exactly the same move and thread identity.
   const carriedValue = causes.length === 0 ? value : { ...value, causes };
-  return projectSignCellEvidenceActivity({
+  return projectSignStuffEvidenceActivity({
     origin, identifier, recipient: peerActor, eventTime: at,
     objectBytes: senActivityObjectBytes({ objectKind, value: carriedValue }),
   });
@@ -378,13 +377,12 @@ export function preparePeerWorkDecision({ projection, senderActorId, origin, bin
   };
 }
 
-/** Record a peer's move in this board's journal exactly as the peer said it; replay reads it under its own edition. */
+/** Record a peer's move in this board exactly as the peer said it (a `work-arena-move` record that cites its causes); replay reads it under its own edition. */
 function recordAsSaid(binding, move, causes = []) {
-  const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: "work-arena-move" });
   // Unknown-edition and coordinated moves are still one exact authored fact across
-  // repeated arrivals; retain every separate admission, never backfill its work row.
+  // repeated arrivals; retain it once, never backfill its work row.
   if (workBoardStore(binding).rawWitnessesOf(move).length !== 0) return move;
-  journal.record({ category: "move", recordedAt: move.at, record: JSON.parse(JSON.stringify(move)), told: { for: true, against: false }, causes });
+  put(binding.dataRoot, WORK_BOARD_KIND, { ...JSON.parse(JSON.stringify(move)), ...(causes.length === 0 ? {} : { causes }) });
   return move;
 }
 
@@ -495,7 +493,7 @@ export function preparePeerWorkRefusal({ refused, rejectId, reason, senderActorI
   const peerActor = senderActorId;
   // Fedify embeds an actor it has dereferenced; the wire extractor reads actors as scalars.
   const idOf = (value) => (typeof value === "string" ? value : value?.id);
-  const evidence = extractSignCellEvidenceActivity({ ...refused, actor: idOf(refused?.actor), to: [refused?.to ?? []].flat().map(idOf) }, {
+  const evidence = extractSignStuffEvidenceActivity({ ...refused, actor: idOf(refused?.actor), to: [refused?.to ?? []].flat().map(idOf) }, {
     expectedActor: ownActor, expectedRecipient: peerActor,
   });
   const move = evidence.objectKind === WORK_OPENING_OBJECT_KIND ? assertFederatedOpening(evidence.value)

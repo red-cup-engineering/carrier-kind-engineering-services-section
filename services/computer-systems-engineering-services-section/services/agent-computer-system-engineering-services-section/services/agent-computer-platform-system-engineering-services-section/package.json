@@ -1,0 +1,8 @@
+{
+  "name": "@red-cup-engineering/agent-computer-platform-system-engineering-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Groups engineering services for platforms that host and operate agent computer systems.",
+  "license": "UNLICENSED",
+  "dependencies": {}
+}

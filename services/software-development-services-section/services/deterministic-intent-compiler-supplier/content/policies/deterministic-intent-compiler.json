@@ -1,6 +1,0 @@
-{
-  "type":"DeterministicIntentCompilerSupplierPolicy","clockActor":"urn:ame:scheduled-activity-delivery-service","deliveryCapabilityId":"urn:ame:red-cup-engineering:deterministic-intent-compiler-supplier:capability:watch",
-  "minimumAsk":{"amount":5,"unit":"relative-resolution-milliquanta-v1"},"capabilities":["software-engineering","json-schema-output"],"maximumConcurrentLots":4,"maximumActivitiesPerTick":4,
-  "proposalAssay":{"actor":"urn:ame:software-change-proposal-assay","agentCard":"http://127.0.0.1:8801/.well-known/agent-card.json","contract":"ni:///sha-256;NDDvpFoaLyCXRcUova9UJUvkdOPnTta0Su6TDm0WMVY"},
-  "boards":[{"actor":"urn:ame:executive-office:sovereign-improvement-board-service","activityPubActor":"https://bare-cedar-fog.561.group/actors/sovereign-improvement-board","activityPubOutbox":"http://127.0.0.1:8787/actors/sovereign-improvement-board/outbox","activityPubInbox":"http://127.0.0.1:8787/actors/sovereign-improvement-board/inbox","a2aAgentCard":"https://bare-cedar-fog.561.group/a2a/sovereign-improvement-board","supplierActivityPubActor":"https://bare-cedar-fog.561.group/actors/deterministic-intent-compiler-supplier","listOperation":"list-board-outbox","submitOperation":"submit-board-activity","minimumBoardTick":40}]
-}

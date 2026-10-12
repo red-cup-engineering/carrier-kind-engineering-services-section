@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/bilattice/twisting/twisting.schema.json",
+  "title": "Twisting morphism record",
+  "description": "Morphism: a completed (commutative) residuated lattice -> its twist-product bilattice. Builds carrier L x L, the knowledge and truth orders, the De Morgan negation, and the twist fusion/residual lifted from L's residual, then verifies both orders are lattices, negation is a De Morgan involution on the truth order, and the truth-order residuation law x (x) y <=_t z iff y <=_t (x => z) holds. This is where Lambek residuation on L becomes the residuated bilattice on A_p's value.",
+  "type": "object",
+  "required": ["input", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "input": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/residuated-lattice/residuated-lattice.schema.json" },
+    "output": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/bilattice/bilattice.schema.json" }
+  }
+}

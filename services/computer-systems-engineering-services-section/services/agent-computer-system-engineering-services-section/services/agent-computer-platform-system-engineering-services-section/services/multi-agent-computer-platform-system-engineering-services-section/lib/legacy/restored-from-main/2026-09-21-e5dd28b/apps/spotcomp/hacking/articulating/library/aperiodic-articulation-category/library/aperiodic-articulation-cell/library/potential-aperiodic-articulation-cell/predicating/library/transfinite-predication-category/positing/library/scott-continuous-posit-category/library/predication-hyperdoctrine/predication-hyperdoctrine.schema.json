@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/library/predication-hyperdoctrine/predication-hyperdoctrine.schema.json",
+  "title": "Predication hyperdoctrine",
+  "description": "Predicate logic in bilattice values over a fiber algebra A_p = (L x L)^(E x E). For each predicate-category generator there is a reindexing (substitution) functor f* on the fibers, with an existential left adjoint and a universal right adjoint: exists_f -| f* -| forall_f. The reindexing morphism verifies, over the bilattice truth order: converse f* is an involution and a bilattice morphism; for subject/object projection the quantifiers are truth-join/meet over the projected-out entity and satisfy the two Galois adjunctions. This is what makes predication a logic (substitution + quantifiers), in a general value algebra.",
+  "type": "object",
+  "required": ["fiber-algebra", "generators"],
+  "additionalProperties": false,
+  "properties": {
+    "fiber-algebra": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/library/predication-fibration/library/predication-fiber-algebra/predication-fiber-algebra.schema.json" },
+    "generators": {
+      "description": "The reindexing generators whose substitution + adjoints have been verified on this fiber.",
+      "type": "array",
+      "items": { "enum": ["converse", "subject-projection", "object-projection", "specialization"] },
+      "uniqueItems": true
+    }
+  }
+}

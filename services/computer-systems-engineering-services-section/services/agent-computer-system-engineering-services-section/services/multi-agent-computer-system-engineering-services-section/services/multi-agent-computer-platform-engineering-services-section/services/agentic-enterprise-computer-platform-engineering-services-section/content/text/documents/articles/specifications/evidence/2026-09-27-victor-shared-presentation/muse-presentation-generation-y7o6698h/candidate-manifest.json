@@ -1,0 +1,19 @@
+{
+  "status": "staged-unaccepted",
+  "workOrderSha256": "5a6cf33c96ccf223e2ccf8c8d20aea9e88a76976517d0d2257fd166a0a928bd4",
+  "inputs": {
+    "victor/src/page.mjs": "5bd98b7331129456bc362e669994f3568c5ad40966f85ff5ef5ddf51e2f33193",
+    "tufte/src/tufte-rendering.mjs": "6ccb48827857a0f862e376fd3076ac9beb2e1ef7bf380c8f9b3d20c0d435ecf7",
+    "tufte/src/tufte-browser.mjs": "c097893be3dcb5318d79cbf1989d44343e5c714d1fd40c167a89f21faf78ee07"
+  },
+  "outputs": {
+    "victor/src/page.mjs": "437f7d8cf020753b4e416ce1a37bea6103c3107314cfd3e3cff3818591d6b766",
+    "tufte/src/tufte-rendering.mjs": "ee957834feea0692736d02b015fee50e0989468489ca9538b0adbbcc963508bb"
+  },
+  "assayOriginalCommitment": {
+    "manifestSha256": "30e2e6e12615f2712a0b712d25362f0f2c772d128c89cef5e92d18febd35e311",
+    "committedBeforeGeneration": true
+  },
+  "correctedAssaySha256": "458ba768ce7ef9cc99ae11fec7d3e09673209a22a618b9bcacf16f6503926c77",
+  "candidateSha256": "f1e809076e5faf8af1542bca7fb2e3fa018c5a2627667f2a36cb0b7189c69b97"
+}

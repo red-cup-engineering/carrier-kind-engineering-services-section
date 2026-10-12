@@ -4,12 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
-import { extractSignCellEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
+import { extractSignStuffEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { createServer } from "node:http";
 import { createLocalActivityPubProvider } from "@red-cup-engineering/activitypub-services-section/local-server";
 import { admitWorkPeerGrants, heldDeliveryResponse, holdForPeer, homeHostOf, hostedWorkOpening, hostedWorkTelling, preparePeerWork, signedRequestActor, workDecisionActivity } from "../src/federated-work.mjs";
-import { catchUpWorkPeer, pullHeldFromPeers, signedGetAs } from "../src/work-replication.mjs";
+import { catchUpWorkPeer, pullHeldFromPeers, readShipped, signedGetAs } from "../src/work-replication.mjs";
 import { heldArrival } from "../src/activitypub-node.mjs";
 
 const ENTERPRISES = [
@@ -39,7 +39,7 @@ function city() {
   // Delivery: the activity the sender builds is read as the receiver reads signed evidence, then admitted.
   const deliverTo = (from) => async (_provider, { activity }) => {
     const to = nodes[from.peer];
-    const evidence = extractSignCellEvidenceActivity({ ...activity, actor: actorOf(from.host) }, { expectedActor: actorOf(from.host), expectedRecipient: actorOf(to.host) });
+    const evidence = extractSignStuffEvidenceActivity({ ...activity, actor: actorOf(from.host) }, { expectedActor: actorOf(from.host), expectedRecipient: actorOf(to.host) });
     try {
       const admit = preparePeerWork({ projection: evidence, senderActorId: actorOf(from.host), origin: ORIGINS[to.host], binding: to.binding, agencyRoot: to.agencyRoot, host: to.host, enterprises: () => ENTERPRISES });
       return admit?.();
@@ -90,6 +90,10 @@ test("a coordinated move on a thread homed on the peer is forwarded, admitted by
     const back = await cold.catchUp();
     assert.ok(back.shipped.some(({ record }) => record.move === "withdraw"));
     assert.equal(bare.board().threads.find((thread) => thread.id === opened.id).standing, "withdrawn");
+    // What the peer received is held as deliveries in the home's journal, under the peer.
+    const withdrawal = back.shipped.find(({ record }) => record.move === "withdraw");
+    assert.ok(readShipped(cold.binding.dataRoot, actorOf("bare-cedar-fog")).has(withdrawal.id));
+    assert.equal(readShipped(cold.binding.dataRoot, actorOf("cold-red-gate")).size, 0, "deliveries are kept per peer");
     assert.equal((await cold.catchUp()).shipped.length, 0, "idempotent");
     // The decision is not replayed back to the home, nor decided by the other node.
     assert.equal((await bare.catchUp()).shipped.some(({ record }) => record.move === "withdraw"), false);
@@ -180,7 +184,7 @@ test("same-condition new evidence reaches both native boards as the emitted tell
     const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"], shipped = [];
     const open = hostedWorkOpening({ config: bare.config, binding: bare.binding, provider: bare.provider,
       enterprises: () => ENTERPRISES, deliver: async (provider, request) => {
-        shipped.push(extractSignCellEvidenceActivity({ ...request.activity, actor: actorOf(bare.host) }, { expectedActor: actorOf(bare.host), expectedRecipient: actorOf(cold.host) }));
+        shipped.push(extractSignStuffEvidenceActivity({ ...request.activity, actor: actorOf(bare.host) }, { expectedActor: actorOf(bare.host), expectedRecipient: actorOf(cold.host) }));
         return bare.deliver(provider, request);
       } });
     const first = await open(reportAt("2026-10-03T09:00:00Z"));
@@ -219,7 +223,7 @@ test("lost telling acknowledgement retries the same native evidence without anot
     const bare = c.nodes["bare-cedar-fog"], cold = c.nodes["cold-red-gate"]; let fail = true;
     const open = hostedWorkOpening({ config: bare.config, binding: bare.binding, provider: bare.provider,
       enterprises: () => ENTERPRISES, deliver: async (provider, request) => {
-        const projection = extractSignCellEvidenceActivity({ ...request.activity, actor: actorOf(bare.host) }, { expectedActor: actorOf(bare.host), expectedRecipient: actorOf(cold.host) });
+        const projection = extractSignStuffEvidenceActivity({ ...request.activity, actor: actorOf(bare.host) }, { expectedActor: actorOf(bare.host), expectedRecipient: actorOf(cold.host) });
         const result = await bare.deliver(provider, request);
         if (projection.objectKind === "metroplat.work.arena-telling" && fail) { fail = false; throw new Error("acknowledgement lost"); }
         return result;
@@ -287,7 +291,7 @@ function intermittent(c, signer = () => actorOf("bare-cedar-fog")) {
   };
   const admit = (activity, peer) => {
     const arrival = heldArrival({ activity, peer, origin: ORIGINS["bare-cedar-fog"] });
-    const evidence = extractSignCellEvidenceActivity({ ...activity, actor: arrival.sender.actorId }, { expectedActor: arrival.sender.actorId, expectedRecipient: actorOf("bare-cedar-fog") });
+    const evidence = extractSignStuffEvidenceActivity({ ...activity, actor: arrival.sender.actorId }, { expectedActor: arrival.sender.actorId, expectedRecipient: actorOf("bare-cedar-fog") });
     return preparePeerWork({ projection: evidence, senderActorId: arrival.sender.actorId, origin: ORIGINS["bare-cedar-fog"], binding: bare.binding, agencyRoot: bare.agencyRoot, host: "bare-cedar-fog", enterprises: () => ENTERPRISES })?.();
   };
   const pull = () => pullHeldFromPeers({ config: bare.config, binding: bare.binding, signedGet, admit });
@@ -415,7 +419,7 @@ test("an actual signed pull is verified by the holding node's ActivityPub provid
   const unsigned = await fetch(`${holder.actor}/outbox?held-for=${encodeURIComponent(colony.actor)}`, { headers: { accept: "application/activity+json" } });
   assert.equal(unsigned.status, 401);
   const admitted = [];
-  const binding = { dataRoot: colony.root };
+  const binding = { dataRoot: colony.root, now: () => new Date().toISOString() };
   const colonyConfig = { presence: "known-intermittent", publicBaseUrl: colony.origin, activityPub: { instanceActor: { identifier: "metroplat" } }, workPeers: [{ actor: holder.actor }] };
   const [result] = await pullHeldFromPeers({ config: colonyConfig, binding, signedGet: signedGetAs(colony.provider, "metroplat"), admit: async (pulled) => { admitted.push(pulled); } });
   assert.equal(result.failed, undefined, result.failed);

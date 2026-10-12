@@ -1,0 +1,5 @@
+{
+  "disposition": "refused",
+  "reason": "F-U05 requires the existing fabrication LLD\u2019s closed exact-substring codemod result, but it was not included in the supplied inputs. The required transformation therefore cannot be derived under this order.",
+  "edits": []
+}

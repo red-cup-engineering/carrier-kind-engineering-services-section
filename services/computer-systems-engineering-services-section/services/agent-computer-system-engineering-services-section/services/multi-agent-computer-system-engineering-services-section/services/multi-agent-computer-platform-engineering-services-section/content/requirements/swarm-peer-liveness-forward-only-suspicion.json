@@ -1,0 +1,79 @@
+{
+  "id": "swarm-peer-liveness-forward-only-suspicion",
+  "name": "Each peer has a liveness reading that stays unknown until its threshold and whose suspicion only moves forward",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must.",
+  "met-when": [
+    {
+      "cell": "swarm:liveness-forward-only",
+      "target": "held",
+      "command": "sh -c 'cd \"${COMPUTER_SERVICES_SECTION:?checkout of the owning repository}/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host\" && test -f test/peer-liveness.test.mjs && node --test test/peer-liveness.test.mjs'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "research-realization session (Lenticule research -> Red Cup engineering), dispatched by the orchestrator of 2026-10-10",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "convert-to-signed-cells": true,
+    "conversion-note": "Written in the requirement.schema.json form pending the canonical signcell call for requirement records; each met-when condition becomes a predication cell told held or denied by its command's exit.",
+    "basis": "The founder's demand that held research be realized in running code, carried with the research claim it realizes. The founder's words are quoted unedited; the research quote is the claim the tests exercise.",
+    "research": [
+      {
+        "path": "science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/.../bilattice/content/assets/legacy/predication-failure-detection-as-bilattice-modal-suspicion.md",
+        "says": "`recently-heard-from` = ⊥ … the reverse moves are inadmissible; the threshold is a substrate-policy θ"
+      }
+    ],
+    "owning-repository": "red-cup-engineering/computer-services-section",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "Each peer's liveness is a FOUR-valued reading: ⊥ until a per-peer threshold, then suspected; a later arrival opens a new window and never lowers an earlier one; a known-intermittent peer stays ⊥.",
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "Away outcomes below the peer's threshold shall read unknown.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R2",
+          "says": "Past the threshold the reading shall be suspected, and a later arrival shall not lower that window.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R3",
+          "says": "A known-intermittent peer's silence shall read unknown indefinitely.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R4",
+          "says": "Two observers disagreeing shall join to contested.",
+          "class": "functional",
+          "moscow": "must"
+        }
+      ],
+      "sources": [
+        {
+          "session": "session_01WFXZzAiqfYxQPLLLaH1sGU",
+          "at": "2026-09-03",
+          "words": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must."
+        },
+        {
+          "session": "session_01PnEE1T1PdzBe6LCAMGaN8E",
+          "at": "2026-10-09",
+          "words": "we need to realize, use-and-improve the existing theory/research we have on this, not spin up the thinnest thing an agent can imagine in one session."
+        }
+      ]
+    },
+    "checkout-variables": "Conditions read the owning repository from the named environment variable (a checkout at the commit under test).",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;fuifqUumWf9NMWCvWD-lwWgnIfAn_81IaPpBkyoWplk",
+      "cell": "ni:///sha-256;nGjo8hHSzsmaCgzGZFOGMkB0difXd42W2A0gSIDxdaM"
+    }
+  }
+}

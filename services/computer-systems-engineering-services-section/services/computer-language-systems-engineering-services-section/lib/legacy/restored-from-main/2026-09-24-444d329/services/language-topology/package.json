@@ -1,0 +1,56 @@
+{
+  "name": "@emsenn/language-topology",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "language-topology: a zero-statistics formal-linguistics engine; grammar is carried by language bundles and settled as paraconsistent fiber algebra over the bilattice charge.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/language-topology.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "test": "node --test \"**/*.test.mjs\"",
+    "audit:boundary": "node ../../scripts/package-boundary/audit-package-boundary.mjs .",
+    "prepack": "pnpm run build"
+  },
+  "main": "./src/index.mjs",
+  "files": [
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./types": {
+      "import": "./src/types.mjs"
+    },
+    "./charge": {
+      "import": "./src/charge.mjs"
+    },
+    "./articulating": {
+      "import": "./src/articulating.mjs"
+    },
+    "./descending": {
+      "import": "./src/descending.mjs"
+    },
+    "./construing": {
+      "import": "./src/construing.mjs"
+    },
+    "./parsing": {
+      "import": "./src/parsing.mjs"
+    },
+    "./cohomology": {
+      "import": "./src/cohomology.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@emsenn/language-algebra": "0.0.0"
+  },
+  "sideEffects": false
+}

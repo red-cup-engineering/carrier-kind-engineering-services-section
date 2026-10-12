@@ -1,0 +1,20 @@
+{
+  "committedAt": 1790536976.8812256,
+  "workOrderSha256": "5a6cf33c96ccf223e2ccf8c8d20aea9e88a76976517d0d2257fd166a0a928bd4",
+  "files": {
+    "browser.mjs": "f3daa94f2c16ea6d20d419dc70310eb5a0bbba2f45f4b743e2f928f9aecf7b28",
+    "assay.mjs": "06aa02db89b96470efdf97da10e23ac55b9ad6ac0f8bcac592a8dbc3b15e28e7"
+  },
+  "assessor": "root deterministic behavioral/browser checks; isolated independent source provider cannot read this directory",
+  "limitations": [
+    "Build fixture covers configured valid menu URLs and duplicate/current flags; invalid URL fallback separately reviewed.",
+    "Browser footprint uses Chromium no-script local files at320px; full site receiving check remains separate."
+  ],
+  "correction": {
+    "at": 1790537097.1107605,
+    "reason": "Baseline harness called build with unnormalized Boolean PWA option; production CLI normalizes project configuration first. Apply the actual API path.",
+    "afterSourceInference": true,
+    "beforeCandidateAssessment": true,
+    "originalManifestSha256": "30e2e6e12615f2712a0b712d25362f0f2c772d128c89cef5e92d18febd35e311"
+  }
+}

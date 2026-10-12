@@ -1,0 +1,107 @@
+{
+  "profileId": "spotcomp-drip-uas-binding-candidate",
+  "rfcInventory": {
+    "rfc9153RequirementsTerminology": true,
+    "rfc9374DetForUasRid": true,
+    "rfc9434Architecture": true,
+    "rfc9575BroadcastAuthentication": true,
+    "rfc9886DetsInDns": true,
+    "activeDraftsNotNormative": true,
+    "evidence": [
+      "https://datatracker.ietf.org/wg/drip/documents/",
+      "https://www.rfc-editor.org/rfc/rfc9153",
+      "https://www.rfc-editor.org/rfc/rfc9374",
+      "https://www.rfc-editor.org/rfc/rfc9434",
+      "https://www.rfc-editor.org/rfc/rfc9575",
+      "https://www.rfc-editor.org/rfc/rfc9886"
+    ]
+  },
+  "standardsBoundary": {
+    "dripLayerSeparateFromSpotcompMath": true,
+    "remoteIdNotAperiodicTiling": true,
+    "remoteIdNotCgsStrategy": true,
+    "remoteIdNotModeledPlayerProof": true,
+    "civilAviationRulesExternalUnlessProfiled": true,
+    "evidence": [
+      "DRIP-UAS-BINDING.md",
+      "BIGRADED-DIAMOND-SWARMS.md",
+      "APERIODIC-SWARM-WITNESS.md"
+    ]
+  },
+  "detIdentityBinding": {
+    "detOrUasIdRoleDeclared": true,
+    "hhitDetBindingDeclared": true,
+    "registryIdentifierDeclared": true,
+    "uniquenessEvidenceRequired": true,
+    "nonSpoofabilityEvidenceRequired": true,
+    "localSlugNotDet": true,
+    "rowIdNotDet": true,
+    "modeledPlayerIdNotDetWithoutBinding": true,
+    "evidence": [
+      "RFC 9153",
+      "RFC 9374",
+      "IDENTIFIER-POLICY.md"
+    ]
+  },
+  "broadcastAuthentication": {
+    "detAuthenticationFormatDeclared": true,
+    "signedRidEvidenceVerifiedBeforeAdmission": true,
+    "freshnessOrUniquenessEvidenceRequired": true,
+    "observerVerificationOutcomeRecorded": true,
+    "unauthenticatedRidDowngradesToAudit": true,
+    "spotcompEnvelopeSignatureNotRidAuthentication": true,
+    "evidence": [
+      "RFC 9575",
+      "RECOGNITION.md",
+      "IETF-CONFORMANCE.md"
+    ]
+  },
+  "dnsDimeRegistry": {
+    "detDnsLookupDeclared": true,
+    "dimeRolesDeclared": true,
+    "registryHierarchyDeclared": true,
+    "issuanceDiscoveryVerificationSeparated": true,
+    "dnsLookupNotModeledPlayerProof": true,
+    "registrationDataFeedsRecognitionOnlyAfterAdmission": true,
+    "evidence": [
+      "RFC 9886",
+      "RECOGNITION.md",
+      "MODELED-PLAYERS.md"
+    ]
+  },
+  "spotcompAdmissionBinding": {
+    "standardsLayerBeforeLocalRecognition": true,
+    "localGovernanceStillRequired": true,
+    "capabilityBoundsStillRequired": true,
+    "traceMergeRequiresSpotcompAdmission": true,
+    "rejectedRidCanBecomeLocalAudit": true,
+    "unknownDripStateBlocksUasConformanceClaim": true,
+    "evidence": [
+      "DRIP-UAS-BINDING.md",
+      "GOVERNANCE.md",
+      "RECOGNITION.md",
+      "CONFORMANCE.md"
+    ]
+  },
+  "implementationBoundary": {
+    "doesNotQueryLiveDns": true,
+    "doesNotValidateLiveBroadcasts": true,
+    "doesNotImplementAstmRules": true,
+    "doesNotTreatDraftsAsRfcs": true,
+    "doesNotInferConformanceFromTiling": true,
+    "codeRemainsProbe": true,
+    "evidence": [
+      "DRIP-UAS-BINDING.md",
+      "IMPLEMENTATION.md"
+    ]
+  },
+  "openObligations": [
+    "Bind a concrete deployment's UAS roles to DET or UAS ID roles.",
+    "Specify how observer verification results become local SPOTCOMP recognition evidence.",
+    "Add a live standards test harness only after a real UAS deployment profile is in scope."
+  ],
+  "evidence": [
+    "DRIP-UAS-BINDING.md",
+    "IETF-CONFORMANCE.md"
+  ]
+}

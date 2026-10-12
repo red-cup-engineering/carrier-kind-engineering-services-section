@@ -1,0 +1,34 @@
+{
+  "name": "@red-cup-engineering/blockchain-trashpanda",
+  "version": "0.5.0",
+  "type": "module",
+  "description": "Deterministic Base pre-sign policy conformance and market-action admission, with their evidence and production assays.",
+  "main": "src/policy-conformance.mjs",
+  "exports": {
+    ".": "./src/policy-conformance.mjs",
+    "./policy-conformance": "./src/policy-conformance.mjs",
+    "./market-action-admission": "./src/market-action-admission.mjs",
+    "./settlement-witness": "./src/settlement-witness.mjs",
+    "./production-gate": "./src/production-gate.mjs",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify:production-gate": "node src/production-gate.mjs",
+    "verify:formation": "node src/verify-enterprise-goal.mjs --cell formation && node src/verify-enterprise-goal.mjs --cell governance && node src/verify-enterprise-goal.mjs --cell economics",
+    "verify:production-goal": "node src/verify-production-goal.mjs",
+    "verify:goal": "node src/verify-enterprise-goal.mjs --all"
+  },
+  "dependencies": {
+    "@red-cup-engineering/flatfile": "0.2.0",
+    "@red-cup-engineering/relation-model-notation-json-codec": "0.2.1",
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.7",
+    "@red-cup-engineering/semantic-record-journal-service": "0.4.0",
+    "@red-cup-engineering/witness-journal-entry-service": "0.3.0",
+    "@red-cup-engineering/witness-journal-log-service": "0.3.0"
+  }
+}

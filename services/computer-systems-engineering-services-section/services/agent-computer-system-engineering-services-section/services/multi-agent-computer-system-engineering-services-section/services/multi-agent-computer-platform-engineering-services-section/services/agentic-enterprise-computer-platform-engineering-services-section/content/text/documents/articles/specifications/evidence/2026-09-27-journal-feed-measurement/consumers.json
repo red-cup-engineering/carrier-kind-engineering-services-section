@@ -1,0 +1,588 @@
+{
+  "kind": "source-observation",
+  "status": "static source evidence; not operational acceptance",
+  "specification": "2026-09-27-muse-assist-journal-feed-measurement-lld.md",
+  "specificationSha256": "ababc14d46ac29ba76f0ed642dc190635602f9b8598c2a0c4aac81bac1d45d0d",
+  "scope": "rg over lib/**/*.mjs, excluding evidence and node_modules; literal journal.sourceStatus calls plus inspected implementation, information fold, proxy law, obligation projector and fleet schema; direct inspection of governed RPC receipt/dispatch, CLI mapping and MetroPlat MCP/HTTP presentation; MCP shared server resource/prompt exception mapping and tool error projection",
+  "files": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/src/statement.mjs",
+      "sha256": "cc3ab39fa4dacbbae853c954a081090948ccaf6cf09c4abb208059e24c270bb6",
+      "matches": [
+        {
+          "line": 207,
+          "text": "export function feedEntropyReading(bytesOnDisk, entropyUnits, bound) {"
+        },
+        {
+          "line": 208,
+          "text": "const overBound = entropyUnits > 0 && bytesOnDisk / entropyUnits > bound;"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/write-journal-store.mjs",
+      "sha256": "702e61ad9130b4f7c76c80704e6cd0b2c4d3ecbb01f66524181fe9a33ddffead",
+      "matches": [
+        {
+          "line": 723,
+          "text": "export function sourceByteLengthInternal(logArtifact) {"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/journal.mjs",
+      "sha256": "880f65f55840efefbcb1f1b9aad6ca6c89d78427803f66ce85c29bd3e127d962",
+      "matches": [
+        {
+          "line": 159,
+          "text": "sourceStatus(log) {"
+        },
+        {
+          "line": 162,
+          "text": "bytes: sourceByteLengthInternal(log),"
+        },
+        {
+          "line": 339,
+          "text": "sourceStatus(log) {"
+        },
+        {
+          "line": 342,
+          "text": "bytes: sourceByteLengthInternal(artifactOf(log)),"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/projections.mjs",
+      "sha256": "3a02af5e3ffb8ba6cc1fa64879a66b1e2c70bbba867f340a65104dac7f6c17d0",
+      "matches": [
+        {
+          "line": 31,
+          "text": "export function statementLogInformationPath(logArtifact) {"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/apps/agent-organization-engine/lib/organizing/src/work/obligations.mjs",
+      "sha256": "8d1605ecd09c49e84a8a265bbf5e4850eba175eca0c8b438bb0570e902d852b0",
+      "matches": [
+        {
+          "line": 125,
+          "text": "`(${info.bytesOnDisk} bytes over ${info.entropyUnits} entropy units) exceeds the bound of ${info.bound}`;"
+        },
+        {
+          "line": 143,
+          "text": "export function obsticulationObservationsOfFeedEntropy("
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/agents/context.mjs",
+      "sha256": "072b8a0175244d92dcdce19176ea7aa90c2f7f03a22e4e2381e3fae3517c3fef",
+      "matches": [
+        {
+          "line": 159,
+          "text": "if (journal.sourceStatus(logPath).exists) {"
+        },
+        {
+          "line": 215,
+          "text": "if (!journal.sourceStatus(logPath).exists) return Object.freeze([]);"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/agents/feed-readout.mjs",
+      "sha256": "571c70529587a7fd5c71b7a54786d38dd8c39e8eca519a20554fb70e6b39f340",
+      "matches": [
+        {
+          "line": 46,
+          "text": "const bytesOnDisk = journal.sourceStatus(logPath).bytes;"
+        },
+        {
+          "line": 47,
+          "text": "const { entropyUnits } = statementLogInformationPath(logPath.artifact);"
+        },
+        {
+          "line": 48,
+          "text": "const bytesPerEntropyUnit = entropyUnits === 0 ? undefined : bytesOnDisk / entropyUnits;"
+        },
+        {
+          "line": 49,
+          "text": "const reading = feedEntropyReading(bytesOnDisk, entropyUnits, bound);"
+        },
+        {
+          "line": 50,
+          "text": "return Object.freeze({ feed, bytesOnDisk, entropyUnits, ...(bytesPerEntropyUnit === undefined ? {} : { bytesPerEntropyUnit }), reading });"
+        },
+        {
+          "line": 61,
+          "text": "bytesOnDisk: feed.bytesOnDisk,"
+        },
+        {
+          "line": 70,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        },
+        {
+          "line": 126,
+          "text": "const logBytes = journal.sourceStatus(logPath).bytes;"
+        },
+        {
+          "line": 185,
+          "text": "logBytes,"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/agents/sessions/claude-code/fleet/schema.mjs",
+      "sha256": "addb085e79d65f4cae0b4ce03c5ca988376b473e4024e234431177b3baa2f711",
+      "matches": []
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/agents/sessions/claude-code/fleet/service.mjs",
+      "sha256": "fba8340fd4f91e4c23d1b6da453dc9b20abaf935f73de2ebb0b7a6f9890e556a",
+      "matches": [
+        {
+          "line": 62,
+          "text": "if (!journal.sourceStatus(logPath).exists) return Object.freeze([]);"
+        },
+        {
+          "line": 106,
+          "text": "if (!journal.sourceStatus(logPath).exists) return Object.freeze([]);"
+        },
+        {
+          "line": 153,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        },
+        {
+          "line": 204,
+          "text": "bytes: journal.sourceStatus(logPath).bytes,"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/agents/sessions/token-usage/service.mjs",
+      "sha256": "be445156ebdeb1528f8908bc81cf5b3635308d318cb9020ee80f7ec51ea95415",
+      "matches": [
+        {
+          "line": 139,
+          "text": "const bytesOnDisk = journal.sourceStatus(logPath).bytes;"
+        },
+        {
+          "line": 140,
+          "text": "const { entropyUnits } = statementLogInformationPath(logPath.artifact);"
+        },
+        {
+          "line": 141,
+          "text": "const bytesPerEntropyUnit = entropyUnits === 0 ? undefined : bytesOnDisk / entropyUnits;"
+        },
+        {
+          "line": 145,
+          "text": "bytesOnDisk,"
+        },
+        {
+          "line": 149,
+          "text": "reading: feedEntropyReading(bytesOnDisk, entropyUnits, FEED_ENTROPY_BOUND_BYTES_PER_UNIT),"
+        },
+        {
+          "line": 193,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        },
+        {
+          "line": 219,
+          "text": "`source-log-bytes:${sourceLog.bytesOnDisk}`,"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/work/service.mjs",
+      "sha256": "64be803ef9ae53981f69df93027d8793d95bd900c953911d1190ca9f0334dff0",
+      "matches": [
+        {
+          "line": 11,
+          "text": "/** A feed a work reader folds: every day's feed but the hook catchment, which holds no claims,"
+        },
+        {
+          "line": 60,
+          "text": "} catch {"
+        },
+        {
+          "line": 92,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        },
+        {
+          "line": 94,
+          "text": "const folded = journal.scanCausal(logPath, undefined, (_accum, row) => {"
+        },
+        {
+          "line": 153,
+          "text": "journal.scan(logPath, undefined, (_accum, row) => {"
+        },
+        {
+          "line": 196,
+          "text": "} catch {"
+        },
+        {
+          "line": 284,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        },
+        {
+          "line": 287,
+          "text": "journal.scanCausal(logPath, undefined, (_accum, row) => {"
+        },
+        {
+          "line": 291,
+          "text": "} catch {"
+        },
+        {
+          "line": 294,
+          "text": "return collector.read(subject, date);"
+        },
+        {
+          "line": 306,
+          "text": "journal.scanCausalAll(binding.dataRoot, date, undefined, (_accum, row, event) => {"
+        },
+        {
+          "line": 311,
+          "text": "journal.scanCausalSubject(binding.dataRoot, feedName, date, undefined, (_accum, row, event) => {"
+        },
+        {
+          "line": 316,
+          "text": "} catch {"
+        },
+        {
+          "line": 319,
+          "text": "return collector.read(feedName, date);"
+        },
+        {
+          "line": 334,
+          "text": "const folded = journal.scanCausalAll(binding.dataRoot, date, undefined, (_accum, row) => {"
+        },
+        {
+          "line": 340,
+          "text": "} catch {"
+        },
+        {
+          "line": 341,
+          "text": "malformed = 1;"
+        },
+        {
+          "line": 343,
+          "text": "const settled = collector.read(agent, date);"
+        },
+        {
+          "line": 369,
+          "text": "for (const witness of openJournal(binding.dataRoot).read(feed)) {"
+        },
+        {
+          "line": 375,
+          "text": "const folded = journal.scanCausalAll(binding.dataRoot, date, undefined, (_accum, row, witness) => {"
+        },
+        {
+          "line": 381,
+          "text": "} catch {"
+        },
+        {
+          "line": 382,
+          "text": "malformed = 1;"
+        },
+        {
+          "line": 384,
+          "text": "const workReadout = collector.read({"
+        }
+      ],
+      "supersededObservations": [
+        {
+          "sha256": "ef029c9e03df22588ca5fbf7aa4d13af60841b5da8537b7a1474453cc99ae4a3",
+          "matches": [
+            {
+              "line": 92,
+              "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+            },
+            {
+              "line": 284,
+              "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+            }
+          ],
+          "reason": "Source changed after initial observation; current read paths reread and preserved without edits."
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/resources/read-write-verbs.mjs",
+      "sha256": "90fb83bee5094d1901d8e5d913f560144b265a78cd7e9e4a0d40af09c505ee83",
+      "matches": [
+        {
+          "line": 121,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine/src/agent/service.mjs",
+      "sha256": "1a520f941471355d3cf2c17610c502abb19c99f50ea939d451dfa1f4512f2a5f",
+      "matches": [
+        {
+          "line": 184,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        },
+        {
+          "line": 218,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        },
+        {
+          "line": 452,
+          "text": "if (!journal.sourceStatus(feed).exists) return Object.freeze([]);"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine/src/monitoring/operations.mjs",
+      "sha256": "bc8ac5021d06796ecbdb8757369cd56723fc3234b76d4ee9989f5dfb43b6465e",
+      "matches": [
+        {
+          "line": 291,
+          "text": "if (!journal.sourceStatus(feed).exists) continue;"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/apps/computer-inference-engine/src/openai/pricing/operations.mjs",
+      "sha256": "e70f0a2b6ff1b80919c2b783080e4a323c1c67517add1c58acfe5fd220ddeccd",
+      "matches": [
+        {
+          "line": 19,
+          "text": "if (!journal.sourceStatus(logPath).exists) return undefined;"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/dispatch.mjs",
+      "sha256": "77eb6112228c212ca56043a3223e03ecb142b511b8868ed6e74596e7dfad64c4",
+      "matches": [
+        {
+          "line": 86,
+          "text": "function message(error) {"
+        },
+        {
+          "line": 133,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 159,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 178,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 205,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 215,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 250,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 276,
+          "text": "} catch (error) {"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/receipt.mjs",
+      "sha256": "b3195cd276e48ef42a34c63f812201dc48e3e315122351aa89bd9d9e153c2247",
+      "matches": [
+        {
+          "line": 16,
+          "text": "export function executionReceipt(draft) {"
+        },
+        {
+          "line": 32,
+          "text": "} catch (error) {"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/verb-dispatch.mjs",
+      "sha256": "58f0f2bcc22b2a3923a056c6b1c571c1e44a7ec800d30f6ad5319e5140cdaa50",
+      "matches": [
+        {
+          "line": 62,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 74,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 92,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 133,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 144,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 158,
+          "text": "} catch (error) {"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/cli/dispatch.mjs",
+      "sha256": "501deba783e6a05ae306412b37547308a982fcc167604b3fd83bb3befac15af1",
+      "matches": [
+        {
+          "line": 32,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 42,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 50,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 70,
+          "text": "if (!receipt.ok || receipt.value === undefined) {"
+        },
+        {
+          "line": 74,
+          "text": "stderr: `${program} ${verb}: ${receipt.reasons.join(\"; \") || `execution obstructed at ${receipt.phase}`}\\n`,"
+        },
+        {
+          "line": 80,
+          "text": "} catch (error) {"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/presentation/serving.mjs",
+      "sha256": "8e493e0ed86e116e9bd744059175aa79491771f68c04947c631f48d044801d7d",
+      "matches": [
+        {
+          "line": 148,
+          "text": "status: receipt.ok ? 202 : 422,"
+        },
+        {
+          "line": 177,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 204,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 285,
+          "text": "function mcpToolErrorResult("
+        },
+        {
+          "line": 294,
+          "text": "const reasons = receipt !== undefined && receipt.reasons.length > 0 ? receipt.reasons : [text];"
+        },
+        {
+          "line": 371,
+          "text": "if (result.code !== 0) return mcpToolErrorResult(induced, \"tools/call\", result, options);"
+        },
+        {
+          "line": 495,
+          "text": "function mcpDispatchFailureResponse("
+        },
+        {
+          "line": 550,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 567,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 573,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 602,
+          "text": "if (result.code !== 0) return exposeRoute(induced, request, text(result.stderr, result.code === 2 ? 400 : 422), \"action-error\", options, verb);"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/http/server.mjs",
+      "sha256": "8c9b6d7c7fa2b27e7da3a4df73d349c4d45c7417dcd37e6e3bfd1a1bd3bc390d",
+      "matches": [
+        {
+          "line": 72,
+          "text": "} catch (error) {"
+        },
+        {
+          "line": 130,
+          "text": "} catch (error) {"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/mcp-engineering-services-section/src/server.mjs",
+      "sha256": "13bb44b1bfecdf1b5d2af06894b2d70d44ec78416f0a11803771c239c39675cd",
+      "matches": [
+        {
+          "line": 17,
+          "text": "export const INTERNAL_ERROR = -32603;"
+        },
+        {
+          "line": 40,
+          "text": "return Object.freeze({ isError: true, content: Object.freeze([{ type: \"text\", text }]) });"
+        },
+        {
+          "line": 142,
+          "text": "\"resources/read\": async (params, context) => {"
+        },
+        {
+          "line": 162,
+          "text": "\"prompts/get\": async (params, context) => {"
+        },
+        {
+          "line": 177,
+          "text": "catch (error) { return mcpRpcError(request.id, error?.rpcCode ?? INTERNAL_ERROR, message(error)); }"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/mcp-engineering-services-section/src/catalog.mjs",
+      "sha256": "d8cbc341c81061258ea8a2b6a0543f012e2363fa251f01e02de63530cfd58210",
+      "matches": [
+        {
+          "line": 213,
+          "text": "export function mcpToolRefusalResult(text, refusal) {"
+        },
+        {
+          "line": 217,
+          "text": "isError: true,"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/apps/computer-web-server/src/platform-http/operation-serving.mjs",
+      "sha256": "5993be79d9105b6210c55643d1b22a652bdd12881f5c387cf4a53ad86ad81f83",
+      "matches": [
+        {
+          "line": 281,
+          "text": "export function apexMcpServer({ name, version, tools, callTool, resources = [], readResource, prompts = [], getPrompt }) {"
+        },
+        {
+          "line": 314,
+          "text": "if (result.code !== 0) return { isError: true, content: [{ type: \"text\", text: result.stderr.trim() }] };"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "farstone-ksp-planet-rotation",
+  "name": "Farstone meets then beats Kerbal Space Program: launch from a rotating world (Kerbin turns once in 21,549 s, 174.94 m/s at the equator)",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "I want us to start working toward Farstone having a full-on game like Kerbal Space Program in it, but obviously, we want to beat Kerbal Space Program using everything the world has learned between when it was designed and now, and critically, use our own math as much as we can to help us. [...] the goal you should aim toward is beating Kerbal Space Program with Farstone (I'm picturing orbital launch platforms being one kind of ship that folk can build)\n\n---\n\nwe've planned elsewhere trying to meet-then-beat Kerbal Space Program with our game engines, and then including in Farstone, our falgship MMORPG, a KSP-like game for folk (which is also part of how we justify our weird little MMORPG growing sci-fi wings)",
+  "met-when": [
+    {
+      "cell": "farstone-ksp-planet-rotation:check",
+      "target": "held",
+      "command": "sh -c 'cd lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam && grep -q \"rotating world\" test/vessel.test.mjs && node --test --test-name-pattern=\"rotating world\" test/vessel.test.mjs'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "Farstone sci-fi wings session (Claude Code, under the orchestrator of 2026-10-10)",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "realizes": [
+      "farstone-orbital-flight-game-capabilities#F12",
+      "farstone-orbital-flight-game-capabilities#F16"
+    ],
+    "basis": "One job of the Kerbal Space Program meet-then-beat census, and the behavioral check of the capabilities it names under realizes (farstone-orbital-flight-game-capabilities, whose own conditions read its specification and design); the asks are the Leader's own words, the job and its check are this session's rendering. Marked for conversion to signed SignCell predication cells (four-valued charge) when the orchestrator's canonical call arrives.",
+    "census": "causeway-services/farstone data/records/2026-10-10-kerbal-space-program-capability-census.json job 7 (planet-rotation)",
+    "ledger": {
+      "job": "Launch from a rotating world (Kerbin turns once in 21,549 s, 174.94 m/s at the equator).",
+      "incumbent": {
+        "statement": "Sidereal rotation period 21 549.425 s",
+        "source": "https://wiki.kerbalspaceprogram.com/wiki/Kerbin (fetched 2026-10-10T01:49:37Z, rendered headless)"
+      },
+      "verdict-2026-10-10": "meet",
+      "reason": "Same rotation, same equatorial speed; launch sites at other latitudes are not offered yet."
+    },
+    "sources": [
+      {
+        "session": "claude session 0fbf24cb-8855-48f1-9c7e-852e0b4fb748",
+        "at-utc": "2026-10-08T16:44:52",
+        "words": "I want us to start working toward Farstone having a full-on game like Kerbal Space Program in it [...]"
+      },
+      {
+        "session": "claude session b44bb98f-b73b-4dbe-8f1f-6cb78b396108",
+        "at-utc": "2026-10-10T00:56:42",
+        "words": "meet-then-beat Kerbal Space Program with our game engines, and then including in Farstone, our falgship MMORPG, a KSP-like game for folk"
+      },
+      {
+        "record": "lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/2026-08-26--2026-10-10.jsonl lines 1423, 1545"
+      }
+    ],
+    "serves": [
+      "farstone-orbital-flight-game-beyond-kerbal-space-program",
+      "farstone-orbital-flight-game-capabilities",
+      "holofoam-as-physics-simulation-engine"
+    ],
+    "conversion": "pending: signcell predication cell",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;A_qtxJSO4JfN_xjgw9ZXnVArCaeItZGbgw6XBV_L_uc"
+    }
+  }
+}

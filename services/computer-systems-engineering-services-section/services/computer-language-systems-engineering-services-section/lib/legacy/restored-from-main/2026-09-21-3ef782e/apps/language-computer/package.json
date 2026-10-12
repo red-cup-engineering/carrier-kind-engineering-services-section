@@ -1,0 +1,49 @@
+{
+  "name": "@emsenn/language-computer",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "The language domain's computing: the app form over the language-* math layers \u2014 parse, settle, analyze, judge grammaticality, measure similarity, and generate, across language fibers.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "bin": {
+    "language-computer": "./dist/cli.mjs"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json && node ../../scripts/package-boundary/copy-dmts-to-dts.mjs dist",
+    "test": "pnpm run build && tsc -p tsconfig.test.json && node --test \".tmp/test-dist/**/*.test.mjs\"",
+    "prepack": "pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@emsenn/language-algebra": "0.0.0",
+    "@emsenn/language-topology": "0.0.1",
+    "@emsenn/language-geometry": "0.0.0",
+    "@emsenn/language-logic": "0.0.0",
+    "@emsenn/language-analysis": "0.0.0",
+    "@emsenn/language-codecs": "0.0.0",
+    "@emsenn/english-language-algebra": "0.0.1",
+    "@emsenn/language-conformance-topology": "0.0.1",
+    "@emsenn/english-language-codecs": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "sideEffects": false
+}

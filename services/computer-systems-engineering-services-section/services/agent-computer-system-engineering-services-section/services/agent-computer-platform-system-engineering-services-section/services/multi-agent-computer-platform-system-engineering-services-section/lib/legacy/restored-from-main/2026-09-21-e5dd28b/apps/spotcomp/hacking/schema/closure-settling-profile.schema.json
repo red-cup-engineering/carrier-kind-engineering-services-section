@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/closure-settling-profile.schema.json",
+  "title": "SPOTCOMP closure and settling apex profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "closure2Monad",
+    "settlingEndofunctor",
+    "settlingApex",
+    "sigmaDeltaCycle",
+    "localSettling",
+    "finiteBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "closure2Monad": { "$ref": "#/$defs/closure2Monad" },
+    "settlingEndofunctor": { "$ref": "#/$defs/settlingEndofunctor" },
+    "settlingApex": { "$ref": "#/$defs/settlingApex" },
+    "sigmaDeltaCycle": { "$ref": "#/$defs/sigmaDeltaCycle" },
+    "localSettling": { "$ref": "#/$defs/localSettling" },
+    "finiteBoundary": { "$ref": "#/$defs/finiteBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "closure2Monad": {
+      "type": "object",
+      "required": [
+        "id",
+        "ambient2Category",
+        "operatorFamily",
+        "axioms",
+        "algebrasAreClosedFibrations",
+        "propertyLike",
+        "actsOn",
+        "commutesWithFibrationAxis",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "ambient2Category": { "const": "PrFib(L,C,E)" },
+        "operatorFamily": { "type": "string", "minLength": 1 },
+        "axioms": {
+          "type": "array",
+          "items": {
+            "enum": ["knowledge-monotone", "inflationary-unit", "lax-idempotent-multiplication", "predicate-reindexing-natural"]
+          },
+          "minItems": 4,
+          "uniqueItems": true
+        },
+        "algebrasAreClosedFibrations": { "const": true },
+        "propertyLike": { "const": true },
+        "actsOn": { "const": "fiber-values" },
+        "commutesWithFibrationAxis": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "settlingEndofunctor": {
+      "type": "object",
+      "required": [
+        "id",
+        "ambient2Category",
+        "formula",
+        "incrementSequenceNatural",
+        "closeThenMerge",
+        "mergeThenClose",
+        "closureMergeCommutation",
+        "orbitIsPredicationSettling",
+        "eventualZeroIncrementsPolicy",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "ambient2Category": { "const": "PrFib(L,C,E)" },
+        "formula": { "const": "F_U(E)_tau = Cl(E) join_k u_tau" },
+        "incrementSequenceNatural": { "const": true },
+        "closeThenMerge": { "const": true },
+        "mergeThenClose": { "const": true },
+        "closureMergeCommutation": { "$ref": "#/$defs/closureMergeCommutation" },
+        "orbitIsPredicationSettling": { "const": true },
+        "eventualZeroIncrementsPolicy": {
+          "enum": ["pure-closure-after-last-increment", "open"]
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "closureMergeCommutation": {
+      "type": "object",
+      "required": ["equation", "proofStatus", "bridgesTransientFormulas", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "equation": { "const": "cl(cl(X) join_k Y) = cl(X join_k Y)" },
+        "proofStatus": { "enum": ["lean-verified-lattice", "declared", "open"] },
+        "bridgesTransientFormulas": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "settlingApex": {
+      "type": "object",
+      "required": [
+        "kind",
+        "fixedPointTheorem",
+        "leastFixedPoint",
+        "closureFixed",
+        "uniqueAlgebraStructure",
+        "closureOrdinalClaim",
+        "regime",
+        "ruleSystemId",
+        "frontierId",
+        "boundedFuelPolicy",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "settling-apex" },
+        "fixedPointTheorem": { "const": "Knaster-Tarski" },
+        "leastFixedPoint": { "const": true },
+        "closureFixed": { "const": true },
+        "uniqueAlgebraStructure": { "const": true },
+        "closureOrdinalClaim": {
+          "enum": ["finite", "omega", "countable-transfinite", "omega1-or-above", "unknown"]
+        },
+        "regime": {
+          "enum": ["strict", "scott-continuous", "transfinite-bounded", "aperiodic", "unknown"]
+        },
+        "ruleSystemId": { "type": "string", "minLength": 1 },
+        "frontierId": { "type": "string", "minLength": 1 },
+        "boundedFuelPolicy": {
+          "enum": ["partial-prefix-only", "final-only-with-fixed-point-proof"]
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "sigmaDeltaCycle": {
+      "type": "object",
+      "required": ["order", "deltaPass", "sigmaPass", "repeatsUntil", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "order": { "const": "delta-pass -> sigma-pass" },
+        "deltaPass": { "$ref": "#/$defs/deltaPass" },
+        "sigmaPass": { "$ref": "#/$defs/sigmaPass" },
+        "repeatsUntil": { "const": "no-new-entries-or-declared-nonfinal-trajectory" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "deltaPass": {
+      "type": "object",
+      "required": ["role", "knowledgeJoin", "crdtMergeView", "topAtContestation", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "role": { "const": "evidence-accumulation" },
+        "knowledgeJoin": { "const": true },
+        "crdtMergeView": { "const": true },
+        "topAtContestation": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "sigmaPass": {
+      "type": "object",
+      "required": ["role", "tensorResolution", "emitsOnlyChangedEntries", "requiresTopForStateChange", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "role": { "const": "contestation-resolution" },
+        "tensorResolution": { "const": true },
+        "emitsOnlyChangedEntries": { "const": true },
+        "requiresTopForStateChange": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "localSettling": {
+      "type": "object",
+      "required": [
+        "subSettlingOfUniversal",
+        "restrictionBasis",
+        "boundedAboveByUniversal",
+        "localStages",
+        "nonSigmaDeltaContentRejected",
+        "modeledPlayerStateAllowed",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "subSettlingOfUniversal": { "const": true },
+        "restrictionBasis": { "type": "string", "minLength": 1 },
+        "boundedAboveByUniversal": { "const": true },
+        "localStages": {
+          "type": "array",
+          "items": { "enum": ["doing", "learning", "teaching"] },
+          "minItems": 3,
+          "uniqueItems": true
+        },
+        "nonSigmaDeltaContentRejected": { "const": true },
+        "modeledPlayerStateAllowed": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "finiteBoundary": {
+      "type": "object",
+      "required": [
+        "finiteSettlementDownstream",
+        "finalRequiresApexEvidence",
+        "boundedFuelIsPartial",
+        "projectionArtifactsSeparate",
+        "fourProjectionOnly",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "finiteSettlementDownstream": { "const": true },
+        "finalRequiresApexEvidence": { "const": true },
+        "boundedFuelIsPartial": { "const": true },
+        "projectionArtifactsSeparate": { "const": true },
+        "fourProjectionOnly": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

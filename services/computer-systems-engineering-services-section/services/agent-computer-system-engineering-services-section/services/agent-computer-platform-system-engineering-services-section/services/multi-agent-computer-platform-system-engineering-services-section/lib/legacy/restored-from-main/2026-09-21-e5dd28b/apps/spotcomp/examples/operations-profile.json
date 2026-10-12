@@ -1,0 +1,104 @@
+{
+  "profileId": "spotcomp-operations-candidate",
+  "stageStrata": {
+    "learningAsStratumZero": true,
+    "doingAsCommandMorphismLayer": true,
+    "teachingAsSettledFixedPointOutput": true,
+    "governingAsStableRuleBearingDoing": true,
+    "planningAsProspectiveUnfiredDoing": true,
+    "workingAsActiveSigmaFiring": true,
+    "beingRequiresSettlingStatePathIdentityAndWitness": true,
+    "evidence": [
+      "development/experimental/emsenn/active/hacking/spotcomp/HANDROLLED-SPOTCOMP-SPEC.html",
+      "library/operations/specification.md"
+    ]
+  },
+  "workTypes": {
+    "processDeclared": true,
+    "procedureDeclared": true,
+    "derivationDeclared": true,
+    "inquiryDeclared": true,
+    "workTypeRequiredForFuelOrStateChange": true,
+    "workTypeRefinementAllowedOnlyByDeclaration": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/operations/engineering/triage/operations/command/commands/rsc-quiescent/triage/work-orchestration/texts/goals/operations-loop.md",
+      "library/operations/specification.md"
+    ]
+  },
+  "operationsLoop": {
+    "planningComputesDispatchableFixedFiberElements": true,
+    "dispatchAssignsTraceAgentTaskHistoryExtension": true,
+    "executionExtendsHistoryMonoid": true,
+    "trackingMaterializesHistoryIntoFiberEvidence": true,
+    "reviewComputesObservationOrGlobalSections": true,
+    "feedbackUpdatesNuclei": true,
+    "loopRecursiveAcrossScales": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/operations/engineering/triage/operations/command/commands/rsc-quiescent/triage/work-orchestration/texts/goals/operations-loop.md"
+    ]
+  },
+  "processProcedureRecords": {
+    "processRecordNamesDeploymentCapabilitiesSyscallPolicy": true,
+    "processRecordCitesSpawnAndExitWitnesses": true,
+    "procedureRecordNamesPreconditionsStepsActorsBudgetsWitnessesPostconditions": true,
+    "procedureFailureDowngradeDeclared": true,
+    "hostScriptOnlyTypedOperatingProjection": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/objects/process-record.md",
+      "library/operations/specification.md"
+    ]
+  },
+  "ledgerBudgetCost": {
+    "ledgerProjectionFromWitnessEvents": true,
+    "postingsCarryDebitCreditAmountCommodityAndWitness": true,
+    "budgetDeclaresResourceBoundScopeExhaustionResetAndWitnessRequirements": true,
+    "costDomainDeclaredAsLawvereQuantale": true,
+    "readsContributeQuantaleUnit": true,
+    "settlementsContributePositiveCost": true,
+    "readTriggeredSettlementSeparated": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/operations/engineering/triage/operations/command/commands/rsc-quiescent/triage/accounting/texts/chart-of-accounts.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/objects/budget-record.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/concepts/cost-discipline.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/theorems/cost-composition-via-lawvere-quantale.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/theorems/cost-discipline-reads-free.md"
+    ]
+  },
+  "stationarityLaplacian": {
+    "stationarityClaimsUseOperationsLoopFixedPointEvidence": true,
+    "detailedBalanceOnlyOperationalEvidence": true,
+    "laplacianCarrierDeclared": true,
+    "observationKernelDeclared": true,
+    "boundaryOrRestrictionMapsDeclared": true,
+    "globalSectionOrFixedPointCriterionDeclared": true,
+    "laplacianizationStructureAndEquivalenceDeclared": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/operations/engineering/triage/operations/command/commands/rsc-quiescent/triage/work-orchestration/texts/goals/operations-loop.md",
+      "lab/archive/relating-repo/relating-repo/operations/engineering/triage/library/triage/relating/archive/sscu-sprint/docs/math/acts/laplacian.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/lawvere-laplacian-grothendieck-sites.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/moduli/theories/laplacianizers/objects/moduli-of-laplacianizations.md"
+    ]
+  },
+  "implementationBoundary": {
+    "noExternalProjectManagerAsOperatingLayer": true,
+    "noHostScriptAsProcedureWithoutDeclaration": true,
+    "noLedgerWithoutWitnessProjection": true,
+    "noBudgetWithoutExhaustionPolicy": true,
+    "noPositiveReadCostAsSettlementCost": true,
+    "noStationarityClaimWithoutCarrierAndFixedPointEvidence": true,
+    "unknownOperationsBlocksStrongConformance": true,
+    "codeRemainsProbe": true,
+    "evidence": [
+      "library/operations/specification.md",
+      "DERIVATION-OBLIGATIONS.md D0b"
+    ]
+  },
+  "openObligations": [
+    "Derive exact schemas for process, procedure, work event, budget, posting, and operations-loop records.",
+    "Prove or refine process, procedure, derivation, and inquiry as the work-type classification.",
+    "Bind stationarity and Laplacianization claims into the moduli/descent/Laplacian conformance surface."
+  ],
+  "evidence": [
+    "library/operations/specification.md"
+  ]
+}

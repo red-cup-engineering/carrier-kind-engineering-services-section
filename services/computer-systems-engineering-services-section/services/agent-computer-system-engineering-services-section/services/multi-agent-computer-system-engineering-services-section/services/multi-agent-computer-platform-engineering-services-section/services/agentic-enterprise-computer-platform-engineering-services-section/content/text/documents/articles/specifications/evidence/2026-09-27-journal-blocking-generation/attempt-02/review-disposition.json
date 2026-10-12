@@ -1,0 +1,10 @@
+{
+  "accepted": false,
+  "basis": "public generated-source inspection, not private receiving failure",
+  "sourceSha256": "6695957bf6ac70b25095a48072bd7760081d120481fafdf197840da74c6e262f",
+  "findings": [
+    "The sorting key uses canonical text of the whole record. When two decision encodings have a prefix relationship, the outer closing brace changes their relative ordinal order. L-O22 requires ordering by decision text itself."
+  ],
+  "privateReceivingPassed": 38,
+  "nextAction": "Isolated exact-scope codemod of the generated sort key; preserve all other behavior."
+}

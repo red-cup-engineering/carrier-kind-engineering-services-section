@@ -2,14 +2,14 @@
 /**
  * The receiving check for the Leader's FeltOS memory budget (bare-cedar-fog requirement
  * feltos-runs-in-32-mb-with-a-64-mb-startup-peak): start this node composition, as deployed, over a
- * synthetic multi-day journal and report its own JavaScript memory (heapUsed + external +
+ * synthetic multi-day store and report its own JavaScript memory (heapUsed + external +
  * arrayBuffers), RSS beside it.
  *
  *   startup peak  the most JavaScript memory before the node listens        (budget 64 MB)
  *   steady        JavaScript memory after a full collection, `settle` s after listening (budget 32 MB)
  *
- * The journal is real: every witness is built by the journal's own constructor, admitted ids are in
- * the v2 index a long-running node carries, and closed days are separate feeds. The node runs with
+ * The store is real: every record is put and every log line appended by the store's own operations,
+ * and each closed day is its own log file. The node runs with
  * its clock, without a work peer, ActivityPub, companions or remote upstreams, so it sends nothing
  * outward. Usage:
  *
@@ -24,8 +24,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { canonicalJson } from "@red-cup-engineering/json-services-section";
-import { journalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event";
+import { append, put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 
 export const BUDGET = Object.freeze({ steadyMB: 32, startupMB: 64 });
 const MB = 2 ** 20;
@@ -34,57 +33,53 @@ const SERVE = path.join(here, "feltos-enterprise-serve.mjs");
 const SAMPLER = path.join(here, "memory-budget-sampler.mjs");
 export const DEFAULT_HOST = "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/bare-cedar-fog-services-section/data/records/machine-deployment-service-records/metroplat/deployment/host.json";
 
-const feedPath = (store, date, action) => { const [y, m, d] = date.split("-"); return path.join(store, y, m, d, `${date}-admit-${action}.jsonl`); };
-
-/** Rows of the three feeds a node's journal grows by most: token usage, clock ticks, RPC witnesses. */
-function rowOf(action, date, n) {
-  const at = `${date}T${String(n % 24).padStart(2, "0")}:00:00Z`;
-  if (action === "agent-session-token-usage") {
+/** The three types a node's store grows by most: token usage (records), RPC evidence (records and a log line each), service lifecycle (log lines). */
+function writeDay(root, date, perDay) {
+  let written = 0;
+  for (let n = 0; n < perDay; n += 1) {
+    const at = `${date}T${String(n % 24).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}:00.000Z`;
     const session = `session-${date}-${n % 20}`;
-    return { e: `usage:${session}:${n}`, a: { kind: "metroplat.agent-session.token-usage-event" }, t: at, v: { kind: "metroplat.agent-session.token-usage-event", protocol: "agent-session-token-usage", provider: "anthropic", surface: "claude-code", source: `${session}.jsonl`, row: n, usageKind: "turn", sessionId: session, model: "claude-opus", at, usage: { inputTokens: 1000 + n, outputTokens: 200, cacheReadInputTokens: 20000 + n } } };
+    put(root, "token-usage-event", { e: `usage:${session}:${n}`, a: { kind: "metroplat.agent-session.token-usage-event" }, t: at, v: { kind: "metroplat.agent-session.token-usage-event", sessionId: session, row: n, usageKind: "turn", at, usage: { inputTokens: 100 + n, outputTokens: 7 } } });
+    const of = put(root, "rpc-evidence", { at, evidence: { kind: "metroplat.rpc.attempt", at, invocation: { id: `invocation:${date}:${n}`, verb: "run-due", subject: "check", resource: "infograph" } } });
+    append(root, "rpc-evidence", { at, invocation: `invocation:${date}:${n}`, kind: "metroplat.rpc.attempt", of });
+    append(root, "service-lifecycle", { at, service: "check", boundary: "stream", event: "stream-open", ok: true });
+    written += 3;
   }
-  if (action === "metroplat.clock") return { e: `clock:tick:${date}:${n}`, a: { kind: "metroplat.clock.tick" }, t: at, v: { kind: "metroplat.clock.tick", subject: "check", occurrence: n, started: 0, at } };
-  return { e: `rpc:${date}:${n}`, a: { kind: "metroplat.rpc.witness" }, t: at, v: { kind: "metroplat.rpc.witness", phase: ["attempt", "decision", "outcome"][n % 3], resource: "infograph", verb: "run-due", invocation: createHash("sha256").update(`${date}:${Math.floor(n / 3)}`).digest("base64url"), at } };
+  return written;
 }
 
-/** Write a `days`-day journal store under `root/data/journals` in the layout a v2 node left. */
-export function synthesizeJournal(root, { days, perDay, end = new Date() }) {
-  const store = path.join(root, "data", "journals");
-  const admitted = [];
+/** Write a `days`-day store under `root/data`: records, state and logs as the store keeps them. */
+export function synthesizeStore(root, { days, perDay, end = new Date() }) {
+  let witnesses = 0;
   for (let back = days - 1; back >= 0; back -= 1) {
     const date = new Date(end.getTime() - back * 86_400_000).toISOString().slice(0, 10);
-    for (const action of ["agent-session-token-usage", "metroplat.clock", "rpc"]) {
-      const logPath = feedPath(store, date, action);
-      fs.mkdirSync(path.dirname(logPath), { recursive: true });
-      const lines = [];
-      for (let n = 0; n < perDay; n += 1) {
-        const row = rowOf(action, date, n);
-        const witness = journalWitness({ kind: "metroplat.journal.observation", address: ["mark", canonicalJson(row)], causes: [], claim: ["mark", "metroplat.eavt.row"], payload: [row.e, row.a, row.v, row.t], seat: { transport: "check-memory-budget" }, time: row.t });
-        lines.push(canonicalJson({ id: witness.id, observation: witness.observation }));
-        admitted.push(`{"id":"${witness.id}","log":"${path.relative(store, logPath)}"}`);
-      }
-      fs.writeFileSync(`${logPath}.witnesses`, `${lines.join("\n")}\n`);
-    }
+    witnesses += writeDay(root, date, perDay);
   }
-  const index = path.join(store, "index", "causal-admission", "v2");
-  fs.mkdirSync(index, { recursive: true });
-  fs.writeFileSync(path.join(index, "admitted.jsonl"), admitted.length === 0 ? "" : `${admitted.join("\n")}\n`);
-  return Object.freeze({ store, witnesses: admitted.length });
+  return Object.freeze({ root, witnesses });
 }
 
-/** A data root shaped like the deployed one: the template's entries, with `data/journals` replaced. */
-function dataRootFrom(template, journals, into) {
+/** A data root shaped like the deployed one: the template's entries, with the synthetic store's types added beside its own. */
+function dataRootFrom(template, synthesized, into) {
   fs.mkdirSync(path.join(into, "data"), { recursive: true });
   for (const entry of fs.existsSync(template) ? fs.readdirSync(template) : []) {
     if (entry !== "data") fs.symlinkSync(path.join(template, entry), path.join(into, entry));
   }
   const data = path.join(template, "data");
   for (const entry of fs.existsSync(data) ? fs.readdirSync(data) : []) {
-    if (entry === "journals") continue;
-    if (entry === "state") fs.cpSync(path.join(data, entry), path.join(into, "data", entry), { recursive: true });
-    else fs.symlinkSync(path.join(data, entry), path.join(into, "data", entry));
+    const target = path.join(into, "data", entry);
+    if (entry === "state") fs.cpSync(path.join(data, entry), target, { recursive: true });
+    else if (synthesized !== undefined && (entry === "records" || entry === "logs")) {
+      // The template's own types stay linked; the synthetic ones are written beside them.
+      fs.mkdirSync(target, { recursive: true });
+      for (const type of fs.readdirSync(path.join(data, entry))) fs.symlinkSync(path.join(data, entry, type), path.join(target, type));
+    } else fs.symlinkSync(path.join(data, entry), target);
   }
-  if (journals !== undefined) fs.renameSync(journals, path.join(into, "data", "journals"));
+  if (synthesized !== undefined) {
+    for (const tier of ["records", "logs"]) {
+      fs.mkdirSync(path.join(into, "data", tier), { recursive: true });
+      for (const type of fs.readdirSync(path.join(synthesized.root, "data", tier))) fs.renameSync(path.join(synthesized.root, "data", tier, type), path.join(into, "data", tier, type));
+    }
+  }
   return into;
 }
 
@@ -156,7 +151,7 @@ export async function measureNode({ release, host, origin, dataRoot, scratch, se
   });
 }
 
-/** Measure the node over an empty journal and over a `days`-day journal. */
+/** Measure the node over an empty store and over a `days`-day store. */
 export async function checkMemoryBudget({ release, hostPath = DEFAULT_HOST, days = 6, perDay = 500, settle = 60, node, template }) {
   const releaseHost = path.resolve(release, hostPath);
   if (!fs.existsSync(releaseHost)) throw Object.assign(new Error(`no host declaration at ${releaseHost}`), { code: "ENOHOST" });
@@ -167,8 +162,8 @@ export async function checkMemoryBudget({ release, hostPath = DEFAULT_HOST, days
     for (const [name, journalDays] of [["empty", 0], ["history", days]]) {
       const run = path.join(scratch, name);
       fs.mkdirSync(run, { recursive: true });
-      const synthesized = journalDays === 0 ? undefined : synthesizeJournal(path.join(run, "synthetic"), { days: journalDays, perDay });
-      const dataRoot = dataRootFrom(dataTemplate, synthesized === undefined ? undefined : path.join(run, "synthetic", "data", "journals"), path.join(run, "root"));
+      const synthesized = journalDays === 0 ? undefined : synthesizeStore(path.join(run, "synthetic"), { days: journalDays, perDay });
+      const dataRoot = dataRootFrom(dataTemplate, synthesized, path.join(run, "root"));
       const host = hostWithoutPeer(releaseHost, run);
       const measured = await measureNode({ release, host: host.file, origin: host.origin, dataRoot, scratch: run, settle, node });
       results[name] = Object.freeze({ days: journalDays, witnesses: synthesized?.witnesses ?? 0, ...measured });

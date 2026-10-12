@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/trc-layout.schema.json",
+  "title": "SPOTCOMP TRC layout declaration",
+  "type": "object",
+  "required": ["catalogRoot", "moduleType", "imports", "resources", "filings", "evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "catalogRoot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "moduleType": {
+      "const": "module"
+    },
+    "imports": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/resource" }
+    },
+    "filings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/filing" }
+    },
+    "secondaryIndexes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/secondaryIndex" }
+    },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "resource": {
+      "type": "object",
+      "required": ["slug", "kind", "path", "schemaPath", "logPath", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+        },
+        "kind": {
+          "enum": ["object", "predicate", "morphism"]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schemaPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "logPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scriptPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "monotone": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "filing": {
+      "type": "object",
+      "required": ["row", "subjectLogPath", "predicateLogPath", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "rowId": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "row": {
+          "type": "object",
+          "required": ["e", "a", "v", "t"],
+          "additionalProperties": false,
+          "properties": {
+            "e": { "type": "string", "minLength": 1 },
+            "a": { "type": "string", "minLength": 1 },
+            "v": {},
+            "t": { "type": "string", "minLength": 1 }
+          }
+        },
+        "subjectLogPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "predicateLogPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "valueLogPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "secondaryIndex": {
+      "type": "object",
+      "required": ["path", "anchor", "authoritative", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "anchor": {
+          "enum": ["value", "subject", "predicate", "other"]
+        },
+        "authoritative": {
+          "type": "boolean"
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

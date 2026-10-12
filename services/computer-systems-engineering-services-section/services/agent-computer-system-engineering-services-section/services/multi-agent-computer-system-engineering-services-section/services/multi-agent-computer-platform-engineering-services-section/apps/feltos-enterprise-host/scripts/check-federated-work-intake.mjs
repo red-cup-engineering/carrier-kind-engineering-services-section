@@ -38,10 +38,10 @@ try {
   admitWorkPeerGrants({ dataRoot: peerRoot, origin: peerOrigin, issuer: "fixture-peer#peering",
     peers: [{ actor: `${sourceOrigin}/actors/metroplat`, moves: ["opening", "telling"] }], at: new Date().toISOString() });
   peer = await createLocalActivityPubProvider({ origin: peerOrigin, actors: peerActors,
-    statePath: path.join(peerRoot, "activitypub.sqlite"), queue: false, allowPrivateAddress: true,
+    stateDirectory: path.join(peerRoot, "activitypub.state"), queue: false, allowPrivateAddress: true,
     onActivity: async (input) => { const result = await arrival(input); received.push(result); return result; } });
   source = await createLocalActivityPubProvider({ origin: sourceOrigin, actors: await actors(sourceRoot),
-    statePath: path.join(sourceRoot, "activitypub.sqlite"), queue: false, allowPrivateAddress: true, onActivity: async () => {} });
+    stateDirectory: path.join(sourceRoot, "activitypub.state"), queue: false, allowPrivateAddress: true, onActivity: async () => {} });
   globalThis.fetch = async (input, init) => {
     const request = input instanceof Request ? input : new Request(input, init);
     const url = new URL(request.url);

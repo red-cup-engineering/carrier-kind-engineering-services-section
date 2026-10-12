@@ -1,0 +1,18 @@
+{
+  "stage": "B2a",
+  "status": "read scope public corrections addressed; incomplete owner unaccepted",
+  "sourceSha256": "d74efe7d98f3fde5f1106b84b3a3f2c2453044e40597f817f86e3a5051bda36b",
+  "findings": [],
+  "resolvedPublicFindings": [
+    "ASCII date shape preserves zero-valued date components without calendar validation",
+    "Feed queries reject isolated UTF-16 surrogates without introducing a length limit",
+    "Representation bytes use exactly one LF",
+    "Graph inputs adapt verified witness ref to event id and return normalized envelopes",
+    "Ordering expands complete required causal graph through cross-feed and core-only ancestors before restricting envelopes; as-of includes full frontier closure"
+  ],
+  "preserved": "Diff confined to scopeFeed, scopeDate, sourceOrderedEnvelopes, sourceAsOfRefs, sourceEvents and sourceStatus; host, physical reader, reconstruction and three effect seams unchanged.",
+  "B2bMayProceed": true,
+  "completeReceivingMayProceed": false,
+  "privateReceivingRun": false,
+  "promoted": false
+}

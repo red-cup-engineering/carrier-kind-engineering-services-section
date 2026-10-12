@@ -1,0 +1,55 @@
+{
+  "name": "@red-cup-engineering/planned-transition-admission-service",
+  "version": "0.1.8",
+  "type": "module",
+  "description": "Admit one planned transition to execution through placement, proof-pore permeability, and game-foam materiality.",
+  "license": "Apache-2.0",
+  "bin": {
+    "admit-work-document": "./scripts/admit-work-document.mjs",
+    "admit-planned-transition": "./scripts/admit-planned-transition.mjs",
+    "start-work": "./scripts/start-work.mjs",
+    "update-work": "./scripts/update-work.mjs",
+    "complete-work": "./scripts/complete-work.mjs",
+    "read-work": "./scripts/read-work.mjs",
+    "judge-work-stop-gate": "./scripts/judge-work-stop-gate.mjs",
+    "admit-goal-submission": "./scripts/admit-goal-submission.mjs",
+    "project-goal-snapshot": "./scripts/project-goal-snapshot.mjs",
+    "project-hook-work-command": "./scripts/project-hook-work-command.mjs",
+    "project-codex-plan": "./scripts/project-codex-plan.mjs",
+    "project-work-items": "./scripts/project-work-items.mjs"
+  },
+  "exports": {
+    ".": "./src/admit-planned-transition.mjs",
+    "./work-document": "./src/admit-work-document.mjs",
+    "./scripts/admit-work-document.mjs": "./scripts/admit-work-document.mjs",
+    "./work-events": "./src/work-events.mjs",
+    "./work-snapshot": "./src/work-snapshot.mjs",
+    "./goal-events": "./src/goal-events.mjs",
+    "./goal-snapshot": "./src/goal-snapshot.mjs",
+    "./hook-work-command": "./src/hook-work-command.mjs",
+    "./codex-plan": "./src/codex-plan.mjs",
+    "./work-items": "./src/work-items.mjs",
+    "./scripts/start-work.mjs": "./scripts/start-work.mjs",
+    "./scripts/update-work.mjs": "./scripts/update-work.mjs",
+    "./scripts/complete-work.mjs": "./scripts/complete-work.mjs",
+    "./scripts/read-work.mjs": "./scripts/read-work.mjs",
+    "./scripts/judge-work-stop-gate.mjs": "./scripts/judge-work-stop-gate.mjs"
+  },
+  "files": [
+    "scripts",
+    "content",
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@lenticule-science/articulating": "0.5.1",
+    "@red-cup-engineering/computer-data-engine": "0.11.2",
+    "@red-cup-engineering/playing": "0.1.0",
+    "@lenticule-science/metrologic": "file:../../services/computer-math-system-services-section/apps/metrologic"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

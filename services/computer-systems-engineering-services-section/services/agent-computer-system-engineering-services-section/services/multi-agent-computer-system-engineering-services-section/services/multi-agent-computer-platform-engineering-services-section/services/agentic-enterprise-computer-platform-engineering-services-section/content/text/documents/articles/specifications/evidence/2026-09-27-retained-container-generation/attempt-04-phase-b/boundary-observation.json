@@ -1,0 +1,15 @@
+{
+  "observations": {
+    "checkoutVisible": false,
+    "assayVisible": false,
+    "workEmpty": true,
+    "tmpEmpty": true,
+    "schemaVisible": true,
+    "pid": 2
+  },
+  "profileSha256": "76a417294aaa05db243962145cafa7047a26902082e24f2ef1b088de5cc72528",
+  "beforeGeneration": true,
+  "limitations": [
+    "Provider server isolation and retention remain a trust assumption."
+  ]
+}

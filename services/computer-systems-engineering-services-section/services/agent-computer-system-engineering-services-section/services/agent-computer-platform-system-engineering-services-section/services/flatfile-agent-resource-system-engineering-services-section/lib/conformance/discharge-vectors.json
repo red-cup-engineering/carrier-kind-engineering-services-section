@@ -1,0 +1,399 @@
+{
+  "description": "Synthetic sigma_t/Delta_t double-settlement fixtures for pyfars.kernel.discharge / jsfars kernel/discharge.mjs conformance (design spec S5C, S11 vector 5). Each case names one proposition and the record/witness history discharge(record, records, witnesses) folds to classify it; `expected` is one of {operative, sat_shadow, tr_shadow, free_shadow}, matching institution.md's H*_t/SatShadow/TrShadow/FreeShadow partition under pymetrologic.quartet.Corner's STABLE/POTENTIAL/ACTIVE/ABSURD naming.",
+  "cases": [
+    {
+      "name": "status_event_operative",
+      "proposition": "ni:///sha-256;LF6RimkXOCFeKhRMKxRjKo5VdcIVXptXpnnLvsrOVT8",
+      "record": {
+        "type": "StatusEvent",
+        "id": "ni:///sha-256;LF6RimkXOCFeKhRMKxRjKo5VdcIVXptXpnnLvsrOVT8",
+        "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+        "transition": "revocation",
+        "supersedes": null,
+        "successor": null,
+        "conveys_authority": false
+      },
+      "records": [
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "slug": "steward",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        },
+        {
+          "type": "StatusEvent",
+          "id": "ni:///sha-256;LF6RimkXOCFeKhRMKxRjKo5VdcIVXptXpnnLvsrOVT8",
+          "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "transition": "revocation",
+          "supersedes": null,
+          "successor": null,
+          "conveys_authority": false
+        }
+      ],
+      "witnesses": [],
+      "expected": "operative"
+    },
+    {
+      "name": "status_event_sat_shadow",
+      "proposition": "ni:///sha-256;W_mCFysSltHFLCMaT9QejwS3uubs1cKyc-15ZezXSCk",
+      "record": {
+        "type": "StatusEvent",
+        "id": "ni:///sha-256;W_mCFysSltHFLCMaT9QejwS3uubs1cKyc-15ZezXSCk",
+        "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+        "transition": "correction",
+        "supersedes": null,
+        "successor": null,
+        "conveys_authority": false
+      },
+      "records": [
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "slug": "steward",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        },
+        {
+          "type": "StatusEvent",
+          "id": "ni:///sha-256;W_mCFysSltHFLCMaT9QejwS3uubs1cKyc-15ZezXSCk",
+          "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "transition": "correction",
+          "supersedes": null,
+          "successor": null,
+          "conveys_authority": false
+        }
+      ],
+      "witnesses": [],
+      "expected": "sat_shadow"
+    },
+    {
+      "name": "status_event_tr_shadow",
+      "proposition": "ni:///sha-256;26jn8HafenneDVEwdinKSHbYWeCWPezHkbtUbxXiJNc",
+      "record": {
+        "type": "StatusEvent",
+        "id": "ni:///sha-256;26jn8HafenneDVEwdinKSHbYWeCWPezHkbtUbxXiJNc",
+        "target": "ni:///sha-256;6Ms2KZ3fT6JcFKpPpoxmWlMuOMl14xhqwAWW2-4irxU",
+        "transition": "expiry",
+        "supersedes": null,
+        "successor": null,
+        "conveys_authority": false
+      },
+      "records": [
+        {
+          "type": "StatusEvent",
+          "id": "ni:///sha-256;26jn8HafenneDVEwdinKSHbYWeCWPezHkbtUbxXiJNc",
+          "target": "ni:///sha-256;6Ms2KZ3fT6JcFKpPpoxmWlMuOMl14xhqwAWW2-4irxU",
+          "transition": "expiry",
+          "supersedes": null,
+          "successor": null,
+          "conveys_authority": false
+        }
+      ],
+      "witnesses": [],
+      "expected": "tr_shadow"
+    },
+    {
+      "name": "status_event_free_shadow",
+      "proposition": "ni:///sha-256;l9v_oCCppD9RhYdosdVoy5-SVE3doDof0iFe9fG8yuI",
+      "record": {
+        "type": "StatusEvent",
+        "id": "ni:///sha-256;l9v_oCCppD9RhYdosdVoy5-SVE3doDof0iFe9fG8yuI",
+        "target": "ni:///sha-256;6Ms2KZ3fT6JcFKpPpoxmWlMuOMl14xhqwAWW2-4irxU",
+        "transition": "suspension",
+        "supersedes": null,
+        "successor": null,
+        "conveys_authority": false
+      },
+      "records": [
+        {
+          "type": "StatusEvent",
+          "id": "ni:///sha-256;l9v_oCCppD9RhYdosdVoy5-SVE3doDof0iFe9fG8yuI",
+          "target": "ni:///sha-256;6Ms2KZ3fT6JcFKpPpoxmWlMuOMl14xhqwAWW2-4irxU",
+          "transition": "suspension",
+          "supersedes": null,
+          "successor": null,
+          "conveys_authority": false
+        }
+      ],
+      "witnesses": [],
+      "expected": "free_shadow"
+    },
+    {
+      "name": "correction_record_operative",
+      "proposition": "ni:///sha-256;_OKdfGEVtL2ieibOCxbMewbhHawnInPZBlQLITDH3t4",
+      "record": {
+        "type": "CorrectionRecord",
+        "id": "ni:///sha-256;_OKdfGEVtL2ieibOCxbMewbhHawnInPZBlQLITDH3t4",
+        "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+        "replacement": "ni:///sha-256;I7GBDAcA-w-AD3EvHwTGkhJYF7oC43MmjytF6XiD424",
+        "reason": "renamed",
+        "invalidates_prior_for_use": true
+      },
+      "records": [
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "slug": "steward",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        },
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;I7GBDAcA-w-AD3EvHwTGkhJYF7oC43MmjytF6XiD424",
+          "slug": "steward-v2",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        },
+        {
+          "type": "CorrectionRecord",
+          "id": "ni:///sha-256;_OKdfGEVtL2ieibOCxbMewbhHawnInPZBlQLITDH3t4",
+          "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "replacement": "ni:///sha-256;I7GBDAcA-w-AD3EvHwTGkhJYF7oC43MmjytF6XiD424",
+          "reason": "renamed",
+          "invalidates_prior_for_use": true
+        }
+      ],
+      "witnesses": [],
+      "expected": "operative"
+    },
+    {
+      "name": "correction_record_sat_shadow",
+      "proposition": "ni:///sha-256;RxQB_y6vfi82H5ZIiWMP7M5nWK6CYYmOyABStM02ePk",
+      "record": {
+        "type": "CorrectionRecord",
+        "id": "ni:///sha-256;RxQB_y6vfi82H5ZIiWMP7M5nWK6CYYmOyABStM02ePk",
+        "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+        "replacement": "ni:///sha-256;Wxzr7mVnEvxQKmAfHAaX7N1MqFUWKwVLoiTXIndfGyw",
+        "reason": "rename pending",
+        "invalidates_prior_for_use": true
+      },
+      "records": [
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "slug": "steward",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        },
+        {
+          "type": "CorrectionRecord",
+          "id": "ni:///sha-256;RxQB_y6vfi82H5ZIiWMP7M5nWK6CYYmOyABStM02ePk",
+          "target": "ni:///sha-256;CP0MglmS1UgEqBcfCXeBw4GYnupAkt-qTlzpAXmlOPQ",
+          "replacement": "ni:///sha-256;Wxzr7mVnEvxQKmAfHAaX7N1MqFUWKwVLoiTXIndfGyw",
+          "reason": "rename pending",
+          "invalidates_prior_for_use": true
+        }
+      ],
+      "witnesses": [],
+      "expected": "sat_shadow"
+    },
+    {
+      "name": "correction_record_tr_shadow",
+      "proposition": "ni:///sha-256;vBzLpZJtjn9Dg8-u0qhlOVXIhMZe1kflEGzavL-gEpY",
+      "record": {
+        "type": "CorrectionRecord",
+        "id": "ni:///sha-256;vBzLpZJtjn9Dg8-u0qhlOVXIhMZe1kflEGzavL-gEpY",
+        "target": "ni:///sha-256;7_cnis2fiuFEWdP8MkuC-wfELcyrzPUjmUymufgh4BU",
+        "replacement": "ni:///sha-256;I7GBDAcA-w-AD3EvHwTGkhJYF7oC43MmjytF6XiD424",
+        "reason": "renamed",
+        "invalidates_prior_for_use": true
+      },
+      "records": [
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;I7GBDAcA-w-AD3EvHwTGkhJYF7oC43MmjytF6XiD424",
+          "slug": "steward-v2",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        },
+        {
+          "type": "CorrectionRecord",
+          "id": "ni:///sha-256;vBzLpZJtjn9Dg8-u0qhlOVXIhMZe1kflEGzavL-gEpY",
+          "target": "ni:///sha-256;7_cnis2fiuFEWdP8MkuC-wfELcyrzPUjmUymufgh4BU",
+          "replacement": "ni:///sha-256;I7GBDAcA-w-AD3EvHwTGkhJYF7oC43MmjytF6XiD424",
+          "reason": "renamed",
+          "invalidates_prior_for_use": true
+        }
+      ],
+      "witnesses": [],
+      "expected": "tr_shadow"
+    },
+    {
+      "name": "correction_record_free_shadow",
+      "proposition": "ni:///sha-256;ltt28h9tAsVWsbgS_AODZpks06tE5821As8Pqg0k4mw",
+      "record": {
+        "type": "CorrectionRecord",
+        "id": "ni:///sha-256;ltt28h9tAsVWsbgS_AODZpks06tE5821As8Pqg0k4mw",
+        "target": "ni:///sha-256;7_cnis2fiuFEWdP8MkuC-wfELcyrzPUjmUymufgh4BU",
+        "replacement": "ni:///sha-256;Wxzr7mVnEvxQKmAfHAaX7N1MqFUWKwVLoiTXIndfGyw",
+        "reason": "renamed",
+        "invalidates_prior_for_use": true
+      },
+      "records": [
+        {
+          "type": "CorrectionRecord",
+          "id": "ni:///sha-256;ltt28h9tAsVWsbgS_AODZpks06tE5821As8Pqg0k4mw",
+          "target": "ni:///sha-256;7_cnis2fiuFEWdP8MkuC-wfELcyrzPUjmUymufgh4BU",
+          "replacement": "ni:///sha-256;Wxzr7mVnEvxQKmAfHAaX7N1MqFUWKwVLoiTXIndfGyw",
+          "reason": "renamed",
+          "invalidates_prior_for_use": true
+        }
+      ],
+      "witnesses": [],
+      "expected": "free_shadow"
+    },
+    {
+      "name": "office_operative_via_closed_wit_chain",
+      "proposition": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+      "record": {
+        "type": "Office",
+        "id": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+        "slug": "archivist",
+        "duties": [],
+        "powers": [],
+        "privileges": [],
+        "immunities": [],
+        "scope": "corpus",
+        "conveys_incumbency": false
+      },
+      "records": [
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+          "slug": "archivist",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        }
+      ],
+      "witnesses": [
+        {
+          "type": "Witness",
+          "id": "ni:///sha-256;k53OvGHjMupcZX0TffvOaEEENflOGXhODgC0F2mpvvM",
+          "operator": "dispatch",
+          "target": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+          "before_digest": null,
+          "after_digest": null,
+          "details": {},
+          "agent": "morgan",
+          "timestamp": "2026-08-19T00:00:01Z",
+          "kind": "guard",
+          "four_before": [
+            false,
+            false
+          ],
+          "four_after": [
+            true,
+            false
+          ],
+          "channel": "governance",
+          "conveys_authority": false
+        },
+        {
+          "type": "Witness",
+          "id": "ni:///sha-256;ANXQ_KIbHkzhtQd2pU3pmf92a2E8pqiui5oOVs3nMbc",
+          "operator": "dispatch",
+          "target": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+          "before_digest": null,
+          "after_digest": null,
+          "details": {},
+          "agent": "morgan",
+          "timestamp": "2026-08-19T00:00:02Z",
+          "kind": "guard",
+          "four_before": [
+            false,
+            false
+          ],
+          "four_after": [
+            false,
+            true
+          ],
+          "channel": "governance",
+          "conveys_authority": false
+        }
+      ],
+      "expected": "operative"
+    },
+    {
+      "name": "office_sat_shadow_via_open_wit_chain",
+      "proposition": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+      "record": {
+        "type": "Office",
+        "id": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+        "slug": "archivist",
+        "duties": [],
+        "powers": [],
+        "privileges": [],
+        "immunities": [],
+        "scope": "corpus",
+        "conveys_incumbency": false
+      },
+      "records": [
+        {
+          "type": "Office",
+          "id": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+          "slug": "archivist",
+          "duties": [],
+          "powers": [],
+          "privileges": [],
+          "immunities": [],
+          "scope": "corpus",
+          "conveys_incumbency": false
+        }
+      ],
+      "witnesses": [
+        {
+          "type": "Witness",
+          "id": "ni:///sha-256;5JfkQG1WIktyjpVlgMQ5IW5ZfIsROyQ9EKoU1kadfOQ",
+          "operator": "dispatch",
+          "target": "ni:///sha-256;wEAlfQ2Qnk5cdszxwIwGeMiCKoxoVm2vCb7BMJE4cn8",
+          "before_digest": null,
+          "after_digest": null,
+          "details": {},
+          "agent": "morgan",
+          "timestamp": "2026-08-19T00:00:03Z",
+          "kind": "guard",
+          "four_before": [
+            false,
+            false
+          ],
+          "four_after": [
+            true,
+            false
+          ],
+          "channel": "governance",
+          "conveys_authority": false
+        }
+      ],
+      "expected": "sat_shadow"
+    }
+  ]
+}

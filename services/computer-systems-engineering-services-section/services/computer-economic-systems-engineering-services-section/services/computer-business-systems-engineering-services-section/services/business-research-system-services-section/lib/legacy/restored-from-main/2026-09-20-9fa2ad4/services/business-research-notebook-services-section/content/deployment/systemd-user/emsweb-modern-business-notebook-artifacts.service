@@ -1,0 +1,19 @@
+[Unit]
+Description=Modern Business persistent notebook bearer artifact exchange
+After=network.target
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node src/artifact-exchange.mjs
+Environment=MODERN_BUSINESS_NOTEBOOK_ARTIFACT_HOST=127.0.0.1
+Environment=MODERN_BUSINESS_NOTEBOOK_ARTIFACT_PORT=18452
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0077
+[Install]
+WantedBy=default.target

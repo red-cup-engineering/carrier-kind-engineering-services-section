@@ -1,0 +1,57 @@
+{
+  "method": "JSON Schema Draft 2020-12 validation and exact derivation/source digest comparison",
+  "schemaCases": [
+    {
+      "case": "closed fixture shape",
+      "expectedValid": true,
+      "observedValid": true
+    },
+    {
+      "case": "unknown top-level authority",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "unsupported version",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "zero revision",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "fractional revision",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "unbounded revision",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "owner shortcut",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "arbitrary retention",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "unknown disclosure",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "extra context root",
+      "expectedValid": false,
+      "observedValid": false
+    }
+  ],
+  "currentSourceBindings": 15,
+  "scope": "Representation validation only. Fixture references intentionally are not admitted artifact references; runtime authority, filesystem custody, semantic uniqueness and actual use effects remain unverified."
+}

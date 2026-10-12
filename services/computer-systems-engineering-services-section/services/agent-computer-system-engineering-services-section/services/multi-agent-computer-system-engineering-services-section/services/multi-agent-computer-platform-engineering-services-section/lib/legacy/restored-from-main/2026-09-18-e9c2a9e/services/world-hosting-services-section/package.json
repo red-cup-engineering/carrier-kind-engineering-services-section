@@ -1,0 +1,43 @@
+{
+  "name": "@red-cup-engineering/world-hosting",
+  "version": "0.3.1",
+  "description": "World-hosting landlord: hosts other communities' FeltOS worlds the way play.561.group hosts our own free games and itch.io hosts others' games. Tier catalog, tenant quoting, and real tenant-workspace provisioning against @red-cup-engineering/feltos.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24"
+  },
+  "exports": {
+    ".": "./src/world-hosting.mjs",
+    "./cli": "./apps/world-hosting-cli.mjs",
+    "./list-hosting-tiers": "./scripts/list-hosting-tiers.mjs",
+    "./quote-hosting-tenant": "./scripts/quote-hosting-tenant.mjs",
+    "./provision-tenant-workspace": "./scripts/provision-tenant-workspace.mjs",
+    "./serve": "./apps/serve-world-host.mjs",
+    "./http-wiring": "./src/http-wiring.mjs",
+    "./world-runtime": "./src/world-runtime.mjs",
+    "./world-store": "./src/world-store.mjs",
+    "./clock-store": "./src/clock-store.mjs",
+    "./fake-gcs": "./src/fake-gcs.mjs",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "world-hosting": "apps/world-hosting-cli.mjs"
+  },
+  "files": [
+    "src/",
+    "scripts/",
+    "apps/",
+    "test/"
+  ],
+  "scripts": {
+    "check": "node --check src/world-hosting.mjs && node --check src/world-store.mjs && node --check src/clock-store.mjs && node --check src/fake-gcs.mjs && node --check src/world-runtime.mjs && node --check src/http-wiring.mjs && node --check scripts/list-hosting-tiers.mjs && node --check scripts/quote-hosting-tenant.mjs && node --check scripts/provision-tenant-workspace.mjs && node --check apps/world-hosting-cli.mjs && node --check apps/serve-world-host.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/feltos": "0.18.2",
+    "@red-cup-engineering/footing": "0.1.3",
+    "@red-cup-engineering/semantic-record-journal-service": "0.4.0"
+  },
+  "sideEffects": false
+}

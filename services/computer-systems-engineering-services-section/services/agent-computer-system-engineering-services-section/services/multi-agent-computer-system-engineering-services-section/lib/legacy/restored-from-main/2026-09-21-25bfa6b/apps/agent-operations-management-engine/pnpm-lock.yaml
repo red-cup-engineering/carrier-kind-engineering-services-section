@@ -1,0 +1,832 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@red-cup-engineering/computing':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@red-cup-engineering/organizing':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@red-cup-engineering/relating':
+        specifier: 0.1.9
+        version: 0.1.9
+      '@red-cup-engineering/socializing':
+        specifier: 0.2.0
+        version: 0.2.0
+    devDependencies:
+      '@types/node':
+        specifier: 22.20.1
+        version: 22.20.1
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+packages:
+
+  '@ipld/car@5.4.7':
+    resolution: {integrity: sha512-fohzeOYlm0vM1kGn48zcyDunamXSJaeM5xt0Fmkp5YJkZzgZyjLbb0DcDK6TDgZWo54btkXNACaXUw2H86Elag==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+
+  '@ipld/dag-cbor@10.0.2':
+    resolution: {integrity: sha512-1eCD4YMTlkx5i36oQUmeAojLS/wu+XCd1Gs31BA0afk0TaVkhnyMofIAT/pi0wV3HS3/G7QSN/1NibhiksMyZQ==}
+
+  '@ipld/dag-cbor@9.2.7':
+    resolution: {integrity: sha512-ZmfXmElRWATr+hoUTSAOr6HUcjVhOcNHDqgczc76qte2DHHFEK0ZhNzUcdTDQhF/VSIvf2ioaRTRLWwLc83sNw==}
+
+  '@ipld/dag-json@10.2.9':
+    resolution: {integrity: sha512-opNPQQsTuCFZkaJCAqXrB/n9OqUD6W2Boz/Au5HjhLQyczmT8lxoOZObqQ5S5hhnV8p6sgKAimNhUB2W6y0Mzg==}
+
+  '@ipld/dag-ucan@3.4.5':
+    resolution: {integrity: sha512-wiWhH0Ju7WgnumsarHCYtlo+1NRy+WIsXyAB7g2sDqVsKCyEJiLLmjeZzKqNv+qMxLnUS8bQ287cPiQ//s/oJQ==}
+
+  '@lenticule-science/articulating@0.2.2':
+    resolution: {integrity: sha512-namzkMve433Wf34Ek8juKOnUK9bgv7Hqm3PHHcBHtmfHwXvJhRv2qKqNj7pEcL9Eca7ljKWih7UNQHfg0cMpMg==}
+
+  '@lenticule-science/articulating@0.2.4':
+    resolution: {integrity: sha512-K1AiCDPCKt4VPiCFX6vfsQzA4LJc993O9QquSurN4KXoE/npymvb58DikhjUn0hH6rilwEfDLMp5QNGTCWiETA==}
+    engines: {forge: 1.7.1}
+
+  '@lenticule-science/articulating@0.2.6':
+    resolution: {integrity: sha512-Jq4S/SeXsYBl2lTHL0wkIUsL3K1a98urwOU971bc3oGJ2yz2xb6Fy4KiKqONvnwy1j7qF3aQkRI5BO+WoXPUUg==}
+    engines: {forge: 1.7.1}
+
+  '@lenticule-science/articulating@0.4.0':
+    resolution: {integrity: sha512-2WCAK54rMMI/NFPu/Evz5ZyEia/cY3pPMv3mOZEmXQbnHk3EpwGCo0Lq3U4yHQPerEk6SDNO8T5zIcUKldua4g==}
+    engines: {forge: 1.7.1}
+
+  '@lenticule-science/communicating@0.0.5':
+    resolution: {integrity: sha512-YQvX6KaRUpJeAq2oPeGlenJ0CpmrWQ566r3O/od+xstic57M+JIvWoDeCXCkBW4PNg2hqs1l77OrwlIKx4DJvA==}
+    engines: {node: '>=22.18'}
+
+  '@lenticule-science/governance-services-section@0.1.4':
+    resolution: {integrity: sha512-cBPV9COWLfKMCnSfGkx0gSFLmNMteenmqWcI6t9SQvnPANB3hlgCXn5KqKpGAkueSdkmc9hrRtiiGldZvD9+8w==}
+
+  '@lenticule-science/governance-services-section@0.2.0':
+    resolution: {integrity: sha512-q2ZEZ4LQN6Z5fVvVmHWKwzxDp0TPHCSqAF09NKw6E6ytP4aCjsdFU1pqcl2A08Qi6ZDo7+1Di4mmIpPLxtALew==}
+
+  '@lenticule-science/metrologic@0.1.0':
+    resolution: {integrity: sha512-OyJWCLHi0pV5W7swSZv5jRiDqkleEay5SAVZu7rQRUSWGmtK7t3Z/gvtstAtzMEcYw9UuyMwRJCkM+EplTXsog==}
+    engines: {node: '>=20'}
+
+  '@lenticule-science/metrologic@0.1.1':
+    resolution: {integrity: sha512-QAvlkim/R12NiH233rRoy4+jxNiyFnf5me1Ab0/uuJDEyEcdUde01kPN5kB6qJCNoxKeh0fzTnLZu+ArK+V2fA==}
+    engines: {node: '>=20'}
+
+  '@lenticule-science/work-science-services-section@0.1.1':
+    resolution: {integrity: sha512-uqT2eajtBTFooyX8pJpnEET1RCNcp5DU7imCt7qSPX1Zt8ilZuSs5j8nc+YvavFgh3LT9kF1Xx9bviipI5stSQ==}
+    engines: {node: '>=22'}
+
+  '@noble/curves@1.9.7':
+    resolution: {integrity: sha512-gbKGcRUYIjA3/zCCNaWDciTMFI0dCkvou3TL8Zmy5Nc7sJ47a0jtOeZoTaMxkuqRo9cRhjOdZJXegxYE5FN/xw==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@noble/ed25519@1.7.5':
+    resolution: {integrity: sha512-xuS0nwRMQBvSxDa7UxMb61xTiH3MxTgUfhyPUALVIe0FlOAz4sjELwyDRyUvqeEYfRSG9qNjFIycqLZppg4RSA==}
+
+  '@noble/hashes@1.8.0':
+    resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@red-cup-engineering/animating@0.1.1':
+    resolution: {integrity: sha512-Scqm7fp1N1pCqWr/JhAbwBSDC8i9U+N8LFg5EjWykdLSEtC+NSMSlsJDnYaKkpCS7J5TnV5lB3p/q0bPN10XoQ==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/animating@0.2.1':
+    resolution: {integrity: sha512-DrEC5SIH/0/Yf22WblV8d72s0IWuTDzjNmtkz731baZ+fyIQZMOBRBAQsdAp/Dt1kp6ed3GdP3W086DZ2m3RbQ==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/canonical-json-service@0.2.1':
+    resolution: {integrity: sha512-g+Sfz/A4Tm66jhfqNJ6W90wdQ0+261epLOBNq+e3+pfOVN0H+D/mlaamfgrTVIG0dPTYSKfVZ/35UyASk2PjuQ==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/canonicalize-semiotic-json-service@0.0.1':
+    resolution: {integrity: sha512-UGyp/Ubu6h7K3Myhvk0Mf/lJA4TMZjQrZXslNeZMGQ23xfw+SdsCfvZolebenDPJa6OL37bBQPMwVX4KRw8npg==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/cbor-codec-service@0.0.2':
+    resolution: {integrity: sha512-jwCc/OISIVPttEo+P5eWEeBY/CEqeisfIY94iCe2jfsnq+F2vibaxC34r1KVZvM/JO6dKLYcLrbASxkWpo+RrQ==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/cbor-ni-service@0.0.1':
+    resolution: {integrity: sha512-1Bn5A0FMm6C7wvAPb2RN9TsMvNmCDz9f5sYkDYze0PrB+2f4zBJklrHFG258dWqoGzUK6AF7uVW7zvZYhVjSyQ==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/cbor-ni-service@0.0.2':
+    resolution: {integrity: sha512-R7x30b+gCUmNQNZ1V1aYJJRQSjiZrBIlvVrMDkqL1eQkCBbkTcJW1amqaDRxSm+BMHZwL2JZNr+A1Nv5PHl4BA==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/code-http-cookie-service@0.1.1':
+    resolution: {integrity: sha512-IEERg7TgwFn8wbJjdeM4CNyU9NRVamEpsJrM8pzf/A12Qha5r4r4bEm0uNhQVUaiJxGrjCPWxKq8Eld1EELn4A==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/code-server-sent-event-service@0.1.1':
+    resolution: {integrity: sha512-4wgJ0Jit4nLaCJqwz3nt39SkGxLhqFv9F+8SVTj9WuTfH2othFsbwqJj8IsXJHMuenS2wmfLGYvEja9AcNi7UA==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/communicating@0.1.1':
+    resolution: {integrity: sha512-cQ72x/bwdhrjjIYZjtEG0E+ddhoBWKQ8iSW17EiWsOutmM6MbTGeOiNPRewlS5L2FPcNBxnZlDq1vyW9fM2eUQ==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/communicating@0.1.3':
+    resolution: {integrity: sha512-t1qsDXi4TpgUk6v+kzB9dVcyKFHKJCY/8+TqXrk8sCrAWJfwgKtwo+/RMm1ohqsoKR3ctfBmKP9Ybz/NhvF1Tg==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/computer-data-type-engine@0.1.0':
+    resolution: {integrity: sha512-mghH/XnbL8/nuN+FCMB8+wcs5LrwWU8iuyOOAmFFS8xy259Ly2Y3lLnukIWX3WKyGGhz2Jr3QttuPscZpga9/A==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/computing@0.2.0':
+    resolution: {integrity: sha512-ubt+PpK2pKW+8sgR8l4msbB8gOCoPZm29qYQwuWbZ1siC+HG71qwu6H5JAyZQgk13DBbyCq6xH+kvy5gaWIx4Q==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/cryptographic-integrity-service@0.1.3':
+    resolution: {integrity: sha512-BHawKjfX1cEbA7kRLLe09tYEtHNUI2FPJcAIpRkhed08zOmdEa0pVeg0gBKs8EkEsJLH0aFjFdMQv4cvLUKwFA==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/eavt@0.10.0':
+    resolution: {integrity: sha512-yshjrjnx6sZTz4ExByAx+rPyCaDLy/xF8uQkShK2k4XGzGCOsZ+L5fIZbw6FZPVf9fxGBLFW3vr7qSgQ9ufy9A==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/flatfile@0.1.0':
+    resolution: {integrity: sha512-sd358+7+NnLIEoufNChsmDeU5RW56RrYjQuRYf/4apXXZdJ5cTXW0dijSviMfk6VhYNZjYC9F33v4KCeBmPucw==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/gaming@0.1.1':
+    resolution: {integrity: sha512-BWfx8JxNe89ia4grd690frN29BBszuMgxMOHaIQfIRKSXiEDHltECZmPFyJyphldE/n+8GPgDl12t9IEPh+AKg==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/gaming@0.1.5':
+    resolution: {integrity: sha512-96rbSEbJLN+hIJk8KTWdXgGaSvytPGEmpDOqWuYUHde8uj7cw53wlvmc3RUEiNDZSOsv24JpFwiaIJs0O6ELfg==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/gitmodules-file-codec-service@0.2.0':
+    resolution: {integrity: sha512-gwqe2KMzRItuFTPSk2S3OLknS9NTg8OSn5t4DBbvmdun0mM+dJ2ELcFwTDp4e0ZBQIhpuy5Tqj5buHUENrwHQw==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/javascript-file-main-guard-service@0.1.3':
+    resolution: {integrity: sha512-Hlbe4NVp6xxZ8dyquJ5MS1NX/et7DKe+SE3EZxNk8kDLaqgNelCLF3/nBIHcy9QL7rzHhmiZ+8XtsPtDKUomtw==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/json-byte-carrier-service@0.1.0':
+    resolution: {integrity: sha512-iXhf+ltj6qVV9imTJivJkl96Ja59Ktaej9Q205yMTBedhhG5/9MSWajmRWmmnXjkkHlDlWmBMzHSZJsfDUYIyg==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/json-codec-service@0.1.6':
+    resolution: {integrity: sha512-NQNj/QQ6xPfKQ5FfsFOEe2rFnxGt+xbQMan16dAVnvxaOn5Ot9vEYX+n48nIFozTM8YoQ23yJP2JkNWCsujuGg==}
+
+  '@red-cup-engineering/json-codec-service@0.2.0':
+    resolution: {integrity: sha512-tILQsOFwsYH3TCQSjX0YcU4oj+ah3ikc3+FBUZWYSfCqbEYhKDecFpGe2fOQdWvCKxjPilKc3MqStV/R1rTywg==}
+
+  '@red-cup-engineering/knowing@0.1.1':
+    resolution: {integrity: sha512-g6w20e+iNT0b99t66R4YmTBh+bNuEoeXSspV5Dx2tyQYjebfm3+EoySabh99/6H6k+ICzJEPDU/W+YSaTr61qQ==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/ni-services-section@0.1.1':
+    resolution: {integrity: sha512-HPnx3PLzbjUqJvtj8SH5etWrko2GSgwIQBP+RhF2ZwAle/Q8KMMvYXp5/FtJIIxyp9p4ggMmWYeRX/Hmr08ocA==}
+    engines: {node: '>=18'}
+
+  '@red-cup-engineering/ni-services-section@0.1.2':
+    resolution: {integrity: sha512-HmrSr/AbF3/14dWQxjOm8/TzI6PheZy23IPCLdqzyereyPmQyxzANpGQC4Kn8SRJMVnLECjVm7WXkFKqIu/46w==}
+    engines: {node: '>=18'}
+
+  '@red-cup-engineering/organizing@0.2.0':
+    resolution: {integrity: sha512-RPbPBfvZZ4Ad1gWYt1ctQ8fGlTrs3WNNpllibATX+zdvHlKWb9k8vaz7cIyDGFjSclDmyfodtjES/kSHZWzdmA==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/playing@0.1.1':
+    resolution: {integrity: sha512-2mIkpT5Ze78LZdVdsJfc7uYKhBz6dcmTHgJdOFltM5WrLYgxA5w0XnnAJ9bU9mNG1qdCrR8yELPngQ8lOWKd+Q==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/playing@0.1.2':
+    resolution: {integrity: sha512-QAEBE4LGmj+lii9TkVfYvIVh4qrwXiGhkea8fbNT+j9EvuMwJeoYERLG8oVigRPOiIGwIVehzerS9dxXZXwMcg==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/publish-projected-events-service@0.1.1':
+    resolution: {integrity: sha512-QJJGPRrl4fWvTkSp0vpoUa8bLd+g5hASTlEPiKWkUtG0GUph0jLhFBJ4MUjRFo7wyDhbFWD6gPJlFuW2tIFKAA==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/punctuated-name-derivation-service@0.1.4':
+    resolution: {integrity: sha512-FMNxLSi/QKuhlapFMCFhLM7ExbmuIgKQv4xdJgRBrnaZeE4byFDITAULYrRz41ke/KFIJKs3cFfwk6lhCYJvXA==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/read-markdown-frontmatter-service@0.1.4':
+    resolution: {integrity: sha512-KlgprheimnRg9mh24HTN5tgGzKmVopRh6dKw0fZe94Q2tFFNtcWeDXDUznNAcZ0J7SRkHfosWNXN98BOl1M/TQ==}
+
+  '@red-cup-engineering/relating@0.1.3':
+    resolution: {integrity: sha512-C/2bVmS0nfhmXcdl42BBDwpmbEzTZz4sau4ENXpcD0dXPO1xAz/pRg6FB/BCsaE9DM/lGZJ7bztbuDCkQs0Wrg==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/relating@0.1.5':
+    resolution: {integrity: sha512-Sa82RDaEod1ViZl59p8jXn3ZZnM4cl1CSAG/H/jjJti7jC0na5B8xDI0KqWuVKYdYEK+hiGbgCG3GtePmpak/w==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/relating@0.1.9':
+    resolution: {integrity: sha512-SLk0zUwE6mFVXwmPUYUF9uhA6H5ev24OJ94ZKH5lh1iZ/fu+m+EzA2wA0Ye/lwIGjFAI4x37ozdfUEQEsPNB8Q==}
+    engines: {node: '>=22.18'}
+    hasBin: true
+
+  '@red-cup-engineering/relation-model-notation-cbor-codec@0.1.0':
+    resolution: {integrity: sha512-C4qRVO9v1BwcmXMSzQOo9TijiqAa/9/VuDqZCpAoB7C88HYM811XFy0mMXriANOAdhRpY1AafCO3XZAZ7vw0fw==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/relation-model-notation-eval@0.0.4':
+    resolution: {integrity: sha512-VC5Y2vKbGFWSaAHItSPLrqa1jEctOcrIeJ27YHsuaQUKrsceQbdyL3lKr62gQs33QnfJdCRQujXGyTBTRLPFjg==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/relation-model-notation-json-codec@0.0.6':
+    resolution: {integrity: sha512-+OIdLjldO1ao0y/T6vUgl9qA9YlexntRp4bhOua8Sb0lTI1yMxq1WTqgQziiCDcyzn8L84UtUhY/BfP4JxLLHQ==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/relation-model-notation-runtime@0.2.0':
+    resolution: {integrity: sha512-V1+g/6dEjG8FgoSJaVL6mg5a2vEMXFGoBDw2SQ1LPXzKvCAUEJgZPvo+fmwIPddIcuplg6xuobJLBblJD/deww==}
+    engines: {node: '>=20'}
+
+  '@red-cup-engineering/relation-model-notation-typing@0.0.2':
+    resolution: {integrity: sha512-rBRkbdZvWjQTg7G1KzRi3Wm85Qw0oQtj6zJzVw3yk2+XUI2dMERK7CxVtSfSBccSHw5qG6FjJP00+3Ov6vxEqA==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/relation-model-notation@0.0.2':
+    resolution: {integrity: sha512-gSdzK76y+/+hCWMVoWnYJszCh3fvJap8LOD0qe28ZhkMfFKft9PWXX/NwwfHm3oF145e6B9AmC6fAmc6thrt6g==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/relational-value-graph-service@0.1.1':
+    resolution: {integrity: sha512-bDH20R946t71Q1/k914nlu+RupaRzR+h5H/nSqRgLfI6jsBlP9FKheHaUjatrvVjVlcFJk6H0Y2I2yO2pUPTSQ==}
+
+  '@red-cup-engineering/semantic-content-identify-service@0.2.7':
+    resolution: {integrity: sha512-Ag+I4MNasoc5alXN/fmbt81UBhVGx+Yff4CgOicJDo5K9Vmc1XnRYssAyJzu+GzaKveTE5B4b8VP48ep7E7YeA==}
+    engines: {node: '>=22'}
+    hasBin: true
+
+  '@red-cup-engineering/semantic-content-identify-service@0.2.8':
+    resolution: {integrity: sha512-eENj8FGjSnC8zYdzMRoZTWfLAoW4By1hzx6EAfyJksPQ5EUWz2Ko6D4OASm79p9Y9mqpUVz12+GmMDg6Wpt4qA==}
+    engines: {node: '>=22'}
+    hasBin: true
+
+  '@red-cup-engineering/semiotic-resource-name-addressing-service@0.1.4':
+    resolution: {integrity: sha512-LOpcZjBLYverY9F8/ySt+whSh0dbdvEhEHOXvvlmdfOnQ8Ipl6+Pch9ySkMMZTGTbm7OOD2gdMD4lV3lBQ6IOA==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/socializing@0.1.1':
+    resolution: {integrity: sha512-ofnx/gc/o2ZJDRknKkKXC6rL5vLU6HRyhdFt/VrowP7ZP8Cw9ZA0P5oIZVunZ0gGuCPsl04MTH5gu3z45UF0wQ==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/socializing@0.2.0':
+    resolution: {integrity: sha512-cTzTS6ND/9ceG8XdqZ8/e+ikQsoudfScm9rx02FPYg/93GKcXVW2wgbsK2PPuSojDNXrMt7HCHjUarFzqI6bCw==}
+    engines: {node: '>=22.18'}
+
+  '@red-cup-engineering/split-markdown-frontmatter-fence-service@0.1.0':
+    resolution: {integrity: sha512-X/ZTDTCrNC6YbYadGGGfHO8qe6SRpojUp1PIwCN9zkSTa8UHJaFVVLi6r/njjA5WfQdabrmhGMWLCcKN4Q4oMA==}
+
+  '@red-cup-engineering/toml-codec-service@0.1.3':
+    resolution: {integrity: sha512-g6yU7leyQ7KvN68BeLQ29rg/68QJHklHTDbXf26ELxb+AEAmauTLBelfQzq/nW6b5tdFpMyYDHMDD1L4YWe+DA==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/transform-json-schema-to-typescript-service@0.1.0':
+    resolution: {integrity: sha512-/Ooju2gIWDkckwUSePd3GZpXM5gKu41P0fnVlIXazdf7rhTBCBcabIxrhYW5xgXIYFH31XnD737GU2QVnpprbw==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/typed-resource-classification-kernel-service@0.1.3':
+    resolution: {integrity: sha512-zp3Zutyx7lW8SJk8VWTpvDv+MnLD0+EbdqFSqTmc4YkfZLQ9tB9orkCG6veKN7z80qixWJgrWgVoM0kEQXd27w==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/witness-journal-entry-service@0.1.7':
+    resolution: {integrity: sha512-tJ/Tt95makS1uwG3n3xb2++F/JdHR2ABIcYZWHAd+WZMRqyndTh1+tGxhRdELfoPuxiPtMj1OOc+TXSt/AFIMA==}
+    engines: {node: '>=22'}
+
+  '@red-cup-engineering/witness-journal-log-service@0.1.6':
+    resolution: {integrity: sha512-WBqtp/NXpJuTyAl2UnEPloyCPAWCENyXsSdXUvlrbQK+anPazxGyagVfxx0vRPpms08XPF5zcut/9gpnsLoc3Q==}
+    engines: {node: '>=22'}
+    hasBin: true
+
+  '@red-cup-engineering/yaml-frontmatter-codec-service@0.1.4':
+    resolution: {integrity: sha512-S2zfd4G1WlwksfzR9kFPI1vOYI9e8FdvOcqtA1Xrl8NlPCL5WqlP6Ii1MSQwLCjBViA+6zImsxEGCle4LARTjQ==}
+
+  '@types/node@22.20.1':
+    resolution: {integrity: sha512-EANqOCF9QFyra+4pfxUcX9STKJpCLjMbObVzljIJomAWSnuSIEAvyzEU53GaajbXJEgdh0iEcPL+DGvpUd4k1Q==}
+
+  '@ucanto/core@10.4.6':
+    resolution: {integrity: sha512-K3aRsbolL3Mas1P+7Ba+kpCvEVlBJf93V4OZ23FOZRBnbodD+x/ygOEXWL8OYcZpBwYiPeYWMAJPZpIzjNIEoQ==}
+
+  '@ucanto/interface@11.0.1':
+    resolution: {integrity: sha512-d0yoPFXdbb3EyM3sBom5VVcVyz58HT+57qi/ywSY1dbZAm4c7GZss0lpfcI5OXQREzGCzJYAg1e7pFwqbATnmQ==}
+
+  '@ucanto/principal@9.0.3':
+    resolution: {integrity: sha512-MFLvckOpQA46VSeLWyB7xCysL+ub5vnbCEtHbWhNE3qkzeo14v4wSThd60odPhxj83QXrzbveiebp0gcaEvXJg==}
+
+  '@ucanto/validator@10.0.1':
+    resolution: {integrity: sha512-J1/2NAfvs55CxDEuHKMTjoLgoVrFqBbZqErYwL7TDx8Pu2V9sv7rc2wZS5dRxcM1VCEzHXY3SWeLOJuH8VgKrw==}
+
+  ajv-formats@3.0.1:
+    resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+
+  ajv@8.20.0:
+    resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
+
+  cborg@5.1.11:
+    resolution: {integrity: sha512-oc6Pzg/gkTobxHZNgMmny+G99dOeBMbAmnGHcZWMKtolxZBIVwfi0Pj0khxEtNU8HMFdbT5sK0HmtgecDUPP0A==}
+    hasBin: true
+
+  cborg@6.1.2:
+    resolution: {integrity: sha512-hQfFh6FuuCDoycN68FtUpjtQx5kCtxOLA8msbpJZxjtxaMqxgHl+4GNwO+0YexH/lHmVzhhAKa0ua+vtmTRoVw==}
+    hasBin: true
+
+  fast-deep-equal@3.1.3:
+    resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+
+  fast-uri@3.1.8:
+    resolution: {integrity: sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==}
+
+  json-schema-traverse@1.0.0:
+    resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
+
+  multiformats@13.4.2:
+    resolution: {integrity: sha512-eh6eHCrRi1+POZ3dA+Dq1C6jhP1GNtr9CRINMb67OKzqW9I5DUuZM/3jLPlzhgpGeiNUlEGEbkCYChXMCc/8DQ==}
+
+  multiformats@14.0.5:
+    resolution: {integrity: sha512-vbIm83F2yZ1pWJGS0yl0ysracIvv56LtbrIyiIQHoLdYDJOMoLfVFsXhh9DUH4SFdkdkFhucyWniihsNzVEjkQ==}
+
+  one-webcrypto@1.0.3:
+    resolution: {integrity: sha512-fu9ywBVBPx0gS9K0etIROTiCkvI5S1TDjFsYFb3rC1ewFxeOqsbzq7aIMBHsYfrTHBcGXJaONXXjTl8B01cW1Q==}
+
+  require-from-string@2.0.2:
+    resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
+    engines: {node: '>=0.10.0'}
+
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
+  varint@6.0.0:
+    resolution: {integrity: sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg==}
+
+  yaml@2.9.0:
+    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
+snapshots:
+
+  '@ipld/car@5.4.7':
+    dependencies:
+      '@ipld/dag-cbor': 10.0.2
+      cborg: 6.1.2
+      multiformats: 14.0.5
+      varint: 6.0.0
+
+  '@ipld/dag-cbor@10.0.2':
+    dependencies:
+      cborg: 6.1.2
+      multiformats: 14.0.5
+
+  '@ipld/dag-cbor@9.2.7':
+    dependencies:
+      cborg: 5.1.11
+      multiformats: 13.4.2
+
+  '@ipld/dag-json@10.2.9':
+    dependencies:
+      cborg: 5.1.11
+      multiformats: 13.4.2
+
+  '@ipld/dag-ucan@3.4.5':
+    dependencies:
+      '@ipld/dag-cbor': 9.2.7
+      '@ipld/dag-json': 10.2.9
+      multiformats: 13.4.2
+
+  '@lenticule-science/articulating@0.2.2':
+    dependencies:
+      '@red-cup-engineering/transform-json-schema-to-typescript-service': 0.1.0
+
+  '@lenticule-science/articulating@0.2.4':
+    dependencies:
+      '@red-cup-engineering/transform-json-schema-to-typescript-service': 0.1.0
+
+  '@lenticule-science/articulating@0.2.6':
+    dependencies:
+      '@lenticule-science/metrologic': 0.1.1
+      '@red-cup-engineering/transform-json-schema-to-typescript-service': 0.1.0
+
+  '@lenticule-science/articulating@0.4.0':
+    dependencies:
+      '@lenticule-science/metrologic': 0.1.1
+      '@red-cup-engineering/computer-data-type-engine': 0.1.0
+      '@red-cup-engineering/eavt': 0.10.0
+      '@red-cup-engineering/json-codec-service': 0.2.0
+
+  '@lenticule-science/communicating@0.0.5':
+    dependencies:
+      '@lenticule-science/articulating': 0.2.2
+      '@red-cup-engineering/relating': 0.1.3
+      '@red-cup-engineering/semantic-content-identify-service': 0.2.7
+
+  '@lenticule-science/governance-services-section@0.1.4':
+    dependencies:
+      '@red-cup-engineering/relating': 0.1.9
+
+  '@lenticule-science/governance-services-section@0.2.0':
+    dependencies:
+      '@lenticule-science/articulating': 0.4.0
+      '@red-cup-engineering/relating': 0.1.9
+
+  '@lenticule-science/metrologic@0.1.0': {}
+
+  '@lenticule-science/metrologic@0.1.1': {}
+
+  '@lenticule-science/work-science-services-section@0.1.1': {}
+
+  '@noble/curves@1.9.7':
+    dependencies:
+      '@noble/hashes': 1.8.0
+
+  '@noble/ed25519@1.7.5': {}
+
+  '@noble/hashes@1.8.0': {}
+
+  '@red-cup-engineering/animating@0.1.1':
+    dependencies:
+      '@lenticule-science/articulating': 0.2.4
+      '@red-cup-engineering/communicating': 0.1.1
+      '@red-cup-engineering/json-codec-service': 0.1.6
+      '@red-cup-engineering/knowing': 0.1.1
+      '@red-cup-engineering/playing': 0.1.1
+      '@red-cup-engineering/relating': 0.1.5
+      '@red-cup-engineering/relation-model-notation-json-codec': 0.0.6
+      '@red-cup-engineering/relation-model-notation-typing': 0.0.2
+      '@red-cup-engineering/semantic-content-identify-service': 0.2.8
+      '@ucanto/core': 10.4.6
+      '@ucanto/principal': 9.0.3
+      '@ucanto/validator': 10.0.1
+
+  '@red-cup-engineering/animating@0.2.1':
+    dependencies:
+      '@lenticule-science/articulating': 0.2.4
+      '@lenticule-science/work-science-services-section': 0.1.1
+      '@red-cup-engineering/communicating': 0.1.1
+      '@red-cup-engineering/json-codec-service': 0.2.0
+      '@red-cup-engineering/knowing': 0.1.1
+      '@red-cup-engineering/playing': 0.1.1
+      '@red-cup-engineering/relating': 0.1.5
+      '@red-cup-engineering/relation-model-notation-json-codec': 0.0.6
+      '@red-cup-engineering/relation-model-notation-typing': 0.0.2
+      '@red-cup-engineering/semantic-content-identify-service': 0.2.8
+      '@red-cup-engineering/witness-journal-entry-service': 0.1.7
+      '@red-cup-engineering/witness-journal-log-service': 0.1.6
+      '@ucanto/core': 10.4.6
+      '@ucanto/principal': 9.0.3
+      '@ucanto/validator': 10.0.1
+
+  '@red-cup-engineering/canonical-json-service@0.2.1': {}
+
+  '@red-cup-engineering/canonicalize-semiotic-json-service@0.0.1': {}
+
+  '@red-cup-engineering/cbor-codec-service@0.0.2': {}
+
+  '@red-cup-engineering/cbor-ni-service@0.0.1':
+    dependencies:
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/ni-services-section': 0.1.1
+
+  '@red-cup-engineering/cbor-ni-service@0.0.2':
+    dependencies:
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/ni-services-section': 0.1.2
+
+  '@red-cup-engineering/code-http-cookie-service@0.1.1': {}
+
+  '@red-cup-engineering/code-server-sent-event-service@0.1.1': {}
+
+  '@red-cup-engineering/communicating@0.1.1':
+    dependencies:
+      '@red-cup-engineering/relating': 0.1.5
+
+  '@red-cup-engineering/communicating@0.1.3':
+    dependencies:
+      '@lenticule-science/communicating': 0.0.5
+      '@red-cup-engineering/relating': 0.1.5
+
+  '@red-cup-engineering/computer-data-type-engine@0.1.0':
+    dependencies:
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+
+  '@red-cup-engineering/computing@0.2.0':
+    dependencies:
+      '@red-cup-engineering/animating': 0.2.1
+      '@red-cup-engineering/communicating': 0.1.1
+      '@red-cup-engineering/gaming': 0.1.1
+      '@red-cup-engineering/knowing': 0.1.1
+      '@red-cup-engineering/playing': 0.1.1
+      '@red-cup-engineering/relating': 0.1.5
+
+  '@red-cup-engineering/cryptographic-integrity-service@0.1.3': {}
+
+  '@red-cup-engineering/eavt@0.10.0':
+    dependencies:
+      '@lenticule-science/metrologic': 0.1.1
+      '@red-cup-engineering/canonical-json-service': 0.2.1
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/cbor-ni-service': 0.0.2
+      '@red-cup-engineering/json-codec-service': 0.2.0
+      '@red-cup-engineering/ni-services-section': 0.1.2
+
+  '@red-cup-engineering/flatfile@0.1.0': {}
+
+  '@red-cup-engineering/gaming@0.1.1':
+    dependencies:
+      '@red-cup-engineering/animating': 0.1.1
+      '@red-cup-engineering/communicating': 0.1.1
+      '@red-cup-engineering/playing': 0.1.1
+      '@red-cup-engineering/relating': 0.1.9
+
+  '@red-cup-engineering/gaming@0.1.5':
+    dependencies:
+      '@red-cup-engineering/animating': 0.1.1
+      '@red-cup-engineering/communicating': 0.1.3
+      '@red-cup-engineering/playing': 0.1.2
+      '@red-cup-engineering/relating': 0.1.9
+
+  '@red-cup-engineering/gitmodules-file-codec-service@0.2.0':
+    dependencies:
+      '@red-cup-engineering/javascript-file-main-guard-service': 0.1.3
+
+  '@red-cup-engineering/javascript-file-main-guard-service@0.1.3': {}
+
+  '@red-cup-engineering/json-byte-carrier-service@0.1.0': {}
+
+  '@red-cup-engineering/json-codec-service@0.1.6':
+    dependencies:
+      '@lenticule-science/articulating': 0.2.2
+      '@red-cup-engineering/cryptographic-integrity-service': 0.1.3
+      '@red-cup-engineering/typed-resource-classification-kernel-service': 0.1.3
+
+  '@red-cup-engineering/json-codec-service@0.2.0':
+    dependencies:
+      '@lenticule-science/articulating': 0.2.4
+      '@red-cup-engineering/canonical-json-service': 0.2.1
+      '@red-cup-engineering/cryptographic-integrity-service': 0.1.3
+      '@red-cup-engineering/flatfile': 0.1.0
+      '@red-cup-engineering/typed-resource-classification-kernel-service': 0.1.3
+
+  '@red-cup-engineering/knowing@0.1.1':
+    dependencies:
+      '@red-cup-engineering/relating': 0.1.9
+
+  '@red-cup-engineering/ni-services-section@0.1.1': {}
+
+  '@red-cup-engineering/ni-services-section@0.1.2': {}
+
+  '@red-cup-engineering/organizing@0.2.0':
+    dependencies:
+      '@lenticule-science/governance-services-section': 0.1.4
+      '@red-cup-engineering/animating': 0.2.1
+      '@red-cup-engineering/computing': 0.2.0
+      '@red-cup-engineering/gaming': 0.1.5
+      '@red-cup-engineering/gitmodules-file-codec-service': 0.2.0
+      '@red-cup-engineering/playing': 0.1.2
+      '@red-cup-engineering/relating': 0.1.9
+      '@red-cup-engineering/socializing': 0.1.1
+
+  '@red-cup-engineering/playing@0.1.1':
+    dependencies:
+      '@red-cup-engineering/relating': 0.1.9
+
+  '@red-cup-engineering/playing@0.1.2':
+    dependencies:
+      '@red-cup-engineering/relating': 0.1.9
+
+  '@red-cup-engineering/publish-projected-events-service@0.1.1':
+    dependencies:
+      '@red-cup-engineering/code-server-sent-event-service': 0.1.1
+
+  '@red-cup-engineering/punctuated-name-derivation-service@0.1.4':
+    dependencies:
+      '@red-cup-engineering/relation-model-notation': 0.0.2
+      '@red-cup-engineering/relation-model-notation-typing': 0.0.2
+      '@red-cup-engineering/semantic-content-identify-service': 0.2.7
+
+  '@red-cup-engineering/read-markdown-frontmatter-service@0.1.4':
+    dependencies:
+      '@red-cup-engineering/split-markdown-frontmatter-fence-service': 0.1.0
+      '@red-cup-engineering/toml-codec-service': 0.1.3
+      '@red-cup-engineering/yaml-frontmatter-codec-service': 0.1.4
+
+  '@red-cup-engineering/relating@0.1.3':
+    dependencies:
+      '@lenticule-science/articulating': 0.2.2
+      '@red-cup-engineering/json-codec-service': 0.1.6
+      '@red-cup-engineering/relation-model-notation': 0.0.2
+      '@red-cup-engineering/relation-model-notation-eval': 0.0.4
+      '@red-cup-engineering/relation-model-notation-json-codec': 0.0.6
+      '@red-cup-engineering/relation-model-notation-typing': 0.0.2
+      '@red-cup-engineering/typed-resource-classification-kernel-service': 0.1.3
+
+  '@red-cup-engineering/relating@0.1.5':
+    dependencies:
+      '@lenticule-science/metrologic': 0.1.0
+
+  '@red-cup-engineering/relating@0.1.9':
+    dependencies:
+      '@lenticule-science/articulating': 0.2.6
+      '@lenticule-science/metrologic': 0.1.0
+      '@red-cup-engineering/code-http-cookie-service': 0.1.1
+      '@red-cup-engineering/computer-web-server/events': 0.1.1
+      '@red-cup-engineering/read-markdown-frontmatter-service': 0.1.4
+
+  '@red-cup-engineering/relation-model-notation-cbor-codec@0.1.0':
+    dependencies:
+      '@red-cup-engineering/canonicalize-semiotic-json-service': 0.0.1
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/cbor-ni-service': 0.0.1
+
+  '@red-cup-engineering/relation-model-notation-eval@0.0.4':
+    dependencies:
+      '@red-cup-engineering/relation-model-notation': 0.0.2
+      '@red-cup-engineering/relation-model-notation-json-codec': 0.0.6
+
+  '@red-cup-engineering/relation-model-notation-json-codec@0.0.6':
+    dependencies:
+      '@red-cup-engineering/relation-model-notation': 0.0.2
+
+  '@red-cup-engineering/relation-model-notation-runtime@0.2.0':
+    dependencies:
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/ni-services-section': 0.1.1
+      '@red-cup-engineering/relation-model-notation-cbor-codec': 0.1.0
+      '@red-cup-engineering/relational-value-graph-service': 0.1.1
+
+  '@red-cup-engineering/relation-model-notation-typing@0.0.2':
+    dependencies:
+      '@red-cup-engineering/relation-model-notation': 0.0.2
+
+  '@red-cup-engineering/relation-model-notation@0.0.2': {}
+
+  '@red-cup-engineering/relational-value-graph-service@0.1.1':
+    dependencies:
+      '@red-cup-engineering/canonicalize-semiotic-json-service': 0.0.1
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/cbor-ni-service': 0.0.1
+      '@red-cup-engineering/ni-services-section': 0.1.1
+
+  '@red-cup-engineering/semantic-content-identify-service@0.2.7':
+    dependencies:
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/json-byte-carrier-service': 0.1.0
+      '@red-cup-engineering/relation-model-notation': 0.0.2
+      '@red-cup-engineering/relation-model-notation-eval': 0.0.4
+      '@red-cup-engineering/relation-model-notation-json-codec': 0.0.6
+      '@red-cup-engineering/relation-model-notation-typing': 0.0.2
+
+  '@red-cup-engineering/semantic-content-identify-service@0.2.8':
+    dependencies:
+      '@red-cup-engineering/cbor-codec-service': 0.0.2
+      '@red-cup-engineering/json-byte-carrier-service': 0.1.0
+      '@red-cup-engineering/relation-model-notation': 0.0.2
+      '@red-cup-engineering/relation-model-notation-eval': 0.0.4
+      '@red-cup-engineering/relation-model-notation-json-codec': 0.0.6
+      '@red-cup-engineering/relation-model-notation-runtime': 0.2.0
+      '@red-cup-engineering/relation-model-notation-typing': 0.0.2
+
+  '@red-cup-engineering/semiotic-resource-name-addressing-service@0.1.4':
+    dependencies:
+      '@red-cup-engineering/punctuated-name-derivation-service': 0.1.4
+      '@red-cup-engineering/semantic-content-identify-service': 0.2.7
+
+  '@red-cup-engineering/socializing@0.1.1':
+    dependencies:
+      '@red-cup-engineering/animating': 0.1.1
+      '@red-cup-engineering/communicating': 0.1.1
+      '@red-cup-engineering/relating': 0.1.5
+
+  '@red-cup-engineering/socializing@0.2.0':
+    dependencies:
+      '@lenticule-science/governance-services-section': 0.2.0
+      '@red-cup-engineering/animating': 0.1.1
+      '@red-cup-engineering/communicating': 0.1.1
+      '@red-cup-engineering/relating': 0.1.5
+
+  '@red-cup-engineering/split-markdown-frontmatter-fence-service@0.1.0': {}
+
+  '@red-cup-engineering/toml-codec-service@0.1.3': {}
+
+  '@red-cup-engineering/transform-json-schema-to-typescript-service@0.1.0': {}
+
+  '@red-cup-engineering/typed-resource-classification-kernel-service@0.1.3': {}
+
+  '@red-cup-engineering/witness-journal-entry-service@0.1.7':
+    dependencies:
+      '@red-cup-engineering/json-codec-service': 0.1.6
+      '@red-cup-engineering/punctuated-name-derivation-service': 0.1.4
+      '@red-cup-engineering/relation-model-notation-json-codec': 0.0.6
+      '@red-cup-engineering/relation-model-notation-typing': 0.0.2
+      '@red-cup-engineering/semantic-content-identify-service': 0.2.7
+      '@red-cup-engineering/semiotic-resource-name-addressing-service': 0.1.4
+
+  '@red-cup-engineering/witness-journal-log-service@0.1.6':
+    dependencies:
+      '@red-cup-engineering/json-codec-service': 0.1.6
+      '@red-cup-engineering/witness-journal-entry-service': 0.1.7
+
+  '@red-cup-engineering/yaml-frontmatter-codec-service@0.1.4':
+    dependencies:
+      '@red-cup-engineering/json-codec-service': 0.1.6
+      yaml: 2.9.0
+
+  '@types/node@22.20.1':
+    dependencies:
+      undici-types: 6.21.0
+
+  '@ucanto/core@10.4.6':
+    dependencies:
+      '@ipld/car': 5.4.7
+      '@ipld/dag-cbor': 9.2.7
+      '@ipld/dag-ucan': 3.4.5
+      '@ucanto/interface': 11.0.1
+      multiformats: 13.4.2
+
+  '@ucanto/interface@11.0.1':
+    dependencies:
+      '@ipld/dag-ucan': 3.4.5
+      multiformats: 13.4.2
+
+  '@ucanto/principal@9.0.3':
+    dependencies:
+      '@ipld/dag-ucan': 3.4.5
+      '@noble/curves': 1.9.7
+      '@noble/ed25519': 1.7.5
+      '@noble/hashes': 1.8.0
+      '@ucanto/interface': 11.0.1
+      multiformats: 13.4.2
+      one-webcrypto: 1.0.3
+
+  '@ucanto/validator@10.0.1':
+    dependencies:
+      '@ipld/car': 5.4.7
+      '@ipld/dag-cbor': 9.2.7
+      '@ucanto/core': 10.4.6
+      '@ucanto/interface': 11.0.1
+      multiformats: 13.4.2
+
+  ajv-formats@3.0.1(ajv@8.20.0):
+    optionalDependencies:
+      ajv: 8.20.0
+
+  ajv@8.20.0:
+    dependencies:
+      fast-deep-equal: 3.1.3
+      fast-uri: 3.1.8
+      json-schema-traverse: 1.0.0
+      require-from-string: 2.0.2
+
+  cborg@5.1.11: {}
+
+  cborg@6.1.2: {}
+
+  fast-deep-equal@3.1.3: {}
+
+  fast-uri@3.1.8: {}
+
+  json-schema-traverse@1.0.0: {}
+
+  multiformats@13.4.2: {}
+
+  multiformats@14.0.5: {}
+
+  one-webcrypto@1.0.3: {}
+
+  require-from-string@2.0.2: {}
+
+  typescript@5.9.3: {}
+
+  undici-types@6.21.0: {}
+
+  varint@6.0.0: {}
+
+  yaml@2.9.0: {}

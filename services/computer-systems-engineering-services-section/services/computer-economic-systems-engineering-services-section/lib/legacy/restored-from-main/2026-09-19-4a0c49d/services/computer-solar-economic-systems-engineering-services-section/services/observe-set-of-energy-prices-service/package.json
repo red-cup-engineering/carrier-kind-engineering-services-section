@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/observe-set-of-energy-prices-service",
+  "version": "0.1.0",
+  "description": "Observes one dated, place-by-place series of the price of delivered energy: a `KWH` row per\nplace from its own declared `energy-tariff` record (or an explicit unpriced reason when none\nis declared), and a `PROPANE_GAL` and `DIESEL_GAL` row per place from the EIA's own keyless\nweekly retail-price workbooks, fetched once and shared across every place, composing\n`@red-cup-engineering/derive-set-of-energy-price-directives-service`'s own\nlatest-row-at-or-before selection rather than re-deriving it. A commodity with no qualifying\nsource (no declared tariff, a fetch failure, or a weekly series with no row at or before\n`asOf`) is a row with `usdPerUnit: null` and a `reason`, never a fabricated price.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/observe-set-of-energy-prices.mjs",
+  "bin": {
+    "observe-set-of-energy-prices": "scripts/observe-set-of-energy-prices.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/derive-set-of-energy-price-directives-service": "0.1.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/observe-set-of-energy-prices.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

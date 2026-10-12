@@ -1,0 +1,6 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Valued.negate","cases":[
+  {"op":"negate","args":[{"value":[false,false],"for":[],"against":[]}],"result":{"value":[false,false],"for":[],"against":[]}},
+  {"op":"negate","args":[{"value":[true,false],"for":["a"],"against":[]}],"result":{"value":[false,true],"for":[],"against":["a"]}},
+  {"op":"negate","args":[{"value":[false,true],"for":[],"against":["b"]}],"result":{"value":[true,false],"for":["b"],"against":[]}},
+  {"op":"negate","args":[{"value":[true,true],"for":["a"],"against":["b"]}],"result":{"value":[true,true],"for":["b"],"against":["a"]}}
+]}

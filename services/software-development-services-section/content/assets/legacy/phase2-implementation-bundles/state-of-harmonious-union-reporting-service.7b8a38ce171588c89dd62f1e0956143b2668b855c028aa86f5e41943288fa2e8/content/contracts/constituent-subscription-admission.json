@@ -1,9 +1,0 @@
-{
-  "kind": "metroplat.contract",
-  "id": "constituent-subscription-admission",
-  "owner": "urn:ame:turntide-islands",
-  "service": "freeze the exact constituent coverage denominator",
-  "precondition": "TTI-authored version, effective instant, and exact settlement actor/provider actor/endpoint/contract entries",
-  "postcondition": "digest-bound manifest or refusal",
-  "invariants": ["manifest-only-membership", "no-filesystem-discovery", "no-directory-proximity", "no-ownership-file-inference", "no-root-or-global-roster"]
-}

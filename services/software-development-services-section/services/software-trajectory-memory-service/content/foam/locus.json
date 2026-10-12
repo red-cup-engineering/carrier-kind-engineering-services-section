@@ -1,9 +1,0 @@
-{
-  "type": "OperationalActorModelLocus",
-  "address": ["software", "development", "trajectory", "memory"],
-  "actor": "urn:ame:software-trajectory-memory-service",
-  "operation": "transact-software-trajectory-memory",
-  "positiveCommitment": "The Actor retains, recalls, resumes, and folds back software mission trajectories using the settlement chain bound by its signed Agent Card.",
-  "settlementCaip2": "eip155:5615610",
-  "messageFace": "http://127.0.0.1:19843/.well-known/agent-card.json"
-}

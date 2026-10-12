@@ -1,0 +1,10 @@
+minimumReleaseAgeExclude:
+  - '@lenticule-science/metrologic@0.1.0'
+  - '@red-cup-engineering/animating@0.1.1'
+  - '@red-cup-engineering/communicating@0.1.1'
+  - '@red-cup-engineering/knowing@0.1.1'
+  - '@red-cup-engineering/playing@0.1.1'
+  - '@red-cup-engineering/relating@0.1.5'
+  - '@lenticule-science/articulating@0.4.0'
+  - '@lenticule-science/governance-services-section@0.2.0'
+  - '@red-cup-engineering/computer-data-type-engine@0.1.0'

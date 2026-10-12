@@ -1,0 +1,41 @@
+{
+  "name": "@red-cup-engineering/metroplat-operations-console",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/application.mjs",
+    "./books": "./src/books.mjs",
+    "./control-plane": "./src/control-plane.mjs",
+    "./people": "./src/people.mjs",
+    "./task-list": "./src/task-list.mjs",
+    "./scripts/check-live-ledger": "./scripts/check-live-ledger.mjs",
+    "./obligations": "./src/obligations.mjs",
+    "./declared-obligations": "./src/declared-obligations.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-web-server": "workspace:*",
+    "@red-cup-engineering/eavt-services-section": "workspace:*",
+    "@red-cup-engineering/feltos": "workspace:*",
+    "@red-cup-engineering/html-structural-projection-service": "workspace:*",
+    "@red-cup-engineering/http-services-section": "workspace:*",
+    "@red-cup-engineering/oauth-services-section": "workspace:*",
+    "@red-cup-engineering/organizing": "workspace:*",
+    "@red-cup-engineering/qwzspace": "workspace:*",
+    "@red-cup-engineering/web-page-tiling-engine": "workspace:*",
+    "@red-cup-engineering/github-semioverse-settler-service": "workspace:*"
+  },
+  "bin": {
+    "metroplat-check-live-ledger": "scripts/check-live-ledger.mjs"
+  },
+  "receivingTests": [
+    "test/github-issues.test.mjs",
+    "test/github-native-intake.test.mjs",
+    "test/github-resolver-application.test.mjs",
+    "test/obligation-source-receiving.test.mjs"
+  ],
+  "devDependencies": {
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/metroplat": "workspace:*"
+  }
+}

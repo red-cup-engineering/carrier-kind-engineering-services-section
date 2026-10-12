@@ -1,0 +1,42 @@
+{
+  "kind": "source-patchset-stage",
+  "version": 1,
+  "inventorySha256": "8eb0bdcaa34d6486755b85984a55dc19b0c5569aa5176b64aa4737f785ea8eb8",
+  "candidateSha256": "b1d0c3757ef1dbdaeee0136177d92519b856a565c84863725af2bc1a77d9ebb5",
+  "materializerSha256": "40e2f54798ff33e388191744000c934a7ff162cca800be84ead68ad964585f98",
+  "inputs": {
+    "package.json": {
+      "state": "present",
+      "sha256": "1febdd807512eb732220186e7e47d60400129d276ae7f46da6e9b56850bcf76f",
+      "mode": 420
+    },
+    "src/journal/diagnostics.mjs": {
+      "state": "present",
+      "sha256": "dd05640aaaef58c0ddc5422bda7944fab50b4d873f69c5714c5aeb690cc13d7e",
+      "mode": 420
+    },
+    "src/journal/filesystem/source-owner.mjs": {
+      "state": "present",
+      "sha256": "60d2630a49bb84f0b04eb294ee2b7a195746e465bcd61d100a59a47f9527aca1",
+      "mode": 420
+    }
+  },
+  "outputs": {
+    "package.json": {
+      "state": "present",
+      "sha256": "1febdd807512eb732220186e7e47d60400129d276ae7f46da6e9b56850bcf76f",
+      "mode": 420
+    },
+    "src/journal/diagnostics.mjs": {
+      "state": "present",
+      "sha256": "dd05640aaaef58c0ddc5422bda7944fab50b4d873f69c5714c5aeb690cc13d7e",
+      "mode": 420
+    },
+    "src/journal/filesystem/source-owner.mjs": {
+      "state": "present",
+      "sha256": "b52fadf6b1065fa9f925266833a21697c3653f5fc585ba2aca50f6addea47be2",
+      "mode": 420
+    }
+  },
+  "disposition": "staged-unaccepted"
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/library/condensing/library/quantum-spacetime/library/collapsing/library/classical-spacetime/library/balancing/balancing.schema.json",
+  "title": "balancing",
+  "description": "The scott coherence — invertible (◇□ = □◇), unlike twistor/cohere. Is the kernel's commutate: splits the field into {saturated: presheaf, residue: traces}. Info/physics: detailed balance — the confluence is why the equilibrium thermalizing reaches is unique; reversible local laws commute, so one global equilibrium exists. io typed by the kernel commutating schema via the promoted voidmath-kernel-schema package.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "balancing" },
+    "kind": { "type": "string", "const": "morphism" },
+    "is": { "type": "string", "const": "commutate" },
+    "role": { "type": "string", "const": "scott-coherence" },
+    "domain": { "type": "string", "const": "classical-spacetime" },
+    "codomain": { "type": "string", "const": "classical-spacetime" },
+    "io": { "$ref": "https://voidmath.active.development.561.group/articulating/library/category/predicating/library/category/positing/library/category/commutating/commutating.schema.json" }
+  },
+  "required": ["name", "is"]
+}

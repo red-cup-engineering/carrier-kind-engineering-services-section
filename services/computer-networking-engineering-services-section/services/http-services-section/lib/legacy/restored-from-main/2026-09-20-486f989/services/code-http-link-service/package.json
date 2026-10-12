@@ -1,0 +1,24 @@
+{
+  "name": "@red-cup-engineering/code-http-link-service",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "Parse and form HTTP Link fields.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/code-http-link.d.mts",
+      "import": "./src/code-http-link.mjs"
+    }
+  },
+  "files": [
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mts"
+  },
+  "sideEffects": false
+}

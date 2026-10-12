@@ -1,0 +1,40 @@
+{
+  "name": "@red-cup-engineering/a2a-deployed-provider-observation-service",
+  "version": "0.1.1",
+  "private": false,
+  "type": "module",
+  "description": "Forms a content-addressed application observation for one exact machine-bound signed A2A provider.",
+  "exports": {
+    ".": "./src/observe-deployed-provider.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/",
+    "README.md"
+  ],
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "0.6.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "0.6.0",
+    "@red-cup-engineering/deployment-formation-contracts": "0.1.1"
+  },
+  "devDependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-rmn-part-service": "0.3.0",
+    "@red-cup-engineering/notebooklm-services-section": "0.3.7",
+    "@red-cup-engineering/relation-model-notation-runtime": "0.14.0",
+    "jose": "6.2.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "license": "MIT",
+  "sideEffects": false
+}

@@ -17,8 +17,7 @@ test("host forwards an explicit native receiving directory without inventing a S
   assert.equal(Object.hasOwn(config.activityPub,"statePath"),false);
  }
 });
-test("historical configuration retains its obstruction locator and rejects contradictory native selection",()=>{
- assert.equal(configure({}).activityPub.statePath,"/not-a-live-state/activitypub.sqlite");
- assert.equal(configure({ACTIVITYPUB_SQLITE_PATH:"/not-a-live-historical.sqlite"}).activityPub.statePath,"/not-a-live-historical.sqlite");
- for(const mode of [{},{ACTIVITYPUB_NODE_HOST:"fixture.invalid"}]) assert.throws(()=>configure({...mode,ACTIVITYPUB_STATE_DIR:"/not-a-live-received-state",ACTIVITYPUB_SQLITE_PATH:"/not-a-live-historical.sqlite"}),/cannot be combined/);
+test("the state directory defaults beside the host state and the removed SQL locator is refused",()=>{
+ assert.equal(configure({}).activityPub.stateDirectory,"/not-a-live-state/activitypub.state");
+ for(const mode of [{},{ACTIVITYPUB_NODE_HOST:"fixture.invalid"}]) assert.throws(()=>configure({...mode,ACTIVITYPUB_SQLITE_PATH:"/not-a-live-historical.sqlite"}),/no longer read/);
 });

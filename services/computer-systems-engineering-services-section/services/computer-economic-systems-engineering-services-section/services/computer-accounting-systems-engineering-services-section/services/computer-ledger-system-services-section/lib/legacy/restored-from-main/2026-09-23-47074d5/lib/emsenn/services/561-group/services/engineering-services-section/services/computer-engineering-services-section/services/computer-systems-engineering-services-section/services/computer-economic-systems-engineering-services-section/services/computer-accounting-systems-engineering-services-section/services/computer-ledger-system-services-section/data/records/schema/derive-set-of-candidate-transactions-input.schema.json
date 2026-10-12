@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:red-cup-engineering:schema:derive-set-of-candidate-transactions-input:1",
+  "title": "CandidateTransactionDerivationInput",
+  "type": "object",
+  "required": ["mismatches"],
+  "additionalProperties": false,
+  "properties": {
+    "mismatches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["account", "commodity", "assertedBalance", "assertionDate", "sourceId"],
+        "additionalProperties": false,
+        "properties": {
+          "account": { "type": "string", "minLength": 1, "description": "The Beancount custody account the chain assertion is about." },
+          "commodity": { "type": "string", "minLength": 1, "description": "The commodity/symbol the balance is denominated in." },
+          "postedBalance": {
+            "type": ["string", "null"],
+            "description": "The ledger's booked cumulative balance as an exact decimal or reduced fraction string, optionally unit-suffixed; null when never posted (treated as 0)."
+          },
+          "assertedBalance": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The chain-witnessed balance as an exact decimal or reduced fraction string, optionally unit-suffixed."
+          },
+          "assertionDate": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "The balance directive's own date (one day after its cutoff)." },
+          "sourceId": { "type": "string", "minLength": 1, "description": "The chain source id witnessing this assertion, carried onto the candidate transaction as source_id metadata." }
+        }
+      }
+    },
+    "openAccounts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Every account already opened in the ledger; a counter account absent from this list is opened by the derivation."
+    }
+  }
+}

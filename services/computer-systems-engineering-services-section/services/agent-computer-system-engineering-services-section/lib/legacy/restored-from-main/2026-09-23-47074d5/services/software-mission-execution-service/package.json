@@ -1,0 +1,32 @@
+{
+  "name": "@red-cup-engineering/software-mission-execution-service",
+  "version": "0.3.0",
+  "type": "module",
+  "description": "Market-coordinated software mission cell over immutable source, durable trajectory memory, isolated tools, and customer induction.",
+  "exports": {
+    ".": "./src/client.mjs",
+    "./client": "./src/client.mjs"
+  },
+  "bin": {
+    "induce-verified-software-mission-proposal": "./scripts/induce-verified-software-mission-proposal.mjs",
+    "run-software-mission": "./scripts/run-software-mission.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/agent-harness-computer-system-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/computer-code-development-engine": "0.3.0",
+    "@red-cup-engineering/filepath-services-section": "0.1.0",
+    "@red-cup-engineering/github-services-section": "0.1.0",
+    "@red-cup-engineering/inference-dispatch-service": "0.37.3",
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0",
+    "@red-cup-engineering/relation-model-notation": "0.3.0"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/computer-system-engine": "0.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

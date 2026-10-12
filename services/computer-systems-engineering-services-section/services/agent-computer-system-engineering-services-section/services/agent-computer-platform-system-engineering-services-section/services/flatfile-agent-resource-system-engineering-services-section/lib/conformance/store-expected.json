@@ -1,0 +1,249 @@
+{
+  "description": "Canonical query results for lib/conformance/fixture-corpus/, computed by pyfars.kernel.store.System (design spec section 4/5B, conformance vector). Both pyfars and jsfars store surfaces must reproduce this exactly. Cell triples are [subject, predicate, object] lists; a FOUR value is {pos, neg}; an absent triple values to {pos:false, neg:false} (NEITHER) and does not hold.",
+  "cells": [
+    {
+      "subject": "alpha-example",
+      "predicate": "instantiates",
+      "object": "alpha",
+      "pos": true,
+      "neg": false
+    },
+    {
+      "subject": "alpha-property",
+      "predicate": "depends-on",
+      "object": "alpha",
+      "pos": true,
+      "neg": false
+    },
+    {
+      "subject": "beta",
+      "predicate": "depends-on",
+      "object": "alpha",
+      "pos": true,
+      "neg": false
+    },
+    {
+      "subject": "beta",
+      "predicate": "link",
+      "object": "alpha",
+      "pos": true,
+      "neg": false
+    },
+    {
+      "subject": "open-question",
+      "predicate": "explores",
+      "object": "alpha",
+      "pos": true,
+      "neg": false
+    }
+  ],
+  "absent_triple": {
+    "subject": "alpha",
+    "predicate": "depends-on",
+    "object": "beta",
+    "value": {
+      "pos": false,
+      "neg": false
+    },
+    "holds": false
+  },
+  "site": {
+    "cells": [
+      "alpha",
+      "alpha-example",
+      "alpha-property",
+      "beta",
+      "concepts",
+      "examples",
+      "open-question",
+      "questions",
+      "theorems"
+    ],
+    "faces": [
+      [
+        "alpha",
+        "concepts"
+      ],
+      [
+        "alpha-example",
+        "examples"
+      ],
+      [
+        "alpha-property",
+        "theorems"
+      ],
+      [
+        "beta",
+        "concepts"
+      ],
+      [
+        "open-question",
+        "questions"
+      ]
+    ]
+  },
+  "queries": {
+    "cells_at": {
+      "alpha-example": [
+        [
+          "alpha-example",
+          "instantiates",
+          "alpha"
+        ]
+      ],
+      "alpha-property": [
+        [
+          "alpha-property",
+          "depends-on",
+          "alpha"
+        ]
+      ],
+      "beta": [
+        [
+          "beta",
+          "depends-on",
+          "alpha"
+        ],
+        [
+          "beta",
+          "link",
+          "alpha"
+        ]
+      ],
+      "open-question": [
+        [
+          "open-question",
+          "explores",
+          "alpha"
+        ]
+      ]
+    },
+    "subjects_with": {
+      "depends-on|alpha": [
+        "alpha-property",
+        "beta"
+      ],
+      "explores|alpha": [
+        "open-question"
+      ],
+      "instantiates|alpha": [
+        "alpha-example"
+      ],
+      "link|alpha": [
+        "beta"
+      ]
+    },
+    "in_edges": {
+      "alpha": [
+        [
+          "alpha-example",
+          "instantiates",
+          "alpha"
+        ],
+        [
+          "alpha-property",
+          "depends-on",
+          "alpha"
+        ],
+        [
+          "beta",
+          "depends-on",
+          "alpha"
+        ],
+        [
+          "beta",
+          "link",
+          "alpha"
+        ],
+        [
+          "open-question",
+          "explores",
+          "alpha"
+        ]
+      ]
+    },
+    "out_edges": {
+      "alpha-example": [
+        [
+          "alpha-example",
+          "instantiates",
+          "alpha"
+        ]
+      ],
+      "alpha-property": [
+        [
+          "alpha-property",
+          "depends-on",
+          "alpha"
+        ]
+      ],
+      "beta": [
+        [
+          "beta",
+          "depends-on",
+          "alpha"
+        ],
+        [
+          "beta",
+          "link",
+          "alpha"
+        ]
+      ],
+      "open-question": [
+        [
+          "open-question",
+          "explores",
+          "alpha"
+        ]
+      ]
+    },
+    "relation_map_subject_keyed": {
+      "depends-on": {
+        "alpha-property": [
+          "alpha"
+        ],
+        "beta": [
+          "alpha"
+        ]
+      },
+      "explores": {
+        "open-question": [
+          "alpha"
+        ]
+      },
+      "instantiates": {
+        "alpha-example": [
+          "alpha"
+        ]
+      },
+      "link": {
+        "beta": [
+          "alpha"
+        ]
+      }
+    },
+    "relation_map_object_keyed": {
+      "depends-on": {
+        "alpha": [
+          "alpha-property",
+          "beta"
+        ]
+      },
+      "explores": {
+        "alpha": [
+          "open-question"
+        ]
+      },
+      "instantiates": {
+        "alpha": [
+          "alpha-example"
+        ]
+      },
+      "link": {
+        "alpha": [
+          "beta"
+        ]
+      }
+    }
+  }
+}

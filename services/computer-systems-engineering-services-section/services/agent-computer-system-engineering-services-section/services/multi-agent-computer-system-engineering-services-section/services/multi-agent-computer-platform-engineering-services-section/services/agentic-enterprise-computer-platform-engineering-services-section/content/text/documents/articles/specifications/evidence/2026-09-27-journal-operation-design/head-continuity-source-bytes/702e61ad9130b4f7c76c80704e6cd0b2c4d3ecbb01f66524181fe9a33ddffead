@@ -1,0 +1,1454 @@
+/**
+ * @packageDocumentation
+ *
+ * The journal engine's one effectful store: every directory walk, file read,
+ * and file write behind the `journal` namespace (`journal.mjs`) lives here.
+ * Reads and writes are not split into separate `read-journal-*`/
+ * `write-journal-*` modules the way `heads.mjs`'s two independent functions
+ * are (see `read-journal-heads.mjs`/`write-journal-heads.mjs`): the causal
+ * admission index (events) and the legacy-projection backfill (the derived
+ * artifact tiers) each make a *read* trigger a *write* -- admitting a
+ * received witness is the read path's own backfill, not a side channel --
+ * so a read/write module pair here would import each other, one hull file
+ * pretending to be two. `src/lib/filesystem/index.mjs` sets the same
+ * precedent: one module for a whole effect domain, no read/write split.
+ *
+ * Every pure law this store composes keeps living, and keeps its name, in
+ * the hull module its callers already used before this split: content-
+ * address and admission-index path arithmetic and the EAVT/event codec in
+ * `events.mjs`; head-index path arithmetic in `heads.mjs`; the read-through
+ * cache's pure law in `territory-cache.mjs`; the legacy sidecar path in
+ * `legacy-codec.mjs`; packet path arithmetic and the atomic-term/datom-
+ * reading laws in `index.mjs`. This module supplies only the effect those
+ * laws are computed against or written through.
+ */
+import path from "node:path";
+import { createVerifiedContentReader } from "@red-cup-engineering/immutable-content-custody-service";
+import { verifyArtifact } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/identity";
+import { canonicalJson } from "@red-cup-engineering/json-services-section";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
+
+import { parse, requireJsonValue } from "@red-cup-engineering/json-services-section";
+import { journalWitness, parseJournalWitness } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/event";
+import {
+  ensureDirectory,
+  foldFileLinesUtf8,
+  foldToLinesAtomicSync,
+  linkFileNew,
+  pathExists,
+  readDirectoryEntries,
+  readFileBuffer,
+  readFileUtf8,
+  statPathOrNull,
+  walkFiles,
+  writeFileAtomicNew,
+
+} from "@red-cup-engineering/computer-system-engine/filesystem";
+// `readJsonFile` was a near-duplicate of relating's own filesystem-store definition (the
+// same best-effort JSON read); this module now calls relating's directly rather than
+// keeping a second copy. `ensureStoreDirs`/`writeJsonAtomic` were the same story, but
+// nothing in this module (or the rest of MetroPlat) calls either one, so only the name
+// this module itself uses is imported here -- no re-export: a consumer that wants them
+// takes them from relating's filesystem-store by that house name, not through this store.
+import { readJsonFile, writeFileAtomic } from "@red-cup-engineering/computer-system-engine/filesystem";
+import { isCausalWitness } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/judgment";
+import {
+  evaluateWitnessDependencies,
+  rebuildCausalSubstrate,
+
+} from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/substrate";
+import { validateAddressedWitnessCore } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/witness";
+import { artifactStoreRoot, journalDirectoryOf, receivedSearchRoot } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/store-root";
+import {
+  dataArtifactHandlePath,
+  dataStoreFromLogPath,
+  dataTierDirectory,
+  feedArtifactPath,
+  logRecordArtifactPath,
+  projectDataArtifactPath,
+
+} from "@red-cup-engineering/eavt-services-section/data-artifact-address";
+import { closeStateAccum, foldStateAccumRow, initialStateAccum } from "@red-cup-engineering/eavt-services-section/ledger/state-fold";
+import {
+  journalAppendAddress,
+  journalLogArtifact,
+  journalObservation,
+  journalRecordArtifact,
+  journalStateArtifact,
+  observeJournalOperation,
+
+} from "./operations/index.mjs";
+
+import {
+  admittedIndexPath,
+  alreadyExists,
+  causalAdmissionIndexRoot,
+  artifactPath,
+  blockedIndexPath,
+  causeIndexDirectoryPath,
+  causeIndexPath,
+  coreTime,
+  dependentDirectory,
+  artifactObjectDirectory,
+  digestSegment,
+  referenceOfDigest,
+  eventDirectoryPath,
+  eventForRow,
+  eventIndexDirectoryPath,
+  eventIndexPath,
+  eventPath,
+  evidenceJson,
+  indexReadyPath,
+  parseLegacyLineAsEvents,
+  receivedDirectoryPath,
+  receivedLocationDirectory,
+  receivedPath,
+  requiredReferences,
+  rowFromStatement,
+  rowsOfStatements,
+  verdictEvent,
+
+} from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/filesystem/events";
+import { headPath } from "./heads.mjs";
+import {
+  SEGMENT_SUFFIX,
+  compactLegacyStore,
+  logPathOfSegment,
+  segmentAdmit,
+  segmentArtifact,
+  segmentFiles,
+  segmentStatements,
+} from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-eavt/journal/filesystem/segment-store";
+import { legacyAttemptDirectoryPath } from "./legacy-codec.mjs";
+import { readThroughTerritoryEvents } from "./territory-cache.mjs";
+import {
+  compactDatomReading,
+  isAtomicPayload,
+  packetArtifactPath,
+  packetReferencePath,
+  STATEMENT_LOG_READ_MAX_BYTES,
+  STATEMENT_ROW_MAX_BYTES,
+
+} from "./index.mjs";
+import { eavtKey, eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
+
+// ── events: the causal admission index (received witness -> admitted witness) ──
+
+
+function receivedWitnesses(logPath) {
+  const searchRoot = receivedSearchRoot(logPath);
+  const receivedMarker = `${path.sep}received${path.sep}sha-256${path.sep}`;
+  const statementSuffix = ".statements";
+  const locations = [];
+  for (const filePath of walkFiles(searchRoot, {
+    includeFile: (name, fullPath) => name.endsWith(".json") && fullPath.includes(receivedMarker),
+  })) {
+    const statementAt = filePath.indexOf(`${statementSuffix}${receivedMarker}`);
+    if (statementAt < 0) continue;
+    locations.push(Object.freeze({
+      filePath,
+      logPath: filePath.slice(0, statementAt),
+      statement: readEventFile(filePath),
+    }));
+  }
+  return Object.freeze(locations.sort((left, right) => left.filePath.localeCompare(right.filePath)));
+}
+
+function writeImmutableJson(filePath, value) {
+  const serialized = `${canonicalJson(value)}\n`;
+  try {
+    writeFileAtomicNew(filePath, serialized);
+    return true;
+  } catch (error) {
+    if (!alreadyExists(error)) throw error;
+    if (readFileUtf8(filePath) !== serialized) {
+      throw new TypeError(`immutable causal-admission index entry has different bytes: ${filePath}`);
+    }
+    return false;
+  }
+}
+
+const CAUSAL_ADMISSION_INDEX_VERSION = 1;
+
+/** Write reverse dependency and location entries before publishing the local
+ * received witness. Once the migration marker exists, every durable received
+ * witness is therefore discoverable from any dependency that can activate it. */
+function indexReceivedWitness(logPath, statement) {
+  const root = artifactStoreRoot(logPath);
+  const relativeLogPath = path.relative(root, path.resolve(logPath));
+  for (const dependency of requiredReferences(statement)) {
+    writeImmutableJson(
+      path.join(dependentDirectory(logPath, dependency), `${digestSegment(statement.id)}.json`),
+      Object.freeze({
+        kind: "metroplat.journal.causal-dependent-index",
+        version: CAUSAL_ADMISSION_INDEX_VERSION,
+        dependency,
+        witness: statement.id,
+      }),
+    );
+  }
+  writeImmutableJson(
+    path.join(receivedLocationDirectory(logPath, statement.id), `${sha256Hex(relativeLogPath)}.json`),
+    Object.freeze({
+      kind: "metroplat.journal.received-location-index",
+      version: CAUSAL_ADMISSION_INDEX_VERSION,
+      witness: statement.id,
+      logPath: relativeLogPath,
+    }),
+  );
+}
+
+function receivedLocationsFor(logPath, id) {
+  const directory = receivedLocationDirectory(logPath, id);
+  if (!pathExists(directory)) return Object.freeze([]);
+  const root = artifactStoreRoot(logPath);
+  const locations = [];
+  for (const filePath of walkFiles(directory, { includeFile: (name) => name.endsWith(".json") })) {
+    const value = parse(readFileUtf8(filePath));
+    if (value === null || Array.isArray(value) || typeof value !== "object") continue;
+    const record = value;
+    if (record["kind"] !== "metroplat.journal.received-location-index"
+      || record["version"] !== CAUSAL_ADMISSION_INDEX_VERSION
+      || record["witness"] !== id
+      || typeof record["logPath"] !== "string") continue;
+    const receivedLogPath = path.resolve(root, record["logPath"]);
+    if (path.resolve(artifactStoreRoot(receivedLogPath)) !== path.resolve(root)) continue;
+    const receivedFilePath = receivedPath(receivedLogPath, id);
+    if (!pathExists(receivedFilePath)) continue;
+    const statement = readEventFile(receivedFilePath);
+    if (statement.id !== id) throw new TypeError(`received-location index points at a different witness: ${id}`);
+    locations.push(Object.freeze({ filePath: receivedFilePath, logPath: receivedLogPath, statement }));
+  }
+  return Object.freeze(locations.sort((left, right) => left.filePath.localeCompare(right.filePath)));
+}
+
+
+function publishStatement(logPath, sourcePath, statement) {
+  const filePath = eventPath(logPath, statement.id);
+  const serialized = `${canonicalJson(statement)}\n`;
+  try {
+    linkFileNew(sourcePath, filePath);
+    return Object.freeze({ statement, written: true, admission: "admitted" });
+  } catch (error) {
+    if (!alreadyExists(error)) throw error;
+    if (readFileUtf8(filePath) !== serialized) {
+      throw new TypeError(`same journal witness address has different persisted bytes: ${statement.id}`);
+    }
+    return Object.freeze({ statement, written: false, admission: "admitted" });
+  }
+}
+
+function markAdmitted(logPath, sourcePath, statement) {
+  const filePath = admittedIndexPath(logPath, statement.id);
+  try {
+    linkFileNew(sourcePath, filePath);
+    return true;
+  } catch (error) {
+    if (!alreadyExists(error)) throw error;
+    const existing = readEventFile(filePath);
+    if (existing.id !== statement.id) {
+      throw new TypeError(`admitted causal index contains a different witness: ${statement.id}`);
+    }
+    return false;
+  }
+}
+
+function markBlocked(logPath, id, obstruction) {
+  return writeImmutableJson(blockedIndexPath(logPath, id), Object.freeze({
+    kind: "metroplat.journal.blocked-witness-index",
+    version: CAUSAL_ADMISSION_INDEX_VERSION,
+    witness: id,
+    obstruction,
+  }));
+}
+
+/** Backfill the rebuildable reverse index once for roots written by the prior
+ * whole-corpus admission path. New writers index before publishing received
+ * witnesses, so an object arriving concurrently with this scan cannot fall
+ * behind the completion marker. Existing admitted hard links become the
+ * authoritative root-global admitted markers used by incremental closure. */
+function ensureCausalAdmissionIndex(logPath) {
+  const ready = indexReadyPath(logPath);
+  if (pathExists(ready)) return;
+  const receivedSet = receivedWitnesses(logPath);
+  for (const received of receivedSet) {
+    indexReceivedWitness(received.logPath, received.statement);
+  }
+  const rebuilt = rebuildCausalSubstrate(readArtifactSources(logPath));
+  if (!isCausalWitness(rebuilt)) throw new TypeError(rebuilt.message);
+  for (const received of receivedSet) {
+    const state = rebuilt.value.witnessState(received.statement.id);
+    if (state === "admitted") {
+      markAdmitted(logPath, received.filePath, received.statement);
+      const write = publishStatement(received.logPath, received.filePath, received.statement);
+      writeStatementIndex(received.logPath, received.statement, write.written);
+    } else if (state === "blocked") {
+      const obstruction = rebuilt.value.obstruction(received.statement.id);
+      if (obstruction !== undefined) markBlocked(logPath, received.statement.id, obstruction);
+    }
+  }
+  writeImmutableJson(ready, Object.freeze({
+    kind: "metroplat.journal.causal-admission-index",
+    version: CAUSAL_ADMISSION_INDEX_VERSION,
+    source: "received-witnesses-and-exact-artifacts",
+  }));
+}
+
+function indexedWitnessState(logPath, reference) {
+  if (pathExists(admittedIndexPath(logPath, reference))) return "admitted";
+  if (pathExists(blockedIndexPath(logPath, reference))) return "blocked";
+  return receivedLocationsFor(logPath, reference).length > 0 ? "quarantined" : "not-witness";
+}
+
+function readAddressedArtifact(logPath, ref) {
+  const filePath = artifactPath(logPath, ref);
+  if (!pathExists(filePath)) return undefined;
+  try {
+    return verifyArtifact(ref, readFileUtf8(filePath));
+  } catch (error) {
+    throw new TypeError(`corrupt journal artifact ${ref}: ${error.message}`);
+  }
+}
+
+/** Resolve and verify one exact object from the journal's authoritative store. */
+export function readArtifactSource(logPath, ref) {
+  const held = segmentArtifact(logPath, ref);
+  if (held !== undefined) return held;
+  const artifact = readAddressedArtifact(logPath, ref);
+  return artifact === undefined ? undefined : Object.freeze({ ref, canonicalText: artifact.canonical.text });
+}
+
+
+/** Whole-source reconstruction is reserved for rebuilding the derived causal
+ * admission index when its completion marker is absent. Ordinary appends use
+ * dependency-shaped reads and never call this root-global verifier. */
+function readArtifactSources(logPath) {
+  const directory = artifactObjectDirectory(logPath);
+  if (!pathExists(directory)) return Object.freeze([]);
+  const sources = [];
+  for (const filePath of walkFiles(directory, { includeFile: (name) => name.endsWith(".json") })) {
+    const ref = referenceOfDigest(path.basename(filePath, ".json"));
+    if (ref === undefined) continue;
+    const artifact = readAddressedArtifact(logPath, ref);
+    if (artifact !== undefined) sources.push(Object.freeze({ ref, canonicalText: artifact.canonical.text }));
+  }
+  return Object.freeze(sources.sort((left, right) => left.ref.localeCompare(right.ref)));
+}
+
+function writeStatementIndex(logPath, statement, written) {
+  ensureDirectory(eventIndexDirectoryPath(logPath));
+  try {
+    writeFileAtomicNew(eventIndexPath(logPath, statement.id), `${canonicalJson(Object.freeze({
+      id: statement.id,
+      causes: statement.core.causes,
+      written,
+    }))}\n`);
+  } catch (error) {
+    if (!alreadyExists(error)) throw error;
+  }
+  for (const cause of statement.core.causes) {
+    ensureDirectory(causeIndexDirectoryPath(logPath, cause));
+    try {
+      writeFileAtomicNew(causeIndexPath(logPath, cause, statement.id), `${canonicalJson(Object.freeze({
+        from: cause,
+        to: statement.id,
+      }))}\n`);
+    } catch (error) {
+      if (!alreadyExists(error)) throw error;
+    }
+  }
+}
+
+const readVerifiedWitness = createVerifiedContentReader({
+  read: readFileBuffer,
+  verify: (bytes) => {
+    const text = bytes.toString("utf8");
+    const statement = parseJournalWitness(parse(text));
+    return { statement, text, canonicalText: `${canonicalJson(statement)}\n` };
+  },
+});
+
+/**
+ * @param filePath Exact witness file path.
+ * @returns The witness verified against its current bytes and filename address.
+ * @throws {TypeError} When the bytes or address fail verification.
+ */
+export function readEventFile(filePath) {
+  return readWitnessContent(filePath).statement;
+}
+
+function readWitnessContent(filePath) {
+  const content = readVerifiedWitness(filePath);
+  const { statement } = content;
+  if (path.basename(filePath, ".json") !== digestSegment(statement.id)) {
+    throw new TypeError(`journal witness does not match its filename address: ${filePath}`);
+  }
+  return content;
+}
+
+/** Read a present exact witness. Corruption is an explicit integrity failure. */
+export function tryReadEventFile(filePath) {
+  if (!pathExists(filePath)) return undefined;
+  return readEventFile(filePath);
+}
+
+/** Whether a feed or its store still holds the earlier one-file-per-fact layout. */
+function legacyFeed(logPath) {
+  return pathExists(eventDirectoryPath(logPath));
+}
+function legacyStore(logPath) {
+  return pathExists(causalAdmissionIndexRoot(logPath));
+}
+
+/** The earlier store's view, passed to segment admission while that layout exists under the root. */
+function legacyView(logPath) {
+  const objects = pathExists(artifactObjectDirectory(logPath));
+  const index = legacyStore(logPath);
+  return Object.freeze({
+    ...(index ? { state: (id) => indexedWitnessState(logPath, id) } : {}),
+    ...(objects ? { artifact: (ref) => readAddressedArtifact(logPath, ref) } : {}),
+  });
+}
+
+function admittedReceivedWitnesses(logPath) {
+  if (!legacyFeed(logPath)) return Object.freeze([]);
+  ensureCausalAdmissionIndex(logPath);
+  const received = new Map();
+  const directory = receivedDirectoryPath(logPath);
+  if (pathExists(directory)) {
+    for (const filePath of walkFiles(directory, { includeFile: (name) => name.endsWith(".json") })) {
+      received.set(filePath, readWitnessContent(filePath));
+    }
+  }
+  const indexedDirectory = path.join(eventDirectoryPath(logPath), "sha-256");
+  if (pathExists(indexedDirectory)) {
+    for (const indexedFile of walkFiles(indexedDirectory, { includeFile: (name) => name.endsWith(".json") })) {
+      const indexed = readWitnessContent(indexedFile);
+      const receivedFile = receivedPath(logPath, indexed.statement.id);
+      // Received files are create-only: one written after the listing above, by a writer admitting
+      // concurrently, is read now rather than reported missing.
+      if (!received.has(receivedFile) && pathExists(receivedFile)) received.set(receivedFile, readWitnessContent(receivedFile));
+      const source = received.get(receivedFile);
+      if (source === undefined) {
+        throw new TypeError(`admitted journal witness is missing from its feed: ${indexed.statement.id}`);
+      }
+      if (indexed.text !== source.canonicalText) {
+        throw new TypeError(`same journal witness address has different persisted bytes: ${indexed.statement.id}`);
+      }
+    }
+  }
+  return Object.freeze([...received].filter(([, source]) => {
+    const markerPath = admittedIndexPath(logPath, source.statement.id);
+    if (!pathExists(markerPath)) return false;
+    const marker = readWitnessContent(markerPath);
+    if (marker.statement.id !== source.statement.id) {
+      throw new TypeError(`admitted causal index contains a different witness: ${source.statement.id}`);
+    }
+    return true;
+  })
+    .map(([filePath, { statement }]) => Object.freeze({ filePath, logPath, statement }))
+    .sort((left, right) => left.filePath.localeCompare(right.filePath)));
+}
+
+/** A feed's source files: its witness segment, and any earlier per-witness files. */
+export function eventFiles(logPath) {
+  return Object.freeze([...segmentFiles(logPath), ...admittedReceivedWitnesses(logPath).map(({ filePath }) => filePath)]);
+}
+
+/** A feed's admitted witnesses, from its segment and any earlier per-witness files, once each, in id order. */
+export function readEvents(logPath) {
+  const byId = new Map();
+  for (const statement of segmentStatements(logPath)) byId.set(statement.id, statement);
+  for (const { statement } of admittedReceivedWitnesses(logPath)) if (!byId.has(statement.id)) byId.set(statement.id, statement);
+  return Object.freeze([...byId.values()].sort((left, right) => left.id.localeCompare(right.id)));
+}
+
+export function readEventsAsOf(logPath, frontier) {
+  const byId = new Map(readEvents(logPath).map((statement) => [statement.id, statement]));
+  const selected = new Map();
+  const visit = (id) => {
+    if (selected.has(id)) return;
+    const statement = byId.get(id);
+    if (statement === undefined) return;
+    selected.set(id, statement);
+    for (const cause of statement.core.causes) visit(cause);
+  };
+  for (const id of frontier) visit(id);
+  return Object.freeze([...selected.values()].sort((left, right) => left.id.localeCompare(right.id)));
+}
+
+/** Admit witnesses into a feed through the causal admission law, into its witness segment. */
+export function admitEvents(
+  logPath,
+  statements,
+  artifacts = [],
+) {
+  return segmentAdmit(logPath, statements, artifacts, legacyView(logPath));
+}
+
+export function admitJournalObservations(logPath, cores, seat) {
+  const statements = cores.map((core) => {
+    try {
+      return journalWitness(core);
+    } catch (error) {
+      const text = (() => {
+        try {
+          return canonicalJson(requireJsonValue(core, "inadmissible statement core"));
+        } catch {
+          return String(core);
+        }
+      })();
+      return verdictEvent({
+        seat,
+        reason: "untyped-statement",
+        address: `inadmissible:${eavtKey(toEavt({
+          e: "metroplat.journal.inadmissible",
+          a: "statement-core",
+          v: text,
+          t: coreTime(core),
+        }))}`,
+        time: coreTime(core),
+        evidence: evidenceJson(core, error instanceof Error ? error.message : "statement core failed admission"),
+      });
+    }
+  });
+  return admitEvents(logPath, statements);
+}
+
+export function writeRows(logPath, rows, seat, options = {}) {
+  return admitEvents(logPath, rows.map((row) => eventForRow(row, seat, options)), options.artifacts);
+}
+
+export function readEventRows(logPath) {
+  const statements = readEvents(logPath);
+  return rowsOfStatements(statements);
+}
+
+export function readEventRowsAsOf(logPath, frontier) {
+  return rowsOfStatements(readEventsAsOf(logPath, frontier));
+}
+
+export function foldEventRows(
+  logPath,
+  init,
+  step,
+) {
+  let result = init;
+  let rows = 0;
+  let malformed = 0;
+  for (const statement of readEvents(logPath)) {
+    const row = rowFromStatement(statement);
+    if (row === undefined) {
+      malformed += 1;
+      continue;
+    }
+    result = step(result, row);
+    rows += 1;
+  }
+  return Object.freeze({ result, rows, malformed });
+}
+
+// ── legacy codec: pre-event JSONL compatibility reads ──
+
+export function legacySourceFiles(logPath) {
+  const files = [];
+  if (statPathOrNull(logPath) !== null) files.push(logPath);
+  const directory = legacyAttemptDirectoryPath(logPath);
+  if (pathExists(directory)) {
+    files.push(...walkFiles(directory, {
+      maxDepth: 0,
+      includeFile: (name) => name.endsWith(".jsonl"),
+    }));
+  }
+  return Object.freeze(files.sort((left, right) => left.localeCompare(right)));
+}
+
+export function projectLegacyLog(logPath, seat) {
+  const statements = [];
+  const rows = [];
+  const malformed = [];
+  let bytes = 0;
+  const files = legacySourceFiles(logPath);
+  for (const file of files) {
+    bytes += statPathOrNull(file)?.size ?? 0;
+    let lineNumber = 0;
+    foldFileLinesUtf8(file, (line) => {
+      lineNumber += 1;
+      const projected = parseLegacyLineAsEvents(
+        line,
+        seat,
+        "0000-00-00T00:00:00.000Z",
+        `${path.basename(file)}:${lineNumber}`,
+      );
+      statements.push(...projected);
+      for (const statement of projected) {
+        if (Array.isArray(statement.observation.payload)) rows.push(statement.observation.payload);
+        else malformed.push(statement);
+      }
+    });
+  }
+  return Object.freeze({
+    statements: Object.freeze(statements.sort((left, right) => left.id.localeCompare(right.id))),
+    rows: Object.freeze(rows),
+    malformed: Object.freeze(malformed),
+    bytes,
+    files,
+  });
+}
+
+// ── territory: the structural signature the read-through cache compares ──
+
+function directorySignature(dirPath) {
+  const stat = statPathOrNull(dirPath);
+  return stat === null ? "absent" : `${stat.mtimeMs}:${stat.size}`;
+}
+
+/** A cheap structural signature over every dated log directory under one
+ * settlement root: three bounded `readdir` passes (years, months, days),
+ * never a walk of the files inside them. Changes exactly when a new dated
+ * log directory or a new feed directly under one appears. This is the one
+ * effect `territory-cache.mjs`'s pure read-through law is computed against;
+ * `journal.mjs` supplies it on `source.territorySignature` at every call. */
+export function territoryStructuralSignature(root) {
+  const logsRoot = journalDirectoryOf(root);
+  if (!pathExists(logsRoot)) return "absent";
+  const parts = [];
+  let years;
+  try {
+    years = readDirectoryEntries(logsRoot);
+  } catch {
+    return "absent";
+  }
+  for (const year of years) {
+    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
+    const yearDir = path.join(logsRoot, year.name);
+    let months;
+    try {
+      months = readDirectoryEntries(yearDir);
+    } catch {
+      continue;
+    }
+    for (const month of months) {
+      if (!month.isDirectory()) continue;
+      const monthDir = path.join(yearDir, month.name);
+      let days;
+      try {
+        days = readDirectoryEntries(monthDir);
+      } catch {
+        continue;
+      }
+      for (const day of days) {
+        if (!day.isDirectory()) continue;
+        const dayDir = path.join(monthDir, day.name);
+        parts.push(`${year.name}-${month.name}-${day.name}:${directorySignature(dayDir)}`);
+      }
+    }
+  }
+  return parts.sort().join("|");
+}
+
+// ── compaction: carrying a root from the one-file-per-fact layout into segments ──
+
+/** Every witness received anywhere in one store's earlier layout, with the blocked ones. */
+function legacyBlocked(logPath) {
+  const directory = path.join(causalAdmissionIndexRoot(logPath), "blocked", "sha-256");
+  if (!pathExists(directory)) return Object.freeze([]);
+  const blocked = [];
+  for (const filePath of walkFiles(directory, { includeFile: (name) => name.endsWith(".json") })) {
+    const record = parse(readFileUtf8(filePath));
+    if (record && typeof record.witness === "string") blocked.push(Object.freeze({ id: record.witness, obstruction: record.obstruction ?? null }));
+  }
+  return Object.freeze(blocked);
+}
+
+/**
+ * Carry one settlement root's journal from the one-file-per-fact layout into witness segments and
+ * the compact admission indexes; with `remove`, delete the earlier layout once every admitted
+ * witness reads back from its segment.
+ * @param {string} dataRoot settlement root.
+ * @param {{remove?: boolean}} [options]
+ */
+export function compactJournalStore(dataRoot, { remove = false } = {}) {
+  const storeRoot = journalDirectoryOf(dataRoot);
+  const anchor = path.join(storeRoot, "compaction.jsonl");
+  return compactLegacyStore(storeRoot, {
+    remove,
+    feeds: () => territoryLogPathsInternal(dataRoot).filter(legacyFeed),
+    statements: (logPath) => admittedReceivedWitnesses(logPath).map(({ statement }) => statement),
+    received: () => (legacyStore(anchor) ? receivedWitnesses(anchor).map(({ logPath, statement }) => ({ logPath, statement })) : []),
+    blocked: () => legacyBlocked(anchor),
+    artifacts: () => readArtifactSources(anchor),
+  });
+}
+
+// ── heads: small mutable causal-head indexes ──
+
+export function readJournalHead(root, at, namespace, key) {
+  try {
+    const value = parse(readFileUtf8(headPath(root, at, namespace, key)));
+    return value !== null && typeof value === "object" && !Array.isArray(value)
+      ? value
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function writeJournalHead(root, at, namespace, key, value) {
+  writeFileAtomic(headPath(root, at, namespace, key), `${JSON.stringify(value)}\n`);
+}
+
+// ── index: the journal's derived artifact tiers (projections, packets, state, records) ──
+
+function statementLogSourceFiles(logPath) {
+  ensureLegacyProjected(logPath);
+  return eventFiles(logPath);
+}
+
+function ensureLegacyProjected(logPath) {
+  if (eventFiles(logPath).length > 0) return;
+  const legacy = projectLegacyLog(logPath, Object.freeze({
+    kind: "metroplat.legacy-journal-codec",
+    logPath,
+  }));
+  if (legacy.statements.length === 0) return;
+  admitEvents(logPath, legacy.statements);
+}
+
+function statementLogSourceBytes(files) {
+  return files.reduce((sum, file) => sum + (statPathOrNull(file)?.size ?? 0), 0);
+}
+
+/** Source byte length for one statement-log handle. */
+export function sourceByteLengthInternal(logArtifact) {
+  return statementLogSourceBytes(statementLogSourceFiles(dataArtifactHandlePath(logArtifact, "log")));
+}
+
+/** True when one statement-log handle has source material. */
+export function sourceExistsInternal(logArtifact) {
+  return statementLogSourceFiles(dataArtifactHandlePath(logArtifact, "log")).length > 0;
+}
+
+export function sourceSelectionInternal(logPath) {
+  const files = statementLogSourceFiles(logPath);
+  return Object.freeze({ files });
+}
+
+export function scanSourceFilesInternal(
+  files,
+  init,
+  step,
+) {
+  let result = init;
+  let rows = 0;
+  let malformed = 0;
+  const logPaths = new Set();
+  for (const file of files) {
+    const segmentLog = logPathOfSegment(file);
+    if (segmentLog !== undefined) {
+      logPaths.add(segmentLog);
+      continue;
+    }
+    const marker = ".jsonl.statements/";
+    const markerAt = file.indexOf(marker);
+    if (markerAt >= 0) logPaths.add(`${file.slice(0, markerAt)}.jsonl`);
+  }
+  for (const logPath of logPaths) {
+    const folded = foldEventRows(logPath, result, step);
+    result = folded.result;
+    rows += folded.rows;
+    malformed += folded.malformed;
+  }
+  return { result, rows, malformed };
+}
+
+/**
+ * Every admitted log feed for one date under a data root, regardless of which
+ * subject recorded it. A feed is present when either its legacy
+ * `${date}-admit-*.jsonl` channel code exists or its content-addressed
+ * statement directory exists. A caller wanting
+ * one specific feed's rows should still address it directly; this is for
+ * callers that need every recorded row for a date across however many
+ * subjects wrote to it, where recognizing which rows matter is a question the
+ * rows' own structure answers, not the filename they happened to land in.
+ */
+export function listDailyFeedsInternal(dataRoot, date) {
+  const directory = dataTierDirectory(dataRoot, "log", date);
+  if (!pathExists(directory)) return Object.freeze([]);
+  try {
+    return listDailyFeedsAtDirectory(directory, date);
+  } catch {
+    return Object.freeze([]);
+  }
+}
+
+function listDailyFeedsAtDirectory(directory, date) {
+  const admitPrefix = `${date}-admit-`;
+  const feeds = new Set();
+  for (const entry of readDirectoryEntries(directory)) {
+    if (entry.isFile() && entry.name.startsWith(admitPrefix) && entry.name.endsWith(".jsonl")) {
+      feeds.add(path.join(directory, entry.name));
+    } else if (entry.isFile() && entry.name.startsWith(admitPrefix) && entry.name.endsWith(`.jsonl${SEGMENT_SUFFIX}`)) {
+      feeds.add(path.join(directory, entry.name.slice(0, -SEGMENT_SUFFIX.length)));
+    } else if (entry.isDirectory() && entry.name.startsWith(admitPrefix) && entry.name.endsWith(".jsonl.statements")) {
+      feeds.add(path.join(directory, entry.name.slice(0, -".statements".length)));
+    }
+  }
+  return Object.freeze([...feeds].sort((left, right) => left.localeCompare(right)));
+}
+
+export function journalDateStatus(dataRoot, date) {
+  const directory = dataTierDirectory(dataRoot, "log", date);
+  if (!pathExists(directory)) return Object.freeze({ exists: false, legacyIdentitySidecars: 0 });
+  try {
+    const legacyIdentitySidecars = readDirectoryEntries(directory)
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".identities")).length;
+    return Object.freeze({ exists: true, legacyIdentitySidecars });
+  } catch {
+    return Object.freeze({ exists: false, legacyIdentitySidecars: 0 });
+  }
+}
+
+export function discoverJournalRoots(root, maxDepth = 7) {
+  const resolvedRoot = path.resolve(root);
+  const found = [];
+  const skipped = new Set(["node_modules", ".git", "dist", ".tmp", ".metroplat-tmp", "data", "content"]);
+  const visit = (dir, depth) => {
+    if (depth > maxDepth) return;
+    if (path.basename(dir) !== "data" && statPathOrNull(journalDirectoryOf(dir))?.isDirectory() === true) found.push(dir);
+    let entries;
+    try {
+      entries = readDirectoryEntries(dir);
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.name.startsWith(".") || skipped.has(entry.name)) continue;
+      visit(path.join(dir, entry.name), depth + 1);
+    }
+  };
+  visit(resolvedRoot, 0);
+  return Object.freeze(found.sort((left, right) => left.localeCompare(right)));
+}
+
+export function enclosingJournalRoot(targetPath, fallback) {
+  let dir = path.dirname(path.resolve(targetPath));
+  for (;;) {
+    if (path.basename(dir) !== "data" && statPathOrNull(journalDirectoryOf(dir))?.isDirectory() === true) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) return path.resolve(fallback);
+    dir = parent;
+  }
+}
+
+export function journalAdmissionSpan(dataRoot) {
+  const logsDir = journalDirectoryOf(dataRoot);
+  if (!pathExists(logsDir)) return Object.freeze({ first: null, last: null, feeds: 0 });
+  let first = null;
+  let last = null;
+  let feeds = 0;
+  for (const year of readDirectoryEntries(logsDir)) {
+    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
+    for (const month of readDirectoryEntries(path.join(logsDir, year.name))) {
+      if (!month.isDirectory()) continue;
+      for (const day of readDirectoryEntries(path.join(logsDir, year.name, month.name))) {
+        if (!day.isDirectory()) continue;
+        const date = `${year.name}-${month.name}-${day.name}`;
+        const count = listDailyFeedsInternal(dataRoot, date).length;
+        if (count === 0) continue;
+        feeds += count;
+        if (first === null || date < first) first = date;
+        if (last === null || date > last) last = date;
+      }
+    }
+  }
+  return Object.freeze({ first, last, feeds });
+}
+
+/** Fold every recorded EAVT row for one date across every admitted log file
+ *  under a data root (see {@link listDailyFeedsInternal}). */
+export function scanDailyRowsInternal(
+  dataRoot,
+  date,
+  init,
+  step,
+  admit = () => true,
+) {
+  let result = init;
+  let rows = 0;
+  let malformed = 0;
+  let feeds = 0;
+  for (const file of listDailyFeedsInternal(dataRoot, date)) {
+    if (!admit(file)) continue;
+    feeds += 1;
+    const folded = scanRowsInternal(file, result, step);
+    result = folded.result;
+    rows += folded.rows;
+    malformed += folded.malformed;
+  }
+  return Object.freeze({ result, rows, malformed, feeds });
+}
+
+/** Every recorded EAVT row for one date across every admitted log file
+ *  under a data root (see {@link listDailyFeedsInternal}). */
+export function readDailyAdmitRows(dataRoot, date) {
+  return Object.freeze(scanDailyRowsInternal(dataRoot, date, [], (rows, row) => {
+    rows.push(row);
+    return rows;
+  }).result);
+}
+
+/**
+ * @param dataRoot Settlement root.
+ * @returns Every log path recorded anywhere in the territory.
+ */
+export function territoryLogPathsInternal(dataRoot, throughDate) {
+  const logsRoot = journalDirectoryOf(dataRoot);
+  if (!pathExists(logsRoot)) return Object.freeze([]);
+  const logPaths = new Set();
+  for (const year of readDirectoryEntries(logsRoot)) {
+    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
+    const yearDirectory = path.join(logsRoot, year.name);
+    for (const month of readDirectoryEntries(yearDirectory)) {
+      if (!month.isDirectory() || !/^(0[1-9]|1[0-2])$/u.test(month.name)) continue;
+      const monthDirectory = path.join(yearDirectory, month.name);
+      for (const day of readDirectoryEntries(monthDirectory)) {
+        if (!day.isDirectory() || !/^(0[1-9]|[12]\d|3[01])$/u.test(day.name)) continue;
+        const date = `${year.name}-${month.name}-${day.name}`;
+        if (throughDate !== undefined && date > throughDate) continue;
+        for (const logPath of listDailyFeedsAtDirectory(path.join(monthDirectory, day.name), date)) logPaths.add(logPath);
+      }
+    }
+  }
+  return Object.freeze([...logPaths].sort((left, right) => left.localeCompare(right)));
+}
+
+/**
+ * Locate one subject's feeds without first enumerating every feed in the
+ * territory. A subject's address is deterministic for each calendar
+ * partition, so a reader need only walk the small date tree and test that
+ * address; it must not materialize the whole day's unrelated feed directory.
+ * This keeps durable, subject-scoped readings usable after a member has
+ * accumulated a large journal.
+ */
+export function subjectLogPathsInternal(
+  dataRoot,
+  subject,
+  throughDate,
+) {
+  const logsRoot = journalDirectoryOf(dataRoot);
+  if (!pathExists(logsRoot)) return Object.freeze([]);
+  const paths = [];
+  for (const year of readDirectoryEntries(logsRoot)) {
+    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
+    const yearDirectory = path.join(logsRoot, year.name);
+    for (const month of readDirectoryEntries(yearDirectory)) {
+      if (!month.isDirectory() || !/^(0[1-9]|1[0-2])$/u.test(month.name)) continue;
+      const monthDirectory = path.join(yearDirectory, month.name);
+      for (const day of readDirectoryEntries(monthDirectory)) {
+        if (!day.isDirectory() || !/^(0[1-9]|[12]\d|3[01])$/u.test(day.name)) continue;
+        const date = `${year.name}-${month.name}-${day.name}`;
+        if (date > throughDate) continue;
+        const addressed = journalAppendAddress(dataRoot, subject, date, { subject });
+        if (pathExists(`${addressed.path}${SEGMENT_SUFFIX}`) || pathExists(`${addressed.path}.statements`) || pathExists(addressed.path)) paths.push(addressed.path);
+      }
+    }
+  }
+  return Object.freeze(paths.sort((left, right) => left.localeCompare(right)));
+}
+
+/** Fold every admitted row in a territory without exposing journal paths.
+ *  Reuses the read-through territory events cache ({@link
+ *  readThroughTerritoryEvents}) rather than re-walking and re-parsing every
+ *  log on each call: the (expensive) log-path discovery is cached by the
+ *  territory's structural signature, and each discovered log's own parse is
+ *  cached independently, so admitting into one feed never forces every
+ *  other feed under the same root to re-parse too. */
+export function foldTerritoryRows(
+  dataRoot,
+  init,
+  step,
+) {
+  const { logPaths, events } = readThroughTerritoryEvents(dataRoot, {
+    discoverLogPaths: () => territoryLogPathsInternal(dataRoot),
+    readLog: (logPath) => readEvents(logPath),
+    territorySignature: () => territoryStructuralSignature(dataRoot),
+  });
+  let result = init;
+  let rows = 0;
+  let malformed = 0;
+  for (const event of events) {
+    const row = rowFromStatement(event);
+    if (row === undefined) {
+      malformed += 1;
+      continue;
+    }
+    result = step(result, row);
+    rows += 1;
+  }
+  return Object.freeze({ result, rows, malformed, feeds: logPaths.length });
+}
+
+/**
+ * Read a feed's admitted statement log as a report-bearing journal observation.
+ *
+ * A missing or unreadable log yields an observation with `rows: []`, making the
+ * empty feed a first-class state instead of an exceptional case. The result
+ * carries the operation contract, boundary exposure, and exposure report beside
+ * the normalized EAVT records.
+ */
+export function readRows(store, feed) {
+  const logPath = feedArtifactPath(store.logDir, feed, "jsonl");
+  const sourceFiles = statementLogSourceFiles(logPath);
+  const sourceBytes = statementLogSourceBytes(sourceFiles);
+  if (sourceBytes > STATEMENT_LOG_READ_MAX_BYTES) {
+    // Beyond this bound a whole-file read would materialize every row
+    // resident (parsed JS objects run several times the JSONL byte count),
+    // trading a slow OOM for the old ERR_STRING_TOO_LONG crash. The honest
+    // move is the same FOUR-charge refusal shape as the stat-absent/
+    // read-failed branches below -- evidenced both ways, the `contested` corner
+    // (the log is present, but this read declines it) -- naming the streaming
+    // alternative rather than attempting a read this function cannot bound.
+    const rows = [];
+    const artifact = journalLogArtifact(logPath);
+    const obstruction = `log source is ${sourceBytes} bytes, over the ${STATEMENT_LOG_READ_MAX_BYTES}-byte whole-read bound; use streamStatementLogPath to fold it without materializing every row`;
+    const observation = observeJournalOperation(feed, "read-statement-rows");
+    return journalObservation(
+      Object.freeze({ ...observation, operation: "read-statement-rows", artifact, rows, obstruction }),
+      "statement log read",
+    );
+  }
+  if (sourceFiles.length === 0) {
+    const rows = [];
+    const artifact = journalLogArtifact(logPath);
+    const observation = observeJournalOperation(feed, "read-statement-rows");
+    return journalObservation(
+      Object.freeze({ ...observation, operation: "read-statement-rows", artifact, rows }),
+      "statement log read",
+    );
+  }
+  const read = readEventRows(logPath);
+  const rows = read.rows;
+  const malformed = read.verdicts.map((statement, index) => Object.freeze({
+    line: index + 1,
+    text: statement.bytes,
+    reason: String((statement.observation.payload)?.reason ?? "inadmissible statement"),
+  }));
+  const artifact = journalLogArtifact(logPath);
+  const observation = observeJournalOperation(feed, "read-statement-rows");
+  return journalObservation(
+    Object.freeze({
+      ...observation,
+      operation: "read-statement-rows",
+      artifact,
+      rows: Object.freeze(rows),
+      ...(malformed.length === 0 ? {} : { malformed: Object.freeze(malformed) }),
+    }),
+    "statement log read",
+  );
+}
+
+/** Read a statement log directly from its durable `data/journals/.../<feed>.jsonl` artifact handle. */
+export function readRowsPath(logArtifact) {
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  const { store, feed } = dataStoreFromLogPath(logPath);
+  return readRows(store, feed);
+}
+
+export function readRowsAsOfPath(logArtifact, frontier) {
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  ensureLegacyProjected(logPath);
+  const { feed } = dataStoreFromLogPath(logPath);
+  const read = readEventRowsAsOf(logPath, frontier);
+  const artifact = journalLogArtifact(logPath);
+  const observation = observeJournalOperation(feed, "read-statement-rows");
+  return journalObservation(Object.freeze({
+    ...observation,
+    operation: "read-statement-rows",
+    artifact,
+    rows: read.rows,
+    ...(read.verdicts.length === 0 ? {} : {
+      malformed: Object.freeze(read.verdicts.map((statement, index) => Object.freeze({
+        line: index + 1,
+        text: statement.bytes,
+        reason: "inadmissible statement",
+      }))),
+    }),
+  }), "as-of statement log read");
+}
+
+export function readEventIdsPath(logArtifact) {
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  ensureLegacyProjected(logPath);
+  return Object.freeze(readEvents(logPath).map((statement) => statement.id));
+}
+
+/**
+ * Stream a durable `data/journals` artifact one admitted EAVT row at a time,
+ * through the SAME line-wise admission `readRows` uses (a corrupted
+ * line is evidence, never a thrown error that poisons the whole read), never
+ * materializing the file or its row array whole. This is the alternative
+ * `readRows`'s size guard names for a log over `STATEMENT_LOG_READ_MAX_BYTES`,
+ * and the primitive any genuinely unbounded-row consumer (a migration, a
+ * bulk export) should fold over instead of collecting `.rows`. `maxBytes`
+ * bounds the read to a fixed snapshot length -- pass the log's own `statSync`
+ * size to make this pass agree with an independent whole-file read (a
+ * content hash, a second stream) about "the file" even while it is being
+ * appended to concurrently.
+ */
+export async function* streamStatementLogPath(
+  logArtifact,
+  onMalformed,
+  maxBytes,
+) {
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  void maxBytes;
+  const read = readEventRows(logPath);
+  read.verdicts.forEach((statement, index) => {
+    onMalformed?.({ line: index + 1, text: statement.bytes, reason: "inadmissible statement" });
+  });
+  for (const row of read.rows) yield row;
+}
+
+/**
+ * Fold a durable log artifact's rows synchronously, one line at a time,
+ * through the same admission `readRows` uses. This is the internal
+ * bounded-memory primitive `projectStateInternal`/`projectRecordInternal`/
+ * `commitRecordInternal` fold over instead of collecting `readRows(...).rows` --
+ * a resident `EAVT[]` for every row is exactly the shape that made a grown
+ * day log's projections costly. Kept synchronous (unlike `streamStatementLogPath`)
+ * so these projections' existing public call sites need no async cascade.
+ */
+export function scanRowsInternal(
+  logPath,
+  init,
+  step,
+) {
+  ensureLegacyProjected(logPath);
+  return foldEventRows(logPath, init, step);
+}
+
+/** Slice a JSON record document out of a statement log by folding source rows
+ *  into a domain accumulator instead of first materializing a `StatementLogRead`.
+ *  This is the record-tier analogue of `projectStateInternal`: callers retain
+ *  only the sufficient statistic their record format requires. */
+export function projectDomainRecordInternal(
+  logArtifact,
+  operation,
+  suffix,
+  context,
+  init,
+  step,
+  build,
+  options = {},
+) {
+  void options;
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  const { feed } = dataStoreFromLogPath(logPath);
+  const recordPath = logRecordArtifactPath(logPath, suffix);
+  const sourceArtifact = journalLogArtifact(logPath);
+  const artifact = journalRecordArtifact(recordPath, "json");
+  const sourceSelection = sourceSelectionInternal(logPath);
+  const folded = scanSourceFilesInternal(sourceSelection.files, init(), step);
+  const source = Object.freeze({ rows: folded.rows, malformed: folded.malformed, logPath });
+  const projected = build(folded.result, source);
+  if (isAtomicPayload(projected.payload)) {
+    throw new TypeError(`projectDomainRecordInternal: ${operation} payload measured atomic, not a compound term — reconsider its tier`);
+  }
+  writeFileAtomic(recordPath, `${canonicalJson(projected.payload)}\n`);
+  const observation = observeJournalOperation(feed, operation);
+  return journalObservation(Object.freeze({
+    ...observation,
+    operation,
+    sourceArtifact,
+    artifact,
+    ...(projected.receipt ?? {}),
+  }), context);
+}
+
+/** Write one immutable packet (create-exclusive, idempotent by content) and
+ *  return its coordinates. The one packet-write primitive: arrival and hook
+ *  admission import this rather than carrying their own copies of the
+ *  directory layout and EEXIST tolerance. `bytes` counts the content, not the
+ *  trailing newline the file carries. */
+export function writePacketText(logDir, text) {
+  const sha256 = sha256Hex(text);
+  const packetPath = packetArtifactPath(logDir, sha256);
+  try {
+    writeFileAtomicNew(packetPath, `${text}\n`);
+  } catch (error) {
+    if (!alreadyExists(error)) throw error;
+  }
+  return Object.freeze({
+    sha256,
+    bytes: Buffer.byteLength(text, "utf8"),
+    path: packetPath,
+    relativePath: packetReferencePath(logDir, packetPath),
+  });
+}
+
+function packetReference(logDir, text) {
+  const packet = writePacketText(logDir, text);
+  return Object.freeze({
+    kind: "metroplat.witness-packet-reference",
+    mediaType: "application/json",
+    sha256: packet.sha256,
+    bytes: packet.bytes,
+    href: `blob:sha256:${packet.sha256}`,
+    path: packet.relativePath,
+  });
+}
+
+function packetizeValue(logDir, value, inlineLimitBytes) {
+  const text = canonicalJson(value);
+  return Buffer.byteLength(text, "utf8") <= inlineLimitBytes ? value : packetReference(logDir, text);
+}
+
+/** Bound one admitted row by replacing an oversized value with a durable packet
+ *  reference. If the row is still too large after that, packet the whole row
+ *  and admit an obstruction that points at the packet instead of erasing the
+ *  original material. */
+function packetizeOversizedRow(logDir, row) {
+  const { e, a, v, t } = eavtRecord(row);
+  const valuePacketized = toEavt({ e, a, v: packetizeValue(logDir, v, STATEMENT_ROW_MAX_BYTES), t });
+  const rowText = canonicalJson(valuePacketized);
+  if (Buffer.byteLength(rowText, "utf8") <= STATEMENT_ROW_MAX_BYTES) return valuePacketized;
+  const [entity, attribute, , time] = row;
+  const originalPacket = packetReference(logDir, canonicalJson(row));
+  return toEavt({
+    e: entity,
+    a: attribute,
+    v: Object.freeze({
+      // Frozen legacy wire discriminant; the source API exposes a statement obstruction.
+      kind: "metroplat.witness-row-obstruction",
+      reason: "over-threshold-packeted",
+      threshold: STATEMENT_ROW_MAX_BYTES,
+      packet: originalPacket,
+    }),
+    t: time,
+  });
+}
+
+/**
+ * Source-admit every normalized statement row into one durable
+ * content-addressed statement. The feed JSONL path is only the logical handle
+ * callers use to name the statement set; no live write publishes a feed file.
+ * Over-threshold values are written as immutable content-addressed packet files
+ * under `packets/sha256/`, and statement payloads carry packet references
+ * instead of dropping the original material.
+ */
+function writeIndexRows(
+  store,
+  feed,
+  rows,
+  options = {},
+) {
+  const logPath = feedArtifactPath(store.logDir, feed, "jsonl");
+  const artifact = journalLogArtifact(logPath);
+  if (rows.length === 0) {
+    const observation = observeJournalOperation(feed, "write-statement-rows");
+    return journalObservation(
+      Object.freeze({ ...observation, operation: "write-statement-rows", artifact, rows: 0, appended: 0, statements: Object.freeze([]) }),
+      "journal append result",
+    );
+  }
+  const admitted = rows.map((row) => packetizeOversizedRow(store.logDir, row));
+  const writes = writeRows(logPath, admitted, options.caller === undefined ? feed : options.caller, {
+    ...(options.eventClaim === undefined ? {} : { claim: options.eventClaim }),
+    ...(options.eventCauses === undefined ? {} : { causes: options.eventCauses }),
+    ...(options.eventArtifacts === undefined ? {} : { artifacts: options.eventArtifacts }),
+  });
+  const observation = observeJournalOperation(feed, "write-statement-rows");
+  return journalObservation(
+    Object.freeze({
+      ...observation,
+      operation: "write-statement-rows",
+      artifact,
+      rows: rows.length,
+      appended: writes.filter((write) => write.written).length,
+      statements: Object.freeze(writes.map((write) => Object.freeze({
+        id: write.statement.id,
+        path: eventPath(logPath, write.statement.id),
+        written: write.written,
+      }))),
+    }),
+    "journal append result",
+  );
+}
+
+/** Admit statement rows under `$root/data/journals/...` and return the log artifact descriptor. */
+export function appendRowsInternal(
+  root,
+  action,
+  rows,
+  options = {},
+) {
+  const first = rows[0];
+  const at = options.at ?? (first === undefined ? "0000-00-00" : eavtRecord(first).t);
+  const log = journalAppendAddress(root, action, at, options);
+  const { store, feed } = dataStoreFromLogPath(log.path);
+  return writeIndexRows(store, feed, rows, {
+    at,
+    ...(options.caller === undefined ? {} : { caller: options.caller }),
+    ...(options.eventClaim === undefined ? {} : { eventClaim: options.eventClaim }),
+    ...(options.eventCauses === undefined ? {} : { eventCauses: options.eventCauses }),
+    ...(options.eventArtifacts === undefined ? {} : { eventArtifacts: options.eventArtifacts }),
+  });
+}
+
+/** Project state from a durable log artifact handle.
+ *
+ * Folds the log line by line (`scanRowsInternal` + `foldStateAccumRow`)
+ * rather than collecting `readRows(...).rows` first: the running
+ * accumulator stays O(distinct entities × attributes), never O(rows), so this
+ * bounds memory even for a log too large for `readRows`'s own whole-read
+ * guard. */
+export function projectStateInternal(
+  logArtifact,
+  functional = [],
+  options = {},
+) {
+  void options;
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  const { feed } = dataStoreFromLogPath(logPath);
+  const functionalSet = new Set(functional);
+  const statePath = projectDataArtifactPath(logPath, "state", "json");
+  const sourceArtifact = journalLogArtifact(logPath);
+  const artifact = journalStateArtifact(statePath);
+  const sourceSelection = sourceSelectionInternal(logPath);
+  const folded = scanSourceFilesInternal(sourceSelection.files, initialStateAccum, (accum, row) =>
+    foldStateAccumRow(accum, eavtRecord(row), functionalSet));
+  const settlement = closeStateAccum(folded.result);
+  const view = settlement.view;
+  writeFileAtomic(statePath, `${canonicalJson(view)}\n`);
+  const observation = observeJournalOperation(feed, "project-feed-state");
+  return journalObservation(
+    Object.freeze({ ...observation, operation: "project-feed-state", sourceArtifact, artifact }),
+    "feed state projection",
+  );
+}
+
+/** Read a projected `data/state` artifact into a process-local state view. */
+export function readStateArtifactInternal(stateArtifact) {
+  const statePath = dataArtifactHandlePath(stateArtifact, "state");
+  return readJsonFile(statePath) ?? {};
+}
+
+/** Settle one feed's log into its addressable settlement reading. */
+export function readStateInternal(
+  logArtifact,
+  functional = [],
+) {
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  const { feed } = dataStoreFromLogPath(logPath);
+  const functionalSet = new Set(functional);
+  const folded = scanRowsInternal(logPath, initialStateAccum, (accum, row) =>
+    foldStateAccumRow(accum, eavtRecord(row), functionalSet));
+  const settlement = closeStateAccum(folded.result);
+  return Object.freeze({
+    kind: "metroplat.holography.feed-settlement",
+    feed,
+    sourceRows: folded.rows,
+    entities: Object.keys(settlement.view).length,
+    designated: settlement.view,
+    held: Object.freeze(settlement.held.map((cell) => Object.freeze({
+      entity: cell.entity,
+      attribute: cell.attribute,
+      time: cell.time,
+      values: cell.values,
+      charge: "contested",
+    }))),
+    closure: Object.freeze({
+      stabilization: settlement.readout.stabilization,
+      stage: settlement.readout.stage,
+      regime: settlement.readout.regime,
+    }),
+  });
+}
+
+/**
+ * Project a durable `data/journals` artifact into `data/records` without
+ * caller-held rows, streaming the log once rather than collecting
+ * `readRowsPath(...).rows` and a whole `Datom[]` first: every row gets
+ * the same constant `reading`, so there is nothing this projection needs from
+ * a resident row array that a single line-by-line pass cannot already give it.
+ * The source log is never rewritten: record commit is a deterministic
+ * projection leg, not source compaction.
+ */
+export function commitRecordInternal(
+  logArtifact,
+  reading,
+  options = {},
+) {
+  void options;
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  const { feed } = dataStoreFromLogPath(logPath);
+  const recordPath = projectDataArtifactPath(logPath, "record", "jsonl");
+  const recordReading = requireJsonValue(reading, "record reading");
+  const sourceArtifact = journalLogArtifact(logPath);
+  const artifact = journalRecordArtifact(recordPath);
+  const sourceSelection = sourceSelectionInternal(logPath);
+  let datomCount = 0;
+  foldToLinesAtomicSync(recordPath, (emit) => {
+    const folded = scanSourceFilesInternal(sourceSelection.files, undefined, (_accum, row) => {
+      const r = eavtRecord(row);
+      emit(canonicalJson([r.e, r.a, r.v, r.t, recordReading]));
+      return undefined;
+    });
+    datomCount = folded.rows;
+  });
+  const observation = observeJournalOperation(feed, "commit-record");
+  return journalObservation(
+    Object.freeze({ ...observation, operation: "commit-record", sourceArtifact, artifact, sourceRows: datomCount, datoms: datomCount }),
+    "record commit result",
+  );
+}
+
+/**
+ * Recompute `data/records`'s settled datoms fresh from `data/journals` and the
+ * current `data/state` fold, without modifying the live log.
+ *
+ * This is the idempotent, re-derivable state->record leg the settlement law
+ * requires: reading it twice with no intervening append yields byte-identical
+ * output, and deleting `data/records` and re-deriving it recovers the same
+ * content. The datom carries the original E/A/V/T columns plus a compact
+ * cell-reading receipt; record->content reconstructs the state view from the
+ * datom columns themselves. A single entity with many rows therefore stays
+ * linear in source rows instead of repeating its whole settled view per row.
+ */
+export function projectRecordInternal(
+  logArtifact,
+  options = {},
+) {
+  void options;
+  const logPath = dataArtifactHandlePath(logArtifact, "log");
+  const { feed } = dataStoreFromLogPath(logPath);
+  const statePath = projectDataArtifactPath(logPath, "state", "json");
+  const recordPath = projectDataArtifactPath(logPath, "record", "jsonl");
+  const sourceSelection = sourceSelectionInternal(logPath);
+  const stateFold = scanSourceFilesInternal(sourceSelection.files, initialStateAccum, (accum, row) =>
+    foldStateAccumRow(accum, eavtRecord(row), new Set()));
+  closeStateAccum(stateFold.result);
+  let datomCount = 0;
+  foldToLinesAtomicSync(recordPath, (emit) => {
+    const folded = scanSourceFilesInternal(sourceSelection.files, undefined, (_accum, row) => {
+      const r = eavtRecord(row);
+      emit(canonicalJson([r.e, r.a, r.v, r.t, compactDatomReading(row)]));
+      return undefined;
+    });
+    datomCount = folded.rows;
+  });
+  const sourceArtifact = journalLogArtifact(logPath);
+  const stateArtifact = journalStateArtifact(statePath);
+  const artifact = journalRecordArtifact(recordPath);
+  const observation = observeJournalOperation(feed, "project-log-record");
+  return journalObservation(Object.freeze({
+    ...observation,
+    operation: "project-log-record",
+    sourceArtifact,
+    stateArtifact,
+    artifact,
+    datoms: datomCount,
+  }), "record settlement projection");
+}
+

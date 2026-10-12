@@ -47,7 +47,7 @@ function positiveInteger(value, name) {
 }
 
 export const ANTIGRAVITY_DEFAULT_OFFICES = Object.freeze(["junior-engineer", "engineering-assurance-engineer", "verifies:*"]);
-/** The office the inference receiver serves: receiving only, never a duty. */
+/** The office the zero-cash inference receiver serves: receiving only, never a duty. */
 export const INFERENCE_RECEIVER_DEFAULT_OFFICES = Object.freeze(["engineering-assurance-engineer"]);
 const INFERENCE_RECEIVER_DEFAULT_PROVIDER = "urn:ame:groq-inference-team";
 
@@ -132,17 +132,18 @@ function subscriptionPricing(dialect, environment) {
 }
 
 /**
- * The inference receiver: a carrier of a provider family the producers and the agent-CLI
- * receivers are not, so independence-first receiving can pick it over them. It is a provider CIE's
- * direct endpoint lane admits for schema-bound work, carrying its pinned model, and it serves
- * receiving only. Absent when that provider is not admitted and credentialed on this host, or its model names
+ * The zero-cash inference receiver: a carrier of a provider family the producers and the agent-CLI
+ * receivers are not, so independence-first receiving can pick it over them. It is the provider CIE
+ * already admits for zero-cash, schema-bound work (the direct endpoint lane, which refuses any
+ * attempt whose entitlement is not zero-cash), carrying its pinned model, and it serves receiving
+ * only. Absent when that provider is not admitted and credentialed on this host, or its model names
  * no known family and the deployment declares none.
  */
 export function inferenceReceiver({ binding, identity, environment, repositoryRoot, onReceivingSession }) {
   if (environment.METROPLAT_INFERENCE_RECEIVER === "off") return undefined;
   const actor = environment.METROPLAT_INFERENCE_RECEIVER_PROVIDER ?? INFERENCE_RECEIVER_DEFAULT_PROVIDER;
   const admitted = () => loadDirectEndpointProviderDescriptors(environment, { configPath: environment.DIRECT_ENDPOINT_PROVIDER_CONFIG })
-    .find((descriptor) => descriptor.provider === actor && descriptor.capabilities.includes("json-schema-output"));
+    .find((descriptor) => descriptor.provider === actor && descriptor.zeroCashEligible === true && descriptor.capabilities.includes("json-schema-output"));
   let first;
   try { first = admitted(); } catch { return undefined; }
   if (first === undefined) return undefined;
@@ -152,16 +153,16 @@ export function inferenceReceiver({ binding, identity, environment, repositoryRo
   return {
     workerId, harness: "inference-receiver", family, models: [first.model], bounded: true, receivingOnly: true,
     serves: environment.METROPLAT_INFERENCE_RECEIVER_OFFICES === undefined ? INFERENCE_RECEIVER_DEFAULT_OFFICES : listOf(environment.METROPLAT_INFERENCE_RECEIVER_OFFICES),
-    // Its window is the provider's own and staffing holds no measured price for it yet, so staffing leaves it unpriced (0).
+    // Zero cash: its window is the provider's own, so it is never priced above nothing nor spent out of staffing here.
     pricing: () => Object.freeze({ price: 0, exhausted: false, binding: null }),
     adapter: inferenceReceivingCarrier({
       workerId, dataRoot: path.resolve(binding.dataRoot), nodeName: identity.id, model: first.model, family, repositoryRoot,
       label: `${first.providerId ?? actor} receiver`, evidenceScheme: `${first.providerId ?? "inference"}-receiving`,
       onReceivingSession,
-      // Each attempt reads the endpoint's admission afresh and must find the same model.
+      // Admission is time-bound: each attempt reads the endpoint's admission afresh and must find the same model.
       descriptor: () => {
         const current = admitted();
-        if (current === undefined || current.model !== first.model) throw new TypeError(`${actor} no longer admits ${first.model} for schema-bound work`);
+        if (current === undefined || current.model !== first.model) throw new TypeError(`${actor} no longer admits ${first.model} for zero-cash schema-bound work`);
         return current;
       },
       dispatch: (call) => directEndpointReceivingTransport(call, { environment }),
@@ -185,7 +186,7 @@ export function inferenceReceiver({ binding, identity, environment, repositoryRo
  *                (`METROPLAT_ANTIGRAVITY_HOME`: its permissions and its own MetroPlat client) and
  *                confined by its unit to what each session's effects grant. Bounded and standing as
  *                Claude Code is.
- *   Inference receiver  the direct-endpoint model CIE admits for schema-bound work (by default Groq's
+ *   Inference receiver  the zero-cash direct-endpoint model CIE admits for schema-bound work (by default Groq's
  *                `qwen/qwen3.8-27b`), serving receiving only (`METROPLAT_INFERENCE_RECEIVER_OFFICES`, by default the
  *                engineering-assurance-engineer): the carrier contract's receiving part over a schema-bound call, not a
  *                coding session. Its `family` is the independence class receiving ranks by; it carries no execution.
@@ -200,6 +201,8 @@ export function inferenceReceiver({ binding, identity, environment, repositoryRo
 function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRoot, onSession, onReceivingSession, onSourceBinding, onSourceResult, operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }) {
   const carriers = [];
   const repositoryRoot = environment.METROPLAT_REPOSITORY_ROOT ?? process.cwd();
+  // The carriers' former shared workspace: each act now has its own task worktree, and this root is pruned once.
+  const retiredDutyWorktrees = environment.METROPLAT_DUTY_WORKTREES ?? path.join(homedir(), ".local", "state", "561-group", "duty-worktrees");
   if (environment.METROPLAT_CODEX_WORKER) {
     const codexNode = codexNodeOptions(binding, { environment, workspace: repositoryRoot });
     carriers.push({
@@ -240,6 +243,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         characterName: environment.METROPLAT_CLAUDE_CHARACTER_NAME ?? "the Claude Code character",
         cwd: repositoryRoot,
         repositoryOf: spec => configuredWorkSourceRepository(repositoryRoot, spec, { operationOf, sourceBindingOf, bindSourceGit, publishSourceCandidate, sourcePreparationOf, prepareSourceBinding }),
+        retired: [retiredDutyWorktrees],
         officeAgent: (office) => officeAgentDefinition({ repoRoot: repositoryRoot, agency: agencyAt(firmPoolRoot), office }),
         ...(environment.METROPLAT_CLAUDE_BIN ? { claude: environment.METROPLAT_CLAUDE_BIN } : {}),
       }),
@@ -266,6 +270,7 @@ function hostedCarriers({ binding, identity, environment, enterprise, firmPoolRo
         characterName: environment.METROPLAT_ANTIGRAVITY_CHARACTER_NAME ?? "the Antigravity character",
         home: environment.METROPLAT_ANTIGRAVITY_HOME,
         cwd: repositoryRoot,
+        retired: [retiredDutyWorktrees],
         ...(environment.METROPLAT_ANTIGRAVITY_BIN ? { agy: environment.METROPLAT_ANTIGRAVITY_BIN } : {}),
       }),
     });
@@ -374,7 +379,7 @@ export function enterpriseAgencyWorkOptions({
     onSession: (item, session) => recordHostedStart(item, session),
     onReceivingSession: (review, session) => recordHostedSession(review, { session }) });
   // A carrier with declared models stands ready before its first run: each model is admitted under
-  // one standing session, so allocation can choose it, as the hosted worker's is.
+  // one standing session, so allocation can choose it, as the zero-cash worker's is.
   // The standing sessions are admitted once the operation surface is open: a session's capabilities
   // are its verbs, and that surface is the one whose opening constructs these options, so reading it
   // here re-entered operationSurface() mid-construction and failed every boot (1af229b, 2026-10-03).
@@ -410,6 +415,8 @@ export function enterpriseAgencyWorkOptions({
       market: {
         agentUrl: environment.METROPLAT_INFERENCE_MARKET_AGENT_CARD,
         desiredUse: "metroplat-production-assistance",
+        zeroCashOnly: true,
+        agentBounds: AGENT_WORKER_BOUNDS,
       },
     });
     if (configured.provider === "inference-work-lot.market" && workerModel !== BOUNDED_INFERENCE_SERVICE_MODEL) {
@@ -432,12 +439,19 @@ export function enterpriseAgencyWorkOptions({
       now: processIsoNow,
     });
     // The hosted worker is a harness like a carrier's thread: its one standing session carries the
-    // inference pool's model, admitted as a carrier so allocation can choose it, and each run is an
+    // zero-cash pool's model, admitted as a carrier so allocation can choose it, and each run is an
     // invocation of that session, so its proposal has an office origin an independent receiver can judge.
     const session = Object.freeze({ id: `${workerId}@${identity.id}`, model: workerModel });
     if (workBinding === undefined) {
       const at = processIsoNow();
-      admitHarnessCarriers({ dataRoot, date: at.slice(0, 10), carriers: [{ kind: "metroplat.harness-carrier", character: workerId, model: workerModel, harness: "metroplat-agent-worker", session: session.id, capabilities: [], reading: "held", issuer: identity.id, at }] });
+      // The carrier supports the installed tools; capability assertions still
+      // decide which of them this character holds. Admit after surface construction.
+      setImmediate(()=>{
+        try{
+          const observedAt=processIsoNow();
+          admitHarnessCarriers({ dataRoot, date: observedAt.slice(0, 10), carriers: [{ kind: "metroplat.harness-carrier", character: workerId, model: workerModel, harness: "metroplat-agent-worker", session: session.id, capabilities: surfaceVerbs(), reading: "held", issuer: identity.id, at: observedAt }] });
+        }catch(error){console.error(`[agency-work] hosted worker carrier not admitted: ${error?.message??error}`);}
+      });
       admitCharacterMasks({ dataRoot, date: at.slice(0, 10), masks: [{ kind: "metroplat.character-mask", account: `session:${session.id}`, character: workerId, reading: "held", issuer: identity.id, at }] });
     }
     executeInferredWork = async (item) => ({ ...await executeAgencyWorkProvider(item, {
@@ -658,8 +672,8 @@ export function enterpriseAgencyWorkOptions({
     // every resource is priced.
     crossingCostOf: (crossing) => pricedCostOf(crossing.resources, resourcePricesAt(resourcePricesIndexOf({ environment }))),
     // The market's exchange rate (Theorem 10): each carrier is priced per attempt by its own
-    // allowance, and the least expected cost per accepted result is chosen. The inference pool
-    // draws no premium subscription quota, so it is tried first; it has no effort dial, so its first
+    // allowance, and the least expected cost per accepted result is chosen. The zero-cash pool
+    // costs no premium quota, so it is tried first; it has no effort dial, so its first
     // miss on a duty passes the duty on.
     // `orderChannels` is the staffing enterprise's own `order-channels` point (organizing/enterprise).
     resolveAllocationStaffing: ({ character, office, officeService, attempts, standing, requiredCarrier, orderChannels }) => {

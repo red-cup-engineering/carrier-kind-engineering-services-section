@@ -168,23 +168,23 @@ export function systemNodeFromProcessEnvironment(env) {
   return systemNode({ id, origin, peers: peerOrigins(env.SYSTEM_NODE_PEERS), ...(key === undefined ? {} : { key }) });
 }
 
-/** Private, exact feed grants per peer origin; an advertised peer has no journal access by default. */
-export function systemSettlementFeedGrants(env, node) {
-  const raw = env.SYSTEM_NODE_SETTLEMENT_FEEDS?.trim();
-  const configured = raw ? record(parse(raw), "System settlement feed grants") : {};
+/** Private, exact type grants per peer origin; an advertised peer has no store access by default. */
+export function systemSettlementTypeGrants(env, node) {
+  const raw = env.SYSTEM_NODE_SETTLEMENT_TYPES?.trim();
+  const configured = raw ? record(parse(raw), "System settlement type grants") : {};
   const grants = new Map();
-  for (const [origin, labels] of Object.entries(configured)) {
+  for (const [origin, types] of Object.entries(configured)) {
     if (originOf(origin, "settlement peer") !== origin || !node.peers.includes(origin)) {
-      throw new TypeError(`System settlement feed grant names an unconfigured peer: ${origin}`);
+      throw new TypeError(`System settlement type grant names an unconfigured peer: ${origin}`);
     }
-    if (!Array.isArray(labels) || labels.length === 0
-      || !labels.every((label) => typeof label === "string" && /^[a-z0-9][a-z0-9._-]*$/u.test(label))
-      || new Set(labels).size !== labels.length) {
-      throw new TypeError(`System settlement feed grant for ${origin} must name distinct feed labels`);
+    if (!Array.isArray(types) || types.length === 0
+      || !types.every((type) => typeof type === "string" && /^[a-z]+(?:-[a-z]+)*$/u.test(type) && type.length <= 64)
+      || new Set(types).size !== types.length) {
+      throw new TypeError(`System settlement type grant for ${origin} must name distinct plain store types`);
     }
-    grants.set(origin, Object.freeze([...labels]));
+    grants.set(origin, Object.freeze([...types]));
   }
-  return Object.freeze({ labelsFor: (origin) => grants.get(origin) ?? Object.freeze([]) });
+  return Object.freeze({ typesFor: (origin) => grants.get(origin) ?? Object.freeze([]) });
 }
 
 /**
@@ -210,8 +210,8 @@ export function systemNodeDeclaredPeerKeys(env, node) {
   return keys;
 }
 
-/** How a node reaches its peers' settlements: signed holdings reads and transfers (RFC 9421 over
- *  the node's key), and the public keys of its configured peers. A peer's declared key
+/** How a node reaches its peers' stores: signed head and record reads (RFC 9421 over the node's
+ *  key), and the public keys of its configured peers. A peer's declared key
  *  (`declaredKeys`, from `systemNodeDeclaredPeerKeys`) is used as held, without dialing the peer;
  *  any other is resolved from its advertisement. A discovery that fails is not kept: the peer was
  *  away or answered badly, which says nothing lasting about its key, so the next request asks again. */
@@ -238,23 +238,22 @@ export function systemSettlementPeering(node, privateKey, fetcher = fetch, { dec
     peerKey,
     /** Verify an incoming exchange request: signed by a configured peer's key. */
     verify: (request) => verifyRequest({ ...request, publicKeyFor: peerKey }),
-    holdingsOf: (origin, date) => post(origin, "/settlement/holdings", { date }),
-    transferTo: (origin, transfer) => post(origin, "/settlement/transfer", transfer),
-    /** Ask a peer for the granted witnesses of `date` this settlement's `holdings` lack (replay-from-peer):
-     *  a node that cannot be dialed brings itself up to date by pulling. */
-    pullFrom: (origin, { date, holdings, limit }) => post(origin, "/settlement/pull", { date, holdings, ...(limit === undefined ? {} : { limit }) }),
+    /** A peer as a remote of the store's `pull`: it answers the granted heads and the records they reach. */
+    remote: (origin) => Object.freeze({
+      heads: async function* heads(object) { yield* (await post(origin, "/settlement/heads", { object })).heads; },
+      get: async (type, address) => (await post(origin, "/settlement/get", { type, address })).record,
+    }),
   });
 }
 
 /** The signed settlement exchange routes a node serves to its configured peers. */
-export const SETTLEMENT_EXCHANGE_PATHS = Object.freeze(["/settlement/holdings", "/settlement/transfer", "/settlement/pull"]);
+export const SETTLEMENT_EXCHANGE_PATHS = Object.freeze(["/settlement/heads", "/settlement/get"]);
 
-/** The most witnesses one pull answer carries; a puller asks again for the rest (`remaining`). */
-export const SETTLEMENT_PULL_LIMIT = 2000;
+/** The most heads one answer carries; a puller asks again for the rest. */
+export const SETTLEMENT_HEADS_LIMIT = 2000;
 
-/** Verify an exact signed peer request before reading or merging a settlement. A pull is answered with
- *  the granted witnesses the requester's holdings lack (`exchange.transfer`), never with more than it
- *  is granted; a node with no `transfer` does not serve pulls. */
+/** Verify an exact signed peer request before reading a store. A peer is answered only for the types
+ *  it is granted (`exchange.typesFor`): the heads of one type, or one record of one type, by address. */
 export async function settlementExchangeResponse(req, exchange) {
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
@@ -262,18 +261,24 @@ export async function settlementExchangeResponse(req, exchange) {
   const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
   const verdict = await exchange.verify({ method: req.method ?? "POST", path: pathname, body, headers: req.headers });
   if (!verdict.ok) return { status: 401, value: { error: "unauthorized-peer", reason: verdict.reason } };
-  const feedLabels = exchange.feedLabelsFor(verdict.keyId);
-  if (feedLabels.length === 0) return { status: 403, value: { error: "settlement-feed-grant-required" } };
+  const types = exchange.typesFor(verdict.keyId);
+  if (types.length === 0) return { status: 403, value: { error: "settlement-type-grant-required" } };
   try {
     const value = JSON.parse(body);
-    if (pathname === "/settlement/pull") {
-      if (exchange.transfer === undefined) return { status: 404, value: { error: "settlement-pull-not-served" } };
-      const limit = Number.isInteger(value.limit) && value.limit > 0 ? Math.min(value.limit, SETTLEMENT_PULL_LIMIT) : SETTLEMENT_PULL_LIMIT;
-      return { status: 200, value: exchange.transfer(value.date, value.holdings, limit, feedLabels) };
+    if (pathname === "/settlement/heads") {
+      if (!types.includes(value.object)) return { status: 403, value: { error: "settlement-type-not-granted" } };
+      const heads = [];
+      for (const head of exchange.heads(value.object)) {
+        if (heads.length >= SETTLEMENT_HEADS_LIMIT) break;
+        heads.push(head);
+      }
+      return { status: 200, value: { heads } };
     }
-    return { status: 200, value: pathname === "/settlement/holdings"
-      ? exchange.holdings(value.date, feedLabels)
-      : exchange.merge(value, feedLabels) };
+    if (pathname === "/settlement/get") {
+      if (!types.includes(value.type)) return { status: 403, value: { error: "settlement-type-not-granted" } };
+      return { status: 200, value: { record: exchange.get(value.type, value.address) ?? null } };
+    }
+    return { status: 404, value: { error: "settlement-route-not-served" } };
   } catch (error) {
     return { status: 422, value: { error: "settlement-exchange-refused", reason: error instanceof Error ? error.message : String(error) } };
   }

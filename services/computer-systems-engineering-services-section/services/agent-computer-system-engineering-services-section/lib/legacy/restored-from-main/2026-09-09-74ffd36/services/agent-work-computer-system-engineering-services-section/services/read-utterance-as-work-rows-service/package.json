@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/read-utterance-as-work-rows-service",
+  "version": "0.1.0",
+  "description": "Reads one founder utterance into EAVT work rows: a genesis row and one row per BCP 14 requirement, each valued with force, subject, predicate, object, modality, horizon, line, and repetition count.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/read-utterance-as-work-rows.mjs",
+  "bin": {
+    "read-utterance-as-work-rows": "scripts/read-utterance-as-work-rows.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/eavt": "0.10.0",
+    "@red-cup-engineering/read-bcp-14-requirements-service": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/read-utterance-as-work-rows.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

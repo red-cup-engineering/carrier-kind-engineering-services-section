@@ -1,0 +1,424 @@
+{
+  "disposition": "candidate",
+  "reason": "New candidate derived from new public source-review evidence; other proposed file changes held immutable.",
+  "edits": [
+    {
+      "path": "src/config.mjs",
+      "inputSha256": "1f0ebaef65e7a551b672e1f7790c6c7f4153323f3ccfe5c24c3b672d3ad5c80f",
+      "before": "  let home = supplied.home;\n  if (home !== undefined && typeof home !== 'boolean' && !(typeof home === 'string' && home.trim() !== '')) {\n    refusals.push({ code: 'R-15', subject: 'config.home', reason: 'home must be a boolean or the name of the cell that owns the root route' });\n    home = undefined;\n  }",
+      "after": "  let home = supplied.home;\n  if (home !== undefined && typeof home !== 'boolean' && !(typeof home === 'string' && home.trim() !== '')) {\n    refusals.push({ code: 'R-15', subject: 'config.home', reason: 'home must be true, false, or the non-empty name of the cell that owns the root route' });\n    home = false;\n  }",
+      "clauses": [
+        "F-H03",
+        "F-H04"
+      ]
+    },
+    {
+      "path": "src/catalog.mjs",
+      "inputSha256": "399ee4bae62828d28f52a750898398d2e0b22f3239e96708ea1b76054eca6d62",
+      "before": "export function makeResolver(cells, redirects = new Map()) {\n  return (target) => {\n    const name = resolveName(cells, target, redirects);\n    if (!name) return null;\n    const cell = cells.get(name);\n    return { href: `/${name}/`, type: cell.type, title: cell.title };\n  };\n}",
+      "after": "export function makeResolver(cells, redirects = new Map(), { homeName } = {}) {\n  return (target) => {\n    const name = resolveName(cells, target, redirects);\n    if (!name) return null;\n    const cell = cells.get(name);\n    return { href: name === homeName ? '/' : `/${name}/`, type: cell.type, title: cell.title };\n  };\n}",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/feeds.mjs",
+      "inputSha256": "66806b5a6b5b462c12beabd966344d58694d7db01a25c5eb5cd8f92945c1998d",
+      "before": "export function victorFeedItems(published, { site, resolve }) {",
+      "after": "export function victorFeedItems(published, { site, resolve, homeName }) {",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/feeds.mjs",
+      "inputSha256": "66806b5a6b5b462c12beabd966344d58694d7db01a25c5eb5cd8f92945c1998d",
+      "before": "    url: new URL(`${cell.name}/`, site.baseIri).href,",
+      "after": "    url: new URL(cell.name === homeName ? '/' : `${cell.name}/`, site.baseIri).href,",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/feeds.mjs",
+      "inputSha256": "66806b5a6b5b462c12beabd966344d58694d7db01a25c5eb5cd8f92945c1998d",
+      "before": "    project({ published, site, resolve, updated }) {",
+      "after": "    project({ published, site, resolve, updated, homeCell }) {",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/feeds.mjs",
+      "inputSha256": "66806b5a6b5b462c12beabd966344d58694d7db01a25c5eb5cd8f92945c1998d",
+      "before": "        items: victorFeedItems(published, { site, resolve }),",
+      "after": "        items: victorFeedItems(published, { site, resolve, homeName: homeCell?.name }),",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "function pageHref(name) {\n  return `/${name}/`;\n}",
+      "after": "function pageHref(name, homeName) {\n  return name === homeName ? '/' : `/${name}/`;\n}",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "function cellTile(cell, { relation, direction, current = false } = {}) {",
+      "after": "function cellTile(cell, { relation, direction, current = false, homeName } = {}) {",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "html: `${summary}<p><a href=\"${escapeHtml(pageHref(cell.name))}\">Open page</a></p>`,",
+      "after": "html: `${summary}<p><a href=\"${escapeHtml(pageHref(cell.name, homeName))}\">Open page</a></p>`,",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "export function renderAtlasPage(cellsSorted, { site, discovery }) {",
+      "after": "export function renderAtlasPage(cellsSorted, { site, discovery, homeName }) {",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "tiles: cellsSorted.map((cell) => cellTile(cell)),",
+      "after": "tiles: cellsSorted.map((cell) => cellTile(cell, { homeName })),",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "export function renderNeighborhoodPage(cell, { site, cells, incoming, discovery }) {",
+      "after": "export function renderNeighborhoodPage(cell, { site, cells, incoming, discovery, homeName }) {",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "related.push(cellTile(cells.get(name), { relation: relation.type, direction: 'outgoing' }));",
+      "after": "related.push(cellTile(cells.get(name), { relation: relation.type, direction: 'outgoing', homeName }));",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "related.push(cellTile(cells.get(relation.from), { relation: relation.type, direction: 'incoming' }));",
+      "after": "related.push(cellTile(cells.get(relation.from), { relation: relation.type, direction: 'incoming', homeName }));",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "tiles: [cellTile(cell, { current: true }), ...related],",
+      "after": "tiles: [cellTile(cell, { current: true, homeName }), ...related],",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/tiles.mjs",
+      "inputSha256": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+      "before": "footerHtml: `<nav aria-label=\"Return\"><a href=\"${escapeHtml(pageHref(cell.name))}\">Return to ${escapeHtml(cell.title)}</a> \u00b7 <a href=\"/atlas/\">Open atlas</a></nav>`,",
+      "after": "footerHtml: `<nav aria-label=\"Return\"><a href=\"${escapeHtml(pageHref(cell.name, homeName))}\">Return to ${escapeHtml(cell.title)}</a> \u00b7 <a href=\"/atlas/\">Open atlas</a></nav>`,",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "  const refusals = [...configurationRefusals, ...catalog.report.refusals];\n  const advisories = [...catalog.report.advisories];",
+      "after": "  const refusals = [...configurationRefusals, ...catalog.report.refusals];\n  const advisories = [...catalog.report.advisories];\n  if (home !== true && home !== false && !(typeof home === 'string' && home.trim() !== '')) {\n    refusals.push({ code: 'R-15', subject: 'config.home', reason: 'home must be true, false, or the non-empty name of the cell that owns the root route' });\n    home = false;\n  }",
+      "clauses": [
+        "F-H03",
+        "F-H04"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "  const resolve = makeResolver(catalog.cells, catalog.redirects);\n  const published = [...catalog.cells.values()]",
+      "after": "  const published = [...catalog.cells.values()]",
+      "clauses": [
+        "F-H03",
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "  if (typeof home === 'string' && !homeCell) {\n    refusals.push({ code: 'R-15', subject: 'config.home', reason: `home names \"${home}\", which is not a published cell` });\n  }\n\n  const normalizedArchives",
+      "after": "  if (typeof home === 'string' && !homeCell) {\n    refusals.push({ code: 'R-15', subject: 'config.home', reason: `home names \"${home}\", which is not a published cell` });\n  }\n  const resolve = makeResolver(catalog.cells, catalog.redirects, { homeName: homeCell?.name });\n\n  const normalizedArchives",
+      "clauses": [
+        "F-H03",
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "      project({ publicationArchives, site, catalog, searchEnabled, discovery, home }) {\n        if (publicationArchives === null) return { artifacts: [] };\n        return {\n          artifacts: publicationArchives.routes.filter((route) => home === true || route.path !== 'index.html').map((route) => ({\n            path: route.path,\n            body: renderPublicationArchiveRoute(route, { site, searchEnabled, discovery, chaptersByPaper: catalog.chaptersByPaper }),",
+      "after": "      project({ publicationArchives, site, catalog, searchEnabled, discovery, home, homeCell }) {\n        if (publicationArchives === null) return { artifacts: [] };\n        return {\n          artifacts: publicationArchives.routes.filter((route) => home === true || route.path !== 'index.html').map((route) => ({\n            path: route.path,\n            body: renderPublicationArchiveRoute(route, { site, searchEnabled, discovery, chaptersByPaper: catalog.chaptersByPaper, homeName: homeCell?.name }),",
+      "clauses": [
+        "F-H04",
+        "F-H05",
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "      project({ published, site, catalog, discovery, tufteEnabled }) {",
+      "after": "      project({ published, site, catalog, discovery, tufteEnabled, homeCell }) {",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "{ path: 'atlas/index.html', body: renderAtlasPage(published, { site, discovery }), source: 'catalog:atlas' },\n          ...published.map((cell) => ({\n            path: `${cell.name}/neighborhood/index.html`,\n            body: renderNeighborhoodPage(cell, { site, cells: catalog.cells, incoming: catalog.incoming, discovery }),",
+      "after": "{ path: 'atlas/index.html', body: renderAtlasPage(published, { site, discovery, homeName: homeCell?.name }), source: 'catalog:atlas' },\n          ...published.map((cell) => ({\n            path: `${cell.name}/neighborhood/index.html`,\n            body: renderNeighborhoodPage(cell, { site, cells: catalog.cells, incoming: catalog.incoming, discovery, homeName: homeCell?.name }),",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "      project({ published, indexItems, site, catalog, resolve, publicationArchives, searchEnabled, tufteEnabled, discovery, home, homeCell }) {\n        return { artifacts: [\n          ...(homeCell ? [{ path: 'index.html', body: renderPage(homeCell, { site, cells: catalog.cells, incoming: catalog.incoming, resolve, searchEnabled, tufteEnabled, discovery }), source: homeCell.source?.provenance?.href ?? homeCell.name }] : []),\n          ...(home === true && publicationArchives === null ? [{ path: 'index.html', body: renderIndexPage(indexItems, { site, searchEnabled, discovery, chaptersByPaper: catalog.chaptersByPaper }), source: 'catalog:index' }] : []),\n          ...published.map((cell) => ({\n            path: `${cell.name}/index.html`,\n            body: renderPage(cell, { site, cells: catalog.cells, incoming: catalog.incoming, resolve, searchEnabled, tufteEnabled, discovery }),",
+      "after": "      project({ published, indexItems, site, catalog, resolve, publicationArchives, searchEnabled, tufteEnabled, discovery, home, homeCell }) {\n        return { artifacts: [\n          ...(homeCell ? [{ path: 'index.html', body: renderPage(homeCell, { site, cells: catalog.cells, incoming: catalog.incoming, resolve, searchEnabled, tufteEnabled, discovery, canonicalUrl: site.baseIri }), source: homeCell.source?.provenance?.href ?? homeCell.name }] : []),\n          ...(home === true && publicationArchives === null ? [{ path: 'index.html', body: renderIndexPage(indexItems, { site, searchEnabled, discovery, chaptersByPaper: catalog.chaptersByPaper }), source: 'catalog:index' }] : []),\n          ...published.map((cell) => ({\n            path: `${cell.name}/index.html`,\n            body: cell === homeCell\n              ? renderRedirectPage(cell.name, '', { site })\n              : renderPage(cell, { site, cells: catalog.cells, incoming: catalog.incoming, resolve, searchEnabled, tufteEnabled, discovery }),",
+      "clauses": [
+        "F-H03",
+        "F-H04",
+        "F-H05",
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "      project({ published, site, publicationArchives, searchEnabled, tufteEnabled }) {\n        const archivePaths = publicationArchives?.routes\n          .filter(({ route }) => route !== '')\n          .map(({ route }) => `${route}/`) ?? [];\n        return { artifacts: [\n          { path: 'sitemap.xml', body: sitemap(['', ...published.map((cell) => `${cell.name}/`), ...(tufteEnabled ? ['atlas/', ...published.map((cell) => `${cell.name}/neighborhood/`)] : []), ...archivePaths].map((path) => ({ loc: new URL(path, site.baseIri).href }))), source: 'catalog:published' },",
+      "after": "      project({ published, site, publicationArchives, searchEnabled, tufteEnabled, homeCell }) {\n        const archivePaths = publicationArchives?.routes\n          .filter(({ route }) => route !== '')\n          .map(({ route }) => `${route}/`) ?? [];\n        return { artifacts: [\n          { path: 'sitemap.xml', body: sitemap(['', ...published.filter((cell) => cell !== homeCell).map((cell) => `${cell.name}/`), ...(tufteEnabled ? ['atlas/', ...published.map((cell) => `${cell.name}/neighborhood/`)] : []), ...archivePaths].map((path) => ({ loc: new URL(path, site.baseIri).href }))), source: 'catalog:published' },",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/build.mjs",
+      "inputSha256": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+      "before": "      project({ catalog, site }) {\n        return { artifacts: [\n          ...[...catalog.redirects].map(([from, to]) => ({ path: `${from}/index.html`, body: renderRedirectPage(from, to, { site }), source: `redirect:${from}->${to}` })),",
+      "after": "      project({ catalog, site, homeCell }) {\n        return { artifacts: [\n          ...[...catalog.redirects].map(([from, to]) => ({ path: `${from}/index.html`, body: renderRedirectPage(from, to === homeCell?.name ? '' : to, { site }), source: `redirect:${from}->${to}` })),",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "export function renderPage(cell, { site, cells, incoming, resolve, searchEnabled = true, tufteEnabled = true, discovery = {} }) {",
+      "after": "export function renderPage(cell, { site, cells, incoming, resolve, searchEnabled = true, tufteEnabled = true, discovery = {}, canonicalUrl = `${site.baseIri}${cell.name}/` }) {",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "    title: cell.title, type: 'article', url: `${site.baseIri}${cell.name}/`,",
+      "after": "    title: cell.title, type: 'article', url: canonicalUrl,",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "  const jsonLd = pageJsonLd(cell, site);",
+      "after": "  const jsonLd = pageJsonLd(cell, site, canonicalUrl);",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "href=\"/${reference.from}/\">${cells.get(reference.from).title}",
+      "after": "href=\"${resolve(reference.from)?.href ?? `/${reference.from}/`}\">${cells.get(reference.from).title}",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "<link rel=\"canonical\" href=\"${site.baseIri}${cell.name}/\">${social}",
+      "after": "<link rel=\"canonical\" href=\"${canonicalUrl}\">${social}",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "export function renderPublicationArchiveRoute(route, { site, searchEnabled = true, discovery = {}, chaptersByPaper = new Map() }) {\n  if (route.kind === 'taxonomy-index') return renderTaxonomyIndex(route, site, searchEnabled, discovery);\n  const complete = route.kind === 'complete-archive';\n  const items = complete ? route.items : route.page.items;\n  const collection = route.collection;",
+      "after": "export function renderPublicationArchiveRoute(route, { site, searchEnabled = true, discovery = {}, chaptersByPaper = new Map(), homeName }) {\n  if (route.kind === 'taxonomy-index') return renderTaxonomyIndex(route, site, searchEnabled, discovery);\n  const complete = route.kind === 'complete-archive';\n  const items = complete ? route.items : route.page.items;\n  const collection = route.collection;",
+      "clauses": [
+        "F-H05",
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "  const links = complete ? null : route.links;\n  const social = socialMeta({ title: `${title}${suffix}`, type: 'website', url: route.url });",
+      "after": "  const links = complete ? null : route.links;\n  const previousLink = archivePageLink(links?.previous, homeName);\n  const nextLink = archivePageLink(links?.next, homeName);\n  const social = socialMeta({ title: `${title}${suffix}`, type: 'website', url: route.url });",
+      "clauses": [
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "${links?.previous ? html`<link rel=\"prev\" href=\"${links.previous}\" />` : ''}\n${links?.next ? html`<link rel=\"next\" href=\"${links.next}\" />` : ''}",
+      "after": "${previousLink ? html`<link rel=\"prev\" href=\"${previousLink}\" />` : ''}\n${nextLink ? html`<link rel=\"next\" href=\"${nextLink}\" />` : ''}",
+      "clauses": [
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "<ul class=\"listing\">${items.map((item) => html`<li><a href=\"/${item.id}/\">${item.title}</a>",
+      "after": "<ul class=\"listing\">${items.map((item) => html`<li><a href=\"${item.id === homeName ? '/' : `/${item.id}/`}\">${item.title}</a>",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "${renderChapterLinks(chaptersByPaper.get(item.id))}",
+      "after": "${renderChapterLinks(chaptersByPaper.get(item.id), homeName)}",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "${complete ? html`<p><a href=\"${route.collection.dimension === 'all' ? '/' : `/${archiveCollectionBase(route.collection)}/`}\">Return to the paged index</a>.</p>` : renderPagination(route)}",
+      "after": "${complete && !(homeName && route.collection.dimension === 'all') ? html`<p><a href=\"${route.collection.dimension === 'all' ? '/' : `/${archiveCollectionBase(route.collection)}/`}\">Return to the paged index</a>.</p>` : complete ? '' : renderPagination(route, homeName)}",
+      "clauses": [
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "function renderPagination(route) {",
+      "after": "function renderPagination(route, homeName) {",
+      "clauses": [
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "  const archiveHref = base ? `/${base}/archive/` : '/archive/';\n  return html`<nav class=\"pagination\" aria-label=\"Archive pages\">\n    ${route.links.previous ? html`<a rel=\"prev\" href=\"${new URL(route.links.previous).pathname}\">Previous</a>` : ''}\n    <span>Page ${route.page.page} of ${route.page.totalPages}</span>\n    ${route.links.next ? html`<a rel=\"next\" href=\"${new URL(route.links.next).pathname}\">Next</a>` : ''}",
+      "after": "  const archiveHref = base ? `/${base}/archive/` : '/archive/';\n  const previousLink = archivePageLink(route.links.previous, homeName);\n  const nextLink = archivePageLink(route.links.next, homeName);\n  return html`<nav class=\"pagination\" aria-label=\"Archive pages\">\n    ${previousLink ? html`<a rel=\"prev\" href=\"${new URL(previousLink).pathname}\">Previous</a>` : ''}\n    <span>Page ${route.page.page} of ${route.page.totalPages}</span>\n    ${nextLink ? html`<a rel=\"next\" href=\"${new URL(nextLink).pathname}\">Next</a>` : ''}",
+      "clauses": [
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "function archiveCollectionBase(collection) {",
+      "after": "function archivePageLink(href, homeName) {\n  if (!href || (homeName && new URL(href).pathname === '/')) return null;\n  return href;\n}\n\nfunction archiveCollectionBase(collection) {",
+      "clauses": [
+        "F-H06"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "function renderChapterLinks(chapters) {\n  if (!chapters || !chapters.length) return '';\n  return html`<p class=\"listing-order\">Chapters, in order.</p><ol class=\"chapter-list\">${chapters.map((c) => html`<li><a href=\"/${c.name}/\">${c.title}</a></li>`)}</ol>`;\n}",
+      "after": "function renderChapterLinks(chapters, homeName) {\n  if (!chapters || !chapters.length) return '';\n  return html`<p class=\"listing-order\">Chapters, in order.</p><ol class=\"chapter-list\">${chapters.map((c) => html`<li><a href=\"${c.name === homeName ? '/' : `/${c.name}/`}\">${c.title}</a></li>`)}</ol>`;\n}",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "function pageJsonLd(cell, site) {\n  return {\n    '@context': 'https://schema.org',\n    '@graph': [\n      { '@id': site.baseIri, '@type': 'WebSite', name: site.name },\n      {\n        '@id': `${site.baseIri}${cell.name}/`,",
+      "after": "function pageJsonLd(cell, site, pageUrl = `${site.baseIri}${cell.name}/`) {\n  return {\n    '@context': 'https://schema.org',\n    '@graph': [\n      { '@id': site.baseIri, '@type': 'WebSite', name: site.name },\n      {\n        '@id': pageUrl,",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "        isPartOf: { '@id': site.baseIri },",
+      "after": "        ...(pageUrl === site.baseIri ? {} : { isPartOf: { '@id': site.baseIri } }),",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "  const target = new URL(`${to}/`, site.baseIri).href;",
+      "after": "  const target = new URL(to ? `${to}/` : '/', site.baseIri).href;",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "src/page.mjs",
+      "inputSha256": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+      "before": "<main><h1>This page moved</h1><p><a href=\"${target}\">${from}</a> now lives at ${to}.</p></main>",
+      "after": "<main><h1>This page moved</h1><p><a href=\"${target}\">${from}</a> now lives at ${to || 'the home page'}.</p></main>",
+      "clauses": [
+        "F-H05"
+      ]
+    },
+    {
+      "path": "README.md",
+      "inputSha256": "8bf413b63bebe8cf7ae9bce4f034fc86fcd4e48d15c52d6876be0d55c1b0a641",
+      "before": "`home: false` omits VICTOR's default home projection so a domain projector can own the root route. Its artifact remains subject to the same collision checks as every other projection. `home: '<cell name>'` gives the root route to that published cell (a site's own home page), rendered as its page, in place of the catalog listing; the cell keeps its own route too, and a name that is not a published cell is a refusal.",
+      "after": "`home: false` omits VICTOR's default home projection so a domain projector can own the root route. Its artifact remains subject to the same collision checks as every other projection. `home: '<cell name>'` gives the root route to that published cell (a site's own home page), rendered as its page, in place of the catalog listing. The root is the cell's canonical URL; its ordinary `/<cell name>/` route becomes a noindex redirect to `/`, and references to the cell resolve to the root. The cell keeps its identity and publication membership. A missing or draft-excluded name is a refusal; a potential cell is available only in an explicitly enabled draft preview.",
+      "clauses": [
+        "F-H03",
+        "F-H04",
+        "F-H05",
+        "F-H06"
+      ]
+    }
+  ]
+}

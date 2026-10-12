@@ -1,0 +1,24 @@
+{
+  "name": "@red-cup-engineering/mcp-http-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Forms one authenticated MCP Streamable HTTP resource from a tool or operation carrier.",
+  "exports": {
+    ".": "./src/mcp-http-server.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/mcp-http-server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "@red-cup-engineering/computer-data-engine": "0.11.2",
+    "@red-cup-engineering/computer-platform": "0.5.3",
+    "@red-cup-engineering/mcp-tool-server": "0.1.0",
+    "@red-cup-engineering/http-services-section": "0.6.0"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

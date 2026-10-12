@@ -1,4 +1,0 @@
-interface:
-  display_name: "Operate Software Development Services"
-  short_description: "Run SDSS contracts and guarded RSI cycles"
-  default_prompt: "Operate the Software Development Services Section for this bounded request while preserving customer sovereignty and append-only evidence."

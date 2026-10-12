@@ -1,0 +1,356 @@
+{
+  "kind": "muse-assist.context-admission.source-binding",
+  "version": 1,
+  "generationReady": false,
+  "scope": "Connected context-admission migration; these are inspected transformation roots, not a complete transitive dependency bundle.",
+  "specifications": [
+    {
+      "path": "2026-09-27-muse-assist-context-admission-lld.md",
+      "sha256": "7a49df1b99749428a5974b08b46e1062df03241bc86fe196903161329259f3e9"
+    },
+    {
+      "path": "2026-09-27-muse-assist-operation-admission.schema.json",
+      "sha256": "fa8aed96f6142e4dedd7dcdd1e24fbbd5acd1318d31de3025995e91253dd7974"
+    },
+    {
+      "path": "2026-09-27-muse-assist-context-host.schema.json",
+      "sha256": "95d3d56216b7389da37514f90e0ab4253428067023ffe875f454efa4a485b320"
+    },
+    {
+      "path": "2026-09-27-muse-assist-personal-interaction-lld.md",
+      "sha256": "cc8bab68371f5b7e3e69a89c7ad3c9fcc0ffe631e600222f23f9b40f8e61f048"
+    },
+    {
+      "path": "2026-09-27-muse-assist-journal-admission-lld.md",
+      "sha256": "0ce36f3f5d8bbe4b79660d4d9ee8cda94f9861494fc2831c79441e66d283ab0a"
+    },
+    {
+      "path": "2026-09-27-muse-assist-journal-storage-lld.md",
+      "sha256": "0df0d58fd0c5ee2429547342311495b16c77d886672caaa5033a6ee7fab944b9"
+    },
+    {
+      "path": "2026-09-27-muse-assist-journal-host-binding-lld.md",
+      "sha256": "3beeaaedf5449aa863c4fac6bcd681f12094357acec321c21ccd455c4379f907"
+    },
+    {
+      "path": "2026-09-27-muse-assist-fabrication-lld.md",
+      "sha256": "b55a7b9cd27054b2e5ddf6a06463409d22a400176f15196ff921d20dac85fff2"
+    },
+    {
+      "path": "2026-09-27-muse-assist-journal-operation-lld.md",
+      "sha256": "a88f18b3b61b5643745e6582a8b4f0677bfbf5954d0c7aaa84067ab883d7fb77"
+    },
+    {
+      "path": "2026-09-27-muse-assist-legacy-row.schema.json",
+      "sha256": "0fbb804f22f157e7f0ed1e3b9cba27c608146995590a771244ef592ca356c49a"
+    }
+  ],
+  "sources": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/package.json",
+      "sha256": "a5fba22cbeb5025b4f36d6f144149194c84a01ef06d4b8117e413725cf820e70",
+      "bytes": 6450,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/operation.mjs",
+      "sha256": "f1794186b139b57efec41898af57328d45e937ee03773680f885da0cda2b9f20",
+      "bytes": 29701,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/dispatch.mjs",
+      "sha256": "01bf7a4711d9f691c325325d723fd94b4263fa86a8fa8709a9e27aae96db8f69",
+      "bytes": 12191,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/invocation.mjs",
+      "sha256": "7d63d5059fc41b3209604d58750009c48ca63476ea050b276ccd057f9dd861e9",
+      "bytes": 1686,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/execution-context.mjs",
+      "sha256": "cea12de8da2975f519e37fcdce2990bb24652686f8148c0a118fc9ff73bc8ece",
+      "bytes": 836,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/journal-witness.mjs",
+      "sha256": "676e52bc132c3ef181f8dd6490c9066e00edbd9f9aaeb8efe62e9e86edb3bfb1",
+      "bytes": 2940,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/arrival-store.mjs",
+      "sha256": "a2017e75b5d2c5bddc58288007c1a28c51f5048e03507abdcc92c971c38cb763",
+      "bytes": 14105,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/arrival.mjs",
+      "sha256": "053dca9a3b9f555d9ca233e7fe046d37280741c591a200b23974af6529e14918",
+      "bytes": 12931,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/receipt.mjs",
+      "sha256": "b3195cd276e48ef42a34c63f812201dc48e3e315122351aa89bd9d9e153c2247",
+      "bytes": 2851,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/binding.mjs",
+      "sha256": "2d68c838351054fb1f98de531559f06e4f352ff9527ca742f5fd72b5dd621647",
+      "bytes": 3035,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/package.json",
+      "sha256": "f8e7fc735495fd01c090ae725803a165019d5973701d94c8576c2e2288068731",
+      "bytes": 8284,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/instance.mjs",
+      "sha256": "e09a49849ae72823fd1e2df17deb655c41b7fbfd2515519d0986da4d7b038ab2",
+      "bytes": 6992,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/catalog.mjs",
+      "sha256": "e642f9a225109a1266a13fd50a5626391490caace1142213553b6423ef7fb8dd",
+      "bytes": 9590,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/operation-family-loaders.mjs",
+      "sha256": "624e0d247c5603615993cb52bc4218313e7c2ce4bc3f8b95fbe3d62267caf0e6",
+      "bytes": 18586,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/generate-operation-family-descriptors.mjs",
+      "sha256": "2dad70790aabe5ad2657bc1f2b7c07338c97c342611df029499c07824b3f393e",
+      "bytes": 4185,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/generated/operation-family-descriptors.mjs",
+      "sha256": "0692c51b51068d6399215b7ee0148a1e4ce8d794306c864264f8adb9dead7726",
+      "bytes": 682561,
+      "fabricationRole": "deterministic-regeneration-output"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/generated/catalog-operation-descriptors.mjs",
+      "sha256": "3d9cc486c3e3dd9efcd796b727adf7e91efef36ea5b357cc631f76dcf3a62d04",
+      "bytes": 643031,
+      "fabricationRole": "deterministic-regeneration-output"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/generated/mcp-tool-descriptors.mjs",
+      "sha256": "a94347cc8db2f07dd86c9207aed74bf7147f579641fbb4b2672713104075a43a",
+      "bytes": 1156695,
+      "fabricationRole": "deterministic-regeneration-output"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/cli/dispatch.mjs",
+      "sha256": "501deba783e6a05ae306412b37547308a982fcc167604b3fd83bb3befac15af1",
+      "bytes": 3876,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/presentation/serving.mjs",
+      "sha256": "8e493e0ed86e116e9bd744059175aa79491771f68c04947c631f48d044801d7d",
+      "bytes": 27701,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/presentation/mounting.mjs",
+      "sha256": "9416cea450e70a23ba0cf11ed7e3dbe2c4a689bab89dcb2e46197b7c63cc5db0",
+      "bytes": 35271,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/http/resource-router.mjs",
+      "sha256": "1e93faef0eb0bc5c6a581a3fd28c6393afd00a65b850f433db678119d88fcb3a",
+      "bytes": 5032,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/http/server.mjs",
+      "sha256": "16984020072bf56e071ee177d5bd0fa002124748715d3beb0b81ba60c23c0ff6",
+      "bytes": 8239,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/http/ws-session.mjs",
+      "sha256": "92d3d2dda2dc056be83ee7fc1fee295ca2167ed0e6a70072159a29a358aeb8c1",
+      "bytes": 5684,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/http/openai-chat.mjs",
+      "sha256": "5cadb45150cb764cbd65ae3a99343e576ab6892bad0498fa9c068f1c66351e15",
+      "bytes": 5328,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/web/entrance.mjs",
+      "sha256": "b10984136b06aae473b75cf836d873f75c7dc0c1d6804104e21478119b2d80d3",
+      "bytes": 7458,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/mcp-host.mjs",
+      "sha256": "e229f1181eb48b32940962f233fb75a3af5defdd5500c07f45ba37c88dff799f",
+      "bytes": 9413,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/mcp-options.mjs",
+      "sha256": "77c37e06723bea58ae83fcc6ac350785beb5604951c8aa0e0a84486a7a8a2b1f",
+      "bytes": 3876,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/process-options.mjs",
+      "sha256": "cca8c38b9daa4cfa1cd4137bd8910babfeea0948909eee2808efdb05dd7a3d3c",
+      "bytes": 5341,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/metroplat-serve.mjs",
+      "sha256": "9525c1e0eeb0fa5e60225757419e61f2b592406fdd3faf0802a2fd34b0dd28ce",
+      "bytes": 15862,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/metroplat.mjs",
+      "sha256": "c7604c976e16812c0c2deb2d04b5bbd99da361699c7fd3ca20a73ee040b694ae",
+      "bytes": 5505,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/inference-source.mjs",
+      "sha256": "b7bfcc141e7e8b206d94f1fe1c0d3d2ecea764e67e1be7c12a051ca76f6dc02c",
+      "bytes": 2397,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/muse-assist/package.json",
+      "sha256": "c9523940b92fa39e74049c71025e39b544f1a65b684129621cf2b3955b6eedb2",
+      "bytes": 753,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/muse-assist/src/operations.mjs",
+      "sha256": "f8354c81638e53e5e5d207d40bf755f631aafea0f5d9219a141394f32f4b1c6b",
+      "bytes": 2221,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/muse-assist/src/index.mjs",
+      "sha256": "d10e5b6fd55b377c6400a6322bd42c8136bb761fa9ad7a46a44afda79fdc618a",
+      "bytes": 115,
+      "fabricationRole": "transformation-or-contract-input"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/sites/ops.561.group/src/site.mjs",
+      "sha256": "754f4cb007b05f6e0413ef01aa17e0bc70c56cb718017d96d9ca43c4c784b77b",
+      "bytes": 865,
+      "fabricationRole": "transformation-or-contract-input"
+    }
+  ],
+  "unclosedInputs": [
+    "accepted implementation of L-O01\u2013L-O22 journal owner, retained blocking reconstruction, facade, packet migration and domain contracts; authenticated legacy-hook attribution binding; registered unique interaction admission interfaces",
+    "exact scoped personal work/query/artifact/inference adapter contracts and implementation inputs",
+    "descriptor generator runtime dependencies and side-effect-free fixture binding",
+    "private receiving observations and execution namespace commitment"
+  ],
+  "observedHazards": [
+    {
+      "source": "rpc/operation.mjs",
+      "function": "lazyOperation",
+      "observation": "loaded executable chosen by verb only; descriptor admission/ref/schema correspondence not verified"
+    },
+    {
+      "source": "rpc/operation.mjs",
+      "function": "contractFromDescriptor",
+      "observation": "existing schema address returned without comparing incoming schema body"
+    },
+    {
+      "source": "mcp-host.mjs",
+      "function": "openMetroplatMcp",
+      "observation": "tools/list uses static generated descriptors; runtime instance operations loaded separately"
+    },
+    {
+      "source": "rpc/journal-witness.mjs",
+      "function": "journalRpcWitness",
+      "observation": "root captured in witness closure; replacing handler context alone cannot redirect attempt/outcome storage"
+    }
+  ],
+  "providerInputRule": "Do not send generated descriptor bodies to the inference provider or allow provider edits to them. Bind their original hashes for promotion and regenerate with the existing source-bound descriptor generator after accepted source staging. Narrow public transformation inputs by dependency once F-C05 is closed; no repeated full-catalog prompt.",
+  "acceptedPureSemanticDependency": {
+    "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/semantic-record.mjs",
+    "sha256": "4cdd3b3e13f2445875d33f3d72ec0dfd7684f3615a27107d6049771a9163f248",
+    "promotionEvidence": "../2026-09-27-semantic-record-generation/promotion.json",
+    "promotionEvidenceSha256": "1309944cfbe01c0a492849182929c96438bd3ad230735f95188ea9d43c3203a6",
+    "exports": [
+      "semanticRecordCandidates",
+      "legacySemanticRowArtifact",
+      "legacySemanticImport",
+      "projectSemanticRecords"
+    ],
+    "hostIntegrationAccepted": false
+  },
+  "headContinuityContracts": {
+    "clauses": [
+      "L-O16",
+      "L-O17",
+      "L-O18"
+    ],
+    "evidence": "../2026-09-27-journal-operation-design/head-continuity-observation.json",
+    "sha256": "0b6942f87445c5643e83e25f1715939f95f288b2b3264dd7f1e7ffb7f014a7b8",
+    "implementationAccepted": false
+  },
+  "acceptedPurePacketDependency": {
+    "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/packet.mjs",
+    "sha256": "8542083fac97db2fa2b6cee21912efa7ba18e62dfb65ff58449cfdae8ac36542",
+    "promotionEvidence": "../2026-09-27-journal-packet-generation/promotion.json",
+    "promotionEvidenceSha256": "4654f81558872c7116048361b7579bf7bbf317b4bba473273226dfa4cda68d63",
+    "exports": [
+      "journalPacket",
+      "resolveJournalPacket"
+    ],
+    "hostIntegrationAccepted": false
+  },
+  "legacyPacketContracts": {
+    "clauses": [
+      "L-O20",
+      "L-O21"
+    ],
+    "evidence": "../2026-09-27-journal-operation-design/legacy-packet-law-observation.json",
+    "sha256": "f067edcb20ffc97cea20c31638775d042d33aa097508335bee9a2c083cfc1041",
+    "implementationAccepted": false
+  },
+  "sourceOwnerInterfaceRefinement": {
+    "clauses": [
+      "L-O02",
+      "L-O04",
+      "L-O05",
+      "L-O22",
+      "L-H05"
+    ],
+    "implementationAccepted": false
+  },
+  "acceptedBlockingReconstructionDependency": {
+    "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/substrate.mjs",
+    "sha256": "039871c716b629da807539e0cd6fe814cc2edabe4915594728f5693e7e6f4d21",
+    "promotionEvidence": "../2026-09-27-journal-blocking-generation/promotion.json",
+    "promotionEvidenceSha256": "7ce4d2dead0e1edb680c1ba80baf2a7320c072438c4503c24bc26003f81803e1",
+    "clause": "L-O22",
+    "hostIntegrationAccepted": false
+  }
+}

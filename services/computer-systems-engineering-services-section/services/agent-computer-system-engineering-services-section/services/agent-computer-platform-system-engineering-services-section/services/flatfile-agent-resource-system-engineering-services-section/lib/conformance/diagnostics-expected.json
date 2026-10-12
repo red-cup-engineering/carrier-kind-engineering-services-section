@@ -1,0 +1,66 @@
+{
+  "description": "Expected closure/rule diagnostics list for lib/conformance/fixture-corpus/, produced by pyfars.closure.rule.compose_rules.run and jsfars's composeRules (design spec section 11, conformance vector #4). Diagnostics are compared in this canonical shape (rule, path, slug, target, message), in run order: jsfars's makeDiagnostic already emits exactly this shape; pyfars's richer Diagnostic (severity + a free-form extra dict) is normalized down to it by each language's conformance test, not by production code (see the residual note below).",
+  "notes": [
+    "Rule names are the shared vocabulary both languages must use for every generic closure rule: cycles, broken-links, ambiguous-reference, stubs, orphans, status-consistency, missing-status, missing-proof, wip-theorem, symbols. pyfars.closure.rule.proofs already emitted the latter three as distinct codes; jsfars/src/closure/rules/proofs.mjs was the side that collapsed them into one \"proofs\" name and has been split to match.",
+    "Residual, not exercised by this fixture: pyfars.closure.rule.ambiguous_reference addresses records by path-suffix (extra[\"target\"] is a joined path-component string) while jsfars/src/closure/rules/ambiguous-reference.mjs addresses them by bare slug (target is edge.dst) \u2014 the two only coincide when a corpus has no actual path-suffix ambiguity, which this fixture corpus does not exercise.",
+    "pyfars.closure.rule.cycles reports slug=target=the self-loop slug for a length-1 cycle and slug=target=null for a multi-node cycle (no single file owns it) \u2014 same as jsfars."
+  ],
+  "diagnostics": [
+    {
+      "rule": "stubs",
+      "path": "concepts/alpha.md",
+      "slug": "alpha",
+      "target": null,
+      "message": "`alpha` (concept, 11 chars)"
+    },
+    {
+      "rule": "stubs",
+      "path": "concepts/beta.md",
+      "slug": "beta",
+      "target": null,
+      "message": "`beta` (concept, 29 chars)"
+    },
+    {
+      "rule": "stubs",
+      "path": "examples/alpha-example.md",
+      "slug": "alpha-example",
+      "target": null,
+      "message": "`alpha-example` (example, 11 chars)"
+    },
+    {
+      "rule": "stubs",
+      "path": "questions/open-question.md",
+      "slug": "open-question",
+      "target": null,
+      "message": "`open-question` (question, 2 chars)"
+    },
+    {
+      "rule": "stubs",
+      "path": "theorems/alpha-property.md",
+      "slug": "alpha-property",
+      "target": null,
+      "message": "`alpha-property` (theorem, 29 chars)"
+    },
+    {
+      "rule": "orphans",
+      "path": "concepts/beta.md",
+      "slug": "beta",
+      "target": null,
+      "message": "`beta` \u2014 no incoming references"
+    },
+    {
+      "rule": "orphans",
+      "path": "examples/alpha-example.md",
+      "slug": "alpha-example",
+      "target": null,
+      "message": "`alpha-example` \u2014 no incoming references"
+    },
+    {
+      "rule": "orphans",
+      "path": "theorems/alpha-property.md",
+      "slug": "alpha-property",
+      "target": null,
+      "message": "`alpha-property` \u2014 no incoming references"
+    }
+  ]
+}

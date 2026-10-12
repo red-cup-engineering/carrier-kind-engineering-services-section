@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/predicating.schema.json",
+  "title": "Predicating",
+  "description": "The transfinite homotopy generator over a potential-aperiodic-articulation-cell. Predicating generates the transfinite-predication-category as its codomain object. Given a potential-aperiodic-articulation-cell whose carrier is the utterance pair [token, claim], predicating opens the transfinite-predication-category whose predication-cell-set is Phi = E x Pi x E around that token-schema and claim-schema position. It does not extract subject/predicate/object labels from claim.const; resolved substrate coordinates belong to later projections. Settlement-cell-trace-points are later finite presentations inside settling; they are not this generator's codomain.",
+  "type": "object",
+  "required": [
+    "input",
+    "output"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "input": {
+      "description": "Predicating's input: the potential-aperiodic-articulation-cell whose carrier is the utterance's token/claim pair.",
+      "type": "object",
+      "required": [
+        "potential-aperiodic-articulation-cell"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "potential-aperiodic-articulation-cell": {
+          "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/potential-aperiodic-articulation-cell.schema.json"
+        }
+      }
+    },
+    "output": {
+      "description": "Predicating's codomain object: the transfinite-predication-category generated from the potential-aperiodic-articulation-cell.",
+      "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/transfinite-predication-category.schema.json"
+    }
+  }
+}

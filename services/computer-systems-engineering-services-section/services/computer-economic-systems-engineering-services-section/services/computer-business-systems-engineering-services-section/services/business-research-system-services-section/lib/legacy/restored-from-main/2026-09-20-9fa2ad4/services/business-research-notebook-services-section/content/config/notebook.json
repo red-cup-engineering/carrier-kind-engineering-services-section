@@ -1,0 +1,15 @@
+{
+  "type": "PersistentNotebookIdentity",
+  "status": "bound-provider-created",
+  "actor": "urn:ame:modern-business-persistent-notebook-enterprise",
+  "line": "modern-business-practice",
+  "notebookId": "763fbe07-e786-4e23-9b33-b53f05230573",
+  "url": "https://notebooklm.google.com/notebook/763fbe07-e786-4e23-9b33-b53f05230573",
+  "creationReceipt": "urn:sha256:2092c56570efb9a542add259b6c5ba12f70f8afb4dc1fc8bed76bbf7478bdab8",
+  "creationLaw": "ni:///sha-256;afhqHeVns_ryxfvvlGBqug5YO5w-oNqMCVwCJSwZwxI",
+  "boundOn": "2026-07-21",
+  "provider": "urn:ame:notebooklm-inference-team",
+  "providerVideoCapacityAllocation": "modern-business-practices-alternating",
+  "sourcePolicy": "curriculum-scoped-cumulative-with-explicit-corrections",
+  "credentialCustody": "provider-only"
+}

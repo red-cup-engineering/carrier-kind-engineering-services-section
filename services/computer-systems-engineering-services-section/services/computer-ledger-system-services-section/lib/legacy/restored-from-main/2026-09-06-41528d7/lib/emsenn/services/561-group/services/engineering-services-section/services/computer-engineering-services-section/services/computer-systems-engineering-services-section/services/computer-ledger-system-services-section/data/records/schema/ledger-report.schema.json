@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:red-cup-engineering:schema:ledger-report:1",
+  "title": "LedgerReport",
+  "description": "Farolfi's own `-o json` report shape for the requested report, merged with this envelope. The report-specific fields are owned by @red-cup-engineering/organizing and @red-cup-engineering/farolfi and are intentionally not re-specified here.",
+  "type": "object",
+  "required": ["kind", "report", "journal", "generatedAt"],
+  "additionalProperties": true,
+  "properties": {
+    "kind": { "const": "ledger-report" },
+    "report": {
+      "enum": ["balance", "balance-sheet", "income-statement", "cashflow", "register", "accounts", "stats", "lots", "valuation", "reconcile", "check"]
+    },
+    "journal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["path", "format"],
+          "additionalProperties": false,
+          "properties": {
+            "path": { "type": "string" },
+            "format": { "enum": ["beancount", "hledger"] }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["text", "format"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "const": true },
+            "format": { "enum": ["beancount", "hledger"] }
+          }
+        }
+      ]
+    },
+    "generatedAt": { "type": "string", "format": "date-time" }
+  }
+}

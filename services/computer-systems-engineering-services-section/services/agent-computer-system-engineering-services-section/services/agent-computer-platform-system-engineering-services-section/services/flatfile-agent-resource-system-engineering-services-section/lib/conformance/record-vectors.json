@@ -1,0 +1,206 @@
+{
+  "law": "fars-tier-b-v1",
+  "description": "The seven Tier B institutional-fact record types (design spec section 3): one valid instance with its computed id per type, one invalid variant and the rule it breaks. Shared by pyfars's kernel/record_types.py and jsfars's kernel/record-types.mjs; both must accept every 'valid' record and reject every 'invalid' one for the stated reason. 'support.guardWitness' is an auxiliary Witness (kind=guard) the OfficerInstallation vector's authorizing_act cites, required for verify_records cross-validation to resolve.",
+  "support": {
+    "guardWitness": {
+      "type": "Witness",
+      "id": "ni:///sha-256;r5mkouk3nCJMm9MwjPG6-dBbXLdzBAkLTN47Fhonz98",
+      "operator": "dispatch",
+      "target": "offices/librarian",
+      "before_digest": null,
+      "after_digest": null,
+      "details": {},
+      "agent": "morgan",
+      "timestamp": "2026-08-19T00:00:01Z",
+      "kind": "guard",
+      "four_before": [false, false],
+      "four_after": [true, false],
+      "channel": "governance",
+      "conveys_authority": false
+    }
+  },
+  "vectors": [
+    {
+      "name": "witness",
+      "type": "Witness",
+      "valid": {
+        "type": "Witness",
+        "id": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "operator": "fm_add",
+        "target": "concepts/alpha.md",
+        "before_digest": null,
+        "after_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "details": { "field": "depends-on", "value": "beta" },
+        "agent": "morgan",
+        "timestamp": "2026-08-19T00:00:00Z",
+        "kind": "mutation",
+        "four_before": [false, false],
+        "four_after": [true, false],
+        "channel": "substrate",
+        "conveys_authority": false
+      },
+      "invalid": {
+        "type": "Witness",
+        "id": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "operator": "fm_add",
+        "target": "concepts/beta.md",
+        "before_digest": null,
+        "after_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "details": { "field": "depends-on", "value": "beta" },
+        "agent": "morgan",
+        "timestamp": "2026-08-19T00:00:00Z",
+        "kind": "mutation",
+        "four_before": [false, false],
+        "four_after": [true, false],
+        "channel": "substrate",
+        "conveys_authority": false
+      },
+      "reason": "target was changed to concepts/beta.md after the id was minted for concepts/alpha.md; the id no longer matches the recomputed content identity (tamper-detection)."
+    },
+    {
+      "name": "observation",
+      "type": "Observation",
+      "valid": {
+        "type": "Observation",
+        "id": "ni:///sha-256;-pmokWcPms4-zjmINqZOJHrGA2rLp2LkaNUOvY8qFl8",
+        "accord": "memory",
+        "proposition": "alpha exists",
+        "witness_id": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "agent": "morgan"
+      },
+      "invalid": {
+        "type": "Observation",
+        "id": "ni:///sha-256;-5GPZOW4T5Y6dLhl7ZavodJ8iY_koCIhBbTFyDY7jS8",
+        "accord": "memory",
+        "proposition": "alpha exists",
+        "agent": "morgan"
+      },
+      "reason": "witness_id is missing; an Observation must cite the Witness that grounds its proposition."
+    },
+    {
+      "name": "correction_record",
+      "type": "CorrectionRecord",
+      "valid": {
+        "type": "CorrectionRecord",
+        "id": "ni:///sha-256;qOqE61F2HgLhWxtiNzNpFo7D9k1aKqhUfbphjzGzK3k",
+        "target": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "replacement": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "reason": "corrected the operator label",
+        "invalidates_prior_for_use": true
+      },
+      "invalid": {
+        "type": "CorrectionRecord",
+        "id": "ni:///sha-256;h9dIEpc7LlYTYoLu7I6LaYVkNldsokv3JgACgufOBws",
+        "target": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "replacement": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "reason": "corrected the operator label"
+      },
+      "reason": "invalidates_prior_for_use is missing (this is the type's required, always-True authority-withholding boolean)."
+    },
+    {
+      "name": "status_event",
+      "type": "StatusEvent",
+      "valid": {
+        "type": "StatusEvent",
+        "id": "ni:///sha-256;oQdsiAzb5sTliWCOOUBU3D0XbyKFYAzy9MuQRu6nKdk",
+        "target": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "transition": "correction",
+        "supersedes": null,
+        "successor": null,
+        "conveys_authority": false
+      },
+      "invalid": {
+        "type": "StatusEvent",
+        "id": "ni:///sha-256;vPwKZlJIF-mZ3NNiwLXEqwRgMERDzwZkNRh4h0xDi3s",
+        "target": "ni:///sha-256;xExLmhzFkk4sSSS5SXOQ69stEkCHHAqekfbh18k6Bvc",
+        "transition": "correction",
+        "supersedes": null,
+        "successor": null,
+        "conveys_authority": true
+      },
+      "reason": "conveys_authority is true; only OfficerInstallation may set conveys_authority to True, and a StatusEvent is never itself a grant."
+    },
+    {
+      "name": "office",
+      "type": "Office",
+      "valid": {
+        "type": "Office",
+        "id": "ni:///sha-256;JKnyXni1S3s1ZE6UsW1mIuupqPzUAqqxhWwOZ17g3vg",
+        "slug": "librarian",
+        "duties": ["curate"],
+        "powers": [],
+        "privileges": ["edit"],
+        "immunities": [],
+        "scope": "corpus",
+        "conveys_incumbency": false
+      },
+      "invalid": {
+        "type": "Office",
+        "id": "ni:///sha-256;px9AZxMQGalY7jgplT0rzNA1I9Oy-D42YihOOF4GOZw",
+        "slug": "librarian",
+        "duties": ["curate"],
+        "powers": [],
+        "privileges": ["edit"],
+        "immunities": [],
+        "scope": "corpus",
+        "conveys_incumbency": true
+      },
+      "reason": "conveys_incumbency is true; describing an office is not installing an officer, only OfficerInstallation does that."
+    },
+    {
+      "name": "officer_installation",
+      "type": "OfficerInstallation",
+      "valid": {
+        "type": "OfficerInstallation",
+        "id": "ni:///sha-256;SjArNL8o3_r6XIp4YMc22AhfpCiuokr5xhagN-qTqTg",
+        "office": "ni:///sha-256;JKnyXni1S3s1ZE6UsW1mIuupqPzUAqqxhWwOZ17g3vg",
+        "officer": "morgan",
+        "as_role": "librarian",
+        "constitution": "constitution:librarian-v1",
+        "authorizing_act": "ni:///sha-256;r5mkouk3nCJMm9MwjPG6-dBbXLdzBAkLTN47Fhonz98",
+        "conveys_authority": true
+      },
+      "invalid": {
+        "type": "OfficerInstallation",
+        "id": "ni:///sha-256;rzJhW617WpAr1uNk4SO2F63vNOzlarEFvIY4rPY-PMo",
+        "office": "ni:///sha-256;JKnyXni1S3s1ZE6UsW1mIuupqPzUAqqxhWwOZ17g3vg",
+        "officer": "morgan",
+        "as_role": "librarian",
+        "constitution": "constitution:librarian-v1",
+        "authorizing_act": "ni:///sha-256;r5mkouk3nCJMm9MwjPG6-dBbXLdzBAkLTN47Fhonz98",
+        "conveys_authority": false
+      },
+      "reason": "conveys_authority is false; OfficerInstallation is the sole Tier B type required to convey authority, so False here defeats the record's only purpose."
+    },
+    {
+      "name": "session",
+      "type": "Session",
+      "valid": {
+        "type": "Session",
+        "id": "ni:///sha-256;R7QACVHzkttC1ZrOstvXUCJknlGCslx5iM3C3YrvppE",
+        "office": "ni:///sha-256;JKnyXni1S3s1ZE6UsW1mIuupqPzUAqqxhWwOZ17g3vg",
+        "sections": {
+          "product_context": "",
+          "active_context": "",
+          "progress": "",
+          "decision_log": "",
+          "system_patterns": "",
+          "custom": {}
+        }
+      },
+      "invalid": {
+        "type": "Session",
+        "id": "ni:///sha-256;LifiIoXvyNrBBynQQ2LlszfxJ9rcPR605anTma8dQFQ",
+        "office": "ni:///sha-256;JKnyXni1S3s1ZE6UsW1mIuupqPzUAqqxhWwOZ17g3vg",
+        "sections": {
+          "product_context": "",
+          "active_context": "",
+          "decision_log": "",
+          "system_patterns": "",
+          "custom": {}
+        }
+      },
+      "reason": "sections is missing the required progress key; Session's five named Memory-Bank sections must all be present."
+    }
+  ]
+}

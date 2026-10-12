@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/residuated-lattice/residuating/residuating.schema.json",
+  "title": "Residuating morphism record",
+  "description": "Morphism: a residuated-lattice presentation (carrier + order + monoid, residual tables absent) -> the completed residuated-lattice with its left and right residual tables derived from the order and fusion and verified against the Lambek residuation law a*b <= c iff b <= a\\c iff a <= c/b. Fails if the structure is not a lattice, not a monoid, fusion is non-monotone, or no residual satisfies the law (i.e. the fusion is not residuated).",
+  "type": "object",
+  "required": ["input", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "input": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/residuated-lattice/residuated-lattice.schema.json" },
+    "output": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/residuated-lattice/residuated-lattice.schema.json" }
+  }
+}

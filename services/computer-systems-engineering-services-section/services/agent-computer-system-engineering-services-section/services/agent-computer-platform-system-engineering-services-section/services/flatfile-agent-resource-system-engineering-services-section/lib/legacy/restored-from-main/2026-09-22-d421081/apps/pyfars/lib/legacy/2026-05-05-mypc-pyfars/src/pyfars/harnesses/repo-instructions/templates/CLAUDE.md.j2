@@ -1,0 +1,97 @@
+<!--
+  GENERATED FILE — do not hand-edit.
+  Regenerate with: {{ generation_command }}
+  Source template: pyfars.harnesses:repo-instructions/templates/CLAUDE.md.j2
+  Last generated:  {{ generated_at }}
+-->
+
+# CLAUDE.md — working instructions
+
+You are an agent operating in {{ polity.title or "this polity" }}'s relationality repository{% if ship %} aboard {{ ship.title }}{% endif %}. Read [README.md](README.md) first if you haven't.
+
+{% if charter_path -%}
+The polity's charter lives at [`{{ charter_path }}`]({{ charter_path }}). Everything you do here serves the charter or doesn't belong on the ship.
+{%- endif %}
+
+## What this repository is
+
+The operational substrate of {{ ship.title or polity.title or "this polity" }}. The repository carries:
+
+- A novel mathematical theory of *predication categories* (bilattice values, predication fibrations, closure 2-monad, four-regime classification).
+- A novel engineering theory of *predicated computing* built on top of it ({% for st in predicated_computing_subtheories %}{{ st.slug }}{% if not loop.last %}, {% endif %}{% endfor %}).
+- An operational layer (command, engineering, science) that runs the ship.
+
+The theories are **novel** — they don't exist in published literature in this form. Treat the corpus as research-active, not as an established textbook.
+
+## How to work here
+
+### Reading
+
+- For math questions, start at [`predication-categories/_index.md`](library/theories/humanities/theories/math/theories/categories/theories/predication-categories/_index.md).
+- For engineering questions, start at [`predicated-computing/_index.md`](library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/_index.md). Engineering theorems cite math objects directly — when an engineering claim names a math object, that's the load-bearing reference, follow it.
+- Use `pyfars show <slug>` and `pyfars context <slug>` to navigate the predication graph rather than `grep`.
+
+### Writing
+
+- Every note is a Markdown file with YAML frontmatter; one entity per file; lower-kebab-case slugs.
+- Frontmatter uses `type:` (kind of note: concept/object/morphism/theorem/etc.) and `class:` (sub-classification).
+- New notes go in the canonical directory per `pyfars where <kind> <slug>`.
+- For engineering theorems and objects, math is **first-class in `depends-on:`**. Cite math objects directly; don't add a "Connection to math reformulation" sidebar — build the math into the body.
+- Don't write notes you don't understand. Lifting wisdom across layers is a research claim, not a mechanical cross-reference.
+- Read each file before moving it out of `triage/`. Bulk-lifts have repeatedly produced disasters.
+
+### Editing
+
+- The substrate's `triage/` directories (e.g. `operations/engineering/triage/`) are workspaces; every file in them must keep a `triage/` segment in its path. Enrich content rather than restructuring to remove the triage marker.
+- Don't add `locates:` or `department:` frontmatter when the path already conveys it.
+
+### Committing
+
+- Don't commit unless the user asks you to.
+- When you do commit, use `git add` with specific paths — never `git add -A` unless the user explicitly says to commit everything in flight.
+- Commit messages should describe **what changed and why**. Reference task records by their slug (e.g. `task-15`, not `Task #15`) so `pyfars audit-commits` can bind the commit to a witness.
+
+### Validation
+
+- Run `pyfars validate` periodically on touched files. Many existing diagnostics are pre-existing and not from your work; filter to the files you've actually edited.
+
+### What not to do
+
+- Don't write narratives unless asked; the sprint will produce its own narratives organically.
+- Don't add comments to code beyond what's required to convey non-obvious WHY. Don't write multi-line docstrings for code whose purpose is already clear.
+- Don't introduce backwards-compatibility shims, feature flags, or "removed once X" TODOs without an explicit reason.
+- Don't destroy uncommitted work to avoid pre-commit hook failures or to "clean up." Fix the underlying issue.
+- Don't hand-edit harness-generated files (this file, README.md, replit.md). Edit the templates that ship with PyFARS at `src/pyfars/harnesses/repo-instructions/templates/` (in `github.com/emsenn/pyfars`) and re-run `{{ generation_command }}`.
+
+### Audit-output discipline
+
+Audit *outputs* (reports, drift snapshots, coverage rolls, dated audit findings) MUST go in one of these places, and **nowhere else**:
+
+1. The audited theory's own `audits/` subdirectory (e.g. `library/theories/.../<theory>/audits/<class>-<date>.md` with `type: audit, class: <kind>`). Check for a sibling `audits/_index.md` and follow its conventions; add yourself to its index.
+2. `operations/engineering/triage/...` somewhere matching the audit's subject (for one-off audits that don't yet have a home theory).
+
+Additional rules:
+
+- Don't scatter `audit-*.md` or `*-audit.md` files into random directories.
+- Don't start a dated daily-roll audit series (`audit-YYYY-MM-DD.md`, `coverage-YYYY-MM-DD.md`, etc.) unless the captain explicitly asked for the series.
+- An "audit" that's really an FYI or a brain-dump is not an audit; file it as a session-note or a triage idea.
+- The substrate already carries audit *skills* under `operations/engineering/skills/<pack>/audit-*/` and audit *agents* (`theory-auditor`, `predication-category-theory-auditor`, etc.) — invoke those rather than rolling your own.
+
+## Quick reference — engineering surface
+
+The substrate's engineering surface is decomposed into these sub-theories under [`predicated-computing/`](library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/):
+
+{% for st in predicated_computing_subtheories -%}
+- [`{{ st.slug }}`]({{ st.path }}) — {{ st.title or st.slug }}
+{% endfor %}
+- The flatfile substrate realization (the `pyfars` package) is the [`flatfile-agentic-resource-system`](library/theories/engineering/theories/tech/theories/computing/theories/predicated-computing/theories/agential-orchestration-platform/theories/flatfile-agentic-resource-system/) sub-sub-theory under agential-orchestration.
+
+The `pyfars` CLI ({{ pyfars_verb_count }} verbs registered) is the polity's substrate runtime, hosted at [github.com/emsenn/pyfars](https://github.com/emsenn/pyfars) and consumed here as a Nix flake input. Enter `nix develop .#<computer-system>` (or plain `nix develop` for the generic shell) and `pyfars` is on `PATH`. `pyfars show <slug>` / `pyfars context <slug>` / `pyfars validate` / `pyfars audit-commits` are the verbs you'll reach for most often.
+
+## Captain
+
+{% if captain -%}
+Captain {{ captain.title or captain.handle or captain.slug }}{% if captain.public_handle %} (`{{ captain.public_handle }}`{% if captain.public_domain %}, [{{ captain.public_domain }}](https://{{ captain.public_domain }}){% endif %}){% endif %}. Decisions you can't make autonomously — substantive engineering trade-offs, research direction, charter interpretation — go to the captain.
+{%- else -%}
+(captain personnel record missing — no holder for `office:command` resolved)
+{%- endif %}

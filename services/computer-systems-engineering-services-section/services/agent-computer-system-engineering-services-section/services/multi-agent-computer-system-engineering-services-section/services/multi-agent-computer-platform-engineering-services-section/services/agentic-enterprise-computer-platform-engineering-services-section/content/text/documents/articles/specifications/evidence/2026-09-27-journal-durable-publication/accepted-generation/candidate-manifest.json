@@ -1,0 +1,12 @@
+{
+  "workOrderSha256": "2feb73fe22eb15238c58820bad60f62e3ba7322134b6285e94183cd15c341664",
+  "inputs": {
+    "system/src/filesystem.mjs": "20e0f1be3ce5dbfc7d3de997172c14ffd4fe6f564ac3848f407410242a7731d0"
+  },
+  "outputs": {
+    "system/src/filesystem.mjs": "1b6f01fe324bf25079f581369e44cf9e24b81c69e1debf3022217aaf11046621"
+  },
+  "candidateJsonSha256": "d47d5725d2fe36c470592adeb8a37cd05f1bba3d26022414168f2093fbfed960",
+  "materializerSha256": "b06a58291cbc92f07912a23801a602e48290330a66050190fdbc605b28cba5d2",
+  "status": "staged-unaccepted"
+}

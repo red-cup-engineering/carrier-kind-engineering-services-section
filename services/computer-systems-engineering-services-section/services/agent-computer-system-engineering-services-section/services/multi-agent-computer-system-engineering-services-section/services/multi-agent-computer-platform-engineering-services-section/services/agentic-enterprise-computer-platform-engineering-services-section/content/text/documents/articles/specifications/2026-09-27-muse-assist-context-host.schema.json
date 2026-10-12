@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:561:specification:personal-context-host-source:1",
+  "title": "Operator-admitted personal context source",
+  "description": "Configuration representation only. Custody, canonical bytes, uniqueness, references, root binding and use-policy interpretation are mandatory additional L-C11\u2013L-C13 constraints.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "version",
+    "revision",
+    "bindings",
+    "contexts"
+  ],
+  "properties": {
+    "kind": {
+      "const": "metroplat.personal-contexts"
+    },
+    "version": {
+      "const": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "journal",
+          "settlementRoot"
+        ],
+        "properties": {
+          "journal": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "settlementRoot": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      },
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "contexts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner",
+          "journal",
+          "active",
+          "operations",
+          "permissions",
+          "retention",
+          "disclosure"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "journal": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "Must also satisfy the existing artifact-reference validator; arbitrary strings are not references."
+            },
+            "minItems": 1,
+            "maxItems": 1024,
+            "uniqueItems": true
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "principal",
+                "action",
+                "operation"
+              ],
+              "properties": {
+                "principal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                "action": {
+                  "enum": [
+                    "message",
+                    "correction",
+                    "decision",
+                    "cancel",
+                    "assessment",
+                    "read",
+                    "artifact"
+                  ]
+                },
+                "operation": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Must also satisfy the existing artifact-reference validator; arbitrary strings are not references."
+                }
+              }
+            },
+            "minItems": 0,
+            "maxItems": 4096,
+            "uniqueItems": true
+          },
+          "retention": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "version",
+              "disposition",
+              "maxCommandBytes",
+              "maxAttachmentBytes"
+            ],
+            "properties": {
+              "kind": {
+                "const": "causal-evidence"
+              },
+              "version": {
+                "const": 1
+              },
+              "disposition": {
+                "const": "retain-until-authorized-disposition"
+              },
+              "maxCommandBytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "maxAttachmentBytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            }
+          },
+          "disclosure": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "version",
+              "participantResponse",
+              "inference"
+            ],
+            "properties": {
+              "kind": {
+                "const": "explicit-disclosure"
+              },
+              "version": {
+                "const": 1
+              },
+              "participantResponse": {
+                "const": "authorized-action"
+              },
+              "inference": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "principal",
+                    "operation",
+                    "provider",
+                    "purpose",
+                    "sourceClasses",
+                    "maxBytes"
+                  ],
+                  "properties": {
+                    "principal": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "operation": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Must also satisfy the existing artifact-reference validator; arbitrary strings are not references."
+                    },
+                    "provider": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "purpose": {
+                      "enum": [
+                        "interpret-request",
+                        "plan-work",
+                        "produce-result"
+                      ]
+                    },
+                    "sourceClasses": {
+                      "type": "array",
+                      "items": {
+                        "enum": [
+                          "submitted-command",
+                          "authorized-history",
+                          "authorized-artifact",
+                          "derived-work"
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 4,
+                      "uniqueItems": true
+                    },
+                    "maxBytes": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    }
+                  }
+                },
+                "minItems": 0,
+                "maxItems": 1024,
+                "uniqueItems": true
+              }
+            }
+          }
+        }
+      },
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true
+    }
+  }
+}

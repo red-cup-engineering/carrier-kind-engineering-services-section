@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/leader/library/leader-of-a-swarm/leader-of-a-swarm.schema.json",
+  "title": "Leader of a swarm",
+  "description": "JSON Schema for a leader-of-a-swarm instance: a leader specialized by having a swarm as its witnessing structure.",
+  "type": "object",
+  "required": [
+    "character",
+    "is-leader-of"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "character": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+    },
+    "is-leader-of": {
+      "type": "string",
+      "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+      "description": "Swarm slug whose recognition confers the role."
+    },
+    "recognized-by-participants": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$"
+      }
+    },
+    "holds-terminal-witness-for": {
+      "type": "string",
+      "description": "Reference to the engagement whose terminal witness this leader signs."
+    },
+    "recognized-at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lapsed-at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

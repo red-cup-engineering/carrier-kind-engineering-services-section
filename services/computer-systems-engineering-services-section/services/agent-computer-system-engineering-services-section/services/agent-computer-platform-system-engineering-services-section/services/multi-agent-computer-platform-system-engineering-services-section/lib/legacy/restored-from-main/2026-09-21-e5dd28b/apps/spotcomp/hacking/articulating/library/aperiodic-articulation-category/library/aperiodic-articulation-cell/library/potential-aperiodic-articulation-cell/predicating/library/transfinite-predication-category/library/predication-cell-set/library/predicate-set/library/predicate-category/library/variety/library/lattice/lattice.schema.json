@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/lattice.schema.json",
+  "title": "Lattice",
+  "description": "A finite lattice, presented by its carrier (distinct element labels) and partial order leq (as [a,b] pairs meaning a <= b; reflexive-transitively closed downstream). Meets and joins exist and are verified by the operating morphisms. This is the base object the value algebra (residuated-lattice) and the algebras the nuclei act on (Heyting algebras) extend or reference -- so those objects reference this schema rather than re-declaring carrier/leq out of band.",
+  "type": "object",
+  "required": ["carrier", "leq"],
+  "properties": {
+    "carrier": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1, "uniqueItems": true },
+    "leq": { "type": "array", "items": { "type": "array", "prefixItems": [{ "type": "string" }, { "type": "string" }], "items": false, "minItems": 2, "maxItems": 2 } }
+  }
+}

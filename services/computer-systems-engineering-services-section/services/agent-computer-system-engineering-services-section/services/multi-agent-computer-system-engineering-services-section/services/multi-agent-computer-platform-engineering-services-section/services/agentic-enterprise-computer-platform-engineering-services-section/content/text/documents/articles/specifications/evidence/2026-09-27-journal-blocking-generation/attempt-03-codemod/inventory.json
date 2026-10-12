@@ -1,0 +1,14 @@
+{
+  "kind": "source-patchset-input",
+  "version": 1,
+  "sourceRoot": "/tmp/muse-blocking-generation-xevizspx/stage",
+  "files": {
+    "src/semiotic-eavt/journal/substrate.mjs": {
+      "state": "present",
+      "sha256": "6695957bf6ac70b25095a48072bd7760081d120481fafdf197840da74c6e262f"
+    }
+  },
+  "clauses": [
+    "F-R05"
+  ]
+}

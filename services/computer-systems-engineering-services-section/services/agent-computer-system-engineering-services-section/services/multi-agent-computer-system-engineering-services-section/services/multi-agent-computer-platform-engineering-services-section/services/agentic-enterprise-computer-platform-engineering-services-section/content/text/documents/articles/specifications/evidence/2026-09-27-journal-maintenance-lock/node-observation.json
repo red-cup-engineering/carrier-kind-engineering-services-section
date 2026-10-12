@@ -1,0 +1,61 @@
+{
+  "node": "v24.19.0",
+  "checks": [
+    {
+      "name": "Node inherits descriptor as fd 3",
+      "ok": true,
+      "detail": {
+        "exitCode": 0
+      }
+    },
+    {
+      "name": "Node holds lock after helper exit",
+      "ok": true,
+      "detail": {
+        "competingExitCode": 1
+      }
+    },
+    {
+      "name": "Node close releases lock",
+      "ok": true,
+      "detail": {
+        "competingExitCode": 0
+      }
+    },
+    {
+      "name": "Node owner ready after helper exit",
+      "ok": true,
+      "detail": {
+        "pid": 752378
+      }
+    },
+    {
+      "name": "Node owner excludes competitor",
+      "ok": true,
+      "detail": {
+        "competingExitCode": 1
+      }
+    },
+    {
+      "name": "Node owner death releases without reclamation",
+      "ok": true,
+      "detail": {
+        "ended": {
+          "code": null,
+          "signal": "SIGKILL"
+        },
+        "competingExitCode": 0
+      }
+    },
+    {
+      "name": "stable lock inode retained",
+      "ok": true,
+      "detail": {
+        "inode": 4629924
+      }
+    }
+  ],
+  "limits": [
+    "Local controlled descriptor lifecycle only; no closure durability or journal integration demonstrated."
+  ]
+}

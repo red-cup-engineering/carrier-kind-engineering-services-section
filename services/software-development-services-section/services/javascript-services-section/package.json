@@ -1,7 +1,0 @@
-{
-  "name": "@red-cup-engineering/javascript-services-section",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "description": "Groups the JavaScript and Node.js software-development services. It owns no runtime of its own."
-}

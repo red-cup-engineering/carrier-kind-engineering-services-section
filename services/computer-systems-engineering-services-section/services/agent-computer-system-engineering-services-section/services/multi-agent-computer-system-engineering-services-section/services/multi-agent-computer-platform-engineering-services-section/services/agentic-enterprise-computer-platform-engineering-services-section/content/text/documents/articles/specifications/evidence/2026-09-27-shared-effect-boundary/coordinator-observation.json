@@ -1,0 +1,9 @@
+{
+  "observation": "Two different invocations naming the same logical effect both obtain this process lease",
+  "accepted": [
+    true,
+    true
+  ],
+  "sameHolder": true,
+  "limitation": "Direct coordinator observation only; no provider, whole RPC workflow, crash, or disk durability was exercised"
+}

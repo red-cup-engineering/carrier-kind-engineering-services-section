@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/derive-roadmap-readout-service",
+  "version": "0.1.1",
+  "description": "Derives one RoadmapReadout from the work rail's agent-work-dispatch\nsettlement: frontier items grouped by their declared `parent` cell, each\ncarrying a horizon and modality read by composing classify-work-demand's\nskillful-work quartet over the item's own scope and text (the founder's\ncorner rule: Process/both-closed -> Determined/Now, Derivation/Delta-only\n-> Necessary/Soon, Procedure/sigma-only -> Possible/Later, Inquiry/neither\n-> Impossible-now/Eventually) rather than guessed from prose, with ready\nand blocked read from the item's own structural and coordination state,\ndone taken as the dispatch's own derived count since a discharged item\nnever appears in `frontier`, and money rows taken only from `ledger`\nsince this operation writes and stores nothing.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/derive-roadmap-readout.mjs",
+  "bin": {
+    "derive-roadmap-readout": "scripts/derive-roadmap-readout.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/classify-work-demand-service": "0.1.1",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/derive-roadmap-readout.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

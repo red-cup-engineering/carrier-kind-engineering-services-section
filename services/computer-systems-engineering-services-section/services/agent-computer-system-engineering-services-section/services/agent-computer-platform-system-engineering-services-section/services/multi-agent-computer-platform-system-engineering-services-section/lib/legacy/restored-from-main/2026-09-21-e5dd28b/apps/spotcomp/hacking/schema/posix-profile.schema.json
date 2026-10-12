@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/posix-profile.schema.json",
+  "title": "SPOTCOMP POSIX contract profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "status",
+    "evidence",
+    "catalogRoot",
+    "pathContract",
+    "fileContract",
+    "appendContract",
+    "processContract",
+    "failureContract"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["candidate", "open", "proved"] },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "catalogRoot": {
+      "type": "object",
+      "required": ["path", "singleRoot", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "singleRoot": { "type": "boolean" },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "pathContract": {
+      "type": "object",
+      "required": ["segmentPattern", "rootInitial", "containmentMorphism", "identityRule", "samplePaths", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "segmentPattern": { "type": "string", "minLength": 1 },
+        "rootInitial": { "type": "boolean" },
+        "containmentMorphism": { "type": "boolean" },
+        "identityRule": {
+          "enum": ["ancestor-chain-plus-inbound-references", "open"]
+        },
+        "samplePaths": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "fileContract": {
+      "type": "object",
+      "required": ["schemas", "logs", "scripts"],
+      "additionalProperties": false,
+      "properties": {
+        "schemas": { "$ref": "#/$defs/fileClass" },
+        "logs": {
+          "allOf": [{ "$ref": "#/$defs/fileClass" }],
+          "type": "object",
+          "required": ["recordDelimiter", "rejectsEmptyLines", "rejectsCommentLines"],
+          "properties": {
+            "recordDelimiter": { "enum": ["lf"] },
+            "rejectsEmptyLines": { "type": "boolean" },
+            "rejectsCommentLines": { "type": "boolean" }
+          }
+        },
+        "scripts": {
+          "allOf": [{ "$ref": "#/$defs/fileClass" }],
+          "type": "object",
+          "required": ["moduleSystem", "defaultExportRequired"],
+          "properties": {
+            "moduleSystem": { "enum": ["esm"] },
+            "defaultExportRequired": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "appendContract": {
+      "type": "object",
+      "required": ["appendOnly", "singleRecordAtomicity", "orderingScope", "partialWriteBehavior", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "appendOnly": { "type": "boolean" },
+        "singleRecordAtomicity": { "enum": ["declared", "open"] },
+        "orderingScope": { "enum": ["per-log", "global", "open"] },
+        "partialWriteBehavior": { "enum": ["surface-error", "open"] },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "processContract": {
+      "type": "object",
+      "required": ["spawn", "supervise", "dispatch", "stdio", "signals", "exitStatus", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "spawn": { "type": "boolean" },
+        "supervise": { "type": "boolean" },
+        "dispatch": { "type": "boolean" },
+        "stdio": {
+          "type": "object",
+          "required": ["stdin", "stdout", "stderr"],
+          "additionalProperties": false,
+          "properties": {
+            "stdin": { "type": "boolean" },
+            "stdout": { "type": "boolean" },
+            "stderr": { "type": "boolean" }
+          }
+        },
+        "signals": {
+          "type": "object",
+          "required": ["forwarding", "names"],
+          "additionalProperties": false,
+          "properties": {
+            "forwarding": { "type": "boolean" },
+            "names": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        },
+        "exitStatus": { "type": "boolean" },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "failureContract": {
+      "type": "object",
+      "required": ["validationFailure", "ioFailure", "processFailure", "silentSkipForbidden", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "validationFailure": { "enum": ["surface-error", "open"] },
+        "ioFailure": { "enum": ["surface-error", "open"] },
+        "processFailure": { "enum": ["surface-error", "open"] },
+        "silentSkipForbidden": { "type": "boolean" },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "fileClass": {
+      "type": "object",
+      "required": ["regularFile", "encoding", "evidence"],
+      "additionalProperties": true,
+      "properties": {
+        "regularFile": { "type": "boolean" },
+        "encoding": { "enum": ["utf-8"] },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

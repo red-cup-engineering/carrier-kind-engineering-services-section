@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/swarm/finding-disagreement/finding-disagreement.schema.json",
+  "title": "Finding-disagreement (morphism)",
+  "description": "Identifies cells where players' settled values differ. The math: H⁰ of the network sheaf is consensus (taking-consensus); H¹ captures disagreement. This morphism computes a coarse H⁰-level proxy — cells where pairs of players disagree on the settled value. Source: swarm. Target: list of (cell, per-player-values) entries.",
+  "type": "object",
+  "required": [
+    "swarm"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "swarm": {
+      "$ref": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/operating-system/library/computer-operating-system/hacking/library/spotcomp/hacking/library/swarm/swarm.schema.json"
+    }
+  }
+}

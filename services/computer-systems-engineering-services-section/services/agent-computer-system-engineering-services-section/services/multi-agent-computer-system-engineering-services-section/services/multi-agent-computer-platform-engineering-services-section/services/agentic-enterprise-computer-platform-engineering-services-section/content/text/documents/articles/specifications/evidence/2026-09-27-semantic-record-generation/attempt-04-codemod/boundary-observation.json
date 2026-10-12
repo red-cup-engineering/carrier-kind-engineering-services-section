@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "stdout": "{\"checks\": {\"checkoutAbsent\": true, \"privateAssayAbsent\": true, \"sentinelAbsent\": true, \"inputSchemaPresent\": true, \"newWorkspaceEmpty\": true, \"pidNamespace\": true, \"freshTmp\": true}, \"limits\": [\"Local process boundary only; provider-server retention/isolation remains a trust assumption.\"]}\n",
+  "stderr": "",
+  "profileSha256": "7a17afed66bfb1f1637a4d6f2e5f493ca7c70af77d5a320f70dc21365426e597",
+  "beforeGeneration": true
+}

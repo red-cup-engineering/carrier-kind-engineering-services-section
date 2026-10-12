@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astronomy/world/scripts/totalizing/content/hyperverse",
+  "title": "hyperverse",
+  "description": "The totality of worlds together with the structural medium (the Wood) in which they are embedded — the ambient category whose objects include both worlds and the mediating Wood. The multiverse is its subcategory of worlds (the population alone); the hyperverse emphasizes that the inter-world fabric is itself an object of study.",
+  "type": "object",
+  "required": [
+    "worlds",
+    "medium"
+  ],
+  "properties": {
+    "worlds": {
+      "description": "the population of worlds (the multiverse subcategory)",
+      "$ref": "astronomy/world"
+    },
+    "medium": {
+      "description": "the Wood mediating the worlds — the inter-world fabric included as an object",
+      "$ref": "astronomy/world/scripts/mediating/content/mediating-nucleus/scripts/grounding/content/wood"
+    }
+  }
+}

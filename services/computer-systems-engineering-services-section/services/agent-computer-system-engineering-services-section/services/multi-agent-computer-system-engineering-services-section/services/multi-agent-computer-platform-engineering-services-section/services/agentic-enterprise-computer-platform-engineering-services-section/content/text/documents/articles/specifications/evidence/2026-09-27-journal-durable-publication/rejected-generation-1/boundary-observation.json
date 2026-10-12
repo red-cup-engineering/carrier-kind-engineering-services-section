@@ -1,0 +1,6 @@
+{
+  "reusesVerifiedProfile": "/tmp/muse-durable-generation-0pz41n25/boundary-observation.json",
+  "profileEquivalentExceptSchemaLocation": true,
+  "schemaBytesIdentical": true,
+  "limits": "Local mount/process separation; provider-server retention remains a trust assumption"
+}

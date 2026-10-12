@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/swarm/taking-consensus/taking-consensus.schema.json",
+  "title": "Taking-consensus (morphism)",
+  "description": "Computes the swarm's consensus over the cell-base — the categorical limit of the multi-observer functor V : O → Settlings_Φ. By Theorem 4.1, the limit is the cellwise ≤_k-meet (knowledge-meet ⊗_k) of the players' settled values. A player with no observation at a cell contributes ⊥ (the ⊗_k absorber), so consensus is cautious: silence at any participant pulls the consensus toward ⊥. Source: swarm. Target: list of (cell, value) consensus entries.",
+  "type": "object",
+  "required": [
+    "swarm"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "swarm": {
+      "$ref": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/operating-system/library/computer-operating-system/hacking/library/spotcomp/hacking/library/swarm/swarm.schema.json"
+    }
+  }
+}

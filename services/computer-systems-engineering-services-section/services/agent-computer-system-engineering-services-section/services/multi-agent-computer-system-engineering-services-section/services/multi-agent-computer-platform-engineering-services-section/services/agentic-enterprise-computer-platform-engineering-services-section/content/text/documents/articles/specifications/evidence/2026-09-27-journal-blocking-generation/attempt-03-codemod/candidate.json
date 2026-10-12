@@ -1,0 +1,22 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "candidate",
+  "reason": "Use the canonical text of the snapshotted obstruction value as the secondary sort key, as required by F-R05.",
+  "changes": [
+    {
+      "operation": "edit",
+      "path": "src/semiotic-eavt/journal/substrate.mjs",
+      "inputSha256": "6695957bf6ac70b25095a48072bd7760081d120481fafdf197840da74c6e262f",
+      "replacements": [
+        {
+          "before": "records.push({ record, text: canonical.text });",
+          "after": "records.push({ record, text: canonicalizeJson(record.obstruction, JSON_RESOURCE_ENVELOPE).text });"
+        }
+      ],
+      "clauses": [
+        "F-R05"
+      ]
+    }
+  ]
+}

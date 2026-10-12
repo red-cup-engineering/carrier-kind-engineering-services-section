@@ -11,7 +11,7 @@ import { deliveryAway, readShipped } from "../src/work-replication.mjs";
 import { admitWorkPeerGrants } from "../src/federated-work.mjs";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { openingOf } from "@red-cup-engineering/organizing/enterprise";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { createEnterpriseEntrance } from "../src/entrance.mjs";
 import { startNativeApplication } from "@red-cup-engineering/computer-web-server/native-application";
 
@@ -59,10 +59,9 @@ test("the real resident worker reconciles native work while the entrance remains
   await writeFile(hostPath, JSON.stringify({ version: 1, hostKind: "feltos.enterprise-host", instance: "instance.json", web: {} }));
   const peer = "https://peer.example/actors/metroplat";
   admitWorkPeerGrants({ dataRoot: data, origin: "https://resident.example", issuer: "fixture#peering", peers: [{ actor: peer }], at: "2026-10-11T00:00:00Z" });
-  const journal = createSemanticRecordJournal({ root: data, objectKind: "work-arena-move" });
   const count = 80;
-  for (let i = 0; i < count; i += 1) journal.record({ category: "move", recordedAt: "2026-10-11T00:00:00Z", record: openingOf({ move: "report", by: "fixture-enterprise", hand: "fixture-hand", law: "fixture-source", subject: `fixture:observation:${i}`,
-    observation: "The retained source condition remains observable.", context: "Actual native source evidence for resident reconstruction.", evidence: [`fixture:evidence:${i}`], at: "2026-10-11T00:00:00Z" }) });
+  for (let i = 0; i < count; i += 1) put(data, "work-arena-move", openingOf({ move: "report", by: "fixture-enterprise", hand: "fixture-hand", law: "fixture-source", subject: `fixture:observation:${i}`,
+    observation: "The retained source condition remains observable.", context: "Actual native source evidence for resident reconstruction.", evidence: [`fixture:evidence:${i}`], at: "2026-10-11T00:00:00Z" }));
 
   // No production environment, actor keys, external federation or commercial
   // transfer. This receives the actual worker against supplied package sources.

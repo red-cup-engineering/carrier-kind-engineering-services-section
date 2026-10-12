@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/potential-aperiodic-articulation-cell.schema.json",
+  "title": "Potential aperiodic articulation cell",
+  "description": "The aperiodic-articulation-cell whose pairing term has both articulation slots empty: neither side has been articulated. Falsifiable by exhibiting a potential-aperiodic-articulation-cell whose pairing term has anything other than empty token and claim slots.",
+  "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/aperiodic-articulation-cell.schema.json",
+  "prefixItems": [
+    {},
+    {
+      "type": "array",
+      "prefixItems": [
+        {"type": "array", "maxItems": 0},
+        {"type": "array", "maxItems": 0}
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    }
+  ]
+}

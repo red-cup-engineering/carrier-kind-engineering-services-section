@@ -1,0 +1,68 @@
+{
+  "catalogRoot": ".",
+  "moduleType": "module",
+  "imports": {
+    "#schema/alice": "library/alice/alice.schema.json",
+    "#schema/knows": "library/knows/knows.schema.json",
+    "#schema/specializing": "library/specializing/specializing.schema.json",
+    "#script/specializing": "library/specializing/scripts/specializing.mjs"
+  },
+  "resources": [
+    {
+      "slug": "alice",
+      "kind": "object",
+      "path": "library/alice",
+      "schemaPath": "library/alice/alice.schema.json",
+      "logPath": "library/alice/alice.jsonl",
+      "evidence": ["TRC-LAYOUT.md#3-per-thing-contract"]
+    },
+    {
+      "slug": "knows",
+      "kind": "predicate",
+      "path": "library/knows",
+      "schemaPath": "library/knows/knows.schema.json",
+      "logPath": "library/knows/knows.jsonl",
+      "evidence": ["TRC-LAYOUT.md#3-per-thing-contract"]
+    },
+    {
+      "slug": "specializing",
+      "kind": "morphism",
+      "path": "library/specializing",
+      "schemaPath": "library/specializing/specializing.schema.json",
+      "logPath": "library/specializing/specializing.jsonl",
+      "scriptPath": "library/specializing/scripts/specializing.mjs",
+      "monotone": true,
+      "evidence": ["TRC-LAYOUT.md#3-per-thing-contract"]
+    }
+  ],
+  "filings": [
+    {
+      "row": {
+        "e": "alice",
+        "a": "knows",
+        "v": "spotcomp",
+        "t": "2026-05-27T00:00:00Z"
+      },
+      "subjectLogPath": "library/alice/alice.jsonl",
+      "predicateLogPath": "library/knows/knows.jsonl",
+      "evidence": ["TRC-LAYOUT.md#5-dual-filing"]
+    }
+  ],
+  "secondaryIndexes": [
+    {
+      "path": "cache/value/spotcomp.json",
+      "anchor": "value",
+      "authoritative": false,
+      "evidence": ["TRC-LAYOUT.md#5-dual-filing"]
+    }
+  ],
+  "openObligations": [
+    "actual-posix-file-mode-check",
+    "esm-default-export-check",
+    "behavioral-monotonicity-check"
+  ],
+  "evidence": [
+    "TRC-LAYOUT.md",
+    "PATH-TYPING.md"
+  ]
+}

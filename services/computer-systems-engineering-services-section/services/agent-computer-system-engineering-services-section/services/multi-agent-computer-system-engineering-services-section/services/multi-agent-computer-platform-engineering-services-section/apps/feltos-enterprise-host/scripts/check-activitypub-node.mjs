@@ -12,8 +12,9 @@ import { deliverActivity } from "@red-cup-engineering/activitypub-services-secti
 import { createLocalActivityPubProvider } from "@red-cup-engineering/activitypub-services-section/local-server";
 import { extractSenActivity, projectSenActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { readLatestCodexTasks } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/codex/operations";
-import { journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { characterInboxFeed, officeOperations } from "@red-cup-engineering/metroplat/offices";
+import { each } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
+import { characterInbox, officeOperations } from "@red-cup-engineering/metroplat/offices";
 import { activityPubActorsAtHost, createActivityPubNodeArrivalHandler } from "../src/activitypub-node.mjs";
 
 const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -51,7 +52,7 @@ try {
   });
   local = await createLocalActivityPubProvider({
     origin,
-    statePath: path.join(state, "activitypub.sqlite"),
+    stateDirectory: path.join(state, "activitypub.state"),
     actors,
     queue: false,
     allowPrivateAddress: true,
@@ -96,10 +97,8 @@ try {
     method: "POST", headers: { "content-type": "application/activity+json" }, body: JSON.stringify(activity),
   }));
   await deliverActivity(local.provider, { identifier: "claude", recipient: `${origin}/actors/codex`, inbox: `${origin}/actors/codex/inbox`, activity });
-  await until(() => journal.scanCausalSubject(state, characterInboxFeed, "9999-12-31", [], (rows, row) => {
-    if (row[2]?.kind === "metroplat.character-inbox-message" && row[2].objectKind === assignmentKind) rows.push(row[2]);
-    return rows;
-  }).result.length === 1, "Codex assignment in the character inbox");
+  const codexCharacter = actors.find((actor) => actor.identifier === "codex").character.id;
+  await until(() => characterInbox(state, codexCharacter, { unread: false }).filter((message) => message.objectKind === assignmentKind).length === 1, "Codex assignment in the character inbox");
 
   const signedAssignment = requests.find((entry) => entry.body.actor === `${origin}/actors/claude`);
   const retainedProjection = extractSenActivity(signedAssignment.body, {
@@ -132,11 +131,10 @@ try {
   const codexContext = codexHook.hookSpecificOutput.additionalContext;
 
   const codexRows = [...readLatestCodexTasks(state).values()];
-  const inboxRows = journal.scanCausalSubject(state, characterInboxFeed, "9999-12-31", [], (rows, row) => { rows.push(row[2]); return rows; }).result;
-  const arrivalRows = journal.scanCausalSubject(state, "arrival", "9999-12-31", [], (rows, row) => {
-    if (row[2]?.kind === "metroplat.arrival.source-witness" && row[2].rootName === "bare-cedar-fog.561.group") rows.push(row[2]);
-    return rows;
-  }).result;
+  const inboxRows = characterInbox(state, codexCharacter, { unread: false });
+  // The arrivals this node's store holds from the sender: a record each, with the CloudEvent it carries.
+  const arrivalRows = [...each(state, ARRIVAL_FEED)].map(({ record }) => record)
+    .filter((record) => record.rootName === "bare-cedar-fog.561.group");
   const keyFiles = Object.fromEntries(await Promise.all(["claude", "codex"].map(async (identifier) => [identifier, fingerprint(JSON.parse(await readFile(path.join(state, "keys", `${identifier}.json`), "utf8")).map((pair) => pair.publicKey))])));
   singleton = await createLocalActivityPubProvider({
     origin,
@@ -144,7 +142,7 @@ try {
     actorName: "Legacy single actor",
     summary: "Compatibility form",
     keyPath: path.join(state, "legacy-keys.json"),
-    statePath: path.join(state, "legacy.sqlite"),
+    stateDirectory: path.join(state, "legacy.state"),
     queue: false,
     allowPrivateAddress: true,
     onActivity: async () => {},
@@ -154,7 +152,7 @@ try {
   const exactCustody = {
     oneSourceWitness: arrivalRows.length === 1,
     source: arrivalRows[0]?.cloudEvent.source === actorDocuments.claude.id,
-    sourceCommitment: arrivalRows[0]?.cloudEvent.identity === `${actorDocuments.claude.id}#${retainedProjection.cloudEvent.id}`,
+    sourceCommitment: arrivalRows[0]?.cloudEventIdentity === `${actorDocuments.claude.id}#${retainedProjection.cloudEvent.id}`,
     sender: retainedAssignment?.sender === actorDocuments.claude.id,
     content: isDeepStrictEqual(retainedAssignment?.value, assignment),
     envelopeCommitment: retainedAssignment?.id === retainedProjection.envelopeNi,

@@ -1,0 +1,31 @@
+{
+  "failures": [],
+  "observations": [
+    {
+      "file": "index.html",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "file": "details/index.html",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "file": "references/index.html",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "file": "404.html",
+      "overflow": false,
+      "h1": 1
+    },
+    {
+      "file": "footer-probe.html",
+      "overflow": false,
+      "h1": 1,
+      "token": "ni:///sha-256;abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789abcXYZ0123456789"
+    }
+  ]
+}

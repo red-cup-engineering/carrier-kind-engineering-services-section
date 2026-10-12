@@ -1,0 +1,36 @@
+{
+  "schema": "signstuff-evm/section-digest-vectors@1",
+  "source": "js",
+  "generator": "scripts/emit-golden-vectors.mjs",
+  "sections": [
+    {
+      "cells": [
+        "49f91a00e3d065918ad6195fa5eebc45a7ff34d4bf2879b79f79e29085ba2c64",
+        "88451608ebccc78b57003ae28c3d25b9ca57c51af95259d1414c45d76b2dc260",
+        "8d3e4914ddfc7a3d105a998c08b88a9f2006e9e0256fbebd1db498e53fc56be4",
+        "da64b3a5e84f17eeb9952762b5e75c7508ecdac66f206d650cd9930ac5d4c250"
+      ],
+      "values": [
+        0,
+        2,
+        1,
+        3
+      ],
+      "digest": "b90563cd829ac71f47025b3d7e2b4bbd24206d841686b0cd1b03d9a08df33c9b"
+    },
+    {
+      "cells": [
+        "8d3e4914ddfc7a3d105a998c08b88a9f2006e9e0256fbebd1db498e53fc56be4"
+      ],
+      "values": [
+        1
+      ],
+      "digest": "4c26fa5ba4b85a99635db06ba1ae3bbc09c196e8457a715872f545b103ca9fe6"
+    },
+    {
+      "cells": [],
+      "values": [],
+      "digest": "76be8b528d0075f7aae98d6fa57a6d3c83ae480a8469e668d7b0af968995ac71"
+    }
+  ]
+}

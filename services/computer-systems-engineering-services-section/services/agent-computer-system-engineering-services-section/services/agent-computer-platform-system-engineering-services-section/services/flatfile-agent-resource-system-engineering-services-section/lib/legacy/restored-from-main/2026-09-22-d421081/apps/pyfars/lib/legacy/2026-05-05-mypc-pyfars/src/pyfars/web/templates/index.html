@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FARS — corpus browser</title>
+<style>
+  :root {
+    --fg: #1a1a1a; --bg: #fafaf7; --muted: #6a6a66; --accent: #335c81;
+    --line: #d8d8d2; --code-bg: #f0efe8; --ok: #2e7d32; --bad: #b71c1c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: var(--fg); background: var(--bg); margin: 0;
+  }
+  header {
+    padding: 12px 20px; border-bottom: 1px solid var(--line);
+    display: flex; gap: 16px; align-items: baseline; flex-wrap: wrap;
+  }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header nav a {
+    color: var(--accent); text-decoration: none; margin-right: 12px;
+  }
+  header nav a:hover { text-decoration: underline; }
+  main { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 50px); }
+  aside {
+    border-right: 1px solid var(--line); padding: 16px; overflow-y: auto;
+    max-height: calc(100vh - 50px);
+  }
+  aside h2 { font-size: 12px; text-transform: uppercase; color: var(--muted);
+             margin: 16px 0 8px; letter-spacing: 0.05em; }
+  aside h2:first-child { margin-top: 0; }
+  aside .pill {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 11px; background: var(--code-bg); color: var(--muted);
+    margin-left: 4px;
+  }
+  aside .ok { color: var(--ok); }
+  aside .bad { color: var(--bad); }
+  section { padding: 20px; overflow-y: auto; max-height: calc(100vh - 50px); }
+  input[type=text], input[type=search], select {
+    font: inherit; padding: 6px 8px; border: 1px solid var(--line);
+    background: white; border-radius: 3px; width: 100%;
+  }
+  button {
+    font: inherit; padding: 6px 12px; border: 1px solid var(--line);
+    background: white; border-radius: 3px; cursor: pointer;
+  }
+  button:hover { background: var(--code-bg); }
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .row > * { flex: 0 0 auto; }
+  .row > input { flex: 1 1 auto; }
+  .results {
+    margin-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .hit {
+    padding: 10px 0; border-bottom: 1px solid var(--line);
+    display: grid; grid-template-columns: 60px 1fr; gap: 12px;
+  }
+  .hit .meta { color: var(--muted); font-size: 12px; }
+  .hit .slug { font-weight: 600; color: var(--accent); cursor: pointer; }
+  .hit .slug:hover { text-decoration: underline; }
+  pre, code { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo,
+               Consolas, monospace; }
+  pre {
+    background: var(--code-bg); padding: 12px; border-radius: 4px;
+    overflow-x: auto; font-size: 12.5px; line-height: 1.45;
+  }
+  .note-fm { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
+  .edges { display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+           margin-top: 16px; }
+  .edges h3 { font-size: 13px; text-transform: uppercase;
+              color: var(--muted); letter-spacing: 0.05em; margin: 0 0 8px; }
+  .edges ul { padding: 0; margin: 0; list-style: none; }
+  .edges li { padding: 2px 0; font-size: 12.5px; }
+  .edges a { color: var(--accent); text-decoration: none; cursor: pointer; }
+  .edges a:hover { text-decoration: underline; }
+  .err { color: var(--bad); padding: 12px; background: #fde8e8;
+         border-radius: 4px; }
+  .tabs { display: flex; gap: 0; margin-bottom: 16px;
+          border-bottom: 1px solid var(--line); }
+  .tab {
+    padding: 8px 14px; cursor: pointer; border-bottom: 2px solid transparent;
+    color: var(--muted);
+  }
+  .tab.active { border-bottom-color: var(--accent); color: var(--fg); }
+  .tab:hover { color: var(--fg); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  td, th { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>FARS</h1>
+  <nav>
+    <a href="/docs" target="_blank">OpenAPI / Swagger</a>
+    <a href="/redoc" target="_blank">ReDoc</a>
+    <a href="/openapi.json" target="_blank">openapi.json</a>
+  </nav>
+  <span style="margin-left:auto; color: var(--muted); font-size: 12px;"
+        id="root-label"></span>
+</header>
+
+<main>
+
+<aside>
+  <h2>Substrate</h2>
+  <div id="status">loading…</div>
+
+  <h2>Harnesses</h2>
+  <div id="harnesses">…</div>
+
+  <h2>MCP server</h2>
+  <div id="mcp">…</div>
+
+  <h2>Skills</h2>
+  <div id="skills">…</div>
+
+  <h2>Verbs</h2>
+  <div id="verbs">…</div>
+</aside>
+
+<section>
+  <div class="tabs">
+    <div class="tab active" data-tab="search">Search</div>
+    <div class="tab" data-tab="list">List</div>
+    <div class="tab" data-tab="show">Show</div>
+    <div class="tab" data-tab="context">Context</div>
+    <div class="tab" data-tab="stats">Stats</div>
+  </div>
+
+  <div class="panel active" id="panel-search">
+    <div class="row">
+      <input type="search" id="q" placeholder="search pattern (substring)…" autofocus>
+      <select id="bm25">
+        <option value="false">substring</option>
+        <option value="true">BM25</option>
+      </select>
+      <button id="search-go">Search</button>
+    </div>
+    <div class="results" id="search-results"></div>
+  </div>
+
+  <div class="panel" id="panel-list">
+    <div class="row">
+      <input type="text" id="list-kind" placeholder="kind (e.g. theorem)">
+      <input type="text" id="list-domain" placeholder="domain (parent dir)">
+      <button id="list-go">List</button>
+    </div>
+    <div class="results" id="list-results"></div>
+  </div>
+
+  <div class="panel" id="panel-show">
+    <div class="row">
+      <input type="text" id="show-target" placeholder="slug or path">
+      <button id="show-go">Show</button>
+    </div>
+    <div id="show-result"></div>
+  </div>
+
+  <div class="panel" id="panel-context">
+    <div class="row">
+      <input type="text" id="ctx-slug" placeholder="seed slug">
+      <input type="number" id="ctx-depth" value="2" min="0" max="10" style="flex:0 0 70px">
+      <input type="number" id="ctx-budget" value="8000" min="100" max="200000" style="flex:0 0 100px">
+      <button id="ctx-go">Walk</button>
+    </div>
+    <div id="ctx-result"></div>
+  </div>
+
+  <div class="panel" id="panel-stats">
+    <button id="stats-go">Refresh stats</button>
+    <div id="stats-result" style="margin-top:12px"></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+async function fetchJson(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${r.status} ${r.statusText}: ${await r.text()}`);
+  return r.json();
+}
+
+function el(tag, attrs = {}, children = []) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v;
+    else if (k === "onclick") e.onclick = v;
+    else e.setAttribute(k, v);
+  }
+  for (const c of [].concat(children)) {
+    e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  }
+  return e;
+}
+
+function pillOk(label) { return el("span", { class: "pill ok" }, "✓ " + label); }
+function pillBad(label) { return el("span", { class: "pill bad" }, "✗ " + label); }
+
+async function loadStatus() {
+  try {
+    const s = await fetchJson("/api/status");
+    $("#root-label").textContent = s.root;
+    $("#status").innerHTML = "";
+    $("#status").append(
+      el("div", {}, [`${s.n_notes ?? "?"} notes loaded`]),
+      el("div", { class: "meta" }, [`pyfars v${s.version}`]),
+    );
+    if (s.load_error) {
+      $("#status").append(el("div", { class: "err" }, s.load_error));
+    }
+
+    const h = $("#harnesses");
+    h.innerHTML = "";
+    if (!s.harnesses.available.length) {
+      h.append(el("div", { class: "meta" }, "no harnesses defined"));
+    } else {
+      for (const ha of s.harnesses.available) {
+        const row = el("div", {}, [ha.name, " "]);
+        row.append(ha.installed ? pillOk(`${ha.shim_count} shims`)
+                                : pillBad("not installed"));
+        h.append(row);
+      }
+    }
+
+    const m = $("#mcp");
+    m.innerHTML = "";
+    m.append(
+      el("div", {}, [
+        s.mcp.launchable ? pillOk("launchable") : pillBad("not launchable"),
+      ]),
+      el("div", { class: "meta" }, [
+        `runner: ${s.mcp.runner_exists ? "✓" : "✗"} `,
+        `mcp pkg: ${s.mcp.mcp_package_installed ? "✓" : "✗"}`,
+      ]),
+    );
+    if (s.mcp.transports) {
+      for (const [name, t] of Object.entries(s.mcp.transports)) {
+        const row = el("div", { class: "meta", style: "margin-top:6px" }, [
+          el("strong", {}, name),
+          " ",
+          t.available ? pillOk(t.endpoint || "stdio") : pillBad("unavailable"),
+        ]);
+        m.append(row);
+        m.append(el("div", { class: "meta", style: "font-size:11px;opacity:0.75" },
+                    t.description));
+      }
+    }
+
+    const sk = $("#skills");
+    sk.innerHTML = "";
+    if (s.skills.error) {
+      sk.append(el("div", { class: "meta" }, s.skills.error));
+    } else {
+      sk.append(
+        el("div", {}, [`${s.skills.runnable}/${s.skills.total} runnable`]),
+        el("div", { class: "meta" },
+          Object.entries(s.skills.by_pack)
+            .map(([p, n]) => `${p}: ${n}`).join(" · ")),
+      );
+    }
+  } catch (e) {
+    $("#status").innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+
+async function loadVerbs() {
+  try {
+    const v = await fetchJson("/api/verbs");
+    $("#verbs").innerHTML = `<div>${v.length} verbs</div>` +
+      `<div class="meta">${v.map(x => x.name).join(", ")}</div>`;
+  } catch (e) {
+    $("#verbs").innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+
+// Tabs
+$$(".tab").forEach(t => {
+  t.onclick = () => {
+    $$(".tab").forEach(x => x.classList.remove("active"));
+    $$(".panel").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    $("#panel-" + t.dataset.tab).classList.add("active");
+  };
+});
+
+function renderHits(items, container, onclick) {
+  container.innerHTML = "";
+  if (!items.length) {
+    container.append(el("div", { class: "meta" }, "no results"));
+    return;
+  }
+  for (const it of items) {
+    const score = it.score?.toFixed?.(2) ?? "";
+    const slug = el("span", { class: "slug" }, it.slug);
+    slug.onclick = () => onclick(it.slug);
+    container.append(el("div", { class: "hit" }, [
+      el("div", { class: "meta" }, score),
+      el("div", {}, [
+        slug,
+        el("div", { class: "meta" }, [
+          `${it.kind || "?"} · ${it.path}`,
+          ...(it.title ? [el("br"), it.title] : []),
+        ]),
+      ]),
+    ]));
+  }
+}
+
+async function doSearch() {
+  const q = $("#q").value.trim();
+  if (!q) return;
+  const bm25 = $("#bm25").value;
+  const r = $("#search-results");
+  r.innerHTML = "<div class='meta'>searching…</div>";
+  try {
+    const data = await fetchJson(
+      `/api/search?q=${encodeURIComponent(q)}&bm25=${bm25}&limit=50`);
+    renderHits(data.items, r, (slug) => { showSlug(slug); });
+  } catch (e) {
+    r.innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+$("#search-go").onclick = doSearch;
+$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
+
+async function doList() {
+  const kind = $("#list-kind").value.trim();
+  const dom = $("#list-domain").value.trim();
+  const r = $("#list-results");
+  r.innerHTML = "<div class='meta'>loading…</div>";
+  try {
+    const params = new URLSearchParams();
+    if (kind) params.set("kind", kind);
+    if (dom) params.set("domain", dom);
+    params.set("limit", "300");
+    const data = await fetchJson(`/api/list?${params}`);
+    r.innerHTML = `<div class="meta">${data.matched} matched (showing ${data.items.length})</div>`;
+    const items = data.items.map(x => ({ ...x, score: null }));
+    const list = el("div", { class: "results" });
+    r.append(list);
+    renderHits(items, list, (slug) => showSlug(slug));
+  } catch (e) {
+    r.innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+$("#list-go").onclick = doList;
+
+function switchToTab(name) {
+  $$(".tab").forEach(x => x.classList.remove("active"));
+  $$(".panel").forEach(x => x.classList.remove("active"));
+  document.querySelector(`.tab[data-tab="${name}"]`).classList.add("active");
+  $("#panel-" + name).classList.add("active");
+}
+
+async function showSlug(target) {
+  switchToTab("show");
+  $("#show-target").value = target;
+  await doShow();
+}
+
+async function doShow() {
+  const t = $("#show-target").value.trim();
+  if (!t) return;
+  const r = $("#show-result");
+  r.innerHTML = "<div class='meta'>loading…</div>";
+  try {
+    const data = await fetchJson(`/api/show/${encodeURIComponent(t)}`);
+    r.innerHTML = "";
+    for (const m of data.matches) {
+      const fmStr = JSON.stringify(m.fm, null, 2);
+      const out = el("div", {}, [
+        el("h2", {}, [m.title || m.slug]),
+        el("div", { class: "note-fm" },
+          `${m.kind || "?"} · ${m.path}`),
+        el("pre", {}, fmStr),
+        el("pre", {}, m.body || ""),
+        el("div", { class: "edges" }, [
+          el("div", {}, [
+            el("h3", {}, "depends on"),
+            el("ul", {}, m.outbound.map(e => {
+              const a = el("a", {}, e.dst);
+              a.onclick = () => showSlug(e.dst);
+              return el("li", {}, [`${e.kind}: `, a]);
+            })),
+          ]),
+          el("div", {}, [
+            el("h3", {}, "depended on by"),
+            el("ul", {}, m.inbound.map(e => {
+              const a = el("a", {}, e.src);
+              a.onclick = () => showSlug(e.src);
+              return el("li", {}, [`${e.kind}: `, a]);
+            })),
+          ]),
+        ]),
+      ]);
+      r.append(out);
+    }
+  } catch (e) {
+    r.innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+$("#show-go").onclick = doShow;
+$("#show-target").addEventListener("keydown", (e) => { if (e.key === "Enter") doShow(); });
+
+async function doContext() {
+  const slug = $("#ctx-slug").value.trim();
+  if (!slug) return;
+  const depth = $("#ctx-depth").value;
+  const budget = $("#ctx-budget").value;
+  const r = $("#ctx-result");
+  r.innerHTML = "<div class='meta'>walking…</div>";
+  try {
+    const data = await fetchJson(
+      `/api/context/${encodeURIComponent(slug)}?depth=${depth}&budget=${budget}`);
+    r.innerHTML = `<div class="meta">${data.n} notes, ${data.body_chars.toLocaleString()} chars</div>`;
+    const out = el("div");
+    for (const n of data.items) {
+      out.append(
+        el("h3", {}, [n.title || n.slug, " ",
+                       el("span", { class: "meta" }, n.path)]),
+        el("pre", {}, n.body || ""),
+      );
+    }
+    r.append(out);
+  } catch (e) {
+    r.innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+$("#ctx-go").onclick = doContext;
+
+async function doStats() {
+  const r = $("#stats-result");
+  r.innerHTML = "<div class='meta'>computing…</div>";
+  try {
+    const data = await fetchJson("/api/stats");
+    r.innerHTML = "";
+    r.append(el("pre", {}, JSON.stringify(data, null, 2)));
+  } catch (e) {
+    r.innerHTML = `<div class="err">${e.message}</div>`;
+  }
+}
+$("#stats-go").onclick = doStats;
+
+loadStatus();
+loadVerbs();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:561:schema:work-resource-reservation-result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "disposition",
+    "reservationId",
+    "providerIdentity",
+    "accountIdentity",
+    "windowIdentity"
+  ],
+  "properties": {
+    "type": {
+      "const": "WorkResourceReservationResult"
+    },
+    "disposition": {
+      "enum": [
+        "held",
+        "attempted",
+        "released",
+        "settled",
+        "refused"
+      ]
+    },
+    "reservationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerIdentity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "accountIdentity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "windowIdentity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

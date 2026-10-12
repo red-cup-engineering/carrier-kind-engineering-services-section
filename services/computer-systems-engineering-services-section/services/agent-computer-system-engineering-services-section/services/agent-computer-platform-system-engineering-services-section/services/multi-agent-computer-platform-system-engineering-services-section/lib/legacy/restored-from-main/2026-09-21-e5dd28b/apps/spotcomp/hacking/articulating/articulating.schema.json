@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/articulating.schema.json",
+  "title": "Articulating",
+  "description": "The constitutive generator from utterance into the aperiodic articulation regime. Articulating's domain is utterance; its codomain is the aperiodic-articulation-category whose initial presentation carries the potential-aperiodic-articulation-cell. The cell's life beyond that -- transitions to active, stable, or absurd -- is downstream morphism work internal to the generated category.",
+  "type": "object",
+  "required": [
+    "input",
+    "output"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "input": {
+      "description": "Articulating's domain: the utterance whose token/claim carrier opens the initial aperiodic articulation regime.",
+      "$ref": "https://561.group/spotcomp/library/utterance/utterance.schema.json"
+    },
+    "output": {
+      "description": "Articulating's codomain: the aperiodic-articulation-category generated from the utterance.",
+      "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/aperiodic-articulation-category.schema.json"
+    }
+  }
+}

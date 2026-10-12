@@ -1,6 +1,0 @@
-#!/usr/bin/env node
-import { readFileSync } from "node:fs"; import { dirname, resolve } from "node:path"; import { fileURLToPath } from "node:url"; import { createSettlementStore } from "@lenticule-science/witness-journal-rdf-projection-service/client";
-import { fabricateDirectoryPatch } from "../src/fabricate.mjs"; import { decodeFabricationRequest } from "../src/request.mjs";
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), ".."); const at = process.argv.indexOf("--request"); if (at < 0 || !process.argv[at + 1]) throw new Error("--request canonical-rmn-cbor-file is required"); if (!process.env.WITNESS_JOURNAL_RDF_AGENT) throw new Error("WITNESS_JOURNAL_RDF_AGENT is required");
-const store = createSettlementStore({ settlementRoot: ROOT, agentUrl: process.env.WITNESS_JOURNAL_RDF_AGENT }); const result = await fabricateDirectoryPatch(decodeFabricationRequest(readFileSync(resolve(process.argv[at + 1])))); const recordedAt = new Date().toISOString();
-await store.record({ category: "recursive-infomaterial-fabrication.receipt", recordedAt, record: { ...result.receipt, semanticId: result.semanticId } }); process.stdout.write(Buffer.from(result.coverReceipt.canonicalBytesBase64, "base64"));

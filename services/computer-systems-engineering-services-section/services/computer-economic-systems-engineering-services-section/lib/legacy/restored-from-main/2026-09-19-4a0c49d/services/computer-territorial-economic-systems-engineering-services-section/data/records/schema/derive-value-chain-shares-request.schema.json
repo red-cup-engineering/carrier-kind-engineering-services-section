@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "derive-value-chain-shares-service/request",
+  "title": "PriceLadder",
+  "description": "The input derive-value-chain-shares.mjs reads: named positions from producer to retail, each carrying one or two (contested) unit prices with their unit and citing source row.",
+  "type": "object",
+  "required": ["type", "version", "positions"],
+  "properties": {
+    "type": { "const": "PriceLadder" },
+    "version": { "const": 1 },
+    "positions": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["name", "prices"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "prices": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["unitPrice", "unit", "source"],
+              "properties": {
+                "unitPrice": { "type": "string", "pattern": "^-?[0-9]+(\\.[0-9]+)?$" },
+                "unit": { "type": "string", "minLength": 1 },
+                "source": {
+                  "type": "object",
+                  "required": ["sourceUrl", "sourceTitle"],
+                  "properties": {
+                    "sourceUrl": { "type": "string", "minLength": 1 },
+                    "sourceTitle": { "type": "string", "minLength": 1 },
+                    "rangeNote": { "type": "string", "minLength": 1 }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

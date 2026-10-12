@@ -1,0 +1,7 @@
+{
+  "basis": "Public phase-A source defect F-C07; supplemental observation after composed generation, not represented as precommitted private receiving.",
+  "scriptSha256": "74d2ef3773fd87e1a89629f6c7c2ede44d3f7483ba2dae78b90b31dcf46a8180",
+  "exitCode": 0,
+  "stdout": "{\"shrinkingArray\":true,\"growingArray\":true,\"originalCorrespondence\":true}\n",
+  "stderr": ""
+}

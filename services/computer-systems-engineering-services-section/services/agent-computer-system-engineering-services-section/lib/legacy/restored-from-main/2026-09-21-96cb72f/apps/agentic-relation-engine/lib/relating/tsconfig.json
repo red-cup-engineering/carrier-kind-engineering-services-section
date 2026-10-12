@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter": [
+        "./src/read-markdown-frontmatter-service.d.mts"
+      ],
+      "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/src/integrity.mjs": [
+        "./src/cryptographic-computer-data-engineering-services-section-integrity.d.mts"
+      ]
+    }
+  },
+  "include": [
+    "lib/**/*.mts",
+    "src/**/*.mts",
+    "services/**/*.mts"
+  ]
+}

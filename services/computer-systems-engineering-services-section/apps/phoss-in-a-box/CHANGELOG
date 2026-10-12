@@ -1,0 +1,20 @@
+# Changelog
+
+All notable changes to this project will be documented in this file. 
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) 
+and this project adheres to 
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Unreleased
+### Added
+- Added a README.md based in part on 
+  [David Larlet's README](https://github.com/davidbgk/open-source-template/) 
+  and [Shaloo Shalini's Structured 
+  README](https://github.com/shaloo/structuredreadme).
+- Added a CHANGELOG based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+- Adopted [Semantic Versioning](https://semver.org/).
+- Adopted the [Unlicense](http://unlicense.org/).
+- Added a MAINTENANCE.md based on
+  [Django's Code of Conduct Enforcement Manual](https://www.djangoproject.com/conduct/enforcement-manual/)
+- Adopted the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/1/4/code-of-conduct.md)

@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/trace-axis-profile.schema.json",
+  "title": "SPOTCOMP trace axis declaration profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "traceObject",
+    "axes",
+    "events",
+    "causalPrecedence",
+    "independence",
+    "directedJoin",
+    "projections",
+    "presentationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "traceObject": { "$ref": "#/$defs/traceObject" },
+    "axes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/axis" },
+      "minItems": 6
+    },
+    "events": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/event" },
+      "minItems": 1
+    },
+    "causalPrecedence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/causalEdge" }
+    },
+    "independence": { "$ref": "#/$defs/independence" },
+    "directedJoin": { "$ref": "#/$defs/directedJoin" },
+    "projections": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/projection" },
+      "minItems": 1
+    },
+    "presentationBoundary": { "$ref": "#/$defs/presentationBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "axisName": {
+      "enum": [
+        "event-record",
+        "temporal-causal-precedence",
+        "evidence-trajectory",
+        "recognition-fiber",
+        "categorical-refinement",
+        "constitutive-provenance"
+      ]
+    },
+    "traceObject": {
+      "type": "object",
+      "required": ["id", "cell", "carrierPresentation", "exactEavtRows", "sourceTrace", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "cell": { "type": "string", "minLength": 1 },
+        "carrierPresentation": { "const": "eavt-jsonl" },
+        "exactEavtRows": { "const": true },
+        "sourceTrace": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "axis": {
+      "type": "object",
+      "required": ["name", "meaning", "preservedBy", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/$defs/axisName" },
+        "meaning": { "type": "string", "minLength": 1 },
+        "preservedBy": { "$ref": "#/$defs/evidence" },
+        "forgottenBy": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "event": {
+      "type": "object",
+      "required": ["id", "kind", "row", "provenance", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": ["originating-articulating-act", "positing-entry", "closure-firing-entry"]
+        },
+        "row": { "$ref": "eavt-row.schema.json" },
+        "provenance": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "causalEdge": {
+      "type": "object",
+      "required": ["before", "after", "reason", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "before": { "type": "string", "minLength": 1 },
+        "after": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "independence": {
+      "type": "object",
+      "required": ["stepSet", "independentPairs", "symmetricClosureDeclared", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "stepSet": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "independentPairs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/independentPair" }
+        },
+        "symmetricClosureDeclared": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "independentPair": {
+      "type": "object",
+      "required": ["left", "right", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "left": { "type": "string", "minLength": 1 },
+        "right": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "directedJoin": {
+      "type": "object",
+      "required": ["operation", "monotone", "idempotent", "commutative", "associative", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "operation": { "const": "event-union" },
+        "monotone": { "const": true },
+        "idempotent": { "const": true },
+        "commutative": { "const": true },
+        "associative": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "projection": {
+      "type": "object",
+      "required": ["id", "kind", "preservedAxes", "forgottenAxes", "sourceFrontier", "outputKind", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": ["finite-row-presentation", "trace-monoid-summary", "semantic-hypertext-packet", "settlement-artifact"]
+        },
+        "preservedAxes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/axisName" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "forgottenAxes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/axisName" },
+          "uniqueItems": true
+        },
+        "sourceFrontier": { "type": "string", "minLength": 1 },
+        "outputKind": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "presentationBoundary": {
+      "type": "object",
+      "required": ["eavtRowsAreFinitePresentation", "axesNotRowFields", "projectedArtifactsSeparate", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "eavtRowsAreFinitePresentation": { "const": true },
+        "axesNotRowFields": { "const": true },
+        "projectedArtifactsSeparate": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "kind": "source-requirement-knowledge",
+  "id": "intermittent-peer-delivery",
+  "sourceAdmission": "not-native-admitted",
+  "scope": "feltos-enterprise-host",
+  "asks": "Preserve the received presence, peer-presence, peer-liveness and held-delivery capabilities while incorporating the canonical host's actor service, worker-world and software development capabilities.",
+  "provenance": {
+    "authorization": "Human-authorized GitHub source and namespace receiving, delegated by the root worker; no enterprise office or acceptance asserted.",
+    "existingRequirementSources": [
+      {
+        "repository": "561-group/soft-grass-pebble",
+        "revision": "cdafbd93c79cd0aadb6f4b002e28b7674108573f",
+        "path": "content/requirements/sgp-site-is-the-running-feltos-service-with-metroplat.json",
+        "blob": "1827729c233630f064eca77699b8160534f3e51c",
+        "utterances": [
+          "cmsg_01XwuMccuzdSBUfcaeZbrBjDPs8ZY5TueXCCDF7g9i5Z2R",
+          "cmsg_01XwuMccuzdSBUfcaeZbrBjDAh1r6h9Wa6wWr2kd9HZ3Te"
+        ],
+        "knowledgeStatus": "Unsigned historical requirement form; preserved provenance, not native admission."
+      }
+    ],
+    "consumers": [
+      {
+        "repository": "561-group/soft-grass-pebble",
+        "pull": 118,
+        "head": "31d899d10371e82f4f7e8e16e718a46f9a8c2d63",
+        "need": "web.presence known-intermittent"
+      },
+      {
+        "repository": "emsenn/cold-red-gate",
+        "pull": 103,
+        "head": "72ad097317040397164145fedae16abf98a6e8e9",
+        "need": "web.peerPresences for the intermittent peer"
+      }
+    ]
+  },
+  "sourceClaims": [
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/installed-web.mjs",
+        "token": "git-blob:0c35f4c3db7bcba5e8b050561c9f19d13b23af1e"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/installed-web.mjs",
+        "observedWorkingBlob": "05f01fc39f813dad48fe18ee32b98d9bb7efb823"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/instance-config.mjs",
+        "token": "git-blob:508bc203e98497d9ff86b00cada0c73aef805343"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/instance-config.mjs",
+        "observedWorkingBlob": "24225b69693d3f46f7606f168a6d1d122c573659"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/serve-instance.mjs",
+        "token": "git-blob:df5f018eb7a7c9118050186b447ee9f55ba9ad8a"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/serve-instance.mjs",
+        "observedWorkingBlob": "41e73a77038d47cbe1d5133b0a0706b673fd6a08"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/federated-work.mjs",
+        "token": "git-blob:e23e0bbe978278985a79acfeec979acc4dc00afa"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/federated-work.mjs",
+        "observedWorkingBlob": "ac48faf768fb1c68df71479cb3c93b03b311bb63"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/work-replication.mjs",
+        "token": "git-blob:faa629c15fae1df87424baac395e47ee1338180a"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/work-replication.mjs",
+        "observedWorkingBlob": "78948aaf4e28ccb9e2e7d6568282f291851aa41f"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/activitypub-node.mjs",
+        "token": "git-blob:955b86e139070502e43eaeda3acd30e42def334a"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/activitypub-node.mjs",
+        "observedWorkingBlob": "f08ca4b59d8b67447607adace0960adfbe95e968"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/actor-mesh.mjs",
+        "token": "git-blob:2b43b79b6dbd06493143b5cb4b88a674c0d6924c"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/actor-mesh.mjs",
+        "observedWorkingBlob": "7ee7ecf8aaa62385524aca30c360a7b2343cdac5"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/peer-liveness.mjs",
+        "token": "git-blob:846110e10e831a78ccf691d4c7198e39a7b800a8"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/peer-liveness.mjs",
+        "observedWorkingBlob": null
+      },
+      "claim": "The receiving source has no file at this owned path."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/held-delivery.mjs",
+        "token": "git-blob:99ce0c3e897d74bc892c479d91ae35a1a3cd5f27"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/src/held-delivery.mjs",
+        "observedWorkingBlob": null
+      },
+      "claim": "The receiving source has no file at this owned path."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/specifications/enterprise-host.schema.json",
+        "token": "git-blob:c09fff86552793da548e0c767bcb95a3e4bbcf3d"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/specifications/enterprise-host.schema.json",
+        "observedWorkingBlob": "051382beba12288f9cb6986d17f6312e8407d677"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/README.md",
+        "token": "git-blob:f20a55244e44167063633edc365047ff819a4505"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/README.md",
+        "observedWorkingBlob": "cbec3fe9209179d601b45a98125caac67d1fa301"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    },
+    {
+      "subject": {
+        "provider": "red-cup-engineering/computer-engineering-services-section",
+        "revision": "10255b22863825bc3b37f00c34c5cbb56498fd5e",
+        "path": "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/package.json",
+        "token": "git-blob:4506966dccf3d9870348f7234f4b986e8d35aff4"
+      },
+      "receivingSource": {
+        "provider": "561-group/bare-cedar-fog",
+        "contextRevision": "9108e54477097dd8fae3fcca78d986fa3fdddef7",
+        "workingPath": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host/package.json",
+        "observedWorkingBlob": "55d9138f983f394959896e67bb9fb66f13962c44"
+      },
+      "claim": "The received source and receiving working bytes have independently observed identities; same package versions do not prove equal capability."
+    }
+  ],
+  "requiredOutcomes": [
+    "The declaration and schema admit continuous and known-intermittent presence without conveying work authority.",
+    "The actual generic actor delivery port retains authenticated sender, recipient, payment, reuse and current standing checks.",
+    "Intermittent recipient deliveries remain in existing semantic journal custody, available only to a pull signed by that recipient.",
+    "Pulls retain original addressed source and enter ordinary native arrival and authorization paths.",
+    "Peer liveness retains both evidence sides and does not infer denial from an intermittent peer's silence.",
+    "Existing development, worker-world, enterprise service, payment and source delivery capabilities remain in the receiving source."
+  ],
+  "qualification": {
+    "sourceOnly": true,
+    "testsRun": false,
+    "applicationExecuted": false,
+    "deployed": false,
+    "nativeAcceptance": false
+  }
+}

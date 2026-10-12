@@ -1,0 +1,36 @@
+{
+  "name": "@red-cup-engineering/settlement-triggered-activity-publication-cell",
+  "version": "0.1.2",
+  "type": "module",
+  "description": "Advances one durable ActivityPub pulse from one independently finalized commitment on a configured EVM chain.",
+  "bin": {
+    "advance-settlement-pulse": "./scripts/advance-settlement-pulse.mjs",
+    "serve-settlement-pulse-activitypub": "./scripts/activitypub-server.mjs",
+    "serve-settlement-pulse-x402": "./scripts/x402-server.mjs"
+  },
+  "exports": {
+    ".": "./src/advance-settlement-pulse.mjs",
+    "./runtime": "./src/runtime.mjs",
+    "./successor-activation": "./src/successor-activation.mjs"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@cfworker/json-schema": "4.1.1",
+    "@fedify/vocab": "2.3.1",
+    "@red-cup-engineering/a2a-contracted-agent-service": "0.5.0",
+    "@red-cup-engineering/activitypub-services-section": "0.5.0",
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0",
+    "@red-cup-engineering/relation-model-notation-cbor-codec": "0.1.0",
+    "@red-cup-engineering/relation-model-notation-runtime": "0.2.0",
+    "@red-cup-engineering/relational-value-graph-service": "0.1.1",
+    "@red-cup-engineering/witness-journal-document-service": "0.1.0",
+    "@red-cup-engineering/x402-services-section": "0.2.0",
+    "express": "5.2.1"
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "id": "the-semioverse-has-one-server-and-a-recovered-specification",
+  "name": "The Semioverse has one server and a recovered ActivityPub++ specification",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "Leader, 2026-09-27: \"we have NOT ONE FUCKING FUNCTIONAL SEMIOVERSE SERVER … We named it Semioverse, a la Fediverse … We truly had an RFC spec for this.\"",
+  "met-when": [
+    {
+      "cell": "the-semioverse-has-one-server-and-a-recovered-specification:specification-held",
+      "target": "held",
+      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md >/dev/null 2>&1'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "metroplat-feltos-node pass of debt-2026-10-09-leader-words-held-in-corpus (Red Cup Engineer Senior)",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "utterances": [
+      "ni:///sha-256;IccLYK1t3sr93DKK21rXbKzumM5W_qbhDgy9EPqDmsE",
+      "ni:///sha-256;fUQDJgVtJ7G4hc409gjxNISpd5YNuX8q95feOnV44g4",
+      "ni:///sha-256;1gYzXXj0r9TQ2IrnBJAb92gm1mVCl_vrt2Hx4p40AHQ",
+      "ni:///sha-256;Ms42JTx_GlCaX4Pzb9zTV25I4fA92mqA4sdRsg4LoFw",
+      "ni:///sha-256;4GcJRyhkxDymgXK_J2b3lrBAbJjwurl8abbw5MJjhug",
+      "ni:///sha-256;lEy-BXe5gfkYVx0yrWJFq33VvXCWzsbTJoXN82fy52w"
+    ],
+    "basis": "Leader utterances cited by address; the requirements are an EARS rendering of what those words state and carry no scope the words do not.",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "The Semioverse is a working federation with a specification the house can read.",
+      "scope": [
+        "section:services/engineering-services-section/services/computer-engineering-services-section"
+      ],
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "The Semioverse shall have one functioning server, the ActivityPub++ fediverse server MOOSE, that every machine's MetroPlat instance and every harness, site and tool on the machine uses as a client.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "Leader, 2026-09-27: \"we have NOT ONE FUCKING FUNCTIONAL SEMIOVERSE SERVER\"; the Semioverse glossary term: one node per machine, every harness a client."
+        },
+        {
+          "id": "R2",
+          "says": "The ActivityPub++ specification shall be held as an RFC-form specification in the corpus, recovered from the Group's earlier RFC.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "Leader, 2026-09-27: \"We truly had an RFC spec for this. I'm livid.\"; \"we need to recover our Semioverse, ActivityPub++ spec\"."
+        },
+        {
+          "id": "R3",
+          "says": "The Semioverse shall be named Semioverse, after the Fediverse, in every record that describes it, with no other name.",
+          "class": "constraint",
+          "moscow": "must",
+          "rationale": "Leader, 2026-09-27: \"it does not go by another name. We named it Semioverse, a la Fediverse. That there is not information about this should be horrifying you, as 'Semioverse' is literally one of the 561 Group's flagship products.\""
+        },
+        {
+          "id": "R4",
+          "says": "The house shall carry one HTTP server implementation and one MCP server implementation, and ops and MetroPlat shall carry none of their own.",
+          "class": "constraint",
+          "moscow": "must",
+          "rationale": "Leader, 2026-09-27: \"it is wrong ops carries an http server; it is wrong METROPLAT DOES TOO. STOP ACCEPTING SO MANY DUPLICATE DIVERGENT IMPLEMENTATIONS\"; \"90% of my attention goes to begging you to stop writing more http and mcp servers\"."
+        },
+        {
+          "id": "R5",
+          "says": "The Group's actors shall have handles on their MetroPlat instances of the form @agent@instance, such as @claude@bare-cedar-fog.561.group and @web.chatgpt.emsenn@ops.561.group.",
+          "class": "constraint",
+          "moscow": "should",
+          "rationale": "Leader, 2026-09-27: \"think like `@claude@bare-cedar-fog.561.group` and like `@web.chatgpt.emsenn@ops.561.group`\"; ops.561.group \"is meant to be the always-on Web-accessible MetroPlat node of the 561 Group Semioverse, with bare-cedar-fog.561.group being the my-laptop, not-always-on\"."
+        },
+        {
+          "id": "R6",
+          "says": "The Semioverse shall be the means by which the Leader sends a message through ops.561.group without an agent session.",
+          "class": "functional",
+          "moscow": "should",
+          "rationale": "Leader, 2026-09-28: the session happens only because \"our Semioverse … is SO FUCKED UP that I have no real way to … send messages through ops.561.group or anything myself\"; \"I should not be talking to Claude, you, personally, EVER.\""
+        }
+      ],
+      "conditions": [
+        {
+          "id": "semioverse:inspect",
+          "says": "A MOOSE server runs on a machine, an ActivityPub++ RFC-form specification is in the corpus, and the house holds one HTTP and one MCP server implementation.",
+          "method": "inspection",
+          "verifies": [
+            "R1",
+            "R2",
+            "R4"
+          ]
+        }
+      ],
+      "context": "Held: the Semioverse glossary term (names, wire, nodes, one per machine, MOOSE) and the 2026-07 to 08 canonical-union transport. The RFC-form specification is not held as one document; the term states 'On 2026-09-27 no package carried the Semioverse or MOOSE'. Spec: lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md"
+    },
+    "utterances-added": [
+      {
+        "by": "the capture line (session_017x7ZhpkZQAx5VZSv2Hz5Q9), coverage batch 1, 2026-10-10",
+        "addresses": [
+          "ni:///sha-256;lEy-BXe5gfkYVx0yrWJFq33VvXCWzsbTJoXN82fy52w"
+        ],
+        "why": "Leader utterances restating this requirement, found NOT HELD or HELD-THINLY in the coverage passes."
+      }
+    ],
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;g4HE44JRSfQYwUtfYnrxYEeptcrMqRUHljCCodL-zUo"
+    },
+    "attestation": {
+      "claim": {
+        "kind": "computer-content.signed-content-claim",
+        "version": 1,
+        "purpose": "561-group.july-record-attestation.v1",
+        "issuer": "emsenn/services/561-group/services/operations-services-section/services/requirement-management-operation-services-section#requirements-management-team@claude-session-01C1PPvutxergQgomSSaWG9Z",
+        "issuedAt": "2026-10-10T06:53:57.970Z",
+        "content": {
+          "uri": "ni:///sha-256;CG2fwlqTDsIpiFAKQk-8nu5DhqTxzhNAWGyJvL_w3Vw",
+          "bytes": 57,
+          "mediaType": "text/plain"
+        },
+        "signature": {
+          "algorithm": "Ed25519",
+          "keyId": "ni:///sha-256;ckBB1fSoByEfYxnM1aPBrZFg7yfyTfhPEuww8Bk65ow",
+          "value": "sHirT6fCU_spQAyLyB7tKMuI3AUuddy7HaF9E4DWTrIXCAoeBEOLeuq18rjx9y9mf7TCGJNA_pBjT8PqYtStAw"
+        }
+      },
+      "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAuRpAxhrz5bOFIn5GmicNWZtNDSSruqwfTGlBmKH1WOs=\n-----END PUBLIC KEY-----\n"
+    }
+  }
+}

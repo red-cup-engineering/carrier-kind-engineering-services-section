@@ -1,0 +1,99 @@
+{
+  "name": "@561-group/language-topology",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "language-topology: a zero-statistics formal-linguistics engine; grammar is carried by language bundles and settled as paraconsistent fiber algebra over the bilattice charge.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/language-topology.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json && node ../../scripts/package-boundary/copy-dmts-to-dts.mjs dist",
+    "test": "pnpm run build && tsc -p tsconfig.test.json && node --test \".tmp/test-dist/**/*.test.mjs\"",
+    "audit:boundary": "node ../../scripts/package-boundary/audit-package-boundary.mjs .",
+    "prepack": "pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs"
+    },
+    "./charge": {
+      "types": "./dist/charge.d.ts",
+      "import": "./dist/charge.mjs"
+    },
+    "./bundle": {
+      "types": "./dist/bundle.d.ts",
+      "import": "./dist/bundle.mjs"
+    },
+    "./articulating": {
+      "types": "./dist/articulating.d.ts",
+      "import": "./dist/articulating.mjs"
+    },
+    "./descending": {
+      "types": "./dist/descending.d.ts",
+      "import": "./dist/descending.mjs"
+    },
+    "./construing": {
+      "types": "./dist/construing.d.ts",
+      "import": "./dist/construing.mjs"
+    },
+    "./parsing": {
+      "types": "./dist/parsing.d.ts",
+      "import": "./dist/parsing.mjs"
+    },
+    "./rendering": {
+      "types": "./dist/rendering.d.ts",
+      "import": "./dist/rendering.mjs"
+    },
+    "./semantics": {
+      "types": "./dist/semantics/index.d.ts",
+      "import": "./dist/semantics/index.mjs"
+    },
+    "./linking": {
+      "types": "./dist/linking.d.ts",
+      "import": "./dist/linking.mjs"
+    },
+    "./referring": {
+      "types": "./dist/referring.d.ts",
+      "import": "./dist/referring.mjs"
+    },
+    "./similarity": {
+      "types": "./dist/similarity.d.ts",
+      "import": "./dist/similarity.mjs"
+    },
+    "./cohomology": {
+      "types": "./dist/cohomology.d.ts",
+      "import": "./dist/cohomology.mjs"
+    },
+    "./grammaticality": {
+      "types": "./dist/grammaticality.d.ts",
+      "import": "./dist/grammaticality.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@561-group/language-algebra": "0.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "sideEffects": false
+}

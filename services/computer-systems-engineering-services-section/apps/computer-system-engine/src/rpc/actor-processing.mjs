@@ -5,12 +5,11 @@ import {semanticId} from '@red-cup-engineering/computer-content-address-engineer
 import {canonicalJson} from '@red-cup-engineering/json-services-section';
 import {sha256Hex} from '@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity';
 import {processLeaseCoordinator} from './coordination.mjs';
-import {ARRIVAL_PROCESS_FEED,ARRIVAL_PROCESS_TERM,arrivalDispatchClaimFromCloudEvent,admitCloudEventArrival} from './arrival.mjs';
-import {openJournal,journal} from '../journal/journal.mjs';
+import {ARRIVAL_PROCESS_FEED,arrivalDispatchClaimFromCloudEvent,admitCloudEventArrival} from './arrival.mjs';
+import {extend,readHead,threadName,walk} from '@red-cup-engineering/semiotic-eavt-services-section/store';
 import {createOperationCatalog} from './operation.mjs';
 import {dispatchWire} from './wire-dispatch.mjs';
 import {journalRpcWitness} from './journal-witness.mjs';
-import {eavtRecord,toEavt} from '@red-cup-engineering/eavt-services-section/row';
 export function processingEntryValue(
   entry,
   state,
@@ -25,6 +24,9 @@ export function processingEntryValue(
     ...(entry.cloudEventIdentity === undefined ? {} : { cloudEventIdentity: entry.cloudEventIdentity }),
     ...(entry.packetDigest === undefined ? {} : { packetDigest: entry.packetDigest }),
     state,
+    ...(entry.requester===undefined?{}:{requester:entry.requester}),
+    ...(entry.executor===undefined?{}:{executor:entry.executor}),
+    ...(entry.service===undefined?{}:{service:entry.service}),
     ...(entry.dispatchEvent?.verb === undefined ? {} : { verb: entry.dispatchEvent.verb }),
     ...(result === undefined ? {} : {
       code: result.code,
@@ -39,17 +41,9 @@ export function processingEntryValue(
   });
 }
 
-export function arrivalProcessingRows(entries, at) {
-  return Object.freeze(entries.map(({ entry, value }) => toEavt({
-    e: Object.freeze({
-      kind: "metroplat.arrival.processing",
-      cloudEventIdentity: entry.cloudEventIdentity,
-      packetDigest: entry.packetDigest,
-    }),
-    a: ARRIVAL_PROCESS_TERM,
-    v: value,
-    t: at,
-  })));
+/** The record a processing transition is: its value, and the time it was written. */
+export function arrivalProcessingRecord(value, at) {
+  return Object.freeze({ ...value, at });
 }
 
 export function processingEntryFromValue(value) {
@@ -76,31 +70,37 @@ export function processingEntryFromValue(value) {
     ...(typeof value["stdoutSha256"] === "string" ? { stdoutSha256: value["stdoutSha256"] } : {}),
     ...(typeof value["stderrBytes"] === "number" ? { stderrBytes: value["stderrBytes"] } : {}),
     ...(typeof value["stderrSha256"] === "string" ? { stderrSha256: value["stderrSha256"] } : {}),
+    ...(typeof value.requester==='string'?{requester:value.requester}:{}),
+    ...(typeof value.executor==='string'?{executor:value.executor}:{}),
+    ...(value.service===undefined?{}:{service:value.service}),
     obstructions: Object.freeze(obstructions),
   });
 }
 
-function requestProcessingPath(root,eventIdentity,eventTime){
- return journal.feed(root,ARRIVAL_PROCESS_FEED,eventTime,{subject:semanticId({kind:"actor-request",eventIdentity})});
+/** The thread of one request: named by the address of the request's identity. */
+export function requestProcessingThread(eventIdentity){
+ return threadName(semanticId({kind:"actor-request",eventIdentity}));
 }
-/** Read one task from its original addressed journal partition. */
-export function actorRequestProcessing(root,eventIdentity,eventTime) {
- const source=requestProcessingPath(root,eventIdentity,eventTime);
- if(journal.sourceStatus(source).bytes>512*1024)throw new TypeError("actor task outcome requires a bounded continuation");
+/** The most transitions one request's thread is read through. */
+const TRANSITION_LIMIT=512;
+/** Read one task from its thread of transitions. */
+export function actorRequestProcessing(root,eventIdentity) {
+ const head=readHead(root,ARRIVAL_PROCESS_FEED,requestProcessingThread(eventIdentity));
+ if(head===undefined)return undefined;
  let found;
- journal.scan(source,undefined,(_accum,row)=>{
-  const {a,v}=eavtRecord(row);
-  if(canonicalJson(a)===canonicalJson(ARRIVAL_PROCESS_TERM)&&v.cloudEventIdentity===eventIdentity){
+ for(const step of walk(root,ARRIVAL_PROCESS_FEED,head.frontier,{limit:TRANSITION_LIMIT})){
+  if(step.truncated===true)throw new TypeError("actor task outcome requires a bounded continuation");
+  if(step.record===undefined)continue;
+  const v=step.record;
+  if(v.cloudEventIdentity===eventIdentity){
    const current=processingEntryFromValue(v);
-   // Content-addressed journal files are not traversal-ordered state. A task's
-   // synchronous transitions carry their own order; legacy successful work stays held.
+   // A task's synchronous transitions carry their own order; legacy successful work stays held.
    if(current.sequence!==undefined){
-    if(found?.sequence===current.sequence&&canonicalJson(found)!==canonicalJson(current))throw new TypeError('actor task journal has conflicting transition evidence');
+    if(found?.sequence===current.sequence&&canonicalJson(found)!==canonicalJson(current))throw new TypeError('actor task store has conflicting transition evidence');
     if(found?.sequence===undefined||current.sequence>found.sequence)found=current;
    }else if(found?.sequence===undefined&&(found===undefined||current.state==='processed'))found=current;
   }
-  return undefined;
- });
+ }
  return found;
 }
 
@@ -129,7 +129,7 @@ export async function processAdmittedActorRequest(options){
  projectingRequests.add(key);
  try{return await processActorRequest(options);}finally{projectingRequests.delete(key);}
 }
-async function processActorRequest({event,admission,authenticatedActor,operations,binding,authorize,program="infograph",recipient,payment,projectReply,senderAgentCard}){
+async function processActorRequest({event,admission,authenticatedActor,operations,binding,authorize,program="infograph",recipient,payment,execution,projectReply,senderAgentCard}){
  const receipt=admitCloudEventArrival(event);
  if(receipt.ok!==true||admission?.cloudEventIdentity!==receipt.cloudEventIdentity||event.source!==authenticatedActor)
   throw new TypeError("actor execution needs the exact signature-admitted arrival");
@@ -139,7 +139,8 @@ async function processActorRequest({event,admission,authenticatedActor,operation
  const payload=metadata["x402.payment.payload"];
  const submittedTask=message?.taskId||undefined;
  let sourceIdentity=receipt.cloudEventIdentity,sourceTime=event.time;
- if(submittedTask!==undefined){
+ const paymentContinuation=payload!==undefined||metadata["x402.payment.status"]==="payment-submitted";
+ if(submittedTask!==undefined&&paymentContinuation){
   const split=submittedTask.indexOf('|');
   sourceTime=submittedTask.slice(0,split);sourceIdentity=submittedTask.slice(split+1);
   if(split<0||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/u.test(sourceTime)||
@@ -147,18 +148,20 @@ async function processActorRequest({event,admission,authenticatedActor,operation
  }
  const taskId=sourceTime+'|'+sourceIdentity;
  const requestMaterial=semanticId({claim,authenticatedActor,recipient:recipient??null,program});
- let held=actorRequestProcessing(binding.dataRoot,sourceIdentity,sourceTime);
- if(submittedTask!==undefined&&(!held||held.taskId!==taskId||held.requestMaterial!==requestMaterial))throw new TypeError("actor task cannot substitute actor, recipient, input or operation");
+ let held=actorRequestProcessing(binding.dataRoot,sourceIdentity);
+ if(submittedTask!==undefined&&paymentContinuation&&(!held||held.taskId!==taskId||held.requestMaterial!==requestMaterial))throw new TypeError("actor task cannot substitute actor, recipient, input or operation");
  if(held?.payment && held.state!=="payment-required")return Object.freeze({...held,replayed:true});
  if(held?.state==='processed')return Object.freeze({...held,replayed:true});
  if(payload!==undefined&&(submittedTask===undefined||metadata["x402.payment.status"]!=="payment-submitted"))throw new TypeError("signed payment needs the original task and payment-submitted metadata");
  if((payload!==undefined||held?.payment)&&payment===undefined)throw new TypeError("the owner no longer offers this payment admission");
+ const receiver=execution===undefined?{subject:authenticatedActor,authorize}:await execution({claim,requester:authenticatedActor,recipient});
+ if(typeof receiver.subject!=="string"||typeof receiver.authorize!=="function")throw new TypeError("actor service execution needs the receiver's admitted principal and authorization");
  let currentPayment=held?.payment;
  let operationRef=held?.operation;
  let racedTask;
- const entry={cloudEventIdentity:sourceIdentity,packetDigest:receipt.packetDigest,dispatchEvent:{verb:claim.argv[0]}};
+ const entry={cloudEventIdentity:sourceIdentity,packetDigest:receipt.packetDigest,dispatchEvent:{verb:claim.argv[0]},requester:authenticatedActor,executor:receiver.subject,...(receiver.service===undefined?{}:{service:receiver.service})};
  const prepare=(state,result,obstructions=[],privateFields={})=>{
-  const previous=actorRequestProcessing(binding.dataRoot,sourceIdentity,sourceTime);
+  const previous=actorRequestProcessing(binding.dataRoot,sourceIdentity);
   const sequence=(previous?.sequence??0)+1;
   if(!Number.isSafeInteger(sequence))throw new TypeError('actor task needs a bounded transition continuation');
   const value={...processingEntryValue(entry,state,obstructions,result),sequence,
@@ -182,17 +185,14 @@ async function processActorRequest({event,admission,authenticatedActor,operation
   const value=prepare(state,result,obstructions,privateFields);
   if(state==="processed"&&preparedResult!==undefined&&canonicalJson(processingEntryFromValue(value))!==canonicalJson(preparedResult))throw new TypeError("actor processing metadata changed after response preflight");
   const at=binding.now();
-  openJournal(binding.dataRoot).appendRows(ARRIVAL_PROCESS_FEED,arrivalProcessingRows([{entry,value}],at),{
-   ...binding,at:sourceTime,subject:semanticId({kind:"actor-request",eventIdentity:sourceIdentity}),
-   caller:{transport:"actor-inbox",cloudEventIdentity:receipt.cloudEventIdentity},
-  });
+  extend(binding.dataRoot,ARRIVAL_PROCESS_FEED,requestProcessingThread(sourceIdentity),arrivalProcessingRecord(value,at));
   return state==="processed"&&preparedResult!==undefined?preparedResult:processingEntryFromValue(value);
  };
  const beforeExecute=payment===undefined?undefined:async (invocation,operation)=>{
   // The money effect is coordinated even when the useful compute is pure.
   const lease=processLeaseCoordinator(binding.dataRoot)(invocation,operation,binding.now());
   if(!lease.ok)throw new TypeError(lease.reasons.join('; '));
-  const latest=actorRequestProcessing(binding.dataRoot,sourceIdentity,sourceTime);
+  const latest=actorRequestProcessing(binding.dataRoot,sourceIdentity);
   if(latest?.payment&&latest.state!=="payment-required"){racedTask=latest;throw new TypeError("actor payment attempt is already held; no repayment retry");}
   held=latest??held;
   if(held?.operation!==undefined&&held.operation!==operation.ref)throw new TypeError("the quoted operation revision was replaced");
@@ -201,7 +201,7 @@ async function processActorRequest({event,admission,authenticatedActor,operation
    const quote=await payment.quote({taskId,invocation,operation});
    if(!quote?.required||quote.required.x402Version!==2||quote.required.accepts?.length!==1||quote.offer===undefined)throw new TypeError("owner payment admission needs one native x402 v2 quote");
    // Recheck after asynchronous quote formation; another arrival may have claimed it.
-   const concurrent=actorRequestProcessing(binding.dataRoot,sourceIdentity,sourceTime);
+   const concurrent=actorRequestProcessing(binding.dataRoot,sourceIdentity);
    if(concurrent?.payment){racedTask=concurrent;throw new TypeError("actor task quote is already held");}
    currentPayment={status:"payment-required",required:quote.required,offer:quote.offer,
     expiresAt:new Date(Date.parse(binding.now())+quote.required.accepts[0].maxTimeoutSeconds*1000).toISOString(),receipts:[]};
@@ -244,10 +244,10 @@ async function processActorRequest({event,admission,authenticatedActor,operation
  };
  const catalog=createOperationCatalog(operations);
  const result=await dispatchWire(catalog,claim.argv,claim.stdin,{
-  operation:claim.operation,subject:authenticatedActor,request:sourceIdentity,program,now:binding.now,
-  caller:{transport:"activitypub",...(senderAgentCard===undefined?{}:{agentCard:senderAgentCard}),...(recipient===undefined?{}:{recipient}),cloudEventIdentity:receipt.cloudEventIdentity,subjectBindingEvidence:[admission.cloudEventIdentity]},
+  operation:claim.operation,subject:receiver.subject,request:sourceIdentity,program,now:binding.now,
+  caller:{transport:"activitypub",requester:authenticatedActor,...(receiver.service===undefined?{}:{service:receiver.service}),...(senderAgentCard===undefined?{}:{agentCard:senderAgentCard}),...(recipient===undefined?{}:{recipient}),cloudEventIdentity:receipt.cloudEventIdentity,subjectBindingEvidence:[admission.cloudEventIdentity]},
   coordinate:processLeaseCoordinator(binding.dataRoot),witness:journalRpcWitness(binding.dataRoot),beforeExecute,projectResult,
- },authorize);
+ },receiver.authorize);
  if(racedTask!==undefined)return Object.freeze({...racedTask,replayed:true});
  const state=currentPayment?.status==='payment-required'?"payment-required":result.code===0?"processed":"obstructed";
  try{return append(state,result,result.code===0?[]:[result.stderr.trim()]);}

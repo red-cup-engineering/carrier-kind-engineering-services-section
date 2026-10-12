@@ -1,0 +1,18 @@
+{
+  "accepted": true,
+  "sources": {
+    "scripts/is-json-value.mjs": "a82b23fd6e4846b8f5722b3b566cf69ff710ed2ede13f6c1818c56fcaa457be1",
+    "scripts/canonical-json.mjs": "a10d27199ba7a00ff0e99fbf2f8a622317c99207da9f71ef5907375a02c60a50"
+  },
+  "basis": "Complete generated diff source review and independent receiving; public supplemental raw-array observation.",
+  "findings": [
+    "Explicit projection frames preserve key/index order, descriptor admission, charged node occurrences, active-ancestor cycle detection and one joined output token stream.",
+    "Strict parser consumes each container through explicit grammar states, removes recursive object/array routines and preserves duplicate-key and string decoder boundaries.",
+    "Only root-dollar strings are bases of linked paths at actual call sites; ordinary diagnostics match prior code and deep diagnostics build paths only on refusal.",
+    "Raw predicate retains eager Object.values semantics, dynamic array length checks, short-circuiting and caller getter exception behavior.",
+    "No added imports/exports/dependencies, inner artifact envelope change or runtime journal owner implementation."
+  ],
+  "limitations": [
+    "Acceptance covers shared JSON traversal only. Complete journal owner, consumer migration and assistant acceptance remain outstanding."
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "name": "@red-cup-engineering/agent-operations-management-engine",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "Agent operations management engine — coordinated work breakdown, scheduling, prioritization, workflow, office assignment, governance, automation, accounting, reporting, and views over the engineering agent substrate.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
+    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.scripts.build.json && chmod +x dist/scripts/*.mjs",
+    "prepack": "pnpm run rebuild",
+    "rebuild": "pnpm run clean && pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "bin": {
+    "manage-breakdown": "./dist/scripts/breakdown.mjs",
+    "manage-schedule": "./dist/scripts/schedule.mjs",
+    "manage-prioritize": "./dist/scripts/prioritize.mjs",
+    "manage-report": "./dist/scripts/report.mjs"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./structuring": {
+      "types": "./dist/structuring/index.d.mts",
+      "import": "./dist/structuring/index.mjs"
+    },
+    "./scheduling": {
+      "types": "./dist/scheduling/index.d.mts",
+      "import": "./dist/scheduling/index.mjs"
+    },
+    "./prioritizing": {
+      "types": "./dist/prioritizing/index.d.mts",
+      "import": "./dist/prioritizing/index.mjs"
+    },
+    "./flowing": {
+      "types": "./dist/flowing/index.d.mts",
+      "import": "./dist/flowing/index.mjs"
+    },
+    "./assigning": {
+      "types": "./dist/assigning/index.d.mts",
+      "import": "./dist/assigning/index.mjs"
+    },
+    "./governing": {
+      "types": "./dist/governing/index.d.mts",
+      "import": "./dist/governing/index.mjs"
+    },
+    "./automating": {
+      "types": "./dist/automating/index.d.mts",
+      "import": "./dist/automating/index.mjs"
+    },
+    "./accounting": {
+      "types": "./dist/accounting/index.d.mts",
+      "import": "./dist/accounting/index.mjs"
+    },
+    "./reporting": {
+      "types": "./dist/reporting/index.d.mts",
+      "import": "./dist/reporting/index.mjs"
+    },
+    "./viewing": {
+      "types": "./dist/viewing/index.d.mts",
+      "import": "./dist/viewing/index.mjs"
+    },
+    "./scripts": {
+      "types": "./dist/scripts/api.d.mts",
+      "import": "./dist/scripts/api.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@red-cup-engineering/agentic-computation-engine": "0.2.0",
+    "@red-cup-engineering/agentic-organization-engine": "0.2.0",
+    "@red-cup-engineering/agentic-relation-engine": "0.10.1",
+    "@red-cup-engineering/agentic-socialization-engine": "0.2.0",
+    "@lenticule-science/articulating": "0.5.1",
+    "@lenticule-science/metrologic": "file:../../../../../computer-math-system-services-section/apps/metrologic",
+    "@red-cup-engineering/computer-data-engine": "file:../../../../../../../computer-data-engineering-services-section/apps/computer-data-engine"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "sideEffects": false
+}

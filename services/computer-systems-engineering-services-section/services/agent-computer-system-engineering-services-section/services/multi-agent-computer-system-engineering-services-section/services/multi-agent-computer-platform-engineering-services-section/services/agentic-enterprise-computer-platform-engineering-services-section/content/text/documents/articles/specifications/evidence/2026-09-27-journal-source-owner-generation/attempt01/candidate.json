@@ -1,0 +1,7 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "refused",
+  "reason": "I cannot supply a complete source-owner implementation that meets F-S01\u2013F-S10 from the provided inputs. Returning partial modules would falsely present an incomplete owner as the requested complete candidate.",
+  "changes": []
+}

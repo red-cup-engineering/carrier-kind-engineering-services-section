@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/derive-set-of-work-intents-from-roadmap-cut-service",
+  "version": "0.2.0",
+  "description": "Derives structured work intents from a roadmap cut, reading BCP 14 force directly.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/derive-set-of-work-intents-from-roadmap-cut.mjs",
+  "bin": {
+    "derive-set-of-work-intents-from-roadmap-cut": "scripts/derive-set-of-work-intents-from-roadmap-cut.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/agent-work-computer-system-engineering-services-section": "0.17.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0",
+    "@red-cup-engineering/read-bcp-14-requirements-service": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/derive-set-of-work-intents-from-roadmap-cut.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

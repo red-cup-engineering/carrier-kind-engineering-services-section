@@ -1,6 +1,0 @@
-{
-  "node": "repository-state-observation-service",
-  "owner": "software-development-services-section",
-  "owns": ["repository-state-observation contract", "provider-local evidence", "status parsing"],
-  "doesNotOwn": ["customer repository", "Git runtime", "device I/O", "customer decision"]
-}

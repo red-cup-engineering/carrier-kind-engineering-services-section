@@ -1,0 +1,34 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "candidate",
+  "reason": "Bound distinct event scheduling before growing root or pending work collections; each root or cause is queued at most once while all semantic roots remain available for longest-path depth propagation.",
+  "changes": [
+    {
+      "operation": "edit",
+      "path": "src/journal/filesystem/source-owner.mjs",
+      "inputSha256": "c60d031c460557e2437b98d835c8cecfe9cd1a159f4f89cb7007ad5093417b10",
+      "replacements": [
+        {
+          "before": "  const roots = new Set(requestedEvents);\n  const requiredArtifacts = new Set();\n  const eventRecords = new Map();\n  const orderedSources = new Set();",
+          "after": "  const roots = new Set();\n  const requiredArtifacts = new Set();\n  const eventRecords = new Map();\n  const orderedSources = new Set();\n  const pending = [];\n  const scheduledEvents = new Set();\n\n  function scheduleEvent(reference, isRoot = false) {\n    if (!scheduledEvents.has(reference)) {\n      if (scheduledEvents.size >= limits.maxClosureWitnesses) {\n        throw unavailable(\"resource-limit\", \"closure-witness-count\");\n      }\n      scheduledEvents.add(reference);\n      pending.push(reference);\n    }\n    if (isRoot) roots.add(reference);\n  }\n\n  for (const reference of requestedEvents) scheduleEvent(reference, true);"
+        },
+        {
+          "before": "    roots.add(verified.id);",
+          "after": "    scheduleEvent(verified.id, true);"
+        },
+        {
+          "before": "  const pending = [...roots];\n  while (pending.length > 0) {",
+          "after": "  while (pending.length > 0) {"
+        },
+        {
+          "before": "    for (const cause of witness.core.causes) pending.push(cause);",
+          "after": "    for (const cause of witness.core.causes) scheduleEvent(cause);"
+        }
+      ],
+      "clauses": [
+        "F-S20"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/computer-ledger-system-services-section",
+  "version": "0.6.0",
+  "type": "module",
+  "description": "Groups computer systems that record, reconcile, and operate ledger state.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/ethereum-engineering-services-section": "file:../../../../../computer-blockchain-system-services-section/services/ethereum-engineering-services-section",
+    "@red-cup-engineering/file-services": "0.2.1",
+    "@red-cup-engineering/hive-chain-observation-service": "file:../../../../../computer-blockchain-system-services-section/services/hive-engineering-services-section/services/hive-chain-observation-service",
+    "@red-cup-engineering/treasury-observation-service": "0.4.0",
+    "@red-cup-engineering/eavt": "0.10.4"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "test",
+    "data/records/schema",
+    "README.md"
+  ],
+  "exports": {
+    "./exact-amount": "./src/exact-amount.mjs",
+    "./package.json": "./package.json"
+  }
+}

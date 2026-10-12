@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/claim-articulation-slot/claim-articulation-slot.schema.json",
+  "title": "Claim articulation slot",
+  "description": "The claim-side slot of an aperiodic-articulation-cell's pairing term. The empty array is an unarticulated slot; a singleton array carries the claim already fixed by the carrier utterance. This is slot structure, not a third primitive.",
+  "type": "array",
+  "items": {
+    "$ref": "https://561.group/spotcomp/library/claim/claim.schema.json"
+  },
+  "minItems": 0,
+  "maxItems": 1
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/character/library/journaling/library/memory/library/project/project.schema.json",
+  "title": "project",
+  "description": "Predication-shape for a project memory: a causal explanation of ongoing work — what is being built, why, by when, under what constraint.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../memory.schema.json"
+    },
+    {
+      "required": [
+        "has-kind"
+      ],
+      "properties": {
+        "has-kind": {
+          "const": "project"
+        },
+        "has-why": {
+          "type": "string",
+          "description": "The motivation behind the project work — what constraint, deadline, or stakeholder ask is driving it."
+        },
+        "has-how-to-apply": {
+          "type": "string",
+          "description": "How knowing this should shape the character's suggestions and judgments."
+        }
+      }
+    }
+  ]
+}

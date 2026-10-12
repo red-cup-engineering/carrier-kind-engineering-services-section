@@ -4,7 +4,7 @@ import test from "node:test";
 import { cellSetOf, dedupTerm, freeTerm, zeroStageOrdinalTerm } from "@red-cup-engineering/relating/evaluating/settling";
 import { evaluateRunTerm } from "@red-cup-engineering/signcraft/primitives";
 import { tm, validateSenTerm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
-import { semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticBytes, semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
 test("dedupTerm removes coincidence-duplicates while preserving first-seen order", () => {
   assert.deepEqual(evaluateRunTerm(dedupTerm, ["a", "b", "a", "c", "b", "d"]), ["a", "b", "c", "d"]);

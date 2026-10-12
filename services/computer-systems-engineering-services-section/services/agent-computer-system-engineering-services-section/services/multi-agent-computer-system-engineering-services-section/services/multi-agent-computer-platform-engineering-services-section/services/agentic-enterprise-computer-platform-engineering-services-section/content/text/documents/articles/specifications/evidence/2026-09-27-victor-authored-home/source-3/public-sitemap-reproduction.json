@@ -1,0 +1,5 @@
+{
+  "refusals": [],
+  "sitemap": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url>\n    <loc>https://example.test/</loc>\n  </url>\n  <url>\n    <loc>https://example.test/another/</loc>\n  </url>\n</urlset>\n",
+  "redirect": "<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\" />\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n<meta name=\"robots\" content=\"noindex\" />\n<meta http-equiv=\"refresh\" content=\"0; url=https://example.test/\" />\n<title>Moved — Public example</title>\n<link rel=\"canonical\" href=\"https://example.test/\" />\n</head>\n<body>\n<main><h1>This page moved</h1><p><a href=\"https://example.test/\">overview</a> now lives at the home page.</p></main>\n</body>\n</html>\n"
+}

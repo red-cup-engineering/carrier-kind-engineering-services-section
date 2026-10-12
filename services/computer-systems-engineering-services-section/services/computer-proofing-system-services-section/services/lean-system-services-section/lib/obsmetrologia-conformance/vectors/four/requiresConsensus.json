@@ -1,0 +1,18 @@
+{"suite":"four-mix","declaration":"ObsmetrologiaConformance.FourMix.requiresConsensus","cases":[
+  {"op":"requiresConsensus","args":[[false,false],[false,false]],"result":true},
+  {"op":"requiresConsensus","args":[[false,false],[true,false]],"result":true},
+  {"op":"requiresConsensus","args":[[false,false],[false,true]],"result":true},
+  {"op":"requiresConsensus","args":[[false,false],[true,true]],"result":false},
+  {"op":"requiresConsensus","args":[[true,false],[false,false]],"result":true},
+  {"op":"requiresConsensus","args":[[true,false],[true,false]],"result":false},
+  {"op":"requiresConsensus","args":[[true,false],[false,true]],"result":true},
+  {"op":"requiresConsensus","args":[[true,false],[true,true]],"result":false},
+  {"op":"requiresConsensus","args":[[false,true],[false,false]],"result":true},
+  {"op":"requiresConsensus","args":[[false,true],[true,false]],"result":true},
+  {"op":"requiresConsensus","args":[[false,true],[false,true]],"result":false},
+  {"op":"requiresConsensus","args":[[false,true],[true,true]],"result":false},
+  {"op":"requiresConsensus","args":[[true,true],[false,false]],"result":false},
+  {"op":"requiresConsensus","args":[[true,true],[true,false]],"result":false},
+  {"op":"requiresConsensus","args":[[true,true],[false,true]],"result":false},
+  {"op":"requiresConsensus","args":[[true,true],[true,true]],"result":false}
+]}

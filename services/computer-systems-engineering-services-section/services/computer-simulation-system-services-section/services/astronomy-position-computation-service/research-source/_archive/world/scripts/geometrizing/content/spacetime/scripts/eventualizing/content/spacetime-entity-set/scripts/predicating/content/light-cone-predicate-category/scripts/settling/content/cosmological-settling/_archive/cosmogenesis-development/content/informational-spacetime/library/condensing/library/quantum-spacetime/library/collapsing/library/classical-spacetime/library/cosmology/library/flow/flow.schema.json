@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/articulating/library/aperiodic-articulation-category/cosmogenerating/library/cosmos/hacking/library/cosmology/library/flow/flow.schema.json",
+  "title": "flow",
+  "description": "KZ-comonad on cosmology cells: directed propagation of recognition across redshift (comultiplication δ) with resolution to the present (counit ε) under KZ-laxity. Flow-stable fixed points Close∘Flow(x)=x are dynamically self-consistent recognitions; g(z,Δz)→0 is the H¹_t (temporal axis) orbit closing. Dual to the closure/nucleus monad. The temporal-axis reading of disequilibrium, complementary to hubble-tension's fibration-axis (H¹_top) reading.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "flow" },
+    "kind": { "type": "string", "const": "morphism" },
+    "domain": { "type": "string", "const": "cosmology" },
+    "codomain": { "type": "string", "const": "cosmology" },
+    "status": { "type": "string", "const": "hacking" }
+  },
+  "required": ["name"]
+}

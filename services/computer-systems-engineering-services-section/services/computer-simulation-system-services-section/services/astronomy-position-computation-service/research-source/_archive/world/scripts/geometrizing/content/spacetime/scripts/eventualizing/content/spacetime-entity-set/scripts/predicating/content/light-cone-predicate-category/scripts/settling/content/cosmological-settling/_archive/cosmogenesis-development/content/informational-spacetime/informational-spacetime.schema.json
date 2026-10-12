@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/informational-spacetime.schema.json",
+  "title": "informational-spacetime",
+  "description": "The aperiodic base field: codomain of cosmogenerating and top of the four-field descent (informational → quantum → classical → thermal). The bit-field — 'it from bit' as a spacetime regime (κ ≥ ω₁, H¹ ≠ 0). Its library is the descent: marking/realizing/forgetting/condensing, with condensing → quantum-spacetime → collapsing → classical-spacetime → thermalizing → thermal-spacetime. The observable cosmos (structure, expansion, constituents, cosmology) is classical-spacetime content. 'Cosmos' is reserved for a downstream restriction (our tile).",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "informational-spacetime" },
+    "kind": { "type": "string", "const": "category" },
+    "generated-by": { "type": "string", "const": "cosmogenerating" },
+    "member-of": { "type": "string", "const": "aperiodic-articulation-category" }
+  },
+  "required": ["name", "generated-by"]
+}

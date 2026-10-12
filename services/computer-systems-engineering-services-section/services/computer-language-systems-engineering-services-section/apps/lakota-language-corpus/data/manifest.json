@@ -1,0 +1,879 @@
+{
+  "kind": "communicating.language-manifest",
+  "bundle": {
+    "meta": {
+      "name": "Lakȟótiyapi",
+      "code": "lkt",
+      "script": "Latin",
+      "direction": "ltr"
+    },
+    "lexicon": {
+      "determiners": [
+        "kiŋ",
+        "waŋ",
+        "k'uŋ",
+        "kiŋháŋ",
+        "lé",
+        "hé",
+        "ká"
+      ],
+      "prepositions": [
+        "el",
+        "ektá",
+        "etkiya",
+        "kičhí",
+        "uŋ",
+        "etáŋhaŋ"
+      ],
+      "pronouns": [
+        "miyé",
+        "niyé",
+        "iyé",
+        "uŋkíyepi",
+        "niyépi",
+        "iyépi"
+      ],
+      "conjunctions": [
+        "na",
+        "čhaŋké",
+        "k'éyaš",
+        "čha"
+      ],
+      "auxiliaries": [
+        "kte",
+        "kta",
+        "yeló",
+        "ye",
+        "he"
+      ],
+      "copula": []
+    },
+    "morphology": {
+      "suffixRules": [
+        {
+          "pattern": "^(yawá|kté|lowáŋ|waŋyáŋka|čhíŋ|yatkáŋ|yúta|maní|ínyaŋka|škáta)$",
+          "tag": "verb"
+        }
+      ],
+      "featureRules": [
+        {
+          "pattern": "^(weló|yeló)$",
+          "tag": "particle:attested-declarative-final"
+        },
+        {
+          "pattern": "^(he|hwo)$",
+          "tag": "particle:attested-interrogative-final"
+        },
+        {
+          "pattern": "^kštó$",
+          "tag": "particle:attested-emphatic-final"
+        }
+      ],
+      "rootPatternRules": [
+        {
+          "pattern": "^wačhíŋ$",
+          "tag": "verb",
+          "root": "čhíŋ",
+          "template": "class-i-wa+stem",
+          "features": [
+            "morphotactic:pronominal-prefix",
+            "agreement:actor:1sg",
+            "inflection-class:class-i"
+          ]
+        },
+        {
+          "pattern": "^yačhíŋ$",
+          "tag": "verb",
+          "root": "čhíŋ",
+          "template": "class-i-ya+stem",
+          "features": [
+            "morphotactic:pronominal-prefix",
+            "agreement:actor:2sg",
+            "inflection-class:class-i"
+          ]
+        },
+        {
+          "pattern": "^čhíŋ$",
+          "tag": "verb",
+          "root": "čhíŋ",
+          "template": "class-i-zero+stem",
+          "features": [
+            "morphotactic:zero-prefix",
+            "agreement:actor:3sg-or-unmarked",
+            "inflection-class:class-i"
+          ]
+        },
+        {
+          "pattern": "^(bluhá|bduhá)$",
+          "tag": "verb",
+          "root": "yuhá",
+          "template": "class-ii-y-stem-1sg",
+          "features": [
+            "morphotactic:y-stem-pronominal-alternation",
+            "agreement:actor:1sg",
+            "inflection-class:class-ii"
+          ]
+        },
+        {
+          "pattern": "^(luhá|duhá)$",
+          "tag": "verb",
+          "root": "yuhá",
+          "template": "class-ii-y-stem-2sg",
+          "features": [
+            "morphotactic:y-stem-pronominal-alternation",
+            "agreement:actor:2sg",
+            "inflection-class:class-ii"
+          ]
+        },
+        {
+          "pattern": "^yuhá$",
+          "tag": "verb",
+          "root": "yuhá",
+          "template": "class-ii-y-stem-unmarked",
+          "features": [
+            "morphotactic:y-stem",
+            "agreement:actor:3sg-or-unmarked",
+            "inflection-class:class-ii"
+          ]
+        },
+        {
+          "pattern": "^múŋ$",
+          "tag": "verb",
+          "root": "úŋ",
+          "template": "class-iii-m+stem",
+          "features": [
+            "morphotactic:pronominal-prefix",
+            "agreement:undergoer:1sg",
+            "inflection-class:class-iii"
+          ]
+        },
+        {
+          "pattern": "^núŋ$",
+          "tag": "verb",
+          "root": "úŋ",
+          "template": "class-iii-n+stem",
+          "features": [
+            "morphotactic:pronominal-prefix",
+            "agreement:undergoer:2sg",
+            "inflection-class:class-iii"
+          ]
+        },
+        {
+          "pattern": "^úŋ$",
+          "tag": "verb",
+          "root": "úŋ",
+          "template": "class-iii-zero+stem",
+          "features": [
+            "morphotactic:zero-prefix",
+            "agreement:undergoer:3sg-or-unmarked",
+            "inflection-class:class-iii"
+          ]
+        },
+        {
+          "pattern": "^emáčiyapi$",
+          "tag": "verb",
+          "root": "ečíyapi",
+          "template": "ma-infix+stem",
+          "features": [
+            "morphotactic:pronominal-infix",
+            "agreement:undergoer:1sg",
+            "inflection-class:patient-series"
+          ]
+        },
+        {
+          "pattern": "^eníčiyapi$",
+          "tag": "verb",
+          "root": "ečíyapi",
+          "template": "ni-infix+stem",
+          "features": [
+            "morphotactic:pronominal-infix",
+            "agreement:undergoer:2sg",
+            "inflection-class:patient-series"
+          ]
+        },
+        {
+          "pattern": "^ečíyapi$",
+          "tag": "verb",
+          "root": "ečíyapi",
+          "template": "zero-infix+stem",
+          "features": [
+            "morphotactic:zero-infix",
+            "agreement:undergoer:3sg-or-unmarked",
+            "inflection-class:patient-series"
+          ]
+        },
+        {
+          "pattern": "^weló$",
+          "tag": "enclitic",
+          "root": "weló",
+          "template": "sentence-final-particle",
+          "features": [
+            "particle:attested-declarative-final",
+            "particle:orthographic-variant:weló",
+            "function:underdetermined"
+          ]
+        },
+        {
+          "pattern": "^kštó$",
+          "tag": "enclitic",
+          "root": "kštó",
+          "template": "sentence-final-particle",
+          "features": [
+            "particle:attested-emphatic-final",
+            "function:underdetermined"
+          ]
+        },
+        {
+          "pattern": "^hwo$",
+          "tag": "enclitic",
+          "root": "hwo",
+          "template": "sentence-final-particle",
+          "features": [
+            "particle:attested-interrogative-final",
+            "function:underdetermined"
+          ]
+        }
+      ],
+      "numberSuffixPattern": "",
+      "verbFormRules": [],
+      "numberWords": [
+        "waŋží",
+        "núŋpa",
+        "yámni",
+        "tópa",
+        "záptaŋ",
+        "šákpe",
+        "šakówiŋ",
+        "šaglóǧaŋ",
+        "napčíŋyuŋka",
+        "wikčémna"
+      ]
+    },
+    "reference": {
+      "pronouns": {
+        "miyé": {
+          "person": 1,
+          "number": "sg"
+        },
+        "niyé": {
+          "person": 2,
+          "number": "sg"
+        },
+        "iyé": {
+          "person": 3,
+          "number": "sg"
+        },
+        "uŋkíyepi": {
+          "person": 1,
+          "number": "pl"
+        },
+        "niyépi": {
+          "person": 2,
+          "number": "pl"
+        },
+        "iyépi": {
+          "person": 3,
+          "number": "pl"
+        }
+      },
+      "nameGender": {}
+    },
+    "wordOrder": "SOV",
+    "grammar": {
+      "kind": "communicating.language-grammar-profile",
+      "wordOrder": "SOV",
+      "alignment": "active-stative",
+      "headDirectionality": {
+        "determiner": "right",
+        "adjective": "right",
+        "subject": "left",
+        "object": "left",
+        "adposition": "right"
+      },
+      "roleStrategies": [
+        {
+          "relation": "nsubj",
+          "by": "position",
+          "direction": "left",
+          "distance": "farthest"
+        },
+        {
+          "relation": "dobj",
+          "by": "position",
+          "direction": "left",
+          "distance": "nearest"
+        }
+      ],
+      "morphology": {
+        "type": "polysynthetic",
+        "caseMarking": "none",
+        "agreement": "pronominal"
+      },
+      "segmentation": {
+        "sentenceBoundary": "punctuation",
+        "wordBoundary": "space"
+      },
+      "notes": [
+        "Finite Lakota admission profile: SOV role proposal is positional for overt nominals; pronominal-affix analysis is currently admitted as verb-token features, not yet as implicit dependency arguments."
+      ]
+    },
+    "attachment": {
+      "determiner": "right",
+      "adjective": "right",
+      "subject": "left",
+      "object": "left"
+    },
+    "segmentation": {
+      "sentenceTerminatorPattern": "[.!?]",
+      "abbreviations": []
+    }
+  },
+  "witnessJournal": [
+    {
+      "entity": "language:lkt",
+      "attribute": "communicating.package",
+      "value": "@emsenn/communicating-in-lakota"
+    },
+    {
+      "entity": "language:lkt",
+      "attribute": "communicating.alignment",
+      "value": "active-stative"
+    },
+    {
+      "entity": "language:lkt:role-strategy:0",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "nsubj",
+        "by": "position",
+        "direction": "left",
+        "distance": "farthest"
+      }
+    },
+    {
+      "entity": "language:lkt:role-strategy:1",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "dobj",
+        "by": "position",
+        "direction": "left",
+        "distance": "nearest"
+      }
+    },
+    {
+      "entity": "language:lkt:morphotactics:class-i",
+      "attribute": "communicating.pronominalAffixSeries",
+      "value": {
+        "slot": "prefix",
+        "rootExamples": [
+          "čhíŋ"
+        ],
+        "features": [
+          "agreement:actor:1sg",
+          "agreement:actor:2sg",
+          "agreement:actor:3sg-or-unmarked"
+        ]
+      },
+      "witness": "LDL 121 packet, Class I singular examples"
+    },
+    {
+      "entity": "language:lkt:morphotactics:class-ii-y-stem",
+      "attribute": "communicating.pronominalAffixSeries",
+      "value": {
+        "slot": "stem-initial alternation",
+        "rootExamples": [
+          "yuhá"
+        ],
+        "features": [
+          "agreement:actor:1sg",
+          "agreement:actor:2sg",
+          "agreement:actor:3sg-or-unmarked"
+        ]
+      },
+      "witness": "LDL 121 packet, Class II y-stem singular examples"
+    },
+    {
+      "entity": "language:lkt:morphotactics:patient-series",
+      "attribute": "communicating.pronominalAffixSeries",
+      "value": {
+        "slot": "infix-or-prefix",
+        "rootExamples": [
+          "ečíyapi",
+          "úŋ"
+        ],
+        "features": [
+          "agreement:undergoer:1sg",
+          "agreement:undergoer:2sg",
+          "agreement:undergoer:3sg-or-unmarked"
+        ]
+      },
+      "witness": "LDL 121 packet, Class III and 'to be called' singular examples"
+    },
+    {
+      "entity": "language:lkt:particle:weló-yeló",
+      "attribute": "communicating.particleSeries",
+      "value": {
+        "forms": [
+          "weló",
+          "yeló"
+        ],
+        "position": "sentence-final",
+        "function": "attested-declarative-final",
+        "certainty": "underdetermined"
+      },
+      "witness": "dev/content/researching/notes/lakota-corpus.md/2026-06-26-black-elk-letters.md:21,75"
+    },
+    {
+      "entity": "language:lkt:particle:he-hwo",
+      "attribute": "communicating.particleSeries",
+      "value": {
+        "forms": [
+          "he",
+          "hwo"
+        ],
+        "position": "sentence-final",
+        "function": "attested-interrogative-final",
+        "certainty": "underdetermined"
+      },
+      "witness": "dev/content/researching/notes/lakota-corpus.md/2026-06-26-lakota-corpus.md:171,242"
+    },
+    {
+      "entity": "language:lkt:particle:kštó",
+      "attribute": "communicating.particleSeries",
+      "value": {
+        "forms": [
+          "kštó"
+        ],
+        "position": "sentence-final",
+        "function": "attested-emphatic-final",
+        "certainty": "underdetermined"
+      },
+      "witness": "dev/content/researching/notes/lakota-corpus.md/2026-06-26-lakota-corpus.md:196"
+    },
+    {
+      "entity": "language:lkt:implicit-arguments:agreement",
+      "attribute": "communicating.implicitArgumentStrategy",
+      "value": {
+        "source": "agreement features on witnessed verb tokens",
+        "roles": [
+          "actor",
+          "undergoer"
+        ],
+        "certainty": "underdetermined"
+      },
+      "witness": "manifest.bundle.morphology.rootPatternRules"
+    },
+    {
+      "entity": "language:lkt:semantic-frame:čhíŋ",
+      "attribute": "communicating.semanticFrame",
+      "value": {
+        "root": "čhíŋ",
+        "frame": "desire/want",
+        "valence": "actor plus possible desired complement; complement underdetermined when absent",
+        "roles": [
+          "actor",
+          "possible-complement"
+        ],
+        "certainty": "underdetermined"
+      },
+      "witness": "LDL 121 packet, Class I singular examples; dev/content/researching/notes/lakota-corpus.md/2026-06-26-black-elk-letters.md:21"
+    },
+    {
+      "entity": "language:lkt:semantic-frame:yuhá",
+      "attribute": "communicating.semanticFrame",
+      "value": {
+        "root": "yuhá",
+        "frame": "possession/having",
+        "valence": "actor/possessor plus possible possessed theme; theme underdetermined when absent",
+        "roles": [
+          "actor-or-possessor",
+          "possible-theme"
+        ],
+        "certainty": "underdetermined"
+      },
+      "witness": "LDL 121 packet, Class II y-stem singular examples; dev/content/researching/notes/lakota-corpus.md/2026-06-26-black-elk-letters.md:53"
+    },
+    {
+      "entity": "language:lkt:semantic-frame:úŋ",
+      "attribute": "communicating.semanticFrame",
+      "value": {
+        "root": "úŋ",
+        "frame": "stative-being/location",
+        "valence": "undergoer/state-holder; state or location complement underdetermined when absent",
+        "roles": [
+          "undergoer-or-state-holder",
+          "possible-state-or-location"
+        ],
+        "certainty": "underdetermined"
+      },
+      "witness": "LDL 121 packet, Class III singular examples; dev/content/researching/notes/lakota-corpus.md/2026-06-26-lakota-corpus.md:272,273"
+    },
+    {
+      "entity": "language:lkt:semantic-frame:ečíyapi",
+      "attribute": "communicating.semanticFrame",
+      "value": {
+        "root": "ečíyapi",
+        "frame": "naming/calling",
+        "valence": "undergoer/name-bearer plus possible name content; name content underdetermined when absent",
+        "roles": [
+          "undergoer-or-name-bearer",
+          "possible-name-content"
+        ],
+        "certainty": "underdetermined"
+      },
+      "witness": "LDL 121 packet, singular forms for ečíyapi; dev/content/researching/notes/lakota-corpus.md/2026-06-26-black-elk-letters.md:85"
+    },
+    {
+      "entity": "language:lkt:valence:witnessed-verb-roots",
+      "attribute": "communicating.valenceFrame",
+      "value": {
+        "roots": [
+          "čhíŋ",
+          "yuhá",
+          "úŋ",
+          "ečíyapi"
+        ],
+        "source": "finite witnessed rootPatternRules plus package-local frame analyzer",
+        "certainty": "underdetermined"
+      },
+      "witness": "manifest.rwil semantic-frame rows"
+    },
+    {
+      "entity": "language:lkt:orthography:sentence-final-declarative-yelo",
+      "attribute": "communicating.orthographyNormalization",
+      "value": {
+        "variants": [
+          "weló",
+          "yeló"
+        ],
+        "normalized": "yeló",
+        "preserveObservedVariant": true,
+        "relation": "sentence-final-particle-variant",
+        "certainty": "underdetermined"
+      },
+      "witness": "dev/content/researching/notes/lakota-corpus.md/2026-06-26-black-elk-letters.md:21,75"
+    },
+    {
+      "entity": "language:lkt:orthography:class-ii-yuha-1sg",
+      "attribute": "communicating.orthographyNormalization",
+      "value": {
+        "variants": [
+          "bluhá",
+          "bduhá"
+        ],
+        "normalized": "bluhá",
+        "preserveObservedVariant": true,
+        "relation": "class-ii-y-stem-1sg-surface-variant",
+        "certainty": "underdetermined"
+      },
+      "witness": "LDL 121 packet, Class II y-stem singular examples; dev/content/researching/notes/lakota-corpus.md/2026-06-26-black-elk-letters.md:53"
+    },
+    {
+      "entity": "language:lkt:orthography:class-ii-yuha-2sg",
+      "attribute": "communicating.orthographyNormalization",
+      "value": {
+        "variants": [
+          "luhá",
+          "duhá"
+        ],
+        "normalized": "luhá",
+        "preserveObservedVariant": true,
+        "relation": "class-ii-y-stem-2sg-surface-variant",
+        "certainty": "underdetermined"
+      },
+      "witness": "LDL 121 packet, Class II y-stem singular examples; dev/content/researching/notes/lakota-corpus.md/2026-06-26-lakota-corpus.md:265"
+    },
+    {
+      "entity": "language:lkt:paradigm:čhíŋ",
+      "attribute": "communicating.morphotacticParadigm",
+      "value": {
+        "root": "čhíŋ",
+        "class": "class-i",
+        "certainty": "witnessed-finite",
+        "cells": [
+          {
+            "surface": "wačhíŋ",
+            "agreement": "actor:1sg"
+          },
+          {
+            "surface": "yačhíŋ",
+            "agreement": "actor:2sg"
+          },
+          {
+            "surface": "čhíŋ",
+            "agreement": "actor:3sg-or-unmarked"
+          }
+        ]
+      },
+      "witness": "data/corpus.jsonl ldl121-class-i-ching-*"
+    },
+    {
+      "entity": "language:lkt:paradigm:yuhá",
+      "attribute": "communicating.morphotacticParadigm",
+      "value": {
+        "root": "yuhá",
+        "class": "class-ii-y-stem",
+        "certainty": "witnessed-finite",
+        "cells": [
+          {
+            "surface": "bluhá",
+            "variants": [
+              "bluhá",
+              "bduhá"
+            ],
+            "agreement": "actor:1sg"
+          },
+          {
+            "surface": "luhá",
+            "variants": [
+              "luhá",
+              "duhá"
+            ],
+            "agreement": "actor:2sg"
+          },
+          {
+            "surface": "yuhá",
+            "agreement": "actor:3sg-or-unmarked"
+          }
+        ]
+      },
+      "witness": "data/corpus.jsonl ldl121-class-ii-yuha-*"
+    },
+    {
+      "entity": "language:lkt:paradigm:úŋ",
+      "attribute": "communicating.morphotacticParadigm",
+      "value": {
+        "root": "úŋ",
+        "class": "class-iii",
+        "certainty": "witnessed-finite",
+        "cells": [
+          {
+            "surface": "múŋ",
+            "agreement": "undergoer:1sg"
+          },
+          {
+            "surface": "núŋ",
+            "agreement": "undergoer:2sg"
+          },
+          {
+            "surface": "úŋ",
+            "agreement": "undergoer:3sg-or-unmarked"
+          }
+        ]
+      },
+      "witness": "data/corpus.jsonl ldl121-class-iii-un-*"
+    },
+    {
+      "entity": "language:lkt:paradigm:ečíyapi",
+      "attribute": "communicating.morphotacticParadigm",
+      "value": {
+        "root": "ečíyapi",
+        "class": "patient-series",
+        "certainty": "witnessed-finite",
+        "cells": [
+          {
+            "surface": "emáčiyapi",
+            "agreement": "undergoer:1sg"
+          },
+          {
+            "surface": "eníčiyapi",
+            "agreement": "undergoer:2sg"
+          },
+          {
+            "surface": "ečíyapi",
+            "agreement": "undergoer:3sg-or-unmarked"
+          }
+        ]
+      },
+      "witness": "data/corpus.jsonl ldl121-echiyapi-*"
+    },
+    {
+      "entity": "language:lkt:obligation:contextual-syntax-arcs",
+      "attribute": "communicating.researchObligation",
+      "value": {
+        "maturity": "Roadmap",
+        "area": "syntax",
+        "source": "data/research-obligations.json"
+      },
+      "witness": "data/research-obligations.json:contextual-syntax-arcs"
+    },
+    {
+      "entity": "language:lkt:obligation:broader-verb-classes",
+      "attribute": "communicating.researchObligation",
+      "value": {
+        "maturity": "Roadmap",
+        "area": "morphotactics",
+        "source": "data/research-obligations.json"
+      },
+      "witness": "data/research-obligations.json:broader-verb-classes"
+    },
+    {
+      "entity": "language:lkt:obligation:productive-generation",
+      "attribute": "communicating.researchObligation",
+      "value": {
+        "maturity": "Roadmap",
+        "area": "generation",
+        "source": "data/research-obligations.json"
+      },
+      "witness": "data/research-obligations.json:productive-generation"
+    },
+    {
+      "entity": "language:lkt:obligation:enclitic-system",
+      "attribute": "communicating.researchObligation",
+      "value": {
+        "maturity": "Roadmap",
+        "area": "enclitics",
+        "source": "data/research-obligations.json"
+      },
+      "witness": "data/research-obligations.json:enclitic-system"
+    },
+    {
+      "entity": "language:lkt:obligation:semantic-complements",
+      "attribute": "communicating.researchObligation",
+      "value": {
+        "maturity": "Roadmap",
+        "area": "semantics",
+        "source": "data/research-obligations.json"
+      },
+      "witness": "data/research-obligations.json:semantic-complements"
+    },
+    {
+      "entity": "language:lkt:obligation:orthography-policy",
+      "attribute": "communicating.researchObligation",
+      "value": {
+        "maturity": "Roadmap",
+        "area": "orthography",
+        "source": "data/research-obligations.json"
+      },
+      "witness": "data/research-obligations.json:orthography-policy"
+    },
+    {
+      "entity": "language:lkt:obligation:source-governance",
+      "attribute": "communicating.researchObligation",
+      "value": {
+        "maturity": "Roadmap",
+        "area": "governance",
+        "source": "data/research-obligations.json"
+      },
+      "witness": "data/research-obligations.json:source-governance"
+    },
+    {
+      "entity": "language:lkt:maturity",
+      "attribute": "communicating.maturityReport",
+      "value": {
+        "source": "data/maturity.json",
+        "maturityTags": [
+          "Built+green",
+          "Proven-in-Lean",
+          "Research-grade",
+          "Roadmap"
+        ],
+        "provenInLean": "none-claimed"
+      },
+      "witness": "data/maturity.json"
+    }
+  ],
+  "lambek": {
+    "categories": [
+      "S",
+      "NP",
+      "N",
+      "VP",
+      "SOV",
+      "active-stative"
+    ],
+    "judgments": [
+      {
+        "expression": "miyé waŋ yúta",
+        "type": "S",
+        "source": "manifest.sample"
+      }
+    ]
+  },
+  "sofic": {
+    "alphabet": [
+      "C",
+      "V"
+    ],
+    "graph": [
+      [
+        false,
+        true
+      ],
+      [
+        true,
+        true
+      ]
+    ],
+    "factor": [
+      0,
+      1
+    ],
+    "sample": [
+      0,
+      1,
+      0,
+      1
+    ],
+    "note": "Lakȟótiyapi finite segment-shape witness; language-specific phonology can refine this carrier later."
+  },
+  "chu": {
+    "pts": [
+      "asserted",
+      "denied",
+      "contested",
+      "unheard"
+    ],
+    "sts": [
+      "truth",
+      "falsity"
+    ],
+    "matrix": [
+      {
+        "pt": "asserted",
+        "st": "truth",
+        "charge": "active"
+      },
+      {
+        "pt": "asserted",
+        "st": "falsity",
+        "charge": "absurd"
+      },
+      {
+        "pt": "denied",
+        "st": "truth",
+        "charge": "absurd"
+      },
+      {
+        "pt": "denied",
+        "st": "falsity",
+        "charge": "potential"
+      },
+      {
+        "pt": "contested",
+        "st": "truth",
+        "charge": "stable"
+      },
+      {
+        "pt": "contested",
+        "st": "falsity",
+        "charge": "stable"
+      },
+      {
+        "pt": "unheard",
+        "st": "truth",
+        "charge": "absurd"
+      },
+      {
+        "pt": "unheard",
+        "st": "falsity",
+        "charge": "absurd"
+      }
+    ]
+  },
+  "discourseCover": {
+    "entities": 6,
+    "cells": 6,
+    "components": 1,
+    "note": "Lakȟótiyapi discourse cover keeps one finite H1 coordination loop available for ambiguity or contradiction."
+  }
+}

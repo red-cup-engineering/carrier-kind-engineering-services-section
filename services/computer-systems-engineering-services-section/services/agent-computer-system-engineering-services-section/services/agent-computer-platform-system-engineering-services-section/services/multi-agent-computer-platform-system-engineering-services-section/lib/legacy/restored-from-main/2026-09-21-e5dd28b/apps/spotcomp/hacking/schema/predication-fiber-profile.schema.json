@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/predication-fiber-profile.schema.json",
+  "title": "SPOTCOMP predication fiber algebra profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "base",
+    "fiberAlgebra",
+    "operations",
+    "fibration",
+    "hyperdoctrine",
+    "specializationBoundary",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "base": { "$ref": "#/$defs/base" },
+    "fiberAlgebra": { "$ref": "#/$defs/fiberAlgebra" },
+    "operations": { "$ref": "#/$defs/operations" },
+    "fibration": { "$ref": "#/$defs/fibration" },
+    "hyperdoctrine": { "$ref": "#/$defs/hyperdoctrine" },
+    "specializationBoundary": { "$ref": "#/$defs/specializationBoundary" },
+    "implementationBoundary": { "$ref": "#/$defs/implementationBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "base": {
+      "type": "object",
+      "required": [
+        "parameterLatticeDeclared",
+        "predicateCategoryDeclared",
+        "entitySetDeclared",
+        "predicateFamilyUniform",
+        "chargeCarrier",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "parameterLatticeDeclared": { "const": true },
+        "predicateCategoryDeclared": { "const": true },
+        "entitySetDeclared": { "const": true },
+        "predicateFamilyUniform": { "const": true },
+        "chargeCarrier": { "const": "L x L" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "fiberAlgebra": {
+      "type": "object",
+      "required": [
+        "formula",
+        "index",
+        "chargeComponents",
+        "valuationAcrossPredicates",
+        "pointwiseOperations",
+        "knowledgeOrderStructural",
+        "truthOrderLoadBearing",
+        "uniformAcrossPredicates",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "formula": { "const": "A_p = (L x L)^(E x E)" },
+        "index": { "const": "E x E" },
+        "chargeComponents": {
+          "type": "array",
+          "items": { "enum": ["positive-evidence", "negative-evidence"] },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "valuationAcrossPredicates": { "const": "p |-> A_p" },
+        "pointwiseOperations": { "const": true },
+        "knowledgeOrderStructural": { "const": true },
+        "truthOrderLoadBearing": { "const": true },
+        "uniformAcrossPredicates": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "operation": {
+      "type": "object",
+      "required": ["declared", "pointwise"],
+      "additionalProperties": false,
+      "properties": {
+        "declared": { "const": true },
+        "pointwise": { "const": true },
+        "formula": { "type": "string", "minLength": 1 }
+      }
+    },
+    "operations": {
+      "type": "object",
+      "required": [
+        "knowledgeMeet",
+        "knowledgeJoin",
+        "truthMeet",
+        "truthJoin",
+        "negation",
+        "fusion",
+        "residual",
+        "negationSwapsEvidence",
+        "fusionResidualTruthAdjunction",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "knowledgeMeet": { "$ref": "#/$defs/operation" },
+        "knowledgeJoin": { "$ref": "#/$defs/operation" },
+        "truthMeet": { "$ref": "#/$defs/operation" },
+        "truthJoin": { "$ref": "#/$defs/operation" },
+        "negation": { "$ref": "#/$defs/operation" },
+        "fusion": { "$ref": "#/$defs/operation" },
+        "residual": { "$ref": "#/$defs/operation" },
+        "negationSwapsEvidence": { "const": true },
+        "fusionResidualTruthAdjunction": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "fibration": {
+      "type": "object",
+      "required": [
+        "kind",
+        "baseCategory",
+        "axioms",
+        "generatorClasses",
+        "reindexingsAreBilatticeResiduatedHomomorphisms",
+        "knowledgeMonotone",
+        "functor",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "cloven-grothendieck-fibration" },
+        "baseCategory": { "const": "predicate-category" },
+        "axioms": {
+          "type": "array",
+          "items": {
+            "enum": ["fiber-uniformity", "generator-action", "fiber-structure-preservation"]
+          },
+          "minItems": 3,
+          "uniqueItems": true
+        },
+        "generatorClasses": {
+          "type": "array",
+          "items": {
+            "enum": ["specialization", "converse", "subject-projection", "object-projection"]
+          },
+          "minItems": 4,
+          "uniqueItems": true
+        },
+        "reindexingsAreBilatticeResiduatedHomomorphisms": { "const": true },
+        "knowledgeMonotone": { "const": true },
+        "functor": { "const": "C^op -> DBiLat(L)" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "hyperdoctrine": {
+      "type": "object",
+      "required": [
+        "propertyLike",
+        "requiresFibration",
+        "axioms",
+        "fusionFrobeniusAvailable",
+        "twoAdjointSystemsIndependent",
+        "classicalCollapseMergesAdjoints",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "propertyLike": { "const": true },
+        "requiresFibration": { "const": true },
+        "axioms": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "knowledge-quantifier-adjoints",
+              "truth-quantifier-adjoints",
+              "knowledge-frobenius",
+              "truth-frobenius",
+              "beck-chevalley",
+              "dual-comprehension"
+            ]
+          },
+          "minItems": 6,
+          "uniqueItems": true
+        },
+        "fusionFrobeniusAvailable": { "const": false },
+        "twoAdjointSystemsIndependent": { "const": true },
+        "classicalCollapseMergesAdjoints": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "specializationBoundary": {
+      "type": "object",
+      "required": [
+        "fourIsBooleanSpecialization",
+        "fourOnlyWhenLIsBoolean",
+        "booleanCollapseOptional",
+        "classicalRelationIsDoubleCollapse",
+        "nonFourFibersLegal",
+        "activeFourCodeProjectionOnly",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fourIsBooleanSpecialization": { "const": true },
+        "fourOnlyWhenLIsBoolean": { "const": true },
+        "booleanCollapseOptional": { "const": true },
+        "classicalRelationIsDoubleCollapse": { "const": true },
+        "nonFourFibersLegal": { "const": true },
+        "activeFourCodeProjectionOnly": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "implementationBoundary": {
+      "type": "object",
+      "required": [
+        "traceValuesCarryDeclaredFiber",
+        "rejectUndeclaredFiberCarrier",
+        "doNotRequireFourValues",
+        "finiteProjectionMayTargetFour",
+        "preserveDatumAcrossReindexing",
+        "reindexingMustDeclareGeneratorClass",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "traceValuesCarryDeclaredFiber": { "const": true },
+        "rejectUndeclaredFiberCarrier": { "const": true },
+        "doNotRequireFourValues": { "const": true },
+        "finiteProjectionMayTargetFour": { "const": true },
+        "preserveDatumAcrossReindexing": { "const": true },
+        "reindexingMustDeclareGeneratorClass": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "@lenticule-science/obsmetrologic-settlement",
+  "version": "0.1.1",
+  "type": "module",
+  "description": "The settlement node of the Obsmetrologia proof tree: reach a settlement by iterating a knowledge-monotone, inflationary step to its least fixed point, with the pointwise knowledge-join semilattice over the cells, the settling-monotonicity gate, and a per-cell committed-knowledge tracker. Carrier-generic \u2014 the cell fiber is a parameter \u2014 with one bound instance over @lenticule-science/articulating's Charge/FOUR.",
+  "keywords": [
+    "obsmetrologia",
+    "settlement",
+    "settling",
+    "fixed-point",
+    "knowledge-order",
+    "bilattice",
+    "four-valued",
+    "semilattice"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/bare-cedar-fog.git",
+    "directory": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-proofing-system-services-section/services/obsmetrologic-settlement-engineering-services-section"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/settlement.d.mts",
+      "import": "./src/settlement.mjs"
+    },
+    "./wire": "./src/wire.mjs",
+    "./cli": "./apps/settlement-cli.mjs",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "settlement-cli": "apps/settlement-cli.mjs"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "apps",
+    "data/records/schema",
+    "content",
+    "README.md",
+    "dist"
+  ],
+  "sideEffects": false,
+  "dependencies": {
+    "@lenticule-science/articulating": "0.5.1",
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0",
+    "@red-cup-engineering/read-javascript-node-standard-input-text-service": "0.2.1"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "build": "tsc --allowJs --declaration --emitDeclarationOnly --outDir dist --module nodenext --target es2024 --skipLibCheck src/settlement.mjs"
+  }
+}

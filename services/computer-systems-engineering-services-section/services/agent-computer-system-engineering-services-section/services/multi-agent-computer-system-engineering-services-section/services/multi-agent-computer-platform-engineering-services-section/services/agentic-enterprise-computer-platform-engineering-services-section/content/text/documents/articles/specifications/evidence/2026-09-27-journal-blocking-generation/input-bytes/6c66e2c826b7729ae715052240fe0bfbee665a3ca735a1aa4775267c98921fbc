@@ -1,0 +1,34 @@
+---
+title: Preserve retained admission decisions during causal reconstruction
+date-created: 2026-09-27
+type: fabrication specification
+status: closed codemod order; generation and independent receiving pending
+derived-from: 2026-09-27-muse-assist-journal-operation-lld.md
+derived-from-sha256: a88f18b3b61b5643745e6582a8b4f0677bfbf5954d0c7aaa84067ab883d7fb77
+---
+
+Realize L-O22 through the existing F-P01–F-P06 source-patchset contract and L-F01–L-F07 isolation and independent receiving. The useful effect is preservation of historically blocked events and their blocked descendants when rebuilding from retained sources. Extend the existing Code causal substrate; do not create a second reconstruction service or move pure causal judgment into Systems. This dependency is required by the shared journal owner. Its acceptance alone does not establish a usable journal or assistant.
+
+## F-R01 — Exact writable scope and input boundary
+
+The only writable file is `src/semiotic-eavt/journal/substrate.mjs` under the existing Code section, with original SHA-256 `bbeaf4c9a918f0e16787b461c46aefe46458aa31d47fbacfe8d8586d3151b84c`. Submit an edit patchset with exact-substring replacements; source creation, deletion and changes to other modules are refused. Preserve the existing exports evaluateWitnessDependencies, CausalSubstrate, createCausalSubstrate and rebuildCausalSubstrate. No new public export or package export is needed. Preserve existing constructor/create entrypoint signatures; an internal initializer may carry validated historical decisions for rebuild without exposing a new admission operation.
+
+Extend rebuildCausalSubstrate with L-O22's optional fourth argument. Before creating/exposing any new source view, validate the retainedObstructions collection as an ordinary dense Array whose own keys are exactly length and contiguous indices, with only data descriptors. Refuse symbols, extra properties, sparse entries, accessors and exotic array prototypes without invoking property accessors. Snapshot each `{event, obstruction}` entry through canonicalizeJson with JSON_RESOURCE_ENVELOPE, then check its exact keys and event through isArtifactRef. This preserves falsy decisions, rejects unsupported JSON and bounds each entry. Sort by event and canonical decision text; omit only canonical duplicates. Do not collapse different decisions for one event. Return L-O22's fixed retained-obstruction-invalid judgment for validation failures. Do not use JSON.stringify on unchecked input or call user getters/toJSON. Collection bounds are the host's already specified source limits, not a new arbitrary low array-length cap.
+
+## F-R02 — Blocking before promotion
+
+Seed the validated immutable historical decision set before any artifact reception or promotion. Historical membership takes precedence in witnessState; a matching core is never added to the quarantined or admitted sets. Both receive and receiveSourceSet must preserve this condition when a formerly absent body arrives. Keep the existing cause-blocked dependency rule, so transitive descendants cannot be promoted. Reuse existing graph-cycle and artifact/core validation. Missing historical body does not create an artifact or core. The fixed retained-block explanation is a derived causal judgment, while every raw historical decision remains separately recoverable.
+
+Retain the original missing-dependency recovery behavior for unrelated unblocked witnesses. An eligible independent witness remains admitted; an unrelated pending witness can become admitted on later source arrival. Three-argument rebuild calls and ordinary receive calls retain their established behavior. A validation failure must not expose a partially built reconstruction or modify caller input. No API adds or removes historical decisions from an existing instance; the host refresh supplies the complete decision set when reconstructing a new logical view.
+
+## F-R03 — Recoverable outputs and purity
+
+Implement retainedObstructions() and the snapshot retainedObstructions field exactly as L-O22. Return deeply immutable canonical snapshots, sorted and deduplicated without changing the original decision's JSON meaning. sourceArtifacts remains actual verified source bodies only; witness lists contain actual cores only; blocked lists include historically blocked references even without a core. Keep other existing snapshot and reception fields and semantics. Do not export host diagnostics, invent an admitted flag, persist a block index, or create a mutable unblocking operation.
+
+Existing direct imports remain allowed: ../identity/index.mjs, ./judgment.mjs, ./causal-graph.mjs and ./witness.mjs. The only additional allowed direct import is @red-cup-engineering/json-services-section for canonicalizeJson and JSON_RESOURCE_ENVELOPE. isArtifactRef is available from the existing identity import. No new dependency installation, filesystem/network/process/environment access, dynamic import, eval or Function construction is authorized. Read-only transitive dependencies must be resolved and content-bound before generation.
+
+## F-R04 — Independent receiving and promotion
+
+Bind this order, L-O22, the exact original module, its read-only API dependencies, the source-patchset schema and a private receiving commitment before the isolated requested GPT-6 Luna call. The public input contains no private fixtures or previous private feedback. Materialize only the declared edit mechanically. Syntax-check the receiving program before its commitment so a fixture infrastructure error cannot be mistaken for candidate failure. Run the candidate with actual artifact/journal primitives in a network-denied namespace.
+
+Independent observations must exercise: a complete blocked cause plus descendant; source and decision permutations; duplicate and differing decisions; absent blocked body followed by receive and receiveSourceSet; a longer descendant chain; unrelated eligible and recoverable pending witnesses; unchanged no-history reconstruction; null/false/zero/string/object decisions; immutable snapshots detached from caller mutation; reconstruction from sourceArtifacts plus retainedObstructions; invalid reference/shape/accessor/sparse collection refusal; and no manufactured source for a bodyless historical block. Review the changed source for hidden host effects and changes outside the selected causal rule. Recheck the exact original source and all bound inputs before promotion. A refused candidate is not hand-repaired or silently regenerated from private failure details. Record the concrete observed effects and limitations, not a general journal or application success claim.

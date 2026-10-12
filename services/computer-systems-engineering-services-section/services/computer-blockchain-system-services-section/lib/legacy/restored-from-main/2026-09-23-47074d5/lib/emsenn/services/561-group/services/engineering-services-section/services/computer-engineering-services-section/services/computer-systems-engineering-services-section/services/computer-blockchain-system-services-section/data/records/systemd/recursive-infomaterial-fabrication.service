@@ -1,0 +1,28 @@
+[Unit]
+Description=Recursive infomaterial fabrication A2A board
+Documentation=file://%h/.local/share/561-group/releases/recursive-infomaterial-fabrication/current/README.md
+After=network-online.target witness-journal-document.service recursive-observation-circuit-synthesis.service hierarchical-circuit-equivalence-assay.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section
+EnvironmentFile=%h/.config/561-group/recursive-infomaterial-fabrication.env
+Environment=PORT=19834
+Environment=HOST=127.0.0.1
+Environment=BASE_URL=http://127.0.0.1:19834
+Environment=AGENT_CARD_SIGNING_KEY=%h/.config/561-group/agent-card-signing/recursive-infomaterial-fabrication-ed25519-private.pem
+Environment=AGENT_CARD_JWKS=%h/.config/561-group/agent-card-signing/recursive-infomaterial-fabrication-jwks.json
+Environment=AGENT_CARD_SIGNING_KID=recursive-infomaterial-fabrication-bare-cedar-fog-ed25519
+ExecStartPre=/usr/bin/test -r %h/.config/561-group/agent-card-signing/recursive-infomaterial-fabrication-ed25519-private.pem
+ExecStartPre=/usr/bin/test -r %h/.config/561-group/agent-card-signing/recursive-infomaterial-fabrication-jwks.json
+ExecStart=/usr/bin/node scripts/serve-recursive-infomaterial-fabrication-a2a.mjs
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=default.target

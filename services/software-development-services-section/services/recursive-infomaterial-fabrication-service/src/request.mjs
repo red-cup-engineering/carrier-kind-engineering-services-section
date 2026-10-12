@@ -1,4 +1,0 @@
-import { checkTerm, decodeSemantic, semanticBytes } from "@red-cup-engineering/rmn-semantic-conformance";
-import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE } from "@red-cup-engineering/rmn-semantic-conformance/relational-value";
-export function encodeFabricationRequest(value) { const encoded = encodeRelationalValue(value); return semanticBytes(["ascribe", encoded.type, encoded.term]); }
-export function decodeFabricationRequest(bytes) { const term = decodeSemantic(bytes); if (!semanticBytes(term).equals(bytes) || term?.[0] !== "ascribe" || term.length !== 3 || JSON.stringify(term[1]) !== JSON.stringify(RELATIONAL_VALUE_TYPE)) throw new Error("fabrication request must be canonical relational RMN"); checkTerm(term[2], term[1]); return decodeRelationalValue(term[1], term[2]); }

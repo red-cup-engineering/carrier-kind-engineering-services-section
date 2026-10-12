@@ -1,0 +1,22 @@
+{
+  "kind": "source-patchset-stage",
+  "version": 1,
+  "inventorySha256": "d6aff367f180875f4d141e5c029603fad64f1b9fae448a6a057be750da269268",
+  "candidateSha256": "1a70ee5a023a5aaa42ae89cb8907fd357a70c60fa310819d83a9735a31cbebcd",
+  "materializerSha256": "40e2f54798ff33e388191744000c934a7ff162cca800be84ead68ad964585f98",
+  "inputs": {
+    "src/semiotic-eavt/journal/substrate.mjs": {
+      "state": "present",
+      "sha256": "6695957bf6ac70b25095a48072bd7760081d120481fafdf197840da74c6e262f",
+      "mode": 420
+    }
+  },
+  "outputs": {
+    "src/semiotic-eavt/journal/substrate.mjs": {
+      "state": "present",
+      "sha256": "039871c716b629da807539e0cd6fe814cc2edabe4915594728f5693e7e6f4d21",
+      "mode": 420
+    }
+  },
+  "disposition": "staged-unaccepted"
+}

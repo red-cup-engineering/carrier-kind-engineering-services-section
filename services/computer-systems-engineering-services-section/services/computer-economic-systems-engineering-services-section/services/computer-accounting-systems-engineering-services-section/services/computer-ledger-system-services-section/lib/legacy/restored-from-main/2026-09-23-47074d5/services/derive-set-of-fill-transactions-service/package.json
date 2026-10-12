@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/derive-set-of-fill-transactions-service",
+  "version": "0.1.0",
+  "description": "Derives Beancount transactions for a chronologically ordered set of venue fills: a FIFO cost-basis lot per custody-account/base-commodity pair opened on each buy with Beancount total-cost `{{...}}` syntax, consumed exactly on each sell with the realized gain or loss posted against the settled proceeds, a separate fee posting when a fill's fee is not already netted into its settled amount, and a refusal (never a booking) for any fill whose supplied witness nodes disagree.",
+  "type": "module",
+  "private": false,
+  "license": "UNLICENSED",
+  "exports": "./scripts/derive-set-of-fill-transactions.mjs",
+  "bin": {
+    "derive-set-of-fill-transactions": "scripts/derive-set-of-fill-transactions.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json",
+    "data/records/schema"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-ledger-system-services-section": "0.4.1",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/derive-set-of-fill-transactions.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

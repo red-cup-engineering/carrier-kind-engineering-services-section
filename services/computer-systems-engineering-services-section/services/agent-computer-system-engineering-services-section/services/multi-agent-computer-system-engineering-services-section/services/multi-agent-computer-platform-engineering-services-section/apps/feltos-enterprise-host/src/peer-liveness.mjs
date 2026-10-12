@@ -16,14 +16,14 @@
  * chosen by policy (optimistic collapses ⊥ to alive, pessimistic to not alive), never a second
  * detector.
  *
- * Witnesses are semantic records in the node's own journal (`record-semantic-record`), told for,
- * against or neither, so liveness is substrate content a peer can federate and an audit can read.
+ * Witnesses are `peer-liveness` records of the node's own store, each carrying the side it was told
+ * on (for, against or neither), so liveness is substrate content a peer can federate and an audit can read.
  */
+import { each, put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
-/** The journal object kind and category liveness witnesses are kept under. */
-export const PEER_LIVENESS_KIND = "peer-liveness";
-const CATEGORY = "heartbeat";
+/** The store type liveness witnesses are kept under. */
+export const PEER_LIVENESS_TYPE = "peer-liveness";
 
 /** The default observation window and suspicion threshold, in seconds. */
 export const LIVENESS_WINDOW_SECONDS = 300;
@@ -103,17 +103,12 @@ export function projectLiveness(reading, policy = "optimistic") {
   throw new TypeError(`peer liveness: unknown projection policy ${policy}`);
 }
 
-const toldOf = (side) => ({ for: side === "for", against: side === "against" });
-const sideOf = (told) => (told.for ? "for" : told.against ? "against" : "none");
+/** The liveness witnesses kept in a node's store at `root`. */
+export const witnessesIn = (root) => [...each(root, PEER_LIVENESS_TYPE)].map(({ record }) => Object.freeze({ ...record }));
 
-/** The liveness witnesses kept in a node journal (`createSemanticRecordJournal`). */
-export const witnessesIn = (journal) => journal.query({ objectKind: PEER_LIVENESS_KIND, category: CATEGORY })
-  .map(({ record, told }) => Object.freeze({ ...record, side: sideOf(told) }));
-
-/** Keep one witness in the journal, told as its side says. */
-export function keepWitness(journal, witness) {
-  const { side, ...record } = witness;
-  journal.record({ objectKind: PEER_LIVENESS_KIND, category: CATEGORY, recordedAt: witness.at, record, told: toldOf(side) });
+/** Keep one witness in the store, as it was told (its `side`). */
+export function keepWitness(root, witness) {
+  put(root, PEER_LIVENESS_TYPE, { ...witness });
 }
 
 /**
@@ -122,20 +117,20 @@ export function keepWitness(journal, witness) {
  * elapsed silence. A refusal is the peer answering: it is a heartbeat here, and a matter of trust,
  * not liveness.
  */
-export function notePeerRun(journal, { observer, peer, now, shipped, failed, presence, thresholdSeconds, windowSeconds }) {
+export function notePeerRun(root, { observer, peer, now, shipped, failed, presence, thresholdSeconds, windowSeconds }) {
   const answered = shipped > 0 || failed.some(({ away: wasAway }) => !wasAway);
   const reachedFor = shipped + failed.length > 0;
-  return noteObservation(journal, { observer, peer, now, answered, reachedFor, presence, thresholdSeconds, windowSeconds });
+  return noteObservation(root, { observer, peer, now, answered, reachedFor, presence, thresholdSeconds, windowSeconds });
 }
 
-function noteObservation(journal, { observer, peer, now, answered, reachedFor, presence, thresholdSeconds, windowSeconds, why, serviceHealth }) {
-  if (answered) keepWitness(journal, { ...heartbeat({ observer, peer, at: now, windowSeconds }), ...(why === undefined ? {} : { why }), ...(serviceHealth === undefined ? {} : { serviceHealth }) });
-  else if (reachedFor) keepWitness(journal, { ...away({ observer, peer, at: now, windowSeconds }), ...(why === undefined ? {} : { why }), ...(serviceHealth === undefined ? {} : { serviceHealth }) });
-  const witnesses = witnessesIn(journal);
+function noteObservation(root, { observer, peer, now, answered, reachedFor, presence, thresholdSeconds, windowSeconds, why, serviceHealth }) {
+  if (answered) keepWitness(root, { ...heartbeat({ observer, peer, at: now, windowSeconds }), ...(why === undefined ? {} : { why }), ...(serviceHealth === undefined ? {} : { serviceHealth }) });
+  else if (reachedFor) keepWitness(root, { ...away({ observer, peer, at: now, windowSeconds }), ...(why === undefined ? {} : { why }), ...(serviceHealth === undefined ? {} : { serviceHealth }) });
+  const witnesses = witnessesIn(root);
   // Only a run that sought the peer and found it away can fire the threshold: a run with nothing to
   // send is no observation of the peer at all.
   const fired = reachedFor && !answered ? suspicion(witnesses, { observer, peer, now, presence, thresholdSeconds, windowSeconds }) : undefined;
-  if (fired !== undefined) keepWitness(journal, fired);
+  if (fired !== undefined) keepWitness(root, fired);
   const all = fired === undefined ? witnesses : [...witnesses, fired];
   return Object.freeze({ reading: currentReading(all, peer), silentSeconds: elapsedSinceHeard(all, peer, now) });
 }
@@ -223,8 +218,8 @@ export async function observePeerHealth(peer, { contract, probe = globalThis.fet
 }
 
 /** The same window/threshold/intermittent policy, with the idle observation named honestly. */
-export function notePeerHealth(journal, { health, ...policy }) {
-  return noteObservation(journal, { ...policy, answered: health.ready === true, reachedFor: health.observed !== false, why: health.reason, serviceHealth: health.readiness });
+export function notePeerHealth(root, { health, ...policy }) {
+  return noteObservation(root, { ...policy, answered: health.ready === true, reachedFor: health.observed !== false, why: health.reason, serviceHealth: health.readiness });
 }
 
 /** Only peers selected by the existing catch-up run, and only when no delivery observed them.

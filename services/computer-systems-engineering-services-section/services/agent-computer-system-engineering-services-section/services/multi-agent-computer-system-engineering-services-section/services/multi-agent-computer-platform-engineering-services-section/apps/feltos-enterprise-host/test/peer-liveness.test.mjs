@@ -3,8 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
-import { away, currentReading, heartbeat, notePeerRun, PEER_LIVENESS_KIND, projectLiveness, readingAt, suspicion, windowOf, witnessesIn } from "../src/peer-liveness.mjs";
+import { away, currentReading, heartbeat, notePeerRun, projectLiveness, readingAt, suspicion, windowOf, witnessesIn } from "../src/peer-liveness.mjs";
 
 // Obsmetrologia, predication-failure-detection-as-bilattice-modal-suspicion: the four suspicion
 // levels are FOUR on alive(observer, peer); ⊥ until the threshold θ; transitions only move up the
@@ -18,7 +17,7 @@ const policy = { thresholdSeconds: 3600, windowSeconds: 300 };
 
 function withJournal(run) {
   const root = mkdtempSync(path.join(tmpdir(), "peer-liveness-"));
-  try { return run(createSemanticRecordJournal({ root, objectKind: PEER_LIVENESS_KIND })); }
+  try { return run(root); }
   finally { rmSync(root, { recursive: true, force: true }); }
 }
 const awayRun = { shipped: 0, failed: [{ away: true }] };
@@ -29,9 +28,9 @@ test("a peer that is away below its threshold reads unknown, never denied", () =
     const noted = notePeerRun(journal, { observer: A, peer: PEER, now: at(minutes), ...awayRun, ...policy });
     assert.equal(noted.reading, "unknown");
   }
-  const kept = journal.query({ category: "heartbeat" });
+  const kept = witnessesIn(journal);
   assert.ok(kept.length >= 4);
-  assert.ok(kept.every(({ told }) => told.for === false && told.against === false), "away is kept told neither way (⊥)");
+  assert.ok(kept.every(({ side }) => side === "none"), "away is kept told neither way (⊥)");
 }));
 
 test("past the threshold the peer reads denied, and a later heartbeat never lowers that window", () => withJournal((journal) => {

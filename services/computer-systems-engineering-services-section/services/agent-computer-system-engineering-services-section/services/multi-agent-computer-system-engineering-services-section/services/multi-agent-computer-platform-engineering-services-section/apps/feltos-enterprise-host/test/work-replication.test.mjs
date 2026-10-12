@@ -3,22 +3,21 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { each, put as putRecord } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { moveOf, workBoard } from "@red-cup-engineering/organizing/enterprise";
-import { catchUpOutcome, coordinatedMovesOf, decidedMovesOf, deliveryAway, entriesOfJournal, failuresSaid, mergeMoves, noteWorkPeerLiveness, replicableMovesOf, shipWorkSince } from "../src/work-replication.mjs";
+import { catchUpOutcome, coordinatedMovesOf, decidedMovesOf, DELIVERY_TYPE, deliveryAway, entriesOfBoard, failuresSaid, mergeMoves, noteShipped, noteWorkPeerLiveness, readShipped, replicableMovesOf, shipWorkSince } from "../src/work-replication.mjs";
 
 const DAY = "2026-10-03";
 const at = (hhmm) => `${DAY}T${hhmm}:00Z`;
 
-/** A board is one journal in its own root, as a settlement keeps it. */
+/** A board is the `work-arena-move` records of its own root, as a settlement keeps them. */
 function board() {
   const root = mkdtempSync(join(tmpdir(), "work-replication-"));
-  const journal = createSemanticRecordJournal({ root, objectKind: "work-arena-move" });
   const put = (move) => {
-    journal.record({ category: "move", recordedAt: move.at, record: JSON.parse(JSON.stringify(move)), told: { for: true, against: false } });
+    putRecord(root, "work-arena-move", JSON.parse(JSON.stringify(move)));
     return move;
   };
-  return { root, entries: () => entriesOfJournal(journal), put, drop: () => rmSync(root, { recursive: true, force: true }) };
+  return { root, entries: () => entriesOfBoard(root), put, drop: () => rmSync(root, { recursive: true, force: true }) };
 }
 
 const aim = moveOf({ move: "aim", by: "enterprise:alpha", purpose: "The harbour stays navigable", at: at("09:00") });
@@ -139,6 +138,21 @@ test("the moves a node decided are the coordinated ones on threads homed there",
   } finally { a.drop(); }
 });
 
+test("a peer's deliveries are records of the settlement's store, kept per peer, one record per move", () => {
+  const root = mkdtempSync(join(tmpdir(), "work-peer-delivery-"));
+  try {
+    const cold = "https://cold.example/actors/metroplat";
+    const bare = "https://bare.example/actors/metroplat";
+    noteShipped(root, cold, ["ni:///sha-256;a", "ni:///sha-256;b"]);
+    noteShipped(root, cold, ["ni:///sha-256;b"]);
+    assert.deepEqual([...readShipped(root, cold)].sort(), ["ni:///sha-256;a", "ni:///sha-256;b"]);
+    assert.equal(readShipped(root, bare).size, 0);
+    const held = [...each(root, DELIVERY_TYPE)];
+    assert.equal(held.length, 2, "a delivery told again is not recorded again");
+    assert.ok(held.every(({ record }) => record.peer === cold));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test("undelivered moves are said by their reasons, the most frequent first", () => {
   const failed = [{ why: "401 Unauthorized" }, { why: "not at home" }, { why: "401 Unauthorized" }, {}];
   assert.equal(failuresSaid(failed), "2 × 401 Unauthorized; 1 × not at home; 1 × no reason given");
@@ -192,8 +206,7 @@ test("a multi-peer catch-up keeps answered and unreachable peers distinct in the
       { peer: "https://away.example/actors/metroplat", liveness: "unknown" },
     ]);
     assert.equal(report.liveness, undefined);
-    const journal = createSemanticRecordJournal({ root: state.root, objectKind: "peer-liveness" });
-    const records = journal.query({ category: "heartbeat" }).map(({ record }) => record);
+    const records = [...each(state.root, "peer-liveness")].map(({ record }) => record);
     assert.equal(records.length, 2);
     assert.equal(records.every(({ observer }) => observer === "observer"), true);
     assert.equal(new Set(records.map(({ peer }) => peer)).size, 2);

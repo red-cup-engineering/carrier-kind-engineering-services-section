@@ -1,0 +1,11 @@
+minimumReleaseAgeExclude:
+  - '@lenticule-science/metrologic@0.1.0'
+  - '@red-cup-engineering/animating@0.1.1 || 0.2.1'
+  - '@red-cup-engineering/communicating@0.1.1'
+  - '@red-cup-engineering/computing@0.1.1 || 0.2.0'
+  - '@red-cup-engineering/gaming@0.1.1 || 0.1.3 || 0.1.5'
+  - '@red-cup-engineering/knowing@0.1.1'
+  - '@red-cup-engineering/playing@0.1.1'
+  - '@red-cup-engineering/relating@0.1.5'
+  - '@red-cup-engineering/socializing@0.1.1'
+  - '@lenticule-science/work-science-services-section@0.1.1'

@@ -1,0 +1,430 @@
+{
+  "admit-row": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": ["e", "a", "v", "t"],
+      "properties": {
+        "e": {},
+        "a": {},
+        "v": {},
+        "t": {}
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": ["e", "a", "v", "t"],
+      "properties": {
+        "e": {},
+        "a": {},
+        "v": {},
+        "t": {}
+      },
+      "additionalProperties": false
+    }
+  },
+  "encode-row": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": ["e", "a", "v", "t"],
+      "properties": {
+        "e": {},
+        "a": {},
+        "v": {},
+        "t": {}
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    }
+  },
+  "decode-row": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": ["e", "a", "v", "t"],
+      "properties": {
+        "e": {},
+        "a": {},
+        "v": {},
+        "t": {}
+      },
+      "additionalProperties": false
+    }
+  },
+  "identify-row": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "required": ["e", "a", "v", "t"],
+      "properties": {
+        "e": {},
+        "a": {},
+        "v": {},
+        "t": {}
+      },
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "string"
+    }
+  },
+  "deduplicate-rows": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["e", "a", "v", "t"],
+        "properties": {
+          "e": {},
+          "a": {},
+          "v": {},
+          "t": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["e", "a", "v", "t"],
+        "properties": {
+          "e": {},
+          "a": {},
+          "v": {},
+          "t": {}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "list-entities": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["e", "a", "v", "t"],
+        "properties": {
+          "e": {},
+          "a": {},
+          "v": {},
+          "t": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array"
+    }
+  },
+  "current-facts": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["e", "a", "v", "t"],
+        "properties": {
+          "e": {},
+          "a": {},
+          "v": {},
+          "t": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["e", "a", "v", "t"],
+        "properties": {
+          "e": {},
+          "a": {},
+          "v": {},
+          "t": {}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "latest-attributes": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["e", "a", "v", "t"],
+            "properties": {
+              "e": {},
+              "a": {},
+              "v": {},
+              "t": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "attributes": {
+          "type": "array"
+        }
+      },
+      "required": ["rows", "attributes"],
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["e", "a", "v", "t"],
+        "properties": {
+          "e": {},
+          "a": {},
+          "v": {},
+          "t": {}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "select-relations": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["e", "a", "v", "t"],
+            "properties": {
+              "e": {},
+              "a": {},
+              "v": {},
+              "t": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "attribute": {},
+        "value": {}
+      },
+      "required": ["rows", "attribute"],
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["e", "a", "v", "t"],
+        "properties": {
+          "e": {},
+          "a": {},
+          "v": {},
+          "t": {}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "read-contradictions": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["e", "a", "v", "t"],
+            "properties": {
+              "e": {},
+              "a": {},
+              "v": {},
+              "t": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "entity": {}
+      },
+      "required": ["rows", "entity"],
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "entity": {},
+        "affirmed": {
+          "type": "array"
+        },
+        "denied": {
+          "type": "array"
+        },
+        "contradicted": {
+          "type": "array"
+        }
+      },
+      "required": ["entity", "affirmed", "denied", "contradicted"],
+      "additionalProperties": false
+    }
+  },
+  "filter-consent": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["e", "a", "v", "t"],
+            "properties": {
+              "e": {},
+              "a": {},
+              "v": {},
+              "t": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "audience": {}
+      },
+      "required": ["rows", "audience"],
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["e", "a", "v", "t"],
+            "properties": {
+              "e": {},
+              "a": {},
+              "v": {},
+              "t": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "withheld": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["rows", "withheld"],
+      "additionalProperties": false
+    }
+  },
+  "constitute-entity": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^:]+$"
+        },
+        "attributes": {
+          "type": "object"
+        },
+        "t": {}
+      },
+      "required": ["kind", "attributes", "t"],
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "genesis": {
+          "type": "object",
+          "required": ["e", "a", "v", "t"],
+          "properties": {
+            "e": {},
+            "a": {},
+            "v": {},
+            "t": {}
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["address", "genesis"],
+      "additionalProperties": false
+    }
+  },
+  "count-relation-nerve": {
+    "input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["e", "a", "v", "t"],
+            "properties": {
+              "e": {},
+              "a": {},
+              "v": {},
+              "t": {}
+            },
+            "additionalProperties": false
+          }
+        },
+        "attribute": {}
+      },
+      "required": ["rows", "attribute"],
+      "additionalProperties": false
+    },
+    "output": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "vertices": {
+          "type": "integer"
+        },
+        "edges": {
+          "type": "integer"
+        },
+        "components": {
+          "type": "integer"
+        },
+        "cycles": {
+          "type": "integer"
+        }
+      },
+      "required": ["vertices", "edges", "components", "cycles"],
+      "additionalProperties": false
+    }
+  }
+}

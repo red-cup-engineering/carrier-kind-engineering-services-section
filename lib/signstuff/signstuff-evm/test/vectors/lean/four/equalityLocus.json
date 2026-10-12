@@ -1,0 +1,18 @@
+{"suite":"four-mix","declaration":"ObsmetrologiaConformance.FourMix.equalityLocus","cases":[
+  {"op":"equalityLocus","args":[[false,false],[false,false]],"result":false},
+  {"op":"equalityLocus","args":[[false,false],[true,false]],"result":false},
+  {"op":"equalityLocus","args":[[false,false],[false,true]],"result":false},
+  {"op":"equalityLocus","args":[[false,false],[true,true]],"result":true},
+  {"op":"equalityLocus","args":[[true,false],[false,false]],"result":false},
+  {"op":"equalityLocus","args":[[true,false],[true,false]],"result":true},
+  {"op":"equalityLocus","args":[[true,false],[false,true]],"result":false},
+  {"op":"equalityLocus","args":[[true,false],[true,true]],"result":true},
+  {"op":"equalityLocus","args":[[false,true],[false,false]],"result":false},
+  {"op":"equalityLocus","args":[[false,true],[true,false]],"result":false},
+  {"op":"equalityLocus","args":[[false,true],[false,true]],"result":true},
+  {"op":"equalityLocus","args":[[false,true],[true,true]],"result":true},
+  {"op":"equalityLocus","args":[[true,true],[false,false]],"result":true},
+  {"op":"equalityLocus","args":[[true,true],[true,false]],"result":true},
+  {"op":"equalityLocus","args":[[true,true],[false,true]],"result":true},
+  {"op":"equalityLocus","args":[[true,true],[true,true]],"result":true}
+]}

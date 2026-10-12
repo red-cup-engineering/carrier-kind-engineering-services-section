@@ -1,0 +1,17 @@
+{
+  "id": "clockkeeper",
+  "name": "Clockkeeper",
+  "kind": "office",
+  "normative-structure": "The office answers for the world's clock: that each contracted schedule's due occurrence runs once, as its account, through the catalog, and that its outcome is recorded; never for whether the scheduled work succeeds, which is the scheduled office's own record.",
+  "deontic-profile": {
+    "keeping-the-clock": "duty"
+  },
+  "authority-scope": [
+    "./"
+  ],
+  "jurisdiction": "metroplat",
+  "x-provenance": {
+    "recorded-by": "claude-opus-5-5",
+    "recorded-on": "2026-09-26"
+  }
+}

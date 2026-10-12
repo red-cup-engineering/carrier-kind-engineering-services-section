@@ -1,0 +1,3 @@
+---
+title: "Predicated astronomy — Concepts"
+---

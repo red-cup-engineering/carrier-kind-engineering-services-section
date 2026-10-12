@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/library/condensing/library/quantum-spacetime/library/collapsing/library/classical-spacetime/library/thermalizing/library/thermal-spacetime/thermal-spacetime.schema.json",
+  "title": "thermal-spacetime",
+  "description": "The codomain of thermalizing: the finite rung — the sheaf, the glued global section, H¹=0. Is the kernel's finite settlement; physically thermodynamics (properties of the whole glued thing), the heat-death fixed point (plastic ρ). Stub: the descent bottoms out (informational -> quantum -> classical -> thermal). To merge here: the old cosmic-thermalization / cosmic-finite-thermalization-algebra.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "thermal-spacetime" },
+    "kind": { "type": "string", "const": "category" },
+    "is": { "type": "string", "const": "finite-settlement" },
+    "generated-by": { "type": "string", "const": "thermalizing" },
+    "status": { "type": "string", "const": "stub" }
+  },
+  "required": ["name", "is", "generated-by"]
+}

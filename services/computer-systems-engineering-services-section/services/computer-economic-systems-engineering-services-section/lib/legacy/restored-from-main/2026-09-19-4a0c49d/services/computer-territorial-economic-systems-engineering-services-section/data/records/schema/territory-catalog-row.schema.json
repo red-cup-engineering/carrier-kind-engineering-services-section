@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "@red-cup-engineering/computer-territorial-economic-systems-engineering-services-section/data/records/schema/territory-catalog-row.schema.json",
+  "title": "territory catalog row",
+  "description": "One row for one material (a species, a mineral, or a knowledge) catalogued for a place in the Turtle Island taxonomy, per the hopeium capability specification's territory catalog (ii). A thin allOf profile over Cistern's resource-row.schema.json (the base is never copied): every catalog row is a resource row first (identity.kind 'commodity' or 'scarce-input', identity.issuer the territory's holder or 'unknown', the two-witness witnesses/provenance blocks), profiled with the taxonomy place, the material's identity, its known products and markets, the chain position the place currently holds, and the benefit-sharing record its holder's row enters under, if any. A row that names a holder in identity.issuer (anything other than 'unknown') and carries no benefitSharingRecord is invalid: the catalog never names a holder without a benefit-sharing record. Neither this schema nor the base closes its top-level object (json-schema-services-section's bounded evaluator does not implement unevaluatedProperties, the standard keyword an allOf composition needs to close itself without duplicating the other branch's field names; see the 2026-09-06 admitted friction on this schema and on the base). Every nested object this profile declares (territory, material, each knownProducts/markets item) is fully closed with additionalProperties:false.",
+  "allOf": [
+    {
+      "$ref": "@red-cup-engineering/computer-economic-systems-engineering-services-section/data/records/schema/resource-row.schema.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "territory",
+        "material",
+        "knownProducts",
+        "markets",
+        "chainPositionHeld",
+        "benefitSharingRecord",
+        "observedAt"
+      ],
+      "properties": {
+        "territory": {
+          "type": "object",
+          "description": "The taxonomy node this material is catalogued for.",
+          "required": ["path", "plainName"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The taxonomy node's repo-relative path under turtle-island-ecological-adaptation-services."
+            },
+            "plainName": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The node's plain place name (e.g. 'North Shore', 'Lake Superior')."
+            }
+          }
+        },
+        "material": {
+          "type": "object",
+          "description": "What the catalogued material is.",
+          "required": ["scientificName", "commonName", "materialKind"],
+          "additionalProperties": false,
+          "properties": {
+            "scientificName": {
+              "type": ["string", "null"],
+              "description": "The accepted scientific name (a species binomial), or null when the material is a mineral or a knowledge with no such name."
+            },
+            "commonName": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The material's plain common name."
+            },
+            "materialKind": {
+              "enum": ["species", "mineral", "knowledge"],
+              "description": "species: a living organism; mineral: a non-living geological material; knowledge: a practice or form held rather than grown or mined."
+            }
+          }
+        },
+        "knownProducts": {
+          "type": "array",
+          "description": "The material's known products and uses, each cited to a first-party source.",
+          "items": {
+            "type": "object",
+            "required": ["product", "use", "citation"],
+            "additionalProperties": false,
+            "properties": {
+              "product": { "type": "string", "minLength": 1 },
+              "use": { "type": "string", "minLength": 1 },
+              "citation": {
+                "type": "object",
+                "required": ["sourceUrl", "sourceTitle", "accessedOn"],
+                "additionalProperties": false,
+                "properties": {
+                  "sourceUrl": { "type": "string", "minLength": 1 },
+                  "sourceTitle": { "type": "string", "minLength": 1 },
+                  "accessedOn": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        "markets": {
+          "type": "array",
+          "description": "Known buyers or market channels for the material or its products, each cited to a first-party source.",
+          "items": {
+            "type": "object",
+            "required": ["buyer", "kind", "citation"],
+            "additionalProperties": false,
+            "properties": {
+              "buyer": { "type": "string", "minLength": 1 },
+              "kind": { "type": "string", "minLength": 1, "description": "What kind of buyer or channel this is (a reference-implementation cooperative, a state regulator's licensed harvest market, a wholesaler, 'unknown')." },
+              "citation": {
+                "type": "object",
+                "required": ["sourceUrl", "sourceTitle", "accessedOn"],
+                "additionalProperties": false,
+                "properties": {
+                  "sourceUrl": { "type": "string", "minLength": 1 },
+                  "sourceTitle": { "type": "string", "minLength": 1 },
+                  "accessedOn": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        "chainPositionHeld": {
+          "description": "The chain position (per territorial-economy-science-services-section's chain-position term) the place currently holds for this material, with a one-sentence evidence label, or the string 'unknown' when no source establishes one.",
+          "oneOf": [
+            { "const": "unknown" },
+            {
+              "type": "object",
+              "required": ["position", "evidence"],
+              "additionalProperties": false,
+              "properties": {
+                "position": { "type": "string", "minLength": 1 },
+                "evidence": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        },
+        "benefitSharingRecord": {
+          "type": ["string", "null"],
+          "description": "The id of the benefit-sharing register record this row enters under, or null when none exists yet. Null is required, never optional, when identity.issuer names an actual holder (anything other than 'unknown')."
+        },
+        "observedAt": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ISO 8601 date this row's facts were assembled."
+        }
+      },
+      "if": {
+        "properties": {
+          "identity": {
+            "type": "object",
+            "required": ["issuer"],
+            "properties": {
+              "issuer": { "not": { "const": "unknown" } }
+            }
+          }
+        },
+        "required": ["identity"]
+      },
+      "then": {
+        "required": ["benefitSharingRecord"],
+        "properties": {
+          "benefitSharingRecord": { "not": { "type": "null" } }
+        }
+      }
+    }
+  ]
+}

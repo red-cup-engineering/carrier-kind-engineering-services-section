@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/library/condensing/condensing.schema.json",
+  "title": "condensing",
+  "description": "The transfinite generator: consume the twistor residue (the concept) as the predicate dimension and the saturated object as the entity dimension, and emit the value-free amplitude fibration Φ = quantum × mode × quantum. Is the kernel's predicate (it twistors internally, then condenses). Info theory: the residue is semantic information; condensing symmetrizes it (exchangeability / de Finetti) into shared Bose modes — information twistoring into Bose condensation. The output cell is value-free (superposition). io types are the kernel's via the promoted voidmath-kernel-schema package.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "condensing" },
+    "kind": { "type": "string", "const": "morphism" },
+    "is": { "type": "string", "const": "predicate" },
+    "domain": { "type": "string", "const": "bit" },
+    "codomain": { "type": "string", "const": "quantum-spacetime" },
+    "generator-of": { "type": "string", "const": "quantum-spacetime" },
+    "io": { "$ref": "https://voidmath.active.development.561.group/articulating/library/category/predicating/predicating.schema.json" }
+  },
+  "required": ["name", "is", "codomain"]
+}

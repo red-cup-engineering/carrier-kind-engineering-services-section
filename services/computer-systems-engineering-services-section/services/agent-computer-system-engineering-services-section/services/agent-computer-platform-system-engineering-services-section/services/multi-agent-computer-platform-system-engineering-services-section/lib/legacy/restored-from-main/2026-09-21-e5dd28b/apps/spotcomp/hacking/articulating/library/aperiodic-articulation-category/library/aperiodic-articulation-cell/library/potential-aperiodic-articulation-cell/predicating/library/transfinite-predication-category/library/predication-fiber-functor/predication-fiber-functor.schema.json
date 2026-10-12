@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-fiber-functor/predication-fiber-functor.schema.json",
+  "title": "Predication fiber functor",
+  "description": "The transfinite predication-tier precursor to predication-fibration: the contravariant functor F from the opposite predicate-category to distributive bilattice-valued predicate fibers. It presents the raw fiber data and the four-generator reindexing action before positing packages the same data as a cloven Grothendieck fibration for Scott-continuous rule firing. This object is structural; it is not a valuation, trace, or finite graph of assignments.",
+  "type": "object",
+  "required": [
+    "cell-set",
+    "base",
+    "entity-set",
+    "bilattice"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "cell-set": {
+      "description": "The predication-cell-set Phi = E x Pi x E whose predicate coordinate indexes the fibers.",
+      "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/predication-cell-set.schema.json"
+    },
+    "base": {
+      "description": "The base predicate-category C. Its four generator families determine the contravariant reindexing action.",
+      "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/predicate-category.schema.json"
+    },
+    "entity-set": {
+      "description": "The entity-set E used by every predicate fiber A_p = L^twist^(E x E).",
+      "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/category/library/entity-set/entity-set.schema.json"
+    },
+    "bilattice": {
+      "description": "The bilattice coordinate supplying the distributive bilattice codomain of each predicate-indexed fiber.",
+      "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/library/bilattice/bilattice.schema.json"
+    }
+  }
+}
