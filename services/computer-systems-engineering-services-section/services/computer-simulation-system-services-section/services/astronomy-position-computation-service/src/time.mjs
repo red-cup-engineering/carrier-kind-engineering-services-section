@@ -41,3 +41,24 @@ export function terrestrialJulianDay(julianDayUt) {
 export function julianCenturies(julianDayTt) {
   return (julianDayTt - J2000) / 36_525;
 }
+
+/**
+ * Invert the modelled UT -> TT mapping at the instant it names.
+ * Julian-day event solvers operate on TT; formatting their root directly
+ * as a UTC timestamp silently adds Delta T (about 69 s in 2026).
+ * This is a numerical inverse of our stated Delta-T model, not a claim
+ * that the model represents historical Earth rotation to one-second accuracy.
+ */
+export function universalJulianDay(julianDayTt) {
+  if (!Number.isFinite(julianDayTt)) throw new TypeError("julianDayTt must be finite");
+  let estimate = julianDayTt;
+  for (let i = 0; i < 4; i += 1) {
+    estimate = julianDayTt - deltaTSeconds(estimate) / 86_400;
+  }
+  return estimate;
+}
+
+/** Format a TT event root as the UTC instant represented by our Delta-T law. */
+export function isoUtcFromTerrestrialJulianDay(julianDayTt) {
+  return isoFromJulianDay(universalJulianDay(julianDayTt));
+}

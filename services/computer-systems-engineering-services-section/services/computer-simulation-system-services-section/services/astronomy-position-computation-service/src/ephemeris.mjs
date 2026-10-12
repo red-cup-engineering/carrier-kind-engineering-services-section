@@ -15,7 +15,7 @@
 //   slow-planet events to ~hours, as their motion near exactness is slow.
 
 import { BODIES } from "./positions.mjs";
-import { isoFromJulianDay, julianCenturies, julianDayFromIso, terrestrialJulianDay } from "./time.mjs";
+import { isoUtcFromTerrestrialJulianDay, julianCenturies, julianDayFromIso, terrestrialJulianDay } from "./time.mjs";
 import { normalizeDegrees } from "./coordinates.mjs";
 import { findCircleCrossings, findZeroCrossings } from "./events.mjs";
 import {
@@ -275,7 +275,7 @@ export function findStations(body, isoStart, isoEnd) {
     crossings.map((crossing) =>
       Object.freeze({
         body,
-        time: isoFromJulianDay(crossing.julianDay),
+        time: isoUtcFromTerrestrialJulianDay(crossing.julianDay),
         stationTo: crossing.direction === "decreasing" ? "retrograde" : "direct",
         longitude: bodyLongitude(body, crossing.julianDay),
       }),
@@ -293,7 +293,7 @@ export function findExactAspects(bodyA, bodyB, angle, isoStart, isoEnd) {
   const events = [];
   for (const target of targets) {
     for (const crossing of findCircleCrossings(relative, target, jdStart, jdEnd, { stepDays })) {
-      events.push(Object.freeze({ bodyA, bodyB, angle, time: isoFromJulianDay(crossing.julianDay) }));
+      events.push(Object.freeze({ bodyA, bodyB, angle, time: isoUtcFromTerrestrialJulianDay(crossing.julianDay) }));
     }
   }
   return Object.freeze(events.sort((a, b) => a.time.localeCompare(b.time)));
@@ -308,7 +308,7 @@ export function findLunationQuarters(isoStart, isoEnd) {
   const events = [];
   for (let index = 0; index < 4; index += 1) {
     for (const crossing of findCircleCrossings(elongation, index * 90, jdStart, jdEnd, { stepDays: 0.2 })) {
-      events.push(Object.freeze({ time: isoFromJulianDay(crossing.julianDay), quarter: QUARTER_NAMES[index] }));
+      events.push(Object.freeze({ time: isoUtcFromTerrestrialJulianDay(crossing.julianDay), quarter: QUARTER_NAMES[index] }));
     }
   }
   return Object.freeze(events.sort((a, b) => a.time.localeCompare(b.time)));
