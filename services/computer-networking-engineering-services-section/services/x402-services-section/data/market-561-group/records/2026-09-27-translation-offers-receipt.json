@@ -1,0 +1,112 @@
+{
+  "recordType": "561-group.x402-market-offer-receipt",
+  "date": "2026-09-27",
+  "market": "market.561.group",
+  "face": "edge",
+  "offers": [
+    "POST /v1/translate/zh-en",
+    "POST /v1/translate/zh-en/cdrama-subtitles",
+    "POST /v1/translate/zh-en/interlinear (Node face)"
+  ],
+  "price": "$0.01 per call, up to 4,000 source characters",
+  "compute": "@red-cup-engineering/computer-language-systems-engineering-services-section ./translation (translateMandarinToEnglish, translateCdramaSubtitles), calling Workers AI through the Worker AI binding: @cf/zai-org/glm-4.7-flash, then @cf/qwen/qwen3.8-27b",
+  "modelTrial": "2026-09-27, ten C-drama lines and one business letter: m2m100-1.2b garbled forms of address and names; deepseek-v4-flash and kimi-k2.6 need the Workers paid plan; glm-4.7-flash and qwen3.8-27b both read well, glm more faithful at about an eighth of the neurons (about 6 against 50 per ten lines).",
+  "deployment": {
+    "recordedAt": "2026-09-27T15:44Z",
+    "workerVersion": "9fe284be-cef3-44dc-9799-7bb76b723326",
+    "offersServed": 47,
+    "liveChecks": {
+      "POST /v1/translate/zh-en {text:hello}": 422,
+      "POST /v1/translate/zh-en {text,subtitles}": 422,
+      "POST /v1/translate/zh-en {text:你好，世界。}": "402 exact Base USDC 10000 atomic to 0x32886F6F361C1d570255c2762967A2e41D0E9B1a, bazaar extension present",
+      "POST /v1/translate/zh-en/cdrama-subtitles (same three)": "422, 422, 402"
+    }
+  },
+  "listingPurchases": {
+    "note": "One paid call per route from the Group wallet 0x42F72C0a340A4A55C082Fe42483e87691D2bff64 (org-owned, the retired ephemeris payout address) to the market payout address, so the CDP facilitator processes a payment for each route and the x402 Bazaar can catalog it.",
+    "purchases": [
+      {
+        "route": "/v1/translate/zh-en",
+        "status": 200,
+        "amountAtomic": "10000",
+        "transaction": "0xe28279c79c118c10ed6b763ec27553dd4acfca682b66d2bcfe97258315fe1b53",
+        "network": "eip155:8453",
+        "block": 51867402
+      },
+      {
+        "route": "/v1/translate/zh-en/cdrama-subtitles",
+        "status": 200,
+        "amountAtomic": "10000",
+        "transaction": "0x25c1a6832603e777023353a2be2dba6ae26a80444f4dab563fd849a30a80c9ec",
+        "network": "eip155:8453",
+        "block": 51867410
+      },
+      {
+        "route": "/v1/translate/zh-en/interlinear",
+        "status": 200,
+        "amountAtomic": "10000",
+        "transaction": "0xa5b6c8c4ca5947971c5d3cfc4744ba137f216826188adaa2e3cd52432c15838f",
+        "network": "eip155:8453",
+        "settledBy": "the Node face (PayAI facilitator)",
+        "levels": [
+          "hanzi",
+          "pinyin",
+          "gloss",
+          "natural"
+        ]
+      }
+    ],
+    "bazaarAt": "2026-09-27T15:51Z the CDP discovery listing did not yet show either route (its only 561 entry was ephemeris.561.group)"
+  },
+  "registrations402index": {
+    "derivedBy": "scripts/derive-402index-registrations.mjs --runtime edge, filtered to the two routes, with no contact email",
+    "firstAttempt": "2026-09-27T15:51:52Z both 422 x402 verification failed; retried at once",
+    "registered": [
+      {
+        "url": "https://market.561.group/v1/translate/zh-en",
+        "status": 201,
+        "serviceId": "8c2b69a9-9123-4c7e-aee8-176d8f52a0d0",
+        "message": "Service registered and live (domain verified)."
+      },
+      {
+        "url": "https://market.561.group/v1/translate/zh-en/cdrama-subtitles",
+        "status": 201,
+        "serviceId": "d5d56820-e42a-47bd-8c57-0cad469b1edb",
+        "message": "Service registered and live (domain verified)."
+      },
+      {
+        "url": "https://market.561.group/v1/translate/zh-en/interlinear",
+        "status": 201,
+        "serviceId": "0ddf1082-dd3b-4523-a099-894a07d53c20",
+        "message": "Service registered and live (domain verified)."
+      }
+    ]
+  },
+  "bazaar": {
+    "recordedAt": "2026-09-27T16:11Z",
+    "listed": [
+      "https://market.561.group/v1/translate/zh-en",
+      "https://market.561.group/v1/translate/zh-en/cdrama-subtitles"
+    ],
+    "note": "The CDP discovery listing showed both edge routes about twenty minutes after their first CDP-processed payments."
+  },
+  "redeployments": [
+    {
+      "recordedAt": "2026-09-27T16:22Z",
+      "edgeWorkerVersion": "460947dc-fa76-4a89-8f29-f7865be8ef7e",
+      "offersServed": 48,
+      "added": [
+        "level and levels (grammatical, natural, localized) on both edge routes",
+        "POST /v1/translate/zh-en/interlinear, runtime node, proxied by the edge to the Node face"
+      ],
+      "nodeFace": "cold-red-gate release tree synced for the text section, the inference engine cloudflare runner, the language systems section (with the Mandarin fiber) and the x402 section; pnpm install --filter @red-cup-engineering/x402-services-section...; CLOUDFLARE_ACCOUNT_ID and API_KEY_CLOUDFLARE_WORKERS_AI added to the market rails env from the host koios-news.env; market-561-group-node.service restarted, 48 offers",
+      "liveChecks": {
+        "POST /v1/translate/zh-en/interlinear {text:hello}": 422,
+        "POST /v1/translate/zh-en/interlinear {text:你好}": 402,
+        "POST /v1/translate/zh-en {text:你好, level:pinyin}": 422,
+        "POST /v1/translate/zh-en {text:你好, levels:[grammatical,natural]}": 402
+      },
+      "coldStart": "One unpaid request returned Cloudflare 503 Worker exceeded resource limits right after deployment and the next ones answered 402: a cold start of the whole market over the Workers free plan CPU limit, which applies to every edge offer."
+    }
+  ]
+}

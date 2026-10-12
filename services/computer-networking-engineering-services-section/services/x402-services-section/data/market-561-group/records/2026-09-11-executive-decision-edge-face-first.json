@@ -1,0 +1,33 @@
+{
+  "type": "org.emsenn.executive-decision.v1",
+  "recordedAt": "2026-09-11",
+  "by": "worker:claude acting for the chief executive under directive:do-all-deferred-work-as-ceo",
+  "subject": "where market.561.group runs first",
+  "facts": [
+    "The Google Cloud project five-six-one-group-dev has billing disabled (gcloud billing projects describe, 2026-09-11): Cloud Build, Artifact Registry, and Secret Manager refuse, so no new image can be built or deployed to Cloud Run; the paid-ephemeris-gateway service still runs on its 2026-08-15 image.",
+    "This machine holds a Cloudflare OAuth login for wrangler (account 337e54ee6dc7d488933f473204a6d89e) and a wrangler binary; the five retired sellers' Workers (paid-pacing-intelligence-gateway, paid-value-chain-gateway, paid-orphan-patch-triage-gateway, base-chain-data-gateway, 561-group-market-site) still exist.",
+    "The market engine already has a Workers face (createMarketWorker); the two DE440 precision offers shell out to the pinned oxieph binary and need a Node host; every other offer runs on a fetch-handler host."
+  ],
+  "decision": [
+    "Serve market.561.group from the edge face (apps/market-561-group/src/worker.mjs, wrangler.jsonc) now, with every offer not declared runtime node; the two precision offers are unsold until the Node runner has a public host.",
+    "Keep the Node runner's Cloud Run carrier (lib/cloud-run) ready; it deploys the whole catalog the day billing is enabled on the project or another Node host is chosen.",
+    "Retire the five Workers and the ephemeris Cloud Run service and its ephemeris.561.group domain mapping only after the edge face answers live 402 challenges on market.561.group for the catalog's routes.",
+    "Use PayAI's keyless facilitator on the edge face (as the retired Workers did); the CDP facilitator stays the Node runner's, where its secrets live."
+  ],
+  "askOfTheFounder": "Enable billing on five-six-one-group-dev (or name another Node host) so the Node runner and the precision offers go live; nothing else in this decision needs a human hand.",
+  "furtherDecisions": [
+    {
+      "subject": "the HBD rail (x402-hive-exit-tightness-seller-service)",
+      "facts": [
+        "The house HBD scheme is an x402 v1-shaped, memo-addressed hbd-transfer flow verified against two public Hive nodes (x402-hbd-scheme-service: form, verify, settle); it has no x402 v2 client scheme, so no buyer agent can pay it through a v2 challenge today.",
+        "x402-hive-exit-tightness-seller-service is one exported operation (sellHiveExitTightnessResource) with no transport, domain, or runner of its own; there is nothing of it to retire.",
+        "No settlement in HBD has ever been witnessed for it; the pool's Hive settlement is a separate program (pool-service)."
+      ],
+      "decision": [
+        "The market gains a second scheme (an in-process hive:mainnet facilitator over x402-hbd-scheme-service's verify and settle, and a SchemeNetworkServer for the hbd-transfer price) the day a buyer-side x402 v2 client scheme for HBD exists or a buyer asks; until then the market settles only the exact EVM scheme.",
+        "x402-hive-exit-tightness-seller-service stays as the library it already is, pinned to x402-hbd-scheme-service 0.2.0; it is not a catalog entry and is not counted as a per-compute runner.",
+        "This closes the finding 2026-09-11-finding-x402-hive-exit-tightness-seller-service-not-yet-foldable.json as decided, not deferred."
+      ]
+    }
+  ]
+}

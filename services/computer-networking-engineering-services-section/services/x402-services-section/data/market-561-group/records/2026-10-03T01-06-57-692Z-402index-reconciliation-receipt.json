@@ -1,0 +1,150 @@
+{
+  "recordType": "561-group.x402-market-402index-reconciliation-receipt",
+  "observedAt": "2026-10-03T01:06:57.692Z",
+  "index": "https://402index.io",
+  "market": "market.561.group",
+  "derivedBy": "apps/market-561-group/scripts/reconcile-402index-listings.mjs",
+  "dryRun": false,
+  "ownership": "proven",
+  "summary": {
+    "derived": 61,
+    "sellable": 48,
+    "unsellable": 13,
+    "listed": 53,
+    "registered": 0,
+    "patched": 3,
+    "withdrawn": 5,
+    "aliases": 0
+  },
+  "registered": [],
+  "patched": [
+    {
+      "serviceId": "21e3cefc-7fe6-41ea-9a48-e41a59e669ec",
+      "url": "https://market.561.group/v1/base-chain/gas-oracle",
+      "drift": {
+        "name": "Base Gas Oracle",
+        "description": "Current Base network gas price, read live from a public Base RPC node (eth_gasPrice) and returned in both wei and gwei with the snapshot block it was read at.",
+        "category": "chain-data",
+        "price_usd": 0.001
+      },
+      "status": 200
+    },
+    {
+      "serviceId": "8c2b69a9-9123-4c7e-aee8-176d8f52a0d0",
+      "url": "https://market.561.group/v1/translate/zh-en",
+      "drift": {
+        "name": "Mandarin Chinese to English Translation",
+        "description": "Translate Mandarin Chinese (Simplified or Traditional) into clear, natural American English: plain text by paragraph, or SRT/WebVTT subtitles returned in the same format with timings kept. Names, numbers, dates and units are kept exactly; names are romanized in pinyin. Up to 4000 source characters per call, at a chosen naturalization level (grammatical, natural, localized). Every line comes back beside its source, checked for glossary terms, untranslated characters and subtitle fit.",
+        "category": "translation",
+        "price_usd": 0.01
+      },
+      "status": 200
+    },
+    {
+      "serviceId": "d5d56820-e42a-47bd-8c57-0cad469b1edb",
+      "url": "https://market.561.group/v1/translate/zh-en/cdrama-subtitles",
+      "drift": {
+        "name": "C-Drama Episode Subtitles zh-en",
+        "description": "Translate a short-drama episode, retaining subtitle cue identity and timing. A private series key carries approved terminology into later episodes and unambiguous renderings into the reverse direction. Output is a draft with mechanical checks and requires review before production approval.",
+        "category": "translation",
+        "price_usd": 0.01
+      },
+      "status": 200
+    }
+  ],
+  "withdrawn": [
+    {
+      "serviceId": "affa0204-931e-4340-9562-f1f09b5a3444",
+      "url": "https://market.561.group/v1/medical-glossary/search?q=catatonia&limit=5",
+      "status": 200
+    },
+    {
+      "serviceId": "8befdc16-800e-4c2a-9f9c-39d19ab6ace3",
+      "url": "https://market.561.group/v1/medical-glossary/term/catatonia",
+      "status": 200
+    },
+    {
+      "serviceId": "c035a1c0-786b-42da-a0d7-658391e686b4",
+      "url": "https://market.561.group/v1/medical-glossary/neighborhood/catatonia",
+      "status": 200
+    },
+    {
+      "serviceId": "f8c44bfb-de74-4683-8d2c-9b7bcc91ecc2",
+      "url": "https://market.561.group/territory/readout",
+      "status": 200
+    },
+    {
+      "serviceId": "715365b8-93e8-49ab-b4dc-8d8dac98781f",
+      "url": "https://market.561.group/value-chain/shares",
+      "status": 200
+    }
+  ],
+  "aliases": [],
+  "unsellable": [
+    {
+      "url": "https://market.561.group/v1/publications/the-agent-operators-handbook",
+      "name": "The Agent Operator's Handbook",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/publications/the-x402-economy",
+      "name": "The x402 Economy",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/publications/project-management-course-by-course",
+      "name": "Project Management, Course by Course",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/publications/the-capm-domain-by-domain",
+      "name": "Project Management Fundamentals, Domain by Domain",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/publications/data-analytics-course-by-course",
+      "name": "Data Analytics, Course by Course",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/publications/ux-design-course-by-course",
+      "name": "UX Design, Course by Course",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/publications/business-management-course-by-course",
+      "name": "Business Management, Course by Course",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/publications/business-strategy-course-by-course",
+      "name": "Business Strategy, Course by Course",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/translate/cdrama/review",
+      "name": "Review a C-Drama Episode",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/translate/cdrama/episode",
+      "name": "Retrieve a C-Drama Episode",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/inference",
+      "name": "Metered RMN Inference",
+      "status": 422
+    },
+    {
+      "url": "https://market.561.group/v1/strategies/synthesize",
+      "name": "Brokerage Strategy Program Foundry",
+      "status": 500
+    },
+    {
+      "url": "https://market.561.group/v1/four/reading-truth-meet",
+      "name": "Reading Truth Meet",
+      "status": 404
+    }
+  ]
+}

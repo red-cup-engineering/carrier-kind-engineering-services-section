@@ -1,0 +1,33 @@
+{
+  "name": "@red-cup-engineering/serve-google-oauth-service",
+  "version": "0.1.5",
+  "type": "module",
+  "description": "Composes Google identity, OAuth state, persistence, metadata, and HTTP resources into an authorization server.",
+  "keywords": [
+    "oauth",
+    "google",
+    "authorization-server",
+    "http"
+  ],
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "package.json",
+    "src",
+    "test",
+    "README.md"
+  ],
+  "scripts": {
+    "check": "node --check src/*.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@red-cup-engineering/http-services-section": "0.6.0",
+    "@red-cup-engineering/oauth-services-section": "0.1.0",
+    "@red-cup-engineering/google-oauth-services-section": "0.1.0"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

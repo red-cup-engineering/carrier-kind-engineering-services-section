@@ -1,0 +1,63 @@
+{
+  "id": "named-wallets-use-named-services-free",
+  "name": "Certain wallet addresses use certain services for free",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "Configure it so certain wallet addresses can use certain services for free; aim toward it with the most upstream and coherent systems.",
+  "met-when": [
+    {
+      "cell": "named-wallets-use-named-services-free:conditions-stated",
+      "target": "held"
+    }
+  ],
+  "tier": "routine",
+  "x-provenance": {
+    "recorded-by": "general-2 pass of debt-2026-10-09-leader-words-held-in-corpus (Red Cup Engineer Senior)",
+    "recorded-on": "2026-10-10",
+    "section": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section",
+    "class": "requirement",
+    "authority": "party:emsenn",
+    "sources": [
+      {
+        "at": "2026-09-28T00:33:41.805Z",
+        "locator": "lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/2026-08-26--2026-10-10.jsonl#ni:///sha-256;wqb6O0VMEhrT-DmzqNNxqe4z54OMCpBiFxlw5hmEaXg",
+        "session": "d6271b1b-349c-4dad-9904-0fa5d53ddd54",
+        "words": "Oh I guess I'd also like to configure it so that certain wallet addresses can use certain services for free?\n\nThat'd be a cool feature, I'm not sure the best way to implement it with our most upstream and coherent systems, but it'd be good to aim toward."
+      }
+    ],
+    "board-opening": {
+      "speech-act": "request",
+      "need": "Certain wallet addresses use certain services for free",
+      "scope": [
+        "section:services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section"
+      ],
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "The x402 gateway shall serve a named service without payment to a request signed by a wallet address on that service's free-use list.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "Leader, 2026-09-28."
+        },
+        {
+          "id": "R2",
+          "says": "The free-use list shall be a derived record held at the service's owning section, not a list in gateway code.",
+          "class": "design",
+          "moscow": "must",
+          "rationale": "Leader, 2026-09-28: implement with the most upstream and coherent systems."
+        }
+      ]
+    },
+    "pending-conditions": "No met-when was stated; this condition stands unsettled (read unknown) until a check that exercises the requirement replaces it.",
+    "customer": "urn:leader:emsenn",
+    "utterances": [
+      "ni:///sha-256;wqb6O0VMEhrT-DmzqNNxqe4z54OMCpBiFxlw5hmEaXg"
+    ],
+    "basis": "Leader utterances cited by address; EARS rendering of what those words state, with no scope the words do not.",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;h_ilVoPCYFAM2uTaX71rbvcmPr736wFDdVS0IcpLdI0",
+      "cell": "ni:///sha-256;2WWPLFJl55Yzij1U75GCAsCTJ2Bh6R0AY5yJiPfCu3Q"
+    }
+  }
+}

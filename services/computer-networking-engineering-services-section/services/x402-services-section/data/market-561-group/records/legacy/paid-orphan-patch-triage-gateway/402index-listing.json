@@ -1,0 +1,45 @@
+{
+  "note": "2026-09-08: the gateway's shared application (src/application.mjs, used by both worker.mjs and server.mjs) gained a GET /.well-known/402index-verify.txt route (serves env.INDEX_VERIFICATION_HASH as text/plain, 404 when unset) and was redeployed. POST /api/v1/claim {\"domain\":\"orphan-patch.561.group\"} returned verification_hash da8c5c97cf9ecb434f53a0596c1aef4fd90539f74678e2688696a02f3664b73b, set as the INDEX_VERIFICATION_HASH secret via `wrangler secret put`. GET https://orphan-patch.561.group/.well-known/402index-verify.txt then served that hash (HTTP 200, text/plain). POST /api/v1/claim/verify {\"domain\":\"orphan-patch.561.group\"} returned {\"status\":\"verified\",\"services_count\":1,\"retroactively_approved\":1}. The service id below now resolves with \"status\":\"active\" and \"approval_reason\":\"domain-verified\" (its top-level verified/domain_verified integer fields still read 0 despite the domain claim being verified -- the same 402index API quirk observed on base-chain-data-gateway).",
+  "status": "live (Cloudflare Workers custom domain orphan-patch.561.group; Base mainnet settlement via facilitator.payai.network; payout to founder-controlled 0x32886F6F361C1d570255c2762967A2e41D0E9B1a)",
+  "provider": "561 Group",
+  "domainClaim": {
+    "domain": "orphan-patch.561.group",
+    "verifiedAt": "2026-09-08T05:00:17Z",
+    "verificationHash": "da8c5c97cf9ecb434f53a0596c1aef4fd90539f74678e2688696a02f3664b73b",
+    "checkedWellKnown": {
+      "url": "https://orphan-patch.561.group/.well-known/402index-verify.txt",
+      "checkedAt": "2026-09-08T05:00:13Z",
+      "httpStatus": 200,
+      "contentType": "text/plain",
+      "body": "da8c5c97cf9ecb434f53a0596c1aef4fd90539f74678e2688696a02f3664b73b"
+    },
+    "outcome": "POST /api/v1/claim/verify returned status \"verified\", services_count 1, retroactively_approved 1."
+  },
+  "listings": [
+    {
+      "title": "Orphan-Patch Triage Score",
+      "description": "x402 seller wrapping a deterministic orphan-patch scorer: send advisories, maintenance, and dependents data, pay the x402 exact-EVM challenge, receive a ranked candidate list of packages with disclosed unpatched advisories, silent maintainers, and many dependents.",
+      "category": "security",
+      "network": "Base",
+      "method": "POST",
+      "url": "https://orphan-patch.561.group/v1/orphan-patch/score",
+      "probeBody": "{\"advisories\":[{\"id\":\"GHSA-2026-0001\",\"package\":\"left-pad-example\",\"ecosystem\":\"npm\",\"severity\":\"high\",\"published\":\"2026-01-15T00:00:00Z\",\"fixedVersion\":null}],\"maintenance\":[{\"package\":\"left-pad-example\",\"ecosystem\":\"npm\",\"lastReleaseDaysAgo\":900,\"openIssueResponseDaysMedian\":null}],\"dependents\":[{\"package\":\"left-pad-example\",\"ecosystem\":\"npm\",\"dependentCount\":4200}]}",
+      "price": "$0.02",
+      "priceAtomicUsdc": "20000",
+      "registration": {
+        "request": "POST https://402index.io/api/v1/register {\"url\":\"https://orphan-patch.561.group/v1/orphan-patch/score\",\"name\":\"Orphan-Patch Triage Score\",\"protocol\":\"x402\",...}",
+        "httpStatus": 201,
+        "registeredAt": "2026-09-08 04:25:43"
+      },
+      "402indexServiceId": "da57b5f7-548f-466e-b64d-751149919532",
+      "statusFieldsAtRegistration": {
+        "status": "active",
+        "health_status": "healthy",
+        "x402_payment_valid": null,
+        "domain_verified": 0,
+        "approval_reason": "domain-verified"
+      },
+      "subsequentGetServiceById": "GET /api/v1/services/da57b5f7-548f-466e-b64d-751149919532 -> HTTP 200, \"status\":\"active\", \"approval_reason\":\"domain-verified\" (checked 2026-09-08T05:00Z, after the claim/verify call retroactively approved this domain's service)"
+    }
+  ]
+}

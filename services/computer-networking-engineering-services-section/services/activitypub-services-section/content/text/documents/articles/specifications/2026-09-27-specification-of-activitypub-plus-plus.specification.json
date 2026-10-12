@@ -1,0 +1,730 @@
+{
+  "identity": {
+    "version": "0.1.0",
+    "stability": "draft",
+    "status": "draft",
+    "date-created": "2026-09-27",
+    "id": "activitypub-plus-plus",
+    "title": "ActivityPub++: One Federated Carrier for Activities, Events, Agent Messages and Payments",
+    "seat": "activitypub-services-section",
+    "carrier": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/content/text/documents/articles/specifications/2026-09-27-specification-of-activitypub-plus-plus.md",
+    "authors": [
+      "emsenn",
+      "claude-opus-5-5"
+    ]
+  },
+  "whatThisIs": "ActivityPub++ is the profile a node speaks to join the Semioverse, the 561 Group's federated network named after the Fediverse. It composes four open protocols into one nesting instead of four neighbouring services: an ActivityPub activity carries one CloudEvents envelope, whose data is one A2A message, whose single part is a content-addressed SEN object. Payment and authority (x402, UCAN, CapTP, an EVM anchor) appear only inside that A2A message, when the message actually carries them. This document states that nesting as requirements, so that a second implementation can interoperate with the house one without reading its code. It is derived from the [Semioverse](lib/emsenn/services/561-group/services/engineering-services-section/content/text/glossary/terms/semioverse.md) term, the [activitypub-services-section README, \"Union transport\"](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/README.md), and the projection and extraction the house code enforces in [sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs).",
+  "topics": [
+    {
+      "heading": "Terminology",
+      "body": "- **Node**: a server that speaks ActivityPub++. The Semioverse is the network of nodes, not a server; its intended server is [MOOSE](lib/emsenn/services/561-group/services/engineering-services-section/content/text/glossary/terms/moose.md), which no package yet carries.\n- **Actor**: an ActivityPub actor hosted by a node.\n- **SEN object**: a value in the house semiotic expression notation, encoded as the canonical normalized-content envelope and carried as `application/sen+cbor` bytes.\n- **Envelope**: the CloudEvents event that carries one A2A message.\n- **ni name**: an RFC 6920 `ni:///sha-256;` URI naming bytes by their SHA-256 digest ({{standard:rfc6920}}).",
+      "clauses": []
+    },
+    {
+      "heading": "One Public Face",
+      "body": "A node federates through ActivityPub and nothing beside it. {{standard:activitypub}} supplies actors, inboxes, outboxes and delivery; {{standard:activitystreams}} supplies the vocabulary; {{standard:webfinger}} and {{standard:nodeinfo}} make actors and nodes discoverable.\n\n{{clause:one-face}}\n\n{{clause:no-direct-a2a}}\n\n{{clause:signed-admission}}\n\n{{clause:closed-inbox}}",
+      "clauses": [
+        {
+          "id": "one-face",
+          "keyword": "MUST",
+          "actor": "A node",
+          "statement": "give each actor exactly one public ActivityPub face, at the actor URL `<origin>/actors/<identifier>`",
+          "backedBy": [
+            "[activitypub-services-section README, \"Union transport\"](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/README.md)",
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "no-direct-a2a",
+          "keyword": "MUST NOT",
+          "actor": "A node",
+          "statement": "expose a public A2A listener beside its ActivityPub face; A2A is the operation language inside the federated carrier, not a second public transport",
+          "backedBy": [
+            "[activitypub-services-section README, \"Union transport\"](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/README.md)",
+            "[Semioverse](lib/emsenn/services/561-group/services/engineering-services-section/content/text/glossary/terms/semioverse.md)"
+          ]
+        },
+        {
+          "id": "signed-admission",
+          "keyword": "MUST",
+          "actor": "A node",
+          "statement": "verify the signature or proof on every inbound activity before its inbox callback runs, and offer no unsigned-admission mode",
+          "backedBy": [
+            "[activitypub-services-section README, \"Union transport\"](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/README.md)"
+          ]
+        },
+        {
+          "id": "closed-inbox",
+          "keyword": "MUST",
+          "actor": "A node that has no receiving workflow for an actor",
+          "statement": "answer a POST to that actor's inbox with 405 rather than accept and discard the activity",
+          "backedBy": [
+            "[activitypub-services-section README, \"Publication profile\"](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/README.md)"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "The Activity",
+      "body": "An ActivityPub++ activity is an ordinary ActivityStreams activity whose object is one document naming one envelope.\n\n{{clause:activity-types}}\n\n{{clause:object-document}}\n\n{{clause:data-uri}}\n\n{{clause:data-uri-digest}}\n\n{{clause:size-bound}}\n\n{{clause:size-bound-receiver}}\n\n{{clause:agent-card}}\n\n{{clause:https}}\n\n{{clause:activity-id}}\n\nThe object therefore has this shape, with the envelope's bytes inline ({{standard:data-url}}):\n\n```json\n{\n  \"@context\": \"https://www.w3.org/ns/activitystreams\",\n  \"id\": \"https://node.example/activities/sen-<digest>\",\n  \"type\": \"Offer\",\n  \"actor\": \"https://node.example/actors/seller\",\n  \"to\": \"https://peer.example/actors/buyer\",\n  \"object\": {\n    \"type\": \"Document\",\n    \"mediaType\": \"application/sen+cbor\",\n    \"name\": \"ni:///sha-256;<envelope digest>\",\n    \"url\": { \"type\": \"Link\", \"mediaType\": \"application/sen+cbor\",\n             \"href\": \"data:application/sen+cbor;base64,<envelope bytes>\" }\n  },\n  \"attachment\": { \"type\": \"Link\", \"mediaType\": \"application/json\",\n                  \"name\": \"A2A Agent Card\", \"href\": \"https://node.example/.well-known/agent-card.json\" }\n}\n```",
+      "clauses": [
+        {
+          "id": "activity-types",
+          "keyword": "MUST",
+          "actor": "An ActivityPub++ activity",
+          "statement": "have type `Accept`, `Announce`, `Create`, `Offer`, `Reject` or `Update`",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ],
+          "test": "activitypub-services-section test/sen-activity.test.mjs"
+        },
+        {
+          "id": "object-document",
+          "keyword": "MUST",
+          "actor": "The activity's object",
+          "statement": "be one `Document` with `mediaType` `application/sen+cbor`, whose `name` is the ni name of the envelope bytes and whose `url` is one `Link` with the same media type",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ],
+          "test": "activitypub-services-section test/sen-activity.test.mjs"
+        },
+        {
+          "id": "data-uri",
+          "keyword": "MUST",
+          "actor": "The object's link",
+          "statement": "carry the envelope bytes as one canonical base64 `data:application/sen+cbor` URI",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ],
+          "test": "activitypub-services-section test/sen-activity.test.mjs"
+        },
+        {
+          "id": "data-uri-digest",
+          "keyword": "MUST",
+          "actor": "A receiver",
+          "statement": "reject an activity whose inline envelope bytes do not hash to the object's `name`",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ],
+          "test": "activitypub-services-section test/sen-activity.test.mjs"
+        },
+        {
+          "id": "size-bound",
+          "keyword": "MUST",
+          "actor": "A sender",
+          "statement": "keep the inline envelope bytes nonempty and at most 262,144 bytes",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "size-bound-receiver",
+          "keyword": "MUST",
+          "actor": "A receiver",
+          "statement": "reject inline envelope bytes that are larger than 262,144 bytes or not canonically encoded",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "agent-card",
+          "keyword": "MUST",
+          "actor": "The activity",
+          "statement": "name exactly one A2A Agent Card, as an `attachment` `Link` with `mediaType` `application/json` and `name` \"A2A Agent Card\"",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ],
+          "test": "activitypub-services-section test/sen-activity.test.mjs"
+        },
+        {
+          "id": "https",
+          "keyword": "MUST",
+          "actor": "The actor origin, the recipient and the Agent Card URL",
+          "statement": "use HTTPS, except on loopback addresses during development",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "activity-id",
+          "keyword": "SHOULD",
+          "actor": "A sender",
+          "statement": "derive the activity's `id` from its type, actor, recipient, envelope ni name and Agent Card, so that republishing the same activity yields the same identity",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "The Envelope",
+      "body": "The envelope is a CloudEvents event ({{standard:cloudevents}}) whose fields bind it to the activity that carries it.\n\n{{clause:ce-version}}\n\n{{clause:ce-binding}}\n\n{{clause:ce-type}}\n\n{{clause:ce-data}}\n\n{{clause:ce-id}}\n\n{{clause:ce-id-receiver}}\n\n{{clause:ce-time}}",
+      "clauses": [
+        {
+          "id": "ce-version",
+          "keyword": "MUST",
+          "actor": "The envelope",
+          "statement": "have `specversion` \"1.0\" and exactly the attributes `id`, `specversion`, `source`, `type`, `time`, `subject`, `datacontenttype` and `data`",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "ce-binding",
+          "keyword": "MUST",
+          "actor": "A receiver",
+          "statement": "reject an envelope whose `source` is not the activity's actor or whose `subject` is not the recipient it was addressed to",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "ce-type",
+          "keyword": "MUST",
+          "actor": "The envelope's `type`",
+          "statement": "be `org.harmonious-union.activitypub.<activity type in lower case>.v1`, matching the carrying activity's type",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "ce-data",
+          "keyword": "MUST",
+          "actor": "The envelope",
+          "statement": "declare `datacontenttype` `application/a2a+json` and carry `data` with exactly `profile` \"org.harmonious-union.activitypub.cloudevent.a2a-sen.v1\", `transport` \"A2A\" and one A2A `message`",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "ce-id",
+          "keyword": "MUST",
+          "actor": "The envelope's `id`",
+          "statement": "be the ni name of the envelope's canonical body without its `id`",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "ce-id-receiver",
+          "keyword": "MUST",
+          "actor": "A receiver",
+          "statement": "reject an envelope whose `id` does not name its canonical body",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "ce-time",
+          "keyword": "MUST",
+          "actor": "The envelope's `time`",
+          "statement": "be an RFC 3339 timestamp",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "The Agent Message",
+      "body": "The envelope's data is one message in the Agent2Agent protocol ({{standard:a2a}}). The message, not the activity, is where the operation is stated.\n\n{{clause:a2a-role}}\n\n{{clause:a2a-sen-part}}\n\n{{clause:a2a-part-ni}}\n\n{{clause:a2a-part-ni-receiver}}\n\n{{clause:sen-normalized}}\n\n{{clause:card-signed}}",
+      "clauses": [
+        {
+          "id": "a2a-role",
+          "keyword": "MUST",
+          "actor": "The message",
+          "statement": "have role `ROLE_USER` or `ROLE_AGENT`",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "a2a-sen-part",
+          "keyword": "MUST",
+          "actor": "The message",
+          "statement": "carry exactly one raw part with `mediaType` `application/sen+cbor`",
+          "backedBy": [
+            "[sen-part.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/a2a-services-section/scripts/sen-part.mjs)",
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ]
+        },
+        {
+          "id": "a2a-part-ni",
+          "keyword": "MUST",
+          "actor": "That part",
+          "statement": "state the ni name of its bytes in `metadata.ni`",
+          "backedBy": [
+            "[sen-part.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/a2a-services-section/scripts/sen-part.mjs)"
+          ]
+        },
+        {
+          "id": "a2a-part-ni-receiver",
+          "keyword": "MUST",
+          "actor": "A receiver",
+          "statement": "reject a SEN part whose bytes do not match its `metadata.ni`",
+          "backedBy": [
+            "[sen-part.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/a2a-services-section/scripts/sen-part.mjs)"
+          ]
+        },
+        {
+          "id": "sen-normalized",
+          "keyword": "MUST",
+          "actor": "The part's bytes",
+          "statement": "be canonical normalized SEN content, so that equal values have equal bytes and equal names",
+          "backedBy": [
+            "[sen-activity.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs)"
+          ],
+          "test": "activitypub-services-section test/sen-activity.test.mjs"
+        },
+        {
+          "id": "card-signed",
+          "keyword": "SHOULD",
+          "actor": "A node",
+          "statement": "publish a signed Agent Card, so that a receiver can check the card was issued by the domain it names",
+          "backedBy": [
+            "[agent-card-signing.mjs](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/a2a-services-section/scripts/agent-card-signing.mjs)"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Authority and Payment",
+      "body": "Payment and authority ride inside the agent message. They are never sibling labels on the activity. Payment is {{standard:x402}}.\n\n{{clause:no-sibling-labels}}\n\n{{clause:x402-v2}}\n\n{{clause:x402-in-a2a}}\n\n{{clause:payment-not-authority}}",
+      "clauses": [
+        {
+          "id": "no-sibling-labels",
+          "keyword": "MUST NOT",
+          "actor": "A node",
+          "statement": "mark an activity as carrying UCAN, CapTP, x402 or an EVM anchor unless its A2A message actually carries that authority, invocation, settlement or anchor",
+          "backedBy": [
+            "[activitypub-services-section README, \"Union transport\"](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/README.md)",
+            "[Semioverse](lib/emsenn/services/561-group/services/engineering-services-section/content/text/glossary/terms/semioverse.md)"
+          ]
+        },
+        {
+          "id": "x402-v2",
+          "keyword": "MUST",
+          "actor": "A node that prices an operation",
+          "statement": "state the price and settle it as x402 version 2 payment requirements and payloads",
+          "backedBy": [
+            "[x402 services section README](lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section/README.md)"
+          ]
+        },
+        {
+          "id": "x402-in-a2a",
+          "keyword": "SHOULD",
+          "actor": "A node carrying an x402 exchange inside an A2A message",
+          "statement": "use the message metadata keys of the A2A x402 extension (`x402.payment.status`, `x402.payment.required`, `x402.payment.payload`, `x402.payment.receipts`)",
+          "backedBy": [
+            "[A2A x402 extension v0.1](https://github.com/google-agentic-commerce/a2a-x402)"
+          ]
+        },
+        {
+          "id": "payment-not-authority",
+          "keyword": "MUST NOT",
+          "actor": "A node",
+          "statement": "treat a settled payment as authority to perform an operation that its own admission has not accepted; payment proves a payment event and nothing more",
+          "backedBy": [
+            "[the Group's publishing program note](lib/emsenn/services/561-group/services/561-group-services-section/content/text/documents/articles/notes/2026/09/02/2026-09-02-note-on-the-groups-publishing-program.md)"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Security Considerations",
+      "body": "Every carried byte is named by its digest, so a receiver detects substitution of the envelope or the SEN object; the digests do not authenticate the sender, which is the job of the signature every inbound activity carries.\n\nThe envelope binds its `source` and `subject` to the activity's actor and recipient, so an envelope lifted from one activity and replayed inside another addressed elsewhere is rejected. An identical activity replayed to the same recipient has the same `id`, which lets a receiver's idempotency custody detect it.\n\nThe inline size bound limits the cost of verifying an activity before its signature is checked.\n\nPayment carried inside an agent message inherits the risks of x402 itself: payments applied to the wrong resource, duplicate settlement, overdrawn allowances and delivery on payments that fail.\n\n{{clause:bind-payment}}\n\nActivities addressed to the public collection are readable by anyone, and a payer's address is public on its settlement network; neither is suitable for material its parties need to keep private.",
+      "clauses": [
+        {
+          "id": "bind-payment",
+          "keyword": "MUST",
+          "actor": "A node that sells an operation",
+          "statement": "bind each payment to the exact operation it pays for, and settle it before performing the operation or bear the loss",
+          "backedBy": [
+            "[Ling et al., Free-Riding the Agentic Web, arXiv 2605.30998](https://arxiv.org/abs/2605.30998)",
+            "[Li, Wang and Wang, Five Attacks on x402, arXiv 2605.11781](https://arxiv.org/abs/2605.11781)"
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "IANA Considerations",
+      "body": "This revision makes no request of IANA. It uses two media types that are not registered, `application/sen+cbor` and `application/a2a+json`; registering them, or replacing them with registered types, is an open issue.",
+      "clauses": []
+    }
+  ],
+  "implementations": [
+    {
+      "context": "House activitypub-services-section",
+      "body": "`src/sen-activity.mjs` projects (`projectSenActivity`) and extracts (`extractSenActivity`) the whole nesting and enforces every MUST in The Activity, The Envelope and The Agent Message. The provider (`src/provider.mjs`) is built on Fedify and supplies WebFinger, NodeInfo 2.1, signature verification and delivery."
+    },
+    {
+      "context": "House a2a-services-section and x402-services-section",
+      "body": "`scripts/sen-part.mjs` builds and checks the SEN part; `scripts/agent-card-signing.mjs` signs Agent Cards. The x402 section is the one x402 v2 payment boundary. No house code yet carries an x402 exchange inside an A2A message."
+    },
+    {
+      "context": "Nodes",
+      "body": "On 2026-09-27 no node runs this profile as one server: ActivityPub, A2A and x402 each still have their own HTTP carrier in separate sections, which the one-public-face requirement forbids for a conforming node. MOOSE, the intended node server, has no package."
+    }
+  ],
+  "openQuestions": [
+    {
+      "question": "Which x402 version the A2A carriage uses.",
+      "blockedBy": "the A2A x402 extension v0.1 references x402 version 1, while this profile requires version 2."
+    },
+    {
+      "question": "Whether node-to-node settlement replication travels inside ActivityPub like other activities.",
+      "blockedBy": "MetroPlat federation now posts CloudEvents to a peer's /arrivals route and signs transfers with RFC 9421, a second channel beside the one public face."
+    },
+    {
+      "question": "Whether the envelope type and profile keep the `org.harmonious-union` prefix.",
+      "blockedBy": "a naming decision; renaming changes every envelope type string and breaks interoperation with existing activities."
+    },
+    {
+      "question": "Whether `application/sen+cbor` and `application/a2a+json` are registered.",
+      "blockedBy": "a stable SEN encoding specification to cite in a registration request."
+    },
+    {
+      "question": "Which inbound signature schemes a conforming node must accept.",
+      "blockedBy": "a survey of what deployed Fediverse peers send (HTTP Signatures drafts, RFC 9421, Data Integrity proofs)."
+    }
+  ],
+  "laws": [],
+  "standards": [
+    {
+      "id": "rfc6920",
+      "authority": "IETF",
+      "revision": "RFC 6920",
+      "locator": "https://www.rfc-editor.org/rfc/rfc6920",
+      "applicability": "naming envelope and SEN bytes",
+      "statement": "Naming Things with Hashes"
+    },
+    {
+      "id": "activitypub",
+      "authority": "W3C",
+      "revision": "Recommendation, 23 January 2018",
+      "locator": "https://www.w3.org/TR/activitypub/",
+      "applicability": "actors, inboxes, outboxes, delivery",
+      "statement": "ActivityPub"
+    },
+    {
+      "id": "activitystreams",
+      "authority": "W3C",
+      "revision": "Recommendation, 23 May 2017",
+      "locator": "https://www.w3.org/TR/activitystreams-core/",
+      "applicability": "activity and object vocabulary",
+      "statement": "Activity Streams 2.0"
+    },
+    {
+      "id": "webfinger",
+      "authority": "IETF",
+      "revision": "RFC 7033",
+      "locator": "https://www.rfc-editor.org/rfc/rfc7033",
+      "applicability": "actor discovery",
+      "statement": "WebFinger"
+    },
+    {
+      "id": "nodeinfo",
+      "authority": "NodeInfo",
+      "revision": "2.1",
+      "locator": "https://nodeinfo.diaspora.software/",
+      "applicability": "node discovery",
+      "statement": "NodeInfo"
+    },
+    {
+      "id": "data-url",
+      "authority": "IETF",
+      "revision": "RFC 2397",
+      "locator": "https://www.rfc-editor.org/rfc/rfc2397",
+      "applicability": "inline envelope bytes",
+      "statement": "The \"data\" URL scheme"
+    },
+    {
+      "id": "cloudevents",
+      "authority": "CNCF",
+      "revision": "CloudEvents 1.0",
+      "locator": "https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/spec.md",
+      "applicability": "the envelope",
+      "statement": "CloudEvents specification"
+    },
+    {
+      "id": "a2a",
+      "authority": "Linux Foundation A2A Project",
+      "revision": "Agent2Agent Protocol 1.0",
+      "locator": "https://a2a-protocol.org/",
+      "applicability": "the agent message",
+      "statement": "Agent2Agent (A2A) Protocol"
+    },
+    {
+      "id": "x402",
+      "authority": "x402 Foundation",
+      "revision": "x402 Protocol Specification v2",
+      "locator": "https://github.com/coinbase/x402/blob/main/specs/x402-specification-v2.md",
+      "applicability": "payment",
+      "statement": "x402"
+    }
+  ],
+  "rfc": {
+    "docName": "draft-emsenn-activitypub-plus-plus-00",
+    "abbrev": "ActivityPub++",
+    "category": "info",
+    "submissionType": "independent",
+    "ipr": "trust200902",
+    "date": "2026-09-27",
+    "keywords": [
+      "ActivityPub",
+      "CloudEvents",
+      "A2A",
+      "x402",
+      "federation",
+      "agents"
+    ],
+    "abstract": "This document specifies ActivityPub++, a profile that composes ActivityPub, CloudEvents, the Agent2Agent protocol and x402 into a single federated carrier. An ActivityPub activity carries one CloudEvents envelope; the envelope's data is one A2A message; the message carries one content-addressed object, and carries payment or authority only when it actually states them. Nodes that implement the profile form a federated network the authors call the Semioverse.",
+    "authors": [
+      {
+        "fullname": "emsenn",
+        "organization": "561 Group"
+      }
+    ],
+    "references": {
+      "normative": [
+        {
+          "anchor": "RFC6920",
+          "standard": "rfc6920",
+          "title": "Naming Things with Hashes",
+          "target": "https://www.rfc-editor.org/info/rfc6920",
+          "authors": [
+            {
+              "fullname": "S. Farrell"
+            },
+            {
+              "fullname": "D. Kutscher"
+            },
+            {
+              "fullname": "C. Dannewitz"
+            },
+            {
+              "fullname": "B. Ohlman"
+            },
+            {
+              "fullname": "A. Keranen"
+            },
+            {
+              "fullname": "P. Hallam-Baker"
+            }
+          ],
+          "date": {
+            "year": "2013",
+            "month": "April"
+          },
+          "seriesInfo": [
+            {
+              "name": "RFC",
+              "value": "6920"
+            },
+            {
+              "name": "DOI",
+              "value": "10.17487/RFC6920"
+            }
+          ]
+        },
+        {
+          "anchor": "RFC2397",
+          "standard": "data-url",
+          "title": "The \"data\" URL scheme",
+          "target": "https://www.rfc-editor.org/info/rfc2397",
+          "authors": [
+            {
+              "fullname": "L. Masinter"
+            }
+          ],
+          "date": {
+            "year": "1998",
+            "month": "August"
+          },
+          "seriesInfo": [
+            {
+              "name": "RFC",
+              "value": "2397"
+            },
+            {
+              "name": "DOI",
+              "value": "10.17487/RFC2397"
+            }
+          ]
+        },
+        {
+          "anchor": "RFC7033",
+          "standard": "webfinger",
+          "title": "WebFinger",
+          "target": "https://www.rfc-editor.org/info/rfc7033",
+          "authors": [
+            {
+              "fullname": "P. Jones"
+            },
+            {
+              "fullname": "G. Salgueiro"
+            },
+            {
+              "fullname": "M. Jones"
+            },
+            {
+              "fullname": "J. Smarr"
+            }
+          ],
+          "date": {
+            "year": "2013",
+            "month": "September"
+          },
+          "seriesInfo": [
+            {
+              "name": "RFC",
+              "value": "7033"
+            },
+            {
+              "name": "DOI",
+              "value": "10.17487/RFC7033"
+            }
+          ]
+        },
+        {
+          "anchor": "ActivityPub",
+          "standard": "activitypub",
+          "title": "ActivityPub",
+          "target": "https://www.w3.org/TR/activitypub/",
+          "authors": [
+            {
+              "fullname": "Christine Lemmer-Webber"
+            },
+            {
+              "fullname": "Jessica Tallon"
+            }
+          ],
+          "date": {
+            "year": "2018",
+            "month": "January",
+            "day": "23"
+          },
+          "seriesInfo": [
+            {
+              "name": "W3C Recommendation",
+              "value": "REC-activitypub-20180123"
+            }
+          ]
+        },
+        {
+          "anchor": "ActivityStreams",
+          "standard": "activitystreams",
+          "title": "Activity Streams 2.0",
+          "target": "https://www.w3.org/TR/activitystreams-core/",
+          "authors": [
+            {
+              "fullname": "James Snell"
+            },
+            {
+              "fullname": "Evan Prodromou"
+            }
+          ],
+          "date": {
+            "year": "2017",
+            "month": "May",
+            "day": "23"
+          },
+          "seriesInfo": [
+            {
+              "name": "W3C Recommendation",
+              "value": "REC-activitystreams-core-20170523"
+            }
+          ]
+        },
+        {
+          "anchor": "CloudEvents",
+          "standard": "cloudevents",
+          "title": "CloudEvents - Version 1.0",
+          "target": "https://github.com/cloudevents/spec/blob/v1.0.2/cloudevents/spec.md",
+          "authors": [
+            {
+              "fullname": "CNCF Serverless Working Group",
+              "organization": "Cloud Native Computing Foundation"
+            }
+          ],
+          "date": {
+            "year": "2022"
+          }
+        },
+        {
+          "anchor": "A2A",
+          "standard": "a2a",
+          "title": "Agent2Agent (A2A) Protocol Specification, Version 1.0",
+          "target": "https://a2a-protocol.org/",
+          "authors": [
+            {
+              "fullname": "A2A Project",
+              "organization": "Linux Foundation"
+            }
+          ],
+          "date": {
+            "year": "2026"
+          }
+        },
+        {
+          "anchor": "X402",
+          "standard": "x402",
+          "title": "x402 Protocol Specification, Version 2",
+          "target": "https://github.com/coinbase/x402/blob/main/specs/x402-specification-v2.md",
+          "authors": [
+            {
+              "fullname": "x402 contributors",
+              "organization": "x402 Foundation"
+            }
+          ],
+          "date": {
+            "year": "2025",
+            "month": "December"
+          }
+        }
+      ],
+      "informative": [
+        {
+          "anchor": "NodeInfo",
+          "standard": "nodeinfo",
+          "title": "NodeInfo 2.1",
+          "target": "https://nodeinfo.diaspora.software/",
+          "authors": [
+            {
+              "fullname": "NodeInfo contributors"
+            }
+          ],
+          "date": {
+            "year": "2020"
+          }
+        },
+        {
+          "anchor": "A2A-X402",
+          "title": "x402 Payments Extension for A2A, Version 0.1",
+          "target": "https://github.com/google-agentic-commerce/a2a-x402",
+          "authors": [
+            {
+              "fullname": "A2A x402 contributors"
+            }
+          ],
+          "date": {
+            "year": "2025"
+          }
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "derivedAt": "2026-09-27T20:00:00Z",
+    "derivedBy": "derive-specification.mjs",
+    "derivedFrom": [
+      "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/src/sen-activity.mjs",
+      "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section/README.md",
+      "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/a2a-services-section/scripts/sen-part.mjs",
+      "lib/emsenn/services/561-group/services/engineering-services-section/content/text/glossary/terms/semioverse.md",
+      "lib/emsenn/services/561-group/services/engineering-services-section/content/text/glossary/terms/moose.md",
+      "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section/README.md",
+      "founder request 2026-09-27, ni:///sha-256;ihB60rte3C7PsSburchQP_jOiRDYnzC2ik2roYxy0iQ"
+    ]
+  }
+}

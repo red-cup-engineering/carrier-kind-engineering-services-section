@@ -1,0 +1,30 @@
+[Unit]
+Description=ops.561.group OAuth-protected MCP gateway
+Documentation=file:%h/.local/share/561-group/releases/ops-561-group-mcp-gateway/current/README.md
+Requires=metroplat.service
+After=network-online.target metroplat.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.local/share/561-group/releases/ops-561-group-mcp-gateway/current
+Environment=HOST=127.0.0.1
+Environment=PORT=18807
+Environment=PUBLIC_BASE_URL=https://ops.561.group
+Environment=UPSTREAM_MCP_URL=http://127.0.0.1:18811
+Environment=OPS_MCP_STATE_DIR=%h/.local/state/561-group/ops-561-group-mcp-gateway
+EnvironmentFile=%h/.config/561-group/ops-561-group-mcp-gateway.env
+ExecStartPre=/usr/bin/install -d -m 0700 %h/.local/state/561-group/ops-561-group-mcp-gateway
+ExecStartPre=/usr/bin/env node scripts/preflight.mjs --probe
+ExecStart=/usr/bin/env node scripts/serve.mjs
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/state/561-group/ops-561-group-mcp-gateway
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0077
+
+[Install]
+WantedBy=default.target

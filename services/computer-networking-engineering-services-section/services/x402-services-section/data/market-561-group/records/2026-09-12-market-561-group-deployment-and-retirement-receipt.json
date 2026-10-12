@@ -1,0 +1,99 @@
+{
+  "type": "org.emsenn.x402.market-deployment-receipt.v1",
+  "recordedAt": "2026-09-12T05:42:30Z",
+  "by": "worker:claude for the chief executive (directive:do-all-deferred-work-as-ceo, directive:adversarial-review-and-consolidate-without-compromise)",
+  "market": {
+    "origin": "https://market.561.group",
+    "face": "edge (Cloudflare Workers, worker market-561-group, custom domain market.561.group)",
+    "workerVersion": "25f7dcc0-5638-4583-af93-ebb1763eda5f",
+    "rails": {
+      "network": "eip155:8453",
+      "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "payTo": "0x32886F6F361C1d570255c2762967A2e41D0E9B1a (wrangler secret X402_PAY_TO)",
+      "facilitator": "https://facilitator.payai.network"
+    },
+    "offersServed": 17,
+    "offersNodeOnly": 7,
+    "liveChecks": {
+      "GET /v1/status": 200,
+      "GET /v1/catalog": 200,
+      "GET /.well-known/agent-card.json": 200,
+      "GET /": 200,
+      "GET /v1/base-chain/gas-oracle": "402 with accepts[0] {scheme exact, network eip155:8453, amount 1000, payTo ruled, asset USDC}",
+      "GET /v1/ephemeris/moment/2026-07-21T00:00:00Z": 402,
+      "GET /v1/ephemeris/moment/not-a-date": "422 invalid date",
+      "GET /v1/astronomy/positions/2026-07-21T00:00:00Z": 402,
+      "GET /v1/x402-market/observation?windowBlocks=1": "422 windowBlocks bounds",
+      "POST /v1/pacing/analysis well-formed": 402,
+      "POST /v1/pacing/analysis malformed": "422 observations must contain at least one record",
+      "POST /value-chain/shares well-formed": 402,
+      "GET /v1/inference (node-only)": 404,
+      "GET /v1/ephemeris/precision-moment/... (node-only)": 404
+    },
+    "redeployments": [
+      {
+        "recordedAt": "2026-09-12T06:31Z",
+        "appVersion": "0.2.1",
+        "workerVersion": "22b9af02-cdb9-4714-8372-f33972eac84d",
+        "edgeOffers": 20,
+        "added": [
+          "medical-glossary/term",
+          "medical-glossary/neighborhood",
+          "medical-glossary/search"
+        ],
+        "probes": {
+          "GET /v1/medical-glossary/term/catatonia": 402,
+          "GET /v1/medical-glossary/term/Not_Kebab": 422,
+          "GET /v1/medical-glossary/search?q=catatonia&limit=5": 402
+        }
+      }
+    ]
+  },
+  "compiledCatalog": {
+    "why": "a fetch-handler host allows a few milliseconds of CPU per request and resolves no module specifier at runtime; admitting 24 offers derived their content identities at ~28 ms each and every compute binding imported by name",
+    "records": [
+      "data/records/catalog-identities.json (sku, cell, law per offer, verified against a fresh derivation by the app test)",
+      "data/records/catalog-readouts.json (catalog readout and agent card per face on the production rails)",
+      "src/edge-bindings.mjs (the static module map of every edge binding, generated)"
+    ],
+    "compiler": "scripts/compile-catalog.mjs, run after every catalog change; a stale record fails the app test"
+  },
+  "nodeOnlyOffers": [
+    "ephemeris/precision-moment and astronomy/astronomy-precision-positions (the pinned DE440 binary)",
+    "inference/meter-inference, brokerage-control/daily-divination-reading, occupation-entropy, strategy-synthesis, account-reconciliation (their packages dispatch A2A tasks and read schema files at module load)"
+  ],
+  "retired": {
+    "workers": [
+      "paid-pacing-intelligence-gateway",
+      "paid-value-chain-gateway",
+      "paid-orphan-patch-triage-gateway",
+      "base-chain-data-gateway",
+      "561-group-market-site",
+      "paid-ephemeris-gateway"
+    ],
+    "cloudRun": [
+      "paid-ephemeris-gateway (service deleted)",
+      "ephemeris.561.group (domain mapping deleted)"
+    ],
+    "log": [
+      "paid-pacing-intelligence-gateway: Successfully deleted paid-pacing-intelligence-gateway",
+      "",
+      "paid-value-chain-gateway: Successfully deleted paid-value-chain-gateway",
+      "",
+      "paid-orphan-patch-triage-gateway: Successfully deleted paid-orphan-patch-triage-gateway",
+      "",
+      "base-chain-data-gateway: Successfully deleted base-chain-data-gateway",
+      "",
+      "561-group-market-site: Successfully deleted 561-group-market-site",
+      "",
+      "cloud run domain mapping ephemeris.561.group: Mappings to [ephemeris.561.group] now have been deleted.",
+      "cloud run service paid-ephemeris-gateway: Deleted service [paid-ephemeris-gateway].",
+      "2026-09-12T06:05Z worker paid-ephemeris-gateway (custom domain ephemeris.561.group, still answering x402 402s after the Cloud Run service of the same name was deleted): Successfully deleted paid-ephemeris-gateway; ephemeris.561.group now answers 530, no seller.",
+      "2026-09-12T05:55Z 402index: 17 edge offers registered at market.561.group (see 2026-09-12-402index-registration-receipt.json); listings of the retired hostnames cannot be deleted without re-serving those hostnames for a domain claim, left to the index's probes."
+    ]
+  },
+  "notYetLive": [
+    "the Node runner (the whole catalog, including the seven node-only offers): the Google Cloud project's billing is disabled, so the Cloud Run carrier under lib/cloud-run cannot build; see 2026-09-11-executive-decision-edge-face-first.json",
+    "durable settlement witnessing on the edge face: the kernel's settlementWitness logs and posts to WITNESS_SINK_URL when bound; no witness-journal document agent is publicly reachable until the Node runner has a host (reviewer finding 3)"
+  ]
+}

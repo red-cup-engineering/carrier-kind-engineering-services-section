@@ -1,0 +1,34 @@
+{
+  "type": "org.emsenn.x402.catalog-fold-finding.v1",
+  "recordedAt": "2026-09-11",
+  "seller": "metered-inference-tollbooth",
+  "sellerPackage": "@red-cup-engineering/metered-inference-tollbooth",
+  "section": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/services/metered-inference-tollbooth",
+  "disposition": "folded",
+  "priceRoutes": [
+    {
+      "method": "POST",
+      "route": "/inference",
+      "price": "flat, env X402_PRICE (e.g. $0.001), regardless of the inference actually performed"
+    }
+  ],
+  "reasonsNotFoldable": [
+    "The route's response is produced by sendRmnTask, a live remote A2A call to a provider agent card the caller names per request (request.providerAgentCard) - there is no fixed package+export the offer's compute binding could name, because the callee is chosen at call time by the buyer, not by the seller's own code.",
+    "executeSettledContract additionally makes live calls to two more agents read from env at server start (RMN_CONFORMANCE_AGENT for conformBundle/conformTerm, WIT_TRANSITION_ASSAY_AGENT for assayWitTransition) - env-supplied agent endpoints the market's compute binding has no slot for (args project only from {body, query, params, env} into a pure function's positional arguments, not into a chain of live agent dispatch).",
+    "The route's own facilitator client (createCdpFacilitatorClient, reading CDP_API_KEY_ID/CDP_API_KEY_SECRET at request time) does its own settlement verify/settle - this package IS a facilitator client, not a consumer of the market's shared rails, so folding it would mean two competing facilitator selections on one settlement.",
+    "appendSettlementWitnessJournal writes durable RDF witness-journal state (WITNESS_JOURNAL_RDF_AGENT) keyed off the x402 settlement result, a side effect the market's compute binding (a value-returning function of projected request-context args) cannot express or trigger.",
+    "Price is flat per the fixed x402 challenge model (the market always prices the challenge before any compute runs), so this is not itself a blocker, but it means the seller's own 'metered' framing is aspirational marketing, not an actual per-call variable price; noted so a future migration does not assume metering support is needed here."
+  ],
+  "whatTheMarketEngineWouldNeed": [
+    "A compute-binding shape that can name a live callee chosen by the request itself (e.g. a 'delegate to providerAgentCard named in body' capability), not just a fixed package export.",
+    "A way for a compute binding to declare its own required live agent dependencies (conformance assay, wit-transition assay) so the market can wire them per-deployment the way it wires facilitatorClient today, instead of the seller reading them from env at import time.",
+    "Support for a seller-owned settlement witness/facilitator override per offer, or acceptance that this seller's settlement stays outside the shared rails entirely."
+  ],
+  "actionTaken": "None. src/tollbooth.mjs, src/verify-runtime-admission.mjs, and all other files in this package were left untouched. No catalog entry was added, no dependency was pinned, and no transport file was deleted.",
+  "verifiedBy": "Read-only research (see repo history); no code in this package was executed or modified.",
+  "resolution": {
+    "recordedAt": "2026-09-11",
+    "by": "worker:claude for the chief executive (directive:do-all-deferred-work-as-ceo)",
+    "how": "The route's post-payment behaviour is one exported operation, meterInference(body, env), in @red-cup-engineering/metered-inference-tollbooth 0.3.0: the provider agent card named in the body and the conformance and wit-transition agents named in env are arguments, not reasons; the market owns the facilitator, settlement, and witness, so the tollbooth's own were deleted with its transport. Catalog entry inference/meter-inference, POST /v1/inference, $0.001, args [body, env]; validateMeteredInferenceRequest admits before pricing."
+  }
+}

@@ -1,0 +1,7 @@
+[Unit]
+Description=Palaverse morning poster: ruinfold daily seed
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/emsenn/ops/palaverse-poster
+ExecStart=/home/emsenn/.local/bin/node poster.mjs ruinfold morning

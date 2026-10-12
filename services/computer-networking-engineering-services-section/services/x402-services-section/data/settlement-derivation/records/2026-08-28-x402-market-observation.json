@@ -1,0 +1,32 @@
+{
+  "recordType": "561-group.x402-market-observation",
+  "observedAt": "2026-08-28T03:14:38.404Z",
+  "chain": {
+    "network": "eip155:8453",
+    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "rpcUrl": "https://mainnet.base.org"
+  },
+  "settlement": {
+    "measured": {
+      "fromBlock": 50547865,
+      "toBlock": 50548764,
+      "blocks": 900,
+      "approximateMinutes": 30,
+      "authorizations": 2400,
+      "distinctAuthorizers": 664
+    },
+    "extrapolated": {
+      "dayFactor": 48,
+      "monthFactor": 1440,
+      "authorizationsPerDay": 115200,
+      "authorizationsPer30Days": 3456000,
+      "basis": "a 900-block sample scaled by 48.0 to a day; a burst inside the window is scaled with it"
+    }
+  },
+  "distinctAuthorizersSampled": 664,
+  "catalog": {
+    "ok": true,
+    "resources": 14841
+  },
+  "caveat": "EIP-3009 AuthorizationUsed is the settlement primitive x402's exact scheme uses, not a marker of the protocol. These figures are an upper bound on x402 volume and a measurement of gasless-authorized stablecoin transfer generally. The x402 share of this total is not established by this measurement."
+}
