@@ -21,6 +21,7 @@ const key = (subject, predicate) => textual(subject) && textual(predicate)
   : bytesToHex(semanticBytes([subject, predicate]));
 const cache = new WeakMap();
 const archives = new WeakMap();
+const occurrenceFrames = new WeakMap();
 // A checkpoint is named over the names of its cells, each named once per frozen cell, so cutting a
 // checkpoint costs the cells that changed, not a re-encoding of the whole reading. A checkpoint
 // written before this was named over its cells' full bodies; that name is still admitted on restore.
@@ -167,6 +168,10 @@ function unheard(ask) {
 /** The frame rule: a reading holds of a later history when no changed cell meets anything it
  * queried through its evidence projection and every inner derivation it used still gives the result it used. */
 function carries(entry, changes, history) {
+  // Addressed occurrence identity is not a cell-pattern dependency. It can change
+  // while the ordinary cell diff is empty; archive availability can change at the
+  // same H object too. Keep these derivations conservatively volatile.
+  if (entry.depends.occurrences) return false;
   if (changes === null) return false;
   if (changes.length === 0) return true;
   const { subjects, predicates, open } = patternsOf(entry), functional = new Set(history.functionalPredicates);
@@ -201,6 +206,7 @@ export function historyDerivation(derive) {
     let byKey = known.get(history);
     if (!byKey) known.set(history, byKey = new Map());
     let entry = byKey.get(key);
+    if (entry?.depends.occurrences) entry = undefined;
     if (!entry) {
       const last = latest.get(key);
       if (last && carries(last.entry, historyChanges(last.history, history), history)) entry = last.entry;
@@ -222,6 +228,8 @@ export function historyDerivation(derive) {
     if (depending) {
       if (!depending.nodes.has(derivation)) depending.nodes.set(derivation, new Map());
       depending.nodes.get(derivation).set(key, entry.result);
+      // Propagate through nested and warm derivations, including equal results.
+      if (entry.depends.occurrences) depending.occurrences = true;
     }
     return entry.result;
   };
@@ -280,7 +288,7 @@ function indexOf(history) {
     const subjectKey = key(value.subject, null);
     let entry = index.bySubject.get(subjectKey);
     if (!entry) { entry = { subject: value.subject, observations: [] }; index.bySubject.set(subjectKey, entry); }
-    entry.observations.push({ revision: null, cell: value });
+    entry.observations.push({ revision: null, cellIndex: null, cell: value });
   }
   const descendants = new Set();
   for (const revision of history.revisions) {
@@ -299,7 +307,7 @@ function indexOf(history) {
     index.revisions.set(revision.id, revision);
     index.heads.add(revision.id);
     const written = new Set();
-    for (const value of revision.cells) {
+    for (const [cellIndex, value] of revision.cells.entries()) {
       addQueryIndex(index, value);
       const subjectKey = key(value.subject, null);
       let entry = index.bySubject.get(subjectKey);
@@ -309,7 +317,7 @@ function indexOf(history) {
         entry.observations = entry.observations.filter((old) => !coincides(old.cell.predicate, value.predicate) || (!extendsAll && old.revision !== null && !ancestorsOf(index, revision.id).has(old.revision)));
         written.add(at);
       }
-      entry.observations.push({ revision: revision.id, cell: value });
+      entry.observations.push({ revision: revision.id, cellIndex, cell: value });
     }
   }
   cache.set(history, index);
@@ -358,7 +366,7 @@ export function observeHistory(history, cells, { source = "signcraft" } = {}) {
   const index = { revisions: prior.revisions.fork(), heads: new Set([revision.id]), bySubject: prior.bySubject.fork(), byPredicate: prior.byPredicate.fork(), byReference: prior.byReference.fork(), ancestors: prior.ancestors.fork(), readings: prior.readings.fork() };
   index.revisions.set(revision.id, revision);
   const touched = new Set(), written = new Set(), copied = new Set(), functional = new Set(history.functionalPredicates), superseded = [];
-  for (const value of revision.cells) {
+  for (const [cellIndex, value] of revision.cells.entries()) {
     addQueryIndex(index, value, copied);
     const subjectKey = key(value.subject, null);
     if (!touched.has(subjectKey)) {
@@ -376,7 +384,7 @@ export function observeHistory(history, cells, { source = "signcraft" } = {}) {
       entry.observations = kept;
       written.add(at);
     }
-    entry.observations.push({ revision: revision.id, cell: value });
+    entry.observations.push({ revision: revision.id, cellIndex, cell: value });
   }
   cache.set(next, index);
   steps.set(next, stepFrom(history, frozen([...revision.cells, ...superseded])));
@@ -605,7 +613,7 @@ export function checkpointHistory(history) {
     revisions: new PersistentMap(body.heads.map((id) => [id, { id, parents: [] }])),
     heads: new Set(body.heads),
     bySubject: new PersistentMap([...index.bySubject].map(([at, entry]) => [at, entry.observations.every(({ revision }) => revision === null) ? entry
-      : { subject: entry.subject, observations: entry.observations.map(({ cell: value }) => ({ revision: null, cell: value })) }])),
+      : { subject: entry.subject, observations: entry.observations.map(({ cell: value }) => ({ revision: null, cellIndex: null, cell: value })) }])),
     byPredicate: index.byPredicate,
     byReference: index.byReference,
     ancestors: new PersistentMap(),
@@ -619,6 +627,120 @@ export function checkpointHistory(history) {
  * store rewrites for a subject a commit touched, without reading any other subject. */
 export function historySubjectCells(history, subject) {
   return frozen(indexOf(history).bySubject.get(key(subject, null))?.observations.map(({ cell: value }) => value) ?? []);
+}
+
+/**
+ * Active raw observations with exact addressed occurrence identity. This is a
+ * read-only view of the existing index, never a second history or wire format.
+ * Checkpoints do not retain occurrence addresses. By default their rows stay
+ * explicitly unresolved; `archive:true` asks the existing validated archive
+ * materializer to recover them. Failed/missing ancestry never invents identity.
+ *
+ * The existing proposal footprint conservatively reads every cell. Derivations
+ * additionally become volatile, transitively: ordinary cell diffs cannot prove
+ * that revision identity, multiplicity or archive availability stayed the same.
+ */
+export function historyRawOccurrences(source, subject, predicate, { archive = false } = {}) {
+  const history = restoreHistory(source);
+  recordRead({});
+  if (depending) depending.occurrences = true;
+  let held = history;
+  const unresolved = [];
+  if (archive && history.checkpoint) {
+    try { held = materializeHistory(history); }
+    catch (error) { unresolved.push(Object.freeze({ kind: "archive-unresolved", checkpointId: history.checkpoint.id, message: error.message })); }
+  }
+  const observations = indexOf(held).bySubject.get(key(subject, null))?.observations ?? [];
+  const rows = observations.filter(({ cell }) => predicate === undefined || coincides(cell.predicate, predicate))
+    .map(({ revision, cellIndex, cell }) => Object.freeze({ cell,
+      occurrence: revision === null ? null : Object.freeze({ revisionId: revision, cellIndex }),
+      ...(revision === null ? { checkpointId: held.checkpoint.id } : {}),
+    }));
+  if (rows.some(row => row.occurrence === null) && unresolved.length === 0) {
+    unresolved.push(Object.freeze({ kind: "checkpoint-occurrences-unresolved", checkpointId: held.checkpoint.id }));
+  }
+  return Object.freeze({ kind: "signcraft.raw-occurrences.v1", carrierHeads: historyHeads(history),
+    functionalPredicates: history.functionalPredicates, rows: frozen(rows), unresolved: frozen(unresolved) });
+}
+
+/**
+ * Capture one immutable occurrence observation for an operation. The carrier stays H;
+ * this is a privately admitted read frame, never a history or persistent authority.
+ * Archive materialization happens at most once for the whole frame.
+ */
+export function captureHistoryOccurrences(source, { archive = false } = {}) {
+  if (typeof archive !== "boolean") throw new TypeError("Occurrence frame archive mode must be boolean");
+  const history = restoreHistory(source);
+  recordRead({});
+  if (depending) depending.occurrences = true;
+  let held = history, resolution = history.checkpoint ? "checkpoint" : "complete";
+  const unresolved = [];
+  if (archive && history.checkpoint) {
+    try { held = materializeHistory(history); resolution = "complete"; }
+    catch (error) {
+      resolution = archives.has(history) ? "archive-refused" : "archive-unavailable";
+      let message;
+      try { message = String(error?.message ?? error); }
+      catch { message = "Archive resolution failed"; }
+      unresolved.push(Object.freeze({ kind: resolution, checkpointId: history.checkpoint.id, message }));
+    }
+  }
+  const index = indexOf(held), rows = [], bySubject = new Map();
+  for (const [subjectKey, entry] of index.bySubject) {
+    const subjectRows = entry.observations.map(({ revision, cellIndex, cell }) => Object.freeze({ cell,
+      occurrence: revision === null ? null : Object.freeze({ revisionId: revision, cellIndex }),
+      ...(revision === null ? { checkpointId: held.checkpoint.id } : {}),
+    }));
+    rows.push(...subjectRows); bySubject.set(subjectKey, frozen(subjectRows));
+  }
+  if (rows.some(row => row.occurrence === null) && unresolved.length === 0) {
+    unresolved.push(Object.freeze({ kind: "checkpoint-occurrences-unresolved", checkpointId: held.checkpoint.id }));
+  }
+  const carrierHeads = historyHeads(history), functionalPredicates = retainedCarrier(history.functionalPredicates);
+  const archiveObservation = Object.freeze({ requested: archive === true, resolution,
+    checkpointId: history.checkpoint?.id ?? null });
+  // Error prose is diagnostic only. Content identity binds the stable resolution,
+  // original frontier/schema, actual occurrence positions and full cell identities.
+  const id = semanticId({ kind: "signcraft.occurrence-frame.v1", carrierHeads, functionalPredicates,
+    archive: archiveObservation, rows: rows.map(row => ({ cell: cellName(row.cell), occurrence: row.occurrence,
+      ...(row.checkpointId ? { checkpointId: row.checkpointId } : {}),
+    })) });
+  const frame = Object.freeze({ kind: "signcraft.occurrence-frame.v1", id, carrierHeads, functionalPredicates,
+    archive: archiveObservation, rows: frozen(rows), unresolved: frozen(unresolved) });
+  occurrenceFrames.set(frame, { history, archive: archive === true, bySubject });
+  return frame;
+}
+
+/** Read the explicit immutable frame, replaying the genuine conservative proposal footprint. */
+export function readCapturedHistoryOccurrences(frame, subject, predicate) {
+  const bound = occurrenceFrames.get(frame);
+  if (!bound) throw new TypeError("Expected an admitted occurrence frame");
+  recordRead({});
+  const rows = bound.bySubject.get(key(subject, null)) ?? frozen([]);
+  return Object.freeze({ kind: "signcraft.raw-occurrences.v1", carrierHeads: frame.carrierHeads,
+    functionalPredicates: frame.functionalPredicates, frameId: frame.id,
+    rows: predicate === undefined ? rows : frozen(rows.filter(row => coincides(row.cell.predicate, predicate))),
+    unresolved: frame.unresolved });
+}
+
+/** A frame is usable only with its exact original admitted H, never a decoded lookalike. */
+export const isHistoryOccurrenceFrameFor = (frame, history) => {
+  const bound = occurrenceFrames.get(frame);
+  return bound !== undefined && bound.history === history;
+};
+
+/** Effects change H; a rebound operation therefore acquires a new genuine frame. */
+export function rebindHistoryOccurrenceFrame(frame, history) {
+  const bound = occurrenceFrames.get(frame);
+  if (!bound) throw new TypeError("Expected an admitted occurrence frame");
+  return captureHistoryOccurrences(history, { archive: bound.archive });
+}
+
+/** Fresh admission observes archive resolution again; failures are never cached forever. */
+export function historyOccurrenceFrameIsCurrent(frame) {
+  const bound = occurrenceFrames.get(frame);
+  if (!bound) throw new TypeError("Expected an admitted occurrence frame");
+  return captureHistoryOccurrences(bound.history, { archive: bound.archive }).id === frame.id;
 }
 
 /** Recover exactly this world's ancestry, never later observations in its store. */
