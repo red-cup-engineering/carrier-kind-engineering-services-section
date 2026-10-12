@@ -1,0 +1,33 @@
+{
+  "version": "https://jsonfeed.org/version/1.1",
+  "title": "muse-assist — 561 Group",
+  "home_page_url": "https://fixture.example/",
+  "feed_url": "https://fixture.example/feed.json",
+  "language": "en",
+  "items": [
+    {
+      "id": "ni:///sha-256;azjZIJMxFFvtVwM9lznm5CpekKW2s00oiJSdWW9fk_s",
+      "url": "https://fixture.example/details/",
+      "title": "details",
+      "content_html": "<h2 id=\"read-this\">Read this</h2>\n<p>Useful public information.</p>",
+      "summary": "A public reading destination",
+      "date_published": "2026-09-27T00:00:00Z"
+    },
+    {
+      "id": "ni:///sha-256;CJ15g0pyA6sCnK_ceNX8i6uMmHwvsEEbNDH7sg4ASYo",
+      "url": "https://fixture.example/references/",
+      "title": "references",
+      "content_html": "<h2 id=\"read-this\">Read this</h2>\n<p>Useful public information.</p>",
+      "summary": "A public reading destination",
+      "date_published": "2026-09-27T00:00:00Z"
+    },
+    {
+      "id": "ni:///sha-256;eOaOZZgcQmrAF25JYSvNEmaG8HZS2n9929izzzjZyE8",
+      "url": "https://fixture.example/",
+      "title": "start",
+      "content_html": "<h2 id=\"read-this\">Read this</h2>\n<p>Useful public information.</p>",
+      "summary": "A public reading destination",
+      "date_published": "2026-09-27T00:00:00Z"
+    }
+  ]
+}

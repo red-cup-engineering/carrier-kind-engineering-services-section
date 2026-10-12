@@ -3,7 +3,7 @@
  *
  * The quarry law this re-earns: "POSIX filepath as the Curry-Howard
  * coordinate"; "paths are proof terms." An artifact address
- * (`data/<tier>/YYYY/MM/DD/${date}-${act}-${token}`) IS a product of marks —
+ * (`data/<tier>/<kind>-<tier>/${date}-${act}-${token}`) IS a product of marks —
  *
  *   pathTerm(a) = ⟨mark(tier), ⟨mark(date), ⟨mark(act), mark(token)⟩⟩⟩
  *   PATH_TY     = base × (base × (base × base))

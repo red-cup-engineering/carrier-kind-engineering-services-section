@@ -1,0 +1,161 @@
+{
+  "name": "@red-cup-engineering/organizing",
+  "version": "0.2.0",
+  "license": "UNLICENSED",
+  "type": "module",
+  "keywords": [
+    "relational-computing",
+    "relational-computing-kernel"
+  ],
+  "description": "Work coordination, witness-preserving federation, and accounting operations. Shared evidence is retained; assertion and denial of the same value are held together; distinct values and overlapping workspace claims require admission.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp",
+    "check": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
+    "build": "tsc -p tsconfig.build.json && tsc -p tsconfig.scripts.json && node copy-dist-assets.mjs && chmod +x dist/scripts/*.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "rebuild": "npm run clean && npm run build",
+    "examples": "node examples/organize.mjs"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "bin": {
+    "organize": "./dist/scripts/cli.mjs",
+    "organize-serve": "./dist/scripts/serve.mjs"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@lenticule-science/articulating": "0.4.2",
+    "@lenticule-science/governance-services-section": "0.1.4",
+    "@red-cup-engineering/animating": "0.2.1",
+    "@red-cup-engineering/computing": "0.2.0",
+    "@red-cup-engineering/gaming": "0.1.5",
+    "@red-cup-engineering/gitmodules-file-codec-service": "0.2.0",
+    "@red-cup-engineering/playing": "0.1.2",
+    "@red-cup-engineering/relating": "0.1.9",
+    "@red-cup-engineering/socializing": "0.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./diagramming": {
+      "types": "./dist/diagramming.d.mts",
+      "import": "./dist/diagramming.mjs"
+    },
+    "./jupyter": {
+      "types": "./dist/jupyter.d.mts",
+      "import": "./dist/jupyter.mjs"
+    },
+    "./default-jupyter-views": {
+      "types": "./dist/default-jupyter-views.d.mts",
+      "import": "./dist/default-jupyter-views.mjs"
+    },
+    "./git": {
+      "types": "./dist/git-mark.d.mts",
+      "import": "./dist/git-mark.mjs"
+    },
+    "./lean": {
+      "types": "./dist/lean-mark.d.mts",
+      "import": "./dist/lean-mark.mjs"
+    },
+    "./performing": {
+      "types": "./dist/performing/index.d.mts",
+      "import": "./dist/performing/index.mjs"
+    },
+    "./writing/x402": {
+      "types": "./dist/writing/x402/index.d.mts",
+      "import": "./dist/writing/x402/index.mjs"
+    },
+    "./x402": {
+      "types": "./dist/writing/x402/index.d.mts",
+      "import": "./dist/writing/x402/index.mjs"
+    },
+    "./writing/accountable-transaction": {
+      "types": "./dist/writing/accountable-transaction/index.d.mts",
+      "import": "./dist/writing/accountable-transaction/index.mjs"
+    },
+    "./accountable-transaction": {
+      "types": "./dist/writing/accountable-transaction/index.d.mts",
+      "import": "./dist/writing/accountable-transaction/index.mjs"
+    },
+    "./accounting/ledger": {
+      "types": "./dist/accounting/ledger.d.mts",
+      "import": "./dist/accounting/ledger.mjs"
+    },
+    "./accounting/receipt-intake": {
+      "types": "./dist/accounting/receipt-intake.d.mts",
+      "import": "./dist/accounting/receipt-intake.mjs"
+    },
+    "./accounting/market-admission": {
+      "types": "./dist/accounting/market-admission.d.mts",
+      "import": "./dist/accounting/market-admission.mjs"
+    },
+    "./accounting/report": {
+      "types": "./dist/accounting/report.d.mts",
+      "import": "./dist/accounting/report.mjs"
+    },
+    "./accounting/institution": {
+      "types": "./dist/accounting/institution.d.mts",
+      "import": "./dist/accounting/institution.mjs"
+    },
+    "./accounting/capital": {
+      "types": "./dist/accounting/capital.d.mts",
+      "import": "./dist/accounting/capital.mjs"
+    },
+    "./accounting/commodity": {
+      "types": "./dist/accounting/commodity.d.mts",
+      "import": "./dist/accounting/commodity.mjs"
+    },
+    "./accounting/exchange": {
+      "types": "./dist/accounting/exchange.d.mts",
+      "import": "./dist/accounting/exchange.mjs"
+    },
+    "./accounting/strategy": {
+      "types": "./dist/accounting/strategy.d.mts",
+      "import": "./dist/accounting/strategy.mjs"
+    },
+    "./accounting/value": {
+      "types": "./dist/accounting/value.d.mts",
+      "import": "./dist/accounting/value.mjs"
+    },
+    "./accounting/topology/settle-utterances": {
+      "types": "./dist/accounting/topology/settle-utterances.d.mts",
+      "import": "./dist/accounting/topology/settle-utterances.mjs"
+    },
+    "./accounting/topology/financial": {
+      "types": "./dist/accounting/topology/financial.d.mts",
+      "import": "./dist/accounting/topology/financial.mjs"
+    },
+    "./accounting/topology/ledger": {
+      "types": "./dist/accounting/topology/ledger.d.mts",
+      "import": "./dist/accounting/topology/ledger.mjs"
+    },
+    "./accounting/topology/market": {
+      "types": "./dist/accounting/topology/market.d.mts",
+      "import": "./dist/accounting/topology/market.mjs"
+    },
+    "./accounting-ledger": {
+      "types": "./dist/accounting/ledger.d.mts",
+      "import": "./dist/accounting/ledger.mjs"
+    },
+    "./accounting-report": {
+      "types": "./dist/accounting/report.d.mts",
+      "import": "./dist/accounting/report.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "packageManager": "pnpm@11.9.0"
+}

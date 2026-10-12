@@ -1,0 +1,12 @@
+{
+  "exitCode": 0,
+  "stdout": "{\"kind\":\"journal-owner-independent-receiving\",\"checks\":[{\"name\":\"diagnostic brand and private details\",\"passed\":true},{\"name\":\"explicit initialization and identical retry\",\"passed\":true},{\"name\":\"invalid configuration has no filesystem effect\",\"passed\":true},{\"name\":\"runtime open never provisions missing host\",\"passed\":true},{\"name\":\"symlink root refuses\",\"passed\":true},{\"name\":\"scope expires, rejects thenables and excludes reentry\",\"passed\":true},{\"name\":\"callback errors preserve identity and release gate\",\"passed\":true},{\"name\":\"unique command survives reopen and resolves original payload\",\"passed\":true},{\"name\":\"occupied conflicting proposal preserves original source\",\"passed\":true},{\"name\":\"ordinary missing dependency later admits without restart\",\"passed\":true},{\"name\":\"membership-only append preserves event delta distinction\",\"passed\":true},{\"name\":\"feed status uses exact normalized representation bytes\",\"passed\":true},{\"name\":\"historical block takes effect on warm refresh\",\"passed\":true},{\"name\":\"as-of crosses feeds but returns requested membership\",\"passed\":true},{\"name\":\"ordinary copies cannot establish unique occupancy\",\"passed\":true},{\"name\":\"existing closure barrier creates no source and synchronizes required custody\",\"passed\":true},{\"name\":\"barrier avoids duplicate common artifacts in unrelated history\",\"passed\":true},{\"name\":\"warm view notices removed source\",\"passed\":true},{\"name\":\"malformed recognized source refuses complete scan\",\"passed\":true},{\"name\":\"changed bound host refuses existing owner\",\"passed\":true},{\"name\":\"source count capacity refuses before new publication\",\"passed\":true},{\"name\":\"existing source sync failure is unavailable and source preserved\",\"passed\":true},{\"name\":\"kernel gate excludes a separate process\",\"passed\":true}],\"passed\":23,\"total\":23,\"limitations\":[\"Local filesystem fixtures only; no production root or power-loss durability claim.\",\"Owner dependency observations only; facade migration, domain authorization and muse-assist workflow are not exercised.\"]}\n",
+  "stderr": "",
+  "environmentKeys": [
+    "HOME",
+    "LANG",
+    "PATH"
+  ],
+  "profileSha256": "00b79159b43a138ae4354eed6205add12bec3457aabc542b0ad7d28793a4c311",
+  "receiptSha256": "f69bf787cc274b4d1212a3fca82c02dc57d7902f227e39d3c039f730666002f5"
+}

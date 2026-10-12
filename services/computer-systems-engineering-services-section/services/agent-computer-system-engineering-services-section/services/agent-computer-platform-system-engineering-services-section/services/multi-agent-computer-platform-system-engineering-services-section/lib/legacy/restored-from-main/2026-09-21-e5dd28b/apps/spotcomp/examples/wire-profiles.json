@@ -1,0 +1,49 @@
+[
+  {
+    "profileId": "spotcomp-eavt-envelope-v1",
+    "payloadKind": "eavt-envelope",
+    "representation": "json",
+    "mediaType": "application/spotcomp-envelope+json",
+    "registration": "candidate-unregistered",
+    "transport": "both",
+    "requiredRfc": ["RFC6838", "RFC6839", "RFC8032", "RFC8259", "RFC8410", "RFC8785", "RFC9110"],
+    "canonicalization": "rfc8785",
+    "signature": "ed25519",
+    "signatureInput": "canonical-json",
+    "keyEncoding": "x509-spki",
+    "contentTypeRequired": true,
+    "openObligations": ["media-type-registration"],
+    "evidence": ["WIRE-PROFILES.md#2-registered-versus-candidate-media-types"]
+  },
+  {
+    "profileId": "spotcomp-eavt-json-seq-v1",
+    "payloadKind": "eavt-trace-sequence",
+    "representation": "json-seq",
+    "mediaType": "application/json-seq",
+    "registration": "existing-standard",
+    "transport": "http",
+    "requiredRfc": ["RFC7464", "RFC8259", "RFC8785", "RFC9110"],
+    "canonicalization": "rfc8785",
+    "signature": "none",
+    "signatureInput": "canonical-json-items",
+    "keyEncoding": "none",
+    "contentTypeRequired": true,
+    "evidence": ["WIRE-PROFILES.md#3-signature-and-canonicalization"]
+  },
+  {
+    "profileId": "spotcomp-problem-v1",
+    "payloadKind": "problem-detail",
+    "representation": "json",
+    "mediaType": "application/problem+json",
+    "registration": "existing-standard",
+    "transport": "http",
+    "requiredRfc": ["RFC6839", "RFC8259", "RFC9110", "RFC9457"],
+    "canonicalization": "none",
+    "signature": "none",
+    "signatureInput": "none",
+    "keyEncoding": "none",
+    "contentTypeRequired": true,
+    "problemTypeBase": "https://experimental.561.group/spotcomp/problems/",
+    "evidence": ["WIRE-PROFILES.md#4-http"]
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "id": "english-language-algebra",
+  "name": "english-language-algebra",
+  "kind": "node",
+  "faces": "linguistics-services-section",
+  "internal-customer": "linguistics-services-section",
+  "bundle": "english-language-presentation",
+  "package": "@lenticule-science/english-language-algebra",
+  "roster": "services/english-language-algebra",
+  "contracts": [
+    "tagging-english-text"
+  ]
+}

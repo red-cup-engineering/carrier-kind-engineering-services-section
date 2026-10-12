@@ -1,0 +1,299 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.561.group/personal-no-buy-intelligence-systems-services-section/no-buy-surface.schema.json",
+  "title": "No Buy surface",
+  "description": "One earning surface or inference lane in the No Buy catalog, per the No Buy companion specification part (i). A field no measurement row states is the literal string \"unknown\", never a guess. The \"unknown\" member on kind is a necessary addition beyond the specification's closed list, applying the same never-guess rule the specification states for the two tier fields to every classified field derived from free-text rows.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "enterprise",
+    "kind",
+    "provider",
+    "sourceUrl",
+    "measuredAt",
+    "requiresPurchase",
+    "requiresIdentity",
+    "unit",
+    "unitRate",
+    "caps",
+    "payoutRail",
+    "custody",
+    "automationTerms",
+    "humanGated",
+    "referral"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A stable kebab-case identifier for the surface, derived from its provider name."
+    },
+    "enterprise": {
+      "enum": [
+        "crypto",
+        "ai"
+      ],
+      "description": "Which of the two No Buy enterprises this surface belongs to."
+    },
+    "kind": {
+      "enum": [
+        "earn-by-attention",
+        "learn-to-earn",
+        "posting",
+        "curation",
+        "faucet",
+        "bridge",
+        "inference-lane",
+        "image-lane",
+        "local-runtime",
+        "unknown"
+      ],
+      "description": "The surface's earning mechanism. \"unknown\" when the measurement rows do not state a classifiable mechanism."
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The product or platform name, as measured (the row's own product field)."
+    },
+    "sourceUrl": {
+      "type": "string",
+      "description": "A first-party source URL for this surface."
+    },
+    "measuredAt": {
+      "type": "string",
+      "description": "The latest observed_at timestamp among this surface's contributing rows."
+    },
+    "requiresPurchase": {
+      "enum": [
+        true,
+        false,
+        "unknown"
+      ],
+      "description": "Whether earning through this surface requires spending money. Conservative aggregation across contributing rows: true if any row says true; false only if every stated row says false; unknown otherwise."
+    },
+    "requiresIdentity": {
+      "enum": [
+        "none",
+        "email",
+        "phone",
+        "government-id",
+        "bank",
+        "card",
+        "unknown"
+      ],
+      "description": "The most identity-demanding requirement stated across contributing rows (none < email < phone < card < bank < government-id)."
+    },
+    "unit": {
+      "type": "string",
+      "description": "The unit of the surface's representative pay rate, or \"unknown\" when no row states one."
+    },
+    "unitRate": {
+      "oneOf": [
+        {
+          "const": "unknown"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "per",
+            "observedAt",
+            "sourceUrl",
+            "evidence",
+            "text"
+          ],
+          "properties": {
+            "value": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "const": "unknown"
+                }
+              ]
+            },
+            "per": {
+              "type": "string"
+            },
+            "observedAt": {
+              "type": "string"
+            },
+            "sourceUrl": {
+              "type": "string"
+            },
+            "evidence": {
+              "enum": [
+                "observed",
+                "published",
+                "unknown"
+              ]
+            },
+            "text": {
+              "type": "string",
+              "description": "The exact normalized_value quote the rate was lifted from."
+            }
+          }
+        }
+      ],
+      "description": "The surface's representative pay rate, lifted from the row that states one; \"unknown\" when no row does."
+    },
+    "caps": {
+      "oneOf": [
+        {
+          "const": "unknown"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "perDay": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "const": "unknown"
+                }
+              ]
+            },
+            "perWindow": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "const": "unknown"
+                }
+              ]
+            },
+            "windowSeconds": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "const": "unknown"
+                }
+              ]
+            },
+            "resetsAt": {
+              "type": "string"
+            },
+            "timezone": {
+              "type": "string"
+            },
+            "observedAt": {
+              "type": "string"
+            },
+            "sourceUrl": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "description": "The surface's stated caps, lifted from the rows that state them; \"unknown\" when none do."
+    },
+    "payoutRail": {
+      "type": "string"
+    },
+    "custody": {
+      "enum": [
+        "custodial",
+        "self",
+        "n/a",
+        "unknown"
+      ]
+    },
+    "automationTerms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "botsAllowed",
+        "multipleAccounts",
+        "quote",
+        "sourceUrl"
+      ],
+      "properties": {
+        "botsAllowed": {
+          "enum": [
+            true,
+            false,
+            "unknown"
+          ]
+        },
+        "multipleAccounts": {
+          "enum": [
+            true,
+            false,
+            "unknown"
+          ]
+        },
+        "quote": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "humanGated": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "captcha",
+          "streak",
+          "phone",
+          "app-only",
+          "manual-claim"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "referral": {
+      "oneOf": [
+        {
+          "const": "unknown"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "disclosed",
+            "program",
+            "rate",
+            "conditions",
+            "payoutRail",
+            "sourceUrl"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "disclosed": {
+              "const": true
+            },
+            "program": {
+              "type": "string"
+            },
+            "rate": {
+              "type": "string"
+            },
+            "conditions": {
+              "type": "string"
+            },
+            "payoutRail": {
+              "type": "string"
+            },
+            "sourceUrl": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "description": "The surface's referral program, disclosed inline whenever shown; \"unknown\" when no row or referralPrograms entry states one for this product. No referral code of the Group's own is carried here as of founding."
+    }
+  }
+}

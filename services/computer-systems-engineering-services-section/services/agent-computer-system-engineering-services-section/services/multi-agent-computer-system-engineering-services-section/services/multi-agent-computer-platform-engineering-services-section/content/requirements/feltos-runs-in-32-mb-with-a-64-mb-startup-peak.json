@@ -1,0 +1,84 @@
+{
+  "id": "feltos-runs-in-32-mb-with-a-64-mb-startup-peak",
+  "name": "FeltOS uses about 32 MB of memory once started, with a 64 MB startup spike at most",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "\"buddy you wrote all this vibeslop fuck you. I gave you a hard limit: FeltOS should use about 32mb of RAM at most once started, with a 64mb startup spike acceptable. Holy shit at this vibeslop you are tolerating.\" (Leader, 2026-10-10 ~05:20Z, to the Bare Cedar Fog Claude session) Then: \"FeltOS' own shit seems reasonable, especially if we are able to actually get stuff our flatfiles properly organized by proof path addressing so able to use formula to \\\"predict\\\" where files will be rather than keeping indexes, hot or cold.\" (Leader, 2026-10-10 ~05:28Z)",
+  "met-when": [
+    {
+      "cell": "feltos-runs-in-32-mb-with-a-64-mb-startup-peak:receiving-test",
+      "target": "held",
+      "command": "sh -c 'cd lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos-enterprise-host && node scripts/check-memory-budget.mjs'",
+      "expected-exit": 0
+    },
+    {
+      "cell": "feltos-runs-in-32-mb-with-a-64-mb-startup-peak:live",
+      "target": "held",
+      "command": "on Bare Cedar Fog, process.memoryUsage() of the running node reported at t+60 s and t+30 min meets the steady and startup bounds",
+      "expected-exit": 0
+    },
+    {
+      "cell": "feltos-runs-in-32-mb-with-a-64-mb-startup-peak:no-index",
+      "target": "held",
+      "command": "the segment store and the node read a record by computing its path from its proof-path address; no admitted.jsonl-style id-to-location index is read at startup or kept in memory",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "routine",
+  "realized-by": [
+    "red-cup-engineering-semiotic-content-address-system-pull-6",
+    "red-cup-engineering-computer-data-services-section-pull-60",
+    "red-cup-engineering-computer-services-section-pull-192"
+  ],
+  "x-provenance": {
+    "recorded-by": "bare-cedar-fog-claude (Hai Jian), under persisting-leader-corrections",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "basis": "The Leader's hard limit, not found in any corpus record or in the 1,545 decoded utterances since 2026-08-26 before this message; it was held nowhere, so agents tuned to a 512 MB heap they chose themselves.",
+    "carried-fields": {
+      "requirements": [
+        {
+          "id": "steady",
+          "says": "Once started, the FeltOS node shall hold at most 32 MB of JavaScript memory (heapUsed plus external plus arrayBuffers).",
+          "class": "constraint",
+          "priority": "must"
+        },
+        {
+          "id": "startup",
+          "says": "While starting, the FeltOS node shall hold at most 64 MB of JavaScript memory.",
+          "class": "constraint",
+          "priority": "must"
+        },
+        {
+          "id": "history-free",
+          "says": "The FeltOS node's memory shall not grow with the size of its journals, feeds or history.",
+          "class": "quality",
+          "priority": "must"
+        },
+        {
+          "id": "computed-location",
+          "says": "The FeltOS node shall find each flat-file record at a location computed from the record's proof-path address, keeping no index from address to location in memory or on disk.",
+          "class": "constraint",
+          "priority": "must",
+          "rationale": "Leader direction of 2026-10-10: a formula predicts where files will be, rather than keeping indexes, hot or cold. An id-to-location index grows with history and is the class of structure that breaks the memory budget."
+        }
+      ],
+      "measured": {
+        "2026-10-10T05:30Z": "deployed node: ~450-520 MB anon at listen, ~840 MB after a startup sweep of every day's agent-session-token-usage feed (t+38-48 s), V8 heap exhausted at its 512 MB cap at ~150 s; 15-25 times over this budget.",
+        "runtime-floor": "a bare Node.js 24.19 process on Bare Cedar Fog: 42 MB RSS, 3.8 MB heapUsed with nothing loaded; meeting 32 MB as whole-process RSS would need a lighter runtime than Node. The bound above is stated on JavaScript memory; RSS is reported beside it. The Leader decided on 2026-10-10 that the limit names FeltOS's own (JavaScript) memory, not whole-process RSS.",
+        "2026-10-10T07:00Z harness, before": "Release composition at the sources.json pins, Node 24.11, cloud harness; clock running but obstructed by its rule check (no schedules ran); no work peer. cds c7d52ae / css dd6f71f over a synthetic 45-day journal of 990,000 real witnesses: steady JS after GC 222 MB (heap 122, arrayBuffers 48), startup-to-listen peak 287 MB, running peak 388 MB, RSS 520 MB. Empty journal: 118 MB steady. Components at steady (V8 sampling heap profile): compiled modules ~53 MB; agency registry holder (organizing agency/held.mjs: one fs.watch per walked directory, ~20,000) ~21 MB; segment-store root index ~58 MB (48 MB packed admitted-id arrays + ~10 MB heap); catalog contracts and notation ~10 MB. The clock heartbeat allocates ~110 MB of transient garbage per tick re-deriving semantic addresses of signed rule cells. Token-usage spend read (bodies.readTokenUsageRows) as a component over 14 days: 138 MB retained, 230 MB peak; over 45 days 172 / 290 MB.",
+        "2026-10-10T07:00Z harness, after": "After computer-data-services-section#60 (located admission index by ni-path-v1, no root index in memory) and computer-services-section#192 (spend read on demand of the worn sessions): same journal, steady JS after GC 119 MB (arrayBuffers 0.1 MB) after a one-time 18-20 s v2 carry; startup-to-listen peak 152 MB; RSS 480 MB. History adds ~0 MB at steady (check-memory-budget: empty 111.9 MB, 6-day journal 112.7 MB). Spend read: 0.2 MB retained, 32 MB peak, identical sums. The node aborts with --max-old-space-size 64 or 96 MB and runs at 128 MB. NOT MET: steady ~112-119 MB against 32; startup ~150 MB against 64. Remaining: compiled modules ~53 MB (every operation family, x402/viem/ethers/fedify and the 0.9 MB generated descriptor module load eagerly), agency registry holder ~21 MB, catalog contracts ~10 MB, clock tick churn (transient)."
+      },
+      "supersedes-target-of": "engineering-services-section/services/computer-engineering-services-section/content/requirements/a-large-journal-cannot-exhaust-a-work-peer-heap.json (512 MB, an agent-derived target)",
+      "decided": {
+        "measure": "FeltOS's own JavaScript memory (heapUsed + external + arrayBuffers), RSS reported beside it",
+        "by": "urn:leader:emsenn",
+        "on": "2026-10-10"
+      }
+    },
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;6aJ6RAHgQbsLL_dmOV5BojGIV6Dg1ayDeIALWzP4M8s"
+    }
+  }
+}

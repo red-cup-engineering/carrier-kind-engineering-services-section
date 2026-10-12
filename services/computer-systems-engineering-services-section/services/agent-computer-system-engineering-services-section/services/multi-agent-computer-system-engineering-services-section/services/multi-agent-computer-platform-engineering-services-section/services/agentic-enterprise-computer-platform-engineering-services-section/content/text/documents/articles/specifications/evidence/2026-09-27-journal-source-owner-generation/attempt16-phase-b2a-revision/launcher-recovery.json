@@ -1,0 +1,5 @@
+{
+  "failureBeforeGeneration": "Original launcher allocated the full 284774856-byte executable while hashing and failed with ENOMEM before invocation record or process creation.",
+  "mechanicalCorrection": "SHA-256 now streams 1 MiB chunks; no generator input, candidate behavior, or receiver changes.",
+  "recoveryInvocationTerminal": true
+}

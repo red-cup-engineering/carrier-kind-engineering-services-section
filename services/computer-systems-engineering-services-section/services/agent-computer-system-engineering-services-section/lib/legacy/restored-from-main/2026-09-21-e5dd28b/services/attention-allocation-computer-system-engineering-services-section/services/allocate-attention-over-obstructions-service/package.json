@@ -1,0 +1,29 @@
+{
+  "name": "@red-cup-engineering/allocate-attention-over-obstructions-service",
+  "version": "0.1.0",
+  "description": "Selects obstructions to reconcile under an attention budget by greedy benefit-per-cost extension, reporting cost, benefit, residual, and the read-next order.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/allocate-attention-over-obstructions.mjs",
+  "bin": {
+    "allocate-attention-over-obstructions": "scripts/allocate-attention-over-obstructions.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/allocate-attention-over-obstructions.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

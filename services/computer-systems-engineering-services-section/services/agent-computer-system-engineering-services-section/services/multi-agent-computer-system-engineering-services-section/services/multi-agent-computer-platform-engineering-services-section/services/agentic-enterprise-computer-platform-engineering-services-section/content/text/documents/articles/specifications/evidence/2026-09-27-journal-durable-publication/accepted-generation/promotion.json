@@ -1,0 +1,12 @@
+{
+  "workOrderSha256": "2feb73fe22eb15238c58820bad60f62e3ba7322134b6285e94183cd15c341664",
+  "outputSha256": "1b6f01fe324bf25079f581369e44cf9e24b81c69e1debf3022217aaf11046621",
+  "inputSha256": "20e0f1be3ce5dbfc7d3de997172c14ffd4fe6f564ac3848f407410242a7731d0",
+  "assessmentSha256": "495089d760dfdb64343448284e7a7623f2ed4bcc8a19662223045d5f907a4c51",
+  "assayManifestSha256": "5a97720b39f1a73498cb9da4f2a6ef0d1e7b9e665db3eccd702b89567df6d7d9",
+  "limits": [
+    "Controlled local Linux process contention and injected syscall failures; no power interruption or remote filesystem assessed",
+    "This primitive does not establish journal integration or assistant behavior"
+  ],
+  "journalIntegration": "Outstanding; this option is not yet an effect reservation or enabled assistant capability"
+}

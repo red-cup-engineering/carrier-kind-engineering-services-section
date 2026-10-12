@@ -1,0 +1,91 @@
+{
+  "profileId": "spotcomp-regime-substitution-ladder-example",
+  "namedPlacements": [
+    {
+      "name": "padovan",
+      "stepDepth": 3,
+      "placementRegime": "finite-strict",
+      "stageCategory": "settling-finite",
+      "benchmarkLiftStatus": "has-omega1-aperiodic-benchmark-lift",
+      "evidence": [
+        "development/experimental/spotcomp/REGIME-SUBSTITUTION-LADDER.md",
+        "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/examples/benchmark-3-padovan.md"
+      ]
+    },
+    {
+      "name": "fibonacci",
+      "stepDepth": 2,
+      "placementRegime": "scott-continuous",
+      "stageCategory": "positing-scott-continuous",
+      "benchmarkLiftStatus": "has-omega1-aperiodic-benchmark-lift",
+      "evidence": [
+        "development/experimental/spotcomp/REGIME-SUBSTITUTION-LADDER.md",
+        "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/examples/benchmark-1-fibonacci.md"
+      ]
+    },
+    {
+      "name": "tribonacci",
+      "stepDepth": 3,
+      "placementRegime": "transfinite",
+      "stageCategory": "predicating-transfinite",
+      "benchmarkLiftStatus": "placement-declared-separately-from-any-lift",
+      "evidence": [
+        "development/experimental/spotcomp/REGIME-SUBSTITUTION-LADDER.md",
+        "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/canonical-step-shift-resolution.md"
+      ]
+    }
+  ],
+  "placementLadder": {
+    "padovanFinitePlacement": true,
+    "fibonacciScottContinuousPlacement": true,
+    "tribonacciTransfinitePlacement": true,
+    "stagePlacementSeparatedFromStepDepth": true,
+    "laterFamiliesRequireDeclaredPlacement": true,
+    "noGenericAperiodicFromName": true,
+    "evidence": [
+      "development/experimental/spotcomp/REGIME-SUBSTITUTION-LADDER.md",
+      "development/experimental/spotcomp/PREDICATION-STAGES.md"
+    ]
+  },
+  "benchmarkLiftBoundary": {
+    "omega1LiftRecognized": true,
+    "benchmarkRegimeNotDefaultPlacement": true,
+    "baseCofinalityRequired": true,
+    "lambdaBoundRequired": true,
+    "liftMayBeAperiodic": true,
+    "suiteCoverageNotNormativePlacement": true,
+    "evidence": [
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/examples/benchmark-1-fibonacci.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/examples/benchmark-3-padovan.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/examples/benchmark-suite-summary.md"
+    ]
+  },
+  "stepNAndBilattice": {
+    "stepDepthDeclared": true,
+    "moduliSubstackDeclared": true,
+    "alphabetCardinalityDeclared": true,
+    "bilatticeCardinalityBoundaryDeclared": true,
+    "structuralAlignmentRequiresOperationCommutation": true,
+    "thueMorsePositiveCaseSeparated": true,
+    "nGreaterThanFourNoFourCardinalityShortcut": true,
+    "evidence": [
+      "lab/archive/library/humanities/library/math/library/categories/theories/predication-theory/code/structures/step-n-substitution-rule.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/objects/step-n-moduli-substack.md",
+      "lab/archive/relating-repo/relating-repo/library/theories/humanities/theories/math/theories/categories/theories/predication-categories/theorems/step-n-and-bilattice-correspondence.md"
+    ]
+  },
+  "implementationBoundary": {
+    "noNameOnlyRegimeInference": true,
+    "noAlphabetOnlyRegimeInference": true,
+    "noStepDepthOnlyRegimeInference": true,
+    "noBenchmarkSuiteAsNormativePlacement": true,
+    "unknownPlacementBlocksStrongConformance": true,
+    "codeRemainsProbe": true,
+    "evidence": [
+      "development/experimental/spotcomp/REGIME-SUBSTITUTION-LADDER.md"
+    ]
+  },
+  "evidence": [
+    "development/experimental/spotcomp/REGIME-SUBSTITUTION-LADDER.md"
+  ]
+}

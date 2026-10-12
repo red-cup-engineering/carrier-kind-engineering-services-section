@@ -1,0 +1,142 @@
+{
+  "id": "holofoam-as-physics-simulation-engine",
+  "name": "Holofoam as the Group's physics simulation engine, on SignCells",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "Specifically we want to do this by working hard today on Farstone, which is meant to be our browser-based MMORPG/MUD/whatever-else-I-want-in-a-game.\n\n1) I want to start making it so folk can download and run Farstone. Like we need to think much more like \"okay this is a game we can like, sell, sell server access to.\"\n2) Here's the weirdest part: I want us to start working toward Farstone having a full-on game like Kerbal Space Program in it, but obviously, we want to beat Kerbal Space Program using everything the world has learned between when it was designed and now, and critically, use our own math as much as we can to help us.\n3) That puts hellllla pressure on our bespoke 3d graphics engine we're supposed to be building, which is great\n4) All this should put pressure upstream into the code we already have and\n5) it should also put pressure into our agentic orchestration stuff, so that this happens more orchestrated: agents work on research, then specs, then SAS, HLD, LLD, actual engineering, as part of a rich endeavor, a fleet or swarm, using-and-improving our best science and engineering on agentic work and governance\n6) this also should put pressure on how we store data (like, write it, the format) and addressing, to normalize those around best practices and how we store data like, keep it persisted on somenoe's harddrive, preferable at as little cost to us as possible\n7) same for CPU, networking, ram: better profiling and autonomous RSI is great\n8) find our theories on EDA, protein folding, and those forms of software design, and go \"there's probably equally weird and deep theory for everything and it's my job as ringleader to coordinate finding that information and getting it to the folk who need it\"\n\nI know that was a lot: the goal you should aim toward is beating Kerbal Space Program with Farstone (I'm picturing orbital launch platforms being one kind of ship that folk can build)?\n\nALong the way you should do everything I mentioned, while making sure that you improve Holofoam to be able to use it as our physics simulation engine (right now it's kind of biased toward web browser toy), then we have like i think durante, abrash, so many other engines for games, we need to start actually using them, and having them be in proper repo, using proper upstream software (everything should be SignCells, at the end of the day, that's what lets this foam and semiotics stuff happen everywhere).\n\nWe should also make sure that the MetroPlat servers run on Bare Cedar Fog and Cold Red Gate also continue to earn any improvements other software work gets us, i.e. I would love richer graphical representations of the 561 Group Semioverse (the content addressed foam of semiotic cells the 561 Group has constructed/recorded.)\n\nAll this is early alpha vibeslop and my prompt talks about code in the way it SHOULD be, even if it currently isn't that way; you align.",
+  "met-when": [
+    {
+      "cell": "holofoam:headless-step",
+      "target": "held",
+      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam/test/*orbit* >/dev/null 2>&1'",
+      "expected-exit": 0
+    },
+    {
+      "cell": "holofoam:entities-are-signcells",
+      "target": "held",
+      "command": "sh -c 'grep -q \"signcell\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam/package.json'",
+      "expected-exit": 0
+    },
+    {
+      "cell": "holofoam:replay-read",
+      "target": "held",
+      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam/test/*replay* >/dev/null 2>&1'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "program-manager (bare-cedar-fog-claude, dispatched under the Leader standing direction of 2026-10-09)",
+    "recorded-on": "2026-10-09",
+    "customer": "urn:leader:emsenn",
+    "basis": "Opening prompt of the Leader on Bare Cedar Fog, carried as a requirement record by the board-requirement-intake skill. The raised-by field and asks are the Leader's own words; the requirements below are the program manager's EARS rendering of what those words ask, and carry no scope the words do not.",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "Holofoam serves as the physics simulation engine for games such as Farstone, with every simulated thing a SignCell, and is no longer a browser toy.",
+      "scope": [
+        "section:services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam"
+      ],
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "Holofoam shall advance a rigid-body orbital simulation by a fixed tick and expose the state it reads to the game that calls it.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "The Leader: \"use it as our physics simulation engine\"."
+        },
+        {
+          "id": "R2",
+          "says": "Holofoam shall hold every simulated entity as a SignCell.",
+          "class": "constraint",
+          "moscow": "must",
+          "rationale": "The Leader: \"everything should be SignCells\"."
+        },
+        {
+          "id": "R3",
+          "says": "Holofoam shall run with no browser present.",
+          "class": "constraint",
+          "moscow": "must",
+          "rationale": "The Leader: it is \"biased toward web browser toy\"."
+        },
+        {
+          "id": "R4",
+          "says": "Holofoam shall let the SignCraft inference layer read the simulation's history and replay it.",
+          "class": "functional",
+          "moscow": "could",
+          "rationale": "The dispatch lists Holofoam as SignCraft's physics engine; the survey of 2026-10-08 finds history and replay the genuinely strong part of Holofoam."
+        }
+      ],
+      "conditions": [
+        {
+          "id": "holofoam:headless-step",
+          "says": "A headless orbital-step test exists.",
+          "method": "assay",
+          "verifies": [
+            "R1",
+            "R3"
+          ]
+        },
+        {
+          "id": "holofoam:entities-are-signcells",
+          "says": "Holofoam depends on the SignCell package.",
+          "method": "assay",
+          "verifies": [
+            "R2"
+          ]
+        },
+        {
+          "id": "holofoam:replay-read",
+          "says": "A replay test exists.",
+          "method": "assay",
+          "verifies": [
+            "R4"
+          ]
+        }
+      ],
+      "context": "The prompt has eight numbered wishes and a closing goal. Items 1 and 2 and the closing goal are the product (download, sell, beat Kerbal Space Program). Item 3 and the engines paragraph are the graphics engine and Holofoam. Items 4 to 8 are pressure on the Group's own methods and are carried by one request in the 561 Group section. The Leader's last paragraph: \"All this is early alpha vibeslop and my prompt talks about code in the way it SHOULD be, even if it currently isn't that way; you align.\" The first workflow run on this prompt was judged a \"pretty bad interpretation\": the session ran its subagents concurrently so \"they can't learn from each other\", and the Leader asked for research first, reasoning second, engineering third.",
+      "sources": [
+        {
+          "session": "claude session 0fbf24cb-8855-48f1-9c7e-852e0b4fb748",
+          "at-utc": "2026-10-08T16:44:52",
+          "words": "making sure that you improve Holofoam to be able to use it as our physics simulation engine (right now it's kind of biased toward web browser toy)",
+          "address": "ni:///sha-256;nX48bLCnuNp5CmJtvTkkWMiGVq0Qx4iE3B0bKTQvRVc"
+        },
+        {
+          "session": "claude session 0fbf24cb-8855-48f1-9c7e-852e0b4fb748",
+          "at-utc": "2026-10-08T16:44:52",
+          "words": "everything should be SignCells, at the end of the day, that's what lets this foam and semiotics stuff happen everywhere",
+          "address": "ni:///sha-256;nX48bLCnuNp5CmJtvTkkWMiGVq0Qx4iE3B0bKTQvRVc"
+        }
+      ],
+      "serves": [
+        "farstone-orbital-flight-game-beyond-kerbal-space-program"
+      ],
+      "after": [],
+      "traces": []
+    },
+    "held-research": [
+      "science-services-section/services/social-science-services-section/services/social-theory-science-services-section/services/ludics-science-services-section/services/game-ludics-services-section/content/text/documents/articles/notes/recovered/2026-08-19-note-on-farstone-qbn-design.md",
+      "science-services-section/services/social-science-services-section/services/social-theory-science-services-section/services/ludics-science-services-section/services/game-ludics-services-section/content/text/documents/articles/notes/recovered/planned/2026-08-19-note-on-farstone-legacy-status.md",
+      "engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/computer-mud-engineering-services-section",
+      "public-services-section/services/public-media-services-section/services/public-games-services-section/services/public-web-games-services-section/sites/farstone.561.group",
+      "engineering-services-section/content/text/documents/articles/notes/2026/10/09/2026-10-09-note-on-receiving-the-open-pull-requests.md",
+      "repo:causeway-services/farstone (farstone #7, \"data gate defaulting to do-not-place\", is cited in the 2026-10-09 receiving note, line 132, as a good form)",
+      "engineering-services-section/services/computer-engineering-services-section/content/text/documents/articles/notes/2026/10/08/2026-10-08-logical-inference-model-survey-holofoam-life.md",
+      "engineering-services-section/services/computer-engineering-services-section/content/text/documents/articles/notes/2026/10/08/2026-10-08-logical-inference-model-survey-theory-foam-life-language.md"
+    ],
+    "not-held": "Holofoam's survey (2026-10-08) reads it as a history-replay engine with a browser studio; no physics-engine requirement for it is held.",
+    "unresolved-authority": "None. The outcome is the owning section's to realize; acceptance is the assayer's.",
+    "relayed-not-quoted": "\"Holofoam as SignCraft's physics engine\" is the dispatch's wording for R4; the Leader's sentence is \"use it as our physics simulation engine\".",
+    "utterances": [
+      "ni:///sha-256;nX48bLCnuNp5CmJtvTkkWMiGVq0Qx4iE3B0bKTQvRVc"
+    ],
+    "related": [
+      "farstone-flagship-world"
+    ],
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;RPD1lLU8Z9JposU8IEb0aVHA5EQDqtHCDY91erKQ0Q0",
+      "cell": "ni:///sha-256;D3Tpq3Do6CUcnP2ruhY7XCJsy0wTHFt9lbT759pFES8"
+    }
+  }
+}

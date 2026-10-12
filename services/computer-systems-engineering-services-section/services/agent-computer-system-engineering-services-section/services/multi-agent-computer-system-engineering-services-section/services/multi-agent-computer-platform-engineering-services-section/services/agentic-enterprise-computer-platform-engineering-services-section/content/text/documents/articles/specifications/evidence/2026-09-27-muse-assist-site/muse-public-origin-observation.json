@@ -1,0 +1,40 @@
+{
+  "observedAt": 1790538530.4220595,
+  "results": [
+    {
+      "route": "/",
+      "status": 403,
+      "sha256": "2938e9f1284180959e33ab1718d0793a72ff6e4cdb8108c34dcd14e69446de5c",
+      "matchesLocal": false,
+      "server": "cloudflare"
+    },
+    {
+      "route": "/development/",
+      "status": 403,
+      "sha256": "2938e9f1284180959e33ab1718d0793a72ff6e4cdb8108c34dcd14e69446de5c",
+      "matchesLocal": false,
+      "server": "cloudflare"
+    },
+    {
+      "route": "/comparison/",
+      "status": 403,
+      "sha256": "2938e9f1284180959e33ab1718d0793a72ff6e4cdb8108c34dcd14e69446de5c",
+      "matchesLocal": false,
+      "server": "cloudflare"
+    },
+    {
+      "route": "/release-manifest.json",
+      "status": 403,
+      "sha256": "2938e9f1284180959e33ab1718d0793a72ff6e4cdb8108c34dcd14e69446de5c",
+      "matchesLocal": false,
+      "server": "cloudflare"
+    },
+    {
+      "route": "/unavailable-verification-page",
+      "status": 403,
+      "sha256": "2938e9f1284180959e33ab1718d0793a72ff6e4cdb8108c34dcd14e69446de5c",
+      "matchesLocal": false,
+      "server": "cloudflare"
+    }
+  ]
+}

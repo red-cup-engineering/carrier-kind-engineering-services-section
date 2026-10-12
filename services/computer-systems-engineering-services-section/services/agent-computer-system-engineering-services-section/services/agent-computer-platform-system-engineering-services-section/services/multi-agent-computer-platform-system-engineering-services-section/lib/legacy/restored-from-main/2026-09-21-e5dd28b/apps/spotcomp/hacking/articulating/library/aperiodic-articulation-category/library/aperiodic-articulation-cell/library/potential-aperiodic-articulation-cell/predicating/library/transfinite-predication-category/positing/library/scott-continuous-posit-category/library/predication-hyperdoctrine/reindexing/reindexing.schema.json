@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/library/predication-hyperdoctrine/reindexing/reindexing.schema.json",
+  "title": "Reindexing morphism record",
+  "description": "Morphism: a predication fiber algebra A_p -> the predication hyperdoctrine over it, after verifying the reindexing functors and their adjoints. Converse f* swaps the entity-pair (verified involution + commutes with negation). Subject projection pulls a unary fiber back to binary (g(s,o)=g(s)); its left adjoint exists_object and right adjoint forall_object are truth-join/meet over the object; the Galois adjunctions exists -| pi* -| forall are verified (unit and counit) over the truth order. Object projection is symmetric (quantify over the subject).",
+  "type": "object",
+  "required": ["input", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "input": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/library/predication-fibration/library/predication-fiber-algebra/predication-fiber-algebra.schema.json" },
+    "output": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/library/predication-hyperdoctrine/predication-hyperdoctrine.schema.json" }
+  }
+}

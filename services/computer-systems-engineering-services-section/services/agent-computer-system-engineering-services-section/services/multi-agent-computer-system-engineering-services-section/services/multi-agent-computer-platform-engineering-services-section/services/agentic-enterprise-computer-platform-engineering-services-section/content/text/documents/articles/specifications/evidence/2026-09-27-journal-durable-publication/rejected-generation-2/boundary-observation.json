@@ -1,0 +1,6 @@
+{
+  "checkoutAbsent": true,
+  "assayAbsent": true,
+  "pidNamespaceDiffers": true,
+  "limits": "Local mount/process separation; no claim about provider-server retention"
+}

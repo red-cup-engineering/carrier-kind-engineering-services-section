@@ -1,0 +1,453 @@
+/**
+ * @packageDocumentation
+ *
+ * integrations/lean/workspace/service - live Lean project host-mark scanning.
+ *
+ * This service owns metroplat's own filesystem and process boundaries for
+ * Lean workspaces: package-capability-surface introspection, Codex session
+ * transcript fibers, a durable content-artifact projection, and Lean/Lake
+ * command observations. The portable Lean/TeX/Blueprint/Verso domain read
+ * (file plate codecs, import/theorem/coverage readouts, and the core
+ * filesystem walk) lives in `@red-cup-engineering/lean-system-services-section`
+ * and is composed here through `readLeanWorkspaceCore`, not re-derived.
+ */
+import path from "node:path";
+import { canonicalJson } from "@red-cup-engineering/json-services-section";
+
+import { requirePackageManifest } from "@red-cup-engineering/jsnode-package-services-section/workspace/package-manifest";
+import { binSurfaceOfPackageManifest } from "@red-cup-engineering/jsnode-package-services-section/workspace/bins";
+import {
+  leanWorkspaceCodexSessionReadContract,
+  leanWorkspaceContentProjectionContract,
+  leanWorkspaceContentReadContract,
+  leanWorkspaceReadContract,
+
+} from "@red-cup-engineering/feltos/operations/lean/schema";
+import {
+  leanBuildReportContract,
+  leanWorkspaceTopicReadContract,
+
+} from "@red-cup-engineering/lean-system-services-section/schema";
+import { exportSurfaceOfPackageManifest } from "@red-cup-engineering/jsnode-package-services-section/workspace/exports";
+import { packageSurfaceOf } from "@red-cup-engineering/jsnode-package-services-section/workspace/package-surface";
+import { schemasOfOperations } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { parseJsonValue as parse } from "@red-cup-engineering/json-services-section/parse-json-value";
+import { decodeLeanLakefileToml } from "@red-cup-engineering/lean-system-services-section/codec/lakefile";
+import { decodeLeanModule } from "@red-cup-engineering/lean-system-services-section/codec/module";
+import {
+  leanCapabilityAuthorityReport,
+  leanCapabilitySurfaceFromPackageSurface,
+  leanDeclarationCatalog,
+  leanTheoremReferenceCoverage,
+  mergeLeanTheoremReferenceIndexes,
+
+} from "@red-cup-engineering/lean-system-services-section/view";
+import {
+  readLeanWorkspaceCore,
+  collectLeanSources,
+  sourceReferenceFiles,
+
+} from "@red-cup-engineering/lean-system-services-section/workspace/service";
+import { leanWorkspaceRootModuleFromLakefile } from "@red-cup-engineering/lean-system-services-section/workspace";
+import { leanRelationalConfigurationReport, leanTheoremReferencesFromOpenAIChronicle } from "../view.mjs";
+import {
+  discoverCodexSessionTranscripts,
+  readCodexSessionTranscript,
+
+} from "@red-cup-engineering/feltos/operations/openai/codex/service";
+import { decodeBlueprintTexPlate } from "@red-cup-engineering/lean-system-services-section/blueprint/codec";
+import { blueprintClaimGraph } from "@red-cup-engineering/lean-system-services-section/blueprint/view";
+import { decodeVersoTexPlate } from "@red-cup-engineering/lean-system-services-section/verso/codec";
+import { versoExpositionWeldReport } from "@red-cup-engineering/lean-system-services-section/verso/view";
+import { readTexWorkspace } from "@red-cup-engineering/lean-system-services-section/tex/workspace-service";
+import { writeFileAtomic } from "@red-cup-engineering/computer-system-engine/filesystem";
+import { executeJavascriptNodeCommand } from "@red-cup-engineering/execute-javascript-node-command-service";
+import { processIsoNow } from "@red-cup-engineering/node-process-services-section/clock";
+import { processCommandExitCode, processCommandLifecycleRecord, processDiagnosticLines } from "@red-cup-engineering/node-process-services-section/command";
+
+import {
+  recordServiceLifecycleRecord,
+
+} from "@red-cup-engineering/feltos/dashboards/service-lifecycle";
+import {
+  leanWorkspaceContentArtifactAddress,
+  leanWorkspaceContentReadArtifact,
+
+} from "@red-cup-engineering/lean-system-services-section/workspace/platform/workspace";
+import { jsonResource } from "@red-cup-engineering/json-services-section";
+
+function readOptional(root, relativePath, options) {
+  const source = path.join(root, relativePath);
+  if (!options.pathExists(source)) return undefined;
+  return options.readFileUtf8(source);
+}
+
+function readFirstExisting(root, relativePaths, options) {
+  for (const relativePath of relativePaths) {
+    const text = readOptional(root, relativePath, options);
+    if (text !== undefined) return Object.freeze({ path: relativePath, text });
+  }
+  return undefined;
+}
+
+function leanWorkspaceContentOptions(options) {
+  return options.at === undefined ? { ...options, at: processIsoNow() } : options;
+}
+
+/** Read a workspace's `lakefile.toml`, if present. `readLeanWorkspaceTopic`'s
+ *  bounded/filtered read cannot reuse `readLeanWorkspaceCore`'s own internal
+ *  lakefile read, so it keeps this tiny host read locally; the Lake TOML
+ *  decoding itself stays the package's `decodeLeanLakefileToml`. */
+function lakefileFromRoot(root, options) {
+  const lakefileToml = readFirstExisting(root, ["lakefile.toml"], options);
+  if (lakefileToml !== undefined) return decodeLeanLakefileToml(lakefileToml.text);
+  return undefined;
+}
+
+function readLeanCapabilitySurface(
+  root,
+  options,
+  operations,
+) {
+  if (options.includePackageCapabilitySurface === false) return undefined;
+  const manifestText = readOptional(root, "package.json", options);
+  if (manifestText === undefined) return undefined;
+  try {
+    const manifest = requirePackageManifest(manifestText, "package.json");
+    const exportSurface = exportSurfaceOfPackageManifest(manifest);
+    const packageSurface = packageSurfaceOf(exportSurface, binSurfaceOfPackageManifest(manifest));
+    return leanCapabilitySurfaceFromPackageSurface({
+      actions: operations,
+      schemas: schemasOfOperations(operations),
+      packageSurface: {
+        exports: {
+          entries: (exportSurface.entries)
+            .map((entry) => ({ specifier: entry.specifier })),
+        },
+      },
+    });
+  } catch {
+    return undefined;
+  }
+}
+
+function leanWorkspaceCodexSessionRead(read) {
+  return leanWorkspaceCodexSessionReadContract.assert(Object.freeze({
+    root: read.root,
+    relative: read.relative,
+    source: read.source,
+    bytes: read.bytes,
+    events: read.events,
+    chronicle: read.chronicle,
+  }), "Lean workspace Codex session read fiber");
+}
+
+function readLeanWorkspaceCodexSessions(root, options) {
+  const explicit = options.codexSessionTranscripts ?? [];
+  const discovered = (options.codexSessionDiscovery ?? []).flatMap((entry) =>
+    discoverCodexSessionTranscripts(entry.root, {
+      ...options,
+      ...(entry.sessionIds === undefined ? {} : { sessionIds: entry.sessionIds }),
+      ...(entry.date === undefined ? {} : { date: entry.date }),
+      ...(entry.maxDepth === undefined ? {} : { maxDepth: entry.maxDepth }),
+      ...(entry.limit === undefined ? {} : { limit: entry.limit }),
+      caller: { service: "services/lean-workspace", workspaceRoot: root },
+    }).matches.map((match) => Object.freeze({
+      root: match.root,
+      relative: match.relative,
+      sessionId: match.sessionId,
+    })));
+  return Object.freeze([...explicit, ...discovered].map((entry) =>
+    leanWorkspaceCodexSessionRead(readCodexSessionTranscript(entry.root ?? root, entry.relative, {
+      ...options,
+      ...(entry.sessionId === undefined ? {} : { sessionId: entry.sessionId }),
+      caller: { service: "services/lean-workspace", workspaceRoot: root },
+    }))));
+}
+
+function readSessionTheoremReferences(
+  sessionReads,
+  rootName,
+  theoremSpine,
+  declarationIndex,
+) {
+  const knownDeclarations = [...new Set([
+    ...theoremSpine.entries.map((entry) => entry.name),
+    ...(declarationIndex?.declarations ?? []),
+  ])].sort();
+  const indexes = sessionReads.map((read) => leanTheoremReferencesFromOpenAIChronicle(read.chronicle, {
+    source: read.relative,
+    knownDeclarations,
+  })).filter((index) => index.references.length > 0);
+  return indexes.length === 0 ? undefined : mergeLeanTheoremReferenceIndexes(indexes, `${rootName}:codex-sessions`);
+}
+
+function mergeOptionalTheoremReferences(
+  rootName,
+  indexes,
+) {
+  const nonempty = indexes.filter((index) => index !== undefined && index.references.length > 0);
+  return nonempty.length === 0 ? undefined : mergeLeanTheoremReferenceIndexes(nonempty, rootName);
+}
+
+function textMentionsTerm(text, terms) {
+  const lowered = text.toLocaleLowerCase();
+  return terms.some((term) => lowered.includes(term.toLocaleLowerCase()));
+}
+
+function topicSearchTerms(terms, aliases) {
+  const expanded = terms.flatMap((term) => {
+    const aliasTerms = aliases?.[term] ?? [];
+    return [term, ...aliasTerms];
+  });
+  return [...new Set(expanded.map((term) => term.trim()).filter((term) => term !== ""))].sort();
+}
+
+function topicReferences(
+  root,
+  file,
+  text,
+  terms,
+  maxReferencesPerFile,
+) {
+  const out = [];
+  const relative = path.relative(root, file).replace(/\\/gu, "/");
+  const lines = text.split(/\r?\n/u);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index] ?? "";
+    const lowered = line.toLocaleLowerCase();
+    for (const term of terms) {
+      if (!lowered.includes(term.toLocaleLowerCase())) continue;
+      out.push(Object.freeze({
+        path: relative,
+        line: index + 1,
+        term,
+        snippet: line.trim().slice(0, 240),
+      }));
+      if (out.length >= maxReferencesPerFile) return Object.freeze(out);
+    }
+  }
+  return Object.freeze(out);
+}
+
+/** Read a live Lean project directory into admitted Lean information records. */
+export function readLeanWorkspace(
+  root,
+  options = {},
+  operations = [],
+) {
+  const absoluteRoot = path.resolve(root);
+  const core = readLeanWorkspaceCore(absoluteRoot, options);
+  const codexSessionReads = readLeanWorkspaceCodexSessions(absoluteRoot, options);
+  const sessionTheoremReferences = readSessionTheoremReferences(codexSessionReads, path.basename(absoluteRoot), core.theoremSpine, core.declarationIndex);
+  const theoremReferences = mergeOptionalTheoremReferences(path.basename(absoluteRoot), [
+    core.theoremReferences,
+    sessionTheoremReferences,
+  ]);
+  const theoremReferenceCoverage = theoremReferences === undefined ? undefined : leanTheoremReferenceCoverage(theoremReferences, core.theoremSpine);
+  const capabilitySurface = readLeanCapabilitySurface(absoluteRoot, options, operations);
+  const capabilityAuthorityReport = capabilitySurface === undefined || core.capabilityClaims === undefined
+    ? undefined
+    : leanCapabilityAuthorityReport(core.capabilityClaims.claims, capabilitySurface, core.theoremSpine);
+  const relationalConfigurationReport = leanRelationalConfigurationReport({
+    environment: core.environment,
+    importGraph: core.importGraph,
+    theoremSpine: core.theoremSpine,
+    ...(core.obligationCoverage === undefined ? {} : { obligationCoverage: core.obligationCoverage }),
+    ...(theoremReferenceCoverage === undefined ? {} : { theoremReferenceCoverage }),
+    ...(core.texWorkspaceRead === undefined ? {} : { blueprintClaimGraph: core.texWorkspaceRead.blueprintClaimGraph }),
+    ...(core.texWorkspaceRead === undefined ? {} : { versoExpositionWeldReport: core.texWorkspaceRead.versoExpositionWeldReport }),
+    ...(codexSessionReads.length === 0 ? {} : { openaiChronicles: codexSessionReads.map((read) => read.chronicle) }),
+    ...(capabilitySurface === undefined ? {} : { capabilitySurface }),
+    ...(core.capabilityClaims === undefined ? {} : { capabilityClaims: core.capabilityClaims }),
+    ...(capabilityAuthorityReport === undefined ? {} : { capabilityAuthorityReport }),
+  });
+  return leanWorkspaceReadContract.assert(Object.freeze({
+    kind: "metroplat.lean.workspace",
+    root: core.root,
+    rootModule: core.rootModule,
+    moduleSources: core.moduleSources,
+    conformanceSources: core.conformanceSources,
+    modules: core.modules,
+    conformanceModules: core.conformanceModules,
+    ...(codexSessionReads.length === 0 ? {} : { codexSessionReads }),
+    ...(theoremReferences === undefined ? {} : { theoremReferences }),
+    ...(theoremReferenceCoverage === undefined ? {} : { theoremReferenceCoverage }),
+    ...(capabilitySurface === undefined ? {} : { capabilitySurface }),
+    ...(core.capabilityClaims === undefined ? {} : { capabilityClaims: core.capabilityClaims }),
+    ...(capabilityAuthorityReport === undefined ? {} : { capabilityAuthorityReport }),
+    ...(core.texWorkspaceRead === undefined ? {} : { texWorkspaceRead: core.texWorkspaceRead }),
+    environment: core.environment,
+    declarationCatalog: core.declarationCatalog,
+    importGraph: core.importGraph,
+    theoremSpine: core.theoremSpine,
+    relationalConfigurationReport,
+    ...(core.obligationCoverage === undefined ? {} : { obligationCoverage: core.obligationCoverage }),
+    ...(core.toolchain === undefined ? {} : { toolchain: core.toolchain }),
+    ...(core.lakefile === undefined ? {} : { lakefile: core.lakefile }),
+    ...(core.declarationIndex === undefined ? {} : { declarationIndex: core.declarationIndex }),
+  }), "Lean workspace read");
+}
+
+/** Read a bounded Lean project slice around selected terms, modules, and documents. */
+export function readLeanWorkspaceTopic(root, options) {
+  const absoluteRoot = path.resolve(root);
+  const terms = [...new Set(options.terms.map((term) => term.trim()).filter((term) => term !== ""))].sort();
+  if (terms.length === 0) throw new TypeError("readLeanWorkspaceTopic: at least one term is required");
+  const searchTerms = topicSearchTerms(terms, options.aliases);
+  const maxReferencesPerFile = options.maxReferencesPerFile ?? 12;
+  const lakefile = lakefileFromRoot(absoluteRoot, options);
+  const rootModule = options.rootModule ?? leanWorkspaceRootModuleFromLakefile(lakefile, path.basename(absoluteRoot));
+  const moduleSources = collectLeanSources(absoluteRoot, lakefile, options)
+    .filter((source) => textMentionsTerm(`${source.module}\n${source.text}`, searchTerms));
+  const modules = Object.freeze(moduleSources.map((source) => decodeLeanModule(source.text, source.module, source.path)));
+  const referenceFiles = sourceReferenceFiles(absoluteRoot, {
+    ...options,
+    referenceRoots: options.referenceRoots ?? Object.freeze(["docs/blueprint", "docs/verso", "dev/content/notes"]),
+    referenceExtensions: options.referenceExtensions ?? Object.freeze([".lean", ".tex", ".md"]),
+  });
+  const matchingReferenceFiles = referenceFiles.flatMap((file) => {
+    const text = options.readFileUtf8(file);
+    return textMentionsTerm(text, searchTerms) ? [Object.freeze({ file, text })] : [];
+  });
+  const references = Object.freeze(matchingReferenceFiles.flatMap(({ file, text }) =>
+    topicReferences(absoluteRoot, file, text, searchTerms, maxReferencesPerFile)));
+  const blueprintPlates = matchingReferenceFiles
+    .filter(({ file }) => path.relative(absoluteRoot, file).replace(/\\/gu, "/").startsWith("docs/blueprint/"))
+    .map(({ file, text }) => decodeBlueprintTexPlate(text, path.relative(absoluteRoot, file).replace(/\\/gu, "/")));
+  const versoPlates = matchingReferenceFiles
+    .filter(({ file }) => path.relative(absoluteRoot, file).replace(/\\/gu, "/").startsWith("docs/verso/"))
+    .map(({ file, text }) => decodeVersoTexPlate(text, path.relative(absoluteRoot, file).replace(/\\/gu, "/")));
+  const declarationCatalog = leanDeclarationCatalog(modules);
+  const blueprint = blueprintPlates.length === 0 ? undefined : blueprintClaimGraph(blueprintPlates);
+  const verso = versoPlates.length === 0 ? undefined : versoExpositionWeldReport(versoPlates, {
+    leanDeclarations: declarationCatalog,
+    ...(blueprint === undefined ? {} : { blueprint }),
+  });
+  return leanWorkspaceTopicReadContract.assert(Object.freeze({
+    kind: "metroplat.lean.workspace-topic-read",
+    root: absoluteRoot,
+    rootModule,
+    terms,
+    searchTerms,
+    moduleSources,
+    modules,
+    references,
+    ...(blueprint === undefined ? {} : { blueprintClaimGraph: blueprint }),
+    ...(verso === undefined ? {} : { versoExpositionWeldReport: verso }),
+    evidence: Object.freeze([
+      `lean-modules:${modules.length}`,
+      `references:${references.length}`,
+      `blueprint-plates:${blueprintPlates.length}`,
+      `verso-plates:${versoPlates.length}`,
+    ]),
+    mediaType: "application/vnd.metroplat.lean.workspace-topic-read+json",
+  }), "Lean workspace topic read");
+}
+
+/** Read a Lean project and write that Lean information surface as a `content/` artifact. */
+export function projectLeanWorkspaceContentAtRoot(
+  dataRoot,
+  workspaceRoot,
+  readOptions = {},
+  options = {},
+) {
+  const workspace = readLeanWorkspace(workspaceRoot, readOptions);
+  const addressOptions = leanWorkspaceContentOptions(options);
+  const { address, artifact } = leanWorkspaceContentArtifactAddress(dataRoot, workspace.rootModule, addressOptions);
+  const serialized = `${canonicalJson(jsonResource(workspace, "Lean workspace content artifact"))}\n`;
+  writeFileAtomic(address.path, serialized);
+  return leanWorkspaceContentProjectionContract.assert(Object.freeze({
+    kind: "metroplat.lean.workspace-content-projection",
+    operation: "project-lean-workspace-content",
+    root: dataRoot,
+    workspaceRoot: workspace.root,
+    path: address.path,
+    artifact,
+    bytes: Buffer.byteLength(serialized, "utf8"),
+    modules: workspace.modules.length,
+    conformanceModules: workspace.conformanceModules.length,
+  }), "Lean workspace content projection");
+}
+
+/** Explicit hot readback for a Lean workspace content artifact path. */
+export function readLeanWorkspaceContentPath(
+  contentPath,
+  options = {},
+) {
+  const parsed = parse(options.readFileUtf8(contentPath));
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new TypeError("readLeanWorkspaceContentPath: workspace artifact must be a JSON object");
+  }
+  const workspace = parsed;
+  const artifact = leanWorkspaceContentReadArtifact(contentPath);
+  return leanWorkspaceContentReadContract.assert(Object.freeze({
+    kind: "metroplat.lean.workspace-content-read",
+    operation: "read-lean-workspace-content",
+    path: contentPath,
+    artifact,
+    workspace,
+  }), "Lean workspace content read");
+}
+
+// No service verb lives here: workspace reports are derived views for the
+// filesystem `read` (state-tier cut addresses over `readLeanWorkspace`), and
+// Lean/Lake commands run through the lifecycle-recorded process boundary.
+
+/** Read a Lean/Lake command result as a service-bound diagnostic observation. */
+export function leanWorkspaceCommandReport(input
+
+) {
+  const stdout = input.stdout ?? "";
+  const stderr = input.stderr ?? "";
+  const combined = `${stdout}\n${stderr}`;
+  const errors = processDiagnosticLines(combined, "error");
+  const warnings = processDiagnosticLines(combined, "warning");
+  return leanBuildReportContract.assert({
+    kind: "metroplat.lean.build-report",
+    command: input.command,
+    args: Object.freeze([...input.args]),
+    exitCode: input.exitCode,
+    stdout,
+    stderr,
+    succeeded: input.exitCode === 0 && errors.length === 0,
+    errors,
+    warnings,
+    mediaType: "application/vnd.metroplat.lean.build-report+json",
+  }, "Lean workspace command report");
+}
+
+/** Run a Lean-family command at a workspace boundary and decode its diagnostics. */
+export function runLeanWorkspaceCommand(root, options = {}) {
+  const command = options.command ?? "lake";
+  const args = options.args ?? ["build"];
+  const cwd = path.resolve(root);
+  const commandContext = { command, args, cwd };
+  const receipt = executeJavascriptNodeCommand({
+    type: "JavascriptNodeCommandExecutionRequest",
+    version: 1,
+    command,
+    arguments: [...args],
+    directory: cwd,
+    environment: null,
+    input: null,
+  });
+  const { result } = receipt;
+  const lifecycle = processCommandLifecycleRecord(
+    commandContext,
+    result,
+    options.at ?? processIsoNow(),
+    "services/lean-workspace:runLeanWorkspaceCommand",
+  );
+  for (const event of lifecycle.events) options.lifecycle?.(event);
+  if (options.lifecyclePersistence !== undefined) {
+    recordServiceLifecycleRecord(options.lifecyclePersistence, lifecycle);
+  }
+  return leanWorkspaceCommandReport({
+    command,
+    args,
+    exitCode: processCommandExitCode(result),
+    stdout: result.stdout,
+    stderr: result.stderr || result.error || "",
+  });
+}

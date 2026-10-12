@@ -1,0 +1,10 @@
+{
+  "exitCode": 0,
+  "stdout": "{\"checks\":52,\"passed\":52,\"failures\":[]}\n",
+  "stderr": "",
+  "candidateSha256": "33c9e5c3cc2e639bd8b64586fc2c1a1d3e88d88bc035ea967fa96dbe93fdbe63",
+  "assayCommitment": {
+    "manifestSha256": "99b7b33e7344c7f7be9328f41d2348da36e30e4f61c48174085733e3e978521a",
+    "committedBeforeGeneration": true
+  }
+}

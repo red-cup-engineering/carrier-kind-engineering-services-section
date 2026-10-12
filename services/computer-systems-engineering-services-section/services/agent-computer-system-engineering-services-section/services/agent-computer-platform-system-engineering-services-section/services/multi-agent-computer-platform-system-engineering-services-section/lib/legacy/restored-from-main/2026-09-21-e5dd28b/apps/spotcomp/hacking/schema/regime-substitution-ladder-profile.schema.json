@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/spotcomp/regime-substitution-ladder-profile.schema.json",
+  "title": "SPOTCOMP Regime Substitution Ladder Profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "namedPlacements",
+    "placementLadder",
+    "benchmarkLiftBoundary",
+    "stepNAndBilattice",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "namedPlacements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "stepDepth",
+          "placementRegime",
+          "stageCategory",
+          "benchmarkLiftStatus",
+          "evidence"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "stepDepth": { "type": "integer", "minimum": 1 },
+          "placementRegime": { "type": "string", "minLength": 1 },
+          "stageCategory": { "type": "string", "minLength": 1 },
+          "benchmarkLiftStatus": { "type": "string", "minLength": 1 },
+          "evidence": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "minItems": 1
+          }
+        }
+      },
+      "minItems": 3
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "profileId": "closure-settling-apex-candidate",
+  "closure2Monad": {
+    "id": "Cl:predication-fibration",
+    "ambient2Category": "PrFib(L,C,E)",
+    "operatorFamily": "cl_p natural in predicate-category morphisms",
+    "axioms": [
+      "knowledge-monotone",
+      "inflationary-unit",
+      "lax-idempotent-multiplication",
+      "predicate-reindexing-natural"
+    ],
+    "algebrasAreClosedFibrations": true,
+    "propertyLike": true,
+    "actsOn": "fiber-values",
+    "commutesWithFibrationAxis": true,
+    "evidence": [
+      "development/active/.../closure-2-monad/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "settlingEndofunctor": {
+    "id": "F_U",
+    "ambient2Category": "PrFib(L,C,E)",
+    "formula": "F_U(E)_tau = Cl(E) join_k u_tau",
+    "incrementSequenceNatural": true,
+    "closeThenMerge": true,
+    "mergeThenClose": true,
+    "closureMergeCommutation": {
+      "equation": "cl(cl(X) join_k Y) = cl(X join_k Y)",
+      "proofStatus": "lean-verified-lattice",
+      "bridgesTransientFormulas": true,
+      "evidence": [
+        "development/active/.../closure-merge-commutation/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    "orbitIsPredicationSettling": true,
+    "eventualZeroIncrementsPolicy": "pure-closure-after-last-increment",
+    "evidence": [
+      "development/active/.../settling-endofunctor/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "settlingApex": {
+    "kind": "settling-apex",
+    "fixedPointTheorem": "Knaster-Tarski",
+    "leastFixedPoint": true,
+    "closureFixed": true,
+    "uniqueAlgebraStructure": true,
+    "closureOrdinalClaim": "finite",
+    "regime": "strict",
+    "ruleSystemId": "closure-rule-system:task-status-v1",
+    "frontierId": "frontier:task-17/status@2026-05-27T00:00:03Z",
+    "boundedFuelPolicy": "partial-prefix-only",
+    "evidence": [
+      "CLOSURE-SETTLING.md",
+      "development/active/.../closure-2-monad/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "sigmaDeltaCycle": {
+    "order": "delta-pass -> sigma-pass",
+    "deltaPass": {
+      "role": "evidence-accumulation",
+      "knowledgeJoin": true,
+      "crdtMergeView": true,
+      "topAtContestation": true,
+      "evidence": [
+        "development/active/.../sigma-delta-cycle/delta-pass/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    "sigmaPass": {
+      "role": "contestation-resolution",
+      "tensorResolution": true,
+      "emitsOnlyChangedEntries": true,
+      "requiresTopForStateChange": true,
+      "evidence": [
+        "development/active/.../sigma-delta-cycle/sigma-pass/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    "repeatsUntil": "no-new-entries-or-declared-nonfinal-trajectory",
+    "evidence": [
+      "development/active/.../sigma-delta-cycle/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "localSettling": {
+    "subSettlingOfUniversal": true,
+    "restrictionBasis": "cells involving object or modeled player",
+    "boundedAboveByUniversal": true,
+    "localStages": ["doing", "learning", "teaching"],
+    "nonSigmaDeltaContentRejected": true,
+    "modeledPlayerStateAllowed": true,
+    "evidence": [
+      "development/active/.../local-settling/docs/dev/journal/2026-05-24.md",
+      "MODELED-PLAYERS.md"
+    ]
+  },
+  "finiteBoundary": {
+    "finiteSettlementDownstream": true,
+    "finalRequiresApexEvidence": true,
+    "boundedFuelIsPartial": true,
+    "projectionArtifactsSeparate": true,
+    "fourProjectionOnly": true,
+    "evidence": [
+      "PREDICATION-STAGES.md",
+      "CLOSURE-SETTLING.md"
+    ]
+  },
+  "openObligations": [
+    "prove the full 2-categorical lift of closure-merge commutation",
+    "compute or verify closure ordinals for real rule systems",
+    "derive local-settling restriction parameters for modeled-player state"
+  ],
+  "evidence": [
+    "CLOSURE-SETTLING.md",
+    "CATEGORICAL-MACHINERY.md",
+    "REGIME-FEDERATION.md"
+  ]
+}

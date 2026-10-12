@@ -1,0 +1,76 @@
+{
+  "id": "swarm-replay-from-peer",
+  "name": "A node that cannot be dialed pulls the witnesses it lacks from a peer (replay-from-peer)",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must.",
+  "met-when": [
+    {
+      "cell": "swarm:pull-converges",
+      "target": "held",
+      "command": "sh -c 'cd \"${COMPUTER_SERVICES_SECTION:?checkout of the owning repository}/services/computer-systems-engineering-services-section/apps/computer-system-engine\" && test -f test/settlement-pull.test.mjs && node --test test/settlement-pull.test.mjs'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "routine",
+  "realized-by": [
+    "computer-services-section-replay-from-peer"
+  ],
+  "x-provenance": {
+    "recorded-by": "research-realization session (Lenticule research -> Red Cup engineering), dispatched by the orchestrator of 2026-10-10",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "convert-to-signed-cells": true,
+    "conversion-note": "Written in the requirement.schema.json form pending the canonical signcell call for requirement records; each met-when condition becomes a predication cell told held or denied by its command's exit.",
+    "basis": "The founder's demand that held research be realized in running code, carried with the research claim it realizes. The founder's words are quoted unedited; the research quote is the claim the tests exercise.",
+    "research": [
+      {
+        "path": "science-services-section/services/philosophy-services-section/services/relationality-services-section/services/agency-services-section/content/text/documents/articles/research/predicated-agentic-orchestration-platform/flatfile-agentic-resource-system/code/transformers/replay-from-peer.md",
+        "says": "requests, admits, and merges a contiguous range … from a peer; colony note: a colony that cannot be dialed must also be able to *pull* what it lacks"
+      }
+    ],
+    "owning-repository": "red-cup-engineering/computer-services-section",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "A node pulls from each peer the granted settlement witnesses its own holdings lack, merging them through the journal's one admission path.",
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "The node shall serve a signed pull that answers with the granted witnesses the requester's holdings lack.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R2",
+          "says": "A pull shall be idempotent: pulling again admits nothing.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R3",
+          "says": "A peer with no feed grant shall be refused a pull.",
+          "class": "functional",
+          "moscow": "must"
+        }
+      ],
+      "sources": [
+        {
+          "session": "session_01WFXZzAiqfYxQPLLLaH1sGU",
+          "at": "2026-09-03",
+          "words": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must."
+        },
+        {
+          "session": "session_01PnEE1T1PdzBe6LCAMGaN8E",
+          "at": "2026-10-09",
+          "words": "we need to realize, use-and-improve the existing theory/research we have on this, not spin up the thinnest thing an agent can imagine in one session."
+        }
+      ]
+    },
+    "checkout-variables": "Conditions read the owning repository from the named environment variable (a checkout at the commit under test).",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;c4D4JChXEP1Fn1XXhljB0wlil5FXWFPpZE5lgQNYOpg",
+      "cell": "ni:///sha-256;vmJabptujmSp1ydnT81oiOf6JM5EahCxEd34xvBdJ1U"
+    }
+  }
+}

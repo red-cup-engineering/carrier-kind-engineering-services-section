@@ -1,0 +1,72 @@
+{
+  "kind": "jsnode.fabrication-receipt",
+  "packageName": "@red-cup-engineering/project-set-of-resource-rows-from-measurement-service",
+  "packageVersion": "0.2.0",
+  "sourceDigest": "sha256:12ad4e4dfe3ef3860449dd2a3ba2a1b572d5592e4404b542e21832878090b44c",
+  "specificationDigest": "sha256:0f80a506177adcb6d9fb14340685dcfa6f3ca6dc8054ce1c5998455382282445",
+  "destination": "../../../tmp/claude-1000/-home-emsenn-info/7aaeffd9-1d66-469f-90aa-1942601f0d02/scratchpad/project-set-of-resource-rows-from-measurement-service",
+  "workOrder": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/content/text/documents/specifications/project-set-of-resource-rows-from-measurement-work-order.md",
+  "assays": [
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "syntax",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "the-rule",
+      "status": "passed",
+      "scripts": 1,
+      "lines": 214
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "tests",
+      "status": "passed",
+      "paths": [
+        "test/project-set-of-resource-rows-from-measurement-faces.test.mjs",
+        "test/project-set-of-resource-rows-from-measurement.test.mjs"
+      ]
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "pack",
+      "status": "passed",
+      "filename": "red-cup-engineering-project-set-of-resource-rows-from-measurement-service-0.2.0.tgz",
+      "digest": "sha256:4e85ab56e0a17ede54bc19799cf3cdbdce5a052c49f30d2000603798f95ec599"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "clean-installation",
+      "status": "passed",
+      "javascriptFiles": 1,
+      "reachableJavascriptFiles": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "import-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "command-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "help",
+      "status": "passed"
+    }
+  ],
+  "recordedAt": "2026-09-06T02:59:27.886Z"
+}

@@ -1,5 +1,5 @@
 import { BodyReadError, readBodyStream, decodeBody, mediaType, parseJson } from "./body.mjs";
-export { BodyReadError } from "./body.mjs";
+export { BodyReadError, mediaType } from "./body.mjs";
 export const DEFAULT_BODY_LIMIT = 1024 * 1024;
 const decode = (bytes, coding)=>{
     let decoder;

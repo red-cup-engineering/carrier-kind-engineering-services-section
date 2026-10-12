@@ -1,0 +1,101 @@
+{
+  "method": "direct current-source inspection; application-boundary review",
+  "specification": {
+    "path": "2026-09-27-muse-assist-context-admission-lld.md",
+    "sha256": "7a49df1b99749428a5974b08b46e1062df03241bc86fe196903161329259f3e9"
+  },
+  "sources": {
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/instance.mjs": "e09a49849ae72823fd1e2df17deb655c41b7fbfd2515519d0986da4d7b038ab2",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/http/server.mjs": "16984020072bf56e071ee177d5bd0fa002124748715d3beb0b81ba60c23c0ff6",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/http/resource-router.mjs": "1e93faef0eb0bc5c6a581a3fd28c6393afd00a65b850f433db678119d88fcb3a",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/presentation/serving.mjs": "8e493e0ed86e116e9bd744059175aa79491771f68c04947c631f48d044801d7d",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/mcp-options.mjs": "77c37e06723bea58ae83fcc6ac350785beb5604951c8aa0e0a84486a7a8a2b1f",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/cli/dispatch.mjs": "501deba783e6a05ae306412b37547308a982fcc167604b3fd83bb3befac15af1",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/dispatch.mjs": "01bf7a4711d9f691c325325d723fd94b4263fa86a8fa8709a9e27aae96db8f69",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/capability-assertions.mjs": "b72ce654136371fa00813a59da655ac8776a219986541fe497ba29f991862cd4",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/src/object-capability/index.mjs": "5dc448d7a797151b861775324d2ab1bf386899dadc30312c667dcdcc0a125c9c",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/muse-assist/src/operations.mjs": "f8354c81638e53e5e5d207d40bf755f631aafea0f5d9219a141394f32f4b1c6b",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/web/entrance.mjs": "b10984136b06aae473b75cf836d873f75c7dc0c1d6804104e21478119b2d80d3",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/presentation/mounting.mjs": "9416cea450e70a23ba0cf11ed7e3dbe2c4a689bab89dcb2e46197b7c63cc5db0",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/operation.mjs": "f1794186b139b57efec41898af57328d45e937ee03773680f885da0cda2b9f20",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc/invocation.mjs": "7d63d5059fc41b3209604d58750009c48ca63476ea050b276ccd057f9dd861e9",
+    "/home/emsenn/info/lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/sites/ops.561.group/src/site.mjs": "754f4cb007b05f6e0413ef01aa17e0bc70c56cb718017d96d9ca43c4c784b77b"
+  },
+  "findings": [
+    {
+      "source": "rpc/dispatch.mjs",
+      "function": "dispatch",
+      "effect": "witness.admit(attempt) precedes runtime.authorize"
+    },
+    {
+      "source": "http/resource-router.mjs",
+      "function": "routeHttpResource",
+      "effect": "admitServedRequestArrival precedes resource middleware/handler"
+    },
+    {
+      "source": "object-capability/index.mjs",
+      "function": "can",
+      "effect": "structural assertion validation and grant fold do not verify issuer authority; public and wildcard standing participates"
+    },
+    {
+      "source": "instance.mjs",
+      "function": "installedInstance",
+      "effect": "instance loads operation sources and application factories; web entrance evaluates application factories and ops site passes installed.applications; no personal-context preparation boundary exists"
+    },
+    {
+      "source": "muse-assist/src/operations.mjs",
+      "function": "museAssistOperations",
+      "effect": "assigned-worker entrypoint, not personal-context admission"
+    },
+    {
+      "source": "rpc/operation.mjs",
+      "function": "operation",
+      "effect": "operation reference hashes declaration but current declaration/descriptor carries no personal admission metadata"
+    },
+    {
+      "source": "rpc/invocation.mjs",
+      "function": "invocation",
+      "effect": "semantic identity includes request, subject, operation, verb, resource, input and arguments; causal references are outside that identity"
+    },
+    {
+      "source": "presentation/serving.mjs",
+      "function": "programMcpHandle",
+      "effect": "arrival retained before gatewaySubject selection; missing gateway metadata falls back to process subject"
+    }
+  ],
+  "limits": [
+    "Source paths establish implemented composition, not live operation",
+    "No context policy/runtime implementation or deployment acceptance produced by this design"
+  ],
+  "priorSpecificationSha256": "9ffaf1fdade2a2089a2ea29a71894023b0f22d8f4a56a2f5a54877932848d79b",
+  "operationAdmissionSchema": {
+    "path": "2026-09-27-muse-assist-operation-admission.schema.json",
+    "sha256": "fa8aed96f6142e4dedd7dcdd1e24fbbd5acd1318d31de3025995e91253dd7974"
+  },
+  "specificationHistory": [
+    {
+      "path": "2026-09-27-muse-assist-context-admission-lld.md",
+      "sha256": "052ca343e0791cb8325b67d0b9cf83f71c0bb739374e033dbf37cda86715b842"
+    },
+    {
+      "path": "2026-09-27-muse-assist-context-admission-lld.md",
+      "sha256": "249eb64cfa65640e623d5bf514710c5898b4e7af8dcb9ca862eec22b17faab90"
+    }
+  ],
+  "hostSchema": {
+    "path": "2026-09-27-muse-assist-context-host.schema.json",
+    "sha256": "95d3d56216b7389da37514f90e0ab4253428067023ffe875f454efa4a485b320"
+  },
+  "hostBindingPredecessor": {
+    "path": "2026-09-27-muse-assist-journal-host-binding-lld.md",
+    "sha256": "3beeaaedf5449aa863c4fac6bcd681f12094357acec321c21ccd455c4379f907"
+  },
+  "hostContractValidation": {
+    "path": "host-contract-validation.json",
+    "sha256": "eb99372f03d5c015df7ed7b63dba0928ef449be9cd1fd7243a40124387e15de5"
+  },
+  "fabricationOrder": {
+    "path": "2026-09-27-muse-assist-context-admission-fabrication.md",
+    "sha256": "459c20696245299dff92e36df57b2fd8418da0aaf65442687c0094bf322e6067"
+  }
+}

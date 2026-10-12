@@ -1,0 +1,132 @@
+{
+  "nonBlankLines": {
+    "input": {
+      "type": "string"
+    },
+    "output": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "parseLines": {
+    "input": {
+      "type": "string"
+    },
+    "output": {
+      "type": "array"
+    }
+  },
+  "serializeLines": {
+    "input": {
+      "type": "array"
+    },
+    "output": {
+      "type": "string"
+    }
+  },
+  "readJsonlAtPath": {
+    "input": {
+      "type": "string"
+    },
+    "output": {
+      "type": "array"
+    }
+  },
+  "writeJsonl": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "records": {
+          "type": "array"
+        }
+      },
+      "required": ["path", "records"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "records": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["path", "records", "bytes"],
+      "additionalProperties": false
+    }
+  },
+  "appendJsonl": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "records": {
+          "type": "array"
+        }
+      },
+      "required": ["path", "records"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "records": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["path", "records", "bytes"],
+      "additionalProperties": false
+    }
+  },
+  "projectJsonlRecords": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["records", "keys"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

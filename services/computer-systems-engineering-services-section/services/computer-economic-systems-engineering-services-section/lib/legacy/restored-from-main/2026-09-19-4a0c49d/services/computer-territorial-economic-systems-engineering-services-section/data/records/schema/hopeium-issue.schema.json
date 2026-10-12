@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "@red-cup-engineering/computer-territorial-economic-systems-engineering-services-section/data/records/schema/hopeium-issue.schema.json",
+  "title": "hopeium issue",
+  "description": "A hopeium issue per the hopeium capability specification's media line (iv) and the hopeium-media note's plan (3.1): a continuation reading rendered as newsletter-issue-production's own issue shape, profiled with the four fields the plan names and no `verdict` field. A thin allOf profile: branch one copies, by path (never by $ref — @red-cup-engineering/newsletter-issue-production-services-section 0.1.0's src/newsletter-issue.mjs `validateIssue` declares no $id to $ref), the base issue shape {title, dek, sections, references} that package's renderer actually enforces, left open at the top level (it is not this profile's to close); branch two adds claim/lament/continuation/return, permissively admits the base's own field names (so its own additionalProperties:false does not reject them — see 2026-09-06's admitted friction on this same evaluator's lack of unevaluatedProperties, named on territory-catalog-row.schema.json beside this file), and is the branch that refuses a `verdict` key. Structural shape only: the settled-outcome-on-open-cell and no-return format refusals are business rules the checker (scripts/check-hopeium-issue.mjs) applies on top, not expressible cleanly as a cross-field JSON Schema keyword this evaluator supports.",
+  "allOf": [
+    {
+      "type": "object",
+      "description": "Copied by path from newsletter-issue-production-services-section's src/newsletter-issue.mjs validateIssue (title/dek/sections/references and their per-item shape); left open (no additionalProperties:false here) because closing it is this base's renderer's concern, not this profile's.",
+      "required": ["title", "dek", "sections", "references"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "dek": { "type": "string" },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["heading", "body-markdown"],
+            "properties": {
+              "heading": { "type": "string", "minLength": 1 },
+              "body-markdown": { "type": "string", "minLength": 1 },
+              "sources": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "references": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["id", "type", "title"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "type": { "type": "string", "minLength": 1 },
+              "title": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "description": "The hopeium profile's own fields (hopeium-media note 3.1). Closes the top-level object against additionalProperties:false so a `verdict` key is refused; the base's four field names are listed permissively (`true`) purely so this branch's own closure does not reject them, never redefining their shape (branch one owns that).",
+      "required": ["claim", "lament", "continuation", "return"],
+      "additionalProperties": false,
+      "properties": {
+        "title": true,
+        "dek": true,
+        "sections": true,
+        "references": true,
+        "claim": {
+          "type": "object",
+          "description": "A FOUR-valued claim with provenance, the plan's held cell.",
+          "required": ["text", "charge", "provenance"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "type": "string", "minLength": 1 },
+            "charge": {
+              "type": "object",
+              "description": "FOUR's two independent booleans.",
+              "required": ["support", "refutation"],
+              "additionalProperties": false,
+              "properties": {
+                "support": { "type": "boolean" },
+                "refutation": { "type": "boolean" }
+              }
+            },
+            "provenance": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["sourceUrl", "sourceTitle", "accessedOn"],
+                "additionalProperties": false,
+                "properties": {
+                  "sourceUrl": { "type": "string", "minLength": 1 },
+                  "sourceTitle": { "type": "string", "minLength": 1 },
+                  "accessedOn": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        "lament": {
+          "type": "object",
+          "description": "Complaint within relation: grief and protest addressed to the Holder, without closure in either direction (2026-08-23 abandonment note §4.3) — never a verdict.",
+          "required": ["text"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "type": "string", "minLength": 1 }
+          }
+        },
+        "continuation": {
+          "description": "A record-level continuation reading (hopeium-media note 3.3): a cited record with evidence rows and a next step, or the literal none-found with the search that was run. Never the unbuilt-affects chronicle formalization, which is blocked upstream.",
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["kind", "recordPath", "evidenceRows", "nextStep"],
+              "additionalProperties": false,
+              "properties": {
+                "kind": { "const": "record" },
+                "recordPath": { "type": "string", "minLength": 1, "description": "Repo-relative path to the record carrying the evidence rows." },
+                "evidenceRows": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "description": "One evidence row in @red-cup-engineering/derive-continuation-reading-service's request evidence-row shape (its ContinuationReadingRequest candidate.evidenceRows item), so the checker can build a one-candidate reading request straight from this continuation.",
+                    "required": ["rowId", "charge", "citation"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "rowId": { "type": "string", "minLength": 1 },
+                      "charge": {
+                        "type": "object",
+                        "description": "FOUR's two independent booleans.",
+                        "required": ["support", "refutation"],
+                        "additionalProperties": false,
+                        "properties": {
+                          "support": { "type": "boolean" },
+                          "refutation": { "type": "boolean" }
+                        }
+                      },
+                      "citation": {
+                        "type": "object",
+                        "required": ["sourceUrl", "sourceTitle", "accessedOn"],
+                        "additionalProperties": false,
+                        "properties": {
+                          "sourceUrl": { "type": "string", "minLength": 1 },
+                          "sourceTitle": { "type": "string", "minLength": 1 },
+                          "accessedOn": { "type": "string", "minLength": 1 }
+                        }
+                      }
+                    }
+                  },
+                  "description": "Evidence rows within recordPath that this continuation cites as evidence, in the derive-continuation-reading-service request shape."
+                },
+                "nextStep": { "type": "string", "minLength": 1 }
+              }
+            },
+            {
+              "type": "object",
+              "required": ["kind", "searched"],
+              "additionalProperties": false,
+              "properties": {
+                "kind": { "const": "none-found" },
+                "searched": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string", "minLength": 1 },
+                  "description": "What was searched, so 'none found' is itself first-class output, never a bare closure."
+                }
+              }
+            }
+          ]
+        },
+        "return": {
+          "type": "object",
+          "description": "The reader returned: a longer reading, a body practice, a person to tell (the founder's own practice list). `reading` is structurally optional here — its presence is the checker's NO_RETURN business rule, not a schema-level requirement, so the two are independently testable.",
+          "required": ["bodyPractice", "tell"],
+          "additionalProperties": false,
+          "properties": {
+            "reading": {
+              "type": "object",
+              "required": ["title", "sourceUrl"],
+              "additionalProperties": false,
+              "properties": {
+                "title": { "type": "string", "minLength": 1 },
+                "sourceUrl": { "type": "string", "minLength": 1 }
+              }
+            },
+            "bodyPractice": { "type": "string", "minLength": 1 },
+            "tell": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  ]
+}

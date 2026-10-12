@@ -1,0 +1,113 @@
+{
+  "law": "fars-identity-v1",
+  "description": "NFC-normalize -> recursively sort object keys -> reject non-safe-integer numbers -> compact JSON -> UTF-8 -> SHA-256 -> RFC 6920 ni:///sha-256;... URI (design spec section 2.2). Shared by pyfars and jsfars; both kernels must reproduce these vectors exactly.",
+  "vectors": [
+    {
+      "name": "empty_object",
+      "value": {},
+      "ni": "ni:///sha-256;RBNvo1WzZ4oRRq0W9-hknpT7T8If536DEMBg9hyq_4o"
+    },
+    {
+      "name": "empty_array",
+      "value": { "items": [] },
+      "ni": "ni:///sha-256;7vRnQa38Op92KU07ePN6RfETCSrJ1E7nfHoDioj_CaE"
+    },
+    {
+      "name": "flat_two_keys_ab",
+      "value": { "a": 1, "b": 2 },
+      "ni": "ni:///sha-256;QyWM_3g_5wNtikMDP4MK38YOwDc4JHNUisdCuIgpJ3c"
+    },
+    {
+      "name": "flat_two_keys_ba",
+      "value": { "b": 2, "a": 1 },
+      "ni": "ni:///sha-256;QyWM_3g_5wNtikMDP4MK38YOwDc4JHNUisdCuIgpJ3c"
+    },
+    {
+      "name": "nested_object",
+      "value": { "a": { "z": 1, "y": 2 }, "b": [1, 2, 3] },
+      "ni": "ni:///sha-256;Ok2j4gmPTHBRzG1vD2snN1iCdi2UPz14g9WSvnkt_Is"
+    },
+    {
+      "name": "nested_object_key_reordered",
+      "value": { "b": [1, 2, 3], "a": { "y": 2, "z": 1 } },
+      "ni": "ni:///sha-256;Ok2j4gmPTHBRzG1vD2snN1iCdi2UPz14g9WSvnkt_Is"
+    },
+    {
+      "name": "deeply_nested",
+      "value": { "a": { "b": { "c": { "d": 1 } } } },
+      "ni": "ni:///sha-256;q-ObxudL_XX-Rf9kfLBdr_IXXaeu1i6BhJ93v9-uYe4"
+    },
+    {
+      "name": "array_of_objects",
+      "value": [ { "b": 1, "a": 2 }, { "d": 3, "c": 4 } ],
+      "ni": "ni:///sha-256;t2dNO8I1pm1Bc1fAxOIeg05tiZsVNczdPJiOnOc9LD0"
+    },
+    {
+      "name": "mixed_array_types",
+      "value": { "items": [1, "two", false, null, { "three": 3 }] },
+      "ni": "ni:///sha-256;ZtMxQlv2mIQ5pGpNTbF6twpwjkpVmW8nr8DFPmgqk0g"
+    },
+    {
+      "name": "nfc_unicode_value_nfd_input",
+      "value": { "name": "café" },
+      "ni": "ni:///sha-256;ZF-kQxJqiVT8bYcZErj8Z7wu6P6uQX7-VVRiUZYsp00"
+    },
+    {
+      "name": "nfc_unicode_value_nfc_input",
+      "value": { "name": "café" },
+      "ni": "ni:///sha-256;ZF-kQxJqiVT8bYcZErj8Z7wu6P6uQX7-VVRiUZYsp00"
+    },
+    {
+      "name": "nfc_unicode_key_nfd_input",
+      "value": { "café": 1 },
+      "ni": "ni:///sha-256;S6b4WaZgR2PjDhr8dN0AvzskW-WNkCtdGuDqoRnooUE"
+    },
+    {
+      "name": "boolean_true",
+      "value": { "flag": true },
+      "ni": "ni:///sha-256;KoGZk5rQP0CzCG-CwgmB4Az_bqvgWqnSqsZduwaDBvg"
+    },
+    {
+      "name": "boolean_false",
+      "value": { "flag": false },
+      "ni": "ni:///sha-256;FigStQKUgcrY8TYzwFXvjdEQAnaBE1I3Sdz4Oo5ZclQ"
+    },
+    {
+      "name": "null_value",
+      "value": { "value": null },
+      "ni": "ni:///sha-256;HBl9rvIN4_R-7F4vc17GZphp0xgMwp81vkeIUR4K8Pg"
+    },
+    {
+      "name": "safe_integer_max",
+      "value": { "n": 9007199254740991 },
+      "ni": "ni:///sha-256;4dpIxqYInwbstOCiJZ5ljjeGskIPUrrM35KexkYNe0E"
+    },
+    {
+      "name": "safe_integer_min",
+      "value": { "n": -9007199254740991 },
+      "ni": "ni:///sha-256;1J1xOCH8FJ-B72yoBUvuumlvXaBS8Ks-LXc4CMWp1iU"
+    },
+    {
+      "name": "safe_integer_negative",
+      "value": { "n": -42 },
+      "ni": "ni:///sha-256;-9WsL0JHkijtLTtJWBb72pipy51x1SOGmjfnhHkOnyw"
+    },
+    {
+      "name": "safe_integer_zero",
+      "value": { "n": 0 },
+      "ni": "ni:///sha-256;8wE_kzufuAq22ZXnrZ2jb2g4N7odgelQyUPUARHqwvA"
+    }
+  ],
+  "recordVectors": [
+    {
+      "name": "record_id_stripped",
+      "body": { "id": "ignored-opaque-address", "a": 1, "b": 2 },
+      "ni": "ni:///sha-256;QyWM_3g_5wNtikMDP4MK38YOwDc4JHNUisdCuIgpJ3c"
+    },
+    {
+      "name": "record_no_id_present",
+      "body": { "a": 1, "b": 2 },
+      "ni": "ni:///sha-256;QyWM_3g_5wNtikMDP4MK38YOwDc4JHNUisdCuIgpJ3c"
+    }
+  ]
+}

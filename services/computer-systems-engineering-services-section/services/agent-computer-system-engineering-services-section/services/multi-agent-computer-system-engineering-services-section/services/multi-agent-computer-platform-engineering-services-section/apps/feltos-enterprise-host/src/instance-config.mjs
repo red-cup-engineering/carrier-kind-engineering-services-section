@@ -48,16 +48,10 @@ function googleSignIn(environment) {
 
 const AP_KEYS = ["ACTIVITYPUB_ORIGIN", "ACTIVITYPUB_IDENTIFIER", "ACTIVITYPUB_ACTOR_NAME", "ACTIVITYPUB_ACTOR_SUMMARY", "ACTIVITYPUB_KEYS_PATH"];
 function activityPubCustodyLocation(environment, stateDir) {
-  const nativeDirectory = present(environment.ACTIVITYPUB_STATE_DIR);
-  const historicalLocator = present(environment.ACTIVITYPUB_SQLITE_PATH);
-  if (nativeDirectory !== undefined && historicalLocator !== undefined) {
-    throw new TypeError("ActivityPub native state and historical SQL locators cannot be combined; receive and admit the state binding before switching");
+  if (present(environment.ACTIVITYPUB_SQLITE_PATH) !== undefined) {
+    throw new TypeError("ACTIVITYPUB_SQLITE_PATH is no longer read; name the state directory in ACTIVITYPUB_STATE_DIR");
   }
-  // Selection is configuration, not historical receiving or startup clearance.
-  // The owning provider still independently admits retained custody before writes.
-  return nativeDirectory === undefined
-    ? { statePath: resolve(historicalLocator ?? join(stateDir, "activitypub.sqlite")) }
-    : { stateDirectory: resolve(nativeDirectory) };
+  return { stateDirectory: resolve(present(environment.ACTIVITYPUB_STATE_DIR) ?? join(stateDir, "activitypub.state")) };
 }
 
 function activityPub(environment, stateDir, identity) {
@@ -200,6 +194,11 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
   // Governing acts on that agency are settled state of this node, never edits to a tree.
   const agencyActs = resolve(setting("AGENCY_ACTS_LOG") ?? join(stateDir, "agency", "acts.jsonl"));
   const ledgerJournal = pathSetting("METROPLAT_LEDGER_JOURNAL", defaults.ledgerJournal);
+  const lSpaceToken = present(setting("METROPLAT_LSPACE_GATEWAY_TOKEN"));
+  const lSpace = lSpaceToken === undefined ? undefined : Object.freeze({
+    mcpUrl: present(setting("METROPLAT_LSPACE_MCP_URL")) ?? "http://127.0.0.1:18848/mcp",
+    gatewayToken: lSpaceToken,
+  });
   let upstreams = [];
   const upstreamJson = present(setting("METROPLAT_MCP_UPSTREAMS"));
   if (upstreamJson !== undefined) {
@@ -250,6 +249,7 @@ export function enterpriseWebConfig(installed, instancePath, environment = proce
     repositoryRoot: repository,
     releaseRoot: released,
     agencyActs,
+    lSpace,
     upstreams: Object.freeze(upstreams),
     activityPub: activityPubConfig,
     activityPubProjection: projection,

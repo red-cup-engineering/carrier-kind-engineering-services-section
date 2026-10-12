@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "name": "short-lived helper acquired lock",
+      "ok": true,
+      "detail": {
+        "exitCode": 0
+      }
+    },
+    {
+      "name": "parent retains lock after helper exited",
+      "ok": true,
+      "detail": {
+        "competingExitCode": 1
+      }
+    },
+    {
+      "name": "closing parent descriptor releases lock",
+      "ok": true,
+      "detail": {
+        "competingExitCode": 0
+      }
+    },
+    {
+      "name": "owner reports acquisition after helper exits",
+      "ok": true,
+      "detail": {
+        "ownerPid": 750241
+      }
+    },
+    {
+      "name": "independent owner excludes competitor",
+      "ok": true,
+      "detail": {
+        "competingExitCode": 1
+      }
+    },
+    {
+      "name": "SIGKILL owner releases lock without PID reclamation",
+      "ok": true,
+      "detail": {
+        "ownerExitCode": -9,
+        "competingExitCode": 0
+      }
+    },
+    {
+      "name": "lock file inode survives all releases",
+      "ok": true,
+      "detail": {
+        "inode": 2375950
+      }
+    }
+  ],
+  "filesystem": "ext2/ext3",
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "flock": "flock from util-linux 2.39.3",
+  "limits": [
+    "Controlled local-host lock ownership observation only. No power-loss, remote filesystem, closure durability, journal integration or independent-writer compliance demonstrated."
+  ],
+  "scriptSha256": "20d92f037f8378f612cf441ec736bd459e3dd6fead03c945b3be7485f7588c6f"
+}

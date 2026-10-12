@@ -174,7 +174,7 @@ export const allocationTurnReadout = allocated => ({ counts: allocated.counts, r
           }) })),
   });
 
-export function enterpriseLoopOperations({ binding, host, agencyRoot, repositoryRoot, releaseRoot, settlementsRoot, workOptions, operations: hostOperations, open, tell, executeIsolatedWork }) {
+export function enterpriseLoopOperations({ binding, host, agencyRoot, repositoryRoot, releaseRoot, settlementsRoot, workOptions, operations: hostOperations, open, tell, executeIsolatedWork, requestOwnService }) {
   // Territory is derived from where each micro-enterprise's record sits in the house.
   const territories = () => territoriesOf([...agencyAt(agencyRoot).enterprises.values()]);
   const board = workBoardStore(binding, { territories, agency: () => agencyAt(agencyRoot), homes: workHomesOf(() => agencyAt(agencyRoot)) });
@@ -303,7 +303,8 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
       await setImmediate();
       const found = served.find((candidate) => candidate.verb === verb);
       if (found === undefined) throw new TypeError(`${record.id} turns ${verb}, which this host does not serve`);
-      turned[verb] = await found.execute({ ...calibrated }, {}, undefined);
+      if(typeof requestOwnService!=='function')throw new TypeError('enterprise turns need their own actor request port');
+      turned[verb] = await requestOwnService({enterprise:record.id,verb,operation:found.ref,input:{...calibrated}});
     }
     return Object.freeze(turned);
   };
@@ -313,7 +314,8 @@ export function enterpriseLoopOperations({ binding, host, agencyRoot, repository
     if (source.path !== undefined) return JSON.parse(readFileSync(resolve(releaseRoot, source.path), "utf8"));
     const found = (hostOperations?.() ?? []).find((candidate) => candidate.verb === source.operation);
     if (found === undefined) throw new TypeError(`${record.id} derives from ${source.operation}, which this host does not serve`);
-    return found.execute({ poster: record.id }, {}, undefined);
+    if(typeof requestOwnService!=='function')throw new TypeError('enterprise measurements need their own actor request port');
+    return requestOwnService({enterprise:record.id,verb:found.verb,operation:found.ref,input:{poster:record.id}});
   };
   // Every enterprise runs allocation and execution in its own root, staffed
   // only from its own offices, including an enterprise holding the host root.

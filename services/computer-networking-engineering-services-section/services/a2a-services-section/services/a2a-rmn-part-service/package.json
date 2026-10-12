@@ -1,0 +1,25 @@
+{
+  "name": "@red-cup-engineering/a2a-rmn-part-service",
+  "version": "0.5.0",
+  "private": false,
+  "type": "module",
+  "files": [
+    "src/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/rmn-part.mjs"
+  },
+  "bin": {
+    "materialize-a2a-rmn-user-message": "./src/materialize-user-message.mjs"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/uri-services-section": "workspace:*"
+  }
+}

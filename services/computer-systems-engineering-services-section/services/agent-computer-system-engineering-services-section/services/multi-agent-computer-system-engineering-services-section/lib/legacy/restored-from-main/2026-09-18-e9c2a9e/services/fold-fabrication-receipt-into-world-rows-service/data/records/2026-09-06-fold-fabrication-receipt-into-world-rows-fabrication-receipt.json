@@ -1,0 +1,78 @@
+{
+  "kind": "jsnode.fabrication-receipt",
+  "packageName": "@red-cup-engineering/fold-fabrication-receipt-into-world-rows-service",
+  "packageVersion": "0.2.0",
+  "sourceDigest": "sha256:37745bb661a63b0a3209a146353f58fee3750755c419c3a94f178113dccdb87c",
+  "specificationDigest": "sha256:7fd851bfd46970405a528052168b20fec553462529962947ad3f0b9e490a9d9a",
+  "destination": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/fold-fabrication-receipt-into-world-rows-service",
+  "workOrder": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/content/text/documents/specifications/fold-fabrication-receipt-into-world-rows.md",
+  "assays": [
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "staged-dependency-installation",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "syntax",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "the-rule",
+      "status": "passed",
+      "scripts": 1,
+      "lines": 53
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "tests",
+      "status": "passed",
+      "paths": [
+        "test/fold-fabrication-receipt-into-world-rows-faces.test.mjs",
+        "test/fold-fabrication-receipt-into-world-rows.test.mjs"
+      ]
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "pack",
+      "status": "passed",
+      "filename": "red-cup-engineering-fold-fabrication-receipt-into-world-rows-service-0.2.0.tgz",
+      "digest": "sha256:d04500992c6ff77e37001b3b0d54c9fb417a051cbcc3f876b4baf3ec3a96bc71"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "clean-installation",
+      "status": "passed",
+      "javascriptFiles": 1,
+      "reachableJavascriptFiles": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "import-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "command-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "help",
+      "status": "passed"
+    }
+  ],
+  "recordedAt": "2026-09-06T01:00:07.874Z"
+}

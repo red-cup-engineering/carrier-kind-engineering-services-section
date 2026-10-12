@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/cohomology-audit-profile.schema.json",
+  "title": "SPOTCOMP bigraded cohomology audit profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "scope",
+    "regime",
+    "designationGrades",
+    "cohomologicalDegrees",
+    "sheafDecomposition",
+    "h1Slots",
+    "inconsistencyRecord",
+    "receiverPolicy",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "regime": { "enum": ["strict", "scott-continuous", "transfinite-bounded", "aperiodic"] },
+    "fiberSpecialization": {
+      "enum": ["general-bilattice", "FOUR", "declared-lattice"]
+    },
+    "designationGrades": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/designationGrade" },
+      "minItems": 2
+    },
+    "cohomologicalDegrees": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/cohomologicalDegree" },
+      "minItems": 1
+    },
+    "sheafDecomposition": { "$ref": "#/$defs/sheafDecomposition" },
+    "h1Slots": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/h1Slot" },
+      "minItems": 2
+    },
+    "inconsistencyRecord": { "$ref": "#/$defs/inconsistencyRecord" },
+    "k4Projection": { "$ref": "#/$defs/k4Projection" },
+    "receiverPolicy": { "$ref": "#/$defs/receiverPolicy" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "designationGrade": {
+      "type": "object",
+      "required": ["m", "component", "meaning", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "m": { "enum": [0, 1] },
+        "component": { "enum": ["truth", "inconsistency"] },
+        "meaning": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "cohomologicalDegree": {
+      "type": "object",
+      "required": ["n", "meaning", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "n": { "type": "integer", "minimum": 0 },
+        "meaning": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "sheafDecomposition": {
+      "type": "object",
+      "required": ["knowledgeComponent", "truthComponent", "inconsistencyComponent", "shortExactSequence", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "knowledgeComponent": { "type": "string", "minLength": 1 },
+        "truthComponent": { "const": "F_U^(t)" },
+        "inconsistencyComponent": { "const": "F_U^(top)" },
+        "shortExactSequence": { "const": "0 -> F_U^(t) -> F_U^(k) -> F_U^(top) -> 0" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "h1Slot": {
+      "type": "object",
+      "required": ["name", "m", "n", "component", "claim", "verification", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "enum": ["H1_t", "H1_top"] },
+        "m": { "enum": [0, 1] },
+        "n": { "const": 1 },
+        "component": { "enum": ["truth", "inconsistency"] },
+        "claim": { "enum": ["vanishes", "nonzero", "not-computed", "unknown"] },
+        "verification": { "enum": ["proved", "computed", "declared", "not-computed", "unverified"] },
+        "representatives": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "inconsistencyRecord": {
+      "type": "object",
+      "required": ["id", "scope", "topCells", "versionHash", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "topCells": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/topCell" }
+        },
+        "cohomologyCache": { "$ref": "#/$defs/cohomologyCache" },
+        "versionHash": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "topCell": {
+      "type": "object",
+      "required": ["id", "cell", "stageOrdinal", "sourceClassification", "witnesses", "resolved", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "cell": { "type": "string", "minLength": 1 },
+        "stageOrdinal": { "type": "string", "minLength": 1 },
+        "sourceClassification": {
+          "enum": ["federation-conflict", "attack-surface", "repair-source", "local-inference", "cross-source"]
+        },
+        "witnesses": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "resolved": { "type": "boolean" },
+        "repairResolution": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "cohomologyCache": {
+      "type": "object",
+      "required": ["versionHash", "slots", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "versionHash": { "type": "string", "minLength": 1 },
+        "slots": {
+          "type": "array",
+          "items": { "enum": ["H0_top", "H1_t", "H1_top"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "k4Projection": {
+      "type": "object",
+      "required": ["projectionOnly", "sectors", "nonAuthoritative", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "projectionOnly": { "const": true },
+        "sectors": {
+          "type": "array",
+          "items": { "enum": ["identity", "negation", "conflation", "negation-conflation"] },
+          "minItems": 4,
+          "uniqueItems": true
+        },
+        "nonAuthoritative": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "receiverPolicy": {
+      "type": "object",
+      "required": ["unverifiableClaimBehavior", "endpointOnlyBehavior", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "unverifiableClaimBehavior": {
+          "enum": ["reject", "accept-as-trace-only", "accept-as-informative-projection", "accept-as-final"]
+        },
+        "endpointOnlyBehavior": {
+          "enum": ["reject", "accept-as-trace-only", "accept-as-informative-projection"]
+        },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

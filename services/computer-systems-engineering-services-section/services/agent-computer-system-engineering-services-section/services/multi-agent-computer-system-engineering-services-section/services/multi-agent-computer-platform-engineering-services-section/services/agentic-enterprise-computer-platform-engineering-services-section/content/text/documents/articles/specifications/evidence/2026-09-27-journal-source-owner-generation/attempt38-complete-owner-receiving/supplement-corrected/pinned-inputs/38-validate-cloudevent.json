@@ -1,0 +1,13 @@
+{
+  "input": {
+    "type": "object",
+    "required": ["event"],
+    "properties": {
+      "event": {}
+    }
+  },
+  "output": {
+    "type": "object",
+    "required": ["ok"]
+  }
+}

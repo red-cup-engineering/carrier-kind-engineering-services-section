@@ -1,0 +1,43 @@
+{
+  "method": "whole-site digest preflight, retain prior inventory outside serving tree, replace generated tree from accepted bytes",
+  "publicInventory": {
+    "feed.json": "f77253e8f3c44159953c70b7bf914e54660d839933d7b37d73a4be15c10d9eb8",
+    "feed.rss.xml": "c9d333214322a0c1f34e7c8a28219d9d509d4e0c1469628578bb5b7dfcd54844",
+    "index.html": "ce88c672f95a95c3545f6ff568ea40b9202eb3cb3cbd7c73a62ddcae672ac26a",
+    "report.json": "ba38663ea8608944025102287976decd26571cd72689a23c298921dd3381dac1",
+    "release-manifest.json": "51721897d03d52c5c6b2798b607258204be3301806f4f02960fc482fbf6f5776",
+    "robots.txt": "44e2fc1b3e9cccde964916bf60c54397f50fda3d565bfc74627f71a38b7a0a09",
+    "feed.atom.xml": "34138cf1284aa8a737b6248b2ddcad42d882a09a5b812ebcb29b79fbded35ab5",
+    "sitemap.xml": "9a8fb20019cdbd60aa0e6749024412fe5dbb2a810d1ccc9dca364c841c4e560d",
+    "redirects.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "asset-manifest.json": "9ca2297be98cbedddc4f5337326dd60c81b29a92255dc112b60c9ed31baae53a",
+    "styles.e2e5ece2ae1e.css": "e2e5ece2ae1eeac4648086a25312f3996f87858829cae5e283561e666cec8931",
+    "404.html": "6cbe43c171e8ed63df5081098a763fdc83508a907f6557db06a36a988041472a",
+    "comparison/index.html": "33eec9a28006d5c72fe762a9863f4d8152c98175410ad44110ebb47c4d61efcd",
+    "muse-assist/index.html": "3880a798e5d510edfe4ebc95a24dd8411fc99c1bea65cc704f1f2196704e869c",
+    "development/index.html": "b6238c0073ae48633fcbcbdbc2671878fddea646ed5374ae2a2a54535d72ac97"
+  },
+  "retained": [
+    "package.json",
+    "wrangler.jsonc"
+  ],
+  "retiredPublicFiles": [
+    "public/404.html",
+    "public/_headers",
+    "public/guide.html",
+    "public/icon.svg",
+    "public/index.html",
+    "public/robots.txt",
+    "public/sitemap.xml",
+    "public/style.css"
+  ],
+  "authoredInputInventory": {
+    "comparison.md": "da774c61cfd9354303d2c3ad0466414a667df657aebcda787c1b7becb7a36fb2",
+    "muse-assist.md": "cbe8f7e60d5de8f0c50ed56cadde7b6f30922b2f69a652583f42d69ed6b2ca2d",
+    "development.md": "d7bd92bd893a2b860585a97e8d2af762db01ee791e7345cccefab4a49f639ad6"
+  },
+  "configSha256": "19eae35a5597c0d60382c37083dceb98f1a343ed10180bd48df1817e268f4f90",
+  "priorPublicBackup": "/tmp/muse-replaced-public-syyaghfk",
+  "deployment": "not performed",
+  "scope": "static public information only; no assistant or package release"
+}

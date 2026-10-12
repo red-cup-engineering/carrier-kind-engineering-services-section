@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/player.schema.json",
+  "title": "SPOTCOMP modeled player",
+  "type": "object",
+  "required": ["id", "capabilities", "inbox", "outbox", "handedness"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publicKey": {
+      "type": "string",
+      "description": "Public key identifier or encoded public key for federated verification."
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "governance": {
+      "type": "string"
+    },
+    "inbox": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outbox": {
+      "type": "string",
+      "minLength": 1
+    },
+    "handedness": {
+      "type": "object",
+      "required": ["recv", "send", "actuate", "observe"],
+      "additionalProperties": false,
+      "properties": {
+        "recv": { "type": "string" },
+        "send": { "type": "string" },
+        "actuate": { "type": "string" },
+        "observe": { "type": "string" }
+      }
+    }
+  }
+}
+

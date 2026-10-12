@@ -1,0 +1,9 @@
+{
+  "infrastructureAssertionFailed": true,
+  "cause": "Compared entire A/B commitment even though public fabrication order was explicitly refined after phase-A source review.",
+  "privateFixtureBytesUnchanged": true,
+  "privateFeedbackSupplied": false,
+  "publicPacketAndInventoryFullyWrittenBeforeInvocation": true,
+  "candidateSourceRepairedByOperator": false,
+  "newCommitmentBindsRefinedOrderBeforeBGeneration": true
+}

@@ -1,0 +1,3 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.kTop","cases":[
+  {"op":"kTop","args":[],"result":[true,true]}
+]}

@@ -1,0 +1,72 @@
+{
+  "name": "@561-group/language-generation",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "language-generation: paraconsistent language generation from role frames, settled sections, and append-only settling traces.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/language-generation.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json && node ../../scripts/package-boundary/copy-dmts-to-dts.mjs dist",
+    "test": "pnpm run build && tsc -p tsconfig.test.json && node --test \".tmp/test-dist/**/*.test.mjs\"",
+    "audit:boundary": "node ../../scripts/package-boundary/audit-package-boundary.mjs .",
+    "prepack": "pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs"
+    },
+    "./realize": {
+      "types": "./dist/realize.d.ts",
+      "import": "./dist/realize.mjs"
+    },
+    "./plan": {
+      "types": "./dist/plan.d.ts",
+      "import": "./dist/plan.mjs"
+    },
+    "./section": {
+      "types": "./dist/section.d.ts",
+      "import": "./dist/section.mjs"
+    },
+    "./section-from-text": {
+      "types": "./dist/section-from-text.d.ts",
+      "import": "./dist/section-from-text.mjs"
+    },
+    "./model": {
+      "types": "./dist/model.d.ts",
+      "import": "./dist/model.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@emsenn/language-algebra": "0.0.0",
+    "@emsenn/language-topology": "0.0.1",
+    "@561-group/language-editing": "0.0.1",
+    "@emsenn/english-language-algebra": "0.0.1",
+    "@emsenn/language-analysis": "0.0.0",
+    "@emsenn/language-codecs": "0.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "sideEffects": false
+}

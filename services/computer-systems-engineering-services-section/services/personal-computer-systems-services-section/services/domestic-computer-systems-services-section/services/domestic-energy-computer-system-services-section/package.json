@@ -1,0 +1,13 @@
+{
+  "name": "@red-cup-engineering/domestic-energy-computer-system-services-section",
+  "version": "0.1.0",
+  "description": "Household energy delivery reconciliation.",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./reconcile-domestic-energy-exchange": "./scripts/reconcile-domestic-energy-exchange.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

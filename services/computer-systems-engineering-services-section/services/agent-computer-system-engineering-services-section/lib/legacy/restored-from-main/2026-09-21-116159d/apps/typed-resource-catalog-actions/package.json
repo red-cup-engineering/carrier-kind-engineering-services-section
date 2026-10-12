@@ -1,0 +1,27 @@
+{
+  "name": "@red-cup-engineering/typed-resource-catalog-actions",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "The agentic-relation-engine action surface (classify, audit, check a language cone, project a receipt as RMN) over typed-resource-catalog's pure classification. Moved out of the substrate's typed-resource-catalog, since running these as agent actions and addressing resources through agentic-relation-engine's writing module are applications-tier concerns, not data forms.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/actions.mjs"
+  },
+  "bin": {
+    "typed-resource-catalog": "./scripts/typed-resource-catalog.mjs"
+  },
+  "files": [
+    "scripts/",
+    "src/"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@red-cup-engineering/agentic-relation-engine": "0.10.1",
+    "@red-cup-engineering/typed-resource-catalog": "0.3.0"
+  }
+}

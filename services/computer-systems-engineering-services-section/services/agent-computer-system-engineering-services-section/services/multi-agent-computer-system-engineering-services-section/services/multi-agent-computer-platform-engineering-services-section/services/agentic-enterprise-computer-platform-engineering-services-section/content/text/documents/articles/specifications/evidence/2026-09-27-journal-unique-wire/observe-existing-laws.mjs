@@ -1,0 +1,30 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
+const segment=fs.readFileSync('/tmp/muse-segment-path','utf8');
+const code=path.resolve(path.dirname(segment),'../../../..');
+const load=p=>import(pathToFileURL(path.join(code,p)));
+const {journalWitness,parseJournalWitness}=await load('src/semiotic-eavt/journal/event.mjs');
+const {addressArtifact}=await load('src/semiotic-eavt/identity/index.mjs');
+// Existing dependency resolution from the Code package; no candidate codec is called.
+const {createRequire}=await import('node:module');
+const require=createRequire(path.join(code,'package.json'));
+const {tm}=await import(pathToFileURL(require.resolve('@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation')));
+const {eavtKey}=await import(pathToFileURL(require.resolve('@red-cup-engineering/eavt-services-section/row')));
+const {canonicalJson}=await import(pathToFileURL(require.resolve('@red-cup-engineering/json-services-section')));
+const journal='fixture-journal';
+const command={kind:'metroplat.journal.unique-command',version:1,domain:'interaction',key:{context:'fixture-context',principal:'fixture-person',requestId:'same-request'},subject:'fixture-person',value:{kind:'message',text:'Prepare a sourced comparison.'},causes:[],artifactRefs:[]};
+const commandRef=addressArtifact(command).ref;
+const slot=createHash('sha256').update(canonicalJson(['metroplat.journal.unique-slot',1,journal,command.domain,command.key])).digest('hex');
+const outputs=['2026-09-27T12:00:00.000Z','2026-09-28T12:00:00.000Z'].map(time=>{
+ const payload=[command.subject,'metroplat.journal.unique-admission',command,time];
+ const witness=journalWitness({kind:'metroplat.journal.observation',seat:command.key.principal,claim:tm.mark('metroplat.journal.unique-admission'),address:tm.mark(eavtKey(payload)),time,causes:[],payload,referencedArtifacts:[]});
+ const roundTrip=parseJournalWitness(JSON.parse(canonicalJson(witness)));
+ const envelope={kind:'metroplat.journal.unique-record',version:1,journal,commandRef,witness,artifacts:[]};
+ const admitted=addressArtifact(envelope);
+ return {time,slot,commandRef,witnessId:witness.id,verifiedWitnessId:roundTrip.id,observationReferencedArtifacts:witness.observation.referencedArtifacts,coreReferencedArtifactCount:witness.core.referencedArtifacts.length,retainedEnvelopeBytes:admitted.canonical.byteLength};
+});
+const report={method:'Existing artifact, EAVT and typed-witness laws applied to one proposed unique-command value at two boundary dates.',outputs,findings:{sameCommandRef:outputs[0].commandRef===outputs[1].commandRef,sameSlot:outputs[0].slot===outputs[1].slot,differentWitnessIds:outputs[0].witnessId!==outputs[1].witnessId,roundTripVerified:outputs.every(x=>x.witnessId===x.verifiedWitnessId),boundaryArtifactRetained:outputs.every(x=>x.coreReferencedArtifactCount===1&&x.observationReferencedArtifacts.length===0)},limits:['Fixture command only; this does not validate the future domain message contract.','No new codec, storage admission, authorization, concurrency, durability or external effect exercised.']};
+console.log(JSON.stringify(report,null,2));
+if(Object.values(report.findings).some(x=>!x))process.exitCode=1;

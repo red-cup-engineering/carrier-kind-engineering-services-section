@@ -1,0 +1,230 @@
+{
+  "profileId": "spotcomp-chl-language-cone-candidate",
+  "languageApex": {
+    "kind": "chl-language-category",
+    "openEndedColumns": true,
+    "classicalThreeColumnsSpecializationOnly": true,
+    "columnsProjectByConeLegFunctors": true,
+    "evidence": [
+      "development/active/.../predicate-category/library/category/library/language/docs/dev/journal/2026-05-24.md",
+      "CHL-LANGUAGE-CONES.md"
+    ]
+  },
+  "columnLegs": [
+    {
+      "id": "type-theory",
+      "targetCategory": "syntactic category of typed lambda calculus",
+      "primaryMorphisms": ["term-instantiating"],
+      "codomainKind": "term-instantiation",
+      "distinctCategoricalPosition": true,
+      "evidence": [
+        "development/active/.../by-chl-language-cones/.../type-as-proposition-as-object/docs/dev/journal/2026-05-24.md",
+        "development/active/.../by-chl-language-cones/.../term-as-proof-as-morphism/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "id": "proof-theory",
+      "targetCategory": "intuitionistic proof category",
+      "primaryMorphisms": ["proving", "theorizing", "conjecturing"],
+      "codomainKind": "proof-state inhabitant",
+      "distinctCategoricalPosition": true,
+      "evidence": [
+        "development/active/.../predicate-category/library/category/library/language/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "id": "category-theory",
+      "targetCategory": "cartesian closed category",
+      "primaryMorphisms": ["morphism-composing"],
+      "codomainKind": "composite-morphism",
+      "distinctCategoricalPosition": true,
+      "evidence": [
+        "development/active/.../by-chl-language-cones/.../categorical-model-as-cone-apex/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "id": "domain-theory",
+      "targetCategory": "Scott domain category",
+      "primaryMorphisms": ["approximating"],
+      "codomainKind": "domain-element",
+      "distinctCategoricalPosition": true,
+      "evidence": [
+        "development/active/.../predicate-category/library/category/library/language/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "id": "path-theory",
+      "targetCategory": "POSIX path category",
+      "primaryMorphisms": ["path-resolving"],
+      "codomainKind": "path-resolution",
+      "distinctCategoricalPosition": true,
+      "evidence": [
+        "development/active/.../language/hacking/path-resolving/library/path-resolution/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "id": "sigma-stable",
+      "targetCategory": "saturation-stable sub-algebra",
+      "primaryMorphisms": ["sigma-firing"],
+      "codomainKind": "saturation-stable element",
+      "distinctCategoricalPosition": true,
+      "evidence": [
+        "development/active/.../predicate-category/library/category/library/language/docs/dev/journal/2026-05-24.md",
+        "CLOSURE-SETTLING.md"
+      ]
+    },
+    {
+      "id": "delta-stable",
+      "targetCategory": "transfer-stable sub-algebra",
+      "primaryMorphisms": ["delta-firing"],
+      "codomainKind": "transfer-stable element",
+      "distinctCategoricalPosition": true,
+      "evidence": [
+        "development/active/.../predicate-category/library/category/library/language/docs/dev/journal/2026-05-24.md",
+        "CLOSURE-SETTLING.md"
+      ]
+    }
+  ],
+  "morphismInventory": [
+    {
+      "id": "articulating",
+      "position": "aperiodic predication generator",
+      "column": "predication-stage",
+      "codomain": "potential-articulation-cell",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": ["PREDICATION-STAGES.md"]
+    },
+    {
+      "id": "predicating",
+      "position": "transfinite predication generator",
+      "column": "predication-stage",
+      "codomain": "predication-category",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": ["PREDICATION-STAGES.md"]
+    },
+    {
+      "id": "positing",
+      "position": "Scott-continuous least-extension morphism",
+      "column": "SPOTCOMP predication",
+      "codomain": "least-extended predication valuation",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": ["POSITING.md"]
+    },
+    {
+      "id": "settling",
+      "position": "finite predication generator and closure-apex projection",
+      "column": "SPOTCOMP settling",
+      "codomain": "finite predication category or finite projection",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": ["PREDICATION-STAGES.md", "CLOSURE-SETTLING.md"]
+    },
+    {
+      "id": "proving",
+      "position": "proof-theory column morphism",
+      "column": "proof-theory",
+      "codomain": "proof",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": ["CHL-LANGUAGE-CONES.md"]
+    },
+    {
+      "id": "term-instantiating",
+      "position": "type-theory column morphism",
+      "column": "type-theory",
+      "codomain": "term-instantiation",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": ["CHL-LANGUAGE-CONES.md"]
+    },
+    {
+      "id": "existential-push-forward",
+      "position": "hyperdoctrine existential-adjoint morphism",
+      "column": "categorical-logic",
+      "codomain": "existential image",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": [
+        "development/active/.../positing/hacking/library/positing-naturality/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "id": "path-resolving",
+      "position": "path-theory column morphism",
+      "column": "path-theory",
+      "codomain": "path-resolution",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": [
+        "development/active/.../language/hacking/path-resolving/library/path-resolution/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "id": "shp-projection",
+      "position": "finite semantic hypertext projection morphism",
+      "column": "SPOTCOMP projection",
+      "codomain": "semantic-hypertext-packet",
+      "collapsedIntoGenericOperation": false,
+      "coincidenceRequiredForAlias": true,
+      "evidence": ["SHP.md"]
+    }
+  ],
+  "coincidencePolicy": {
+    "theoremName": "cross-tradition-coincidence",
+    "validOnlyOn": "predication-settling-category",
+    "provedNotDefinition": true,
+    "offScopeColumnsDistinct": true,
+    "forbidUnprovedCollapse": true,
+    "requiredAliasSet": [
+      "speech-act-illocution",
+      "type-theoretic-term-instantiation",
+      "lawvere-existential-push-forward",
+      "spotcomp-positing",
+      "path-resolving"
+    ],
+    "evidence": [
+      "development/active/.../predicate-category/library/category/library/language/docs/dev/journal/2026-05-24.md",
+      "development/active/articulating/docs/dev/journal/2026-05-25-shadows-and-apex-tower.md",
+      "POSITING.md"
+    ]
+  },
+  "pathTheoryColumn": {
+    "posixPathCategory": true,
+    "yonedaPathIdentity": true,
+    "pathResolvingDistinct": true,
+    "schemaIdPathCoherence": true,
+    "scriptAsMorphismWitness": true,
+    "gapMarkersAreProofObligations": true,
+    "evidence": [
+      "development/active/.../language/hacking/path-resolving/library/path-resolution/docs/dev/journal/2026-05-24.md",
+      "development/active/.../typed-resource-catalog/docs/dev/journal/2026-05-26.md",
+      "PATH-TYPING.md",
+      "TRC-LAYOUT.md"
+    ]
+  },
+  "implementationBoundary": {
+    "commandsMayComposeMorphisms": true,
+    "compositionsMustNameMorphisms": true,
+    "pureMorphismsSeparateFromWrappers": true,
+    "defaultExportNamesMorphismHandle": true,
+    "schemaValidationIsBoundaryTyping": true,
+    "evidence": [
+      "development/active/.../by-chl-language-cones/.../term-as-proof-as-morphism/docs/dev/journal/2026-05-24.md",
+      "development/active/.../by-chl-language-cones/.../function-type-as-implication-as-exponential/docs/dev/journal/2026-05-24.md",
+      "IMPLEMENTATION.md"
+    ]
+  },
+  "openObligations": [
+    "prove the cross-tradition coincidence theorem at the exact SPOTCOMP predication-settling boundary",
+    "derive the full path-theory cone-leg from CHL language to the POSIX path category",
+    "prove SHP projection placement relative to the CHL cone rather than only declaring it"
+  ],
+  "evidence": [
+    "CHL-LANGUAGE-CONES.md",
+    "CATEGORICAL-MACHINERY.md",
+    "DERIVATION-OBLIGATIONS.md"
+  ]
+}

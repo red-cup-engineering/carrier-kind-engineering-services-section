@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+import assert from 'node:assert/strict';
+const system=fs.readFileSync('/tmp/muse-system-path','utf8').trim();
+const code=path.resolve(path.dirname(fs.readFileSync('/tmp/muse-segment-path','utf8').trim()),'../../../..');
+const {journalAppendAddress}=await import(pathToFileURL(system+'/src/journal/filesystem/operations/index.mjs'));
+const {journalDirectoryOf}=await import(pathToFileURL(code+'/src/semiotic-eavt/journal/store-root.mjs'));
+const anchor='/fixture';
+const descriptor=journalAppendAddress(anchor,'metroplat.journal.unique-admission','2026-09-27T12:00:00.000Z',{subject:'fixture:principal'});
+const base=journalDirectoryOf(anchor);
+const feed=path.relative(base,descriptor.path).split(path.sep).join('/');
+assert.equal(feed,'2026/09/27/2026-09-27-admit-fixture-principal.jsonl');
+console.log(JSON.stringify({method:'Invoke existing pure address constructor and journal-root law',anchor,address:descriptor.path,journalDirectory:base,feed,sourceOwnerExercised:false,filesystemMutation:false},null,2));

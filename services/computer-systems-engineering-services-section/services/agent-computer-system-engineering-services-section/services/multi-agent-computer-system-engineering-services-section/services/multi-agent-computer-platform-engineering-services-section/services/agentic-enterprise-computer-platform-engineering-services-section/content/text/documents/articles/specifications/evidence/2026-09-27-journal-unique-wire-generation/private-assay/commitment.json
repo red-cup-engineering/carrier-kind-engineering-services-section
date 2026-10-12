@@ -1,0 +1,12 @@
+{
+  "assaySha256": "5fadf0eed50bf646f3be516f3882c52eec16fc03db6f58de168534f0e7ae48f2",
+  "loaderSha256": "de2eca467c8181b15d3c72f9bce57d4a0fcba8624fc5f669d3e5022bef2959f1",
+  "orderSha256": "fdcc7d1df19831909688a64913eb582ec348972099a133b639630c856d4fb100",
+  "committedBeforeGeneration": true,
+  "revision": {
+    "predecessorDirectory": "/tmp/muse-wire-assay-j13clq2d",
+    "predecessorCommitmentSha256": "e65b8e78cdc91595e0597322a23fac61676387587b00a825eb4a1b494647e51b",
+    "basis": "Independent existing-law reconstruction measured old retained record at 1044823 bytes, below 1048576; corrected negative fixture is 1048823 bytes and within component limits. Add original fixture as positive boundary observation. No product source changed.",
+    "diagnosticSha256": "e6f282f15f14871f9e4ff00cce907f1d641f9640e21e48c7b1526c8f2ac3c4c6"
+  }
+}

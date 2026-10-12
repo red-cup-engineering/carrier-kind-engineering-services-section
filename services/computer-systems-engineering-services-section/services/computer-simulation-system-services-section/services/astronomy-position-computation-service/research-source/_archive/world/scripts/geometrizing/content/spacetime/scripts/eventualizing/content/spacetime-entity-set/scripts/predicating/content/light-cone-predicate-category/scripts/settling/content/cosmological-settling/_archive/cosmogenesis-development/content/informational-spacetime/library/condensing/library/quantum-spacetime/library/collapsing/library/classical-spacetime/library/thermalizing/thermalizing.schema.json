@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/library/condensing/library/quantum-spacetime/library/collapsing/library/classical-spacetime/library/thermalizing/thermalizing.schema.json",
+  "title": "thermalizing",
+  "description": "The finite generator: run balancing, then iterate spreading ∘ constraining to the knowledge-least fixed point (unique by confluence), glue it into a sheaf {base, section}. Is the kernel's settle (Knaster–Tarski termination). Info/physics: reaching thermal equilibrium — sheafification; the gluing is the arrow of time (H¹→0); the fixed point is heat death. Generates thermal-spacetime. io typed by the kernel thermalizing schema via the promoted voidmath-kernel-schema package.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "thermalizing" },
+    "kind": { "type": "string", "const": "morphism" },
+    "is": { "type": "string", "const": "settle" },
+    "domain": { "type": "string", "const": "classical-spacetime" },
+    "codomain": { "type": "string", "const": "thermal-spacetime" },
+    "generator-of": { "type": "string", "const": "thermal-spacetime" },
+    "io": { "$ref": "https://voidmath.active.development.561.group/articulating/library/category/predicating/library/category/positing/library/category/thermalizing/thermalizing.schema.json" }
+  },
+  "required": ["name", "is", "codomain"]
+}

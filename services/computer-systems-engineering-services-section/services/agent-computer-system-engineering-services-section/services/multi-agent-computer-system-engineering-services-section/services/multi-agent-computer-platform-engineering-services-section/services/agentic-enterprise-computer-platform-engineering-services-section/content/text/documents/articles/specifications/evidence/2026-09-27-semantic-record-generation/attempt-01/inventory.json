@@ -1,0 +1,18 @@
+{
+  "kind": "source-patchset-input",
+  "version": 1,
+  "sourceRoot": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section",
+  "files": {
+    "src/semiotic-eavt/semantic-record.mjs": {
+      "state": "absent"
+    }
+  },
+  "clauses": [
+    "F-R01",
+    "F-R02",
+    "F-R03",
+    "F-R04",
+    "F-R05",
+    "F-R06"
+  ]
+}

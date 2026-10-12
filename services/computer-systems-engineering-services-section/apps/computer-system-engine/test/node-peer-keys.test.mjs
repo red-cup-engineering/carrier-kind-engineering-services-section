@@ -13,8 +13,8 @@ const pair = () => generateKeyPairSync("ed25519");
 const pem = (key) => key.export({ type: "spki", format: "pem" });
 const hub = systemNode({ id: "cold-red-gate", origin: HUB, peers: [COLONY] });
 const signed = (privateKey, body = "{\"date\":\"2026-10-10\"}") => ({
-  method: "POST", path: "/settlement/holdings", body,
-  headers: signRequest({ method: "POST", path: "/settlement/holdings", body, keyId: COLONY, privateKey }),
+  method: "POST", path: "/settlement/heads", body,
+  headers: signRequest({ method: "POST", path: "/settlement/heads", body, keyId: COLONY, privateKey }),
 });
 const away = async () => { throw Object.assign(new TypeError("fetch failed"), { cause: { code: "ECONNREFUSED" } }); };
 const advertising = (key) => async (url) => {

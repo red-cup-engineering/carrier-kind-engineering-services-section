@@ -1,0 +1,12 @@
+{
+  "committedAt": 1790537313.7593627,
+  "workOrderSha256": "59497d91f0ba860829c6660b99568f573fcc7b280863b840e586a3604374c239",
+  "files": {
+    "browser.mjs": "348bd35c414cf357efda022a6cba28670c97b2fec788bd172c524e7180f24848",
+    "assay.mjs": "d6ff6b14e081e23e3aa6c04dfa6006c46042344d3ba1f6917ae965093b94b784"
+  },
+  "beforeNewSourceGeneration": true,
+  "method": "Actual HTTP loading of generated styles and no-script Chromium; full site length labels/site name; same navigation and full token checks",
+  "predecessorAssay": "/tmp/muse-presentation-assay-corrected/manifest.json",
+  "correction": "File URL fixture omitted absolute legacy CSS. New HTTP fixture tests the rendered layout with its actual stylesheet."
+}

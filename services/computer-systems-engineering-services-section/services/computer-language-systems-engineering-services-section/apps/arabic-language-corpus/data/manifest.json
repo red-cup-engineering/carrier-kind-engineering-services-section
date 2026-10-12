@@ -1,0 +1,669 @@
+{
+  "kind": "communicating.language-manifest",
+  "bundle": {
+    "meta": {
+      "name": "Arabic",
+      "code": "ar",
+      "script": "Arabic",
+      "direction": "rtl"
+    },
+    "lexicon": {
+      "determiners": [
+        "هذا",
+        "هذه",
+        "ذلك",
+        "تلك",
+        "كل",
+        "بعض"
+      ],
+      "prepositions": [
+        "في",
+        "إلى",
+        "على",
+        "من",
+        "عن",
+        "مع",
+        "بين",
+        "تحت",
+        "فوق",
+        "بعد",
+        "قبل"
+      ],
+      "pronouns": [
+        "أنا",
+        "أنت",
+        "أنتِ",
+        "هو",
+        "هي",
+        "نحن",
+        "أنتم",
+        "هم",
+        "هن",
+        "إياه",
+        "إياها"
+      ],
+      "conjunctions": [
+        "و",
+        "ثم",
+        "أو",
+        "لكن",
+        "لأن",
+        "إذا",
+        "حتى"
+      ],
+      "auxiliaries": [
+        "سوف",
+        "قد",
+        "كان",
+        "كانت",
+        "ليس",
+        "ليست"
+      ],
+      "copula": [
+        "كان",
+        "كانت",
+        "ليس",
+        "ليست"
+      ]
+    },
+    "morphology": {
+      "suffixRules": [
+        {
+          "pattern": "^ال.+",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".+ون$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".+ات$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".+ية$",
+          "tag": "noun"
+        }
+      ],
+      "rootPatternRules": [
+        {
+          "pattern": "^كتب$",
+          "tag": "verb",
+          "root": "k-t-b",
+          "template": "CaCaCa",
+          "features": [
+            "aspect:perfective",
+            "person:3",
+            "number:sg"
+          ]
+        },
+        {
+          "pattern": "^يكتب$",
+          "tag": "verb",
+          "root": "k-t-b",
+          "template": "yaCCuCu",
+          "features": [
+            "aspect:imperfective",
+            "person:3",
+            "number:sg"
+          ]
+        },
+        {
+          "pattern": "^كتاب$",
+          "tag": "noun",
+          "root": "k-t-b",
+          "template": "CiCaaC",
+          "features": [
+            "nominal:instrument-or-result"
+          ]
+        },
+        {
+          "pattern": "^كاتب$",
+          "tag": "noun",
+          "root": "k-t-b",
+          "template": "CaaCiC",
+          "features": [
+            "participle:active"
+          ]
+        },
+        {
+          "pattern": "^قرأ$",
+          "tag": "verb",
+          "root": "q-r-ʔ",
+          "template": "CaCaCa",
+          "features": [
+            "aspect:perfective",
+            "person:3",
+            "number:sg"
+          ]
+        },
+        {
+          "pattern": "^يقرأ$",
+          "tag": "verb",
+          "root": "q-r-ʔ",
+          "template": "yaCCaCu",
+          "features": [
+            "aspect:imperfective",
+            "person:3",
+            "number:sg"
+          ]
+        },
+        {
+          "pattern": "^ذهب$",
+          "tag": "verb",
+          "root": "dh-h-b",
+          "template": "CaCaCa",
+          "features": [
+            "aspect:perfective",
+            "person:3",
+            "number:sg"
+          ]
+        },
+        {
+          "pattern": "^يذهب$",
+          "tag": "verb",
+          "root": "dh-h-b",
+          "template": "yaCCaCu",
+          "features": [
+            "aspect:imperfective",
+            "person:3",
+            "number:sg"
+          ]
+        },
+        {
+          "pattern": "^أكل$",
+          "tag": "verb",
+          "root": "ʔ-k-l",
+          "template": "CaCaCa",
+          "features": [
+            "aspect:perfective",
+            "person:3",
+            "number:sg"
+          ]
+        },
+        {
+          "pattern": "^يأكل$",
+          "tag": "verb",
+          "root": "ʔ-k-l",
+          "template": "yaCCuCu",
+          "features": [
+            "aspect:imperfective",
+            "person:3",
+            "number:sg"
+          ]
+        }
+      ],
+      "featureRules": [
+        {
+          "pattern": ".+ُ$",
+          "tag": "case:nom"
+        },
+        {
+          "pattern": ".+َ$",
+          "tag": "case:acc"
+        },
+        {
+          "pattern": ".+ِ$",
+          "tag": "case:gen"
+        }
+      ],
+      "numberSuffixPattern": ".+(ون|ات)$",
+      "verbFormRules": [
+        {
+          "pattern": "^ي.+",
+          "tag": "imperfective"
+        },
+        {
+          "pattern": "^(كتب|قرأ|ذهب|أكل)$",
+          "tag": "perfective"
+        }
+      ],
+      "numberWords": [
+        "واحد",
+        "اثنان",
+        "ثلاثة",
+        "أربعة",
+        "خمسة",
+        "ستة",
+        "سبعة",
+        "ثمانية",
+        "تسعة",
+        "عشرة"
+      ]
+    },
+    "reference": {
+      "pronouns": {
+        "أنا": {
+          "person": 1,
+          "number": "sg"
+        },
+        "أنت": {
+          "person": 2,
+          "number": "sg",
+          "gender": "m"
+        },
+        "أنتِ": {
+          "person": 2,
+          "number": "sg",
+          "gender": "f"
+        },
+        "هو": {
+          "person": 3,
+          "number": "sg",
+          "gender": "m"
+        },
+        "هي": {
+          "person": 3,
+          "number": "sg",
+          "gender": "f"
+        },
+        "نحن": {
+          "person": 1,
+          "number": "pl"
+        },
+        "أنتم": {
+          "person": 2,
+          "number": "pl",
+          "gender": "m"
+        },
+        "هم": {
+          "person": 3,
+          "number": "pl",
+          "gender": "m"
+        },
+        "هن": {
+          "person": 3,
+          "number": "pl",
+          "gender": "f"
+        }
+      },
+      "nameGender": {}
+    },
+    "wordOrder": "VSO",
+    "grammar": {
+      "kind": "communicating.language-grammar-profile",
+      "wordOrder": "VSO",
+      "alignment": "nominative-accusative",
+      "headDirectionality": {
+        "determiner": "right",
+        "adjective": "right",
+        "subject": "right",
+        "object": "right",
+        "adposition": "left"
+      },
+      "roleStrategies": [
+        {
+          "relation": "nsubj",
+          "by": "case",
+          "caseFeature": "case:nom",
+          "note": "Used when short-vowel case marks are present."
+        },
+        {
+          "relation": "dobj",
+          "by": "case",
+          "caseFeature": "case:acc",
+          "note": "Used when short-vowel case marks are present."
+        },
+        {
+          "relation": "nsubj",
+          "by": "position",
+          "direction": "right",
+          "distance": "nearest",
+          "note": "Finite unvocalized VSO fallback."
+        },
+        {
+          "relation": "dobj",
+          "by": "position",
+          "direction": "right",
+          "distance": "farthest",
+          "note": "Finite unvocalized VSO fallback."
+        },
+        {
+          "relation": "nsubj",
+          "by": "position",
+          "direction": "left",
+          "distance": "nearest",
+          "note": "SVO fallback for topicalized clauses."
+        }
+      ],
+      "morphology": {
+        "type": "mixed",
+        "caseMarking": "mixed",
+        "agreement": "rich"
+      },
+      "segmentation": {
+        "sentenceBoundary": "punctuation",
+        "wordBoundary": "space"
+      },
+      "notes": [
+        "Modern Standard Arabic fiber focused on root-pattern admission, not full clitic segmentation.",
+        "Unvocalized text is underdetermined; case strategies win when diacritics are present, positional strategies are finite fallbacks."
+      ]
+    },
+    "attachment": {
+      "determiner": "right",
+      "adjective": "right",
+      "subject": "right",
+      "object": "right"
+    },
+    "segmentation": {
+      "sentenceTerminatorPattern": "[.!؟]",
+      "abbreviations": []
+    }
+  },
+  "witnessJournal": [
+    {
+      "entity": "language:ar",
+      "attribute": "communicating.package",
+      "value": "@emsenn/communicating-in-arabic"
+    },
+    {
+      "entity": "language:ar",
+      "attribute": "communicating.alignment",
+      "value": "nominative-accusative"
+    },
+    {
+      "entity": "language:ar:role-strategy:0",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "nsubj",
+        "by": "case",
+        "caseFeature": "case:nom",
+        "note": "Used when short-vowel case marks are present."
+      }
+    },
+    {
+      "entity": "language:ar:role-strategy:1",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "dobj",
+        "by": "case",
+        "caseFeature": "case:acc",
+        "note": "Used when short-vowel case marks are present."
+      }
+    },
+    {
+      "entity": "language:ar:role-strategy:2",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "nsubj",
+        "by": "position",
+        "direction": "right",
+        "distance": "nearest",
+        "note": "Finite unvocalized VSO fallback."
+      }
+    },
+    {
+      "entity": "language:ar:role-strategy:3",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "dobj",
+        "by": "position",
+        "direction": "right",
+        "distance": "farthest",
+        "note": "Finite unvocalized VSO fallback."
+      }
+    },
+    {
+      "entity": "language:ar:role-strategy:4",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "nsubj",
+        "by": "position",
+        "direction": "left",
+        "distance": "nearest",
+        "note": "SVO fallback for topicalized clauses."
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:0",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^كتب$",
+        "tag": "verb",
+        "root": "k-t-b",
+        "template": "CaCaCa",
+        "features": [
+          "aspect:perfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:1",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^يكتب$",
+        "tag": "verb",
+        "root": "k-t-b",
+        "template": "yaCCuCu",
+        "features": [
+          "aspect:imperfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:2",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^كتاب$",
+        "tag": "noun",
+        "root": "k-t-b",
+        "template": "CiCaaC",
+        "features": [
+          "nominal:instrument-or-result"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:3",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^كاتب$",
+        "tag": "noun",
+        "root": "k-t-b",
+        "template": "CaaCiC",
+        "features": [
+          "participle:active"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:4",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^قرأ$",
+        "tag": "verb",
+        "root": "q-r-ʔ",
+        "template": "CaCaCa",
+        "features": [
+          "aspect:perfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:5",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^يقرأ$",
+        "tag": "verb",
+        "root": "q-r-ʔ",
+        "template": "yaCCaCu",
+        "features": [
+          "aspect:imperfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:6",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^ذهب$",
+        "tag": "verb",
+        "root": "dh-h-b",
+        "template": "CaCaCa",
+        "features": [
+          "aspect:perfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:7",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^يذهب$",
+        "tag": "verb",
+        "root": "dh-h-b",
+        "template": "yaCCaCu",
+        "features": [
+          "aspect:imperfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:8",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^أكل$",
+        "tag": "verb",
+        "root": "ʔ-k-l",
+        "template": "CaCaCa",
+        "features": [
+          "aspect:perfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    },
+    {
+      "entity": "language:ar:root-pattern:9",
+      "attribute": "communicating.rootPattern",
+      "value": {
+        "pattern": "^يأكل$",
+        "tag": "verb",
+        "root": "ʔ-k-l",
+        "template": "yaCCuCu",
+        "features": [
+          "aspect:imperfective",
+          "person:3",
+          "number:sg"
+        ]
+      }
+    }
+  ],
+  "lambek": {
+    "categories": [
+      "S",
+      "NP",
+      "N",
+      "VP",
+      "VSO",
+      "nominative-accusative"
+    ],
+    "judgments": [
+      {
+        "expression": "??? ?????? ?????",
+        "type": "S",
+        "source": "manifest.sample"
+      }
+    ]
+  },
+  "sofic": {
+    "alphabet": [
+      "C",
+      "V"
+    ],
+    "graph": [
+      [
+        false,
+        true
+      ],
+      [
+        true,
+        true
+      ]
+    ],
+    "factor": [
+      0,
+      1
+    ],
+    "sample": [
+      0,
+      1,
+      0,
+      1
+    ],
+    "note": "Arabic finite segment-shape witness; language-specific phonology can refine this carrier later."
+  },
+  "chu": {
+    "pts": [
+      "asserted",
+      "denied",
+      "contested",
+      "unheard"
+    ],
+    "sts": [
+      "truth",
+      "falsity"
+    ],
+    "matrix": [
+      {
+        "pt": "asserted",
+        "st": "truth",
+        "charge": "active"
+      },
+      {
+        "pt": "asserted",
+        "st": "falsity",
+        "charge": "absurd"
+      },
+      {
+        "pt": "denied",
+        "st": "truth",
+        "charge": "absurd"
+      },
+      {
+        "pt": "denied",
+        "st": "falsity",
+        "charge": "potential"
+      },
+      {
+        "pt": "contested",
+        "st": "truth",
+        "charge": "stable"
+      },
+      {
+        "pt": "contested",
+        "st": "falsity",
+        "charge": "stable"
+      },
+      {
+        "pt": "unheard",
+        "st": "truth",
+        "charge": "absurd"
+      },
+      {
+        "pt": "unheard",
+        "st": "falsity",
+        "charge": "absurd"
+      }
+    ]
+  },
+  "discourseCover": {
+    "entities": 11,
+    "cells": 11,
+    "components": 1,
+    "note": "Arabic discourse cover keeps one finite H1 coordination loop available for ambiguity or contradiction."
+  }
+}

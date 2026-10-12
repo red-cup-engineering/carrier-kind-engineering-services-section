@@ -1,0 +1,18 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.meetT","cases":[
+  {"op":"meetT","args":[[false,false],[false,false]],"result":[false,false]},
+  {"op":"meetT","args":[[false,false],[true,false]],"result":[false,false]},
+  {"op":"meetT","args":[[false,false],[false,true]],"result":[false,true]},
+  {"op":"meetT","args":[[false,false],[true,true]],"result":[false,true]},
+  {"op":"meetT","args":[[true,false],[false,false]],"result":[false,false]},
+  {"op":"meetT","args":[[true,false],[true,false]],"result":[true,false]},
+  {"op":"meetT","args":[[true,false],[false,true]],"result":[false,true]},
+  {"op":"meetT","args":[[true,false],[true,true]],"result":[true,true]},
+  {"op":"meetT","args":[[false,true],[false,false]],"result":[false,true]},
+  {"op":"meetT","args":[[false,true],[true,false]],"result":[false,true]},
+  {"op":"meetT","args":[[false,true],[false,true]],"result":[false,true]},
+  {"op":"meetT","args":[[false,true],[true,true]],"result":[false,true]},
+  {"op":"meetT","args":[[true,true],[false,false]],"result":[false,true]},
+  {"op":"meetT","args":[[true,true],[true,false]],"result":[true,true]},
+  {"op":"meetT","args":[[true,true],[false,true]],"result":[false,true]},
+  {"op":"meetT","args":[[true,true],[true,true]],"result":[true,true]}
+]}

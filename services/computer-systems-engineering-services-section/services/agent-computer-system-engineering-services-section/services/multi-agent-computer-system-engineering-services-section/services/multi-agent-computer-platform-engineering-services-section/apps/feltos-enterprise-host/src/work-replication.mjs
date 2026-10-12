@@ -11,8 +11,8 @@ export { signedGetAs, catchUpOutcome, failuresSaid } from "./held-delivery.mjs";
  * return, a hold, a promise, an acceptance that chooses) are never replicated; they are played on
  * the thread's own board (`homeOf`), so they are not in this union.
  *
- * A move here is a journal entry `{ id, record }`: `id` its content address (the board journal's
- * own), `record` the move as it was admitted, with the edition that admitted it. A node re-admits
+ * A move here is a board entry `{ id, record }`: `id` its content address (the `work-arena-move`
+ * record's own), `record` the move as it was admitted, with the edition that admitted it. A node re-admits
  * every remote move under that recorded edition and never under its own; a move of an edition this
  * release does not realize is kept unread (organizing `unreadReasonOf`), neither refused nor
  * played, until a release realizes its edition.
@@ -24,24 +24,23 @@ export { signedGetAs, catchUpOutcome, failuresSaid } from "./held-delivery.mjs";
  * (`deliverOrHold`), and that peer, when it runs, pulls what is held for it (`pullHeldFromPeers`). Not here yet (next slice): forwarding a coordinated move to its thread's home node,
  * which needs a territory-to-node map the configuration does not hold.
  */
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { each, extend, get, readHead, walk } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { ALWAYS_TOLD_MOVES, unreadReasonOf, moveOf, OPENING_MOVES, readForward, TOLD_MOVES } from "@red-cup-engineering/organizing/enterprise";
 import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { agencyAt } from "@red-cup-engineering/metroplat/offices";
-import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
+import { workBoardStore, WORK_BOARD_KIND } from "@red-cup-engineering/feltos/work/work-board";
 import { homeHostOf, presenceOf, workHomesOf, workPeersOf, prepareWorkDecisionDelivery, prepareWorkOpeningDelivery, prepareWorkTellingDelivery } from "./federated-work.mjs";
-import { notePeerRun, notePeerHealth, observeIdlePeers, PEER_LIVENESS_KIND } from "./peer-liveness.mjs";
-
-/** The board journal's object kind and category (feltos work-board `WORK_BOARD_KIND`). */
-const BOARD_KIND = "work-arena-move";
+import { notePeerRun, notePeerHealth, observeIdlePeers } from "./peer-liveness.mjs";
 
 const byTimeThenAddress = (a, b) => String(a.record.at).localeCompare(String(b.record.at)) || a.id.localeCompare(b.id);
 
-/** The entries of a board journal, as { id, record }. */
-export const entriesOfJournal = (journal) => journal.query({ category: "move" }).map(({ id, record, causes }) => Object.freeze({ id, record, ...(causes === undefined || causes.length === 0 ? {} : { causes }) }));
+/** The entries of a settlement's board, as { id, record[, causes] }: each a `work-arena-move` record, its causes beside the move. */
+export const entriesOfBoard = (root) => [...each(root, WORK_BOARD_KIND)].map(({ address, record }) => {
+  const { causes, ...move } = record;
+  return Object.freeze({ id: address, record: move, ...(!Array.isArray(causes) || causes.length === 0 ? {} : { causes }) });
+});
 
 /**
  * Whether one move is coordination-free, given the kinds of the threads it can answer:
@@ -154,9 +153,9 @@ export function deliveryAway(error) {
 /**
  * Ship what the peer is not yet known to hold, through `ship(entry)` (async, throws on failure): the
  * entries of `entries` not in `shipped` (the set of addresses the peer has received). The cursor is
- * the ledger of received addresses, not a time: the journal orders by when a move was played, so a
+ * the peer's recorded deliveries, not a time: the journal orders by when a move was played, so a
  * move recorded late with an early time (an old-dated arrival, a corrected clock) still ships. A
- * failed move stays out of the ledger and is sent again; the others go on.
+ * failed move is not recorded as delivered and is sent again; the others go on.
  * Returns { shipped, failed } as entries; a failed entry keeps `why` it failed and whether the peer
  * was `away` (`deliveryAway`).
  */
@@ -174,30 +173,24 @@ export async function shipWorkSince({ entries, shipped = new Set(), ship }) {
   return Object.freeze({ shipped: Object.freeze(done), failed: Object.freeze(failed) });
 }
 
-/**
- * Why moves were not delivered, as said: each distinct reason with how many moves it held back,
- * the most frequent first. A run that leaves moves undelivered says this, so its outcome names
- * the cause rather than only a count.
- */
-const LEDGER_FILE = "work-peer-shipped.jsonl";
+/** The store type of a delivery: a thread per peer (named by the digest of its actor), a record `{ move, peer }` per move the peer received. */
+export const DELIVERY_TYPE = "work-peer-delivery";
+const peerThread = (peer) => sha256Hex(peer);
+const LIMIT = 1_000_000;
 
-/** The addresses the work peer has received from this settlement, from the ledger kept in its root. */
+/** The addresses `peer` has received from this settlement, from the deliveries its thread records. */
 export function readShipped(dataRoot, peer) {
-  const path = resolve(dataRoot, LEDGER_FILE);
-  if (!existsSync(path)) return new Set();
-  const receipts = readFileSync(path, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
-  // Historical bare addresses do not identify a recipient and cannot prove a newly granted peer
-  // has received them. Keep that reader for history; current delivery selects named receipts only.
-  return new Set(receipts.flatMap((receipt) => peer === undefined
-    ? (typeof receipt === "string" ? [receipt] : [])
-    : (receipt?.peer === peer && typeof receipt.id === "string" ? [receipt.id] : [])));
+  const shipped = new Set();
+  for (const step of walk(dataRoot, DELIVERY_TYPE, readHead(dataRoot, DELIVERY_TYPE, peerThread(peer))?.frontier ?? [], { limit: LIMIT })) {
+    if (step.record !== undefined) shipped.add(step.record.move);
+  }
+  return shipped;
 }
 
-function noteShipped(dataRoot, ids) {
-  if (ids.length === 0) return;
-  const path = resolve(dataRoot, LEDGER_FILE);
-  mkdirSync(dirname(path), { recursive: true });
-  appendFileSync(path, ids.map((id) => `${JSON.stringify(id)}\n`).join(""));
+/** Record that `peer` received each of `moves`; a delivery already recorded is not recorded again. */
+export function noteShipped(dataRoot, peer, moves) {
+  const held = readShipped(dataRoot, peer);
+  for (const move of moves) if (!held.has(move)) extend(dataRoot, DELIVERY_TYPE, peerThread(peer), { move, peer });
 }
 
 /**
@@ -208,8 +201,7 @@ function noteShipped(dataRoot, ids) {
  */
 export async function catchUpWorkPeer({ config, provider, binding, deliver, host, agencyRoot = config.agencyRoot, enterprises: enterprisesOf }) {
   if (config.deliverWorkToPeer === false || workPeersOf(config).length === 0) return Object.freeze({ shipped: Object.freeze([]), failed: Object.freeze([]) });
-  const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: BOARD_KIND });
-  const entries = entriesOfJournal(journal);
+  const entries = entriesOfBoard(binding.dataRoot);
   const agency = agencyAt(agencyRoot);
   const enterprises = enterprisesOf?.() ?? [...agency.enterprises.values()];
   const threads = workBoardStore(binding, { agency: () => agency, homes: workHomesOf(() => agency, () => enterprises) }).read(binding.now()).threads;
@@ -227,7 +219,7 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     if (held.has(moveId)) return;
 
     const value = await (deliver ?? deliverActivity)(sender, request);
-    noteShipped(binding.dataRoot, [{ peer: request.recipient, id: moveId }]);
+    noteShipped(binding.dataRoot, request.recipient, [moveId]);
     held.add(moveId);
     observation.shipped += 1;
     return value;
@@ -248,7 +240,7 @@ export async function catchUpWorkPeer({ config, provider, binding, deliver, host
     // A move held for a known-intermittent peer is handed on: the peer pulls it, so it is not sent again.
     for (const value of await thunk() ?? []) {
       if (value?.held !== true || !received.has(value.recipient) || received.get(value.recipient).has(id)) continue;
-      noteShipped(binding.dataRoot, [{ peer: value.recipient, id }]);
+      noteShipped(binding.dataRoot, value.recipient, [id]);
       received.get(value.recipient).add(id);
       observations.get(value.recipient).held += 1;
     }
@@ -275,9 +267,8 @@ export function noteWorkPeerLiveness({ config, binding, host, result, now = new 
   if (config.deliverWorkToPeer === false) return Object.freeze({});
   const peers = result.peers ?? [];
   if (peers.length === 0) return Object.freeze({});
-  const journal = createSemanticRecordJournal({ root: binding.dataRoot, objectKind: PEER_LIVENESS_KIND });
   const readings = peers.map(({ peer, shipped, failed, health }) => {
-    const noted = (health === undefined ? notePeerRun : notePeerHealth)(journal, {
+    const noted = (health === undefined ? notePeerRun : notePeerHealth)(binding.dataRoot, {
       observer: host, peer, now, shipped, failed,
       presence: presenceOf(config, peer), thresholdSeconds: config.workPeerSuspicionSeconds,
       ...(health === undefined ? {} : { health }),
@@ -287,25 +278,19 @@ export function noteWorkPeerLiveness({ config, binding, host, result, now = new 
   return Object.freeze({ peers: Object.freeze(readings), ...(readings.length === 1 ? { liveness: readings[0].liveness, ...(readings[0].silentSeconds === undefined ? {} : { silentSeconds: readings[0].silentSeconds }) } : {}) });
 }
 
-const PULL_LEDGER_FILE = "work-peer-pulled.jsonl";
+/** The store type of a pull cursor: a thread per peer, a record `{ peer, after, at }` per page pulled from it. */
+export const PULL_TYPE = "work-peer-pull";
 const PULL_PAGES = 100;
 
-/** The custody continuation through which this node has pulled from `peer`, retained in its root. */
+/** The continuation through which this node has pulled from `peer`: the latest cursor its thread records. */
 export function readPulled(dataRoot, peer) {
-  const path = resolve(dataRoot, PULL_LEDGER_FILE);
-  if (!existsSync(path)) return undefined;
-  let after;
-  for (const line of readFileSync(path, "utf8").split("\n").filter(Boolean)) {
-    const receipt = JSON.parse(line);
-    if (receipt?.peer === peer && typeof receipt.after === "string") after = receipt.after;
-  }
-  return after;
+  const frontier = readHead(dataRoot, PULL_TYPE, peerThread(peer))?.frontier ?? [];
+  const cursors = frontier.map((address) => get(dataRoot, PULL_TYPE, address)).filter((held) => typeof held?.after === "string");
+  return cursors.sort((left, right) => (left.at < right.at ? -1 : left.at > right.at ? 1 : 0)).at(-1)?.after;
 }
 
-function notePulled(dataRoot, peer, after) {
-  const path = resolve(dataRoot, PULL_LEDGER_FILE);
-  mkdirSync(dirname(path), { recursive: true });
-  appendFileSync(path, `${JSON.stringify({ peer, after })}\n`);
+function notePulled(dataRoot, peer, after, at) {
+  extend(dataRoot, PULL_TYPE, peerThread(peer), { peer, after, at });
 }
 
 const actorOf = (activity) => (typeof activity?.actor === "string" ? activity.actor : activity?.actor?.id);
@@ -363,7 +348,7 @@ export async function pullHeldFromPeers({ config, binding, provider, signedGet, 
         const cursor = next?.origin === origin ? next.searchParams.get("after") : null;
         if (cursor === null || cursor === undefined || cursor === after) break;
         after = cursor;
-        notePulled(binding.dataRoot, peer, after);
+        notePulled(binding.dataRoot, peer, after, binding.now());
       }
       results.push(Object.freeze({ peer, pulled, refused: Object.freeze(refused) }));
     } catch (error) {

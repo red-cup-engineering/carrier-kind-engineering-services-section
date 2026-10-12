@@ -1,0 +1,1 @@
+export { isObjectRecord as isObject } from "../../../../../../../../../../../computer-data-engineering-services-section/services/serialized-computer-data-engineering-services-section/services/json-services-section/src/index.mjs";

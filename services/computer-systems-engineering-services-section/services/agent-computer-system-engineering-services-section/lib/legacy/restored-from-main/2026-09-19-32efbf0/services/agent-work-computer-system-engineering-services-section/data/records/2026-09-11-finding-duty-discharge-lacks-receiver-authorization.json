@@ -1,0 +1,19 @@
+{
+  "type": "Finding",
+  "version": 1,
+  "date": "2026-09-11",
+  "recordedBy": "worker:claude",
+  "subject": "@red-cup-engineering/agent-work-computer-system-engineering-services-section/src/duty-discharge.mjs",
+  "summary": "buildDischargeInput and executeDeterministicDuty build a metroplat.work.discharge payload {kind, id, intent, producer, scope, text, evidence} that no longer satisfies metroplat's admitWorkDischarge contract, which now requires allocation, result, resultReceipt, and receiver, plus a caller-supplied receiverAuthorization (an allowed AuthorityEvaluationDecision), and a resultReceipt referencing a separately-admitted, independently-witnessed work-result proposal.",
+  "evidence": [
+    "metroplat src/work/work-discharge.mts throws 'work discharge: process-bound receiver authority is required' when options.receiverAuthorization is absent, and 'work discharge: receiver must be independent of producer' when discharge.receiver.id === discharge.producer.id.",
+    "metroplat test/structured-work-intent.test.mjs demonstrates the real, working pattern: a work-result proposal is admitted first (producing resultReceipt), then admitWorkDischarge is called with allocation (an id), result, resultReceipt, receiver: {id, evidence} distinct from producer, and options.receiverAuthorization.",
+    "metroplat's own src/monitoring/checkout-health/service.mts wires admitDischargeFn without receiverAuthorization either, so this gap is not unique to the external package -- metroplat's own automated checkout-health repair loop cannot currently self-discharge under this control either.",
+    "metroplat test/deterministic-work-roundtrip.test.mjs's two tests exercising this package's discharge path (via readyDutiesDischargeOperations) were skipped 2026-09-11 with an inline comment pointing here, rather than hacked to pass."
+  ],
+  "founderRuling": "2026-09-11: confirmed the separation-of-duties control is intentional -- automated self-repair must not be able to discharge its own work without a real, independent receiver. This is not a defect to route around; wiring a genuine receiver + authority-evaluation + work-result-proposal pipeline into this package's deterministic-duty discharge path is real follow-up architecture, owned by whoever next works this package, not something decided or built unilaterally by the session that found it.",
+  "disposition": "open",
+  "affectedFiles": [
+    "src/duty-discharge.mjs (buildDischargeInput, executeDeterministicDuty)"
+  ]
+}

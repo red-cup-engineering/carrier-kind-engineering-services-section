@@ -7,15 +7,20 @@ import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-e
 import { invocation } from "@red-cup-engineering/computer-system-engine/rpc/invocation";
 import { dispatch, authorizationFromStanding } from "@red-cup-engineering/computer-system-engine/rpc/dispatch";
 import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { each } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { artifactId } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
-import { extractSignCellEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
+import { extractSignStuffEvidenceActivity } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 import { workBoardStore } from "@red-cup-engineering/feltos/work/work-board";
 import { enterpriseLoopOperations } from "../src/enterprise-loops.mjs";
-import { admitWorkPeerGrants, hostedWorkOpening, preparePeerWorkOpening, preparePeerWorkTelling, workOpeningActivity, workTellingActivity, WORK_ADMISSION_OBJECT_KIND } from "../src/federated-work.mjs";
+import { admitWorkPeerGrants, hostedWorkOpening, preparePeerWorkOpening, preparePeerWorkTelling, workOpeningActivity, workTellingActivity, WORK_ADMISSION_TYPE } from "../src/federated-work.mjs";
 import { catchUpWorkPeer } from "../src/work-replication.mjs";
 
 const AT = "2026-10-11T00:00:00Z";
+
+/** The admission witnesses of one disposition a data root holds, each with the address (the event) that holds it. */
+const admissions = (root, disposition) => [...each(root, WORK_ADMISSION_TYPE)].filter(({ record }) => record.disposition === disposition).map(({ address, record }) => ({ event: address, record }));
+/** The moves a data root holds, each with its address and the move as it was said (the causes it cites are beside it). */
+const movesOf = (root) => [...each(root, "work-arena-move")].map(({ address, record: { causes: _causes, ...record } }) => ({ id: address, record }));
 const input = { move: "aim", purpose: "The original work keeps its admitted source", at: AT };
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), "host-work-provenance-"));
@@ -32,7 +37,7 @@ function fixture(t) {
   admitWorkPeerGrants({ dataRoot: peer.binding.dataRoot, origin: peer.origin, issuer: "fixture:peering-office", peers: [{ actor: local.actor }], at: AT });
   const delivered = [];
   const deliver = async (_provider, { activity }) => {
-    const projection = extractSignCellEvidenceActivity(activity, { expectedActor: local.actor, expectedRecipient: peer.actor });
+    const projection = extractSignStuffEvidenceActivity(activity, { expectedActor: local.actor, expectedRecipient: peer.actor });
     delivered.push(projection);
     const apply = preparePeerWorkOpening({ projection, senderActorId: local.actor, origin: peer.origin, binding: peer.binding, agencyRoot: peer.agencyRoot });
     assert.ok(apply); return apply();
@@ -74,7 +79,7 @@ test("peer retains offered cause references through its real admission witness w
   const received = f.peer.board.find(opened.id).opening;
   assert.deepEqual(received, opened);
   const [peerWitness] = f.peer.board.witnessesOf(received);
-  const arrivals = createSemanticRecordJournal({ root: f.peer.binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND }).query({ category: "admitted" });
+  const arrivals = admissions(f.peer.binding.dataRoot, "admitted");
   const admission = arrivals.find(row => peerWitness.causes.includes(row.event));
   assert.ok(admission);
   assert.deepEqual(admission.record.sourceCauses, sourceCauses);
@@ -92,7 +97,7 @@ test("historical reopening never installs current invocation provenance locally 
   assert.equal(receipt.ok, true);
   assert.deepEqual(f.local.board.witnessesOf(old), before);
   assert.equal(Object.hasOwn(f.delivered[0].value, "causes"), false);
-  const arrivals = createSemanticRecordJournal({ root: f.peer.binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND }).query({ category: "admitted" });
+  const arrivals = admissions(f.peer.binding.dataRoot, "admitted");
   assert.equal(Object.hasOwn(arrivals[0].record, "sourceCauses"), false);
   assert.equal(f.peer.board.find(old.id).opening.id, old.id);
 });
@@ -122,7 +127,7 @@ test("caller cause injection and denied standing never reach the work opening po
 });
 
 function peerProjection(f, activity) {
-  return extractSignCellEvidenceActivity(activity, { expectedActor: f.local.actor, expectedRecipient: f.peer.actor });
+  return extractSignStuffEvidenceActivity(activity, { expectedActor: f.local.actor, expectedRecipient: f.peer.actor });
 }
 function atPeer(f, projection, prepare) {
   return prepare({ projection, senderActorId: f.local.actor, origin: f.peer.origin,
@@ -141,8 +146,7 @@ test("repeated peer tellings retain each admission but only one exact authored w
   atPeer(f, projection, preparePeerWorkTelling);
   assert.equal(f.peer.board.find(receipt.value.id).answers.length, 1);
   assert.deepEqual(f.peer.board.witnessesOf(first), before);
-  const arrivals = createSemanticRecordJournal({ root: f.peer.binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND })
-    .query({ category: "admitted" }).filter(row => row.record.subject === projection.cloudEvent.id);
+  const arrivals = admissions(f.peer.binding.dataRoot, "admitted").filter(row => row.record.subject === projection.cloudEvent.id);
   assert.equal(arrivals.length, 2);
   assert.ok(arrivals.every(row => typeof row.event === "string"));
   assert.notEqual(arrivals[0].event, arrivals[1].event);
@@ -155,14 +159,13 @@ test("an unread peer opening retains one exact row across distinct admission wit
   const projection = peerProjection(f, workOpeningActivity({ origin: f.local.origin, identifier: "metroplat",
     peerActor: f.peer.actor, opening, at: AT }));
   atPeer(f, projection, preparePeerWorkOpening);
-  const records = createSemanticRecordJournal({ root: f.peer.binding.dataRoot, objectKind: "work-arena-move" });
-  const before = records.query({ category: "move" });
+  const records = { query: () => movesOf(f.peer.binding.dataRoot) };
+  const before = records.query();
   f.peer.binding.now = () => "2026-10-11T00:01:00Z";
   atPeer(f, projection, preparePeerWorkOpening);
   assert.equal(before.length, 1);
   assert.deepEqual(before[0].record, opening);
-  assert.deepEqual(records.query({ category: "move" }), before);
-  const arrivals = createSemanticRecordJournal({ root: f.peer.binding.dataRoot, objectKind: WORK_ADMISSION_OBJECT_KIND })
-    .query({ category: "admitted" }).filter(row => row.record.subject === projection.cloudEvent.id);
+  assert.deepEqual(records.query(), before);
+  const arrivals = admissions(f.peer.binding.dataRoot, "admitted").filter(row => row.record.subject === projection.cloudEvent.id);
   assert.equal(arrivals.length, 2);
 });

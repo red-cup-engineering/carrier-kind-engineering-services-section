@@ -1,0 +1,25 @@
+[Unit]
+Description=Modern Business persistent notebook signed explainer A2A provider
+After=network.target witness-journal-rdf-projection-service.service emsweb-notebooklm-inference-a2a.service emsweb-notebooklm-inference-artifacts.service emsweb-modern-business-notebook-artifacts.service
+Requires=witness-journal-rdf-projection-service.service emsweb-notebooklm-inference-a2a.service emsweb-notebooklm-inference-artifacts.service emsweb-modern-business-notebook-artifacts.service
+[Service]
+Type=simple
+WorkingDirectory=/home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section
+ExecStart=/home/emsenn/.config/nvm/versions/node/v24.13.1/bin/node src/serve-a2a.mjs
+Environment=WITNESS_JOURNAL_RDF_AGENT=http://127.0.0.1:19764/.well-known/agent-card.json
+Environment=MODERN_BUSINESS_NOTEBOOK_DATA_ROOT=/home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/data
+Environment=MODERN_BUSINESS_NOTEBOOK_EXCHANGE_ROOT=/home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/data/artifact-exchange
+Environment=MODERN_BUSINESS_NOTEBOOK_ARTIFACT_BASE_URL=http://127.0.0.1:18452
+Environment=MODERN_BUSINESS_NOTEBOOK_SETTLEMENT_ACCOUNT=eip155:31337:0x171fa73666bc362c53c7d4180bfc233f8d681b49
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/data
+ReadOnlyPaths=/home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/data/credentials /home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/data/evm/keystores
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+UMask=0077
+[Install]
+WantedBy=default.target

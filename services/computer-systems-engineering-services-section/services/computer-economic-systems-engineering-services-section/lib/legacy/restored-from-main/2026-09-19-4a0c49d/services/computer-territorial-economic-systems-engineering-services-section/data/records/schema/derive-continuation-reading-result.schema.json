@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "derive-continuation-reading-service/result",
+  "title": "ContinuationReading",
+  "description": "The output derive-continuation-reading.mjs writes: the held position echoed, each candidate's evidence rows echoed with citations alongside its metrologic-bilattice-joined aggregate charge and derived status, the overall reading, and the search terms echoed verbatim.",
+  "type": "object",
+  "required": ["type", "version", "notFormal", "position", "candidates", "reading", "searched"],
+  "properties": {
+    "type": { "const": "ContinuationReading" },
+    "version": { "const": 1 },
+    "notFormal": {
+      "const": true,
+      "description": "Always true: this is a record-level continuation reading over evidence rows, never the unbuilt-affects note's held-⊥ formalization over playing-substrate chronicles; see the territorial-economy science seat's finding at lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/economics-science-services-section/services/territorial-economy-science-services-section/data/records/2026-09-05-continuation-reading-falsification-finding.json, which measured that formalization as unreachable over the playing substrate as built and named it upstream of this program."
+    },
+    "position": {
+      "type": "object",
+      "required": ["text", "holds"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "holds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": false
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "nextStep", "recordPath", "status", "aggregateCharge", "evidenceRows"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "nextStep": { "type": "string", "minLength": 1 },
+          "recordPath": {
+            "oneOf": [
+              { "type": "string", "minLength": 1 },
+              { "type": "null" }
+            ]
+          },
+          "status": { "enum": ["found", "contested", "refuted", "unevidenced"] },
+          "aggregateCharge": {
+            "type": "object",
+            "description": "The metrologic bilattice charge (@lenticule-science/metrologic/bilattice/charge) this candidate's evidence rows joined to via the knowledge-order join. `value` is the two-element [support, refutation] bilattice pair and `evidence` is the two-element [supportRowIds, refutationRowIds] lossless witness pair; both are encoded here as plain (non-tuple) arrays of length exactly 2, positional by convention, because the validator this schema is checked with (@red-cup-engineering/validate-json-service 0.1.0, pinning json-schema-services-section 0.1.11) does not implement the Draft 2020-12 `prefixItems` keyword (friction admitted 2026-09-06).",
+            "required": ["value", "evidence"],
+            "properties": {
+              "value": {
+                "type": "array",
+                "items": { "type": "boolean" },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": { "type": "string", "minLength": 1 }
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          "evidenceRows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["rowId", "charge", "citation"],
+              "properties": {
+                "rowId": { "type": "string", "minLength": 1 },
+                "charge": {
+                  "type": "object",
+                  "required": ["support", "refutation"],
+                  "properties": {
+                    "support": { "type": "boolean" },
+                    "refutation": { "type": "boolean" }
+                  },
+                  "additionalProperties": false
+                },
+                "citation": {
+                  "type": "object",
+                  "required": ["sourceUrl", "sourceTitle", "accessedOn"],
+                  "properties": {
+                    "sourceUrl": { "type": "string", "minLength": 1 },
+                    "sourceTitle": { "type": "string", "minLength": 1 },
+                    "accessedOn": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "reading": { "enum": ["found", "contested", "none-found"] },
+    "searched": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "additionalProperties": false
+}

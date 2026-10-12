@@ -1,0 +1,42 @@
+{
+  "name": "@lenticule-science/latin-language-algebra",
+  "version": "0.1.4",
+  "type": "module",
+  "description": "latin-language-algebra: Latin as a language fiber — its lexicon, morphology, reference, attachment and segmentation tables — presented as a live, discoverable, directly contractable micro-enterprise (a die) of linguistics-services-section.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lenticule-science/latin-language.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "bin": {
+    "solicit-service": "./src/latin-die.mjs",
+    "invoke-service": "./src/latin-die.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs src/*.test.mjs"
+  },
+  "main": "./src/bundle.mjs",
+  "exports": {
+    ".": "./src/bundle.mjs",
+    "./bundle": "./src/bundle.mjs",
+    "./tag": "./src/tag.mjs",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@red-cup-engineering/communicating": "workspace:*",
+    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/computer-language-systems-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/activitypub-services-section": "workspace:*"
+  },
+  "files": [
+    "content",
+    "src/bundle.mjs",
+    "src/latin-die.mjs",
+    "src/semantic-identity.mjs",
+    "src/tag.mjs"
+  ],
+  "sideEffects": false,
+  "license": "UNLICENSED"
+}

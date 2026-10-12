@@ -1,3 +1,4 @@
+import { mimeTypeEssence } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/mime-type";
 import { parseAccept, parseAcceptEncoding, parseAcceptLanguage } from "@red-cup-engineering/computer-serialized-content-engineering-services-section/services/http-data-services-section/src/preferences";
 
 /** Specific ranges establish a representation's preference before quality
@@ -25,9 +26,10 @@ function selectRepresentation(entries, offered, matches, qualityTie = false) {
 }
 
 export function negotiateType(header, offered) {
-  if (!header) return offered[0] ?? null;
-  return selectRepresentation(parseAccept(header), offered, (entry, candidate) => {
-    const [type, subtype] = candidate.split(";", 1)[0].trim().toLowerCase().split("/");
+  const representations = offered.filter(value => mimeTypeEssence(value) !== null);
+  if (!header) return representations[0] ?? null;
+  return selectRepresentation(parseAccept(header), representations, (entry, candidate) => {
+    const [type, subtype] = mimeTypeEssence(candidate).split("/");
     return entry.type === "*" || (entry.type === type && (entry.subtype === "*" || entry.subtype === subtype));
   }, true);
 }

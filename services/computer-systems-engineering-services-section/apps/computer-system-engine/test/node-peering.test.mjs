@@ -3,9 +3,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { appendArrivalAtRoot } from "@red-cup-engineering/computer-system-engine/rpc/arrival-store";
-import { journal, openJournal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
+import { appendArrivalAtRoot, readArrivalProjection } from "@red-cup-engineering/computer-system-engine/rpc/arrival-store";
 import {
   discoverSystemNode,
   systemNode,
@@ -102,9 +100,11 @@ test("two isolated System nodes discover and replay CloudEvents bidirectionally 
     assert.equal(first.ok, true);
     assert.deepEqual(retry, first, "a retry carries the same content-addressed receipt");
     assert.equal(reverse.ok, true);
-    const day = "2026-09-09T00:00:00.000Z";
-    assert.equal(openJournal(nodes.get(coldRedGate.origin).root).read(journal.feed(nodes.get(coldRedGate.origin).root, ARRIVAL_FEED, day, { subject: "arrival", rootName: "@red-cup-engineering/computer-system-engine" })).length, 1);
-    assert.equal(openJournal(nodes.get(bareCedarFog.origin).root).read(journal.feed(nodes.get(bareCedarFog.origin).root, ARRIVAL_FEED, day, { subject: "arrival", rootName: "@red-cup-engineering/computer-system-engine" })).length, 1);
+    for (const node of [nodes.get(coldRedGate.origin), nodes.get(bareCedarFog.origin)]) {
+      const day = readArrivalProjection(node.root, "2026-09-09");
+      assert.equal(day.rows, 1, "a retried arrival is one record");
+      assert.equal(day.entries[0].obstructions.length, 0);
+    }
   } finally {
     rmSync(temporary, { recursive: true, force: true });
   }

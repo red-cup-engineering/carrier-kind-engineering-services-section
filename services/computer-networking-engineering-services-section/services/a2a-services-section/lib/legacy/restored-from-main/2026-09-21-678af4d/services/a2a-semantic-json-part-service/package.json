@@ -1,0 +1,29 @@
+{
+  "name": "@red-cup-engineering/a2a-semantic-json-part-service",
+  "version": "0.1.3",
+  "private": false,
+  "type": "module",
+  "description": "Carries one addressed semantic JSON value as one exact A2A 1.0 raw part, without imposing an application protocol or provider runtime.",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/semantic-json-part.mjs"
+  },
+  "bin": {
+    "materialize-a2a-semantic-json-message": "scripts/materialize-semantic-json-message.mjs"
+  },
+  "files": [
+    "src",
+    "scripts"
+  ],
+  "scripts": {
+    "check": "node --check src/*.mjs && node --check scripts/*.mjs && node --check test/*.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.1.0",
+    "@red-cup-engineering/relation-model-notation-runtime": "0.14.0"
+  }
+}

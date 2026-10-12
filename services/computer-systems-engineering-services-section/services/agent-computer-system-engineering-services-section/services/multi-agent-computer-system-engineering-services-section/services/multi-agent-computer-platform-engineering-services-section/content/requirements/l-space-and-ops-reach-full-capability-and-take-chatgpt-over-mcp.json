@@ -1,0 +1,58 @@
+{
+  "id": "l-space-and-ops-reach-full-capability-and-take-chatgpt-over-mcp",
+  "name": "L-space and ops reach full capability and take ChatGPT over MCP",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "I want to pivot toward working on https://l-space.561.group and https://ops.561.group such that both are as capables as we've ever planned or imagined; earning our way toward being able to connect other agents (i.e. ChatGPT Web Chat) to our systems via MCP.",
+  "met-when": [
+    {
+      "cell": "l-space-and-ops-reach-full-capability-and-take-chatgpt-over-mcp:conditions-stated",
+      "target": "held"
+    }
+  ],
+  "x-provenance": {
+    "recorded-by": "emsenn/services/561-group/services/operations-services-section/services/requirement-management-operation-services-section#requirements-management-team@claude-session-01C1PPvutxergQgomSSaWG9Z",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "utterances": [
+      "ni:///sha-256;Bp2MDuOufyyxNYNtlWDE3M51mKIH9jBEQLnFkOnECPA"
+    ],
+    "sources": [
+      {
+        "words": "I want to pivot toward working on https://l-space.561.group and https://ops.561.group such that both are as capables as we've ever planned or imagined; earning our way toward being able to connect other agents (i.e. ChatGPT Web Chat) to our systems via MCP.",
+        "session": "34526c8a-06d9-4bd3-8396-8797c4e1fc4f",
+        "at": "2026-09-25T22:42:50.531Z",
+        "locator": "lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/2026-08-26--2026-10-10.jsonl#ni:///sha-256;Bp2MDuOufyyxNYNtlWDE3M51mKIH9jBEQLnFkOnECPA"
+      }
+    ],
+    "pending-conditions": "No met-when is stated yet; this condition stands unsettled (read unknown) until a check that exercises the demand replaces it.",
+    "near": [
+      "agents-are-configured-spawned-and-arranged-by-the-metroplat-instance"
+    ],
+    "captured-by": "the capture line (session_017x7ZhpkZQAx5VZSv2Hz5Q9), coverage final batch, 2026-10-10: NOT HELD or HELD-THINLY rows no requirement carried",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;euN7Jf69_RTu0y9DZa2slEiY2DphaOu5capgYQupa0g"
+    },
+    "attestation": {
+      "claim": {
+        "kind": "computer-content.signed-content-claim",
+        "version": 1,
+        "purpose": "561-group.july-record-attestation.v1",
+        "issuer": "emsenn/services/561-group/services/operations-services-section/services/requirement-management-operation-services-section#requirements-management-team@claude-session-01C1PPvutxergQgomSSaWG9Z",
+        "issuedAt": "2026-10-10T06:59:55.024Z",
+        "content": {
+          "uri": "ni:///sha-256;C0NpRrKhhRjz7J9zSW6zLNLg-FkEnNmHxz5JqG_QDns",
+          "bytes": 57,
+          "mediaType": "text/plain"
+        },
+        "signature": {
+          "algorithm": "Ed25519",
+          "keyId": "ni:///sha-256;ckBB1fSoByEfYxnM1aPBrZFg7yfyTfhPEuww8Bk65ow",
+          "value": "id0p4wFbjUzWOHyxRmRbTy4n1XXjSPr1Z5igCeQAvpvaA8a3fp-Dbtn7utM-MxXnEdi2lrSUS7jpJvobagOGDg"
+        }
+      },
+      "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAuRpAxhrz5bOFIn5GmicNWZtNDSSruqwfTGlBmKH1WOs=\n-----END PUBLIC KEY-----\n"
+    }
+  }
+}

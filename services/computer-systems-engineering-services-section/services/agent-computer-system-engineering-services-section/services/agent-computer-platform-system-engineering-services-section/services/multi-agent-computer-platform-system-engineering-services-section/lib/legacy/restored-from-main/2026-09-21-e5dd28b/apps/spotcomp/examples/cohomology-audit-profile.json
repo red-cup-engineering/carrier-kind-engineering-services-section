@@ -1,0 +1,122 @@
+{
+  "profileId": "spotcomp-cohomology-audit-candidate",
+  "scope": "swarm:lab",
+  "regime": "aperiodic",
+  "fiberSpecialization": "FOUR",
+  "designationGrades": [
+    {
+      "m": 0,
+      "component": "truth",
+      "meaning": "truth-designated component F_U^(t)",
+      "evidence": [
+        "development/active/.../bigraded-settling-cohomology/hacking/library/designation-grade/docs/dev/journal/2026-05-26.md"
+      ]
+    },
+    {
+      "m": 1,
+      "component": "inconsistency",
+      "meaning": "knowledge-top inconsistency component F_U^(top)",
+      "evidence": [
+        "development/active/.../bigraded-settling-cohomology/hacking/library/designation-grade/docs/dev/journal/2026-05-26.md"
+      ]
+    }
+  ],
+  "cohomologicalDegrees": [
+    {
+      "n": 1,
+      "meaning": "first-order obstruction degree",
+      "evidence": [
+        "development/active/.../bigraded-settling-cohomology/hacking/library/cohomological-degree/docs/dev/journal/2026-05-26.md"
+      ]
+    }
+  ],
+  "sheafDecomposition": {
+    "knowledgeComponent": "F_U^(k)",
+    "truthComponent": "F_U^(t)",
+    "inconsistencyComponent": "F_U^(top)",
+    "shortExactSequence": "0 -> F_U^(t) -> F_U^(k) -> F_U^(top) -> 0",
+    "evidence": [
+      "lab/hacking/.../audit-content-via-inconsistency-sheaf-cohomology.md",
+      "lab/archive/.../inconsistency-sheaf.md"
+    ]
+  },
+  "h1Slots": [
+    {
+      "name": "H1_t",
+      "m": 0,
+      "n": 1,
+      "component": "truth",
+      "claim": "unknown",
+      "verification": "unverified",
+      "representatives": [],
+      "evidence": [
+        "development/active/.../bigraded-settling-cohomology/hacking/library/h1-t/docs/dev/journal/2026-05-26.md"
+      ]
+    },
+    {
+      "name": "H1_top",
+      "m": 1,
+      "n": 1,
+      "component": "inconsistency",
+      "claim": "not-computed",
+      "verification": "not-computed",
+      "representatives": ["top-cell:alice-bob-conflict"],
+      "evidence": [
+        "development/active/.../bigraded-settling-cohomology/hacking/library/h1-top/docs/dev/journal/2026-05-26.md"
+      ]
+    }
+  ],
+  "inconsistencyRecord": {
+    "id": "inconsistency-sheaf:lab",
+    "scope": "swarm:lab",
+    "versionHash": "sha256:top-cells-example",
+    "topCells": [
+      {
+        "id": "top-cell:alice-bob-conflict",
+        "cell": "cell:task-17/status",
+        "stageOrdinal": "stage:omega1-prefix",
+        "sourceClassification": "federation-conflict",
+        "witnesses": ["row:alice-status-open", "row:bob-status-closed"],
+        "resolved": false,
+        "evidence": [
+          "lab/hacking/.../inconsistency-sheaf-record.md"
+        ]
+      }
+    ],
+    "cohomologyCache": {
+      "versionHash": "sha256:top-cells-example",
+      "slots": ["H1_top"],
+      "evidence": [
+        "lab/hacking/.../inconsistency-sheaf-record.md"
+      ]
+    },
+    "evidence": [
+      "lab/hacking/.../inconsistency-sheaf-record.md"
+    ]
+  },
+  "k4Projection": {
+    "projectionOnly": true,
+    "sectors": ["identity", "negation", "conflation", "negation-conflation"],
+    "nonAuthoritative": true,
+    "evidence": [
+      "development/active/.../predication-fiber-algebra/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "receiverPolicy": {
+    "unverifiableClaimBehavior": "accept-as-trace-only",
+    "endpointOnlyBehavior": "reject",
+    "evidence": [
+      "REGIME-FEDERATION.md",
+      "COHOMOLOGY-AUDIT.md"
+    ]
+  },
+  "openObligations": [
+    "compute or prove H1_t and H1_top claims",
+    "derive top-cell membership from the active non-FOUR fiber algebra when not FOUR-specialized"
+  ],
+  "evidence": [
+    "COHOMOLOGY-AUDIT.md",
+    "development/active/.../bigraded-settling-cohomology/docs/dev/journal/2026-05-26.md",
+    "lab/hacking/.../audit-content-via-inconsistency-sheaf-cohomology.md"
+  ]
+}

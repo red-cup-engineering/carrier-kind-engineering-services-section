@@ -1,0 +1,77 @@
+{
+  "identity": {
+    "name": "rivercane (Arundinaria gigantea)",
+    "kind": "commodity",
+    "issuer": "unknown",
+    "rail": "unknown"
+  },
+  "denomination": {
+    "unit": "unknown; no unit found for a North Shore/Lake Superior harvest, because none is documented (this territory has no established rivercane harvest; see provenance)"
+  },
+  "custody": "unknown",
+  "yieldForm": "none",
+  "laborForm": "unknown for this territory; in its native Southeastern range, rivercane is propagated and harvested by living-rhizome division and transplant, since it reproduces almost entirely vegetatively and cannot be recompiled from seed (561 Group Services Section, note on Phezí Ocháǧe, citing the rivercane ecology paper in botany-services-section)",
+  "liquidity": {
+    "exitPath": "unknown; no market found for a North Shore/Lake Superior source of rivercane",
+    "exitsToRow": null
+  },
+  "extractionCeiling": {
+    "cap": "unknown",
+    "resetPeriod": "unknown",
+    "antiBotRule": "unknown"
+  },
+  "identityCost": {
+    "kycRequired": "unknown",
+    "perHumanSlot": "unknown"
+  },
+  "witnesses": [
+    {
+      "source": "university extension first-party plant profile",
+      "sourceUrl": "https://plants.ces.ncsu.edu/plants/arundinaria-gigantea/",
+      "observedOn": "2026-09-05"
+    },
+    {
+      "source": "federal agency first-party project page",
+      "sourceUrl": "https://www.fws.gov/project/collaboration-river-cane-restoration",
+      "observedOn": "2026-09-05"
+    }
+  ],
+  "provenance": {
+    "sourceUrl": "lib/emsenn/services/561-group/services/561-group-services-section/content/text/documents/articles/notes/2026/08/21/2026-08-21-note-on-phezi-ochage.md",
+    "observedOn": "2026-08-21",
+    "evidenceStatus": "self-reported"
+  },
+  "territory": {
+    "path": "lib/emsenn/services/561-group/services/public-services-section/services/public-ecological-services-section/services/ecological-adaptation-services-section/services/turtle-island-ecological-adaptation-services/services/turtle-island-northern-forests-regional-ecological-adaptation-services-section/services/great-lakes-ecological-adaptation-services-section/services/lake-superior-ecological-adaptation-services-section/services/north-shore-ecological-adaptation-services-section",
+    "plainName": "North Shore"
+  },
+  "material": {
+    "scientificName": "Arundinaria gigantea",
+    "commonName": "rivercane, catalogued here as the band's own structural kinship metaphor (Phíž ezí Ocháǧe), not as a plant native to or harvested in this territory",
+    "materialKind": "knowledge"
+  },
+  "knownProducts": [
+    {
+      "product": "the founder's structural identification of the tiyóšpaye's kinship-form with the canebrake",
+      "use": "a metaphysical/organizational reading, not a physical harvest: one genet with many culms as the kinship's living continuity; extension by living transplant, never by seed, as the model for huŋkápi (the making of relatives); persistence only in relationship; no synchronized all-or-nothing renewal (mautam); a reticulate, adoptive lineage held as one body; the remnant (over 98 percent of historical canebrakes gone) as irreplaceable. This note claims no part of the Cherokee and neighboring nations' inheritance of the plant itself; it claims kinship with the plant of the place actually lived on.",
+      "citation": {
+        "sourceUrl": "lib/emsenn/services/561-group/services/561-group-services-section/content/text/documents/articles/notes/2026/08/21/2026-08-21-note-on-phezi-ochage.md",
+        "sourceTitle": "2026-08-21 note on Phíž ezí Ocháǧe",
+        "accessedOn": "2026-09-05"
+      }
+    },
+    {
+      "product": "woven baskets, blowguns, fishing poles, musical instruments, home construction material, and erosion-control planting",
+      "use": "traditional basketry, construction, crafts, and streambank stabilization, documented in the plant's native Southeastern range (the Eastern Band of Cherokee Indians and neighboring nations; also the founder's own hand-propagation along Crooked Creek in Durham, North Carolina) — a different territory than this North Shore/Lake Superior region, included here only to state what the material is, never as a claim it is used or grown here",
+      "citation": {
+        "sourceUrl": "https://plants.ces.ncsu.edu/plants/arundinaria-gigantea/",
+        "sourceTitle": "River Cane - Arundinaria gigantea | NC State Extension Gardener Plant Toolbox",
+        "accessedOn": "2026-09-05"
+      }
+    }
+  ],
+  "markets": [],
+  "chainPositionHeld": "unknown",
+  "benefitSharingRecord": null,
+  "observedAt": "2026-09-05"
+}

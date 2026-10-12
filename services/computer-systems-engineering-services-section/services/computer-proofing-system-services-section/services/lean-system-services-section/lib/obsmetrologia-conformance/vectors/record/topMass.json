@@ -1,0 +1,11 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Record.topMass","cases":[
+  {"op":"topMass","args":[[0,0]],"result":0},
+  {"op":"topMass","args":[[0,1]],"result":0},
+  {"op":"topMass","args":[[0,2]],"result":0},
+  {"op":"topMass","args":[[1,0]],"result":0},
+  {"op":"topMass","args":[[1,1]],"result":1},
+  {"op":"topMass","args":[[1,2]],"result":1},
+  {"op":"topMass","args":[[2,0]],"result":0},
+  {"op":"topMass","args":[[2,1]],"result":1},
+  {"op":"topMass","args":[[2,2]],"result":2}
+]}

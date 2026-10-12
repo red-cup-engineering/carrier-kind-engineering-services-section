@@ -1,0 +1,29 @@
+{
+  "name": "@red-cup-engineering/derive-value-chain-shares-service",
+  "version": "0.1.0",
+  "description": "Derives each position's exact share of the retail price and the exact multiplier between\nadjacent positions along a farm-to-retail price ladder, carrying the evidence label of every\npriced input row; when a position carries two contested unit prices, both are computed and\nboth are returned under that position. Pure, no I/O, no clock; every ratio is an exact\nreduced BigInt fraction, never a floating-point approximation.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/derive-value-chain-shares.mjs",
+  "bin": {
+    "derive-value-chain-shares": "scripts/derive-value-chain-shares.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/derive-value-chain-shares.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

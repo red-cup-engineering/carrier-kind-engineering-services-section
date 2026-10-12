@@ -1,0 +1,20 @@
+{
+  "name": "@561-group/listing-open-obligations",
+  "version": "0.1.2",
+  "type": "module",
+  "description": "Reads the dispatch board and derives which dispatches are open \u2014 the office/duty toolkit's obligations query, achievement always re-derived (make-a-task.js --verify), never read from a status field.",
+  "exports": {
+    ".": "./src/list-open-obligations.js",
+    "./src/list-open-obligations.js": "./src/list-open-obligations.js"
+  },
+  "bin": {
+    "list-open-obligations": "src/list-open-obligations.js"
+  },
+  "dependencies": {
+    "@561-group/resolving-an-identifier": "0.2.0"
+  },
+  "scripts": {
+    "check": "node --check src/list-open-obligations.js",
+    "test": "node --test test/*.test.mjs"
+  }
+}

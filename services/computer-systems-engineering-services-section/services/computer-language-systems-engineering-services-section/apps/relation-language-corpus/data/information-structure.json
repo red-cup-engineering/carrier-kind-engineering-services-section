@@ -1,0 +1,80 @@
+{
+  "kind": "x-rel.information-structure",
+  "language": "x-rel",
+  "maturity": {
+    "topicParticle": "Built+green",
+    "focusParticle": "Built+green",
+    "contrastParticle": "Built+green",
+    "repairParticle": "Built+green",
+    "longDistanceScope": "Roadmap",
+    "prosodicProminence": "Roadmap"
+  },
+  "particles": [
+    {
+      "surface": "ma",
+      "relation": "topic",
+      "position": "after nominal",
+      "reading": "shared topic, continuing matter, or already-open discourse participant"
+    },
+    {
+      "surface": "fi",
+      "relation": "focus",
+      "position": "before nominal",
+      "reading": "new contribution, narrow focus, or answer to the current question under discussion"
+    },
+    {
+      "surface": "ko",
+      "relation": "contrast",
+      "position": "before nominal",
+      "reading": "contrastive selection from live alternatives"
+    },
+    {
+      "surface": "ri",
+      "relation": "repair",
+      "position": "before nominal",
+      "reading": "replacement item in an explicit repair move"
+    }
+  ],
+  "examples": [
+    {
+      "id": "info-rel-001",
+      "dimension": "topic",
+      "text": "mi ma ran kelu.",
+      "reading": "as for me, I relate the relation",
+      "expect": { "nsubj": "mi", "dobj": "kelu", "verb": "ran", "information": [{ "rel": "topic", "head": "ran", "dep": "mi", "mark": "ma" }] }
+    },
+    {
+      "id": "info-rel-002",
+      "dimension": "focus",
+      "text": "mi ran fi sava.",
+      "reading": "the witness is the new or answer-like contribution",
+      "expect": { "nsubj": "mi", "dobj": "sava", "verb": "ran", "information": [{ "rel": "focus", "head": "ran", "dep": "sava", "mark": "fi" }] }
+    },
+    {
+      "id": "info-rel-003",
+      "dimension": "contrast",
+      "text": "ko tu kan kano?",
+      "reading": "you, rather than another candidate, may have the capability",
+      "expect": { "nsubj": "tu", "dobj": "kano", "verb": "kan", "information": [{ "rel": "contrast", "head": "kan", "dep": "tu", "mark": "ko" }] }
+    },
+    {
+      "id": "info-rel-004",
+      "dimension": "repair",
+      "text": "mi ran ri hena.",
+      "reading": "coordination is the replacement term in a repair",
+      "expect": { "nsubj": "mi", "dobj": "hena", "verb": "ran", "information": [{ "rel": "repair", "head": "ran", "dep": "hena", "mark": "ri" }] }
+    },
+    {
+      "id": "info-rel-005",
+      "dimension": "roleFocusStack",
+      "text": "mi ga ran do fi sava.",
+      "reading": "explicit object role plus object focus",
+      "expect": { "nsubj": "mi", "dobj": "sava", "verb": "ran", "information": [{ "rel": "focus", "head": "ran", "dep": "sava", "mark": "fi" }] }
+    }
+  ],
+  "roadmap": [
+    { "target": "question-under-discussion stack", "note": "link fi focus to an explicit prior ku question rather than only a local arc" },
+    { "target": "topic continuity ledger", "note": "carry ma-marked discourse participants across turns through RWIL state" },
+    { "target": "prosodic and signed focus", "note": "represent prominence, hold, gaze, and signing-space contrast as carriers beside particles" }
+  ]
+}

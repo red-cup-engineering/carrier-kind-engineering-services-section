@@ -1,0 +1,36 @@
+{
+  "method": "Existing artifact, EAVT and typed-witness laws applied to one proposed unique-command value at two boundary dates.",
+  "outputs": [
+    {
+      "time": "2026-09-27T12:00:00.000Z",
+      "slot": "156c09c568d73fdb52e37645455821b48406b30ce2c3aacfeadb56d4d03e991f",
+      "commandRef": "ni:///sha-256;kztb3OWNIw8UO8U-xTPvtipOWQMSAzt3HiQncnTZwB0",
+      "witnessId": "ni:///sha-256;ybhWRUORy_UGt2LABX-TPOYaUuRVe9kSxEZ6iy-pNC4",
+      "verifiedWitnessId": "ni:///sha-256;ybhWRUORy_UGt2LABX-TPOYaUuRVe9kSxEZ6iy-pNC4",
+      "observationReferencedArtifacts": [],
+      "coreReferencedArtifactCount": 1,
+      "retainedEnvelopeBytes": 5031
+    },
+    {
+      "time": "2026-09-28T12:00:00.000Z",
+      "slot": "156c09c568d73fdb52e37645455821b48406b30ce2c3aacfeadb56d4d03e991f",
+      "commandRef": "ni:///sha-256;kztb3OWNIw8UO8U-xTPvtipOWQMSAzt3HiQncnTZwB0",
+      "witnessId": "ni:///sha-256;WxmqMrSfhONs1geokl72DKn2annAGie0QWjclLl6ljc",
+      "verifiedWitnessId": "ni:///sha-256;WxmqMrSfhONs1geokl72DKn2annAGie0QWjclLl6ljc",
+      "observationReferencedArtifacts": [],
+      "coreReferencedArtifactCount": 1,
+      "retainedEnvelopeBytes": 5031
+    }
+  ],
+  "findings": {
+    "sameCommandRef": true,
+    "sameSlot": true,
+    "differentWitnessIds": true,
+    "roundTripVerified": true,
+    "boundaryArtifactRetained": true
+  },
+  "limits": [
+    "Fixture command only; this does not validate the future domain message contract.",
+    "No new codec, storage admission, authorization, concurrency, durability or external effect exercised."
+  ]
+}

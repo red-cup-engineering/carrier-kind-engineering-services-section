@@ -1,0 +1,72 @@
+{
+  "kind": "jsnode.fabrication-receipt",
+  "packageName": "@red-cup-engineering/derive-set-of-surfaces-from-measurement-service",
+  "packageVersion": "0.1.0",
+  "sourceDigest": "sha256:feb8a454dcebf6686a5530764e73f619ac94e53a750df5438e10176300033f83",
+  "specificationDigest": "sha256:ef553caa232fb698bdf8049a4669337d997b97c74d47dec221fb7e9e1ae49015",
+  "destination": "../../../tmp/claude-1000/-home-emsenn-info/eff4690b-198c-4bdf-95bd-93f1866daa46/scratchpad/no-buy-deploy-scratch/derive-set-of-surfaces-from-measurement-service",
+  "workOrder": "/tmp/claude-1000/-home-emsenn-info/eff4690b-198c-4bdf-95bd-93f1866daa46/scratchpad/no-buy-deploy-derive-surfaces-work-order.md",
+  "assays": [
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "syntax",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "the-rule",
+      "status": "passed",
+      "scripts": 1,
+      "lines": 302
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "tests",
+      "status": "passed",
+      "paths": [
+        "test/derive-set-of-surfaces-from-measurement-faces.test.mjs",
+        "test/derive-set-of-surfaces-from-measurement.test.mjs"
+      ]
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "pack",
+      "status": "passed",
+      "filename": "red-cup-engineering-derive-set-of-surfaces-from-measurement-service-0.1.0.tgz",
+      "digest": "sha256:cab44a88da39ea1da9c2d5dbb5a35b4cbbf20bfe248882480ba068a09d8e888d"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "clean-installation",
+      "status": "passed",
+      "javascriptFiles": 1,
+      "reachableJavascriptFiles": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "import-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "command-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "help",
+      "status": "passed"
+    }
+  ],
+  "recordedAt": "2026-09-05T23:06:43.205Z"
+}

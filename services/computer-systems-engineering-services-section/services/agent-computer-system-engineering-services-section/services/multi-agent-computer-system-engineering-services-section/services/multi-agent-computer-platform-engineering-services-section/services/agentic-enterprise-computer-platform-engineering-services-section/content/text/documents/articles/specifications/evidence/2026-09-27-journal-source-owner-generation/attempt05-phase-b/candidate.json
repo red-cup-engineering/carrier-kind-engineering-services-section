@@ -1,0 +1,7 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "refused",
+  "reason": "I cannot supply a complete Stage-B owner implementation that meets the required discovery, scope, publication, cache, and durability contracts. This refusal is due to inability to provide the implementation, not the absence of private receiving or the supplied feed-address API.",
+  "changes": []
+}

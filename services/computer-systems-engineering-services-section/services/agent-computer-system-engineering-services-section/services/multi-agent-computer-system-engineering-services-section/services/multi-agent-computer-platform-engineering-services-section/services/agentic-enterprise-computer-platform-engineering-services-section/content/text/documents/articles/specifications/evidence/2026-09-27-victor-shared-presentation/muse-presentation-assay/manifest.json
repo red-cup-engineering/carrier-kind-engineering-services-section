@@ -1,0 +1,13 @@
+{
+  "committedAt": 1790536976.8812256,
+  "workOrderSha256": "5a6cf33c96ccf223e2ccf8c8d20aea9e88a76976517d0d2257fd166a0a928bd4",
+  "files": {
+    "browser.mjs": "f3daa94f2c16ea6d20d419dc70310eb5a0bbba2f45f4b743e2f928f9aecf7b28",
+    "assay.mjs": "16df05993c01a3b23bc0446e3c4daa329f319f6a5d55f8085e56cb62fe840552"
+  },
+  "assessor": "root deterministic behavioral/browser checks; isolated independent source provider cannot read this directory",
+  "limitations": [
+    "Build fixture covers configured valid menu URLs and duplicate/current flags; invalid URL fallback separately reviewed.",
+    "Browser footprint uses Chromium no-script local files at320px; full site receiving check remains separate."
+  ]
+}

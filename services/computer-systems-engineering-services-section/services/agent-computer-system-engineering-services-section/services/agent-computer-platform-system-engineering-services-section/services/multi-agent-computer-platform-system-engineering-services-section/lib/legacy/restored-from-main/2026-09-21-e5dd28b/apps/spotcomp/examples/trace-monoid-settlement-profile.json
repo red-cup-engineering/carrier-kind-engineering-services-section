@@ -1,0 +1,114 @@
+{
+  "profileId": "spotcomp-trace-monoid-settlement-example",
+  "historyObject": {
+    "finiteStepSetDeclared": true,
+    "symmetricIrreflexiveIndependenceDeclared": true,
+    "quotientCongruenceDeclared": true,
+    "abstractHistoryInitialityDeclared": true,
+    "stepKindsStageTyped": true,
+    "rowIsPresentationNotStepIdentity": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/settling/hacking/trace-monoid/docs/dev/journal/2026-05-24.md",
+      "development/experimental/spotcomp/TRACE-MONOID-SETTLEMENT.md"
+    ]
+  },
+  "independenceRelation": {
+    "knownStepsOnly": true,
+    "irreflexivePairsChecked": true,
+    "symmetricClosureDeclared": true,
+    "causalUnorderedRequired": true,
+    "closureRuleDisjointnessRequired": true,
+    "predicateReindexingCouplingChecked": true,
+    "recognitionGovernanceObservationCouplingChecked": true,
+    "evidence": [
+      "development/experimental/spotcomp/TRACE-AXES.md",
+      "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/hacking/library/positing-naturality/docs/dev/journal/2026-05-24.md",
+      "development/experimental/spotcomp/REALIZABILITY-DEFORMATION.md"
+    ]
+  },
+  "valuationAction": {
+    "atomicPositingActionDeclared": true,
+    "batchPositingActionDeclared": true,
+    "knowledgeMonotoneActionDeclared": true,
+    "datumPreservationUnderReindexing": true,
+    "nonUnitStepPolicyDeclared": true,
+    "stageTypedActionDeclared": true,
+    "evidence": [
+      "development/experimental/spotcomp/POSITING.md",
+      "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/hacking/library/positing-naturality/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "settlementFunctor": {
+    "sameTraceClassSameValuationDeclared": true,
+    "prefixOrderMonotoneDeclared": true,
+    "historyCategoryBaseDeclared": true,
+    "closureUnitDecompositionDeclared": true,
+    "abstractHistoryToValuationActionDeclared": true,
+    "rowMergeNotUsedAsFunctorProof": true,
+    "evidence": [
+      "lab/archive/old-archive/triage/engineering-archive/library/humanities/theories/philosophy/theories/relating/triage/provenance/from-gsu-ccs-20260313/math/history-and-fiber-algebra.md",
+      "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/settling/hacking/trace-monoid/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "crdtConvergence": {
+    "closedInitialStateRequired": true,
+    "commonClosureOperatorRequired": true,
+    "writesAsDeltasDeclared": true,
+    "closureMergeCommutationDeclared": true,
+    "foldJoinPermutationInvariantDeclared": true,
+    "sameMultisetConvergenceDeclared": true,
+    "noConsensusClaimScoped": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/library/predication-fibration-2-category/hacking/closure-2-monad/hacking/library/closure-merge-commutation/docs/dev/journal/2026-05-24.md",
+      "lab/archive/library/humanities/library/math/library/categories/theories/predication-theory/lean/PredicationCategories/Homebrew/Settling/CRDT.lean"
+    ]
+  },
+  "foataPrefixEvidence": {
+    "foataNormalFormDeclared": true,
+    "blockDepthDeclared": true,
+    "blockPairwiseIndependenceDeclared": true,
+    "dependencyOrderBetweenBlocksDeclared": true,
+    "prefixOrderDeclared": true,
+    "prefixIsPartialTrajectoryNotFinalSettlement": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/library/scott-continuous-posit-category/settling/hacking/trace-monoid/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "orderBoundaries": {
+    "mergeSemilatticeDeclared": true,
+    "knowledgeOrderLaneDeclared": true,
+    "truthOrderModelingSeparated": true,
+    "modelingPreorderIndependenceDeclared": true,
+    "nonFourBilatticeScopeAllowed": true,
+    "evidence": [
+      "lab/archive/library/humanities/library/math/library/categories/theories/predication-theory/prose/learning/claims/settling-merge-semilattice.md",
+      "lab/archive/library/humanities/library/math/library/categories/theories/predication-theory/prose/learning/claims/modeling-preorder-independence.md"
+    ]
+  },
+  "federationBoundary": {
+    "historyBearingPayloadsIdentified": true,
+    "endpointStateNotHistoryEvidence": true,
+    "projectionArtifactNotHistoryEvidence": true,
+    "trajectoryPrefixRequiresStepIdentity": true,
+    "downgradeWhenHistoryUnverifiable": true,
+    "evidence": [
+      "development/experimental/spotcomp/REGIME-FEDERATION.md",
+      "development/experimental/spotcomp/WIRE-PROFILES.md"
+    ]
+  },
+  "implementationBoundary": {
+    "noRowOrderAsIndependence": true,
+    "noPeerDifferenceAsIndependence": true,
+    "noGSetMergeAsSettlementFunctor": true,
+    "noEndpointAsTraceClass": true,
+    "noTruthOrderClaimFromKnowledgeMerge": true,
+    "unknownIndependenceBlocksStrongConformance": true,
+    "codeRemainsProbe": true,
+    "evidence": [
+      "development/experimental/spotcomp/TRACE-MONOID-SETTLEMENT.md"
+    ]
+  },
+  "evidence": [
+    "development/experimental/spotcomp/TRACE-MONOID-SETTLEMENT.md"
+  ]
+}

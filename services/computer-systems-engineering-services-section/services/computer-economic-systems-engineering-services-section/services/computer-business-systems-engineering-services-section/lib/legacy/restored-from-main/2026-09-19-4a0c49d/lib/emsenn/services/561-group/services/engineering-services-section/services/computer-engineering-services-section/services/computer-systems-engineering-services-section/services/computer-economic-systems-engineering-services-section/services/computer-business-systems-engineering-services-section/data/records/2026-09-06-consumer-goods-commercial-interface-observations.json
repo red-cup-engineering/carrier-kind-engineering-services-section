@@ -1,0 +1,48 @@
+{
+  "observedAt": "2026-09-06T04:52:22Z",
+  "subject": "consumer-goods-placement-and-sales-terms",
+  "rows": [
+    {
+      "provider": "HubSpot",
+      "classification": "incumbent CRM qualification/status",
+      "url": "https://knowledge.hubspot.com/records/use-lifecycle-stages",
+      "title": "Use contact and company lifecycle stages",
+      "publishedOrUpdated": "2026-07-17",
+      "observed": "Documents customizable lifecycle stages; defines Sales Qualified Lead as a contact or company that a sales team has qualified as a potential customer, Opportunity as associated with a deal, and Customer as associated with at least one closed deal.",
+      "boundary": "Same customer-qualification job; no parity or advantage claim."
+    },
+    {
+      "provider": "Esri",
+      "classification": "incumbent site and market analysis",
+      "url": "https://www.esri.com/en-us/arcgis/products/arcgis-business-analyst/overview",
+      "title": "Demographic Mapping & Site Selection Software | ArcGIS Business Analyst",
+      "publishedOrUpdated": null,
+      "observed": "Documents demographic, business, lifestyle, spending, and census data, map analysis, and combining proprietary locations and property costs with prospective-customer data.",
+      "boundary": "Same site and market-analysis job; no parity or advantage claim."
+    },
+    {
+      "provider": "Xactly",
+      "classification": "incumbent sales compensation",
+      "url": "https://www.xactlycorp.com/products/xactly-incent",
+      "title": "Xactly Incent | Incentive Compensation Management Software",
+      "publishedOrUpdated": null,
+      "observed": "Documents compensation-plan administration, calculations, payments, and reporting.",
+      "boundary": "Same commission-management job; no parity or advantage claim."
+    },
+    {
+      "provider": "Salesforce",
+      "classification": "attempted source",
+      "url": "https://www.salesforce.com/",
+      "title": null,
+      "publishedOrUpdated": null,
+      "observed": "Attempted source URL returned HTTP 404 during the bounded observation.",
+      "boundary": "Omitted from the comparison portfolio; the response is not evidence of product absence."
+    }
+  ],
+  "unmeasured": [
+    "provider pricing",
+    "United States account-specific contracts",
+    "provider failure behavior",
+    "parity with the 561 Group specification"
+  ]
+}

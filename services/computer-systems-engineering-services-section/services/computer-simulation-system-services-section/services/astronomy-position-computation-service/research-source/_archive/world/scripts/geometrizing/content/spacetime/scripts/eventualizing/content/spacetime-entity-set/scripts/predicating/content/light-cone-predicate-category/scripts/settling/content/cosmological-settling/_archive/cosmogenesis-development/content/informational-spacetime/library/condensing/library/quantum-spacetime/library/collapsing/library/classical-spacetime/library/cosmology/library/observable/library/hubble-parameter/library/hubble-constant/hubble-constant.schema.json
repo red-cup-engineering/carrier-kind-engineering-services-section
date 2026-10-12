@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/articulating/library/aperiodic-articulation-category/cosmogenerating/library/cosmos/hacking/library/cosmology/library/observable/library/hubble-constant/hubble-constant.schema.json",
+  "title": "hubble-constant",
+  "description": "H_0 = H(z=0) as a growth rate: the thermalization-spiral inflation factor λ of the cosmic thermalization at the stage read. Cosmic-finite/plastic ρ locally (~73), cosmic-scott/golden φ from the CMB (~67). Two band-readings of one spiral.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "hubble-constant" },
+    "kind": { "type": "string", "const": "cell" },
+    "member-of": { "type": "string", "const": "observable" },
+    "status": { "type": "string", "const": "hacking" }
+  },
+  "required": ["name"]
+}

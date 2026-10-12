@@ -1,0 +1,39 @@
+{
+  "stage": "B1a",
+  "status": "public-source-review-requires-revision",
+  "sourceOwnerSha256": "2f05f64af1056760dcd6a6f188af8c5d3175b88c754a97283da7d40007a838f9",
+  "originalHostFunctionsPreserved": true,
+  "incompletenessSeamPreserved": true,
+  "syntaxChecked": true,
+  "privateReceivingRun": false,
+  "B1bMayProceed": false,
+  "corrections": "F-S17",
+  "resolved": [
+    "exact generic staging grammar",
+    "family disappearance refuses",
+    "held original directory descriptor checked",
+    "file cleanup preserves earlier error",
+    "required root entry presence and types",
+    "post-read named file type",
+    "deduplicated retained buffers",
+    "unused sourceType removed"
+  ],
+  "findings": [
+    {
+      "requirement": "F-S17 I/O diagnostics",
+      "function": "readSourceFiles.enumerate",
+      "defect": "opendirSync and iterator.readSync exceptions are caught into primary and rethrown raw. Existing branded errors must survive, but actual filesystem failures must map through ioFailure; preserve separate failed state so cleanup cannot mask them."
+    },
+    {
+      "requirement": "F-S17 parent binding revalidation after children",
+      "function": "readSourceFiles root withBound callback",
+      "defect": "Root enumeration finishes before family traversal. No checkSourceDirectory(rootBound) runs after the families and before rootBound.fd is closed. Revalidate the still-held root descriptor and named root after all descendant processing, on the empty-family success path as well. Continue final operation.assertLive/assertBindings."
+    },
+    {
+      "requirement": "F-S10 known legacy evidence versus unknown root custody",
+      "function": "readSourceFiles.inspectRootEntry",
+      "defect": "Bare causal-admission, compacting.lock and sen root names were added as known legacy markers though the specification places these markers under index/objects chains. They must remain unknown root custody; do not recursively inspect unknown directories. The specified compaction.jsonl and suffix markers remain known."
+    }
+  ],
+  "promoted": false
+}

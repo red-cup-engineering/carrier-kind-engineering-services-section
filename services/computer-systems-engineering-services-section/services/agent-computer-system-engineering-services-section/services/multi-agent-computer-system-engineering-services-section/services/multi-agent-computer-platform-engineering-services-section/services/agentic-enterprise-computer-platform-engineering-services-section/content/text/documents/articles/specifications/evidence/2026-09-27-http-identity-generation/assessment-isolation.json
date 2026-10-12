@@ -1,0 +1,6 @@
+{
+  "environment": "cleared before untrusted candidate execution",
+  "filesystem": "only system runtime, staged source-map/modules and private assay mounted",
+  "network": "unshare-all; no external network",
+  "providerCredentialsMounted": false
+}

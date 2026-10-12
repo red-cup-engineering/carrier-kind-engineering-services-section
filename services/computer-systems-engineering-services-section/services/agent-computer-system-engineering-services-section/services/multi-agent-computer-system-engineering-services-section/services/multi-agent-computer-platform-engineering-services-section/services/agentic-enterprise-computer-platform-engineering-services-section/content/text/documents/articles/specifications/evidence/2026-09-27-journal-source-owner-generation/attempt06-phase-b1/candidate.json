@@ -1,0 +1,7 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "refused",
+  "reason": "I cannot supply a complete B1 implementation that meets F-S15\u2019s bounded discovery, verified source mapping, and L-O25 cache reuse requirements from the available source inputs. Returning a partial candidate would misrepresent it as a compliant stage.",
+  "changes": []
+}

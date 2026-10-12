@@ -1,0 +1,213 @@
+{
+  "victorVersion": "0.1.15",
+  "catalogHash": "ni:///sha-256;zNYd5B3uJwdamIS08YG-Iw7MqXXZvvHEpc3n-PMoC58",
+  "cellCount": 3,
+  "publishedCount": 3,
+  "redirectCount": 0,
+  "publicationArchives": {
+    "enabled": false
+  },
+  "browserAssets": {
+    "enabled": true,
+    "valid": true,
+    "transformedCount": 1,
+    "manifestPath": "asset-manifest.json"
+  },
+  "releaseCandidate": {
+    "enabled": true,
+    "path": "release-manifest.json",
+    "emitted": true,
+    "profile": "candidate",
+    "digest": "ni:///sha-256;fRkPpPw4KHVWpHb7EJ_1IhQs0Hxku-2Juggj7-ggaR8",
+    "artifactCount": 13,
+    "byteCount": 48675,
+    "limits": {}
+  },
+  "staticSiteConformance": {
+    "enabled": true,
+    "valid": true,
+    "documentCount": 5,
+    "linkCount": 28,
+    "diagnosticCount": 0
+  },
+  "htmlConformance": {
+    "enabled": true,
+    "valid": true,
+    "documentCount": 5,
+    "checks": [
+      {
+        "id": "C-01",
+        "flaggedDocuments": 0
+      },
+      {
+        "id": "C-02",
+        "flaggedDocuments": 0
+      },
+      {
+        "id": "C-03",
+        "flaggedDocuments": 0
+      },
+      {
+        "id": "C-09",
+        "flaggedDocuments": 0
+      },
+      {
+        "id": "C-10",
+        "flaggedDocuments": 0
+      },
+      {
+        "id": "C-12",
+        "flaggedDocuments": 0
+      },
+      {
+        "id": "C-15",
+        "flaggedDocuments": 0
+      }
+    ],
+    "refusalCount": 0,
+    "advisoryCount": 0
+  },
+  "projectorOrder": [
+    {
+      "name": "victor-publication-archives",
+      "priority": 5
+    },
+    {
+      "name": "victor-page-tree",
+      "priority": 10
+    },
+    {
+      "name": "victor-tufte",
+      "priority": 20
+    },
+    {
+      "name": "victor-theme",
+      "priority": 30
+    },
+    {
+      "name": "victor-feeds",
+      "priority": 40
+    },
+    {
+      "name": "victor-discovery",
+      "priority": 50
+    },
+    {
+      "name": "victor-search-page",
+      "priority": 55
+    },
+    {
+      "name": "victor-redirects",
+      "priority": 60
+    },
+    {
+      "name": "victor-public-assets",
+      "priority": 100
+    },
+    {
+      "name": "rendered-html-conformance",
+      "priority": 101
+    },
+    {
+      "name": "browser-asset-inventory",
+      "priority": 102
+    },
+    {
+      "name": "web-release-candidate",
+      "priority": 120
+    }
+  ],
+  "artifactProvenance": {
+    "404.html": {
+      "projector": "victor-discovery",
+      "priority": 50,
+      "source": "site:not-found"
+    },
+    "asset-manifest.json": {
+      "transformer": "browser-asset-inventory"
+    },
+    "details/index.html": {
+      "projector": "victor-page-tree",
+      "priority": 10,
+      "source": "file:///tmp/presentation-content-j40qRP/details.md"
+    },
+    "feed.atom.xml": {
+      "projector": "victor-feeds",
+      "priority": 40,
+      "source": "catalog:published"
+    },
+    "feed.json": {
+      "projector": "victor-feeds",
+      "priority": 40,
+      "source": "catalog:published"
+    },
+    "feed.rss.xml": {
+      "projector": "victor-feeds",
+      "priority": 40,
+      "source": "catalog:published"
+    },
+    "index.html": {
+      "projector": "victor-page-tree",
+      "priority": 10,
+      "source": "file:///tmp/presentation-content-j40qRP/start.md"
+    },
+    "redirects.json": {
+      "projector": "victor-redirects",
+      "priority": 60,
+      "source": "catalog:redirects"
+    },
+    "references/index.html": {
+      "projector": "victor-page-tree",
+      "priority": 10,
+      "source": "file:///tmp/presentation-content-j40qRP/references.md"
+    },
+    "robots.txt": {
+      "projector": "victor-discovery",
+      "priority": 50,
+      "source": "site:discovery"
+    },
+    "sitemap.xml": {
+      "projector": "victor-discovery",
+      "priority": 50,
+      "source": "catalog:published"
+    },
+    "start/index.html": {
+      "projector": "victor-page-tree",
+      "priority": 10,
+      "source": "file:///tmp/presentation-content-j40qRP/start.md"
+    },
+    "styles.e2e5ece2ae1e.css": {
+      "transformer": "browser-asset-inventory",
+      "source": "styles.css",
+      "integrity": "sha384-GZ/XB501Hh28EgyOkOXgx1WdRdRT4Y4p27BsFOOzN9YHdlHDmiQTW22ri8ZGOQHv",
+      "input": {
+        "projector": "victor-theme",
+        "priority": 30,
+        "source": "site:theme"
+      }
+    },
+    "release-manifest.json": {
+      "projector": "web-release-candidate",
+      "source": "release:ni:///sha-256;fRkPpPw4KHVWpHb7EJ_1IhQs0Hxku-2Juggj7-ggaR8"
+    }
+  },
+  "artifactHashes": {
+    "404.html": "yPRqm89ptJgfRCv-XX48ddBKhbYBGbqA1jSsYgDSGxk",
+    "asset-manifest.json": "nKIpe-mMvt3cT1M3Mm3WDIGympIlXcEStgye0xuq5To",
+    "details/index.html": "w_Vl6muesyeaIw1lLbGvWFGN7i4ZH1GTBaoOoG2-ukw",
+    "feed.atom.xml": "l87jUyYPw0tPu0SDb2d7TiWoAWepXOqWAio5uk-P5QU",
+    "feed.json": "6HKT012LNjlUtIa44GBmQOUgWAAld0bEstaRnhqvcEA",
+    "feed.rss.xml": "z7T-9ZpjbDsq41BgqrWl-XJwyCjAeDP_t19fNIuUm1I",
+    "index.html": "Aeyyr6RMhbLAv8mfcnvokPvWnbn8oF_CmZKf-WaEgoA",
+    "redirects.json": "yj0WO6sFU4GCciYUBWjzvvfqrBh869doeOC2Pp5EI1Y",
+    "references/index.html": "MUJ6ZtEhG3Rt0h4Ey0CKrB74PTu3XVyu4zciD2bX0ZY",
+    "robots.txt": "YJLm7GpeK_kWNCdhjbW-TVY1VMgZVLVTHyZhBkTMQeI",
+    "sitemap.xml": "1iMjo6nGB6ehWDPX3jIrgPvDxvREuTBahnVG8jD89CQ",
+    "start/index.html": "uZ77tPmkxo12yvHTWWFeryyP9bhMCpF2bj_CkbtHuKs",
+    "styles.e2e5ece2ae1e.css": "4uXs4q4e6sRkgIaiUxLzmW-HhYgpyuXig1YeZmzsiTE",
+    "release-manifest.json": "AKCbvqFrq2288OIk_aK9f3-Q79oB-C1nahLdsfwurl0"
+  },
+  "refusals": [],
+  "advisories": [],
+  "releasable": true
+}

@@ -1,0 +1,14 @@
+{
+  "type": "ClimateResearchDeliveryAgentActivation",
+  "status": "active",
+  "host": "127.0.0.1",
+  "port": 18453,
+  "baseUrl": "http://127.0.0.1:18453",
+  "timeoutMs": 180000,
+  "agentCard": "content/agent-cards/research-delivery.json",
+  "signingKeyDataPath": "data/credentials/research-delivery-agent-card.pkcs8.pem",
+  "publicJwks": "content/agent-cards/research-delivery-jwks.json",
+  "signingKid": "climate-research-delivery-ed25519",
+  "algorithm": "EdDSA",
+  "customer": "urn:ame:climate-youtube-channel-enterprise"
+}

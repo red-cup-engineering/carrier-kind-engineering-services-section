@@ -1,0 +1,80 @@
+{
+  "kind": "jsnode.fabrication-receipt",
+  "packageName": "@red-cup-engineering/value-ledger-in-kilowatt-hours-service",
+  "packageVersion": "0.1.1",
+  "sourceDigest": "sha256:af225a77b2fc7fcd3c5f3e8abaf6829a213398efc2d8ffc561103896b17ecce2",
+  "specificationDigest": "sha256:a35971bb32ad131c4ac9bab5c080a4f183a65c7ca3c6b8ce05b6af20275c8f81",
+  "destination": "../../../tmp/claude-1000/-home-emsenn-info/7aaeffd9-1d66-469f-90aa-1942601f0d02/scratchpad/value-ledger-revise-7248/value-ledger-in-kilowatt-hours-service",
+  "workOrder": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-solar-economic-systems-engineering-services-section/content/text/documents/specifications/value-ledger-in-kilowatt-hours.md",
+  "currentLocation": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-ledger-system-services-section/services/value-ledger-in-kilowatt-hours-service",
+  "relocatedAt": "2026-09-19",
+  "assays": [
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "staged-dependency-installation",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "syntax",
+      "status": "passed"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "the-rule",
+      "status": "passed",
+      "scripts": 1,
+      "lines": 57
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "tests",
+      "status": "passed",
+      "paths": [
+        "test/value-ledger-in-kilowatt-hours-faces.test.mjs",
+        "test/value-ledger-in-kilowatt-hours.test.mjs"
+      ]
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "pack",
+      "status": "passed",
+      "filename": "red-cup-engineering-value-ledger-in-kilowatt-hours-service-0.1.1.tgz",
+      "digest": "sha256:2ab4bbb79efd88c51e709be88021789b1a093369dddbd2a4b65773a308f1a330"
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "clean-installation",
+      "status": "passed",
+      "javascriptFiles": 1,
+      "reachableJavascriptFiles": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "import-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "command-face",
+      "status": "passed",
+      "examples": 1
+    },
+    {
+      "type": "JsnodeOperationPackageAssay",
+      "version": 1,
+      "name": "help",
+      "status": "passed"
+    }
+  ],
+  "recordedAt": "2026-09-06T01:20:44.946Z"
+}

@@ -1,0 +1,23 @@
+name = "ObsmetrologiaConformance"
+defaultTargets = ["ObsmetrologiaConformance"]
+description = "Golden vectors read off the definitions of Obsmetrologia and the packages that apply it: the reference set an implementation is judged against."
+license = "Apache-2.0"
+
+[leanOptions]
+autoImplicit = false
+relaxedAutoImplicit = false
+
+[[require]]
+name = "Obsmetrologia"
+path = "../../../../../../../../../../../science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia"
+
+[[require]]
+name = "ObsmetrologiaComputing"
+path = "../../../../../../../../../../../science-services-section/services/engineering-science-services-section/services/computer-science-services-section/lib/obsmetrologia-computing"
+
+[[require]]
+name = "ObsmetrologiaEconomics"
+path = "../../../../../../../../../../../science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/economics-science-services-section/lib/obsmetrologia-economics"
+
+[[lean_lib]]
+name = "ObsmetrologiaConformance"

@@ -1,8 +1,0 @@
-{
-  "name": "@red-cup-engineering/software-development-services-section",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "description": "Circuit board whose independently contractible software-development dies are seated under services/; the board owns no aggregate runtime.",
-  "exports": {}
-}

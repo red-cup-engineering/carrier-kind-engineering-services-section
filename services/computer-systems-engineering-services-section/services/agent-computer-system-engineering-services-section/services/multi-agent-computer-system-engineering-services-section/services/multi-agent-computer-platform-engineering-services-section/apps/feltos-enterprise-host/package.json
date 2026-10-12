@@ -37,22 +37,25 @@
     "@red-cup-engineering/computer-system-platform": "workspace:*",
     "@red-cup-engineering/computer-web-server": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",
-    "@red-cup-engineering/feltos": "0.18.3",
+    "@red-cup-engineering/feltos": "workspace:*",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
-    "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/key-management-services-section": "workspace:*",
     "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
     "@red-cup-engineering/oauth-services-section": "workspace:*",
     "@red-cup-engineering/node-process-services-section": "workspace:*",
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/metroplat": "workspace:*",
+    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
     "@red-cup-engineering/npm-workspace-publication-service": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/animating": "workspace:*",
+    "@red-cup-engineering/computer-code-development-engine": "workspace:*",
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
     "@x402/core": "2.19.0",
     "@x402/evm": "2.19.0",
-    "@red-cup-engineering/json-services-section": "1.0.0",
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
     "@red-cup-engineering/javascript-node-services-section": "workspace:*"
   },
   "scripts": {
@@ -73,5 +76,8 @@
     "test/work-peer-presence.test.mjs",
     "test/host-declaration.test.mjs",
     "test/held-delivery-journal.test.mjs"
-  ]
+  ],
+  "devDependencies": {
+    "@red-cup-engineering/relating": "workspace:*"
+  }
 }

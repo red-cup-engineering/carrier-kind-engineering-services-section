@@ -1,0 +1,46 @@
+{
+  "kind": "public-source-review",
+  "phase": "B2c retained publication",
+  "sourceSha256": "3a393f7e9283dabb6a7e7c52d95c845478f01669beb7f7d3b24f583d3702e4df",
+  "resolved": [
+    "Retained source publication is generated and uses create-only durable helper under scope protection.",
+    "Prior admitted IDs captured before monotone refresh can mutate substrate.",
+    "Existing identical source has bound synchronization without new quota or publication.",
+    "Private discoveryWork is carried from the existing scanner to the view."
+  ],
+  "findings": [
+    {
+      "contract": "F-S13/L-O14",
+      "issue": "closeRetainedParents infers failure presence from primaryFailure !== undefined. An earlier thrown undefined can therefore be replaced by close failure.",
+      "required": "Pass and preserve separate failure Boolean and primary value through parent cleanup; never infer failure presence from its value."
+    },
+    {
+      "contract": "F-S06/L-O23",
+      "issue": "assertNoRetainedAccessors adds an unbounded complete graph walk before bounded canonicalization and duplicates the existing codec descriptor checks.",
+      "required": "Remove this helper and its call; use the supplied existing iterative bounded canonicalizeJson, which rejects accessor/non-enumerable/symbol/nonordinary object input without invoking getters."
+    },
+    {
+      "contract": "L-S03/L-O23",
+      "issue": "canonicalizeJson line-envelope limit errors are turned into TypeError invalid input by the generic catch, so oversized valid input loses its resource-limit outcome.",
+      "required": "Use the actual supplied codec limit error codes to translate envelope capacity failures into resource-limit. Keep malformed JSON/model input as TypeError. Do not guess a new error API."
+    },
+    {
+      "contract": "F-S06/L-S03",
+      "issue": "All canonical texts, duplicates, joined text and full Buffer accumulate before maxBatchBytes is tested. The configured capacity does not bound construction allocation.",
+      "required": "Deduplicate canonical text incrementally and account overflow-safe unique line byte totals before growing retained batch accumulation. Check complete batch size before joined text/Buffer allocation, preserving exact sort/dedup identity and no silent truncation."
+    },
+    {
+      "contract": "F-S06/F-S13",
+      "issue": "Discovery preflight has meaningless hasRetained source-map code and separately lstats retained/v1 before proving its retained parent is a nonsymlink directory. This is a weaker second namespace inspection.",
+      "required": "Remove the dead code. Use private directory-presence evidence from the existing verified scanner/view, or bounded sequential held-parent validation with no source mutation, for exact missing-directory name charges. Never descend through a parent not already validated; revalidate held parents immediately before mkdir/publication."
+    },
+    {
+      "contract": "F-S06/F-S15",
+      "issue": "Each candidate line is parsed but conflicting normalized envelopes within the batch or against an already retained envelope are discovered only after durable publication by refreshSourceView. Such a candidate can poison the source set before its refusal.",
+      "required": "Preflight normalized witness envelope correspondence across proposed entries and the current verified view before any filesystem mutation, using the same normalization and canonical container envelope as refreshSourceView. Preserve valid original witness metadata/permutations and allow historical obstruction values under their existing rules."
+    }
+  ],
+  "uniquePublicationMayProceed": false,
+  "completeReceivingMayProceed": false,
+  "privateReceivingRun": false
+}

@@ -56,7 +56,6 @@ export function defaultFilesystemBinding(
     ...(options.sourceReadResource === undefined ? {} : { sourceReadResource: options.sourceReadResource }),
     ...(options.sourceTaskOf === undefined ? {} : { sourceTaskOf: options.sourceTaskOf }),
     ...(options.repositoryRoot === undefined ? {} : { repositoryRoot: path.resolve(options.repositoryRoot) }),
-    ...(options.clockStateRoot === undefined ? {} : { clockStateRoot: path.resolve(options.clockStateRoot) }),
     claudeSessionRoot: options.claudeSessionRoot ?? path.join(homedir(), ".claude", "projects", resolvedRoot.split(path.sep).join("-")),
     codexSessionRoot: options.codexSessionRoot ?? path.join(homedir(), ".codex", "sessions"),
     codexMemoryRoot: options.codexMemoryRoot ?? path.join(homedir(), ".codex", "memories"),

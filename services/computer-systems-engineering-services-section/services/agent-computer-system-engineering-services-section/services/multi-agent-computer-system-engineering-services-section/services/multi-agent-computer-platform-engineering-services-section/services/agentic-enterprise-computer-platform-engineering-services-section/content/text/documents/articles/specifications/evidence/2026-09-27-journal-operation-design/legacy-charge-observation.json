@@ -1,0 +1,8 @@
+{
+  "method": "non-mutating invocation of actual recordSemanticRecord with legacy charge fields; required told absent, refusal occurs before root resolution/source publication",
+  "source": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/record-semantic-record.mjs",
+  "exitCode": 0,
+  "stdout": "{\"rejected\":true,\"name\":\"TypeError\",\"message\":\"Semantic record journal told requires independent for and against booleans\"}",
+  "stderr": "",
+  "sourceSha256": "4b68686aa601609213d6ed8df2b5d2bb55637330bbd9fe77bcc3f3bc178a14be"
+}

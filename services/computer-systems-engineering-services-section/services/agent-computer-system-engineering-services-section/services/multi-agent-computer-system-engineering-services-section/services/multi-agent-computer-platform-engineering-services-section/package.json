@@ -1,0 +1,8 @@
+{
+  "name": "@red-cup-engineering/multi-agent-computer-platform-engineering-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Groups platform apps: inhabitable operating environments constituted across multiple agents.",
+  "license": "UNLICENSED",
+  "dependencies": {}
+}

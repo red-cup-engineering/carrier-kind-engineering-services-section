@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/positing-profile.schema.json",
+  "title": "SPOTCOMP positing boundary profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "positingMorphism",
+    "fiberParameters",
+    "naturality",
+    "speechActFactorization",
+    "rowBoundary",
+    "downstreamBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "positingMorphism": { "$ref": "#/$defs/positingMorphism" },
+    "fiberParameters": { "$ref": "#/$defs/fiberParameters" },
+    "naturality": { "$ref": "#/$defs/naturality" },
+    "speechActFactorization": { "$ref": "#/$defs/speechActFactorization" },
+    "rowBoundary": { "$ref": "#/$defs/rowBoundary" },
+    "downstreamBoundary": { "$ref": "#/$defs/downstreamBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "positingMorphism": {
+      "type": "object",
+      "required": [
+        "id",
+        "categoryPosition",
+        "kind",
+        "operation",
+        "formula",
+        "knowledgeMonotone",
+        "scottContinuous",
+        "leastExtension",
+        "changesOnlyPredicateFiber",
+        "changesOnlyEntityPairCoordinate",
+        "settlingDownstream",
+        "recordsDownstream",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "categoryPosition": { "type": "string", "minLength": 1 },
+        "kind": { "const": "scott-continuous-category-generator" },
+        "operation": { "const": "knowledge-order-least-extension" },
+        "formula": { "const": "v join_k delta_(phi,q)" },
+        "knowledgeMonotone": { "const": true },
+        "scottContinuous": { "const": true },
+        "leastExtension": { "const": true },
+        "changesOnlyPredicateFiber": { "const": true },
+        "changesOnlyEntityPairCoordinate": { "const": true },
+        "settlingDownstream": { "const": true },
+        "recordsDownstream": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "fiberParameters": {
+      "type": "object",
+      "required": [
+        "generalCarrier",
+        "predicateCategory",
+        "entityIndex",
+        "activeSpecialization",
+        "specializationOnly",
+        "generalDatumSchemaStatus",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "generalCarrier": { "const": "L^bowtie" },
+        "predicateCategory": { "type": "string", "minLength": 1 },
+        "entityIndex": { "const": "E x E" },
+        "activeSpecialization": { "enum": ["FOUR/articulation-cell", "none"] },
+        "specializationOnly": { "type": "boolean" },
+        "generalDatumSchemaStatus": { "enum": ["derived", "open"] },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "naturality": {
+      "type": "object",
+      "required": [
+        "theoremStatus",
+        "equation",
+        "datumPreserved",
+        "twoCellStatus",
+        "generatorActions",
+        "batchProjectionStatus",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "theoremStatus": { "enum": ["proved-corpus", "declared", "open"] },
+        "equation": { "const": "f*(posit_(phi,q)(v)) = posit_(f*(phi),q)(f*(v))" },
+        "datumPreserved": { "const": true },
+        "twoCellStatus": { "const": true },
+        "generatorActions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/generatorAction" },
+          "minItems": 4
+        },
+        "batchProjectionStatus": { "enum": ["witnessed", "open"] },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "generatorAction": {
+      "type": "object",
+      "required": ["class", "cellAction", "valueAction", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "class": {
+          "enum": ["specialization", "converse", "subject-projection", "object-projection"]
+        },
+        "cellAction": { "type": "string", "minLength": 1 },
+        "valueAction": { "const": "q preserved" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "speechActFactorization": {
+      "type": "object",
+      "required": ["distinctCategoricalPositions", "canonicalOrder", "roles", "noBundledMorphism", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "distinctCategoricalPositions": { "const": true },
+        "canonicalOrder": { "const": "locution -> illocution -> perlocution" },
+        "roles": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/speechActRole" },
+          "minItems": 3
+        },
+        "noBundledMorphism": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "speechActRole": {
+      "type": "object",
+      "required": ["name", "categoricalPosition", "role", "effectBoundary", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "enum": ["locution", "illocution", "perlocution"] },
+        "categoricalPosition": { "type": "string", "minLength": 1 },
+        "role": { "type": "string", "minLength": 1 },
+        "effectBoundary": {
+          "enum": ["environmental-decoding", "pure-event", "closure-propagation"]
+        },
+        "noIo": { "type": "boolean" },
+        "noClosureFiring": { "type": "boolean" },
+        "closureToLeastFixedPoint": { "type": "boolean" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "rowBoundary": {
+      "type": "object",
+      "required": [
+        "categoricalOutput",
+        "eventPresentation",
+        "rowsAreFiniteCarrier",
+        "sampleRows",
+        "axesCarriedElsewhere",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "categoricalOutput": { "const": "predication-valuation" },
+        "eventPresentation": { "const": "exact-eavt-row" },
+        "rowsAreFiniteCarrier": { "const": true },
+        "sampleRows": {
+          "type": "array",
+          "items": { "$ref": "eavt-row.schema.json" },
+          "minItems": 1
+        },
+        "axesCarriedElsewhere": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "downstreamBoundary": {
+      "type": "object",
+      "required": [
+        "writesArePerlocution",
+        "closureFiringIsPerlocution",
+        "logsArePresentations",
+        "positionValueProjectedFromTrace",
+        "entryDoesNotCarryChargeField",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "writesArePerlocution": { "const": true },
+        "closureFiringIsPerlocution": { "const": true },
+        "logsArePresentations": { "const": true },
+        "positionValueProjectedFromTrace": { "const": true },
+        "entryDoesNotCarryChargeField": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

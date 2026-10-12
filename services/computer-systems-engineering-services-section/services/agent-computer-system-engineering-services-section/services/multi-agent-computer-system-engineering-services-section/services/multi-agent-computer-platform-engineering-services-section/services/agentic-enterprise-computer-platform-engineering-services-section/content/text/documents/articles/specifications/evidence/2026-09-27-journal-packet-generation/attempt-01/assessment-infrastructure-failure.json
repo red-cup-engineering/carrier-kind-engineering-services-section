@@ -1,0 +1,11 @@
+{
+  "exitCode": 1,
+  "stdout": "",
+  "stderr": "file:///assays/assay.mjs:40\ncheck('pure declared dependency surface',()=>{const src=fs.readFileSync(deps.entry,'utf8');const allowed=new Set(['../identity/index.mjs','@red-cup-engineering/json-services-section','@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity']);const specs=[...src.matchAll(/\b(?:import|export)s+(?:[^;]*?s+froms*)?[\"']([^\"']+)[\"']/g)].map(x=>x[1]);assert(specs.every(s=>allowed.has(s)));assert(!/\bimports*(|\bevals*(|\bnews+Function\b|\bprocesss*./.test(src));});\n                                                                                                                                                                                                                                                                                                                                                                                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nSyntaxError: Invalid regular expression: /\bimports*(|\bevals*(|\bnews+Function\b|\bprocesss*./: Unterminated group\n    at compileSourceTextModule (node:internal/modules/esm/utils:318:16)\n    at ModuleLoader.moduleStrategy (node:internal/modules/esm/translators:89:18)\n    at #translate (node:internal/modules/esm/loader:434:20)\n    at afterLoad (node:internal/modules/esm/loader:502:29)\n    at ModuleLoader.loadAndTranslate (node:internal/modules/esm/loader:507:12)\n    at #getOrCreateModuleJobAfterResolve (node:internal/modules/esm/loader:560:36)\n    at afterResolve (node:internal/modules/esm/loader:607:52)\n    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:613:12)\n    at node:internal/modules/esm/loader:632:32\n    at TracingChannel.tracePromise (node:diagnostics_channel:362:14)\n\nNode.js v24.19.0\n",
+  "environmentKeys": [
+    "HOME",
+    "LANG",
+    "PATH"
+  ],
+  "profileSha256": "4d065721aff66c65a88d584a64f4e00c70276928180c4b3cd471734506caecf0"
+}

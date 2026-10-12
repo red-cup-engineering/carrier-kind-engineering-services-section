@@ -1,0 +1,24 @@
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const source=process.argv[2];
+const segment=await import(pathToFileURL(source));
+const { eventForRow }=await import(pathToFileURL(join(dirname(source),'events.mjs')));
+const { artifactStoreRoot,journalDirectoryOf }=await import(pathToFileURL(join(dirname(source),'..','store-root.mjs')));
+const root=mkdtempSync(join(tmpdir(),'muse-journal-recovery-'));
+const log=join(journalDirectoryOf(root),'2026','09','27','2026-09-27-admit-recovery.jsonl');
+const first=eventForRow(['recovery','sample','first','2026-09-27T12:00:00.000Z'],'controlled-observation');
+const second=eventForRow(['recovery','sample','second','2026-09-27T12:01:00.000Z'],'controlled-observation');
+segment.segmentAdmit(log,[first,second]);
+const admitted=join(segment.indexDirectory(artifactStoreRoot(log)),'admitted.jsonl');
+const initial=readFileSync(admitted,'utf8');
+// Controlled image of interruption after segment publication but before its index append.
+const retained=initial.trim().split('\n').filter(line=>JSON.parse(line).id!==second.id);
+writeFileSync(admitted,retained.join('\n')+'\n');
+segment.clearSegmentIndexes();
+const sourcePresent=segment.segmentStatements(log).some(w=>w.id===second.id);
+const recoveredState=segment.segmentState(log,second.id)??null;
+const dependent=eventForRow(['recovery','sample','dependent','2026-09-27T12:02:00.000Z'],'controlled-observation',{causes:[second.id]});
+const dependentAdmission=segment.segmentAdmit(log,[dependent])[0].admission;
+console.log(JSON.stringify({fixtureRoot:root,sourcePresent,recoveredState,dependentAdmission,limits:'Controlled partial derived-index image and cleared in-memory caches; not an actual process or power interruption. Source witness bytes were retained. This observation concerns current recovery behavior, not a proposed implementation.'},null,2));

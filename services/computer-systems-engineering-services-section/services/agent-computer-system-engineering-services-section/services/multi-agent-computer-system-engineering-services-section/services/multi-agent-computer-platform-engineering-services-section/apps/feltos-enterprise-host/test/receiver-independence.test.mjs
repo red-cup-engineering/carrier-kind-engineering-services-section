@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readdirSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -7,7 +7,8 @@ import { fileURLToPath } from "node:url";
 import { agencyAt, coordinatingOffice } from "@red-cup-engineering/metroplat/offices";
 import { defaultFilesystemBinding } from "@red-cup-engineering/computer-system-engine/rpc/binding";
 import { outcomeJournal, outcomeOf, proposalResources } from "@red-cup-engineering/organizing/enterprise";
-import { inferenceReceivingCarrier } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/carrier/inference-receiving-carrier";
+import { ATTEMPT_TYPE, inferenceReceivingCarrier } from "@red-cup-engineering/agent-harness-computer-system-engineering-services-section/carrier/inference-receiving-carrier";
+import { readHead, walk } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { INFERENCE_RECEIVER_DEFAULT_OFFICES, inferenceReceiver, officeReach } from "../src/agency-work.mjs";
 import { modelFamily, rankReceivers, receivedOutcomeFields } from "../src/receiver-independence.mjs";
 
@@ -66,13 +67,13 @@ test("the receiver is offered only the models of another family when it carries 
   assert.deepEqual(first.models, [QWEN]);
 });
 
-test("the host composes the third receiver from the provider CIE admits for schema-bound work, receiving only", () => {
+test("the host composes the third receiver from the provider CIE admits for zero-cash schema-bound work, receiving only", () => {
   const binding = defaultFilesystemBinding(scratch());
   const compose = (environment) => inferenceReceiver({ binding, identity: { id: "node-1" }, environment: { DIRECT_ENDPOINT_PROVIDER_CONFIG: undefined, ...environment }, repositoryRoot: house });
   assert.equal(compose({}), undefined, "no credential, no carrier");
   assert.equal(compose({ API_KEY_GROQ: "test-credential", METROPLAT_INFERENCE_RECEIVER: "off" }), undefined);
   const carrier = compose({ API_KEY_GROQ: "test-credential" });
-  assert.ok(carrier, "an admitted, credentialed provider yields the carrier");
+  assert.ok(carrier, "an admitted, credentialed zero-cash provider yields the carrier");
   assert.equal(carrier.family, "alibaba");
   assert.equal(carrier.receivingOnly, true);
   assert.deepEqual(carrier.models, [QWEN]);
@@ -117,11 +118,14 @@ test("a judgement from the third receiver is booked on the one outcome path, as 
   assert.equal(sessions[0].id, outcome.session.id, "the host admits the session the judgement is made under");
   assert.deepEqual(outcome.usage, { input_tokens: 900, output_tokens: 80 });
   assert.equal(carrier.receivingJudged(review), true);
-  assert.equal(readdirSync(path.join(dataRoot, "inference-receiving")).length, 1);
+  // The attempt is one record of the host's store, a thread named by its receipt's key.
+  const key = outcome.task.replace(/^receive-/u, "");
+  const attempts = [...walk(dataRoot, ATTEMPT_TYPE, readHead(dataRoot, ATTEMPT_TYPE, key)?.frontier ?? [])].filter((step) => step.record !== undefined);
+  assert.deepEqual(attempts.map(({ record }) => [record.attempt, record.judgement.decision]), [[0, "accepted"]]);
 
   const discharge = { decision: "accepted", text: outcome.judgement.text, evidence: outcome.judgement.evidence };
   const at = "2026-10-04T12:00:00.000Z";
-  const journal = outcomeJournal(scratch(), { dedupe: "day" });
+  const journal = outcomeJournal(scratch());
   const resources = proposalResources({ resources: [{ resource: "input-tokens", unit: "token", amount: "900", carrier: QWEN }] });
   journal.record(outcomeOf({ ...receivedOutcomeFields({ proposal, discharge, office: review.office, at }), resources }));
   const [booked] = journal.read();

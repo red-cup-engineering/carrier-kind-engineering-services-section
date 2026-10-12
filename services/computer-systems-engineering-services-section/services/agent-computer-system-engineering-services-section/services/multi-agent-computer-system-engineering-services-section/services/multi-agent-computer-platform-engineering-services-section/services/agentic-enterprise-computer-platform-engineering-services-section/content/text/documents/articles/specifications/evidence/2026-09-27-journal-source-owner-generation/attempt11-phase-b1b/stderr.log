@@ -1,0 +1,1 @@
+2026-09-28T01:28:30.339974Z ERROR codex_models_manager::manager: failed to write models cache: Read-only file system (os error 30)

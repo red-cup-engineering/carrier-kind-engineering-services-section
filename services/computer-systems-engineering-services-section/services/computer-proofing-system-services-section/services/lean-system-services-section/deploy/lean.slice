@@ -1,0 +1,9 @@
+[Unit]
+Description=Every Lean/Lake process on this machine, under one memory ceiling
+
+[Slice]
+# The WSL VM holds 6 GB (.wslconfig); agents are capped at 3.5 GB (/etc/default/wsl-agent-limits).
+# Past MemoryHigh the kernel reclaims and throttles, past MemoryMax it kills inside this slice only.
+MemoryHigh=2G
+MemoryMax=2560M
+MemorySwapMax=0

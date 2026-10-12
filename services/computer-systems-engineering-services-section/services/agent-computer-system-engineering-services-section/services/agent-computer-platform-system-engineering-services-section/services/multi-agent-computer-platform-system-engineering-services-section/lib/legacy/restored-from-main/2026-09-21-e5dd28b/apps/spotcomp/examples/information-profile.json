@@ -1,0 +1,154 @@
+{
+  "profileId": "spotcomp-settling-information-example",
+  "status": "candidate",
+  "evidence": [
+    "SETTLING-INFORMATION.md",
+    "CHUNK-MAP.md#settling-to-information"
+  ],
+  "scopes": [
+    {
+      "id": "scope:task-coordination",
+      "predicateVocabulary": [
+        "predicate:assigned-to",
+        "predicate:blocks",
+        "predicate:about"
+      ],
+      "closureRules": [
+        "rules:task-local-closure",
+        "rules:aboutness-predicate-closure",
+        "rules:document-preservation"
+      ],
+      "entities": [
+        "thing:task-17",
+        "player:alice",
+        "player:bob"
+      ],
+      "consistencyCommitment": "tolerate-contestation",
+      "regime": "scott-continuous",
+      "evidence": [
+        "lab/archive/library/science/library/information/library/knowledge-systems/theories/predicated-knowledge-systems/concepts/discourse-community-as-fiber.md"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "artifact:task-17-settled-view",
+      "kind": "settled-information",
+      "receiver": "player:alice",
+      "scope": "scope:task-coordination",
+      "settlement": {
+        "regime": "scott-continuous",
+        "ruleSystem": "rules:task-local-closure",
+        "frontier": [
+          "row:task-17-assigned",
+          "row:task-17-blocker-check"
+        ],
+        "stateKind": "provisional"
+      },
+      "uncertaintyReduction": {
+        "question": "who can act next on thing:task-17",
+        "beforeState": "unsettled",
+        "afterState": "alice-assigned-no-known-blocker",
+        "evidence": [
+          "row:task-17-assigned",
+          "row:task-17-blocker-check"
+        ]
+      },
+      "aboutness": [
+        {
+          "id": "about:task-17-assignment",
+          "entity": "thing:task-17",
+          "predicate": "predicate:assigned-to",
+          "participation": "subject",
+          "value": "t",
+          "evidence": ["row:task-17-assigned"]
+        }
+      ],
+      "provenance": {
+        "source": "trace:task-coordination",
+        "producer": "player:alice",
+        "history": "derived from admitted local frontier",
+        "evidence": ["row:task-17-assigned"]
+      },
+      "evidence": [
+        "lab/hacking/library/being/doing/library/philosophy/semiotics/information/information.md",
+        "lab/hacking/library/being/doing/library/library/information/knowing-as-settling/knowing-as-settling.md"
+      ]
+    },
+    {
+      "id": "artifact:task-17-evidence-document",
+      "kind": "document",
+      "receiver": "player:alice",
+      "scope": "scope:task-coordination",
+      "settlement": {
+        "regime": "strict",
+        "ruleSystem": "rules:document-preservation",
+        "frontier": [
+          "row:task-17-assigned"
+        ],
+        "stateKind": "settled"
+      },
+      "uncertaintyReduction": {
+        "question": "which preserved sign evidences the task assignment",
+        "beforeState": "no-preserved-sign",
+        "afterState": "assignment-record-preserved",
+        "evidence": ["row:task-17-assigned"]
+      },
+      "aboutness": [
+        {
+          "id": "about:task-17-document",
+          "entity": "thing:task-17",
+          "predicate": "predicate:about",
+          "participation": "object",
+          "value": "t",
+          "evidence": ["row:task-17-assigned"]
+        }
+      ],
+      "provenance": {
+        "source": "trace:task-coordination",
+        "producer": "player:alice",
+        "history": "preserved as assignment evidence",
+        "preservationPurpose": "represent and prove the task assignment",
+        "arrangement": "filed with task coordination evidence",
+        "evidence": ["lab/hacking/library/being/doing/library/philosophy/semiotics/document/document.md"]
+      },
+      "evidence": [
+        "lab/hacking/library/being/doing/library/philosophy/semiotics/document/document.md"
+      ]
+    }
+  ],
+  "aboutnessClosures": [
+    {
+      "artifact": "artifact:task-17-settled-view",
+      "sourceAboutness": "about:task-17-assignment",
+      "derivedEntity": "player:alice",
+      "morphism": "predicate:assigned-to/object-projection",
+      "evidence": [
+        "lab/hacking/library/being/doing/library/library/information/aboutness/aboutness.md"
+      ]
+    }
+  ],
+  "shpProjections": [
+    {
+      "id": "projection:task-17-shp",
+      "sourceArtifact": "artifact:task-17-settled-view",
+      "sourceFrontier": [
+        "row:task-17-assigned"
+      ],
+      "projectionMorphism": "morphism:information-to-shp",
+      "targetKind": "semantic-hypertext-packet",
+      "finiteSettlementEvidence": [
+        "row:task-17-assigned"
+      ],
+      "evidence": [
+        "SHP.md",
+        "SETTLING-INFORMATION.md#projection-to-shp"
+      ]
+    }
+  ],
+  "openObligations": [
+    "prove category of informational artifacts",
+    "prove complete aboutness closure",
+    "prove SHP projection morphism"
+  ]
+}

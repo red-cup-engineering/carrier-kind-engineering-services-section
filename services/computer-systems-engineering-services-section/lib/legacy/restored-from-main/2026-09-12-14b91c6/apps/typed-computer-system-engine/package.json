@@ -1,0 +1,36 @@
+{
+  "name": "@red-cup-engineering/typed-computer-system-engine",
+  "version": "0.5.0",
+  "type": "module",
+  "description": "System-level operation registration and dispatch binding over the typed computer-code and typed code-networking engines.",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "check": "tsc -p tsconfig.check.json",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "prepack": "npm run build"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.11.0",
+    "@red-cup-engineering/typed-code-networking-engine": "^0.4.0",
+    "@red-cup-engineering/typed-computer-code-engine": "0.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "sideEffects": false
+}

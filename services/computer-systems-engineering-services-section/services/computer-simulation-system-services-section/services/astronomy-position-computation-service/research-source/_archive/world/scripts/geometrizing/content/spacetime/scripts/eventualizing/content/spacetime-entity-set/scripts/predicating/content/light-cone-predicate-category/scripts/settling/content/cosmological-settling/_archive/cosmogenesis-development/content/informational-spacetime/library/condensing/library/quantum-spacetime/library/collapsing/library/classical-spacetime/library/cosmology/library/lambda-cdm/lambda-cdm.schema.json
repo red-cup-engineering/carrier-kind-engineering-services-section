@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://active.development.561.group/articulating/library/aperiodic-articulation-category/cosmogenerating/library/cosmos/hacking/library/cosmology/library/lambda-cdm/lambda-cdm.schema.json",
+  "title": "lambda-cdm",
+  "description": "ΛCDM as a thermal description (theory): a closure over cosmology cells projecting from few parameters to consistent observable values. The null hypothesis for the Hubble-tension H¹ test; its extensions (evolving-w, EDE, modified r_d) are proposals of new cosmos-cells entering via cosmogenerating.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "lambda-cdm" },
+    "kind": { "type": "string", "const": "theory" },
+    "member-of": { "type": "string", "const": "cosmology" },
+    "status": { "type": "string", "const": "hacking" }
+  },
+  "required": ["name"]
+}

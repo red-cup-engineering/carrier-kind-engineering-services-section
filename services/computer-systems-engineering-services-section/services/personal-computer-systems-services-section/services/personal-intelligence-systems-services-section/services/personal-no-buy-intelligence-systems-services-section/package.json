@@ -1,0 +1,25 @@
+{
+  "name": "@red-cup-engineering/personal-no-buy-intelligence-systems-services-section",
+  "version": "0.1.0",
+  "description": "Owns capabilities whose primary subject is a composed intelligence system that helps a person earn without buying: the surface catalog schema, the routine scheduler, the two-witness earning ledger, the free-lane router, and the companion.",
+  "type": "module",
+  "keywords": [
+    "brand:sieve-systems",
+    "engineering"
+  ],
+  "exports": {
+    "./derive-set-of-surfaces-from-measurement": "./scripts/derive-set-of-surfaces-from-measurement.mjs",
+    "./filter-set-of-surfaces-by-tier": "./scripts/filter-set-of-surfaces-by-tier.mjs",
+    "./derive-set-of-guide-chapters-from-catalog": "./scripts/derive-set-of-guide-chapters-from-catalog.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
+  }
+}

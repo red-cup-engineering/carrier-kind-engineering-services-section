@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/library/forgetting/forgetting.schema.json",
+  "title": "forgetting",
+  "description": "The predication-monad unit (η) on the bit: reopen the object-gap, active -> potential; non-injective (distinct bits collapse together). Is the kernel's transfer. Info theory: the lossy/forgetful map — coarse-graining, marginalization, erasure, equivocation. Adjunction μ ⊣ η with identity counit (saturate ∘ transfer = id). io types are the kernel's via the promoted voidmath-kernel-schema package.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "forgetting" },
+    "kind": { "type": "string", "const": "morphism" },
+    "is": { "type": "string", "const": "transfer" },
+    "role": { "type": "string", "const": "predication-monad-unit" },
+    "domain": { "type": "string", "const": "bit" },
+    "codomain": { "type": "string", "const": "bit" },
+    "io": { "$ref": "https://voidmath.active.development.561.group/articulating/library/category/transferring/transferring.schema.json" }
+  },
+  "required": ["name", "is"]
+}

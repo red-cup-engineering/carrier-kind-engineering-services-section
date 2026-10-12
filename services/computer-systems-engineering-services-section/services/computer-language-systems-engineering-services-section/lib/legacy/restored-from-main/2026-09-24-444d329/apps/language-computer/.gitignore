@@ -1,0 +1,7 @@
+dist/
+.tmp/
+node_modules/
+coverage/
+*.tsbuildinfo
+data/logs/
+data/records/evm/

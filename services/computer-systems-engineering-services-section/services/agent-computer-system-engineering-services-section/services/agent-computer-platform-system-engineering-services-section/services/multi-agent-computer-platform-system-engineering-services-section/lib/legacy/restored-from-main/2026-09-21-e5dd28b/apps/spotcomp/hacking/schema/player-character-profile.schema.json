@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/player-character-profile.schema.json",
+  "title": "SPOTCOMP player character boundary profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "taxonomy",
+    "externalModelBoundary",
+    "characterLayer",
+    "skillOperatorLayer",
+    "localSettlingLayer",
+    "cgsBinding",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "taxonomy": { "$ref": "#/$defs/taxonomy" },
+    "externalModelBoundary": { "$ref": "#/$defs/externalModelBoundary" },
+    "characterLayer": { "$ref": "#/$defs/characterLayer" },
+    "skillOperatorLayer": { "$ref": "#/$defs/skillOperatorLayer" },
+    "localSettlingLayer": { "$ref": "#/$defs/localSettlingLayer" },
+    "cgsBinding": { "$ref": "#/$defs/cgsBinding" },
+    "implementationBoundary": { "$ref": "#/$defs/implementationBoundary" },
+    "openObligations": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "evidence": { "$ref": "#/$defs/evidence" }
+  },
+  "$defs": {
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "taxonomy": {
+      "type": "object",
+      "required": [
+        "distinctPositions",
+        "externalPlayerIsNotModel",
+        "characterIsPlayerKindNotPlayerDefinition",
+        "personaScopesRoles",
+        "rolesBundleSkills",
+        "skillsInvokeMethodsOrTools",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "distinctPositions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "external-player",
+              "modeled-player",
+              "character",
+              "persona",
+              "role",
+              "skill",
+              "method-or-tool",
+              "cgs-strategy"
+            ]
+          },
+          "minItems": 8,
+          "uniqueItems": true
+        },
+        "externalPlayerIsNotModel": { "const": true },
+        "characterIsPlayerKindNotPlayerDefinition": { "const": true },
+        "personaScopesRoles": { "const": true },
+        "rolesBundleSkills": { "const": true },
+        "skillsInvokeMethodsOrTools": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "externalModelBoundary": {
+      "type": "object",
+      "required": [
+        "externalPlayerRef",
+        "modeledPlayerRef",
+        "playerKind",
+        "systemHoldsSettling",
+        "externalEntityNotMutatedByModel",
+        "settlingRepresentsModel",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "externalPlayerRef": { "type": "string", "minLength": 1 },
+        "modeledPlayerRef": { "type": "string", "minLength": 1 },
+        "playerKind": {
+          "enum": ["character", "peer", "operator", "inference-model", "application", "user", "system", "observer"]
+        },
+        "systemHoldsSettling": { "const": true },
+        "externalEntityNotMutatedByModel": { "const": true },
+        "settlingRepresentsModel": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "characterLayer": {
+      "type": "object",
+      "required": [
+        "requiredWhenPlayerKindIsCharacter",
+        "characterRef",
+        "personaRef",
+        "roleRefs",
+        "identitySurface",
+        "memorySurface",
+        "governanceSurface",
+        "teachingDistinctFromInstallation",
+        "installationDistinctFromPlayerBinding",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "requiredWhenPlayerKindIsCharacter": { "const": true },
+        "characterRef": { "type": "string", "minLength": 1 },
+        "personaRef": { "type": "string", "minLength": 1 },
+        "roleRefs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "identitySurface": { "type": "string", "minLength": 1 },
+        "memorySurface": { "type": "string", "minLength": 1 },
+        "governanceSurface": { "type": "string", "minLength": 1 },
+        "teachingDistinctFromInstallation": { "const": true },
+        "installationDistinctFromPlayerBinding": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "skillOperatorLayer": {
+      "type": "object",
+      "required": [
+        "skillsAreTypedOperators",
+        "skillFirstPolicy",
+        "operatorsMonotone",
+        "operatorsClosureCompatible",
+        "operatorsFragmentPreserving",
+        "failureMonotone",
+        "skillImprovementIsClosure",
+        "skills"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "skillsAreTypedOperators": { "const": true },
+        "skillFirstPolicy": { "const": true },
+        "operatorsMonotone": { "const": true },
+        "operatorsClosureCompatible": { "const": true },
+        "operatorsFragmentPreserving": { "const": true },
+        "failureMonotone": { "const": true },
+        "skillImprovementIsClosure": { "const": true },
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/skill" },
+          "minItems": 1
+        }
+      }
+    },
+    "skill": {
+      "type": "object",
+      "required": ["id", "roleRef", "capabilityBound", "methodOrToolSurface", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "roleRef": { "type": "string", "minLength": 1 },
+        "capabilityBound": { "type": "string", "minLength": 1 },
+        "methodOrToolSurface": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "localSettlingLayer": {
+      "type": "object",
+      "required": [
+        "localSettlingRef",
+        "boundedRestrictionOfUniversalSettling",
+        "observationFrontierRef",
+        "actionBoundRef",
+        "capabilityFiberRef",
+        "governanceRef",
+        "epistemicProfileRef",
+        "normativeProfileRef",
+        "sigmaDeltaCommutationDeclared",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "localSettlingRef": { "type": "string", "minLength": 1 },
+        "boundedRestrictionOfUniversalSettling": { "const": true },
+        "observationFrontierRef": { "type": "string", "minLength": 1 },
+        "actionBoundRef": { "type": "string", "minLength": 1 },
+        "capabilityFiberRef": { "type": "string", "minLength": 1 },
+        "governanceRef": { "type": "string", "minLength": 1 },
+        "epistemicProfileRef": { "type": "string", "minLength": 1 },
+        "normativeProfileRef": { "type": "string", "minLength": 1 },
+        "sigmaDeltaCommutationDeclared": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "cgsBinding": {
+      "type": "object",
+      "required": [
+        "cgsProfileRef",
+        "strategyRef",
+        "observationMapRef",
+        "opponentEventsFromObservations",
+        "playerEventsFromActions",
+        "polarityNotIdentity",
+        "symmetryQuotientRef",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "cgsProfileRef": { "type": "string", "minLength": 1 },
+        "strategyRef": { "type": "string", "minLength": 1 },
+        "observationMapRef": { "type": "string", "minLength": 1 },
+        "opponentEventsFromObservations": { "const": true },
+        "playerEventsFromActions": { "const": true },
+        "polarityNotIdentity": { "const": true },
+        "symmetryQuotientRef": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "implementationBoundary": {
+      "type": "object",
+      "required": [
+        "identifierKeyInboxOutboxInsufficient",
+        "mustDeclareLocalSettling",
+        "mustDeclareCharacterBindingForCharacterKind",
+        "mustDeclareHandedness",
+        "mustDeclareGovernanceAndCapabilities",
+        "mustDeclareCgsStrategy",
+        "mustPreserveTeachingInstallationBindingDistinction",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "identifierKeyInboxOutboxInsufficient": { "const": true },
+        "mustDeclareLocalSettling": { "const": true },
+        "mustDeclareCharacterBindingForCharacterKind": { "const": true },
+        "mustDeclareHandedness": { "const": true },
+        "mustDeclareGovernanceAndCapabilities": { "const": true },
+        "mustDeclareCgsStrategy": { "const": true },
+        "mustPreserveTeachingInstallationBindingDistinction": { "const": true },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    }
+  }
+}

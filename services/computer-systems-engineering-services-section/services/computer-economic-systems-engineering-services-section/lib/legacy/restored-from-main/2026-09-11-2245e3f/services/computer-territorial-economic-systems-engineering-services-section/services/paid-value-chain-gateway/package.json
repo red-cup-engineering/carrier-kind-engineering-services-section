@@ -1,0 +1,38 @@
+{
+  "name": "@red-cup-engineering/paid-value-chain-gateway",
+  "version": "0.2.0",
+  "private": false,
+  "type": "module",
+  "description": "x402 v2 seller for two priced measures: value-chain shares (each position's exact share of a farm-to-retail price ladder's retail price) and the territory readout (every catalogued material belonging to a requested place), deployed as one Cloudflare Worker on the free tier.",
+  "main": "src/worker.mjs",
+  "exports": {
+    ".": "./src/worker.mjs",
+    "./worker": "./src/worker.mjs",
+    "./offers": "./src/offers.mjs"
+  },
+  "files": [
+    "src/",
+    "402index-listing.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "check": "node --check src/worker.mjs && node --check src/offers.mjs && node --check src/network-constants.mjs && node --check test/worker.test.mjs",
+    "test": "node --test test/worker.test.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@red-cup-engineering/derive-territory-readout-service": "0.1.0",
+    "@red-cup-engineering/derive-value-chain-shares-service": "0.1.0",
+    "@red-cup-engineering/x402-services-section": "0.7.0"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/json-schema-services-section": "0.2.0",
+    "wrangler": "4.127.1"
+  }
+}

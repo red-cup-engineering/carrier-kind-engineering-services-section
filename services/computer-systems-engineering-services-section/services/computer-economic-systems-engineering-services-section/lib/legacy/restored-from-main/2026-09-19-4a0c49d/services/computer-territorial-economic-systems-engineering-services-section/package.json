@@ -1,0 +1,22 @@
+{
+  "name": "@red-cup-engineering/computer-territorial-economic-systems-engineering-services-section",
+  "version": "0.1.0",
+  "description": "Computer systems for territorial economies: the territory catalog (a territory's species, minerals, and knowledge joined to their known products, markets, and value-chain positions), the value-chain reader, and the media production line that carries the territory's knowledge to a population; the seat of computer-territorial-economic-systems-engineering-services-section, a division of Red Cup Engineering.",
+  "type": "module",
+  "keywords": [
+    "brand:retort-systems",
+    "engineering"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
+    "@red-cup-engineering/derive-benefit-share-service": "0.1.0",
+    "@red-cup-engineering/derive-continuation-reading-service": "0.1.0",
+    "@red-cup-engineering/derive-territory-readout-service": "0.1.0",
+    "@red-cup-engineering/derive-value-chain-shares-service": "0.1.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0",
+    "@red-cup-engineering/newsletter-issue-production-services-section": "0.1.0"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

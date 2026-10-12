@@ -1,0 +1,36 @@
+{
+  "kind": "source-patchset",
+  "version": 1,
+  "disposition": "candidate",
+  "reason": "Correct retained family-field access and revalidate held publication parents after refresh on created and recovered unique paths.",
+  "changes": [
+    {
+      "operation": "edit",
+      "path": "src/journal/filesystem/source-owner.mjs",
+      "inputSha256": "451212d45137442763272c3d59b8df59e9e3bda971ed8fcd26e7da8370b45fbd",
+      "replacements": [
+        {
+          "before": "checkSourceDirectory(parents.root);\n    checkSourceDirectory(parents.retained);\n    checkSourceDirectory(parents.version);\n    operation.assertBindings();\n    operation.markPublicationPossible();",
+          "after": "checkSourceDirectory(parents.root);\n    checkSourceDirectory(parents.family);\n    checkSourceDirectory(parents.version);\n    operation.assertBindings();\n    operation.markPublicationPossible();"
+        },
+        {
+          "before": "    checkSourceDirectory(parents.root);\n    checkSourceDirectory(parents.retained);\n    checkSourceDirectory(parents.version);\n    state.view = refreshSourceView(operation);",
+          "after": "    checkSourceDirectory(parents.root);\n    checkSourceDirectory(parents.family);\n    checkSourceDirectory(parents.version);\n    state.view = refreshSourceView(operation);\n    checkSourceDirectory(parents.root);\n    checkSourceDirectory(parents.family);\n    checkSourceDirectory(parents.version);"
+        },
+        {
+          "before": "      state.view = refreshSourceView(operation);\n      const created = state.view.uniqueEntries.get(digest);",
+          "after": "      state.view = refreshSourceView(operation);\n      checkSourceDirectory(parents.root);\n      checkSourceDirectory(parents.family);\n      checkSourceDirectory(parents.version);\n      const created = state.view.uniqueEntries.get(digest);"
+        },
+        {
+          "before": "        state.view = refreshSourceView(operation);\n        const original = state.view.uniqueEntries.get(digest);",
+          "after": "        state.view = refreshSourceView(operation);\n        checkSourceDirectory(parents.root);\n        checkSourceDirectory(parents.family);\n        checkSourceDirectory(parents.version);\n        const original = state.view.uniqueEntries.get(digest);"
+        }
+      ],
+      "clauses": [
+        "F-S06",
+        "F-S13",
+        "F-S19"
+      ]
+    }
+  ]
+}

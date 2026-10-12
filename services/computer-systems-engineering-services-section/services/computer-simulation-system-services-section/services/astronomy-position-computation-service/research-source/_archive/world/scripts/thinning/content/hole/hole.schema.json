@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astronomy/world/scripts/thinning/content/hole",
+  "title": "hole",
+  "description": "A monomorphism j : U ↪ H into a nucleus where the structure thins: the quasicrystalline structure of U is strictly less symmetric/lower-complexity than the host's restriction (H1), and every outgoing morphism from U factors uniquely through a boundary object ∂U (H2). A hole is the degenerate substructure through which one world is reached from another; pullback-stable. Not itself a world.",
+  "type": "object",
+  "required": [
+    "host",
+    "structural-degeneration",
+    "boundary-factorization"
+  ],
+  "properties": {
+    "host": {
+      "description": "the nucleus H the hole sits inside",
+      "$ref": "astronomy/world"
+    },
+    "structural-degeneration": {
+      "description": "(H1) QC(U) is strictly less symmetric or lower-complexity than QC(H)|_U",
+      "const": true
+    },
+    "boundary-factorization": {
+      "description": "(H2) every g : U → X factors uniquely as U → ∂U → X",
+      "const": true
+    }
+  }
+}

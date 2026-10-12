@@ -1,0 +1,26 @@
+export interface PredicationCell {
+  readonly subject: string;
+  readonly predicate: string;
+  readonly object: string;
+  readonly polarity?: "for" | "against" | "positive" | "negative";
+  readonly evidence?: unknown;
+}
+export interface Diagnostic { readonly code?: string; readonly message: string; readonly [key: string]: unknown }
+export interface ResourceGraph {
+  readonly resource: string;
+  readonly focus: string;
+  readonly observedAt: string;
+  readonly cells: readonly PredicationCell[];
+  readonly diagnostics?: readonly Diagnostic[];
+}
+export interface ProviderOutcome { readonly resources: readonly ResourceGraph[]; readonly diagnostics?: readonly Diagnostic[] }
+export interface Provider<Context = Record<string, unknown>> { readonly id: string; observe(context: Context): ProviderOutcome | Promise<ProviderOutcome> }
+export const providerCellSchema: Record<string, unknown>;
+export const resourceGraphSchema: Record<string, unknown>;
+export const providerOutcomeSchema: Record<string, unknown>;
+export const providerCellType: import("@red-cup-engineering/computer-data-type-engine").DataType<Record<string, unknown>, PredicationCell>;
+export const resourceGraphType: import("@red-cup-engineering/computer-data-type-engine").DataType<Record<string, unknown>, ResourceGraph>;
+export const providerOutcomeType: import("@red-cup-engineering/computer-data-type-engine").DataType<Record<string, unknown>, ProviderOutcome>;
+export function defineProvider<Context = Record<string, unknown>>(input: Provider<Context>): Provider<Context>;
+export function validateResourceGraph(value: unknown, label?: string): ResourceGraph;
+export function validateProviderOutcome(value: unknown, providerId: string): ProviderOutcome;

@@ -1,0 +1,91 @@
+{
+  "profileId": "spotcomp-predication-fiber-quantifiers-v0",
+  "evidence": [
+    "PREDICATION-FIBER-QUANTIFIERS.md",
+    "PREDICATION-FIBER-ALGEBRA.md",
+    "development/active/articulating/library/aperiodic-articulation-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/library/predication-fibration/library/predication-fiber-algebra/scripts/quantifier-adjoints.mjs"
+  ],
+  "reindexing": {
+    "symbol": "f*",
+    "type": "A_q -> A_p",
+    "coveredMorphismKinds": [
+      "converse",
+      "subject-projection",
+      "object-projection"
+    ],
+    "converseSwapsSubjectObject": true,
+    "subjectProjectionReadsSubjectDiagonal": true,
+    "objectProjectionReadsObjectDiagonal": true,
+    "preservesDatum": true,
+    "notRowRewrite": true,
+    "evidence": [
+      "PREDICATION-FIBER-QUANTIFIERS.md#2-reindexing"
+    ]
+  },
+  "existential": {
+    "symbol": "exists_f",
+    "adjointPosition": "left-adjoint-to-reindexing",
+    "law": "exists_f(w) <= v iff w <= f*(v)",
+    "outputFiber": "target-predicate",
+    "orderRules": [
+      {
+        "order": "knowledge",
+        "fold": "join",
+        "fillOutsideImage": "knowledge-bottom"
+      },
+      {
+        "order": "truth",
+        "fold": "join",
+        "fillOutsideImage": "truth-bottom"
+      }
+    ],
+    "evidence": [
+      "PREDICATION-FIBER-QUANTIFIERS.md#3-existential-quantifier"
+    ]
+  },
+  "universal": {
+    "symbol": "forall_f",
+    "adjointPosition": "right-adjoint-to-reindexing",
+    "law": "v <= forall_f(w) iff f*(v) <= w",
+    "outputFiber": "target-predicate",
+    "orderRules": [
+      {
+        "order": "knowledge",
+        "fold": "meet",
+        "fillOutsideImage": "knowledge-top"
+      },
+      {
+        "order": "truth",
+        "fold": "meet",
+        "fillOutsideImage": "truth-top"
+      }
+    ],
+    "evidence": [
+      "PREDICATION-FIBER-QUANTIFIERS.md#4-universal-quantifier"
+    ]
+  },
+  "orderSeparation": {
+    "knowledgeAndTruthAdjunctionsDistinct": true,
+    "truthQuantificationNotKnowledgeQuantification": true,
+    "fusionNotHyperdoctrineMeet": true,
+    "noFusionFrobeniusGeneralLaw": true,
+    "noFourCollapse": true,
+    "evidence": [
+      "PREDICATION-FIBER-QUANTIFIERS.md#5-order-separation",
+      "PREDICATION-FIBER-ALGEBRA.md#4-hyperdoctrine-layer"
+    ]
+  },
+  "probeBoundary": {
+    "specializationQuantifierProofOpen": true,
+    "finiteBooleanProbeOnly": true,
+    "notFullHyperdoctrineProof": true,
+    "notFourSubstrate": true,
+    "beckChevalleyStillObligation": true,
+    "frobeniusStillObligation": true,
+    "comprehensionStillObligation": true,
+    "evidence": [
+      "PREDICATION-FIBER-QUANTIFIERS.md#6-declaration-probe",
+      "DERIVATION-OBLIGATIONS.md D2"
+    ]
+  }
+}

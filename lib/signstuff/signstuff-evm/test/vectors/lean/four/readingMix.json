@@ -1,0 +1,18 @@
+{"suite":"four-mix","declaration":"Obsmetrologia.readingMix","cases":[
+  {"op":"readingMix","args":[[false,false],[false,false]],"result":true},
+  {"op":"readingMix","args":[[false,false],[true,false]],"result":true},
+  {"op":"readingMix","args":[[false,false],[false,true]],"result":true},
+  {"op":"readingMix","args":[[false,false],[true,true]],"result":true},
+  {"op":"readingMix","args":[[true,false],[false,false]],"result":true},
+  {"op":"readingMix","args":[[true,false],[true,false]],"result":true},
+  {"op":"readingMix","args":[[true,false],[false,true]],"result":true},
+  {"op":"readingMix","args":[[true,false],[true,true]],"result":true},
+  {"op":"readingMix","args":[[false,true],[false,false]],"result":true},
+  {"op":"readingMix","args":[[false,true],[true,false]],"result":true},
+  {"op":"readingMix","args":[[false,true],[false,true]],"result":true},
+  {"op":"readingMix","args":[[false,true],[true,true]],"result":true},
+  {"op":"readingMix","args":[[true,true],[false,false]],"result":true},
+  {"op":"readingMix","args":[[true,true],[true,false]],"result":true},
+  {"op":"readingMix","args":[[true,true],[false,true]],"result":true},
+  {"op":"readingMix","args":[[true,true],[true,true]],"result":true}
+]}

@@ -1,0 +1,115 @@
+{
+  "profileId": "spotcomp-prelocutionary-ingress-candidate",
+  "primitiveBoundary": {
+    "tokenClaimPrimitive": true,
+    "utteranceOrderedPair": true,
+    "utteranceCarrierNotAct": true,
+    "stringPresentationNotIdentity": true,
+    "recursionGroundedByPrimitives": true,
+    "twoPrimitivesForceFourCellPartition": true,
+    "orderingDeclaredNotSilentlyFinal": true,
+    "evidence": [
+      "development/active/library/utterance/docs/dev/journal/2026-05-25.md",
+      "development/active/library/token/docs/dev/journal/2026-05-25.md",
+      "development/active/library/claim/docs/dev/journal/2026-05-25.md"
+    ]
+  },
+  "articulatingIngress": {
+    "domain": "utterance",
+    "codomain": "aperiodic-predication-category",
+    "generatesAperiodicPredicationCategory": true,
+    "initialPresentationCarriesPotentialCell": true,
+    "downstreamCellLifeSeparate": true,
+    "noFiniteSettlementPrerequisite": true,
+    "noRowRecordAsArticulatingCodomain": true,
+    "evidence": [
+      "development/active/articulating/articulating.schema.json",
+      "PREDICATION-STAGES.md"
+    ]
+  },
+  "speechActFactorization": {
+    "order": "locution -> illocution -> perlocution",
+    "locutionEnvironmentalDecoding": true,
+    "locutionCodomainTypedInput": true,
+    "illocutionEventBoundedPositing": true,
+    "perlocutionProcessBoundedClosure": true,
+    "noBundledWrapperAsProofObject": true,
+    "stageDeclarationPreservedBeforeIllocution": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/hacking/library/locution/docs/dev/journal/2026-05-24.md",
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/settling/hacking/illocuting/library/illocution/docs/dev/journal/2026-05-24.md",
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/settling/hacking/perlocuting/library/perlocution/docs/dev/journal/2026-05-24.md"
+    ]
+  },
+  "handlerClasses": [
+    {
+      "name": "script-argv",
+      "environmentalShape": "process argv vector",
+      "typedCodomain": "declared internal morphism input",
+      "stageDeclarationRequired": true,
+      "parsesBeforeIllocution": true,
+      "validatesBeforeIllocution": true,
+      "targetMorphismRole": "positing",
+      "parseFailureBeforeIllocution": true,
+      "downstreamEffectsSeparate": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/hacking/library/locution/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "name": "hook-payload",
+      "environmentalShape": "hook event payload",
+      "typedCodomain": "declared internal morphism input",
+      "stageDeclarationRequired": true,
+      "parsesBeforeIllocution": true,
+      "validatesBeforeIllocution": true,
+      "targetMorphismRole": "positing",
+      "parseFailureBeforeIllocution": true,
+      "downstreamEffectsSeparate": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/hacking/library/locution/docs/dev/journal/2026-05-24.md"
+      ]
+    },
+    {
+      "name": "http-request",
+      "environmentalShape": "HTTP request body and headers",
+      "typedCodomain": "declared internal morphism input",
+      "stageDeclarationRequired": true,
+      "parsesBeforeIllocution": true,
+      "validatesBeforeIllocution": true,
+      "targetMorphismRole": "projection",
+      "parseFailureBeforeIllocution": true,
+      "downstreamEffectsSeparate": true,
+      "evidence": [
+        "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/positing/hacking/library/locution/docs/dev/journal/2026-05-24.md",
+        "WIRE-PROFILES.md"
+      ]
+    }
+  ],
+  "implementationBoundary": {
+    "environmentBytesNotTraceEvidence": true,
+    "typedInputRequiredBeforeIllocution": true,
+    "locutionCannotWriteEavtAsIllocution": true,
+    "pureIllocutionNoIo": true,
+    "perlocutionRequiresClosureProfile": true,
+    "stageProfileRequired": true,
+    "handlerCompositionNamesEachMorphism": true,
+    "eavtRowsExactAfterIllocution": true,
+    "evidence": [
+      "PRELOCUTIONARY-INGRESS.md",
+      "PREDICATION-STAGES.md",
+      "POSITING.md",
+      "TRACE-AXES.md"
+    ]
+  },
+  "openObligations": [
+    "Derive the token-before-claim ordering rather than only declaring it as the current working reading.",
+    "Prove articulating's category generation from utterance through the full active path.",
+    "Add real handler fixtures once a SPOTCOMP runtime exposes script, hook, and HTTP ingress paths."
+  ],
+  "evidence": [
+    "PRELOCUTIONARY-INGRESS.md",
+    "DERIVATION-OBLIGATIONS.md D15"
+  ]
+}
+

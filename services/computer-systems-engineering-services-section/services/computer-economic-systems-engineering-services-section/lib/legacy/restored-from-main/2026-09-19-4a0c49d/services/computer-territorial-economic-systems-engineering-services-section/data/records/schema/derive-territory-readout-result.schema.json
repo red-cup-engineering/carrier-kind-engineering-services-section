@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "derive-territory-readout-service/result",
+  "title": "TerritoryReadout",
+  "description": "The output derive-territory-readout.mjs writes: the requested place, one entry per catalogued material whose row belongs to that place or one of its ancestors (ordered by material kind then common name), and the count of rows excluded for lying outside that place and its ancestors. A material with no benefit-sharing record is returned only as a name: its holder field is always the literal string \"not named\" in that case, never the row's own issuer.",
+  "type": "object",
+  "required": ["type", "version", "territory", "entries", "excluded"],
+  "properties": {
+    "type": { "const": "TerritoryReadout" },
+    "version": { "const": 1 },
+    "territory": {
+      "type": "object",
+      "required": ["path", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["material", "knownProducts", "markets", "chainPosition", "holder", "notFound"],
+        "additionalProperties": false,
+        "properties": {
+          "material": {
+            "type": "object",
+            "required": ["commonName", "scientificName", "materialKind"],
+            "additionalProperties": false,
+            "properties": {
+              "commonName": { "type": "string", "minLength": 1 },
+              "scientificName": { "type": ["string", "null"] },
+              "materialKind": { "enum": ["species", "mineral", "knowledge"] }
+            }
+          },
+          "knownProducts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["product", "use", "citation"],
+              "additionalProperties": false,
+              "properties": {
+                "product": { "type": "string", "minLength": 1 },
+                "use": { "type": "string", "minLength": 1 },
+                "citation": {
+                  "type": "object",
+                  "required": ["sourceUrl", "sourceTitle", "accessedOn"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "sourceUrl": { "type": "string", "minLength": 1 },
+                    "sourceTitle": { "type": "string", "minLength": 1 },
+                    "accessedOn": { "type": "string", "minLength": 1 }
+                  }
+                }
+              }
+            }
+          },
+          "markets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["buyer", "kind", "citation"],
+              "additionalProperties": false,
+              "properties": {
+                "buyer": { "type": "string", "minLength": 1 },
+                "kind": { "type": "string", "minLength": 1 },
+                "citation": {
+                  "type": "object",
+                  "required": ["sourceUrl", "sourceTitle", "accessedOn"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "sourceUrl": { "type": "string", "minLength": 1 },
+                    "sourceTitle": { "type": "string", "minLength": 1 },
+                    "accessedOn": { "type": "string", "minLength": 1 }
+                  }
+                }
+              }
+            }
+          },
+          "chainPosition": {
+            "oneOf": [
+              { "const": "unknown" },
+              {
+                "type": "object",
+                "required": ["position", "evidence"],
+                "additionalProperties": false,
+                "properties": {
+                  "position": { "type": "string", "minLength": 1 },
+                  "evidence": { "type": "string", "minLength": 1 }
+                }
+              }
+            ]
+          },
+          "holder": { "type": "string", "minLength": 1 },
+          "notFound": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "excluded": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": false
+}

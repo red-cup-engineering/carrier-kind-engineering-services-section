@@ -1,0 +1,89 @@
+{
+  "schema": "signstuff-evm/cohomology-vectors@1",
+  "source": "js",
+  "generator": "scripts/emit-golden-vectors.mjs",
+  "graphs": [
+    {
+      "subjects": [
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"
+      ],
+      "objects": [
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603"
+      ],
+      "entities": 2,
+      "cells": 1,
+      "h0": 1,
+      "h1": 0
+    },
+    {
+      "subjects": [
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+        "f45de51cdef30991551e41e882dd7b5404799648a0a00753f44fc966e6153fc1"
+      ],
+      "objects": [
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+        "f45de51cdef30991551e41e882dd7b5404799648a0a00753f44fc966e6153fc1",
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"
+      ],
+      "entities": 3,
+      "cells": 3,
+      "h0": 1,
+      "h1": 1
+    },
+    {
+      "subjects": [
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "f45de51cdef30991551e41e882dd7b5404799648a0a00753f44fc966e6153fc1"
+      ],
+      "objects": [
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+        "70ba33708cbfb103f1a8e34afef333ba7dc021022b2d9aaa583aabb8058d8d67"
+      ],
+      "entities": 4,
+      "cells": 2,
+      "h0": 2,
+      "h1": 0
+    },
+    {
+      "subjects": [
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603"
+      ],
+      "objects": [
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506"
+      ],
+      "entities": 2,
+      "cells": 4,
+      "h0": 1,
+      "h1": 3
+    },
+    {
+      "subjects": [
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+        "f45de51cdef30991551e41e882dd7b5404799648a0a00753f44fc966e6153fc1",
+        "70ba33708cbfb103f1a8e34afef333ba7dc021022b2d9aaa583aabb8058d8d67",
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "f9a00f43e97e3966bb846e76b6795e11512c3bbfa787e6b70e0310c7b9346b98"
+      ],
+      "objects": [
+        "fb8e20fc2e4c3f248c60c39bd652f3c1347298bb977b8b4d5903b85055620603",
+        "f45de51cdef30991551e41e882dd7b5404799648a0a00753f44fc966e6153fc1",
+        "70ba33708cbfb103f1a8e34afef333ba7dc021022b2d9aaa583aabb8058d8d67",
+        "961b6dd3ede3cb8ecbaacbd68de040cd78eb2ed5889130cceb4c49268ea4d506",
+        "f45de51cdef30991551e41e882dd7b5404799648a0a00753f44fc966e6153fc1",
+        "503126878d17fcd6bde7df320ff6eb7c278a1c42f30014a03b17f3dd0c023c1d"
+      ],
+      "entities": 6,
+      "cells": 6,
+      "h0": 2,
+      "h1": 2
+    }
+  ]
+}

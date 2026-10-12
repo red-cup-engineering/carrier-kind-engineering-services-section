@@ -1,0 +1,29 @@
+{
+  "name": "@red-cup-engineering/observe-irradiance-service",
+  "version": "0.1.0",
+  "description": "Fetches one public irradiance dataset's daily GHI for a place and date range and returns it\nas irradiance-observation rows, or a refusal datum.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/observe-irradiance.mjs",
+  "bin": {
+    "observe-irradiance": "scripts/observe-irradiance.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/observe-irradiance.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

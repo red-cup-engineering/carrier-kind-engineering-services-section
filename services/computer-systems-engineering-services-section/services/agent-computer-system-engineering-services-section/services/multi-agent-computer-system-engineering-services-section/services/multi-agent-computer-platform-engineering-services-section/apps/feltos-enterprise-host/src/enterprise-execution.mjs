@@ -14,12 +14,16 @@ export class EnterpriseExecutionWorker {
   #closed = false;
   #workerUrl;
   #openWork;
+  #requestOwnService;
+  #executeWorld;
   #replication;
 
-  constructor({ hostPath, environment, openWork, replication, workerUrl = new URL("./enterprise-execution-worker.mjs", import.meta.url) }) {
+  constructor({ hostPath, environment, openWork, requestOwnService, executeWorld, replication, workerUrl = new URL("./enterprise-execution-worker.mjs", import.meta.url) }) {
     this.#hostPath = hostPath;
     this.#environment = { ...environment };
     this.#openWork = openWork;
+    this.#requestOwnService = requestOwnService;
+    this.#executeWorld = executeWorld;
     this.#replication = replication;
     this.#workerUrl = workerUrl;
   }
@@ -85,6 +89,32 @@ export class EnterpriseExecutionWorker {
       );
       return;
     }
+    if(message?.kind==='request-own-service'){
+      const active=this.#pending.get(message.executionId);
+      const reply=value=>{if(worker===this.#worker&&!this.#closed)worker.postMessage({kind:'request-own-service-result',id:message.id,...value});};
+      if(!active?.admitted||typeof active.enterprise!=='string'||!active.enterprise||!this.#requestOwnService||message.request?.enterprise!==active.enterprise){
+        reply({ok:false,error:{name:'TypeError',message:'the active enterprise execution cannot request another enterprise’s own service'}});return;
+      }
+      Promise.resolve().then(()=>this.#requestOwnService(message.request)).then(
+       value=>reply({ok:true,value}),error=>reply({ok:false,error:{name:error?.name??'Error',message:error instanceof Error?error.message:String(error)}}));
+      return;
+    }
+    if(message?.kind==='execute-world'){
+      const active=this.#pending.get(message.executionId);
+      const reply=value=>{
+        if(worker!==this.#worker||this.#closed)return;
+        try{worker.postMessage({kind:'execute-world-result',id:message.id,...value});}catch{}
+      };
+      if(!active?.admitted||active.operation!=='enterprise-work-run'
+          ||typeof active.enterprise!=='string'||!active.enterprise||!this.#executeWorld
+          ||message.move?.invocation?.caller?.enterprise!==active.enterprise){
+        reply({ok:false,error:{name:'TypeError',message:'the active enterprise execution cannot make this worker world move'}});return;
+      }
+      Promise.resolve().then(()=>this.#executeWorld({...message.move,enterprise:active.enterprise})).then(
+        value=>reply({ok:true,value}),
+        error=>reply({ok:false,error:{name:error?.name??'Error',message:error instanceof Error?error.message:String(error)}}));
+      return;
+    }
     const pending = this.#pending.get(message?.id);
     if (pending === undefined) return;
     this.#pending.delete(message.id);
@@ -112,7 +142,7 @@ export class EnterpriseExecutionWorker {
     await this.#ready;
     const id = randomUUID();
     return new Promise((resolve, reject) => {
-      this.#pending.set(id, { resolve, reject, operation });
+      this.#pending.set(id, { resolve, reject, operation,enterprise:input?.enterprise,admitted:context?.decision?.ok===true });
       try {
         this.#worker.postMessage(boundedWorkerMessage({
           kind: "execute", id, operation, input, arguments: arguments_,
@@ -122,24 +152,6 @@ export class EnterpriseExecutionWorker {
         this.#pending.delete(id);
         reject(error);
       }
-    });
-  }
-
-  /**
-   * Link the execution worker's own module graph without opening a surface or running a turn: a
-   * throwaway worker thread imports the worker module in link-only mode, so a link error that the
-   * lazily started live worker would hit at its first turn is reported now (a boot probe's use).
-   */
-  link() {
-    return new Promise((resolve, reject) => {
-      const worker = new Worker(this.#workerUrl, { workerData: { linkOnly: true, hostPath: this.#hostPath, environment: this.#environment }, env: this.#environment });
-      worker.once("message", (message) => {
-        if (message?.kind === "linked") resolve();
-        else reject(new Error(message?.error?.message ?? "enterprise execution worker did not link"));
-        void worker.terminate();
-      });
-      worker.once("error", reject);
-      worker.once("exit", (code) => reject(new Error(`enterprise execution worker exited with code ${code} before linking`)));
     });
   }
 

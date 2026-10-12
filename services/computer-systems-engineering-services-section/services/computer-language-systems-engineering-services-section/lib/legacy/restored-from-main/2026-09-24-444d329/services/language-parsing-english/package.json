@@ -1,0 +1,38 @@
+{
+  "name": "@561-group/english-language-topology",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "english-language-topology: English as a language-topology fiber-algebra bundle; SVO and reference English tables.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/english-language-topology.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "test": "node --test \"**/*.test.mjs\"",
+    "audit:boundary": "node ../../scripts/package-boundary/audit-package-boundary.mjs .",
+    "prepack": "pnpm run build"
+  },
+  "main": "./src/index.mjs",
+  "files": [
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./bundle": {
+      "import": "./src/bundle.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@561-group/language-topology": "0.0.1"
+  },
+  "sideEffects": false
+}

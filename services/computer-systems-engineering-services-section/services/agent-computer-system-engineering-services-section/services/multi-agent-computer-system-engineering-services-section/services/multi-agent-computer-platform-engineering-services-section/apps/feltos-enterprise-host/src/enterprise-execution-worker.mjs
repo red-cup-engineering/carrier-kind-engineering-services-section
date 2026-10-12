@@ -36,6 +36,17 @@ function openOnHost(opening) {
   });
 }
 
+function requestOwnServiceOnHost(request){
+  const executionId=executionContext.getStore();
+  if(typeof executionId!=='string')throw new TypeError('an actor service request needs an active enterprise execution');
+  const id=randomUUID();
+  return new Promise((resolve,reject)=>{
+    pendingOpenings.set(id,{resolve,reject});
+    try{parentPort.postMessage({kind:'request-own-service',id,executionId,request});}
+    catch(error){pendingOpenings.delete(id);reject(error);}
+  });
+}
+
 async function openExecutionSurface() {
   const web = await installedEnterpriseWeb(workerData.hostPath);
   const instancePath = web.instancePath;
@@ -43,7 +54,18 @@ async function openExecutionSurface() {
   const installed = { ...installedMetroplat, web };
   const config = enterpriseWebConfig(installed, instancePath, environment, { requireTls: true });
   Object.assign(environment, Object.fromEntries(Object.entries(metroplatEnvironment(config)).filter(([, value]) => value !== undefined)));
+  const executeWorldOnHost=move=>{
+    const executionId=executionContext.getStore();
+    if(typeof executionId!=='string')throw new TypeError('world movement needs an active enterprise work execution');
+    const id=randomUUID();
+    return new Promise((resolve,reject)=>{
+      pendingOpenings.set(id,{resolve,reject});
+      try{parentPort.postMessage({kind:'execute-world',id,executionId,move});}
+      catch(error){pendingOpenings.delete(id);reject(error);}
+    });
+  };
   const runtime = enterpriseOperationRuntime({ installed, config, environment, activityPubProvider: () => undefined, openWork: openOnHost,
+    requestOwnService: requestOwnServiceOnHost, executeWorld: executeWorldOnHost,
     replicationTransport: {
       deliver: (_provider, request) => replicationPort("deliver", request),
       signedGet: url => replicationPort("signed-get", url),
@@ -52,6 +74,7 @@ async function openExecutionSurface() {
   });
   const metroplat = await openMetroplatMcp({
     dataRoot: config.metroplatDataRoot,
+    binding:runtime.binding,
     environment,
     instancePath,
     moduleBasePath: installed.web.hostPath,
@@ -88,7 +111,7 @@ parentPort.on("message", async (message) => {
     else pending.reject(receivedWorkerError(message.error));
     return;
   }
-  if (message?.kind === "open-work-result") {
+  if (message?.kind === "open-work-result" || message?.kind === "request-own-service-result" || message?.kind === "execute-world-result") {
     const pending = pendingOpenings.get(message.id);
     if (pending === undefined) return;
     pendingOpenings.delete(message.id);

@@ -1,0 +1,44 @@
+{
+  "status": "derived-inputs-admitted-by-current-catalog; site-build-and-acceptance-pending",
+  "specification": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/content/text/documents/articles/specifications/2026-09-27-muse-assist-site-content-fabrication.md",
+  "specificationSha256": "820463ddbcfe8e3fbfb02a31fcb77178812fa06a94b98ccf0894fad192d0d1b0",
+  "materializerSha256": "4791498947bcc616eb140875de5f3842c9458d93a35b7c84c011b68cab086b41",
+  "files": {
+    "README.md": "26d0869a3b87e57e3bcd777631cf9721b875679e54fbb7eb742ffc5f266aab6f",
+    "content/comparison.md": "da774c61cfd9354303d2c3ad0466414a667df657aebcda787c1b7becb7a36fb2",
+    "content/development.md": "a574c61437529a49dcff2a97dafbe72dc5e234df22237b002f8907e7c7177a66",
+    "content/muse-assist.md": "cbe8f7e60d5de8f0c50ed56cadde7b6f30922b2f69a652583f42d69ed6b2ca2d",
+    "static-site-publisher.config.mjs": "19eae35a5597c0d60382c37083dceb98f1a343ed10180bd48df1817e268f4f90"
+  },
+  "catalogAdmission": {
+    "configurationRefusals": [],
+    "catalogRefusals": [],
+    "cells": [
+      {
+        "name": "comparison",
+        "title": "Assistant references and evidence limits \u2014 muse-assist",
+        "status": "active",
+        "type": "page"
+      },
+      {
+        "name": "development",
+        "title": "Development method and status \u2014 muse-assist",
+        "status": "active",
+        "type": "page"
+      },
+      {
+        "name": "muse-assist",
+        "title": "muse-assist: personal and executive assistance in development",
+        "status": "active",
+        "type": "page"
+      }
+    ],
+    "home": "muse-assist"
+  },
+  "limits": [
+    "No generated website, promotion, or deployment is established.",
+    "Publisher canonical authored-home acceptance is pending.",
+    "This record does not establish independent public-claim or accessibility assessment."
+  ],
+  "admissionReuse": "Payload bytes identical to previously admitted content/config; only governing destination prose clarified."
+}

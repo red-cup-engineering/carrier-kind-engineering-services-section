@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/proof-tree-irresolution-profile.schema.json",
+  "title": "SPOTCOMP proof-tree irresolution declaration",
+  "type": "object",
+  "required": [
+    "profileId",
+    "recursionBase",
+    "stagePreservation",
+    "partialFunctionBoundary",
+    "closureBoundary",
+    "trcTdpBoundary",
+    "outsideSystemBoundary",
+    "standardsBoundary",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "recursionBase": { "$ref": "#/$defs/section" },
+    "stagePreservation": { "$ref": "#/$defs/section" },
+    "partialFunctionBoundary": { "$ref": "#/$defs/section" },
+    "closureBoundary": { "$ref": "#/$defs/section" },
+    "trcTdpBoundary": { "$ref": "#/$defs/section" },
+    "outsideSystemBoundary": { "$ref": "#/$defs/section" },
+    "standardsBoundary": { "$ref": "#/$defs/section" },
+    "implementationBoundary": { "$ref": "#/$defs/section" },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "required": ["evidence"],
+      "additionalProperties": {
+        "anyOf": [
+          { "type": "boolean" },
+          {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "minItems": 1,
+            "uniqueItems": true
+          }
+        ]
+      },
+      "properties": {
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

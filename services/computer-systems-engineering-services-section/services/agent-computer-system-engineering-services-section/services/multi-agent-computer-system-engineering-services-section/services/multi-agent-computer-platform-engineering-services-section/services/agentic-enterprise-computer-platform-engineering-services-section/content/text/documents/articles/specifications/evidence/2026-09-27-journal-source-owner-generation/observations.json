@@ -1,0 +1,552 @@
+{
+  "status": "assessed dependency candidate under recorded inputs; live integration and promotion withheld",
+  "order": {
+    "path": "2026-09-27-journal-source-owner-fabrication.md",
+    "sha256": "224affce407a3dab27d5123572278795e5f4ad954ab1c26f357f029e939c0f9f"
+  },
+  "attempts": [
+    {
+      "attempt": "attempt01",
+      "usage": [
+        {
+          "input_tokens": 83150,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1624,
+          "reasoning_output_tokens": 1552
+        }
+      ],
+      "durationSeconds": 53.42421770095825,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt02-phase-a",
+      "usage": [
+        {
+          "input_tokens": 40326,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6330,
+          "reasoning_output_tokens": 1384
+        }
+      ],
+      "durationSeconds": 124.46324062347412,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt03-phase-a",
+      "usage": [
+        {
+          "input_tokens": 45637,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 7350,
+          "reasoning_output_tokens": 789
+        }
+      ],
+      "durationSeconds": 140.56302642822266,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt04-phase-b",
+      "usage": [
+        {
+          "input_tokens": 78635,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1545,
+          "reasoning_output_tokens": 1456
+        }
+      ],
+      "durationSeconds": 38.62756276130676,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt05-phase-b",
+      "usage": [
+        {
+          "input_tokens": 79612,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 600,
+          "reasoning_output_tokens": 516
+        }
+      ],
+      "durationSeconds": 23.317095518112183,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt06-phase-b1",
+      "usage": [
+        {
+          "input_tokens": 49983,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1628,
+          "reasoning_output_tokens": 1546
+        }
+      ],
+      "durationSeconds": 69.72094535827637,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt07-phase-b1a",
+      "usage": [
+        {
+          "input_tokens": 25182,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 4392,
+          "reasoning_output_tokens": 991
+        }
+      ],
+      "durationSeconds": 145.37385821342468,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt08-phase-b1a",
+      "usage": [
+        {
+          "input_tokens": 29358,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 8823,
+          "reasoning_output_tokens": 2013
+        }
+      ],
+      "durationSeconds": 193.14276432991028,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt09-phase-b1a",
+      "usage": [
+        {
+          "input_tokens": 29867,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1575,
+          "reasoning_output_tokens": 1034
+        }
+      ],
+      "durationSeconds": 62.17308831214905,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt10-phase-b1b",
+      "usage": [
+        {
+          "input_tokens": 53470,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 5994,
+          "reasoning_output_tokens": 2040
+        }
+      ],
+      "durationSeconds": 156.67097401618958,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt11-phase-b1b",
+      "usage": [
+        {
+          "input_tokens": 57750,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6859,
+          "reasoning_output_tokens": 2067
+        }
+      ],
+      "durationSeconds": 156.8984079360962,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt14-phase-b2",
+      "usage": [
+        {
+          "input_tokens": 82045,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 808,
+          "reasoning_output_tokens": 711
+        }
+      ],
+      "durationSeconds": 31.339727878570557,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt15-phase-b2a",
+      "usage": [
+        {
+          "input_tokens": 52037,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 4905,
+          "reasoning_output_tokens": 1361
+        }
+      ],
+      "durationSeconds": 103.00515985488892,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt16-phase-b2a-revision",
+      "usage": [
+        {
+          "input_tokens": 55600,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2956,
+          "reasoning_output_tokens": 1147
+        }
+      ],
+      "durationSeconds": 84.01552271842957,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt17-phase-b2b",
+      "usage": [
+        {
+          "input_tokens": 79404,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1683,
+          "reasoning_output_tokens": 1599
+        }
+      ],
+      "durationSeconds": 53.22721219062805,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt18-phase-b2b1",
+      "usage": [
+        {
+          "input_tokens": 54583,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6445,
+          "reasoning_output_tokens": 3818
+        }
+      ],
+      "durationSeconds": 178.80367374420166,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt19-phase-b2b1-revision",
+      "usage": [
+        {
+          "input_tokens": 56017,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1433,
+          "reasoning_output_tokens": 995
+        }
+      ],
+      "durationSeconds": 45.49758052825928,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt21-phase-b2b2",
+      "usage": [
+        {
+          "input_tokens": 82429,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2075,
+          "reasoning_output_tokens": 1982
+        }
+      ],
+      "durationSeconds": 64.68553972244263,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt22-phase-b2b2a",
+      "usage": [
+        {
+          "input_tokens": 46481,
+          "cached_input_tokens": 22272,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2970,
+          "reasoning_output_tokens": 2785
+        }
+      ],
+      "durationSeconds": 77.62257504463196,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt23-phase-b2b2a-context",
+      "usage": [
+        {
+          "input_tokens": 26024,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 4452,
+          "reasoning_output_tokens": 2292
+        }
+      ],
+      "durationSeconds": 115.65897011756897,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt24-phase-b2b2a-revision",
+      "usage": [
+        {
+          "input_tokens": 28618,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 3577,
+          "reasoning_output_tokens": 2322
+        }
+      ],
+      "durationSeconds": 108.98068761825562,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt25-phase-b2b2b",
+      "usage": [
+        {
+          "input_tokens": 37343,
+          "cached_input_tokens": 9984,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2599,
+          "reasoning_output_tokens": 2491
+        }
+      ],
+      "durationSeconds": 72.77424573898315,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt26-phase-b2b2b-custody",
+      "usage": [
+        {
+          "input_tokens": 76779,
+          "cached_input_tokens": 48640,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6805,
+          "reasoning_output_tokens": 2688
+        }
+      ],
+      "durationSeconds": 133.18613696098328,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt27-phase-b2b2b-custody-revision",
+      "usage": [
+        {
+          "input_tokens": 27209,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 7775,
+          "reasoning_output_tokens": 2988
+        }
+      ],
+      "durationSeconds": 186.8283610343933,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt28-phase-b2b2b-custody-corrected",
+      "usage": [
+        {
+          "input_tokens": 27338,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1873,
+          "reasoning_output_tokens": 1305
+        }
+      ],
+      "durationSeconds": 54.29270815849304,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt29-phase-b2b2b-descriptor-cleanup",
+      "usage": [
+        {
+          "input_tokens": 23925,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 5521,
+          "reasoning_output_tokens": 1696
+        }
+      ],
+      "durationSeconds": 109.11253643035889,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt30-phase-b2b2b-outer-host",
+      "usage": [
+        {
+          "input_tokens": 36635,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 5024,
+          "reasoning_output_tokens": 1416
+        }
+      ],
+      "durationSeconds": 112.91169023513794,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt31-phase-b2b2b-outer-correction-rejected-packaging",
+      "usage": [
+        {
+          "input_tokens": 23012,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1247,
+          "reasoning_output_tokens": 996
+        }
+      ],
+      "durationSeconds": 35.97192597389221,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt33-phase-b2c-refused-missing-substrate-api",
+      "usage": [
+        {
+          "input_tokens": 50156,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 3897,
+          "reasoning_output_tokens": 3744
+        }
+      ],
+      "durationSeconds": 89.24533176422119,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt34-phase-b2c-refused-combined-publication",
+      "usage": [
+        {
+          "input_tokens": 54417,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2711,
+          "reasoning_output_tokens": 2588
+        }
+      ],
+      "durationSeconds": 96.3312623500824,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt35-phase-b2c-retained-publication",
+      "usage": [
+        {
+          "input_tokens": 49874,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6525,
+          "reasoning_output_tokens": 3478
+        }
+      ],
+      "durationSeconds": 166.05450630187988,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt36-phase-b2c-retained-corrected",
+      "usage": [
+        {
+          "input_tokens": 60400,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 6195,
+          "reasoning_output_tokens": 3170
+        }
+      ],
+      "durationSeconds": 148.31655550003052,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt37-phase-b2c-unique-publication",
+      "usage": [
+        {
+          "input_tokens": 113481,
+          "cached_input_tokens": 56064,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 7551,
+          "reasoning_output_tokens": 3132
+        }
+      ],
+      "durationSeconds": 147.06709837913513,
+      "cashCost": "unavailable"
+    },
+    {
+      "attempt": "attempt38-complete-owner-receiving",
+      "usage": [
+        {
+          "input_tokens": 24126,
+          "cached_input_tokens": 0,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1312,
+          "reasoning_output_tokens": 833
+        }
+      ],
+      "durationSeconds": 40.436347007751465,
+      "cashCost": "unavailable"
+    }
+  ],
+  "inputTokens": 1740903,
+  "outputTokens": 137059,
+  "cashCost": "unavailable",
+  "workingSourceFilesPromoted": [],
+  "privateReceivingRun": false,
+  "phaseA": {
+    "run": "/tmp/muse-owner-generation-l81z3mlt",
+    "sourceOwnerSha256": "60d2630a49bb84f0b04eb294ee2b7a195746e465bcd61d100a59a47f9527aca1",
+    "publicCorrectionsRequired": "F-S13"
+  },
+  "latestRefusal": "attempt06 declined B1; attempt07 supplied B1a source requiring F-S17 public corrections",
+  "remaining": "Complete B2 public scope, publication, closure/durability and F-S13 host corrections; run unchanged complete independent receiving/source review; migrate connected consumers and retire old authorities; demonstrate domain and muse-assist workflow acceptance.",
+  "phaseB1a": {
+    "stage": "B1a",
+    "status": "public-source-review-requires-revision",
+    "sourceOwnerSha256": "b52fadf6b1065fa9f925266833a21697c3653f5fc585ba2aca50f6addea47be2",
+    "originalHostFunctionsPreserved": true,
+    "incompletenessSeamPreserved": true,
+    "syntaxChecked": true,
+    "privateReceivingRun": false,
+    "corrections": "F-S17",
+    "findings": [
+      "staging matcher accepts only all-zero final digest",
+      "family discovery loses held root binding and treats encountered disappearance as absence",
+      "descriptor cleanup can replace primary failure",
+      "missing immediate parent/held-descriptor checks",
+      "root required-entry and legacy-marker handling incomplete",
+      "post-read named regular type must be checked",
+      "hardlink aliases retain redundant buffers",
+      "unused helpers/parameters remain"
+    ],
+    "promoted": false
+  },
+  "latestSourceReview": {
+    "attempt": "attempt38-complete-owner-receiving",
+    "kind": "public-source-review",
+    "phase": "complete B2c candidate before independent receiving",
+    "sourceSha256": "fcf416306ad105e6da04a10f1cd43ef304501dff8fb55677ba2f76b7d355851c",
+    "resolved": [
+      "Both retained caller parent checks use the shared family field.",
+      "Retained creation, unique creation and unique EEXIST recovery recheck captured root/family/version after the final refresh inside primary-failure handling.",
+      "All fabrication seams removed; read/synchronization/host behavior unchanged by composition correction."
+    ],
+    "findings": [],
+    "completeReceivingMayProceed": true,
+    "privateReceivingRun": false,
+    "acceptance": "Unproven until committed independent receiving and final source assessment.",
+    "remaining": [
+      "Independent complete-owner receiving.",
+      "Source and dependency promotion decision after acceptance.",
+      "Connected domain/facade/consumer migration, legacy retirement and demonstrated personal assistant operation."
+    ]
+  },
+  "latestAttempt": "attempt38-complete-owner-receiving",
+  "latestRecovery": "recovery20-phase-b2b1",
+  "usageIncompleteFor": [
+    "attempt12-patch-render-canceled"
+  ],
+  "tokenTotalsMeaning": "Sum of reported usage only; canceled model rendering attempt12 has no reported usage and is not treated as zero.",
+  "latestReceiving": {
+    "attempt": "attempt38-complete-owner-receiving",
+    "dispositionSha256": "99ac016bbdbacf2303ded36c749bd527fda3320ade860e279415effc67d24822",
+    "originalPassed": 23,
+    "supplementUnaffected": 16,
+    "correctedFixturePassed": 4,
+    "promoted": false
+  }
+}

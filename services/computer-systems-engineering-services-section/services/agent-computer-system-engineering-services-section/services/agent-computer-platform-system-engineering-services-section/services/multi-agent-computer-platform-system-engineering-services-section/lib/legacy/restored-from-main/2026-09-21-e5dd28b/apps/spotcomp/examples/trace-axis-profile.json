@@ -1,0 +1,187 @@
+{
+  "profileId": "trace-axes-task-17",
+  "traceObject": {
+    "id": "trace:task-17/status",
+    "cell": "cell:task-17/status",
+    "carrierPresentation": "eavt-jsonl",
+    "exactEavtRows": true,
+    "sourceTrace": "development/active/.../predication-cell/tracing/library/trace/docs/dev/journal/2026-05-24.md",
+    "evidence": [
+      "CATEGORICAL-MACHINERY.md",
+      "SOURCE-MAP.md"
+    ]
+  },
+  "axes": [
+    {
+      "name": "event-record",
+      "meaning": "Discrete records for originating acts, positings, and closure firings.",
+      "preservedBy": ["projection:eavt-jsonl", "checker:trace-axis-profile"],
+      "evidence": ["development/active/.../tracing/library/trace/docs/dev/journal/2026-05-24.md"]
+    },
+    {
+      "name": "temporal-causal-precedence",
+      "meaning": "Linear row time plus partial causal order among trace events.",
+      "preservedBy": ["checker:causal-graph"],
+      "forgottenBy": ["projection:eavt-jsonl"],
+      "evidence": ["development/active/.../tracing/library/trace/docs/dev/journal/2026-05-24.md"]
+    },
+    {
+      "name": "evidence-trajectory",
+      "meaning": "Knowledge-order monotone value trajectory across trace growth.",
+      "preservedBy": ["projection:eavt-jsonl", "checker:directed-join"],
+      "evidence": ["development/active/.../positing/docs/dev/journal/2026-05-24.md"]
+    },
+    {
+      "name": "recognition-fiber",
+      "meaning": "Receiver-sensitive visibility and recognition structure.",
+      "preservedBy": ["checker:recognition-declaration"],
+      "forgottenBy": ["projection:eavt-jsonl"],
+      "evidence": ["development/active/.../tracing/library/trace/docs/dev/journal/2026-05-24.md"]
+    },
+    {
+      "name": "categorical-refinement",
+      "meaning": "Refinement and reindexing structure between trace presentations.",
+      "preservedBy": ["projection:trace-monoid"],
+      "forgottenBy": ["projection:eavt-jsonl"],
+      "evidence": ["development/active/.../settling/hacking/trace-monoid/docs/dev/journal/2026-05-24.md"]
+    },
+    {
+      "name": "constitutive-provenance",
+      "meaning": "Constitutive-act provenance DAG for accumulative derivation.",
+      "preservedBy": ["checker:provenance-edges"],
+      "forgottenBy": ["projection:eavt-jsonl"],
+      "evidence": ["development/active/hacking/proof-engine/cell-trace-shape.mjs"]
+    }
+  ],
+  "events": [
+    {
+      "id": "evt:articulate-task-17",
+      "kind": "originating-articulating-act",
+      "row": {
+        "e": "cell:task-17/status",
+        "a": "trace:articulated-by",
+        "v": "act:create-task-17",
+        "t": "2026-05-27T00:00:00Z"
+      },
+      "provenance": [],
+      "evidence": ["TRACE-AXES.md"]
+    },
+    {
+      "id": "evt:alice-open",
+      "kind": "positing-entry",
+      "row": {
+        "e": "task:17",
+        "a": "status",
+        "v": "open",
+        "t": "2026-05-27T00:00:01Z"
+      },
+      "provenance": ["evt:articulate-task-17"],
+      "evidence": ["development/active/.../positing/docs/dev/journal/2026-05-24.md"]
+    },
+    {
+      "id": "evt:bob-owner",
+      "kind": "positing-entry",
+      "row": {
+        "e": "task:17",
+        "a": "assigned-to",
+        "v": "player:bob",
+        "t": "2026-05-27T00:00:02Z"
+      },
+      "provenance": ["evt:articulate-task-17"],
+      "evidence": ["development/active/.../positing/docs/dev/journal/2026-05-24.md"]
+    },
+    {
+      "id": "evt:closure-visible",
+      "kind": "closure-firing-entry",
+      "row": {
+        "e": "task:17",
+        "a": "recognition:visible-to",
+        "v": "player:alice",
+        "t": "2026-05-27T00:00:03Z"
+      },
+      "provenance": ["evt:alice-open"],
+      "evidence": ["development/active/.../predication-cell/tracing/library/trace/docs/dev/journal/2026-05-24.md"]
+    }
+  ],
+  "causalPrecedence": [
+    {
+      "before": "evt:articulate-task-17",
+      "after": "evt:alice-open",
+      "reason": "originating act is constitutive provenance for the positing",
+      "evidence": ["TRACE-AXES.md"]
+    },
+    {
+      "before": "evt:articulate-task-17",
+      "after": "evt:bob-owner",
+      "reason": "originating act is constitutive provenance for the positing",
+      "evidence": ["TRACE-AXES.md"]
+    },
+    {
+      "before": "evt:alice-open",
+      "after": "evt:closure-visible",
+      "reason": "closure firing cites the earlier positing",
+      "evidence": ["TRACE-AXES.md"]
+    }
+  ],
+  "independence": {
+    "stepSet": ["evt:alice-open", "evt:bob-owner"],
+    "independentPairs": [
+      {
+        "left": "evt:alice-open",
+        "right": "evt:bob-owner",
+        "evidence": ["development/active/.../settling/hacking/trace-monoid/docs/dev/journal/2026-05-24.md"]
+      }
+    ],
+    "symmetricClosureDeclared": true,
+    "evidence": ["development/active/.../settling/hacking/trace-monoid/docs/dev/journal/2026-05-24.md"]
+  },
+  "directedJoin": {
+    "operation": "event-union",
+    "monotone": true,
+    "idempotent": true,
+    "commutative": true,
+    "associative": true,
+    "evidence": ["development/active/.../tracing/library/trace/docs/dev/journal/2026-05-24.md"]
+  },
+  "projections": [
+    {
+      "id": "projection:eavt-jsonl",
+      "kind": "finite-row-presentation",
+      "preservedAxes": ["event-record", "evidence-trajectory"],
+      "forgottenAxes": [
+        "temporal-causal-precedence",
+        "recognition-fiber",
+        "categorical-refinement",
+        "constitutive-provenance"
+      ],
+      "sourceFrontier": "frontier:task-17/status@2026-05-27T00:00:03Z",
+      "outputKind": "eavt-jsonl",
+      "evidence": ["TRACE-AXES.md"]
+    },
+    {
+      "id": "projection:trace-monoid",
+      "kind": "trace-monoid-summary",
+      "preservedAxes": ["temporal-causal-precedence", "categorical-refinement"],
+      "forgottenAxes": ["recognition-fiber", "constitutive-provenance"],
+      "sourceFrontier": "frontier:task-17/status@2026-05-27T00:00:03Z",
+      "outputKind": "trace-monoid-independence",
+      "evidence": ["development/active/.../settling/hacking/trace-monoid/docs/dev/journal/2026-05-24.md"]
+    }
+  ],
+  "presentationBoundary": {
+    "eavtRowsAreFinitePresentation": true,
+    "axesNotRowFields": true,
+    "projectedArtifactsSeparate": true,
+    "evidence": ["TRACE-AXES.md", "CATEGORICAL-MACHINERY.md"]
+  },
+  "openObligations": [
+    "derive the trace object from positing rather than from the finite row carrier",
+    "prove the trace-monoid-to-settlement-lattice functor",
+    "prove projection naturality across reindexing and recognition restrictions"
+  ],
+  "evidence": [
+    "TRACE-AXES.md",
+    "CATEGORICAL-MACHINERY.md",
+    "RESEARCH-LEDGER.md"
+  ]
+}

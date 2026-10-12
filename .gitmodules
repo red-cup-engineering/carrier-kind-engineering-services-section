@@ -1,31 +1,48 @@
-[submodule "services/blockchain-services-section/services/settlement-triggered-activity-publication-cell"]
-	path = services/blockchain-services-section/services/settlement-triggered-activity-publication-cell
-	url = https://github.com/red-cup-engineering/settlement-triggered-activity-publication-cell.git
-[submodule "services/interface-services-section/services/emacs-services-section"]
-	path = services/interface-services-section/services/emacs-services-section
-	url = https://github.com/red-cup-engineering/emacs-services-section.git
-[submodule "services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service"]
-	path = services/software-development-services-section/services/capability-cell-fabrication-run-monitor-service
-	url = https://github.com/red-cup-engineering/capability-cell-fabrication-run-monitor-service.git
-[submodule "services/software-development-services-section/services/consumer-dependency-closure-installation-service"]
-	path = services/software-development-services-section/services/consumer-dependency-closure-installation-service
-	url = https://github.com/red-cup-engineering/consumer-dependency-closure-installation-service.git
-[submodule "services/software-development-services-section/services/deterministic-intent-admission-service"]
-	path = services/software-development-services-section/services/deterministic-intent-admission-service
-	url = https://github.com/red-cup-engineering/deterministic-intent-admission-service.git
-[submodule "services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat"]
-	path = services/software-development-services-section/services/javascript-services-section/lib/legacy/metroplat
-	url = https://github.com/red-cup-engineering/metroplat.git
-[submodule "services/computer-operating-system-services-section/services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service"]
-	path = services/computer-operating-system-services-section/services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service
-	url = https://github.com/red-cup-engineering/systemd-unit-inventory-observation-service.git
-[submodule "services/software-development-services-section/services/deployment-services-section"]
-	path = services/software-development-services-section/services/deployment-services-section
-	url = https://github.com/red-cup-engineering/deployment-formation-contracts.git
-[submodule "services/computer-protocol-services-section/services/version-control-services-section/lib/legacy/2026-08-06-block-device-io-coordinator"]
-	path = services/computer-protocol-services-section/services/version-control-services-section/lib/legacy/2026-08-06-block-device-io-coordinator
-	url = https://github.com/red-cup-engineering/2026-08-06-block-device-io-coordinator.git
-[submodule "services/computer-operating-system-services-section/services/linux-services-section/services/linux-time-services-section/services/clockkeeper-service"]
-	path = services/computer-operating-system-services-section/services/linux-services-section/services/linux-time-services-section/services/clockkeeper-service
-	url = https://github.com/red-cup-engineering/clockkeeper-service.git
+[submodule "services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos"]
+	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos
+	url = https://github.com/red-cup-engineering/feltos.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/smart-contract-audit-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/smart-contract-audit-services-section
+	url = https://github.com/red-cup-engineering/smart-contract-audit-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/weiqi-onchain-arena-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/weiqi-onchain-arena-services-section
+	url = https://github.com/red-cup-engineering/weiqi-onchain-arena-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/services/linux-services-section/services/persistent-linux-machine-engineering-services-section/services/guix-machine-release-service"]
+	path = services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/services/linux-services-section/services/persistent-linux-machine-engineering-services-section/services/guix-machine-release-service
+	url = https://github.com/red-cup-engineering/guix-machine-release-service.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/web-game-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/web-game-services-section
+	url = https://github.com/red-cup-engineering/web-game-services-section.git
+	branch = main
+[submodule "services/computer-data-engineering-services-section"]
+	path = services/computer-data-engineering-services-section
+	url = https://github.com/red-cup-engineering/computer-data-engineering-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine"]
+	path = services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine
+	url = https://github.com/red-cup-engineering/computer-code-development-engine.git
+	branch = main
+[submodule "services/computer-code-engineering-services-section"]
+	path = services/computer-code-engineering-services-section
+	url = https://github.com/red-cup-engineering/computer-code-engineering-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-inference-system-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-inference-system-services-section
+	url = https://github.com/red-cup-engineering/computer-inference-system-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section"]
+	path = services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section
+	url = https://github.com/red-cup-engineering/semiotic-computer-system-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section
+	url = https://github.com/red-cup-engineering/computer-web-engineering-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/continuous-delivery-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/continuous-delivery-services-section
+	url = https://github.com/red-cup-engineering/continuous-delivery-services-section.git
 	branch = main

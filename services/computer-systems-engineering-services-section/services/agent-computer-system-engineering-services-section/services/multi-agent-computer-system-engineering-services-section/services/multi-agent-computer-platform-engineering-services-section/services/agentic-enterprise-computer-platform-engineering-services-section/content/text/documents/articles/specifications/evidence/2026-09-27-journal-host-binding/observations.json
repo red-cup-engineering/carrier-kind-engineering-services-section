@@ -1,0 +1,64 @@
+{
+  "kind": "host-binding-source-observation",
+  "specification": "2026-09-27-muse-assist-journal-host-binding-lld.md",
+  "specificationSha256": "3beeaaedf5449aa863c4fac6bcd681f12094357acec321c21ccd455c4379f907",
+  "files": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/journal.mjs",
+      "sha256": "880f65f55840efefbcb1f1b9aad6ca6c89d78427803f66ce85c29bd3e127d962"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/instance.mjs",
+      "sha256": "cf98e6438d4029e58e021f8afe00b79f0656a672a91bcd7c8e5269e9e3d372fb"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/federation-node.mjs",
+      "sha256": "9a63a43ec7095e2e9db18d12ef4d654ad8f6ede1dc48550ad5c8819dceac3b80"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/metroplat-serve.mjs",
+      "sha256": "11379dbdc221fc9007a38ac651e2455b753d9b0f27b106e2f090ce500b1457b6"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/store-root.mjs",
+      "sha256": "85fe0833ed4aa0093eda77a9a121cc0a10e6f06ea821e0850d281057924f9fca"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-node-services-section/services/node-process-services-section/src/config.mjs",
+      "sha256": "a99ce39df704e758c0a88f995a84a00bc71a7da4820a58db8aa5feaf5990ba4f"
+    }
+  ],
+  "filesystemObservation": {
+    "command": "stat -f -c '%T %t' /home/emsenn/info /tmp",
+    "output": [
+      "ext2/ext3 ef53",
+      "ext2/ext3 ef53"
+    ],
+    "scope": "This host only; not durability or production-profile acceptance"
+  },
+  "checkoutSearch": {
+    "scope": "rg --files --hidden over checkout, excluding node_modules, .git and evidence for recognized sources",
+    "configPattern": "*metroplat*config*.json",
+    "sourcePatterns": [
+      "*.witnesses",
+      "admitted.jsonl",
+      "pending.jsonl",
+      "artifacts.jsonl"
+    ],
+    "matchingConfigPaths": 0,
+    "matchingSourcePaths": 0,
+    "limits": "Does not inspect deployed/external roots; zero matches do not prove absence of journal operation."
+  },
+  "priorSpecificationSha256": "deff706adc6e844e136138c9fda9ceb23598991310e3943936fe63de092ddc04",
+  "initializationRefinement": {
+    "clauses": [
+      "L-H05"
+    ],
+    "existingPhysicalRootRequired": true,
+    "closedResult": [
+      "disposition",
+      "journal"
+    ],
+    "runtimeAccepted": false
+  }
+}

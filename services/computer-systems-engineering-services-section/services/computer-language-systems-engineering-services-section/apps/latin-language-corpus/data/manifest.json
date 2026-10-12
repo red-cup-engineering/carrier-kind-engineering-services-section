@@ -1,0 +1,458 @@
+{
+  "kind": "communicating.language-manifest",
+  "bundle": {
+    "meta": {
+      "name": "Latin",
+      "code": "la",
+      "script": "Latin",
+      "direction": "ltr"
+    },
+    "lexicon": {
+      "determiners": [],
+      "prepositions": [
+        "in",
+        "ad",
+        "cum",
+        "sine",
+        "per",
+        "pro",
+        "ex",
+        "de",
+        "sub",
+        "ante",
+        "post"
+      ],
+      "pronouns": [
+        "ego",
+        "tu",
+        "is",
+        "ea",
+        "id",
+        "nos",
+        "vos",
+        "ei",
+        "ii",
+        "hic",
+        "haec",
+        "hoc",
+        "ille",
+        "illa",
+        "illud"
+      ],
+      "conjunctions": [
+        "et",
+        "sed",
+        "quod",
+        "quia",
+        "atque",
+        "nec",
+        "ut",
+        "si"
+      ],
+      "auxiliaries": [
+        "sum",
+        "esse"
+      ],
+      "copula": [
+        "sum",
+        "esse"
+      ]
+    },
+    "morphology": {
+      "suffixRules": [
+        {
+          "pattern": ".{2,}re$",
+          "tag": "verb"
+        },
+        {
+          "pattern": ".{2,}bant$",
+          "tag": "verb"
+        },
+        {
+          "pattern": ".{2,}bat$",
+          "tag": "verb"
+        },
+        {
+          "pattern": ".{2,}vit$",
+          "tag": "verb"
+        },
+        {
+          "pattern": ".{2,}nt$",
+          "tag": "verb"
+        },
+        {
+          "pattern": ".{2,}t$",
+          "tag": "verb"
+        },
+        {
+          "pattern": ".{2,}orum$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}arum$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}us$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}um$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}am$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}ae$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}is$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}a$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}o$",
+          "tag": "noun"
+        },
+        {
+          "pattern": ".{2,}i$",
+          "tag": "noun"
+        }
+      ],
+      "featureRules": [
+        {
+          "pattern": ".{2,}(us|a)$",
+          "tag": "case:nom"
+        },
+        {
+          "pattern": ".{2,}(um|am)$",
+          "tag": "case:acc"
+        },
+        {
+          "pattern": ".{2,}(o|is)$",
+          "tag": "case:abl"
+        },
+        {
+          "pattern": ".{2,}(ae|i|orum|arum)$",
+          "tag": "case:gen-dat"
+        }
+      ],
+      "numberSuffixPattern": "",
+      "verbFormRules": [
+        {
+          "pattern": ".{2,}re$",
+          "tag": "nonfin"
+        },
+        {
+          "pattern": ".{2,}bant$",
+          "tag": "past"
+        },
+        {
+          "pattern": ".{2,}bat$",
+          "tag": "past"
+        },
+        {
+          "pattern": ".{2,}vit$",
+          "tag": "past"
+        }
+      ],
+      "numberWords": [
+        "unus",
+        "duo",
+        "tres",
+        "quattuor",
+        "quinque",
+        "sex",
+        "septem",
+        "octo",
+        "novem",
+        "decem",
+        "centum",
+        "mille"
+      ]
+    },
+    "reference": {
+      "pronouns": {
+        "ego": {
+          "person": 1,
+          "number": "sg"
+        },
+        "nos": {
+          "person": 1,
+          "number": "pl"
+        },
+        "tu": {
+          "person": 2,
+          "number": "sg"
+        },
+        "vos": {
+          "person": 2,
+          "number": "pl"
+        },
+        "is": {
+          "person": 3,
+          "number": "sg",
+          "gender": "m"
+        },
+        "ea": {
+          "person": 3,
+          "number": "sg",
+          "gender": "f"
+        },
+        "id": {
+          "person": 3,
+          "number": "sg",
+          "gender": "n"
+        },
+        "ei": {
+          "person": 3,
+          "number": "pl"
+        },
+        "ii": {
+          "person": 3,
+          "number": "pl"
+        },
+        "hic": {
+          "person": 3,
+          "number": "sg",
+          "gender": "m"
+        },
+        "haec": {
+          "person": 3,
+          "number": "sg",
+          "gender": "f"
+        },
+        "hoc": {
+          "person": 3,
+          "number": "sg",
+          "gender": "n"
+        },
+        "ille": {
+          "person": 3,
+          "number": "sg",
+          "gender": "m"
+        },
+        "illa": {
+          "person": 3,
+          "number": "sg",
+          "gender": "f"
+        },
+        "illud": {
+          "person": 3,
+          "number": "sg",
+          "gender": "n"
+        }
+      },
+      "nameGender": {
+        "marcus": "m",
+        "gaius": "m",
+        "lucius": "m",
+        "quintus": "m",
+        "titus": "m",
+        "brutus": "m",
+        "julia": "f",
+        "cornelia": "f",
+        "livia": "f",
+        "claudia": "f",
+        "octavia": "f",
+        "aurelia": "f"
+      }
+    },
+    "wordOrder": "free",
+    "roleBy": "case",
+    "grammar": {
+      "kind": "communicating.language-grammar-profile",
+      "wordOrder": "free",
+      "alignment": "nominative-accusative",
+      "headDirectionality": {
+        "determiner": "left",
+        "adjective": "mixed",
+        "subject": "mixed",
+        "object": "mixed",
+        "adposition": "left"
+      },
+      "roleStrategies": [
+        {
+          "relation": "nsubj",
+          "by": "case",
+          "caseFeature": "case:nom"
+        },
+        {
+          "relation": "dobj",
+          "by": "case",
+          "caseFeature": "case:acc"
+        }
+      ],
+      "morphology": {
+        "type": "fusional",
+        "caseMarking": "suffix",
+        "agreement": "rich"
+      },
+      "segmentation": {
+        "sentenceBoundary": "punctuation",
+        "wordBoundary": "space"
+      },
+      "notes": [
+        "Case-driven finite profile: relation proposal reads declared suffix features rather than parser-owned Latin conditionals."
+      ]
+    },
+    "attachment": {
+      "determiner": "left",
+      "adjective": "left",
+      "subject": "left",
+      "object": "right"
+    },
+    "segmentation": {
+      "sentenceTerminatorPattern": "[.!?]",
+      "abbreviations": [
+        "a",
+        "c",
+        "l",
+        "m",
+        "p",
+        "q",
+        "t"
+      ]
+    }
+  },
+  "witnessJournal": [
+    {
+      "entity": "language:la",
+      "attribute": "communicating.package",
+      "value": "@emsenn/communicating-in-latin"
+    },
+    {
+      "entity": "language:la",
+      "attribute": "communicating.alignment",
+      "value": "nominative-accusative"
+    },
+    {
+      "entity": "language:la:role-strategy:0",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "nsubj",
+        "by": "case",
+        "caseFeature": "case:nom"
+      }
+    },
+    {
+      "entity": "language:la:role-strategy:1",
+      "attribute": "communicating.roleStrategy",
+      "value": {
+        "relation": "dobj",
+        "by": "case",
+        "caseFeature": "case:acc"
+      }
+    }
+  ],
+  "lambek": {
+    "categories": [
+      "S",
+      "NP",
+      "N",
+      "VP",
+      "free",
+      "nominative-accusative"
+    ],
+    "judgments": [
+      {
+        "expression": "puella puerum vidit",
+        "type": "S",
+        "source": "manifest.sample"
+      }
+    ]
+  },
+  "sofic": {
+    "alphabet": [
+      "C",
+      "V"
+    ],
+    "graph": [
+      [
+        false,
+        true
+      ],
+      [
+        true,
+        true
+      ]
+    ],
+    "factor": [
+      0,
+      1
+    ],
+    "sample": [
+      0,
+      1,
+      0,
+      1
+    ],
+    "note": "Latin finite segment-shape witness; language-specific phonology can refine this carrier later."
+  },
+  "chu": {
+    "pts": [
+      "asserted",
+      "denied",
+      "contested",
+      "unheard"
+    ],
+    "sts": [
+      "truth",
+      "falsity"
+    ],
+    "matrix": [
+      {
+        "pt": "asserted",
+        "st": "truth",
+        "charge": "active"
+      },
+      {
+        "pt": "asserted",
+        "st": "falsity",
+        "charge": "absurd"
+      },
+      {
+        "pt": "denied",
+        "st": "truth",
+        "charge": "absurd"
+      },
+      {
+        "pt": "denied",
+        "st": "falsity",
+        "charge": "potential"
+      },
+      {
+        "pt": "contested",
+        "st": "truth",
+        "charge": "stable"
+      },
+      {
+        "pt": "contested",
+        "st": "falsity",
+        "charge": "stable"
+      },
+      {
+        "pt": "unheard",
+        "st": "truth",
+        "charge": "absurd"
+      },
+      {
+        "pt": "unheard",
+        "st": "falsity",
+        "charge": "absurd"
+      }
+    ]
+  },
+  "discourseCover": {
+    "entities": 15,
+    "cells": 15,
+    "components": 1,
+    "note": "Latin discourse cover keeps one finite H1 coordination loop available for ambiguity or contradiction."
+  }
+}

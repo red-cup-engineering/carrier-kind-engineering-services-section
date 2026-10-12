@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe.software.development.contribution.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "text",
+    "unresolved"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "prior-art-synthesis",
+        "system-operational-concept",
+        "software-requirements-specification",
+        "software-architecture-specification",
+        "high-level-design",
+        "low-level-design",
+        "artifact-specifications"
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "product": {
+      "type": "object"
+    }
+  },
+  "x-codegen": {
+    "exportName": "engineeringContributionSchema",
+    "typeName": "EngineeringContribution",
+    "runtimeName": "engineeringContributionType"
+  },
+  "title": "EngineeringContribution",
+  "description": "Inferential content consumed by development; causal identities and authority are established by the engine"
+}

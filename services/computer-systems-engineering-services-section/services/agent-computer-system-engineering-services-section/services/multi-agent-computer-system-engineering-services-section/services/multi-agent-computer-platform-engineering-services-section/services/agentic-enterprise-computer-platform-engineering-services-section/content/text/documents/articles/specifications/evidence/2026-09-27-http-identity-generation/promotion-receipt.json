@@ -1,0 +1,20 @@
+{
+  "status": "promoted",
+  "at": 1790546869.1868677,
+  "inputs": {
+    "src/http-options.mjs": "897aac3d77f0291eb65d7a506883e5f1d2fbf160a4af177e5e4cdfe7d435f377",
+    "src/http/server.mjs": "8c9b6d7c7fa2b27e7da3a4df73d349c4d45c7417dcd37e6e3bfd1a1bd3bc390d",
+    "src/http/ws-session.mjs": "6e7a5dbe051756be60ca6ad9a23cfc3a7aa9a050c4c09cabb5cb5f94413b63cb"
+  },
+  "outputs": {
+    "src/http-options.mjs": "306577a4d066d3378a271aef1436dac0769672585a4bc33b2ebb0d589bdf2fcc",
+    "src/http/server.mjs": "16984020072bf56e071ee177d5bd0fa002124748715d3beb0b81ba60c23c0ff6",
+    "src/http/ws-session.mjs": "92d3d2dda2dc056be83ee7fc1fee295ca2167ed0e6a70072159a29a358aeb8c1"
+  },
+  "candidateManifestSha256": "31b53618d387b0e94100fcfb9ab7c803fe73d48ff38f9d007332463795b30115",
+  "assessmentSha256": "7a77bc242d8a142608e144c51eb8acbb51f44edb10650be669cf61f9f780e7c6",
+  "reviewSha256": "82baea1a6db4d0e8f665491798dba3e562c123a3410af6a75852e8a8d6d4748a",
+  "promotionToolSha256": "dd31f37c23d2d871539715beac800edcd2cf23e55d96f675047e332e183d049c",
+  "scope": "Shared HTTP identity component only; no deployed/private-assistant acceptance",
+  "atomicity": "All protected inputs checked before writes; per-file replacements, not an atomic multifile publication"
+}

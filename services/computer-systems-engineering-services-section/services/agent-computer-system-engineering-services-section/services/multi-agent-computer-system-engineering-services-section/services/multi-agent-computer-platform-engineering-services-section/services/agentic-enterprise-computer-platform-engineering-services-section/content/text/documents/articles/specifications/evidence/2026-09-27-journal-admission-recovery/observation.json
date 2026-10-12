@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "stdout": "{\n  \"fixtureRoot\": \"/tmp/muse-journal-recovery-1BVLuJ\",\n  \"sourcePresent\": true,\n  \"recoveredState\": null,\n  \"dependentAdmission\": \"quarantined\",\n  \"limits\": \"Controlled partial derived-index image and cleared in-memory caches; not an actual process or power interruption. Source witness bytes were retained. This observation concerns current recovery behavior, not a proposed implementation.\"\n}\n",
+  "stderr": "",
+  "source": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/filesystem/segment-store.mjs",
+  "sourceSha256": "beb056979230f6269a59cc8617cc5891450757d1ea8513fc845d81ab06ff8b8a"
+}

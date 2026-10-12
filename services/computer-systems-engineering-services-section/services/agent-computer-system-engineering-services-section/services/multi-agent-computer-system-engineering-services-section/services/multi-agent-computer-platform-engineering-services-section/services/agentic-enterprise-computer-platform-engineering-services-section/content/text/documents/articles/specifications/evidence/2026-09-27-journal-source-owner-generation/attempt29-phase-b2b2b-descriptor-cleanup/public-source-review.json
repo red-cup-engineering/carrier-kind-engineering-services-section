@@ -1,0 +1,28 @@
+{
+  "kind": "public-source-review",
+  "phase": "B2b2b descriptor cleanup",
+  "sourceSha256": "46bc29f803beebfa607a063893ae477ec515b5bc814f5b2e5d0e8b99ebd89fc5",
+  "changedFunctions": [
+    "bindDirectory",
+    "assertRoot",
+    "readBoundFile",
+    "openLock",
+    "checkLockBinding"
+  ],
+  "resolved": [
+    "Owned root and host descriptors use separate failure-presence state; lone close failures surface and earlier errors survive.",
+    "Root acquisition rechecks discovered ancestors; file/lock opening rechecks captured parents.",
+    "Root and lock validation check held directory/regular-file types and captured identities.",
+    "Host reads bound current descriptor size and loop with an excess byte; lock descriptor transfers only on successful return."
+  ],
+  "findings": [],
+  "outerHostMayProceed": true,
+  "completeReceivingMayProceed": false,
+  "remaining": [
+    "Owner invalidation before scope and through later binding checks.",
+    "First callback failure and publication uncertainty through outer release/close.",
+    "Shared existing-source barrier for both host initialization outcomes.",
+    "Both publication seams and complete independent receiving."
+  ],
+  "privateReceivingRun": false
+}

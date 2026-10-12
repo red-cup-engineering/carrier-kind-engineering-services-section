@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/nuclear-dyad/nuclear-dyad.schema.json",
+  "title": "Nuclear dyad",
+  "description": "A Heyting algebra A equipped with a single nucleus j (an element->element map, keyed by carrier label). The codomain of both saturating (j = sigma) and transferring (j = delta). Its two poles are the free algebra A and the quiescent sub-algebra Fix(j), connected by the adjoint reflection j -| iota.",
+  "type": "object",
+  "required": ["algebra", "nucleus"],
+  "additionalProperties": false,
+  "properties": {
+    "algebra": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/lattice.schema.json" },
+    "nucleus": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } }
+  }
+}

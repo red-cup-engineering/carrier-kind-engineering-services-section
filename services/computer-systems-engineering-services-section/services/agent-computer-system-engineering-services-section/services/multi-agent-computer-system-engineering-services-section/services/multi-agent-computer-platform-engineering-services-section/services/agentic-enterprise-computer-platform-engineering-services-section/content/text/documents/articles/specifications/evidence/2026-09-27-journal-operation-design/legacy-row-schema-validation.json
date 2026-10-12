@@ -1,0 +1,51 @@
+{
+  "scope": "JSON representation only; fixtures are not semantically valid SEN/source observations",
+  "schemaSha256": "0fbb804f22f157e7f0ed1e3b9cba27c608146995590a771244ef592ca356c49a",
+  "cases": [
+    {
+      "case": "closed-shape",
+      "expectedValid": true,
+      "observedValid": true
+    },
+    {
+      "case": "missing-line",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "zero-line",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "negative-offset",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "unsafe-length",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "extra-attribution",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "uppercase-digest",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "extra-source-field",
+      "expectedValid": false,
+      "observedValid": false
+    },
+    {
+      "case": "wrong-row-carrier",
+      "expectedValid": false,
+      "observedValid": false
+    }
+  ]
+}

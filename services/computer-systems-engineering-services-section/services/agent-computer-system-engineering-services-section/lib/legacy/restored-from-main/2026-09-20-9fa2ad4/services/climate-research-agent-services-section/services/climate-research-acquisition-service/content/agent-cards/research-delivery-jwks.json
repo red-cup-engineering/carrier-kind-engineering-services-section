@@ -1,0 +1,12 @@
+{
+  "keys": [
+    {
+      "crv": "Ed25519",
+      "x": "Pfc_X0xQgErEbVH62nXnSZ4b56X9nfbqIAa5DRK8H9o",
+      "kty": "OKP",
+      "kid": "climate-research-delivery-ed25519",
+      "use": "sig",
+      "alg": "EdDSA"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:fh="http://purl.org/syndication/history/1.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>muse-assist — 561 Group</title>
+    <link>https://fixture.example/</link>
+    <description>muse-assist — 561 Group</description>
+    <language>en</language>
+    <lastBuildDate>Sun, 27 Sep 2026 00:00:00 GMT</lastBuildDate>
+    <atom:link href="https://fixture.example/feed.rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>details</title>
+      <link>https://fixture.example/details/</link>
+      <guid isPermaLink="false">ni:///sha-256;azjZIJMxFFvtVwM9lznm5CpekKW2s00oiJSdWW9fk_s</guid>
+      <pubDate>Sun, 27 Sep 2026 00:00:00 GMT</pubDate>
+      <description>A public reading destination</description>
+      <content:encoded><![CDATA[<h2 id="read-this">Read this</h2>
+<p>Useful public information.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>references</title>
+      <link>https://fixture.example/references/</link>
+      <guid isPermaLink="false">ni:///sha-256;CJ15g0pyA6sCnK_ceNX8i6uMmHwvsEEbNDH7sg4ASYo</guid>
+      <pubDate>Sun, 27 Sep 2026 00:00:00 GMT</pubDate>
+      <description>A public reading destination</description>
+      <content:encoded><![CDATA[<h2 id="read-this">Read this</h2>
+<p>Useful public information.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>start</title>
+      <link>https://fixture.example/</link>
+      <guid isPermaLink="false">ni:///sha-256;eOaOZZgcQmrAF25JYSvNEmaG8HZS2n9929izzzjZyE8</guid>
+      <pubDate>Sun, 27 Sep 2026 00:00:00 GMT</pubDate>
+      <description>A public reading destination</description>
+      <content:encoded><![CDATA[<h2 id="read-this">Read this</h2>
+<p>Useful public information.</p>]]></content:encoded>
+    </item>
+  </channel>
+</rss>

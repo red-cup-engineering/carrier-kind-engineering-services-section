@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, readdir } from "node:fs/promises";
 import { createServer } from "node:http";
 import { spawnSync } from "node:child_process";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -46,7 +45,7 @@ async function loopbackNode(t, name, route = async () => undefined) {
   };
 }
 
-test("journal-backed held delivery is served only to its real signed recipient and resumes once", { timeout: 30000 }, async t => {
+test("store-backed held delivery is served only to its real signed recipient and resumes once", { timeout: 30000 }, async t => {
   let config;
   const holder = await loopbackNode(t, "holder", (request, local) =>
     heldDeliveryResponse({ config, request, signerOf: signed => signedRequestActor(local.provider, signed) }));
@@ -58,7 +57,7 @@ test("journal-backed held delivery is served only to its real signed recipient a
     peerPresences: { [colony.actor]: "known-intermittent", [stranger.actor]: "known-intermittent" },
   };
   const activity = { id: holder.origin + "/activities/held-1", type: "Accept", actor: holder.actor, to: [colony.actor] };
-  const held = holdForPeer({ dataRoot: holder.root, recipient: colony.actor, activity, at: "2026-10-10T12:00:00Z" });
+  const held = holdForPeer({ dataRoot: holder.root, recipient: colony.actor, activity });
   assert.equal(holdForPeer({ dataRoot: holder.root, recipient: colony.actor, activity }).id, held.id);
   const url = holder.actor + "/outbox?held-for=" + encodeURIComponent(colony.actor);
   const unsigned = await fetch(url, { headers: { accept: "application/activity+json" } });
@@ -73,10 +72,10 @@ test("journal-backed held delivery is served only to its real signed recipient a
   unknown.searchParams.set("after", "held-v2." + "A".repeat(43));
   await assert.rejects(get(unknown.href), /HTTP 400/u);
   assert.deepEqual((await get(page.next)).orderedItems, []);
-  const delayed = { ...activity, id: holder.origin + "/activities/later-admission-earlier-clock" };
-  holdForPeer({ dataRoot: holder.root, recipient: colony.actor, activity: delayed, at: "2026-10-09T11:59:59Z" });
+  const delayed = { ...activity, id: holder.origin + "/activities/later-hold" };
+  holdForPeer({ dataRoot: holder.root, recipient: colony.actor, activity: delayed });
   const resumed = await get(page.next);
-  assert.deepEqual(resumed.orderedItems, [delayed], "a real signed pull sees a newly admitted earlier-date witness");
+  assert.deepEqual(resumed.orderedItems, [delayed], "a real signed pull sees a newly held activity");
   assert.deepEqual((await get(resumed.next)).orderedItems, []);
   config.peerPresences = {};
   await assert.rejects(get(url), /HTTP 403/u);
@@ -92,7 +91,7 @@ async function heldFixture(t) {
   const dataRoot = await mkdtemp(join(tmpdir(), "held-cursor-"));
   t.after(() => rm(dataRoot, { recursive: true, force: true }));
   const recipient = "https://recipient.invalid/actors/metroplat";
-  const put = (id, at, to = recipient) => holdForPeer({ dataRoot, recipient: to, at,
+  const put = (id, to = recipient) => holdForPeer({ dataRoot, recipient: to,
     activity: { id: "https://holder.invalid/activities/" + id, actor: "https://holder.invalid/actors/metroplat", to: [to] } });
   const read = (after, limit) => heldDeliveryPage({ dataRoot, recipient, after, limit });
   return { dataRoot, recipient, put, read };
@@ -102,11 +101,11 @@ test("journal normalization cannot rehold received content, while changed conten
   const { dataRoot, recipient, read } = await heldFixture(t);
   const activity = { id: "https://holder.invalid/activities/order", actor: "https://holder.invalid/actors/metroplat",
     to: [recipient], object: { z: "last", a: "first" } };
-  const first = holdForPeer({ dataRoot, recipient, activity, at: "2026-10-10T12:00:00Z" });
+  const first = holdForPeer({ dataRoot, recipient, activity });
   const page = read();
   assert.equal(page.items.length, 1);
   const normalized = { object: { a: "first", z: "last" }, to: [recipient], actor: activity.actor, id: activity.id };
-  const replay = holdForPeer({ dataRoot, recipient, activity: normalized, at: "2026-10-11T12:00:00Z" });
+  const replay = holdForPeer({ dataRoot, recipient, activity: normalized });
   assert.equal(replay.id, first.id);
   assert.deepEqual(read(page.after).items, []);
   const changed = holdForPeer({ dataRoot, recipient, activity: { ...normalized, object: { a: "changed", z: "last" } } });
@@ -114,49 +113,34 @@ test("journal normalization cannot rehold received content, while changed conten
   assert.deepEqual(read(page.after).items.map(row => row.id), [changed.id]);
 });
 
-test("admission cursors retain same-day clock rollback and safely replay legacy address cursors", async t => {
+test("a cursor resumes after the last line read and sees what is held after it", async t => {
   const { dataRoot, recipient, put, read } = await heldFixture(t);
-  const first = put("first", "2026-10-10T12:00:00Z");
+  const first = put("first");
   const initial = read();
   assert.deepEqual(initial.items.map(row => row.id), [first.id]);
-  const second = put("second", "2026-10-10T11:59:59Z");
+  const second = put("second");
   const resumed = read(initial.after);
   assert.deepEqual(resumed.items.map(row => row.id), [second.id]);
   const empty = read(resumed.after);
   assert.deepEqual(empty.items, []);
-  assert.equal(empty.after, resumed.after, "an unchanged frontier reuses its durable content identity");
-  const historical = read(first.id);
-  assert.equal(historical.reset, true);
-  assert.deepEqual(new Set(historical.items.map(row => row.id)), new Set([first.id, second.id]));
-  assert.ok(heldFor({ dataRoot, recipient, after: first.id }).some(row => row.id === second.id));
-});
-
-test("per-feed cursors see a new earlier day and later appends to an already-read earlier feed", async t => {
-  const { put, read } = await heldFixture(t);
-  put("today", "2026-10-10T12:00:00Z");
-  const today = read();
-  const yesterday = put("new-earlier-day", "2026-10-09T12:00:00Z");
-  const earlier = read(today.after);
-  assert.deepEqual(earlier.items.map(row => row.id), [yesterday.id]);
-  const rollback = put("earlier-day-append", "2026-10-09T11:59:59Z");
-  const appended = read(earlier.after);
-  assert.deepEqual(appended.items.map(row => row.id), [rollback.id]);
-  assert.deepEqual(read(appended.after).items, []);
+  assert.equal(empty.after, resumed.after, "an unchanged log reuses its cursor");
+  assert.ok(heldFor({ dataRoot, recipient }).some(row => row.id === second.id), "no cursor reads the log from its start");
+  assert.throws(() => read(first.id), /valid cursor/, "an address is not a cursor");
 });
 
 test("fifty-item pages never acknowledge an unsent tail or another recipient's rows", async t => {
   const { dataRoot, recipient, put, read } = await heldFixture(t);
   const ids = [];
-  for (let n = 0; n < 55; n += 1) ids.push(put("page-" + n, n % 2 ? "2026-10-10T11:00:00Z" : "2026-10-10T12:00:00Z").id);
-  put("other", "2026-10-10T10:00:00Z", "https://other.invalid/actors/metroplat");
+  for (let n = 0; n < 55; n += 1) ids.push(put("page-" + n).id);
+  put("other", "https://other.invalid/actors/metroplat");
   const first = read();
   assert.equal(first.items.length, 50);
   assert.deepEqual(first.items.map(row => row.id), ids.slice(0, 50));
-  const late = put("late-older-day", "2026-10-08T12:00:00Z");
+  const late = put("late");
   const second = read(first.after);
   assert.deepEqual(new Set(second.items.map(row => row.id)), new Set([late.id, ...ids.slice(50)]));
   assert.deepEqual(read(second.after).items, []);
-  assert.throws(() => heldDeliveryPage({ dataRoot, recipient: "https://other.invalid/actors/metroplat", after: first.after }), /recipient/);
+  assert.deepEqual(heldDeliveryPage({ dataRoot, recipient: "https://other.invalid/actors/metroplat" }).items.map(row => row.activity.id), ["https://holder.invalid/activities/other"]);
   assert.throws(() => read("held-v1.not-json"), /valid cursor/);
 });
 
@@ -184,14 +168,13 @@ test("signed long-history continuation stays bounded through restart and earlier
   const colony = await loopbackNode(t, "long-history-colony");
   config = { publicBaseUrl: holder.origin, metroplatDataRoot: holder.root,
     activityPub: { instanceActor: { identifier: "metroplat" } }, peerPresences: { [colony.actor]: "known-intermittent" } };
-  const journal = createSemanticRecordJournal({ root: holder.root, objectKind: "held-peer-delivery" });
   const expected = [];
-  const put = (id, at) => {
+  const put = (id) => {
     const activity = { id: holder.origin + "/activities/" + id, type: "Accept", actor: holder.actor, to: [colony.actor] };
-    journal.record({ category: "held", recordedAt: at, record: { recipient: colony.actor, activity }, told: { for: true, against: false } });
+    holdForPeer({ dataRoot: holder.root, recipient: colony.actor, activity });
     expected.push(activity.id);
   };
-  for (let day = 0; day < 240; day += 1) put(String(day), new Date(Date.UTC(2026, 0, 1 + day)).toISOString());
+  for (let n = 0; n < 240; n += 1) put(String(n));
   const get = signedGetAs(colony.provider, "metroplat");
   let url = holder.actor + "/outbox?held-for=" + encodeURIComponent(colony.actor);
   const received = [];
@@ -199,7 +182,7 @@ test("signed long-history continuation stays bounded through restart and earlier
     const page = await get(url);
     received.push(...page.orderedItems.map(activity => activity.id));
     url = page.next;
-    assert.equal(new URL(url).searchParams.get("after").length, 51, "wire cursor has a fixed content-address length");
+    assert.ok(new URL(url).searchParams.get("after").length < 40, "wire cursor is a day and a position");
     assert.ok(Buffer.byteLength(url) < 512, "signed URL remains below normal Node header limits");
   }
   const cursor = new URL(url).searchParams.get("after");
@@ -218,8 +201,8 @@ test("signed long-history continuation stays bounded through restart and earlier
   assert.deepEqual(resumed.orderedItems.map(activity => activity.id), expected.slice(100, 150), "signed provider restart recovers the same unacknowledged page");
   received.push(...resumed.orderedItems.map(activity => activity.id));
   url = resumed.next;
-  put("new-earlier-feed", "2025-12-01T00:00:00Z");
-  put("old-feed-later-append", "2026-01-01T00:00:01Z");
+  put("held-after-restart");
+  put("held-after-restart-too");
   let terminal = false;
   for (let pageNumber = 0; pageNumber < 5; pageNumber += 1) {
     assert.ok(Buffer.byteLength(url) < 512);
@@ -228,7 +211,7 @@ test("signed long-history continuation stays bounded through restart and earlier
     assert.ok(page.orderedItems.length <= 50);
     received.push(...page.orderedItems.map(activity => activity.id));
     url = page.next;
-    assert.equal(new URL(url).searchParams.get("after").length, 51);
+    assert.ok(new URL(url).searchParams.get("after").length < 40);
   }
   assert.equal(terminal, true);
   assert.equal(received.length, 242);

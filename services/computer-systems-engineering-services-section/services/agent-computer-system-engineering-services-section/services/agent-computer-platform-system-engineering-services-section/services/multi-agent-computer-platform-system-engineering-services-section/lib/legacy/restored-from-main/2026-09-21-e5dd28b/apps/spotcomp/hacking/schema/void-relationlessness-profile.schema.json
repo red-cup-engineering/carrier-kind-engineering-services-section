@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/spotcomp/void-relationlessness-profile.schema.json",
+  "title": "SPOTCOMP Void Relationlessness Profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "stageTranslation",
+    "nullRelationlessness",
+    "voidFiltration",
+    "cohomologyPairing",
+    "valueAgnosticInstances",
+    "failureGeometry",
+    "weightedContinuousBoundary",
+    "implementationBoundary",
+    "evidence"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    }
+  }
+}

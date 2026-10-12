@@ -1,0 +1,26 @@
+{
+  "name": "@lenticule-science/oml",
+  "version": "0.1.2",
+  "private": true,
+  "type": "module",
+  "description": "OSS territory-serving enterprise for bounded pure-mathematics development offered to the separately owned Obsmetrologia package.",
+  "keywords": [
+    "sovereign-state-enterprise",
+    "pure-mathematics",
+    "lenticule-science"
+  ],
+  "bin": {
+    "solicit-service": "./src/contract-change-bundle-qualification.mjs",
+    "invoke-service": "./src/contract-change-bundle-qualification.mjs"
+  },
+  "scripts": {
+    "test": "node --test test/contract-change-bundle-qualification.test.mjs",
+    "check": "node src/verify-enterprise.mjs && node --check src/contract-change-bundle-qualification.mjs && node --test test/contract-change-bundle-qualification.test.mjs",
+    "verify": "npm run check"
+  },
+  "dependencies": {
+    "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
+    "@red-cup-engineering/relation-model-notation-runtime": "0.0.0",
+    "@red-cup-engineering/witness-journal-rdf-projection-service": "1.1.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "services-confederacy-shared-ledger-activitypub-wmap-between-microenterprises",
+  "name": "services confederacy shared ledger activitypub wmap between microenterprises",
+  "kind": "requirement",
+  "raised-by": "chairperson",
+  "asks": "find me this resource is def like a micro-service, micro-enterprise, micro-hoare-program, so like, we can totally let that be a service a thing can offer - WITHIN its own Micro-Enterprise. So anything in lib/emsenn/src/services/ can import from anything it's got a contract with, and that means services/ even before we have any sort of inter-enterprise tooling set up since they're in an inherent confederacy - they all share the same ledger - but not from like, arbitrary other places. This is how we have a swarm AND hierarchy at the same time. But eventually we'll be using ActivityPub and other protocols to carry our WMAP packets between ME.",
+  "from-idea": "emsenn/idea/services-confederacy-shared-ledger-activitypub-wmap-between-microenterprises",
+  "met-when": [
+    {
+      "cell": "services-confederacy-shared-ledger-activitypub-wmap-between-microenterprises:conditions-stated",
+      "target": "held"
+    }
+  ],
+  "x-provenance": {
+    "recorded-by": "561-group capture session (claude session 017x7ZhpkZQAx5VZSv2Hz5Q9)",
+    "recorded-on": "2026-10-10",
+    "sources": [
+      {
+        "words": "find me this resource is def like a micro-service, micro-enterprise, micro-hoare-program, so like, we can totally let that be a service a thing can offer - WITHIN its own Micro-Enterprise. So anything in lib/emsenn/src/services/ can import from anything it's got a contract with, and that means services/ even before we have any sort of inter-enterprise tooling set up since they're in an inherent confederacy - they all share the same ledger - but not from like, arbitrary other places. This is how we have a swarm AND hierarchy at the same time. But eventually we'll be using ActivityPub and other protocols to carry our WMAP packets between ME.",
+        "at": "2026-07-17",
+        "locator": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/lib/legacy/restored-from-main/2026-09-13-ccf2d7a/services/561-group-enterprise-services-section/services/561-group-board-of-directors/lib/legacy/2026-08-03-executive-office/data/records/ideas/ideas/services-confederacy-shared-ledger-activitypub-wmap-between-microenterprises.json"
+      }
+    ],
+    "carried-from-idea-record": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/lib/legacy/restored-from-main/2026-09-13-ccf2d7a/services/561-group-enterprise-services-section/services/561-group-board-of-directors/lib/legacy/2026-08-03-executive-office/data/records/ideas/ideas/services-confederacy-shared-ledger-activitypub-wmap-between-microenterprises.json",
+    "pending-conditions": "Carried from the 2026-07 executive office's idea record under ideas-dispose-through-the-requirement-term; no met-when that exercises this idea's capability has been stated yet. The owning section states it.",
+    "linked-carriers": [],
+    "coverage": "lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/coverage/executive-office-ideas-2026-07.md",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;JYG4Ysq5oB6EgEsfKBbpEt8aUrI1K6rBBU0PJfYVe_o"
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@red-cup-engineering/file-touch-market-projection-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Folds explicit file-read and file-write observations into an attention market and projects focused slices.",
+  "exports": {
+    ".": "./src/file-touch-market.mjs",
+    "./scripts/market-file-touch.mjs": "./scripts/market-file-touch.mjs"
+  },
+  "bin": {
+    "market-file-touch": "./scripts/market-file-touch.mjs"
+  },
+  "files": [
+    "src",
+    "scripts"
+  ],
+  "scripts": {
+    "check": "node --check src/file-touch-market.mjs && node --check scripts/market-file-touch.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@red-cup-engineering/gaming": "0.1.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "sideEffects": false
+}

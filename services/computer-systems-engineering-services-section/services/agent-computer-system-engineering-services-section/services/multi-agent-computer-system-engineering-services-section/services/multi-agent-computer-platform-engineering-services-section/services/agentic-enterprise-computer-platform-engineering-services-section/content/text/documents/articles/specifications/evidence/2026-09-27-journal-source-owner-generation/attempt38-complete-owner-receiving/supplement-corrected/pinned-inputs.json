@@ -1,0 +1,620 @@
+[
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/identity/index.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/0-index.mjs",
+    "sha256": "342e81f2aa020db6879ad891da599b08e6484d83b11b4af7ccc0191826536954",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/identity/primitive-articulation.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/1-primitive-articulation.mjs",
+    "sha256": "05bbcc1bd52c17a5888bdd578d7c069cd20490f9956d46293419df5872bf283a",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/identity/site.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/2-site.mjs",
+    "sha256": "f9b5cf3bc65dfb218bf16b7242ae7762440de610d86ad9e0f034548064876199",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/identity/text-document.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/3-text-document.mjs",
+    "sha256": "33007fea2a1def076f78ae38434bfb89d2c8f3521b9f92437f04c0dcab8ff69d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/causal-graph.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/4-causal-graph.mjs",
+    "sha256": "b96618d37f5d1ea2f429db25c4fa15befd617ec67e3daebcebcc1d2c58fa6fb4",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/event.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/5-event.mjs",
+    "sha256": "6069defbde3eef4ec64bb4ae2e1d6c9b3951b92f69f16c3ff7bea7695dce7970",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/judgment.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/6-judgment.mjs",
+    "sha256": "60b48b12ddc7a9944b1b34cc9c573a278e271c3fa82c99a9b604747f11c785b9",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/store-root.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/7-store-root.mjs",
+    "sha256": "85fe0833ed4aa0093eda77a9a121cc0a10e6f06ea821e0850d281057924f9fca",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/substrate.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/8-substrate.mjs",
+    "sha256": "039871c716b629da807539e0cd6fe814cc2edabe4915594728f5693e7e6f4d21",
+    "recoveredFrom": {
+      "file": "/tmp/muse-owner-generation-286vpp1k/public-input.json",
+      "field": "text",
+      "sourceFileSha256": "50ac2d4eaba5d126dc4c72d3041912ae4954113b65d7ff76c5963a2498f4dc07"
+    }
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/witness.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/9-witness.mjs",
+    "sha256": "313e9ae77f842a6ee9756dadb6f5a482210b890b4c2259fdcc3f7205af4b96d4",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/eval.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/10-eval.mjs",
+    "sha256": "e4d5447a408ea7102b98560610f0f77628db21f3fd326699f69303fe16dee973",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/json-codec.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/11-json-codec.mjs",
+    "sha256": "cc2fdeb70df1bee84de90758762197a9f914d52c50deae017e862ee5c85d183c",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/notation.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/12-notation.mjs",
+    "sha256": "cb5c1d0f078378db043fc4e6a29ce5a1b35383ac24f8378f23385bf268b111d6",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/notation/forms.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/13-forms.mjs",
+    "sha256": "2bc9661a8c6392fe340c7ca18f8d21a8c949c62b8b0b2d4d5b61c11d139b1541",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/notation/schema.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/14-schema.mjs",
+    "sha256": "b637faba2a40ed728dc1f95b01dd9dd8dfa9bd894fa092c87ab326644ff1a92d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/notation/types.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/15-types.mjs",
+    "sha256": "b197dea6eff8126feeca27b077c8a66110b018b52bc2aeab36b8b879bb6c7db6",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/notation/validator.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/16-validator.mjs",
+    "sha256": "0dee6e1c67ff6c6e8fcd5cfb2b6b2c2dba849d079a21bcda2f1c77bd92161549",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/runtime.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/17-runtime.mjs",
+    "sha256": "aff5f03833b5ba144491e4465a92599189c07f84308db241dae1b0aa9a1b9fb3",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/runtime/conformance.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/18-conformance.mjs",
+    "sha256": "6cf9a4ab676f777a693372caef7d725eb4f58512e0e07fae67d76fe05a07d5a1",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/runtime/semantic-content-identity.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/19-semantic-content-identity.mjs",
+    "sha256": "091b04e62c5346333226ae9df8bace39f0270c872499ba6859f356427fd8cf6f",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/typing.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/20-typing.mjs",
+    "sha256": "cb3a48031db9daa7606595531ab927863ec7009fa7f02b9497b1ce681699bf8f",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-content-address-engineering-services-section/services/uri-services-section/src/ni-uri.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/21-ni-uri.mjs",
+    "sha256": "4935476fb41dba7805a0ef05c4f645a59c66704dbcaf0ef442f46e964726b9d8",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/cbor-services-section/src/cbor.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/22-cbor.mjs",
+    "sha256": "c4bef0025710d5235eaece0321c0c2fa9eefa3109e60dbeb36041f68905ed62d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/admit-json-type.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/23-admit-json-type.json",
+    "sha256": "a7d76bdf1058f4b54c72e65525a6ff2087e691a8aaf6e4cf158c957c360db6d8",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/assert-canonical-json.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/24-assert-canonical-json.json",
+    "sha256": "003d8f9e493e3a062cfd32018bd66502ebbe95bc1e8157175fb91eefef686837",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/form-cloudevent.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/25-form-cloudevent.json",
+    "sha256": "7c51878d9c139ab9c748a4d22d25815ab091480edb4b63e42a285ef6d05bdde7",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/freeze-json.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/26-freeze-json.json",
+    "sha256": "003d8f9e493e3a062cfd32018bd66502ebbe95bc1e8157175fb91eefef686837",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/is-canonical-json.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/27-is-canonical-json.json",
+    "sha256": "4eeeb96d31f8949296b3baec24c25a4499c518aca34010798fe5dfa707d0969d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/is-json-record.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/28-is-json-record.json",
+    "sha256": "4eeeb96d31f8949296b3baec24c25a4499c518aca34010798fe5dfa707d0969d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/is-json-text.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/29-is-json-text.json",
+    "sha256": "e9fbcf7904f3fb76a1d7516efea936e9a515253008f94b87ec945e17773c79ec",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/is-json-value.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/30-is-json-value.json",
+    "sha256": "4eeeb96d31f8949296b3baec24c25a4499c518aca34010798fe5dfa707d0969d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/is-object-record.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/31-is-object-record.json",
+    "sha256": "4eeeb96d31f8949296b3baec24c25a4499c518aca34010798fe5dfa707d0969d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/json-byte-carrier.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/32-json-byte-carrier.json",
+    "sha256": "84af3f45a78f8164b28d287fa2dcfbe84987694e9e5f0c7338ee240ddfa5b8b5",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/parse-json-value.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/33-parse-json-value.json",
+    "sha256": "31126b066b6366149ad8ab48d426c77062243d7e72f5b5276250d56861495843",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/parse-json.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/34-parse-json.json",
+    "sha256": "a71bdcb99a3224bff85c61be51ac3169ab6cefa0da1be0fb81dddd1da31e3b1a",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/project-json-record-keys.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/35-project-json-record-keys.json",
+    "sha256": "992bc08406f58735536d800e620f3bcf2695feae548d5da3ac84be621e0b5a9f",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/read-json-field.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/36-read-json-field.json",
+    "sha256": "90252f3bcd140b47707cb2245f5ab2b462b27ab714759edf34157f58c8543d04",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/require-json-value.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/37-require-json-value.json",
+    "sha256": "003d8f9e493e3a062cfd32018bd66502ebbe95bc1e8157175fb91eefef686837",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/validate-cloudevent.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/38-validate-cloudevent.json",
+    "sha256": "0a3cb66f2ec070c7df234a3f6696ca7647b1c2c163cec78a2372ce8e5c80df07",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/schemas/write-json-text.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/39-write-json-text.json",
+    "sha256": "ee5032e4635685293ece2a3354341e45f1238ebff4d2847788dd2390366294a7",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/admit-json-type.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/40-admit-json-type.mjs",
+    "sha256": "b069a57b4ba0ccb15c693576f9b936eece19a38f6abebd371fc1175a39a80f5a",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/assert-canonical-json.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/41-assert-canonical-json.mjs",
+    "sha256": "0d2ec95687bc050a7805bb6ef1f78d2ece4b6320c28d32bfea4bbc0a6d44f881",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/assert-nonempty-string.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/42-assert-nonempty-string.mjs",
+    "sha256": "77643fbb3fc30482e7a9a09c55fc42dab3a350c096d3613b403427f6a53f39cb",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/canonical-json.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/43-canonical-json.mjs",
+    "sha256": "a10d27199ba7a00ff0e99fbf2f8a622317c99207da9f71ef5907375a02c60a50",
+    "recoveredFrom": {
+      "file": "/tmp/muse-owner-generation-286vpp1k/public-input.json",
+      "field": "text",
+      "sourceFileSha256": "50ac2d4eaba5d126dc4c72d3041912ae4954113b65d7ff76c5963a2498f4dc07"
+    }
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/decode-json-byte-carrier.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/44-decode-json-byte-carrier.mjs",
+    "sha256": "b7094b54cf0c7b7d0f306ed445d5ad926086b3e2e48d2a03adcd34a87547132f",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/encode-json-byte-carrier.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/45-encode-json-byte-carrier.mjs",
+    "sha256": "50c90ba4c210dd636fe327d529ef8eb946d0415c216dd91327f23c34bc20c874",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/form-cloudevent.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/46-form-cloudevent.mjs",
+    "sha256": "85de7da1eee8f49047b07921a4249b2ce63783464cf26e60e2fe2dfc46a79494",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/freeze-json.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/47-freeze-json.mjs",
+    "sha256": "44e4f5bd57e0e1d89303f5f734b5b67eba13f212eeda5f0ab1087f147fcb49ce",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-canonical-json.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/48-is-canonical-json.mjs",
+    "sha256": "14e623cb06da19a44994d41048b235e8c9cd8cd9741a08f4353dfd3bb0e775e1",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-json-record.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/49-is-json-record.mjs",
+    "sha256": "41ddb256654416a0303a5ed23a73a4fcd1c943f1bff2b41c025459421205c6e4",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-json-text.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/50-is-json-text.mjs",
+    "sha256": "2e31a99bf77829b03b612371a71d8f60839daa138c43afbbaa52adcb82fa8256",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-json-value.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/51-is-json-value.mjs",
+    "sha256": "a82b23fd6e4846b8f5722b3b566cf69ff710ed2ede13f6c1818c56fcaa457be1",
+    "recoveredFrom": {
+      "file": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/recovered-json-predicate.json",
+      "field": "text",
+      "sourceFileSha256": "54b4386fe9e39667025961e7f39dc1dcd5df521cd480f634defe48a680d6d8c2"
+    }
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-object-record.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/52-is-object-record.mjs",
+    "sha256": "080708787aeaa618444e9be2de7336146ac9fe784c9a3962ffa666125d211d01",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/json-resource.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/53-json-resource.mjs",
+    "sha256": "d4142ecf02ac8c5ee59154bb89f1fc88e0a82ebedcf3840486f734d84461f74a",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/parse-json-value.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/54-parse-json-value.mjs",
+    "sha256": "4f6bceda68587ce92d76e2a73eba1b8798a7fcc6c443d285e8e512b5acd09897",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/parse-json.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/55-parse-json.mjs",
+    "sha256": "b80ae80c04a79878f4c10ef9150744cb97c0a3b689b5b3e9d6493a8fdb258f53",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/project-json-record-keys.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/56-project-json-record-keys.mjs",
+    "sha256": "829b0a83d5b2053b4cc27de5c0fa84b63521cfbfd1bd27a7246b8e34742e7cd4",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/read-json-field.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/57-read-json-field.mjs",
+    "sha256": "fbe241312f7eda2fb88792839bf0dc17963b7cafbc2ba68bb8f9dc52f1bb7f8f",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/require-json-value.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/58-require-json-value.mjs",
+    "sha256": "5de1c63f13a7c2747b418bec3cbe42213fcf6701534d4e04303590b2132f1e94",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/resolve-json-pointer.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/59-resolve-json-pointer.mjs",
+    "sha256": "7bdce452a3d766f4b80bf00bd2e50a0769159633ab2927c8a4eb7d2132b7d982",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/validate-cloudevent.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/60-validate-cloudevent.mjs",
+    "sha256": "dc490bb52cfb70bd65f76563d458f6648ff50d66f6bce02b315d0d9497f41e18",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/write-json-text.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/61-write-json-text.mjs",
+    "sha256": "44281d1be67752fbf765f8584b26e97ca2c878331143ef3372c7fc6cb0d5869f",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/json-schema-services-section/src/contracts.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/62-contracts.mjs",
+    "sha256": "411653a98110a973605d770cf122a13daacd5238ad7caac9351fa0c49fa11425",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/json-schema-services-section/src/validation.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/63-validation.mjs",
+    "sha256": "cf4ce782b2b08bcad311e11ae883d25b00b76b7c8eae4244220a79c2e8146ba9",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/schemas/operations.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/64-operations.json",
+    "sha256": "7cc366f611e8e374ce6497dc9afcc104df287904ea9b09e113a75e45e09704dd",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/append-jsonl.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/65-append-jsonl.mjs",
+    "sha256": "57864b2938ec9d27a79e425a85c63edade1d157a4a4ba4891ddeae30341c3f6e",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/commit-jsonl-records.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/66-commit-jsonl-records.mjs",
+    "sha256": "40c24c0b8573f3d34d9a1e0423df5baf79be541a178f2b8123aac5c1a199dd58",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/is-jsonl-text.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/67-is-jsonl-text.mjs",
+    "sha256": "4b2a8459613d3ec7623cdf904d001993a4a605c62db21a1e397a7126ccaff5f8",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/jsonl-projector.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/68-jsonl-projector.mjs",
+    "sha256": "33932519e82b3f8bd09091600599013385998f2787e0c86b4aec0698be6f6e05",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/nonblank-lines.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/69-nonblank-lines.mjs",
+    "sha256": "cc9595c97e1d428ed01ffe0fec85307badbbabb3e41dbca2e1b5e632363b2423",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/parse-jsonl.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/70-parse-jsonl.mjs",
+    "sha256": "a1e8cca16dfaff3d2b95bfa0c0cb7d15069db08c1ef7215be46b0a94abd8120f",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/project-jsonl.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/71-project-jsonl.mjs",
+    "sha256": "387784197d32a36c8833fa0f891222a6356a1c6a5920e6a98012cfa7b8889227",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/read-jsonl.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/72-read-jsonl.mjs",
+    "sha256": "7dfafd31ef7382e9f2e1f6f3a6e78e65c4afda7bfa0aecf0d5d7363b9fac950c",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/serialize-jsonl.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/73-serialize-jsonl.mjs",
+    "sha256": "dc247f066883918dcdbf4f7eff986b3806416c8c8868d12142eb39d72f9c8104",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/verify-jsonl-commitment.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/74-verify-jsonl-commitment.mjs",
+    "sha256": "5ddcd910be5b515bb5219b197e99ee25ea583457173df012dc7c3b860d26dcd8",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/scripts/write-jsonl.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/75-write-jsonl.mjs",
+    "sha256": "d9c9630facaa2f5b3c3648776e70e6443a6c8acde00f16974365c91260feee70",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/schemas/operations.json",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/76-operations.json",
+    "sha256": "a0c2e449af63dc740db5ca61c7951a0af9721c5c9759e2b75e0deaf7df14fe93",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/scripts/admit-row.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/77-admit-row.mjs",
+    "sha256": "0d9dd2720bd2b5f6c543607dd99bdadb1aa64c39b5d1ece644d573e45a656b66",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/scripts/encode-row.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/78-encode-row.mjs",
+    "sha256": "5d1bb40d4721d86d13e1f9032a85f61b796ccd5a7c1d656d66cdb11c073e6001",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/scripts/identify-content-addressed-row.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/79-identify-content-addressed-row.mjs",
+    "sha256": "d0b6c95729105b86b188e1b640d71314108f03479598496533542cfb1edc81fc",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/scripts/identify-row.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/80-identify-row.mjs",
+    "sha256": "5d487e5be0cd3e03a61293d2d716aae8ee6c6e26aa6df8a4accb63a00a7e63fc",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/scripts/is-eavt-row.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/81-is-eavt-row.mjs",
+    "sha256": "30cb7b4bad8885722bb56231ede5cd695f510b14f9074b60d7fca32addb8d0b9",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/scripts/normalize-row.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/82-normalize-row.mjs",
+    "sha256": "5fa778c14122d57eda3e4c720ff1c12f83cfd472603bd1964f233e5fd8f6c6b4",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/scripts/same-eavt-rows.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/83-same-eavt-rows.mjs",
+    "sha256": "6ebf3790165b68fed36157649c581bc3606a02bb846bc9c292e4cd14a073273b",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/src/data-artifact-address.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/84-data-artifact-address.mjs",
+    "sha256": "3613a7d0068425b0aae05a6a8f0fc48b854d36d1f77da1c0421a9d0c3b3444b4",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/src/row.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/85-row.mjs",
+    "sha256": "0769038c5af4bebe0496211ad20d9422c57d564843622f66436117efa6f0bb0d",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/src/statement.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/86-statement.mjs",
+    "sha256": "cc3ab39fa4dacbbae853c954a081090948ccaf6cf09c4abb208059e24c270bb6",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/src/index.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/87-index.mjs",
+    "sha256": "da5d4e12058b62d2a32710f77b9ba54d5bc76433305df6180851efb161ffd514",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/src/index.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/88-index.mjs",
+    "sha256": "eecbbf51e70deeaffe66c18076ac8ccd64338c37892bfd4d20194a2eef5f550a",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-text-content-engineering-services-section/src/slugify-text.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/89-slugify-text.mjs",
+    "sha256": "0d5d1ac0a3e933a6106a3be88eae94d40ca274b20dba0f88ecae9817f5328b23",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/src/semiotic-content-address/semiotic-content-address.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/90-semiotic-content-address.mjs",
+    "sha256": "65c8ff08a96468204dc6166b05aa9a11a7b43053232147944c46feef254e9db6",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/src/typed-resource-classification.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/91-typed-resource-classification.mjs",
+    "sha256": "4ee47011b0fc2dc9df77b9f15d447163464a7996fd8e1f640135a73cb3ba57a8",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/cryptographic-computer-data-engineering-services-section/src/hash.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/92-hash.mjs",
+    "sha256": "fa5a032c22a2c6b3b7ef99d0490d09ffd6cba1bfdf56e408d09bedb55d9c2279",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/cryptographic-computer-data-engineering-services-section/src/integrity.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/93-integrity.mjs",
+    "sha256": "d3b1bd9545159e2a6eac24b3362bacbb8870b3bf63bd31b1002715514e31f6df",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/cryptographic-computer-data-engineering-services-section/src/portable-sha256.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/94-portable-sha256.mjs",
+    "sha256": "7e71288a8d763b17201617b5b7596e04696151ef055a98ec6749a3cd788f4055",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/95-four.mjs",
+    "sha256": "5063af88b42a7c9f2a1f9a2e83af4a4e6004cb8b70de7b81b0f8b1cea01e4f96",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/src/otlp-schema.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/96-otlp-schema.mjs",
+    "sha256": "ce95ba83e4b03492bb7f5b649e1ecff2d3e19c45107c6720d986b75ff0eae48e",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/filesystem.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/97-filesystem.mjs",
+    "sha256": "1b6f01fe324bf25079f581369e44cf9e24b81c69e1debf3022217aaf11046621",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/data-artifact-schema.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/98-data-artifact-schema.mjs",
+    "sha256": "e8e4fee36d645d2fe72325f140685ef92386f6b8b8e0de3904fc59b7e2c6a365",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/operations/index.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/99-index.mjs",
+    "sha256": "f30e952778cfd461a5d0be28faf6a273dacba82bdceff3c5a7e96a5875fafbf4",
+    "recoveredFrom": "protected current checkout bytes"
+  },
+  {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/operations/schema.mjs",
+    "snapshot": "/tmp/muse-owner-generation-88gi4erq/supplement-corrected/pinned-inputs/100-schema.mjs",
+    "sha256": "36b463e66fb2cdb52eeb32de5df07be80a9506bba7fc79a6bcedf63c09f1cf7f",
+    "recoveredFrom": "protected current checkout bytes"
+  }
+]

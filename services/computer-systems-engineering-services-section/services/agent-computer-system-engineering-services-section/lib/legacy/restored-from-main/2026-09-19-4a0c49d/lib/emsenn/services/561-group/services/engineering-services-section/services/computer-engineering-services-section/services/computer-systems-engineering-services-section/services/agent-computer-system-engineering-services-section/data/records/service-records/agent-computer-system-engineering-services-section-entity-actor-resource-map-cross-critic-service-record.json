@@ -1,0 +1,853 @@
+{
+ "objectKind": "entity-actor-resource-map",
+ "category": "cross-critic",
+ "recordedAt": "2026-09-02",
+ "journal": {
+  "root": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section",
+  "id": "ni:///sha-256;yGr4gjqzCXLB1NFcqqbvHyC8liOEnJ_9QCHdalDXVbQ",
+  "journalFeed": "data/logs/2026/09/02/witness-journal-seavt.jsonl"
+ },
+ "provenance": {
+  "lot": "entity-actor-cross-critic",
+  "inputs": [
+   "the 13 readers full results (scratchpad, session 360f4d8c, crg/readings.json)",
+   "the dying Cross agents partial verification (scratchpad, session 360f4d8c, crg/contra.json)",
+   "the original workflow prompts (~/.claude/projects/-home-emsenn-info/8ca785c2-489a-42cc-8b53-4d5bb0cb50c8/workflows/scripts/entity-actor-resource-map-wf_781fbd84-dbe.js)"
+  ],
+  "method": "Cross step: deduped concepts across the 13 readings.json readers by canonical concept name; resolved or filed every contradiction in contra.json against the EAVT constitute law by opening every cited carrier directly (grep/cat), classifying each damage (a live violation) or border (a genuine, ruled architectural boundary). Critic step: searched via jsnode_search/jsnode_query/jsnode_package for concepts and candidate packages named in the original Critic prompt that none of the 13 readers opened."
+ },
+ "record": {
+  "concepts": [
+   {
+    "concept": "entity",
+    "canonicalLaw": "@red-cup-engineering/eavt 0.4.0 src/eavt.mjs constituteEntity/entityAddress: address = '<kind>:<digest>' via niUriDigest(rowId(preAddressRow)); rowId = canonicalCborToNiUri(encodeCanonical(row)), RFC 8949 canonical CBOR + RFC 6920 ni: URI (verified directly, lines 219-239).",
+    "idSchemesInUse": [
+     "EAVT constitute '<kind>:<digest>' (canonical): lagoon apps/lagoon scripts (world-say.mjs, fold-harness-lifecycle.mjs, seed-offices.mjs, seed-world.mjs, seed-systemd-services.mjs), ops-561-group-mcp-gateway-service test fixture (eavt 0.3.0, one minor behind), @red-cup-engineering/actor (unwired, see missed[0])",
+     "content-body ni:///sha-256;<digest> (JSON-canonicalization, not CBOR): apps/fae/src/kernel/identity.mjs \u2014 a structurally different encoding for the same idea",
+     "local createHash('sha256') reimplementations bypassing the sanctioned ni-services-section root: apps/drew/src/{drew,app}.mjs (urn:drew:*:sha256:<hex>), note-resource-service/src/note-resources.mjs (sha256:<hex>/urn:sha256:<hex>)",
+     "caller-chosen kebab-case slug (no digest at all): task/dispatch/office/duty/character records across task-services-section, enterprise-office-services-section, and all 4 surveyed consumer enterprises"
+    ]
+   },
+   {
+    "concept": "actor",
+    "canonicalLaw": "@red-cup-engineering/actor 0.1.0 (constituteActor/verifyActorGenesis, composes eavt directly) \u2014 built, tested (33/33 pass, verified directly), zero wired consumers; org-wide harness actors use actor-genesis.json + entityAddress re-derivation in apps/lagoon/scripts/seed-offices.mjs.",
+    "idSchemesInUse": [
+     "actor:<43-char base64url SHA-256 digest> (EAVT constitute, lawful): actor-genesis.json x2 (Claude actor:bZH6KBOlPVWbYpqp04izN_Xtwykn0XgsMBStm_FkPPw, Codex actor:WWOM5azg-fTrn1Id0YVbz5AhppbnFny_W5Xl-rKgSs4), harness-lifecycle-journal-service ADMITTED_HARNESS_ACTORS, inference-dispatch-service CODEX_CUSTOMER, claude-harness-projection-service/src/actor.mjs pattern",
+     "urn:ame:<slug> (rejected 2026-08-31, still live): bare-cedar-fog-codex-services-section/src/enterprise.mjs:10, codex-harness-projection-service/src/projector.mjs:17, mape-k-actuation-office-service (actorUrn param), inference-dispatch-service (CUSTOMER, direct-endpoint-provider.mjs), metroplat inference-source.mts:25, union-officer-academy (12+ files), all 4 consumer enterprises (337+ occurrences)",
+     "bare unscoped slug (e.g. 'union-officer-academy'): officer-supply-market.mjs, character-officer-supply.mjs's own verifyMarketAward \u2014 coexists WITH the urn:ame form for the identical actor inside one package",
+     "URL / WebFinger (ActivityPub protocol identity): activitypub-services-section \u2014 a legitimate third, protocol-native scheme, not itself residue",
+     "opaque provenance-only string, deliberately unresolved: decide-work-placement-service, capability-pricing-service ('provider-and-model-identities-are-provenance-only')"
+    ]
+   },
+   {
+    "concept": "office",
+    "canonicalLaw": "561-group-services-section/data/records/schema/office.schema.json (canonical schema, bearer-independent, no holder key by design) + apps/lagoon/scripts/seed-offices.mjs (the one live constituteEntity({kind:'office',...}) minting site).",
+    "idSchemesInUse": [
+     "EAVT constitute 'office:<digest>': apps/lagoon/scripts/seed-offices.mjs only",
+     "bare kebab-slug resolved by nearest-path lookup: enterprise-office-services-section instances, all 4 consumer enterprises, union-officer-academy (never minted \u2014 deliberately, per its incumbency-abstention doctrine)",
+     "PredicationTerm keyed by JSON.stringify(mark.value): apps/organizing/src/work.mts",
+     "bare string 'name' field, no id scheme at all: apps/socializing/src/socialize/office.mts",
+     "flat capability-string arrays, no office entity: apps/organizing/src/schemas.mts office-eligibility-request/decision"
+    ]
+   },
+   {
+    "concept": "incumbency",
+    "canonicalLaw": "561-group-services-section/data/records/schema/incumbency.schema.json (required: office, holder, recognition, induction, from \u2014 the double-settlement Belnap law) + @red-cup-engineering/actor's incumbencyCharge/incumbencyState/seatIncumbency/readIncumbency/deriveIncumbencyRegister (built, tested, unwired).",
+    "idSchemesInUse": [
+     "schema-conformant recognition+induction record: enterprise-office-services-section instances (8 Claude incumbencies, all currently recognition:'t'/induction:'t')",
+     "status enum {active,...}, no recognition/induction fields: bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/projection/incumbencies.json (live runtime state, contradicts the schema it's supposed to instantiate)",
+     "status-function declaration D=(X,Y,C,A) (FARS OfficerInstallation, proposed): design prose only, no code implements it",
+     "never minted at all (deliberate abstention): union-officer-academy (receiver-supplied evidence only, all Academy-authored booleans false)",
+     "verification gate present but only checks office/holder/character-kind, never recognition/induction: claude-harness-projection-service and codex-harness-projection-service projector.mjs::verifyIncumbency (verified directly, projector.mjs:133-160)"
+    ]
+   },
+   {
+    "concept": "duty",
+    "canonicalLaw": "No single canonical schema custody: 561-group-services-section/data/records/schema (one duty.schema.json) vs no task-services-section schema custody at all.",
+    "idSchemesInUse": [
+     "EAVT constitute 'duty:<digest>': apps/lagoon/scripts/fold-harness-lifecycle.mjs",
+     "JuralRelation {kind:'duty',active,passive,scope,standing} \u2014 bare agent-name strings, unaddressed: apps/socializing/src/socialize/office.mts",
+     "bare slug resolved by name: enterprise-office-services-section instances, task-office-duty-toolkit (task/dispatch schemas)",
+     "five-tuple (bearer,position,normative-system,required-act,correlative-party), no digest: science glossary (work-science-services-section)"
+    ]
+   },
+   {
+    "concept": "character",
+    "canonicalLaw": "science-services-section/.../agent-science-services-section/data/records/schema/glossary/terms/character.schema.json (canonical per its own frontmatter, {name,kind:person|session,disposition}, no holds-offices/model/personnel fields).",
+    "idSchemesInUse": [
+     "bare kebab slug matching the canonical schema: all 4 consumer enterprises' content/offices, characters files",
+     "raw sha256:<hex> file-content digest, plus a non-conformant urn:${sha256-hex} offer id in the SAME package: union-officer-academy/src/character-officer-supply.mjs (self-contradicting, would fail the package's own ni: URI guard)",
+     "GovernanceAspect policy-stack model (identity/behavior/voice/memory/lore/tools) \u2014 the shape apps/playing/src/character-agent.mts's own docstring says the corpus REJECTED: metroplat/src/agents/characters.mts (3989 lines, dead/unwired)",
+     "byte-identical schema copy, not $ref'd: turntide-islands, divination-services-section, agrodao, legacy board-of-directors, legacy spotcomp, live spotcomp app, legacy relationality/animating (8 total sites)"
+    ]
+   },
+   {
+    "concept": "session",
+    "canonicalLaw": "Union Officer Academy README: 'A model or API call is one ephemeral animation of a session character, not the character itself' \u2014 the only carrier stating the session/character relation; no glossary term for 'session' cites it.",
+    "idSchemesInUse": [
+     "content-digest ni: URI (FAE Tier B record): apps/fae/src/kernel/identity.mjs",
+     "bare string session name / ActivityPub-style URL '${baseUrl}/agents/${harness}/${session}': apps/playing, apps/organizing/src/performing/session-character.mts"
+    ]
+   },
+   {
+    "concept": "officer",
+    "canonicalLaw": "operations-services-section/services/agent-services-section/README.md line 13 (sole carrier): 'office + character + receiver recognition + receiver induction = officer' \u2014 a derived relation, never an addressed entity kind. No officer.md glossary term exists anywhere in the corpus (verified: predicated-governance-services-section/content/glossary/terms/incumbent.md links to one that does not exist).",
+    "idSchemesInUse": [
+     "none \u2014 officer is a derived relation over office+character+incumbency, never itself minted or addressed"
+    ]
+   },
+   {
+    "concept": "resource",
+    "canonicalLaw": "uri-services-section/services/ni-services-section/src/ni-uri.mjs (the one sanctioned RFC 6920 sha-256 ni: URI function, makeNiUri/niUriDigest) composed via cbor-ni-service into the EAVT/relational-value-graph-service/semantic-content-identify-service lane. Science glossary sense: an Entity whose content makes claims, read not invoked.",
+    "idSchemesInUse": [
+     "ni:///sha-256;<digest> via the sanctioned root: typed-resource-catalog, relational-value-graph-service, semantic-content-identify-service (151 consumers)",
+     "local createHash('sha256') reimplementations defeating the root: drew (urn:drew:*:sha256:<hex>), note-resource-service (sha256:<hex>/urn:sha256:<hex> \u2014 despite its own manifest listing semantic-content-identify-service as an 'import' it never calls, zero runtime deps)",
+     "caller-chosen kebab-case slug: task/dispatch schema 'resource' fields"
+    ]
+   },
+   {
+    "concept": "task",
+    "canonicalLaw": "Ruled 2026-08-30 (per the task-shape census) NOT on the critical path pending work-science theory; the 2026-09-01 endeavor-operating-system-schema-synthesis proposes treating endeavor/campaign/project/plan/task/work-item as EAVT-constituted rows differing only by kind, but this is a synthesis document, not yet implemented anywhere.",
+    "idSchemesInUse": [
+     "five incompatible shapes per the 2026-08-30 census: dual ni:///sha-256 + opaque workLotId (inference-work-lot-service), colon-namespaced URN task:proj:slug (PM task-graph.js), (tenant,randomUUID) (A2A Task), external repo#issueNumber (algora), thread-name prose (goal-stack roadmap)",
+     "caller-chosen kebab-case slug, schema-enforced, structurally incompatible with EAVT ids: dispatch.schema.json/task.schema.json"
+    ]
+   }
+  ],
+  "contradictions": [
+   {
+    "claim": "Codex enterprise's own actor identity contradicts its own actor-genesis.json.",
+    "resolution": "damage",
+    "carriers": [
+     "bare-cedar-fog-codex-services-section/agents/harness/actor-genesis.json (address actor:WWOM5azg-fTrn1Id0YVbz5AhppbnFny_W5Xl-rKgSs4, provenance 'supersedes: urn:ame:bare-cedar-fog-codex')",
+     "bare-cedar-fog-codex-services-section/src/enterprise.mjs:10 'export const ACTOR = \"urn:ame:bare-cedar-fog-codex\";' \u2014 verified directly; used as the actor field on essentially every event src/*.mjs emits",
+     "bare-cedar-fog-codex-services-section/src/agential-forms.mjs \u2014 mints 4 further urn:ame identifiers (CHARACTER_FACE_ACTOR, OFFICE_OBLIGATION_ACTOR, IMMUNITAS_ACTOR, CAPACITY_FABRICATION_ACTOR) after the coinage was rejected"
+    ]
+   },
+   {
+    "claim": "Claude enterprise's own actor identity is split the same way, at smaller scale.",
+    "resolution": "damage",
+    "carriers": [
+     "bare-cedar-fog-claude-services-section/content/harness/actor-genesis.json (address actor:bZH6KBOlPVWbYpqp04izN_Xtwykn0XgsMBStm_FkPPw)",
+     "bare-cedar-fog-claude-services-section/content/offices/bare-cedar-fog-claude-actuation-office.json (normative-structure prose: 'Its incumbent is the stable urn:ame:bare-cedar-fog-claude customer enterprise')",
+     "bare-cedar-fog-claude-services-section/content/incumbencies/*.json (x-provenance.animating-actor field, 8 files)",
+     "bare-cedar-fog-claude-services-section/scripts/provision-claude-enterprise-account.sh (live shell variable URN=urn:ame:bare-cedar-fog-claude)"
+    ]
+   },
+   {
+    "claim": "codex-harness-projection-service enforces the rejected coinage as its ONLY admitted actor value, while its Claude sibling enforces the constitute law.",
+    "resolution": "damage",
+    "carriers": [
+     "codex-harness-projection-service/src/projector.mjs:17 'if (configuration.actor !== \"urn:ame:bare-cedar-fog-codex\") throw' \u2014 verified directly",
+     "claude-harness-projection-service/src/actor.mjs (ACTOR_ADDRESS_PATTERN enforcing actor:<digest>)",
+     "codex-harness-projection-service/actuators/*.json (11 files, all urn:ame:*)",
+     "561-group-board-of-directors/.../agents/offices/bare-cedar-fog-codex-actuation-office.json (live seated office record, normative-structure prose names the urn:ame incumbent)"
+    ]
+   },
+   {
+    "claim": "mape-k-actuation-office-service \u2014 the cross-provider generator meant to prevent per-provider duplication \u2014 institutionalizes the rejected scheme forward by design, not drift.",
+    "resolution": "damage",
+    "carriers": [
+     "mape-k-actuation-office-service/src/generator.mjs (public parameter literally named actorUrn)",
+     "mape-k-actuation-office-service/test/generator.test.mjs (passes urn:ame:bare-cedar-fog-codex / urn:ame:bare-cedar-fog-claude as the canonical example values)"
+    ]
+   },
+   {
+    "claim": "harness-lifecycle-event.schema.json's own $comment calls urn:ame:* 'provisional' (an open question) while the sibling code already enforces a closed actor:<digest> allowlist.",
+    "resolution": "damage",
+    "carriers": [
+     "harness-lifecycle-journal-service/data/records/schema/harness-lifecycle-event.schema.json ($comment: 'urn:ame:* is provisional')",
+     "harness-lifecycle-journal-service/src/harness-lifecycle.mjs (ADMITTED_HARNESS_ACTORS, a closed actor:<digest> allowlist)"
+    ]
+   },
+   {
+    "claim": "Incumbency's double settlement (recognition AND induction both 't') is unenforced at the one runtime gate that exists for it, on both harness seats.",
+    "resolution": "damage",
+    "carriers": [
+     "claude-harness-projection-service/src/projector.mjs:133-160 verifyIncumbency() \u2014 verified directly: checks incumbency.office, seating.character existence, character.kind, never incumbency.recognition or incumbency.induction",
+     "codex-harness-projection-service/src/projector.mjs (equivalent function, same omission)",
+     "561-group-services-section/data/records/schema/incumbency.schema.json (required: recognition, induction)",
+     "@red-cup-engineering/actor/src/actor.mjs incumbencyCharge/incumbencyState/seatIncumbency \u2014 the composable fix already exists, unwired (see missed[0])"
+    ]
+   },
+   {
+    "claim": "The same double-settlement law is violated a second, independent way in Codex's own live runtime projection state.",
+    "resolution": "damage",
+    "carriers": [
+     "bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/projection/incumbencies.json ({actor, offices:[{office,status,source}]} \u2014 a plain status enum, no recognition/induction fields at all)",
+     "561-group-services-section/data/records/schema/incumbency.schema.json (required: recognition, induction)"
+    ]
+   },
+   {
+    "claim": "content/character.json's own provenance field, and two office-minting scripts, cite a schema/tooling path that does not exist on disk.",
+    "resolution": "damage",
+    "carriers": [
+     "bare-cedar-fog-claude-services-section/content/character.json (x-provenance.precedent cites lib/emsenn/services/561-group/services/board-of-directors/services/executive-office/lib/schemas/character.schema.json \u2014 confirmed absent)",
+     "agent-science-services-section/data/records/schema/glossary/terms/character.schema.json (the live canonical schema, at an unrelated path)",
+     "enterprise-office-services-section/scripts/commission-an-office.js and scripts/check-the-offices-of-a-firm-conform.mjs (POOL/TERM/CHECKER constants point at the same non-existent board-of-directors path \u2014 no office can currently be commissioned or checked through this section's own tools)"
+    ]
+   },
+   {
+    "claim": "The 2026-08-31 roadmap's own claim that both harness actors are content-addressed constituted entities is false as stated for Codex.",
+    "resolution": "damage",
+    "carriers": [
+     "561-group-enterprise-project-management-services-section/data/records/2026-08-31-2100-goal-stack-roadmap.json:21 ('MOVED 2026-08-31: both harness actors are content-addressed constituted entities')",
+     "bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/{projection/actor.json, projection/incumbencies.json, config.json} (still urn:ame:bare-cedar-fog-codex as of 2026-09-02)",
+     "bare-cedar-fog-codex-services-section/agents/harness/actor-genesis.json (the genesis record these files sit beside but were never repointed to read)"
+    ]
+   },
+   {
+    "claim": "Inference market's own settlement-account actor identity is the rejected coinage, and its two admission gates for the same customer set are mutually exclusive.",
+    "resolution": "damage",
+    "carriers": [
+     "inference-dispatch-service/src/inference-dispatch.mjs:26 'const CUSTOMER = \"urn:ame:inference-work-lot-service\";' \u2014 verified directly",
+     "inference-dispatch-service/content/customer-admissions/admitted-customers.json (3 of 5 admissions urn:ame:*: leader-movement-team, modeled-union-dimension, metroplat)",
+     "harness-lifecycle-journal-service/src/harness-lifecycle.mjs ADMITTED_HARNESS_ACTORS (admits only 2 actor:<digest> addresses \u2014 every urn:ame:* actor above would be rejected here)"
+    ]
+   },
+   {
+    "claim": "direct-endpoint-provider.mjs's default consideration-asset logic actively strips and re-adds a urn:ame: prefix \u2014 the rejected scheme is load-bearing logic, not stale data.",
+    "resolution": "damage",
+    "carriers": [
+     "inference-dispatch-service/src/direct-endpoint-provider.mjs (~line 128, considerationAsset default: `urn:ame:${provider.replace(/^urn:ame:/u,'')}:development-consideration`)"
+    ]
+   },
+   {
+    "claim": "Provider admission structurally cannot ever accept an EAVT actor:<digest> address, unlike customer admission in the same file.",
+    "resolution": "border",
+    "carriers": [
+     "inference-dispatch-service/src/provider-admission.mjs loadProviderAdmissions (hard-requires item.actor.startsWith('urn:'))",
+     "inference-dispatch-service/src/provider-admission.mjs loadCustomerAdmissions, same file (accepts any scheme prefix including actor:)"
+    ],
+    "note": "Providers are external market counterparties the org does not mint; whether a provider's identity should ever be an EAVT-constituted entity at all is a design question for a founder-shaped ruling, not settled damage \u2014 filed as an open border, not fixed en passant."
+   },
+   {
+    "claim": "The same real-world providers (Gemini, OpenRouter, Groq...) are identified once urn:ame-scoped, once as bare unscoped strings, with zero cross-reference.",
+    "resolution": "damage",
+    "carriers": [
+     "inference-dispatch-service/content/provider-admissions/inference-providers.json (urn:ame:gemini-inference-team, etc.)",
+     "openai-compatible-chat-completion-service/content/providers/catalog.json ('gemini-direct', 'openrouter', 'groq' \u2014 no cross-reference)"
+    ]
+   },
+   {
+    "claim": "Union Officer Academy's own actor identity is not just urn:ame residue but internally self-contradictory within one file.",
+    "resolution": "damage",
+    "carriers": [
+     "agent-services-section/src/office-repertoire-market.mjs:8 (ACADEMY_ACTOR = 'urn:ame:union-officer-academy') and src/character-officer-supply.mjs:56,90 (Reject/Offer envelopes: actor: 'urn:ame:union-officer-academy')",
+     "agent-services-section/src/officer-supply-market.mjs:60,80,88,90,97,105 and the SAME character-officer-supply.mjs:37,40,41 verifyMarketAward (checks the bare string 'union-officer-academy' for the identical actor) \u2014 an Offer the package itself emits would fail its own award check on a subsequent hop"
+    ]
+   },
+   {
+    "claim": "The Academy also runs two structurally incompatible, non-EAVT record-identity schemes side by side.",
+    "resolution": "damage",
+    "carriers": [
+     "agent-services-section/src/academy.mjs:74-104 (real RFC 6920 ni: URI via semantic-content-identify-service, checked on read with isCanonicalSha256NiUri)",
+     "agent-services-section/src/character-officer-supply.mjs:17,89,102 and src/local-academy-necessity.mjs:5-7,77,120 (hand-rolled urn:${sha256-hex} \u2014 not a valid ni: URI, would fail the package's own guard if run through it)"
+    ]
+   },
+   {
+    "claim": "The Academy's README and its own verification script describe ~30 canonical carriers as present; none exist on disk or in git.",
+    "resolution": "damage",
+    "carriers": [
+     "agent-services-section/README.md ('What the Academy owns')",
+     "agent-services-section/src/verify-academy.mjs:13 (REQUIRED_PATHS, ~30 entries) and :39 (throws 'lib/ownership.json: required Academy carrier missing' \u2014 verified reproducible)",
+     "filesystem reality: none of content/, lib/management/, lib/ownership.json, lib/schemas/ exist under agent-services-section; 7 of test/academy.test.mjs's 10 tests hang indefinitely"
+    ]
+   },
+   {
+    "claim": "metroplat implements the org's EAVT identity law nowhere across its entire agent/office/identity surface, and separately mints its own rejected-scheme literal.",
+    "resolution": "damage",
+    "carriers": [
+     "apps/metroplat/src/agents/characters.mts:52 (CharacterIdentity.id, opaque string), :483 (CharacterActor.id, a URL)",
+     "apps/metroplat/src/lib/capability/identity/index.mts:125 (IdentityRoot/did:web)",
+     "apps/metroplat/src/lib/codecs/json/jsonl/eavt/row.mts (metroplat's own local EAVT row codec, never imports @red-cup-engineering/eavt)",
+     "apps/metroplat/src/integrations/inference-work-lot/inference-source.mts:25 'export const METROPLAT_INFERENCE_MARKET_CUSTOMER = \"urn:ame:metroplat\";' \u2014 verified directly"
+    ]
+   },
+   {
+    "claim": "metroplat's own LLD explicitly warns against duplicating incumbency's two-bit evidence outside the shared lattice join \u2014 and the code does exactly that.",
+    "resolution": "damage",
+    "carriers": [
+     "apps/metroplat/dev/content/text/documents/articles/low-level-design.md:1153 (JUR-008: 'a second grading of two-bit evidence, duplicating a construction already proved initial')",
+     "apps/metroplat/src/work/model.mts:252-260 (incumbencyState(): a hand-written if/else over the two ChargeValueName inputs, not routed through the same file's own joinKnowledgeValue/meetKnowledgeValue lattice)"
+    ]
+   },
+   {
+    "claim": "A rejected character-model shape (governed policy stack) is implemented at scale in dead code, inside the same top-level section whose own docstring rejects it.",
+    "resolution": "damage",
+    "carriers": [
+     "apps/playing/src/character-agent.mts (docstring: 'The corpus REJECTED the industry \"character-agent = governed state machine\" ... A character-agent is NOT a policy stack')",
+     "apps/metroplat/src/agents/characters.mts (3989 lines, GovernanceAspect enum identity/behavior/voice/memory/lore/tools + MemoryClass taxonomy \u2014 exactly the rejected shape; re-exported once from src/agents/index.mts, imported nowhere else, no test imports it)"
+    ],
+    "note": "Currently causes no live behavioral contradiction because the module is dead/unwired; the debt is the built-but-unwired mass itself, which should be deleted per the aggressive-delete house law rather than left latent."
+   },
+   {
+    "claim": "Office identity disagrees within one section, in three structurally unrelated ways plus the lawful one.",
+    "resolution": "damage",
+    "carriers": [
+     "apps/lagoon/scripts/seed-offices.mjs (constituteEntity({kind:'office',...}) -> office:<digest>, the lawful form)",
+     "apps/socializing/src/socialize/office.mts (Office.name: bare string)",
+     "apps/organizing/src/work.mts (PredicationTerm keyed by JSON.stringify(mark.value))",
+     "apps/organizing/src/schemas.mts (office-eligibility-request/decision: flat capability-string arrays, no office entity at all)"
+    ]
+   },
+   {
+    "claim": "Duty is defined two structurally unrelated ways in the same top-level section.",
+    "resolution": "damage",
+    "carriers": [
+     "apps/socializing/src/socialize/office.mts:assign() (JuralRelation {kind:'duty',active,passive,scope,standing}, bare agent-name strings, unaddressed)",
+     "apps/lagoon/scripts/fold-harness-lifecycle.mjs:fold() (constituteEntity({kind:'duty',...}) -> duty:<digest>, a first-class EAVT-addressed entity)"
+    ]
+   },
+   {
+    "claim": "Office incumbency and handoff are documented three incompatible ways and implemented a fourth.",
+    "resolution": "damage",
+    "carriers": [
+     "apps/socializing/src/socialize/office.mts:invest() (recognition+induction double-settlement to dignitas)",
+     "content/text/documents/articles/specifications/2026-08-29-lagoon-architecture.md:~889-905 ('the office-installation record, derived') and :~1602-1615 (mutual-acknowledgement accepts-watch/yields-watch handoff protocol) \u2014 two different descriptions in the same document",
+     "apps/lagoon/scripts/seed-offices.mjs (occupant baked into genesis attributes at constitution time \u2014 no settlement act, no handoff path, no vacancy state)"
+    ]
+   },
+   {
+    "claim": "Task/dispatch identity intentionally stays a caller-chosen slug, structurally incompatible with an EAVT id.",
+    "resolution": "border",
+    "carriers": [
+     "task-services-section dispatch.schema.json/task.schema.json (id pattern ^[a-z0-9]+(-[a-z0-9]+)*$, would reject any '<kind>:<digest>' id outright)",
+     "561-group-enterprise-project-management-services-section/data/records/2026-08-30-task-shape-census.json (rules task vocabulary explicitly NOT on the critical path pending work-science theory)",
+     "561-group-enterprise-project-management-services-section/.../2026-09-01-endeavor-operating-system-schema-synthesis.md (proposes EAVT-row treatment, unimplemented)"
+    ],
+    "note": "A filed, open architectural question per an explicit owner-adjacent ruling, not code damage."
+   },
+   {
+    "claim": "3 of 4 vendored list-open-obligations.js copies call a resolver strategy their own pinned dependency unconditionally refuses.",
+    "resolution": "damage",
+    "carriers": [
+     "hive-services-section/services/aagaard/lib/management/skills/list-open-obligations.js, agrodao/lib/management/skills/list-open-obligations.js, divination-services-section/lib/management/skills/list-open-obligations.js (all three call resolveIdentifier(id,{kind:'offices',strategy:'global'}))",
+     "these packages' own pinned @561-group/resolving-an-identifier@0.2.0 (unconditionally refuses any strategy other than 'nearest')",
+     "public-social-services-section/turntide-islands/lib/management/skills/list-open-obligations.js (the one copy updated to 'nearest', matching @561-group/listing-open-obligations's own test)"
+    ]
+   },
+   {
+    "claim": "The resource lane's sanctioned sha-256 root is defeated by two packages minting their own bespoke URI scheme.",
+    "resolution": "damage",
+    "carriers": [
+     "computer-data-services-section/apps/drew/src/drew.mjs:53, src/app.mjs:61 (urn:drew:*:sha256:<hex> via local createHash('sha256'))",
+     "notes-services-section/services/note-resource-service/src/note-resources.mjs:26-38 (sha256:<hex>/urn:sha256:<hex>; package.json declares zero runtime dependencies despite NOTE_RESOURCE_CATALOG.imports listing semantic-content-identify-service as though it were consumed)",
+     "uri-services-section/services/ni-services-section/src/ni-uri.mjs (the sanctioned root both packages bypass)"
+    ]
+   },
+   {
+    "claim": "A comment documenting eavt's row-identity law as JCS-canonicalized JSON is false; the live law is RFC 8949 canonical CBOR.",
+    "resolution": "damage",
+    "carriers": [
+     "durante-services-section/apps/durante/web/node-crypto-shim.mjs:1-3 (header: \"rowId = sha256(jcs(row))\")",
+     "eavt-engineering-services-section/src/eavt.mjs:rowId (canonicalCborToNiUri(encodeCanonical(row)) \u2014 verified directly, canonical CBOR, not JCS)"
+    ],
+    "note": "Falsehood in a comment about the ruled law itself; per house law this is corrected in place, not annotated."
+   },
+   {
+    "claim": "FAE's identity() and the EAVT/relational-value-graph-service/semantic-content-identify-service lane wrap the same root primitive but canonicalize to different byte encodings, so identical logical values get different ni: identities depending which package computes them.",
+    "resolution": "damage",
+    "carriers": [
+     "flatfile-agent-resource-system-engineering-services-section/apps/fae/src/kernel/identity.mjs (NFC-normalize + sort-keys JSON.stringify, then makeNiUri)",
+     "eavt-engineering-services-section/src/eavt.mjs:rowId and relational-value-graph-service/src/relational-value-graph.mjs:semanticBytes (RFC 8949 canonical CBOR via encodeCanonical, then makeNiUri/canonicalCborToNiUri)"
+    ]
+   },
+   {
+    "claim": "Enterprise consumers collectively mint/check hundreds of live, non-legacy urn:ame:* occurrences as their own actor identities, none using EAVT constitute for office/character/duty identity.",
+    "resolution": "damage",
+    "carriers": [
+     "public-social-services-section/turntide-islands (262 occurrences, incl. a live runtime predicate in turntide-union-media-syndication-service)",
+     "public-web3-services-section/agrodao (48 occurrences, incl. two live TypeError guards and a regex validator hard-coding the urn:ame: prefix)",
+     "hive-services-section/aagaard (25 occurrences, ACTOR/AAGAARD_ACTOR constant across ~8 settlement files)",
+     "science-services-section/divination-services-section (2 occurrences)"
+    ]
+   },
+   {
+    "claim": "The schema-handling law (a schema lives once) is violated at scale across the same 4 consumer enterprises.",
+    "resolution": "damage",
+    "carriers": [
+     "turntide-islands, divination-services-section, agrodao, aagaard: each carries its own byte-identical copy of character.schema.json and/or dispatch.schema.json under lib/schemas/",
+     "task-services-section (the would-be canonical owner of dispatch/task schemas) has no data/records/schema/ directory holding them at all"
+    ]
+   },
+   {
+    "claim": "The primitives-live-once law is violated concretely: a published export already exists and is already a declared dependency, yet is not imported.",
+    "resolution": "damage",
+    "carriers": [
+     "claude-harness-projection-service/src/install-claude-as-an-agent.mjs (published './install-claude-as-an-agent' export, v1.3.0)",
+     "public-social-services-section/turntide-islands and divination-services-section: each vendors its own ~630-line copy (pinned 1.2.0 as an otherwise-unused dependency), already drifted from each other (DIV added an 18-line --check path TTI lacks) and from the shared package"
+    ]
+   },
+   {
+    "claim": "dispatch-a-task.js is vendored byte-identical across all 4 consumer enterprises, none importing the canonical, already-extracted package.",
+    "resolution": "damage",
+    "carriers": [
+     "hive-services-section/aagaard, public-web3-services-section/agrodao, public-social-services-section/turntide-islands, science-services-section/divination-services-section: lib/management/skills/dispatch-a-task.js (md5 6528c2ce5a4b221058cdf78c31d7b686, 279 lines, 5 copies counting DIV's own intra-package duplicate)",
+     "task-services-section/services/dispatching-a-task/src/dispatch-a-task.js (@561-group/dispatching-a-task v0.1.2, the canonical, already-extracted owner \u2014 has zero wired consumers in the workspace)"
+    ]
+   },
+   {
+    "claim": "Two governance-adjacent glossary sections keep terms at a nonstandard path missing the corpus-wide 'text/' segment, duplicating a sibling byte-for-byte.",
+    "resolution": "damage",
+    "carriers": [
+     "work-science-services-section/services/governance-services-section/content/glossary/terms/duty.md (nonstandard path)",
+     "work-science-services-section/services/governance-services-section/content/text/glossary/terms/duty.md (standard-path sibling, byte-identical)"
+    ]
+   },
+   {
+    "claim": "A glossary carrier links to an 'officer.md' term that does not exist anywhere in the corpus.",
+    "resolution": "damage",
+    "carriers": [
+     "predicated-work-services-section/services/predicated-governance-services-section/content/glossary/terms/incumbent.md ('Connection to officer' links to library/theories/.../officer.md)",
+     "verified absent: no file named officer.md exists under any content/glossary or content/text/glossary tree (7887 glossary/terms files searched)",
+     "operations-services-section/services/agent-services-section/README.md:13 (the only carrier defining 'officer', as prose, not a glossary term)"
+    ]
+   },
+   {
+    "claim": "The past-settling incumbency predicate is named 'recognition' in one theory lineage and 'Institution' in another.",
+    "resolution": "border",
+    "carriers": [
+     ".claude/rules/org-layering.md ('incumbency is a DOUBLE settlement (recognition AND induction both \"t\")') and operations-services-section/agent-services-section/README.md ('receiver recognition')",
+     "science-services-section/.../work-science-services-section/content/text/glossary/terms/incumbent.md (names the identical predicate 'Institution')",
+     "predicated-work-services-section/.../predicated-governance-services-section/content/glossary/terms/incumbent.md (self-acknowledges: 'the library uses recognition and institution interchangeably for the past-settling axis')"
+    ],
+    "note": "A self-acknowledged naming-lineage variance between two theory carriers, filed but not fused \u2014 per the EAVT/SEAVT \u22a4-hold instruction, distinct-lineage naming is a border, not a code defect, and is not fixed en passant here."
+   }
+  ],
+  "duplicateShapes": [
+   {
+    "what": "character.schema.json \u2014 byte-identical/near-identical JSON Schema, copied instead of $ref'd",
+    "bytesApprox": 8007,
+    "sites": [
+     "science-services-section/.../agent-science-services-section/data/records/schema/glossary/terms/character.schema.json (canonical)",
+     "public-social-services-section/turntide-islands/lib/schemas/character.schema.json",
+     "public-web3-services-section/agrodao/lib/schemas/character.schema.json",
+     "science-services-section/divination-services-section/lib/schemas/character.schema.json",
+     "561-group-board-of-directors/lib/legacy/2026-08-03-executive-office/lib/schemas/character.schema.json (legacy)",
+     "computer-engineering-services-section/.../semiotic-computer-system-services-section/lib/legacy/2026-06-17-spotcomp/.../character/character.schema.json (legacy)",
+     "computer-engineering-services-section/.../multi-agent-computer-platform-system-engineering-services-section/apps/spotcomp/hacking/library/agentic-systems/library/character/character.schema.json (live app, duplicates the legacy spotcomp shape)",
+     "philosophy-services-section/.../relationality-services-section/lib/legacy/2026-06-23-animating/.../character/character.schema.json (legacy)"
+    ]
+   },
+   {
+    "what": "install-*-as-an-agent.js/.mjs \u2014 the full office-to-subagent-projector CLI (pools/nearest/officeAt/resolveOffice/resolveDuties/renderAgent/doInstall/doCheck) exists as 5-6 nearly-identical whole-file copies at different vintages, each independently maintained",
+    "bytesApprox": 125000,
+    "sites": [
+     "agent-harness-computer-system-engineering-services-section/.../claude-harness-projection-service/src/install-claude-as-an-agent.mjs (25737 bytes, newest, exported installClaudeAsAnAgent(), has --check)",
+     "agent-harness-computer-system-engineering-services-section/.../codex-office-agent-projection-service/scripts/install-codex-as-an-agent.mjs (25600 bytes, TOML variant)",
+     "science-services-section/divination-services-section/lib/management/skills/installing-claude-as-an-agent/scripts/install-claude-as-an-agent.js (24599 bytes \u2014 the one actually spawned at runtime by claude-harness-projection-service/src/projector.mjs::resolveOfficeProjector)",
+     "public-social-services-section/turntide-islands/lib/management/skills/installing-claude-as-an-agent/scripts/install-claude-as-an-agent.js (23803 bytes, missing --check)",
+     "561-group-board-of-directors/lib/legacy/2026-08-03-executive-office/.../install-claude-as-an-agent.js (legacy, cited by its own README as origin)"
+    ]
+   },
+   {
+    "what": "resolveDuties()/nearest() \u2014 byte-for-byte identical helper functions inside the copies above",
+    "bytesApprox": 9120,
+    "sites": [
+     "claude-harness-projection-service/src/install-claude-as-an-agent.mjs:88,254",
+     "codex-office-agent-projection-service/scripts/install-codex-as-an-agent.mjs:155,321"
+    ]
+   },
+   {
+    "what": "dispatch-a-task.js \u2014 279-line CLI script, byte-identical (md5 6528c2ce5a4b221058cdf78c31d7b686)",
+    "bytesApprox": 59845,
+    "sites": [
+     "hive-services-section/aagaard/lib/management/skills/dispatch-a-task.js",
+     "public-web3-services-section/agrodao/lib/management/skills/dispatch-a-task.js",
+     "public-social-services-section/turntide-islands/lib/management/skills/dispatch-a-task.js",
+     "science-services-section/divination-services-section/lib/management/skills/dispatch-a-task.js",
+     "science-services-section/divination-services-section/lib/management/skills/dispatching-a-task/scripts/dispatch-a-task.js (5th, intra-package copy)"
+    ]
+   },
+   {
+    "what": "list-open-obligations.js \u2014 vendored full copy, 3 of 5 sites byte-identical to each other and independently broken (see contradictions: 'global' strategy)",
+    "bytesApprox": 6900,
+    "sites": [
+     "hive-services-section/aagaard/lib/management/skills/list-open-obligations.js",
+     "public-web3-services-section/agrodao/lib/management/skills/list-open-obligations.js",
+     "science-services-section/divination-services-section/lib/management/skills/list-open-obligations.js",
+     "science-services-section/divination-services-section/lib/management/skills/listing-open-obligations/scripts/list-open-obligations.js (5th, intra-package copy)",
+     "public-social-services-section/turntide-islands/lib/management/skills/list-open-obligations.js (diverged, fixed variant)"
+    ]
+   },
+   {
+    "what": "dispatch.schema.json / task.schema.json \u2014 copied verbatim into each consumer's own lib/schemas/ instead of $ref'd from an owning section",
+    "bytesApprox": 12944,
+    "sites": [
+     "hive-services-section/aagaard/lib/schemas/{dispatch,task}.schema.json",
+     "public-web3-services-section/agrodao/lib/schemas/{dispatch,task,duty}.schema.json",
+     "public-social-services-section/turntide-islands/lib/schemas/{dispatch,task}.schema.json",
+     "science-services-section/divination-services-section/lib/schemas/{dispatch,task}.schema.json"
+    ]
+   },
+   {
+    "what": "eavt.mjs's row-identity/append apparatus and substrate.mjs's fold/supersede/relate/settle/section apparatus \u2014 the documented PORT SOURCE, still live and independently tested (not dead code; a migration-or-retire call is its own campaign, not fixed here)",
+    "bytesApprox": null,
+    "sites": [
+     "eavt-engineering-services-section/src/eavt.mjs (current canonical, 0.4.0)",
+     "computer-operating-system-services-section/services/561-group-computer/posix-holography/src/{eavt,substrate}.mjs (0.2.0, legacy port source, tests green: 17 passed + 8/8 + 9/9 + 1/1)"
+    ]
+   },
+   {
+    "what": "Content-derived ni:-URI identity \u2014 the same core idea (canonicalize -> hash -> RFC 6920 name) implemented twice with incompatible envelopes/codecs",
+    "bytesApprox": 1900,
+    "sites": [
+     "eavt-engineering-services-section/src/eavt.mjs (rowId/constituteEntity/entityAddress: RFC 8949 canonical CBOR, {e,a,v,t} genesis-row envelope, '<kind>:<digest>')",
+     "flatfile-agent-resource-system-engineering-services-section/apps/fae/src/kernel/identity.mjs (identity/identityOfRecord: JSON canonicalization, record-body envelope, bare 'ni:///sha-256;<digest>')"
+    ]
+   },
+   {
+    "what": "canonical-JSON+sha256 digest helper \u2014 reimplemented near-verbatim 5x inside one package instead of shared once, plus territoryRoot() reimplemented twice",
+    "bytesApprox": 1100,
+    "sites": [
+     "agent-services-section/src/academy.mjs:61-72",
+     "agent-services-section/src/character-officer-supply.mjs:11-17",
+     "agent-services-section/src/office-repertoire-market.mjs:14-17",
+     "agent-services-section/src/officer-supply-market.mjs:8-10",
+     "agent-services-section/src/local-academy-necessity.mjs:5-7",
+     "agent-services-section/src/professional-repertoire.mjs:9-16 and src/verify-academy.mjs:16-22 (territoryRoot())"
+    ]
+   },
+   {
+    "what": "Browser sha-256 polyfill (node-crypto-shim.mjs) \u2014 byte-identical except header comment; DOCUMENTED, deliberate vendoring per house doctrine for browser polyfills, not a violation like the others",
+    "bytesApprox": 3200,
+    "sites": [
+     "public-computer-games-services-section/services/be-not-so-fearful-service/web/node-crypto-shim.mjs",
+     "public-computer-games-services-section/services/stoke-service/web/js/node-crypto-shim.mjs",
+     "public-computer-games-services-section/services/durante-services-section/apps/durante/web/node-crypto-shim.mjs"
+    ]
+   },
+   {
+    "what": "metroplat's own EAVT row/tuple codec reimplemented from scratch instead of consuming @red-cup-engineering/eavt",
+    "bytesApprox": 6000,
+    "sites": [
+     "@red-cup-engineering/eavt (canonical, external)",
+     "apps/metroplat/src/lib/codecs/json/jsonl/eavt/{index,row}.mts",
+     "apps/metroplat/src/lib/codecs/json/jsonl/eavt/datom/index.mts"
+    ]
+   },
+   {
+    "what": "Incumbency-projection verification logic (office/holder/kind check, no recognition/induction) duplicated per-harness instead of shared",
+    "bytesApprox": 4000,
+    "sites": [
+     "claude-harness-projection-service/src/projector.mjs::verifyIncumbency",
+     "codex-harness-projection-service/src/projector.mjs (equivalent function)"
+    ]
+   },
+   {
+    "what": "office \u2014 four independent, non-interoperating representations of the same word inside one top-level section, none converting to or referencing the others",
+    "bytesApprox": null,
+    "sites": [
+     "apps/socializing/src/socialize/office.mts (bearer-independent deontic-profile object keyed by bare name)",
+     "apps/organizing/src/work.mts (PredicationTerm keyed by JSON.stringify)",
+     "apps/organizing/src/schemas.mts (flat officeAuthorities:string[], no office entity)",
+     "apps/lagoon/scripts/seed-offices.mjs (EAVT-constituted 'office:<digest>')"
+    ]
+   },
+   {
+    "what": "'Duty' glossary definition (five-tuple formal + short prose) byte-identical/near-identical across a standard and a nonstandard glossary path, and again across two unrelated custodies",
+    "bytesApprox": 10000,
+    "sites": [
+     "work-science-services-section/services/governance-services-section/content/text/glossary/terms/duty.md",
+     "work-science-services-section/services/governance-services-section/content/glossary/terms/duty.md (nonstandard path)",
+     "information-science-services-section/services/knowledge-services-section/services/research-services-section/content/text/glossary/terms/duty.md",
+     "public-services-section/personal-services-section/emsenn-services-section/content/text/glossary/terms/duty.md"
+    ]
+   },
+   {
+    "what": "'Incumbent' quadruple (O, t_now, a, \u03b9) with Institution+Induction double settlement \u2014 defined twice at two levels of formalization with a dead cross-link between them",
+    "bytesApprox": 9000,
+    "sites": [
+     "work-science-services-section/content/text/glossary/terms/incumbent.md",
+     "work-science-services-section/services/predicated-work-services-section/services/predicated-governance-services-section/content/glossary/terms/incumbent.md"
+    ]
+   },
+   {
+    "what": "'Character' as a glossary term name collides across 3+ unrelated custodies with no disambiguating cross-reference (formal Heyting-nucleus, fiction-craft, TTRPG persona) \u2014 on top of the code-schema character.schema.json duplication above",
+    "bytesApprox": null,
+    "sites": [
+     "information-science-services-section/content/text/glossary/terms/character.md",
+     "communication-science-services-section/services/writing-services-section/services/fiction-services-section/content/text/glossary/terms/character.md",
+     "philosophy-services-section/.../role-playing-games-services-section/content/text/glossary/terms/character.md"
+    ]
+   },
+   {
+    "what": "'Entity'/'Resource' each defined twice under different theoretical registers (math glossary vs engineering glossary) with no cross-reference reconciling them",
+    "bytesApprox": null,
+    "sites": [
+     "information-science-services-section/services/math-services-section/content/text/glossary/terms/entity.md",
+     "engineering-services-section/content/text/glossary/terms/entity.md",
+     "information-science-services-section/content/text/glossary/terms/resource.md",
+     "engineering-services-section/content/text/glossary/terms/resource.md"
+    ]
+   },
+   {
+    "what": "Direct-endpoint-provider descriptor defined independently three times with no shared source",
+    "bytesApprox": 1800,
+    "sites": [
+     "inference-dispatch-service/content/provider-admissions/direct-endpoint-providers.json (1 entry)",
+     ".mcp.json DIRECT_ENDPOINT_PROVIDERS env string (4 entries)",
+     "inference-dispatch-service/test/fixtures/local-ollama-direct-endpoint.json (1 entry)"
+    ]
+   },
+   {
+    "what": "task/work-item shape \u2014 five incompatible shapes for the same concept, per the 2026-08-30 census",
+    "bytesApprox": null,
+    "sites": [
+     "inference-work-lot-service (dual ni:///sha-256 + opaque workLotId)",
+     "561-group-enterprise-project-management-services-section/src/task-graph.js (task{id,dependsOn[],goal[]})",
+     "A2A protocol Task{id,contextId,status,history[],artifacts[]}",
+     "algora work-board opportunity{repo#issue,...}",
+     "goal-stack roadmap thread{thread,state-as-prose}"
+    ]
+   }
+  ],
+  "missed": [
+   {
+    "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/actor-engineering-services-section (@red-cup-engineering/actor 0.1.0)",
+    "defines": "constituteActor/verifyActorGenesis (EAVT-constituted actor birth), nameRow/supersedeRow, appendActorRows/readActorRegister, resolveActor/supersessionMap, and incumbencyCharge/incumbencyState/seatIncumbency/readIncumbency/deriveIncumbencyRegister \u2014 the Belnap-charged recognition/induction double-settlement read the entire sweep found missing or hand-rolled across 8+ subsystems.",
+    "idScheme": "actor:<digest> via @red-cup-engineering/eavt's own constituteEntity/entityAddress, composed directly ('never a second hashing or canonicalization implementation', per its own README, verified directly)",
+    "matters": true,
+    "why": "This is the single highest-value miss in the sweep: it is not a proposal, it is built, green, and already the exact shape the cross-check independently converged on as the missing fix. Verified directly: `npm test` in this package gives 'tests 33 / pass 33 / fail 0' (quoted verbatim, run 2026-09-02); jsnode_search/jsnode_package confirm consumers:[] \u2014 zero wired consumers anywhere in the workspace, and it is not yet published (classification 'source-with-unassayed-delivery'). It was committed by an earlier concurrent-session checkpoint the same day this sweep ran ('Checkpoint interrupted concurrent Claude work', git log). None of claude-harness-projection-service, codex-harness-projection-service, union-officer-academy, metroplat, apps/socializing, or any of the 4 consumer enterprises import it \u2014 every one of contradictions [F], [G] (unenforced recognition/induction), and much of the office/character duplicate-shape debt above is exactly what this package was built to close. The next lot on this thread is wiring it in, not building it again."
+   },
+   {
+    "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps (@red-cup-engineering/agentic-organization-engine, @red-cup-engineering/agentic-animation-engine)",
+    "defines": "organizing: the Gen-2 social-scale gluing of a sheaf of agents into one organization (adjudication as the receiving dual of speaking, three Gen-2 boundary faces socializing/computing/gaming). animating: the Gen-1 agency reading of relating, gluing three faculty-faces into one interior agent \u2014 named explicitly in the original Critic prompt's own candidate list as owning 'office/character in description' at the theory level.",
+    "idScheme": "unknown \u2014 neither package's source was opened by any of the 13 readers",
+    "matters": true,
+    "why": "multi-agent-apps read organizing/socializing/playing/lagoon/computing (the downstream apps) but never organizing/animating themselves (the upstream relational-computing kernel these apps are the Gen-2/Gen-1 lift OF, per organizing's own description). This is very likely the actual canonical definition site the four sibling 'office' shapes found duplicated in multi-agent-apps (contradiction above) should already converge on, or should be reconciled against, before any consolidation lot touches those four sites."
+   },
+   {
+    "path": "@red-cup-engineering/qwzspace (a realtime webapp-game engine / spatiotemporal room platform, tagged 'eavt' and 'bilattice' in its own package.json keywords)",
+    "defines": "'provenance-bound intent logging, reconnection with resume, replay verification' over 'a generic event-stream data substrate' \u2014 its own tags assert an EAVT/bilattice relationship never checked by this sweep. Consumed by 6 packages (aletheon, farstone, tidepool.emsenn.net, casino-service-561-group, game-presence, qwzspace-example-spectate), including two people-facing MUD/casino products.",
+    "idScheme": "unverified \u2014 not opened",
+    "matters": true,
+    "why": "A package that self-tags 'eavt' and is consumed by 6 live/beta products, including a real-money-adjacent casino service and an agent-native MUD, was never read by any of the 13 subsystem prompts. Whether its room/entity identity routes through the ruled EAVT constitute law or is a second, undocumented implementation is an open question this sweep leaves unresolved."
+   },
+   {
+    "path": "@red-cup-engineering/cast (named, recurring agent game-players \u2014 persona identity + temperament)",
+    "defines": "Persona identity, seeded dialogue, deterministic policy, a transport-agnostic runner \u2014 the literal domain sense of 'actor' (a named agent player) the whole sweep's vocabulary is about, for the game shelf specifically.",
+    "idScheme": "unverified \u2014 not opened; its ./persona export was never checked against EAVT or urn:ame",
+    "matters": true,
+    "why": "Named explicitly as a Critic candidate in the original workflow prompt and never actually read. First consumer is casino.561.group (a real, monetized product) \u2014 if persona identity here is yet another local scheme, it is a fifth or sixth id-scheme for 'actor/character' the sweep did not count."
+   },
+   {
+    "path": "@red-cup-engineering/energy-bank (shared identity + double-entry ENERGY ledger for every 561 game)",
+    "defines": "Its own description calls itself 'shared identity' for accounts across every house game \u2014 an identity/account concept adjacent to actor/entity, never checked against EAVT or urn:ame by any of the 13 readers.",
+    "idScheme": "unverified \u2014 not opened",
+    "matters": true,
+    "why": "A ledger-adjacent identity surface (guest/durable accounts) that touches real monetization (casino-service-561-group's ticket/chip balances) is exactly the kind of 'actor' surface the sweep's mandate covers, and was not named or read."
+   },
+   {
+    "path": "the 18 a2a-* packages under agent-harness-computer-system-engineering-services-section and elsewhere (e.g. a2a-agent-card-discovery-service, a2a-agent-card-key-service)",
+    "defines": "Agent Card discovery and same-origin JWS/JWKS key verification \u2014 a third, cryptographically-verified agent-identity scheme, alongside EAVT actor:<digest> and the rejected urn:ame:*.",
+    "idScheme": "JWS/JWKS-verified Agent Card resource (protocol-native, distinct from both EAVT and urn:ame)",
+    "matters": true,
+    "why": "Named explicitly as a Critic candidate in the original workflow prompt ('a2a-agent-card services (agent identity)') and never read by any of the 13. A third live actor-identity scheme coexisting with EAVT and urn:ame, never reconciled against either, is exactly the kind of gap the Critic phase exists to surface."
+   },
+   {
+    "path": "content/incumbencies and content/offices directories outside the two harness sections and the 4 consumer enterprises",
+    "defines": "A direct search for a directory literally named 'incumbencies' (excluding node_modules) found NONE anywhere in the tree outside the two harness sections and the four consumer enterprises already surveyed \u2014 incumbency records are far rarer on disk than the doctrine's centrality implies. Two more 'offices' pool directories exist and were never read: lib/emsenn/services/561-group/services/science-services-section/lib/agency/offices and lib/emsenn/services/561-group/services/561-group-services-section/lib/agency/offices.",
+    "idScheme": "unverified \u2014 not opened",
+    "matters": true,
+    "why": "The original Critic prompt asked explicitly to 'find / -name incumbencies -type d'; doing so now turns up zero matches beyond the sections already surveyed, which is itself informative (the double-settlement doctrine is asserted far more often in prose/rules than it is instantiated as data) \u2014 and the two un-read 'offices' directories are a direct, concrete gap."
+   },
+   {
+    "path": "561-group-enterprise-project-management-services-section/data/records/2026-08-31-2100-goal-stack-roadmap.json:21 vs the union-of-readers urn:ame residue count",
+    "defines": "The roadmap's own count estimate ('~908 files') versus the records-and-findings reader's fresh tree-wide grep ('2988 files', by its own account 3.3x higher, broken down by section: operations 1291, engineering 895, public 617, 561-group 115, science 64).",
+    "idScheme": "n/a",
+    "matters": true,
+    "why": "This sweep did not re-run a full-tree grep to adjudicate which count is right (an earlier full-tree find attempt in this session itself timed out, consistent with the tree's ~214,000-directory scale) \u2014 the discrepancy is reported here as unreconciled, not resolved, per the house honesty law ('numbers are counted fresh... or labeled unverified'). A narrow, actual-actor-ID-field grep (not a bare-string grep) is the fix the records-and-findings reader itself recommended before any migration campaign sizes its scope."
+   }
+  ],
+  "urnAmeResidue": [
+   "186",
+   ".claude/rules/working-discipline.md (quotes the rejected coinage as an example, not live usage)",
+   ".mcp.json",
+   "apps/lagoon/scripts/fold-harness-lifecycle.mjs (documents and excludes, does not carry, urn:ame identities from upstream pre-migration events)",
+   "apps/lagoon/test/fold-harness-lifecycle.test.mjs (test asserting urn:ame exclusion)",
+   "bare-cedar-fog-claude-services-section/content/harness/actor-genesis.json (supersedes field only)",
+   "bare-cedar-fog-claude-services-section/content/harness/claude-agent-harness.json (prose pointer only)",
+   "bare-cedar-fog-claude-services-section/content/incumbencies/*.json (8 files, x-provenance.animating-actor field)",
+   "bare-cedar-fog-claude-services-section/content/lmt-history/work-orders/wo-claude-interactive-session-json-officer-incumbency-5b8af1c8c0ed.json",
+   "bare-cedar-fog-claude-services-section/content/offices/bare-cedar-fog-claude-actuation-office.json (normative-structure prose, live claim not just history)",
+   "bare-cedar-fog-claude-services-section/scripts/provision-claude-enterprise-account.sh (live GCP shell variable URN=urn:ame:bare-cedar-fog-claude)",
+   "bare-cedar-fog-claude-services-section/services/claude-session-activity-provider/content/contracts/bare-cedar-fog-colony-claude-session-activity-pulse.json",
+   "bare-cedar-fog-claude-services-section/services/claude-session-activity-provider/src/collect-colony-activity.mjs",
+   "bare-cedar-fog-claude-services-section/services/claude-session-activity-provider/test/collect-colony-activity.test.mjs",
+   "bare-cedar-fog-codex-services-section/agents/actuators/authority-bounded-integration.json",
+   "bare-cedar-fog-codex-services-section/agents/enterprise.json",
+   "bare-cedar-fog-codex-services-section/agents/harness/actor-genesis.json (supersedes field only)",
+   "bare-cedar-fog-codex-services-section/agents/harness/codex-agent-harness.json (prose pointer only)",
+   "bare-cedar-fog-codex-services-section/agents/harness/codex-harness-parity-baseline.json",
+   "bare-cedar-fog-codex-services-section/agents/harness/missing-contract-boundaries/context-warranted-duty-selection.json",
+   "bare-cedar-fog-codex-services-section/agents/loci/*.json (4 files)",
+   "bare-cedar-fog-codex-services-section/agents/office/codex-mape-office.json",
+   "bare-cedar-fog-codex-services-section/agents/office/codex-mape-skills.json",
+   "bare-cedar-fog-codex-services-section/agents/offices/bare-cedar-fog-codex-actuation-office.json",
+   "bare-cedar-fog-codex-services-section/agents/skills/*/SKILL.md (14 files)",
+   "bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/config.json",
+   "bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/projection/actor.json",
+   "bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/projection/incumbencies.json",
+   "bare-cedar-fog-codex-services-section/scripts/assay-harness-candidate.mjs",
+   "bare-cedar-fog-codex-services-section/scripts/contract-harness-semantic-review.mjs",
+   "bare-cedar-fog-codex-services-section/scripts/process-prompt-cycle.mjs",
+   "bare-cedar-fog-codex-services-section/scripts/project-codex-user-harness.mjs",
+   "bare-cedar-fog-codex-services-section/services/codex-session-activity-provider/content/contracts/bare-cedar-fog-colony-codex-session-activity-pulse.json",
+   "bare-cedar-fog-codex-services-section/services/codex-session-activity-provider/src/collect-colony-activity.mjs",
+   "bare-cedar-fog-codex-services-section/services/codex-session-rsi-sensor/content/policies/bare-cedar-fog.json",
+   "bare-cedar-fog-codex-services-section/services/codex-session-rsi-sensor/src/sensor.mjs",
+   "bare-cedar-fog-codex-services-section/src/activitypub-network-mcp.mjs",
+   "bare-cedar-fog-codex-services-section/src/agential-forms.mjs",
+   "bare-cedar-fog-codex-services-section/src/authority-bounded-integration.mjs",
+   "bare-cedar-fog-codex-services-section/src/duty-selection.mjs",
+   "bare-cedar-fog-codex-services-section/src/enterprise.mjs",
+   "bare-cedar-fog-codex-services-section/src/fresh-verification.mjs",
+   "bare-cedar-fog-codex-services-section/src/locus-registry.mjs",
+   "bare-cedar-fog-codex-services-section/src/mape-office-mcp.mjs",
+   "bare-cedar-fog-codex-services-section/src/mape-office.mjs",
+   "bare-cedar-fog-codex-services-section/src/mcp-server.mjs",
+   "bare-cedar-fog-codex-services-section/src/relevant-history.mjs",
+   "bare-cedar-fog-codex-services-section/src/requirement-trajectory.mjs",
+   "bare-cedar-fog-codex-services-section/src/source-pinned-analysis.mjs",
+   "bare-cedar-fog-codex-services-section/test/*.test.mjs (9 test files, mostly asserting/using the ACTOR constant)",
+   "inference-dispatch-service/content/activation-records/2026-08-29-active-session-free-inference-assay.json",
+   "inference-dispatch-service/content/activation-records/2026-08-29-codex-gemini-market-assay.json",
+   "inference-dispatch-service/content/customer-admissions/admitted-customers.json",
+   "inference-dispatch-service/content/customer-admissions/admitted-customers.nq",
+   "inference-dispatch-service/content/evm/accounts/eip155-5615610.json",
+   "inference-dispatch-service/content/evm/accounts/eip155-5615611.json",
+   "inference-dispatch-service/content/provider-admissions/deployment-receipts/2026-08-29-free-cloud-inference-session-enablement.json",
+   "inference-dispatch-service/content/provider-admissions/direct-endpoint-providers.json",
+   "inference-dispatch-service/content/provider-admissions/inference-providers.json",
+   "inference-dispatch-service/content/provider-admissions/inference-providers.nq",
+   "inference-dispatch-service/content/provider-admissions/semantic-services.json",
+   "inference-dispatch-service/content/provider-admissions/semantic-services.nq",
+   "inference-dispatch-service/data/records/2026/07/30/eip155-5615611-enterprise-account.json",
+   "inference-dispatch-service/data/records/2026/08/31/2026-08-31-inference-dispatch-provider-breadth-session-record.json",
+   "inference-dispatch-service/scripts/close-pending-consideration.mjs",
+   "inference-dispatch-service/scripts/exercise-npu-procurement.mjs",
+   "inference-dispatch-service/src/customer-assay-typed-inference.mjs",
+   "inference-dispatch-service/src/direct-endpoint-provider.mjs",
+   "inference-dispatch-service/src/inference-dispatch-mcp-contract.mjs",
+   "inference-dispatch-service/src/inference-dispatch.mjs",
+   "inference-dispatch-service/src/provider-admission.mjs",
+   "inference-dispatch-service/src/typed-rmn-inference-procurement.mjs",
+   "inference-dispatch-service/src/user-swarm.mjs",
+   "inference-dispatch-service/src/witness-journal-settlement-store.mjs",
+   "inference-dispatch-service/test/client.test.mjs",
+   "inference-dispatch-service/test/consideration-close.test.mjs",
+   "inference-dispatch-service/test/context-packet-demand.test.mjs",
+   "inference-dispatch-service/test/customer-assay-typed-inference.test.mjs",
+   "inference-dispatch-service/test/direct-endpoint-provider.test.mjs",
+   "inference-dispatch-service/test/discovered-work-placement.test.mjs",
+   "inference-dispatch-service/test/expected-resolution-pricing.test.mjs",
+   "inference-dispatch-service/test/fixtures/local-ollama-direct-endpoint.json",
+   "inference-dispatch-service/test/inference-dispatch-configured-customer.test.mjs",
+   "inference-dispatch-service/test/inference-dispatch.test.mjs",
+   "inference-dispatch-service/test/market-round-witness.test.mjs",
+   "inference-dispatch-service/test/p10-digestion.test.mjs",
+   "inference-dispatch-service/test/provider-admission.test.mjs",
+   "inference-dispatch-service/test/typed-rmn-inference-procurement.test.mjs",
+   "inference-dispatch-service/test/user-swarm.test.mjs",
+   "inference-dispatch-service/test/witness-journal-settlement-store.test.mjs",
+   "lib/.../bare-cedar-fog-claude-services-section/content/offices/bare-cedar-fog-claude-actuation-office.json",
+   "lib/.../bare-cedar-fog-codex-services-section/agents/office/codex-mape-office.json",
+   "lib/.../bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/config.json",
+   "lib/.../bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/projection/actor.json",
+   "lib/.../bare-cedar-fog-codex-services-section/lib/actors/codex-in-vs-code/projection/incumbencies.json",
+   "lib/.../business-research-notebook-services-section/content/config/a2a-agent.json",
+   "lib/.../business-research-notebook-services-section/content/config/activation.json",
+   "lib/.../business-research-notebook-services-section/content/config/notebook.json",
+   "lib/.../business-research-notebook-services-section/content/config/notebooklm-provider.json",
+   "lib/.../business-research-notebook-services-section/src/a2a-backend.mjs",
+   "lib/.../business-research-notebook-services-section/src/notebook.mjs",
+   "lib/.../business-research-notebook-services-section/src/operations.mjs",
+   "lib/.../corpus-formation-lead-courier/src/service.mjs",
+   "lib/.../corpus-management-team/data/journals/events/2026/07/23/2026-07-23-corpus-management-team-events.jsonl",
+   "lib/.../corpus-management-team/lib/schemas/activity-offer.schema.json",
+   "lib/.../corpus-management-team/lib/schemas/evidence-wireforms.schema.json",
+   "lib/.../corpus-management-team/src/contract-prior-research-recovery.js",
+   "lib/.../corpus-management-team/src/manage-project-corpus-knowledge.js",
+   "lib/.../corpus-management-team/src/sweep-firm-corpus.js",
+   "lib/.../divination-services-section/src/contract-daily-reading.mjs",
+   "lib/.../divination-services-section/test/contract-daily-reading.test.mjs",
+   "lib/.../linguistics-services-section/services/english-language-algebra/src/english-die.mjs",
+   "lib/.../linguistics-services-section/services/english-language-algebra/test/english-die.test.mjs",
+   "lib/.../linguistics-services-section/services/lakota-language-algebra/src/lakota-die.mjs",
+   "lib/.../linguistics-services-section/services/lakota-language-algebra/test/lakota-die-postcondition.test.mjs",
+   "lib/.../linguistics-services-section/services/latin-language-algebra/src/latin-die.mjs",
+   "lib/.../linguistics-services-section/services/latin-language-algebra/test/latin-die-postcondition.test.mjs",
+   "lib/.../linguistics-services-section/services/mandarin-language-algebra/src/mandarin-die.mjs",
+   "lib/.../linguistics-services-section/services/tokipona-language-algebra/src/tokipona-die.mjs",
+   "lib/.../relational-orientation-research-desk/content/config/assignment-admission-provider.json",
+   "lib/.../relational-orientation-research-desk/content/config/delivery-agent.json",
+   "lib/.../relational-orientation-research-desk/content/config/research-market-provider.json",
+   "lib/.../relational-orientation-research-desk/content/config/source-evidence-provider.json",
+   "lib/.../relational-orientation-research-desk/src/delivery.mjs",
+   "lib/.../relational-orientation-research-desk/src/desk.mjs",
+   "lib/.../relational-orientation-research-desk/src/live-research.mjs",
+   "lib/.../relational-orientation-research-desk/src/source-evidence-client.mjs",
+   "lib/.../relational-orientation-research-desk/test/delivery.test.mjs",
+   "lib/.../relational-orientation-research-desk/test/desk.test.mjs",
+   "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/561-group-enterprise-services-section/services/561-group-board-of-directors (Codex actuation office record, path truncated by tool output but confirmed via grep) agents/offices/bare-cedar-fog-codex-actuation-office.json -- LIVE seated record, not a test fixture",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-services-section/services/computer-content-services-section/services/semantic-content-identify-service/content/evm/accounts/eip155-5615610.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-services-section/services/computer-content-services-section/services/semantic-content-identify-service/content/sku/semantic-content-identity.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/authority-bounded-integration.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/capacity-fabrication-obligation.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/character-face-composition.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/codex-harness-parity-monitor.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/contextual-duty-selection.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/fresh-verification.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/immunitas-observation.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/office-obligation-projection.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/relevant-history-selection.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/requirement-trajectory.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/actuators/source-pinned-analysis.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/src/projector.mjs",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/codex-harness-services-section/services/codex-harness-projection-service/test/fixtures/bare-cedar-fog-codex/config.json",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/harness-lifecycle-journal-service/data/records/schema/harness-lifecycle-event.schema.json ($comment names urn:ame:* as 'provisional')",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/services/mape-k-actuation-office-service/test/generator.test.mjs",
+   "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/integrations/inference-work-lot/inference-source.mts",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/academy.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/admit-customer-capstone-practicum.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/character-officer-supply.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/collect-colony-activity.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/contract-officer-formation.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/contract-union-formation-mape.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/exercise-rmn-residue-profile.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/office-repertoire-market.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/resolve-formation-evidence.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/run-formation-lianqun-market.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/serve-office-repertoire-mcp.mjs",
+   "lib/emsenn/services/561-group/services/operations-services-section/services/agent-services-section/src/verify-operational-academy.mjs",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/agrodao/src/bounded-legal-acceptance.mjs",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/agrodao/src/procure-public-evm-wallet-observation.mjs",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/agrodao/src/wallet-segregated-deleverage-intent.mjs",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/hive-services-section/services/aagaard/src/contract-fleet-observation.mjs",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/hive-services-section/services/aagaard/src/core/curationSettlement.mts",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/hive-services-section/services/aagaard/src/core/exitValueServicePublicationSettlement.mts",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/hive-services-section/services/aagaard/src/core/makerOrders.mts",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-computer-services-section/services/public-web-services-section/services/public-web3-services-section/services/hive-services-section/services/aagaard/src/opportunity-feed.mjs",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-social-services-section/services/turntide-islands/services/turntide-union-media-syndication-service/lib/management/verify-market-circuit.mjs",
+   "lib/emsenn/services/561-group/services/public-services-section/services/public-social-services-section/services/turntide-islands/services/turntide-union-media-syndication-service/test/union-media-syndication.test.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/communication-science-services-section/services/linguistics-services-section/services/english-language-algebra/src/english-die.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/communication-science-services-section/services/linguistics-services-section/services/lakota-language-algebra/src/lakota-die.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/communication-science-services-section/services/linguistics-services-section/services/latin-language-algebra/src/latin-die.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/communication-science-services-section/services/linguistics-services-section/services/mandarin-language-algebra/src/mandarin-die.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/communication-science-services-section/services/linguistics-services-section/services/tokipona-language-algebra/src/tokipona-die.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/knowledge-services-section/services/corpus-formation-lead-courier/src/service.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/knowledge-services-section/services/divination-services-section/src/contract-daily-reading.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/knowledge-services-section/services/divination-services-section/test/contract-daily-reading.test.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/knowledge-services-section/services/research-services-section/services/relational-orientation-research-desk/src/delivery.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/knowledge-services-section/services/research-services-section/services/relational-orientation-research-desk/src/desk.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/knowledge-services-section/services/research-services-section/services/relational-orientation-research-desk/src/live-research.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/knowledge-services-section/services/research-services-section/services/relational-orientation-research-desk/src/source-evidence-client.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/src/a2a-backend.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/src/notebook.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/services/business-research-notebook-services-section/src/operations.mjs",
+   "lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/business-science-services-section/services/business-research-services-section/src/research.mjs"
+  ]
+ }
+}

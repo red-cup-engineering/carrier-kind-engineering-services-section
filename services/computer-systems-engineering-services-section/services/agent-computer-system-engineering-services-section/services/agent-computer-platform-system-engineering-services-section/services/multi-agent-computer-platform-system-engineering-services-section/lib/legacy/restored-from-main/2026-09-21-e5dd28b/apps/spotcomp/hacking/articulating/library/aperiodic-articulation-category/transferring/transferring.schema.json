@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/transferring/transferring.schema.json",
+  "title": "Transferring morphism record",
+  "description": "Morphism: a Heyting algebra A with the extension-image sub-algebras { image(H(i_{s,t})) } of its independent one-step extensions -> the nuclear dyad (A, delta). The forward-facing transfer nucleus reflects onto Fix(delta) = intersection of the extension images: delta(a) = meet { b in Fix(delta) | b >= a }, the smallest extension-witnessed element above a (delta = id when there are no independent extensions). Provably a nucleus.",
+  "type": "object",
+  "required": ["input", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "input": {
+      "type": "object",
+      "required": ["algebra", "extension-images"],
+      "additionalProperties": false,
+      "properties": {
+        "algebra": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/lattice.schema.json" },
+        "extension-images": {
+          "description": "Each entry is the carrier (subset of A) of one independent one-step extension's restriction image -- a sub-Heyting-algebra of A. Their intersection is Fix(delta).",
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        }
+      }
+    },
+    "output": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/nuclear-dyad/nuclear-dyad.schema.json" }
+  }
+}

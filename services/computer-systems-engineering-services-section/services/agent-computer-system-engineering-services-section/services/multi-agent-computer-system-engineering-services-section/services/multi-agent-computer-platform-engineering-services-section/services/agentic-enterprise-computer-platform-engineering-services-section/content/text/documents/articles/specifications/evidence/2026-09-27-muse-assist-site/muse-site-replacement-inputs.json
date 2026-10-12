@@ -1,0 +1,16 @@
+{
+  "siteRoot": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/sites/muse.561.group",
+  "inputs": {
+    "README.md": "e4df525a21b5e88853498d0ac78fafce71d2001d6fd83c0dae2040ddd98059a4",
+    "package.json": "56bdac5f85c94ba55683f7583dd5a8ef7c9174445aa4030c16d5fabe11e04213",
+    "public/404.html": "87d323be6aab334665fd8f2fdcd16c34871c1ec9fa9c23b1b6cf6c95077bfa6e",
+    "public/_headers": "ef40cf401fd441ba97e25433e122c9c625e83b682a11db3e4698c1f4c1906f16",
+    "public/guide.html": "1fdfd495d1d8c08b8b22bfaeb3c6fb0d690e7acffd67dab80dfb44a6ab00cf9b",
+    "public/icon.svg": "ab63425143890d0010278e26d60a58367466bc79c0878d9cbb4871150ad806a1",
+    "public/index.html": "0fcecbcdb5b4864dcd31a592b6b4a3d94dab6a47c34ffcab04957582c5804a6b",
+    "public/robots.txt": "4030d16ae302c19724a9f2947dbdd525fb7283523dcb735a2787561ef4af1637",
+    "public/sitemap.xml": "89e29b9a892b73e5f0dc638b906a494b996faf4673cc79341e7148d9d359ba8d",
+    "public/style.css": "65992121ce35c336abd860d1df76f2b2cc0460d38a9e5a01e6b6ed2414d001c3",
+    "wrangler.jsonc": "0a95f893c1071f0804f4db472dd0d2688b54bf00fe1c7ea8ff040e6d0d4f3857"
+  }
+}

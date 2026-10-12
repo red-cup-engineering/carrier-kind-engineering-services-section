@@ -1,0 +1,49 @@
+{
+  "encodeJsonByteCarrier": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "bytes": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 255 }
+        },
+        "mediaType": { "type": "string", "minLength": 1 }
+      },
+      "required": ["bytes", "mediaType"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "mediaType": { "type": "string", "minLength": 1 },
+        "contentBase64": { "type": "string" }
+      },
+      "required": ["mediaType", "contentBase64"],
+      "additionalProperties": false
+    }
+  },
+  "decodeJsonByteCarrier": {
+    "input": {
+      "type": "object",
+      "properties": {
+        "carrier": { "type": "object" },
+        "expectedMediaType": { "type": "string" },
+        "maximumBytes": { "type": "integer", "minimum": 0 }
+      },
+      "required": ["carrier"],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "mediaType": { "type": "string", "minLength": 1 },
+        "bytes": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 255 }
+        }
+      },
+      "required": ["mediaType", "bytes"],
+      "additionalProperties": false
+    }
+  }
+}

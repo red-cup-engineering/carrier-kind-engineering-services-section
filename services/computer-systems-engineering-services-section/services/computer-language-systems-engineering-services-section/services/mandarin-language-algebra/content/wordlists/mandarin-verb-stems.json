@@ -1,0 +1,1212 @@
+{
+  "note": "Curated, source-cited allowlist of high-frequency single- and two-character Mandarin verb stems, compiled to close the predicate-tagging gap named in data/research-obligations.json (id: predicate-tagging). Each entry's stem, pinyin, and gloss are drawn from the drkameleon/complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary, MIT license), filtered to entries carrying that dataset's own \"v\" (verb) part-of-speech tag for HSK 2.0 levels 1-3 (old-1/old-2/old-3), restricted to stems of 1-2 characters, and excluding any stem already curated elsewhere in this bundle (bundle.mjs's PARTICLES/DEMONSTRATIVES/PRONOUNS/CONJUNCTIONS/AUXILIARIES/COPULA/PREPOSITIONS/CLASSIFIER_CHARS). Per the dataset's own README, its part-of-speech tags (including \"v\") are sourced from SUBTLEX-CH (crr.ugent.be/programs-data/subtitle-frequencies/subtlex-ch) and HanLP (github.com/hankcs/HanLP) part-of-speech analysis, not from CC-CEDICT; CC-CEDICT (mdbg.net/chinese/dictionary) is the source for each entry's dictionary definition (gloss) and pinyin only, and HSK 2.0 level membership traces to github.com/clem109/hsk-vocabulary. Reviewed by hand after automated extraction: 15 entries were dropped for carrying only an archaic/literary verb sense that would misrepresent the character's actual dominant modern usage, or for colliding (same character, no tone marks in plain text) with a far more common grammatical-particle or high-frequency-adverb reading of the same character that this bundle cannot disambiguate (dropped: 没 号 便宜 白 错 难 树 作业 别 得 游戏 意思 题 就 还); one entry (教) had its automatically-picked reading overridden from the rarer literary causative sense to the common \"jiao1\" (to teach) reading. This is still a curated allowlist, not exhaustive morphosyntactic verb detection or a full verb lexicon -- see data/research-obligations.json and data/maturity.json for the honest grade.",
+  "sourceDataset": "https://github.com/drkameleon/complete-hsk-vocabulary (MIT license), wordlists/exclusive/old/{1,2,3}.min.json",
+  "sourceUpstream": "HSK 2.0 level membership: https://github.com/clem109/hsk-vocabulary; part-of-speech analysis (including the \"v\" tag): SUBTLEX-CH (crr.ugent.be/programs-data/subtitle-frequencies/subtlex-ch) and HanLP (github.com/hankcs/HanLP); dictionary definitions and pinyin: CC-CEDICT, https://www.mdbg.net/chinese/dictionary",
+  "retrievedDate": "2026-09-01",
+  "entries": [
+    {
+      "stem": "爱",
+      "pinyin": "ài",
+      "gloss": "to love; to be fond of; to like; to be inclined (to do sth); to tend to (happen)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "吃",
+      "pinyin": "chī",
+      "gloss": "to eat; to consume; to eat at (a cafeteria etc); to eradicate; to destroy; to absorb; to suffer (shock, injury, defeat etc)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "点",
+      "pinyin": "diǎn",
+      "gloss": "to draw a dot; to check on a list; to choose; to order (food in a restaurant); to touch briefly; to hint; to light; to ignite; to pour a liquid drop by drop",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "读",
+      "pinyin": "dú",
+      "gloss": "to read out; to read aloud; to read; to attend (school); to study (a subject in school); to pronounce",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "工作",
+      "pinyin": "gōng zuò",
+      "gloss": "to work",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "好",
+      "pinyin": "hào",
+      "gloss": "to be fond of; to have a tendency to; to be prone to",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "回",
+      "pinyin": "huí",
+      "gloss": "to circle; to go back; to turn around; to answer; to return; to revolve",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "叫",
+      "pinyin": "jiào",
+      "gloss": "to shout; to call; to order; to ask; to be called",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "开",
+      "pinyin": "kāi",
+      "gloss": "to open (transitive or intransitive); to turn on; to put in operation; to operate; to run; to boil; to write out (a prescription, check, invoice etc)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "看",
+      "pinyin": "kàn",
+      "gloss": "to see; to look at; to read; to watch; to visit; to call on; to consider; to regard as; to look after; to treat (a patient or illness); to depend on; to feel (that); to watch out for",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "看见",
+      "pinyin": "kàn jiàn",
+      "gloss": "to see; to catch sight of",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "来",
+      "pinyin": "lái",
+      "gloss": "to come",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "买",
+      "pinyin": "mǎi",
+      "gloss": "to buy; to purchase",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "请",
+      "pinyin": "qǐng",
+      "gloss": "to ask; to invite; to treat (to a meal etc); to request",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "去",
+      "pinyin": "qù",
+      "gloss": "to go; to go to (a place); to send; to remove; to get rid of; to reduce; to be apart from in space or time; to die (euphemism); to play (a part)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "热",
+      "pinyin": "rè",
+      "gloss": "to warm up; to heat up",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "认识",
+      "pinyin": "rèn shi",
+      "gloss": "to know; to recognize; to be familiar with; to get acquainted with sb",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "上",
+      "pinyin": "shàng",
+      "gloss": "to climb; to get onto; to go up; to attend (class or university)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "少",
+      "pinyin": "shǎo",
+      "gloss": "to lack; to be missing; to stop (doing sth)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "睡觉",
+      "pinyin": "shuì jiào",
+      "gloss": "to go to bed; to sleep",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "说话",
+      "pinyin": "shuō huà",
+      "gloss": "to speak; to say; to talk; to gossip; to tell stories",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "听",
+      "pinyin": "tīng",
+      "gloss": "to listen to; to hear; to heed; to obey; to let be; to allow (Taiwan pr. [tìng])",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "喂",
+      "pinyin": "wèi",
+      "gloss": "to feed (an animal, baby, invalid etc)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "喜欢",
+      "pinyin": "xǐ huan",
+      "gloss": "to like; to be fond of",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "下",
+      "pinyin": "xià",
+      "gloss": "to decline; to go down; to arrive at (a decision, conclusion etc)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "下雨",
+      "pinyin": "xià yǔ",
+      "gloss": "to rain",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "写",
+      "pinyin": "xiě",
+      "gloss": "to write",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "谢谢",
+      "pinyin": "xiè xie",
+      "gloss": "to thank",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "学习",
+      "pinyin": "xué xí",
+      "gloss": "to learn; to study",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "有",
+      "pinyin": "yǒu",
+      "gloss": "to have; there is",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "住",
+      "pinyin": "zhù",
+      "gloss": "to live; to dwell; to stay; to reside; to stop",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "坐",
+      "pinyin": "zuò",
+      "gloss": "to sit; to take a seat; to take (a bus, airplane etc); to bear fruit",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "做",
+      "pinyin": "zuò",
+      "gloss": "to make; to produce; to write; to compose; to do; to engage in; to hold (a party etc); to assume (an air or manner)",
+      "hskLevel": "old-1",
+      "source": "HSK 2.0 Level 1 (old-1); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "帮助",
+      "pinyin": "bāng zhù",
+      "gloss": "to help; to assist",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "比",
+      "pinyin": "bǐ",
+      "gloss": "to compare; to gesture",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "唱歌",
+      "pinyin": "chàng gē",
+      "gloss": "to sing a song",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "出",
+      "pinyin": "chū",
+      "gloss": "to go out; to come out; to occur; to produce; to go beyond; to rise; to put forth; to happen",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "穿",
+      "pinyin": "chuān",
+      "gloss": "to wear; to put on; to dress; to bore through; to pierce; to perforate; to penetrate; to pass through; to thread",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "懂",
+      "pinyin": "dǒng",
+      "gloss": "to understand; to comprehend",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "告诉",
+      "pinyin": "gào sù",
+      "gloss": "to press charges; to file a complaint",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "欢迎",
+      "pinyin": "huān yíng",
+      "gloss": "to welcome",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "回答",
+      "pinyin": "huí dá",
+      "gloss": "to reply; to answer",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "介绍",
+      "pinyin": "jiè shào",
+      "gloss": "to introduce (sb to sb); to give a presentation; to present (sb for a job etc)",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "进",
+      "pinyin": "jìn",
+      "gloss": "to go forward; to advance; to go in; to enter; to put in; to submit; to take in; to admit",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "觉得",
+      "pinyin": "jué de",
+      "gloss": "to think that ...; to feel that ...; to feel (uncomfortable etc)",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "开始",
+      "pinyin": "kāi shǐ",
+      "gloss": "to begin; to start",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "考试",
+      "pinyin": "kǎo shì",
+      "gloss": "to take an exam",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "累",
+      "pinyin": "lèi",
+      "gloss": "to strain; to wear out; to work hard",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "离",
+      "pinyin": "lí",
+      "gloss": "to leave; to part from; to be away from",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "旅游",
+      "pinyin": "lǚ yóu",
+      "gloss": "to travel",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "卖",
+      "pinyin": "mài",
+      "gloss": "to sell; to betray; to spare no effort; to show off or flaunt",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "忙",
+      "pinyin": "máng",
+      "gloss": "to hurry; to rush",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "跑步",
+      "pinyin": "pǎo bù",
+      "gloss": "to run; to jog",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "起床",
+      "pinyin": "qǐ chuáng",
+      "gloss": "to get out of bed; to get up",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "让",
+      "pinyin": "ràng",
+      "gloss": "to yield; to permit; to let sb do sth; to have sb do sth; to make sb (feel sad etc)",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "上班",
+      "pinyin": "shàng bān",
+      "gloss": "to go to work; to be on duty; to start work; to go to the office",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "生病",
+      "pinyin": "shēng bìng",
+      "gloss": "to fall ill",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "送",
+      "pinyin": "sòng",
+      "gloss": "to send; to deliver; to transmit; to give (as a present); to see (sb) off; to accompany; to go along with",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "踢",
+      "pinyin": "tī",
+      "gloss": "to kick; to play (e.g. soccer)",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "跳舞",
+      "pinyin": "tiào wǔ",
+      "gloss": "to dance",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "完",
+      "pinyin": "wán",
+      "gloss": "to finish; to be over",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "玩",
+      "pinyin": "wán",
+      "gloss": "to play; to have fun; to trifle with; to keep sth for entertainment",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "为",
+      "pinyin": "wéi",
+      "gloss": "to take sth as; to act as; to serve as; to behave as; to become; to be; to do",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "问",
+      "pinyin": "wèn",
+      "gloss": "to ask; to inquire",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "希望",
+      "pinyin": "xī wàng",
+      "gloss": "to hope",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "洗",
+      "pinyin": "xǐ",
+      "gloss": "to wash; to bathe; to develop (photographs); to shuffle (cards etc); to erase (a recording)",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "向",
+      "pinyin": "xiàng",
+      "gloss": "to face; to turn towards; to support; to side with",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "笑",
+      "pinyin": "xiào",
+      "gloss": "to laugh; to smile; to laugh at",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "姓",
+      "pinyin": "xìng",
+      "gloss": "to be surnamed",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "休息",
+      "pinyin": "xiū xi",
+      "gloss": "to rest",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "游泳",
+      "pinyin": "yóu yǒng",
+      "gloss": "to swim",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "运动",
+      "pinyin": "yùn dòng",
+      "gloss": "to move; to exercise",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "长",
+      "pinyin": "zhǎng",
+      "gloss": "to grow; to develop; to increase; to enhance",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "找",
+      "pinyin": "zhǎo",
+      "gloss": "to try to find; to look for; to call on sb; to find; to seek; to return; to give change",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "知道",
+      "pinyin": "zhī dào",
+      "gloss": "to know; to become aware of",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "准备",
+      "pinyin": "zhǔn bèi",
+      "gloss": "to prepare; to intend; to be about to",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "走",
+      "pinyin": "zǒu",
+      "gloss": "to walk; to go; to run; to move (of vehicle); to visit; to leave; to go away; to die (euph.); to change (shape, form, meaning)",
+      "hskLevel": "old-2",
+      "source": "HSK 2.0 Level 2 (old-2); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "爱好",
+      "pinyin": "ài hào",
+      "gloss": "to like; to be fond of; to take pleasure in; to be keen on",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "搬",
+      "pinyin": "bān",
+      "gloss": "to move (i.e. relocate oneself); to move (sth relatively heavy or bulky); to shift; to copy indiscriminately",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "帮忙",
+      "pinyin": "bāng máng",
+      "gloss": "to help; to lend a hand; to do a favor; to do a good turn",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "包",
+      "pinyin": "bāo",
+      "gloss": "to cover; to wrap; to hold; to include; to take charge of; to contract (to or for); to hold or embrace",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "饱",
+      "pinyin": "bǎo",
+      "gloss": "to eat till full",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "比较",
+      "pinyin": "bǐ jiào",
+      "gloss": "to compare; to contrast",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "比赛",
+      "pinyin": "bǐ sài",
+      "gloss": "to compete",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "表示",
+      "pinyin": "biǎo shì",
+      "gloss": "to express; to show; to say; to state; to indicate; to mean",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "表演",
+      "pinyin": "biǎo yǎn",
+      "gloss": "to perform; to act; to demonstrate",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "参加",
+      "pinyin": "cān jiā",
+      "gloss": "to participate; to take part; to join",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "差",
+      "pinyin": "chà",
+      "gloss": "to fall short; to lack",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "迟到",
+      "pinyin": "chí dào",
+      "gloss": "to arrive late",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "出现",
+      "pinyin": "chū xiàn",
+      "gloss": "to appear; to arise; to emerge; to show up",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "打扫",
+      "pinyin": "dǎ sǎo",
+      "gloss": "to clean; to sweep",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "打算",
+      "pinyin": "dǎ suàn",
+      "gloss": "to plan; to intend; to calculate",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "带",
+      "pinyin": "dài",
+      "gloss": "to wear; to carry; to take along; to bear (i.e. to have); to lead; to bring; to look after; to raise",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "担心",
+      "pinyin": "dān xīn",
+      "gloss": "to worry; to be anxious",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "低",
+      "pinyin": "dī",
+      "gloss": "to lower (one's head); to let droop; to hang down; to incline",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "锻炼",
+      "pinyin": "duàn liàn",
+      "gloss": "to toughen; to temper; to engage in physical exercise; to work out; to train oneself",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "饿",
+      "pinyin": "è",
+      "gloss": "to be hungry; to starve (sb)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "发烧",
+      "pinyin": "fā shāo",
+      "gloss": "to have a high temperature (from illness); to have a fever",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "发现",
+      "pinyin": "fā xiàn",
+      "gloss": "to notice; to become aware of; to discover; to find; to detect",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "方便",
+      "pinyin": "fāng biàn",
+      "gloss": "to facilitate; to make things easy",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "放",
+      "pinyin": "fàng",
+      "gloss": "to put; to place; to release; to free; to let go; to let out; to set off (fireworks)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "放心",
+      "pinyin": "fàng xīn",
+      "gloss": "to feel relieved; to feel reassured; to be at ease",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "分",
+      "pinyin": "fēn",
+      "gloss": "to divide; to separate; to distribute; to allocate; to distinguish (good and bad)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "复习",
+      "pinyin": "fù xí",
+      "gloss": "to review",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "敢",
+      "pinyin": "gǎn",
+      "gloss": "to dare",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "感冒",
+      "pinyin": "gǎn mào",
+      "gloss": "to catch cold",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "跟",
+      "pinyin": "gēn",
+      "gloss": "to follow closely; to go with",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "刮",
+      "pinyin": "guā",
+      "gloss": "to scrape; to blow; to shave; to plunder; to extort",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "关",
+      "pinyin": "guān",
+      "gloss": "to close; to shut; to turn off; to confine; to lock (sb) up; to shut (sb in a room, a bird in a cage etc); to concern; to involve",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "关系",
+      "pinyin": "guān xi",
+      "gloss": "to concern; to affect; to have to do with",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "关心",
+      "pinyin": "guān xīn",
+      "gloss": "to be concerned about; to care about",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "过去",
+      "pinyin": "guò qù",
+      "gloss": "to go over; to pass by",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "害怕",
+      "pinyin": "hài pà",
+      "gloss": "to be afraid; to be scared",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "花",
+      "pinyin": "huā",
+      "gloss": "to spend (money, time)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "画",
+      "pinyin": "huà",
+      "gloss": "to draw; to paint; to draw (a line) (variant of 划)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "坏",
+      "pinyin": "huài",
+      "gloss": "to break down",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "换",
+      "pinyin": "huàn",
+      "gloss": "to exchange; to change (clothes etc); to substitute; to switch; to convert (currency)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "记得",
+      "pinyin": "jì de",
+      "gloss": "to remember",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "检查",
+      "pinyin": "jiǎn chá",
+      "gloss": "to examine; to inspect",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "见面",
+      "pinyin": "jiàn miàn",
+      "gloss": "to meet; to see each other",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "讲",
+      "pinyin": "jiǎng",
+      "gloss": "to speak; to explain; to negotiate; to emphasize; to be particular about",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "教",
+      "pinyin": "jiāo",
+      "gloss": "to teach",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "接",
+      "pinyin": "jiē",
+      "gloss": "to receive; to answer (the phone); to meet or welcome sb; to connect; to catch; to join; to extend; to take one's turn on duty; to take over for sb",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "结婚",
+      "pinyin": "jié hūn",
+      "gloss": "to marry; to get married",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "结束",
+      "pinyin": "jié shù",
+      "gloss": "to finish; to end; to conclude; to close",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "解决",
+      "pinyin": "jiě jué",
+      "gloss": "to solve; to resolve; to settle (a problem); to eliminate; to wipe out (an enemy, bandits etc)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "借",
+      "pinyin": "jiè",
+      "gloss": "to lend; to borrow; to take (an opportunity)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "经过",
+      "pinyin": "jīng guò",
+      "gloss": "to pass; to go through",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "举行",
+      "pinyin": "jǔ xíng",
+      "gloss": "to hold (a meeting, ceremony etc)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "决定",
+      "pinyin": "jué dìng",
+      "gloss": "to decide (to do something); to resolve",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "刻",
+      "pinyin": "kè",
+      "gloss": "to carve; to engrave; to cut",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "哭",
+      "pinyin": "kū",
+      "gloss": "to cry; to weep",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "了解",
+      "pinyin": "liǎo jiě",
+      "gloss": "to understand; to realize; to find out",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "离开",
+      "pinyin": "lí kāi",
+      "gloss": "to depart; to leave",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "练习",
+      "pinyin": "liàn xí",
+      "gloss": "to practice",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "满意",
+      "pinyin": "mǎn yì",
+      "gloss": "to one's satisfaction",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "明白",
+      "pinyin": "míng bai",
+      "gloss": "to understand; to realize",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "拿",
+      "pinyin": "ná",
+      "gloss": "to hold; to seize; to catch; to apprehend; to take",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "爬山",
+      "pinyin": "pá shān",
+      "gloss": "to climb a mountain; to mountaineer",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "奇怪",
+      "pinyin": "qí guài",
+      "gloss": "to marvel; to be baffled",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "骑",
+      "pinyin": "qí",
+      "gloss": "to sit astride; to ride (a horse, bike etc)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "清楚",
+      "pinyin": "qīng chu",
+      "gloss": "to understand thoroughly; to be clear about",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "认为",
+      "pinyin": "rèn wéi",
+      "gloss": "to believe; to think; to consider; to feel",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "上网",
+      "pinyin": "shàng wǎng",
+      "gloss": "to go online; to connect to the Internet",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "生气",
+      "pinyin": "shēng qì",
+      "gloss": "to get angry; to take offense",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "使",
+      "pinyin": "shǐ",
+      "gloss": "to make; to cause; to enable; to use; to employ; to send; to instruct sb to do sth",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "刷",
+      "pinyin": "shuā",
+      "gloss": "to brush; to paint; to daub; to paste up; to skip class (of students); to fire from a job",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "疼",
+      "pinyin": "téng",
+      "gloss": "to love dearly",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "提高",
+      "pinyin": "tí gāo",
+      "gloss": "to raise; to increase; to improve",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "同意",
+      "pinyin": "tóng yì",
+      "gloss": "to agree; to consent; to approve",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "完成",
+      "pinyin": "wán chéng",
+      "gloss": "to complete; to accomplish",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "忘记",
+      "pinyin": "wàng jì",
+      "gloss": "to forget",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "习惯",
+      "pinyin": "xí guàn",
+      "gloss": "to be used to",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "洗澡",
+      "pinyin": "xǐ zǎo",
+      "gloss": "to bathe; to take a shower",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "相信",
+      "pinyin": "xiāng xìn",
+      "gloss": "to be convinced (that sth is true); to believe; to accept sth as true",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "像",
+      "pinyin": "xiàng",
+      "gloss": "to resemble; to be like; to look as if",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "小心",
+      "pinyin": "xiǎo xīn",
+      "gloss": "to be careful; to take care",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "信",
+      "pinyin": "xìn",
+      "gloss": "to trust; to believe; to profess faith in",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "需要",
+      "pinyin": "xū yào",
+      "gloss": "to need; to want; to demand; to require",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "选择",
+      "pinyin": "xuǎn zé",
+      "gloss": "to select; to pick",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "要求",
+      "pinyin": "yāo qiú",
+      "gloss": "to request; to require; to stake a claim; to ask; to demand",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "以为",
+      "pinyin": "yǐ wéi",
+      "gloss": "to think (i.e. to take it to be true that ...) (Usually there is an implication that the notion is mistaken – except when expressing one's own current opinion.)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "影响",
+      "pinyin": "yǐng xiǎng",
+      "gloss": "to influence; to affect (usually adversely); to disturb",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "用",
+      "pinyin": "yòng",
+      "gloss": "to use; to employ; to have to; to eat or drink",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "遇到",
+      "pinyin": "yù dào",
+      "gloss": "to meet; to run into; to come across",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "愿意",
+      "pinyin": "yuàn yì",
+      "gloss": "to wish; to want",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "站",
+      "pinyin": "zhàn",
+      "gloss": "to stand; to halt; to stop",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "照顾",
+      "pinyin": "zhào gu",
+      "gloss": "to take care of; to show consideration; to attend to; to look after",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "种",
+      "pinyin": "zhòng",
+      "gloss": "to plant; to grow; to cultivate",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "注意",
+      "pinyin": "zhù yì",
+      "gloss": "to take note of; to pay attention to",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "祝",
+      "pinyin": "zhù",
+      "gloss": "to pray for; to wish (sb bon voyage, happy birthday etc)",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    },
+    {
+      "stem": "作用",
+      "pinyin": "zuò yòng",
+      "gloss": "to act on; to affect",
+      "hskLevel": "old-3",
+      "source": "HSK 2.0 Level 3 (old-3); complete-hsk-vocabulary dataset (github.com/drkameleon/complete-hsk-vocabulary); dictionary definition and pinyin from CC-CEDICT (mdbg.net/chinese/dictionary)"
+    }
+  ]
+}

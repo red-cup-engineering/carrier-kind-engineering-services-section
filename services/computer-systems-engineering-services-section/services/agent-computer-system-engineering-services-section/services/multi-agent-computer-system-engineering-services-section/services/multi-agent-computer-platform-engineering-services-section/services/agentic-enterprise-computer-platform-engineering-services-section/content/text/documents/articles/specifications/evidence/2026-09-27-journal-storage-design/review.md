@@ -1,0 +1,7 @@
+# Storage realization review
+
+The upstream Luna review found that pending witness bodies, explicit artifact bodies, historical obstruction decisions and multiple feed memberships are necessary retained information. The admitted lookup is reconstructible. The existing compactor supplies migration from the per-fact layout; no non-test mjs `.compact(` call was found in the searched lib scope. That search is evidence about current callers, not proof of every dynamic/external caller.
+
+A separate review of L-S01–L-S10 found no additional material contradiction beyond the need for custody evidence before partial migration removal. Root closed that gap with a content-bound receipt, comparison inventory and independently durable replacement sources before first deletion. Root also found lower-layer consumers among 64 references to the semantic-record module; the LLD explicitly forbids replacing those imports with upward System dependencies. Actual pure transformations and host operations must be separated or composed at the correct layer.
+
+The checked source-status consumer currently measures source bytes. The new layout can share one batch across feeds, so the LLD requires an explicit API/consumer adaptation distinguishing physical custody from a serialized feed's bytes and preventing unrelated metadata disclosure. The downstream fabrication order still must fix that API, resource profile, exact source input set, domain registration and all consumer routing. No storage product code was changed or accepted by this review.

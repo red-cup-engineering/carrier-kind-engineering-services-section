@@ -119,12 +119,12 @@ import { normalizePath as normalizePath_2, pathParent as pathParent_2, pathBasen
 import { entropyBitsAtBoundary as entropyBitsAtBoundary_2, klBitsAtBoundary as klBitsAtBoundary_2, mutualInformationBitsAtBoundary as mutualInformationBitsAtBoundary_2 } from "@red-cup-engineering/metrologic/number/evidence-bits";
 import { otlpSpanSchema as otlpSpanSchema_2, otlpTracesSchema as otlpTracesSchema_2, agentEventChronicleSchema as agentEventChronicleSchema_2, otlpSpanContract as otlpSpanCarrier_2, otlpTracesContract as otlpTracesCarrier_2, agentEventChronicleContract as agentEventChronicleCarrier_2 } from "@red-cup-engineering/computer-networking-engineering-services-section/otlp";
 import { spanFromStatement as spanFromWitness_2, statementFromSpan as witnessFromSpan_2, otlpFromStatements as otlpFromWitnesses_2, otlpFromAgentEventChronicle as otlpFromAgentEventChronicle_2, statementsFromOtlp as witnessesFromOtlp_2, agentEventStatementsFromOtlp as agentEventWitnessesFromOtlp_2, otlpBulkCells as otlpBulkCells_2 } from "@red-cup-engineering/computer-networking-engineering-services-section/otlp";
-import { quadraticToNumber } from "@red-cup-engineering/exact-number-data-service/quadratic";
+import { quadraticToNumber } from "@red-cup-engineering/computer-data-engineering-services-section/number/quadratic";
 import { printType, generateDeclaration } from "@red-cup-engineering/relating/typing";
 import { parse as parseEavt, serialize as serializeEavt } from "@red-cup-engineering/eavt-services-section/row";
 import { jsonResource } from "@red-cup-engineering/json-services-section";
-import { toNumber } from "@red-cup-engineering/exact-number-data-service/exact-number-host";
-import { fromRatio } from "@red-cup-engineering/exact-number-data-service/exact-number";
+import { toNumber } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number-host";
+import { fromRatio } from "@red-cup-engineering/computer-data-engineering-services-section/number/exact-number";
 
 describe("nested codec boundary tree", () => {
   it("preserves the TOML public boundary through its published owner", async () => {

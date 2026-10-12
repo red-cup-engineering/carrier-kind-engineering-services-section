@@ -1,0 +1,21 @@
+{
+  "stage": "B1a",
+  "status": "public-source-review-requires-revision",
+  "sourceOwnerSha256": "b52fadf6b1065fa9f925266833a21697c3653f5fc585ba2aca50f6addea47be2",
+  "originalHostFunctionsPreserved": true,
+  "incompletenessSeamPreserved": true,
+  "syntaxChecked": true,
+  "privateReceivingRun": false,
+  "corrections": "F-S17",
+  "findings": [
+    "staging matcher accepts only all-zero final digest",
+    "family discovery loses held root binding and treats encountered disappearance as absence",
+    "descriptor cleanup can replace primary failure",
+    "missing immediate parent/held-descriptor checks",
+    "root required-entry and legacy-marker handling incomplete",
+    "post-read named regular type must be checked",
+    "hardlink aliases retain redundant buffers",
+    "unused helpers/parameters remain"
+  ],
+  "promoted": false
+}

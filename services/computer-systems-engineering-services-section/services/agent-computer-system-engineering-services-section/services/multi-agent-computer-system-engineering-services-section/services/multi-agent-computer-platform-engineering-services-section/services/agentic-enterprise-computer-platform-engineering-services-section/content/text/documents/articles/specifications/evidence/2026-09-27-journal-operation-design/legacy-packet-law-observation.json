@@ -1,0 +1,47 @@
+{
+  "method": "Actual packet/artifact/text-document primitives with a synthetic large JSON body; exact current packet writer evaluated with controlled in-memory filesystem ports. No operating journal read or modified.",
+  "sources": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/packet.mjs",
+      "sha256": "8542083fac97db2fa2b6cee21912efa7ba18e62dfb65ff58449cfdae8ac36542"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/identity/index.mjs",
+      "sha256": "342e81f2aa020db6879ad891da599b08e6484d83b11b4af7ccc0191826536954"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/identity/text-document.mjs",
+      "sha256": "33007fea2a1def076f78ae38434bfb89d2c8f3521b9f92437f04c0dcab8ff69d"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/write-journal-store.mjs",
+      "sha256": "702e61ad9130b4f7c76c80704e6cd0b2c4d3ecbb01f66524181fe9a33ddffead"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/index.mjs",
+      "sha256": "9f4cc4c6e877b04470c707044b9c2b458189a582fdfc431288d97979c63a3efc"
+    }
+  ],
+  "observations": {
+    "rawBytes": 348267,
+    "canonicalBodyBytes": 345552,
+    "textDocumentArtifacts": 8,
+    "exactRawRecovered": true,
+    "jsonBodyRecovered": true,
+    "oldTextDigestDiffersFromCanonicalBodyDigest": true,
+    "fileDigestIncludesWriterLf": true,
+    "currentWriterAcceptsConflictingExistingFile": true
+  },
+  "limitations": [
+    "Synthetic custody correspondence only; no importer, owner gate, durable publication, host authority or legacy source deletion accepted.",
+    "Text reconstruction here is an independent observation procedure, not a promoted production decoder."
+  ],
+  "probe": {
+    "path": "legacy-packet-law-observation.mjs",
+    "sha256": "b7a708223d83596e77485d54efd974dab25ce7541fbdd80380910f25b50392cc"
+  },
+  "clauses": [
+    "L-O20",
+    "L-O21"
+  ]
+}

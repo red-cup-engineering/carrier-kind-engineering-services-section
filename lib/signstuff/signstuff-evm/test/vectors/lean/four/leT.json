@@ -1,0 +1,18 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.leT","cases":[
+  {"op":"leT","args":[[false,false],[false,false]],"result":true},
+  {"op":"leT","args":[[false,false],[true,false]],"result":true},
+  {"op":"leT","args":[[false,false],[false,true]],"result":false},
+  {"op":"leT","args":[[false,false],[true,true]],"result":false},
+  {"op":"leT","args":[[true,false],[false,false]],"result":false},
+  {"op":"leT","args":[[true,false],[true,false]],"result":true},
+  {"op":"leT","args":[[true,false],[false,true]],"result":false},
+  {"op":"leT","args":[[true,false],[true,true]],"result":false},
+  {"op":"leT","args":[[false,true],[false,false]],"result":true},
+  {"op":"leT","args":[[false,true],[true,false]],"result":true},
+  {"op":"leT","args":[[false,true],[false,true]],"result":true},
+  {"op":"leT","args":[[false,true],[true,true]],"result":true},
+  {"op":"leT","args":[[true,true],[false,false]],"result":false},
+  {"op":"leT","args":[[true,true],[true,false]],"result":true},
+  {"op":"leT","args":[[true,true],[false,true]],"result":false},
+  {"op":"leT","args":[[true,true],[true,true]],"result":true}
+]}

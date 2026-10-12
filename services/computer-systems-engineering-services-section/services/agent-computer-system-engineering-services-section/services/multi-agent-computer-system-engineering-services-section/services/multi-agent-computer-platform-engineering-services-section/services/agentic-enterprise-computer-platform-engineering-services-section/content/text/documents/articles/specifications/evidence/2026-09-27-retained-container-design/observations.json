@@ -1,0 +1,37 @@
+{
+  "kind": "retained-container-codec-observation",
+  "source": {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/canonical-json.mjs",
+    "sha256": "21c4b0fb8d1ce06e7e95f0b4e40bde25613b4392a80bb40a36749f7375d4b1b3"
+  },
+  "artifact": {
+    "canonicalBytes": 400045,
+    "ordinaryEnvelopeAdmitted": true
+  },
+  "containerBytes": 400181,
+  "defaultContainer": {
+    "accepted": false,
+    "name": "TypeError",
+    "code": "string-limit"
+  },
+  "lineBoundedContainer": {
+    "accepted": true,
+    "bytes": 400180
+  },
+  "boundedDeepContainer": {
+    "accepted": false,
+    "name": "RangeError",
+    "code": null
+  },
+  "claims": {
+    "ownerExercised": false,
+    "artifactIdentityExercised": false
+  },
+  "probe": {
+    "path": "muse-retained-container-observation.mjs",
+    "sha256": "655155c452be2e3ef4743d0ae8747947216cc8ca14dae0102f9aff27f55ad48d"
+  },
+  "priorOperationSha256": "a88f18b3b61b5643745e6582a8b4f0677bfbf5954d0c7aaa84067ab883d7fb77",
+  "replacementAccepted": false,
+  "operationSha256": "4100abcb0315919b062f010eb9426886fac7d72947a3740ca9966d41c6de21ba"
+}

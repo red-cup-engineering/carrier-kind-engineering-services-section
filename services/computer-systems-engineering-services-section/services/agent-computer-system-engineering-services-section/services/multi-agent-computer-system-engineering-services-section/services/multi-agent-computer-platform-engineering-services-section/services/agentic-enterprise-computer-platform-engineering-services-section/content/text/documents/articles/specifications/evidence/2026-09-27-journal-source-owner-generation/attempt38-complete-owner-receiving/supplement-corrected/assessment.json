@@ -1,0 +1,12 @@
+{
+  "exitCode": 0,
+  "stdout": "{\"kind\":\"journal-owner-post-generation-supplement\",\"checks\":[{\"name\":\"initialization directory-sync failure preserves host for identical retry\",\"passed\":true,\"faults\":[{\"operation\":\"fsync\",\"target\":\"/fixtures/supplement-SSBoIK\"}]},{\"name\":\"line capacity refuses before creating custody\",\"passed\":true,\"faults\":[]},{\"name\":\"batch capacity refuses before creating custody\",\"passed\":true,\"faults\":[]},{\"name\":\"aggregate source capacity refuses next publication without alteration\",\"passed\":true,\"faults\":[]}],\"passed\":4,\"total\":4}\n",
+  "stderr": "",
+  "commitmentSha256": "e82d3558b2c8ccee10e082baa60665facae1b8babecdf05f3371503a627575c3",
+  "environmentKeys": [
+    "HOME",
+    "LANG",
+    "PATH"
+  ],
+  "inputsUnchanged": true
+}

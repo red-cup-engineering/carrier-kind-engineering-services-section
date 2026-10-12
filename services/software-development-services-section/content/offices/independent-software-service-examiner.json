@@ -1,7 +1,0 @@
-{
-  "id": "independent-software-service-examiner",
-  "kind": "office",
-  "owns": ["replay of SDSS products, customer decisions, stage chains, and knowledge admission checks"],
-  "duties": ["refuse unresolved, digest-unbound, or non-replayable evidence", "verify no ambient tool invocation", "admit only witnessed successor knowledge"],
-  "incompatibleWith": ["mutation of the acceptance predicate during its active assay"]
-}

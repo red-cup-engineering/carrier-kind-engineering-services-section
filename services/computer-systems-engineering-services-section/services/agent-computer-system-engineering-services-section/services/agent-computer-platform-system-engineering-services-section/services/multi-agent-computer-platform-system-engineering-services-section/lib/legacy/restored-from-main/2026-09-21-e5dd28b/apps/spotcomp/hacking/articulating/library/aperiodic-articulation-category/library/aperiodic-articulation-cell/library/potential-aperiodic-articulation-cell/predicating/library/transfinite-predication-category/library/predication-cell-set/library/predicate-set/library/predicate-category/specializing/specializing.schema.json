@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/specializing/specializing.schema.json",
+  "title": "Specializing morphism record",
+  "description": "Morphism: a predicate-category -> the same with its specialization-pairs derived. Closes the declared specialization relation reflexively and transitively, verifies it is a partial order (antisymmetric), and checks that converse is specialization-monotone (p <= q implies p^op <= q^op). Specialization is the order along which a predicate refines to a more specific one; the reindexing along it carries the existential/universal adjoints.",
+  "type": "object",
+  "required": ["input", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "input": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/predicate-category.schema.json" },
+    "output": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/predicate-category.schema.json" }
+  }
+}

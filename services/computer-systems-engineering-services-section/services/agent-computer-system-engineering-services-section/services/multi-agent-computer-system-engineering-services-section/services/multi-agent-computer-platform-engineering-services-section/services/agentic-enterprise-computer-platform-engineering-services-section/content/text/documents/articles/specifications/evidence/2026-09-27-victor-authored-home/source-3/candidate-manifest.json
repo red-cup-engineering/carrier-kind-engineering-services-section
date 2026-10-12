@@ -1,0 +1,27 @@
+{
+  "workOrderSha256": "58b44b9fc4d796ffb0e8ac9d0415b1a332755211e745659357a19bfc28516c84",
+  "inputManifest": {
+    "src/build.mjs": "de4a1252849b6164fb474007f74ffe59401259d5185564317c00520e9c07d730",
+    "src/config.mjs": "1f0ebaef65e7a551b672e1f7790c6c7f4153323f3ccfe5c24c3b672d3ad5c80f",
+    "src/catalog.mjs": "399ee4bae62828d28f52a750898398d2e0b22f3239e96708ea1b76054eca6d62",
+    "src/page.mjs": "f25e8728d26fa61c2fdf9549a58e0fc41aca2eff712a7435a051f5980dd568d9",
+    "src/feeds.mjs": "66806b5a6b5b462c12beabd966344d58694d7db01a25c5eb5cd8f92945c1998d",
+    "src/tiles.mjs": "7c18b229db8e5a38c982fc71f2a43c781dfb93fd8b93c8ccb9ec15b242dda61a",
+    "src/publication-archives.mjs": "f37cd3509e4dfee0a3d90542350303eda9f9a75bc991a985bdb5a83461b249a5",
+    "README.md": "8bf413b63bebe8cf7ae9bce4f034fc86fcd4e48d15c52d6876be0d55c1b0a641"
+  },
+  "outputs": {
+    "src/build.mjs": "d18ac142052de8f08e629fb93c71582932751430bbafd5ea8181a0b3ec67378f",
+    "src/config.mjs": "f28e433b304e315faecabc1ddb7fe4527d571c90684c57390f008ca5d2f65e99",
+    "src/catalog.mjs": "1bae15ebcf8f2ae57092b1bda0310815eb0cd22c77e6ec19c2b0bf0221ff4813",
+    "src/page.mjs": "9804181271aa835f43de1ad0cfb7e4b5dae6c7cf8aa07decfd2c66e123204408",
+    "src/feeds.mjs": "43986d64fb5c9eb65c2453c111c8d5c6167291e37b40b2b2c4ccd46827d1afdb",
+    "src/tiles.mjs": "a72d63ba94ae63c6db6f74ed57fdb01364654a3531b3e7b198d0e01b277eee25",
+    "src/publication-archives.mjs": "f37cd3509e4dfee0a3d90542350303eda9f9a75bc991a985bdb5a83461b249a5",
+    "README.md": "c07a75292b8f1759740f3f78736048a98aa0f44f12b8a64e2aaae4cedb6a82fc"
+  },
+  "candidateJsonSha256": "9840e47f6c3834deb977ca88ef10d96040282610aab2813b41ef02fc69c99187",
+  "materializerSha256": "9345cb0114fa82127f28f65fe33429b9898762308294b42397b43dc5bc86c3dc",
+  "status": "rejected",
+  "reason": "Independent assessment found two authored-home failures; no promotion authorized by assessment."
+}

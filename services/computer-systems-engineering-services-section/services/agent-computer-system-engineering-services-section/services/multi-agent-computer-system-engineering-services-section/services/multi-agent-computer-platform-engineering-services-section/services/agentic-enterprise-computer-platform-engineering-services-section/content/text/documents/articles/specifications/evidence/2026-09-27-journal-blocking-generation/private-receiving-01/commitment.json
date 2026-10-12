@@ -1,0 +1,8 @@
+{
+  "assaySha256": "ed974df867ae3137b161fa888856f383b3e3b51539278f8b19be596fd4a82f25",
+  "loaderSha256": "de2eca467c8181b15d3c72f9bce57d4a0fcba8624fc5f669d3e5022bef2959f1",
+  "dependencyMapSha256": "22f5abe4200126ab22007de29c758eef9acf7ec104a1ea7fb200b677492d83a5",
+  "orderSha256": "6c66e2c826b7729ae715052240fe0bfbee665a3ca735a1aa4775267c98921fbc",
+  "committedBeforeGeneration": true,
+  "receivingSyntaxCheckedBeforeCommitment": true
+}

@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/fold-fabrication-receipt-into-world-rows-service",
+  "version": "0.3.1",
+  "description": "Folds one canonically admitted fabrication receipt into the EAVT rows that constitute a born package and record its successful assays.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/fold-fabrication-receipt-into-world-rows.mjs",
+  "bin": {
+    "fold-fabrication-receipt-into-world-rows": "scripts/fold-fabrication-receipt-into-world-rows.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/eavt": "0.10.0",
+    "@red-cup-engineering/fabricate-markdown-jsnode-operation-package-service": "0.5.3",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/fold-fabrication-receipt-into-world-rows.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/commutative-nuclear-square/commutating/commutating.schema.json",
+  "title": "Commutating morphism record",
+  "description": "Morphism: a Heyting algebra with two nuclei (sigma = saturating, delta = transferring) -> the commutative nuclear square with derived composite pi and the four corner cells. Verifies sigma and delta are nuclei and CHECKS the commutativity axiom sigma . delta = delta . sigma (not derivable from the nuclei alone); on success derives pi = sigma . delta, verifies it is a nucleus, and computes potential = A, active = Fix(sigma), stable = Fix(delta), absurd = A* = Fix(sigma) cap Fix(delta) = Fix(pi). saturating and transferring are the generators commutating combines; commutativity is the irreducible axiom it adds.",
+  "type": "object",
+  "required": ["input", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "input": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/commutative-nuclear-square/commutative-nuclear-square.schema.json" },
+    "output": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/commutative-nuclear-square/commutative-nuclear-square.schema.json" }
+  }
+}

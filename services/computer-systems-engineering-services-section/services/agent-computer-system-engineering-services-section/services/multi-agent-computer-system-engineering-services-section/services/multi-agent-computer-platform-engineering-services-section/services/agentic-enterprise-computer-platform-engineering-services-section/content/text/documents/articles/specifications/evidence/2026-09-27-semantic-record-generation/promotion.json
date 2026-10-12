@@ -1,0 +1,13 @@
+{
+  "target": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/semantic-record.mjs",
+  "sourceSha256": "4cdd3b3e13f2445875d33f3d72ec0dfd7684f3615a27107d6049771a9163f248",
+  "before": "absent",
+  "status": "promoted",
+  "startedAt": 1790550901.9988253,
+  "acceptance": "pure record construction, historical custody representation and record projection only",
+  "candidateChain": [
+    "attempt-03",
+    "attempt-04-codemod"
+  ],
+  "finishedAt": 1790550902.006974
+}

@@ -23,7 +23,6 @@ import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
-import { tm } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation";
 import { settleCausalSet } from "@red-cup-engineering/metrologic/articulation/predicating/positing/settling/analysis/causal";
 import {
   arrivalUtteranceFromCloudEvent,
@@ -34,10 +33,10 @@ import {
 
 } from "@red-cup-engineering/json-services-section/cloudevent-identity";
 
-export const ARRIVAL_FEED = "admit-arrival";
-export const ARRIVAL_ADMISSION_TERM = tm.mark("metroplat.arrival.admit.v1");
-export const ARRIVAL_PROCESS_FEED = "process-arrival";
-export const ARRIVAL_PROCESS_TERM = tm.mark("metroplat.arrival.process.v1");
+/** The store type of an admitted arrival: a record per arrival, a head per day, a log line per arrival. */
+export const ARRIVAL_FEED = "arrival";
+/** The store type of an arrival's processing transitions: a thread per request. */
+export const ARRIVAL_PROCESS_FEED = "arrival-processing";
 
 /** A declared dispatch request carried by an arrival. Its subject is a remote
  * claim, not a principal or an authorization decision. */
@@ -310,10 +309,9 @@ export function admitCloudEventArrival(event, options = {}) {
   });
 }
 
-export function arrivalReceiptWithAdmission(receipt, admission, packetPath) {
+export function arrivalReceiptWithAdmission(receipt, admission) {
   return Object.freeze({
     ...receipt,
-    packetPath,
     admission,
   });
 }
@@ -324,8 +322,7 @@ export function arrivalReceiptHandle(receipt) {
     ok: receipt.ok,
     cloudEventIdentity: receipt.cloudEventIdentity,
     packetDigest: receipt.packetDigest,
-    ...(receipt.packetPath === undefined ? {} : { packetPath: receipt.packetPath }),
-    ...(receipt.admission?.artifact?.path === undefined ? {} : { logPath: receipt.admission.artifact.path }),
+    ...(receipt.admission?.address === undefined ? {} : { address: receipt.admission.address }),
     obstructions: receipt.obstructions,
   });
 }

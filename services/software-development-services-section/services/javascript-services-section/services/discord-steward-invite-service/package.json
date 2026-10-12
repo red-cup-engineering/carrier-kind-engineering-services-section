@@ -1,9 +1,0 @@
-{
-  "name": "@red-cup-engineering/discord-steward-invite-service",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "bin": {
-    "discord-steward-invite": "./src/entry.mts"
-  }
-}

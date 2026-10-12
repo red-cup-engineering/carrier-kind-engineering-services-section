@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://registry.561.group/@red-cup-engineering/venue-fill-booking-service/schema/derive-set-of-fill-transactions.input.schema.json",
+  "title": "deriveSetOfFillTransactionsInput",
+  "type": "object",
+  "description": "A chronologically ordered set of venue fills to render as Beancount transactions, the account names the ledger already has open, and optional realized-gain/loss account overrides.",
+  "required": ["fills"],
+  "properties": {
+    "fills": {
+      "type": "array",
+      "items": { "$ref": "./venue-fill.schema.json" }
+    },
+    "openAccounts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Beancount account names already open in the ledger; an account not listed here gets an `open` directive in the output."
+    },
+    "realizedGainAccount": { "type": "string", "default": "Income:Investment:Realized-Gains" },
+    "realizedLossAccount": { "type": "string", "default": "Expenses:Investment:Realized-Losses" }
+  }
+}

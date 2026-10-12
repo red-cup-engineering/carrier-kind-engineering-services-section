@@ -1,0 +1,82 @@
+{
+  "id": "swarm-peer-verified-by-declared-key",
+  "name": "A known-intermittent peer is verified against its declared key, and its absence is never cached as refusal",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must.",
+  "met-when": [
+    {
+      "cell": "swarm:declared-key-verifies",
+      "target": "held",
+      "command": "sh -c 'cd \"${COMPUTER_SERVICES_SECTION:?checkout of the owning repository}/services/computer-systems-engineering-services-section/apps/computer-system-engine\" && test -f test/node-peer-keys.test.mjs && node --test test/node-peer-keys.test.mjs'",
+      "expected-exit": 0
+    },
+    {
+      "cell": "swarm:declared-keys-wired",
+      "target": "held",
+      "command": "sh -c 'grep -r -q -E \"SYSTEM_NODE_PEER_KEYS\" \"${COMPUTER_SERVICES_SECTION:?checkout of the owning repository}/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/rpc\"'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "routine",
+  "realized-by": [
+    "computer-services-section-pinned-peer-keys"
+  ],
+  "x-provenance": {
+    "recorded-by": "research-realization session (Lenticule research -> Red Cup engineering), dispatched by the orchestrator of 2026-10-10",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "convert-to-signed-cells": true,
+    "conversion-note": "Written in the requirement.schema.json form pending the canonical signcell call for requirement records; each met-when condition becomes a predication cell told held or denied by its command's exit.",
+    "basis": "The founder's demand that held research be realized in running code, carried with the research claim it realizes. The founder's words are quoted unedited; the research quote is the claim the tests exercise.",
+    "research": [
+      {
+        "path": "science-services-section/services/philosophy-services-section/services/relationality-services-section/services/agency-services-section/content/text/documents/articles/research/predicated-agentic-orchestration-platform/flatfile-agentic-resource-system/code/structures/peer-record.md; 2026-10-09 Soft Grass Pebble colony note",
+        "says": "Peers verify a node by fetching its key live … A node that cannot be dialed cannot be verified. … Either peers pin a known-intermittent peer's declared key, or the colony carries Tailscale ingress while present."
+      }
+    ],
+    "owning-repository": "red-cup-engineering/computer-services-section",
+    "board-opening": {
+      "speech-act": "request",
+      "need": "A node verifies a configured peer's signed settlement requests against the Ed25519 key that peer declared, without dialing it, and a failed live key discovery is not kept.",
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "The node shall verify a configured peer's signed request against that peer's declared key when one is declared, without dialing the peer.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R2",
+          "says": "The node shall refuse a request signed by any key other than a declared one.",
+          "class": "functional",
+          "moscow": "must"
+        },
+        {
+          "id": "R3",
+          "says": "The node shall not retain a failed key discovery, so a peer away at the first check is verified once it returns.",
+          "class": "functional",
+          "moscow": "must"
+        }
+      ],
+      "sources": [
+        {
+          "session": "session_01WFXZzAiqfYxQPLLLaH1sGU",
+          "at": "2026-09-03",
+          "words": "This repo has *WORLD CLASS* research on hofheldian rights. and drone swarms. and CRDT merging. … you are not making them work like how the theory says they must."
+        },
+        {
+          "session": "session_01PnEE1T1PdzBe6LCAMGaN8E",
+          "at": "2026-10-09",
+          "words": "we need to realize, use-and-improve the existing theory/research we have on this, not spin up the thinnest thing an agent can imagine in one session."
+        }
+      ]
+    },
+    "checkout-variables": "Conditions read the owning repository from the named environment variable (a checkout at the commit under test).",
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;hIPGTrzFsT19j0vpda-wi3XOj4pXy8Yq-Otws0MJxuI",
+      "cell": "ni:///sha-256;O0ofII0KApExshEbh-tkM-u5_xdxP4mbPzNEX5wsdCM"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/import-utility-statement-service",
+  "version": "0.1.0",
+  "description": "Imports one utility statement's rows into `HouseholdEnergyRecord` rows, reconciling `kwhUsed`\nagainst a meter or bank row and holding any mismatch open, and refusing rather than dropping a\nrow this section's declared `parserConfig` cannot resolve or foot.",
+  "type": "module",
+  "private": false,
+  "license": "UNLICENSED",
+  "exports": "./scripts/import-utility-statement.mjs",
+  "bin": {
+    "import-utility-statement": "scripts/import-utility-statement.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/computer-ledger-system-services-section": "0.6.0",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/import-utility-statement.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

@@ -1,0 +1,11 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Record.reading","cases":[
+  {"op":"reading","args":[[0,0]],"result":[false,false]},
+  {"op":"reading","args":[[0,1]],"result":[false,true]},
+  {"op":"reading","args":[[0,2]],"result":[false,true]},
+  {"op":"reading","args":[[1,0]],"result":[true,false]},
+  {"op":"reading","args":[[1,1]],"result":[true,true]},
+  {"op":"reading","args":[[1,2]],"result":[true,true]},
+  {"op":"reading","args":[[2,0]],"result":[true,false]},
+  {"op":"reading","args":[[2,1]],"result":[true,true]},
+  {"op":"reading","args":[[2,2]],"result":[true,true]}
+]}

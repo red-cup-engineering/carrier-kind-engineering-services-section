@@ -128,18 +128,4 @@ export class DurableA2aTaskStore {
       totalSize,
     };
   }
-
-  /** Atomically admit a new task if it does not already exist. */
-  async claim(taskId, contextId, message) {
-    const task = { id: taskId, contextId: contextId ?? "", status: { state: TASK_STATE.SUBMITTED, message: undefined, timestamp: new Date().toISOString() }, history: [], artifacts: [], metadata: {} };
-    if (message) task.history.push(JSON.parse(JSON.stringify(message)));
-    const envelope = { protocol: "A2A", protocolVersion: "1.0", tenant: this.tenant, task: JSON.parse(JSON.stringify(task)) };
-    if (containsEphemeralBearer(envelope)) throw new Error("ephemeral bearer capability must not enter durable A2A task storage");
-    const result = await this.source.create(taskStateRecord(envelope));
-    if (result.created) {
-      return { claimed: true, task };
-    }
-    const existing = taskFromRecord(result.record, taskId, this.tenant);
-    return { claimed: false, task: existing };
-  }
 }

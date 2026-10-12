@@ -1,0 +1,12 @@
+{
+  "kind": "receiving-infrastructure-correction",
+  "at": 1790552115.3058836,
+  "reason": "Escaping in operator-authored static-source regex made the assay syntactically invalid. No candidate behavior ran. Replace that check with literal host/evaluation-token detection and perform allowed-import source review separately.",
+  "originalAssaySha256": "3634ec515d8697174726ce873560c5df06034191514eae0abead1b5732fc0714",
+  "correctedAssaySha256": "f6f0a797dfd5dd9c67828b2e8f9ced5111c6c018c0a49cde63c5d5cddf829bee",
+  "originalCommitmentSha256": "5eb50a4c6299b9751d7fb96821b87b283868f262e255ff15409773049ef6accc",
+  "originalAssessmentSha256": "14beb609451323a3e67379aa953d936e329bcb34a2821e2e523298eff21227a6",
+  "beforeAnyBehavioralObservation": true,
+  "candidateChanged": false,
+  "providerFeedbackSent": false
+}

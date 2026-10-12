@@ -1,0 +1,14 @@
+{
+  "note": "Seeded from general HSK-1-level knowledge recalled by the author, not exported from a verified corpus, dictionary, or the official HSK word list document. Every entry below is a word the author is confident is real, common, everyday Mandarin — the list is deliberately small and unpadded rather than risk including anything uncertain. Treat this as a placeholder starter set: it needs sourced expansion against an authoritative HSK/dictionary export before it can be trusted for coverage claims. See data/research-obligations.json (id: core-vocabulary-sourcing).",
+  "words": [
+    "你好", "谢谢", "不客气", "对不起", "没关系", "再见",
+    "零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "百", "千",
+    "今天", "明天", "昨天", "现在", "时候", "年", "月", "日", "星期", "小时", "分钟", "早上", "晚上", "中午",
+    "老师", "学生", "朋友", "爸爸", "妈妈", "儿子", "女儿", "先生", "小姐", "同学",
+    "中国", "北京", "家", "学校", "医院", "商店", "公司",
+    "学习", "喜欢", "工作", "认识", "说话", "看", "听", "写", "读", "吃", "喝", "睡觉", "去", "来", "买",
+    "什么", "名字", "书", "手机", "电脑", "电视", "水", "茶", "米饭", "苹果", "天气",
+    "谁", "哪儿", "怎么", "为什么", "多少",
+    "好", "漂亮", "高兴", "忙", "累", "冷", "热", "大", "小", "多", "少"
+  ]
+}

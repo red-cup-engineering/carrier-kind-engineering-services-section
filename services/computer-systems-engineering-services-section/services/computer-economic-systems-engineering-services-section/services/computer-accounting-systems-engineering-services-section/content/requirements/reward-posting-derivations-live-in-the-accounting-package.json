@@ -1,0 +1,83 @@
+{
+  "id": "reward-posting-derivations-live-in-the-accounting-package",
+  "name": "The rewards-posting derivations are one package of the accounting section",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "Move `derive-set-of-rewards-postings.mjs` (consumer-credit-services-section/services/derive-set-of-rewards-postings-service/scripts/) into a new package in computer-accounting-systems-engineering-services-section/scripts/ that exports it, and delete the original package; move `route-card-rewards.mjs` (consumer-credit-services-section/services/route-card-rewards-service/scripts/) to the same place and delete its package; cut any consumer of the deleted packages over to the new computer-accounting-systems section. (2026-09-10)",
+  "tier": "routine",
+  "met-when": [
+    {
+      "cell": "reward-posting-derivations-live-in-the-accounting-package:conditions-stated",
+      "target": "held"
+    }
+  ],
+  "x-provenance": {
+    "recorded-by": "pass finance-accounting of debt-2026-10-09-leader-words-held-in-corpus",
+    "recorded-on": "2026-10-10",
+    "section": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-accounting-systems-engineering-services-section",
+    "class": "requirement",
+    "authority": "party:emsenn",
+    "sources": [
+      {
+        "at": "2026-09-10T19:16:25.296Z",
+        "locator": "lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/2026-08-26--2026-10-10.jsonl#ni:///sha-256;M35A8AV26_Uw_hh68p9ehPVpWh5OCfBM1HV45hWXpNU",
+        "session": "d061625c-fc8d-4c87-ad1f-79fdfa25c6e0",
+        "words": "lib/emsenn/services/561-group/services/engineering-services-section/services/financial-engineering-services-section/services/consumer-credit-services-section/services/derive-set-of-rewards-postings-service/scripts/derive-set-of-rewards-postings.mjs\n\nlib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-accounting-systems-engineering-services-section/scripts/, creating a new package in computer-accounting-systems-engineering-services-section that exports it,\n\nAnd the original package deleted.\n\nlib/emsenn/services/561-group/services/engineering-services-section/services/financial-engineering-services-section/services/consumer-credit-services-section/services/route-card-rewards-service/scripts/route-card-rewards.mjs\n\ncan be moved to the same place, and its package deleted.\n\nIf there are consumers of the deleted packages, cut them over to the new computer-accounting-systems-services-section, please."
+      }
+    ],
+    "board-opening": {
+      "requirements": [
+        {
+          "class": "functional",
+          "id": "package",
+          "priority": "must",
+          "says": "The computer-accounting-systems section shall provide one package under its scripts/ directory that exports derive-set-of-rewards-postings and route-card-rewards."
+        },
+        {
+          "class": "constraint",
+          "id": "no-originals",
+          "priority": "must",
+          "says": "The financial-engineering consumer-credit section shall contain neither the derive-set-of-rewards-postings-service package nor the route-card-rewards-service package."
+        },
+        {
+          "class": "functional",
+          "id": "cutover",
+          "priority": "must",
+          "says": "Every consumer of the two removed packages shall import the new accounting package."
+        }
+      ]
+    },
+    "pending-conditions": "No met-when was stated; this condition stands unsettled (read unknown) until a check that exercises the requirement replaces it.",
+    "utterances": [
+      "ni:///sha-256;M35A8AV26_Uw_hh68p9ehPVpWh5OCfBM1HV45hWXpNU"
+    ],
+    "state-found": "At this pass the two source paths named in the utterance are not in the tracked tree (git ls-files finds no consumer-credit-services-section and no file named for either script); the rewards code that exists is in the hive sections (holozing rewards) and route-directed-yield-service. The migration is therefore a landing of the named scripts from wherever they are held, judged before any deletion under rule existing-work-is-judged-before-it-is-discarded; this record carries the whole instruction and is the work order for that landing, not code.",
+    "carried-fields": {
+      "requirements": [
+        {
+          "id": "package",
+          "says": "The computer-accounting-systems section shall provide one package under its scripts/ directory that exports derive-set-of-rewards-postings and route-card-rewards.",
+          "class": "functional",
+          "priority": "must"
+        },
+        {
+          "id": "no-originals",
+          "says": "The financial-engineering consumer-credit section shall contain neither the derive-set-of-rewards-postings-service package nor the route-card-rewards-service package.",
+          "class": "constraint",
+          "priority": "must"
+        },
+        {
+          "id": "cutover",
+          "says": "Every consumer of the two removed packages shall import the new accounting package.",
+          "class": "functional",
+          "priority": "must"
+        }
+      ]
+    },
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;unjlrefAuidMb5LZpeZ26is1zcSXVl63K7AxBQbmpUY",
+      "cell": "ni:///sha-256;aX2TdCU1KvuSDOMAZx7JirRiBbPIUVTh7oW8renP5j8"
+    }
+  }
+}

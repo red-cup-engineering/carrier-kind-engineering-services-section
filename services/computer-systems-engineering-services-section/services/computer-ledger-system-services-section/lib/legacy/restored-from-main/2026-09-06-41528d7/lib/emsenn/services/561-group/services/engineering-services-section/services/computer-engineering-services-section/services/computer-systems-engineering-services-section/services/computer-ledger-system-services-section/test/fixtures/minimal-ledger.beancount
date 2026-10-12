@@ -1,0 +1,24 @@
+option "title" "Test Ledger"
+option "operating_currency" "USD"
+
+2026-01-01 open Assets:Cash:Operating USD
+2026-01-01 open Assets:Cash:Reserve USD
+2026-01-01 open Equity:Opening-Balances
+2026-01-01 open Income:Consulting
+2026-01-01 open Expenses:Software
+
+2026-01-01 * "Opening balance"
+  Assets:Cash:Operating  1000.00 USD
+  Equity:Opening-Balances  -1000.00 USD
+
+2026-01-05 * "Client payment" "Acme Corp"
+  Assets:Cash:Operating  500.00 USD
+  Income:Consulting  -500.00 USD
+
+2026-01-10 * "Software subscription"
+  Assets:Cash:Operating  -20.00 USD
+  Expenses:Software  20.00 USD
+
+2026-01-15 balance Assets:Cash:Operating  1480.00 USD
+
+2026-01-20 balance Assets:Cash:Reserve  50.00 USD

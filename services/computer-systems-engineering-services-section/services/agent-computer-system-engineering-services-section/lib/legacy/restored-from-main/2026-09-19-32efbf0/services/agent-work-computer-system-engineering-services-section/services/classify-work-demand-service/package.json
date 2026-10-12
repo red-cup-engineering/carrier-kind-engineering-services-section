@@ -1,0 +1,31 @@
+{
+  "name": "@red-cup-engineering/classify-work-demand-service",
+  "version": "0.1.1",
+  "description": "Reads one work item's skillful-work type and attention lane off the item itself.",
+  "type": "module",
+  "private": false,
+  "license": "MIT",
+  "exports": "./scripts/classify-work-demand.mjs",
+  "bin": {
+    "classify-work-demand": "scripts/classify-work-demand.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@lenticule-science/work-science-services-section": "0.1.1",
+    "@red-cup-engineering/javascript-node-services-section": "0.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/classify-work-demand.mjs",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test && npm run pack:dry-run",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

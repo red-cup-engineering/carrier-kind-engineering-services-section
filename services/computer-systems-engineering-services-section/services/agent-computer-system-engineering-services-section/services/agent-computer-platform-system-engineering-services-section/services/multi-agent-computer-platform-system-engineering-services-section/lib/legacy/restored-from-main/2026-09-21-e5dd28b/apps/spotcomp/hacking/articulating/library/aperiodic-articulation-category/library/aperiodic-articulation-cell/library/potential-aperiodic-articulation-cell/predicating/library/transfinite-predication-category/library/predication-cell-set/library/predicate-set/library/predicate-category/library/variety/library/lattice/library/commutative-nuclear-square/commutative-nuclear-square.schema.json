@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/library/commutative-nuclear-square/commutative-nuclear-square.schema.json",
+  "title": "Commutative nuclear square",
+  "description": "A Heyting algebra A carrying two commuting nuclei -- sigma (saturating, backward/sub-history facing) and delta (transferring, forward/extension facing) -- with sigma . delta = delta . sigma. The commutating morphism derives the composite nucleus pi = sigma . delta and the four corners: potential = A, active = Fix(sigma), stable = Fix(delta), absurd = A* = Fix(sigma) cap Fix(delta) = Fix(pi). Those four corners ARE the cell phases potential/active/stable/absurd -- rich Heyting sub-algebras of a general A, not four truth-values. Commutativity is not derivable from sigma, delta alone (the morphism checks it). sigma/delta/pi are element->element maps keyed by carrier label.",
+  "type": "object",
+  "required": ["algebra", "sigma", "delta"],
+  "additionalProperties": false,
+  "properties": {
+    "algebra": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/library/variety/library/lattice/lattice.schema.json" },
+    "sigma": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } },
+    "delta": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } },
+    "pi": { "type": "object", "additionalProperties": { "type": "string", "minLength": 1 } },
+    "corners": {
+      "type": "object",
+      "required": ["potential", "active", "stable", "absurd"],
+      "additionalProperties": false,
+      "properties": {
+        "potential": { "type": "array", "items": { "type": "string" } },
+        "active": { "type": "array", "items": { "type": "string" } },
+        "stable": { "type": "array", "items": { "type": "string" } },
+        "absurd": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

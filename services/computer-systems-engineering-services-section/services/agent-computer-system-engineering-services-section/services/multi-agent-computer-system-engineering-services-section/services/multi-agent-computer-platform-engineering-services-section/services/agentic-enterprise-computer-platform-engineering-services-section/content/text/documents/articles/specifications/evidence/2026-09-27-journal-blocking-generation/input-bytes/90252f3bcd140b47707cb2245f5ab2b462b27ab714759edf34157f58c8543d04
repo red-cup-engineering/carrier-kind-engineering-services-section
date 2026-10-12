@@ -1,0 +1,21 @@
+{
+  "input": {
+    "type": "object",
+    "required": ["record", "key"],
+    "properties": {
+      "record": {
+        "type": "object"
+      },
+      "key": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "source": {
+        "type": "string"
+      }
+    }
+  },
+  "output": {}
+}

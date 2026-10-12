@@ -1,12 +1,5 @@
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
-import { journalCursorStart } from "@red-cup-engineering/semiotic-eavt-services-section/read-semantic-records-since";
-import { semanticRecordOf } from "@red-cup-engineering/semiotic-eavt-services-section/query-semantic-records";
-import { parseJournalWitness } from "@red-cup-engineering/semiotic-eavt-services-section/journal/event";
-import { journalDirectoryOf } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
-import { kindFeeds, feedSize, linesFrom } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/feed-tail";
-import { segmentPath } from "@red-cup-engineering/semiotic-eavt-services-section/journal/filesystem/segment-store";
-import { relative } from "node:path";
-import { canonicalJson } from "@red-cup-engineering/json-services-section";
+import { append, get, has, logDates, put, readLog } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { deliverActivity } from "@red-cup-engineering/activitypub-services-section";
 
 /**
@@ -21,118 +14,68 @@ export function presenceOf(config, actor) {
 /**
  * What this node holds for a known-intermittent peer: each activity it addressed to that peer,
  * kept as it was authored, under the peer's actor, until the peer pulls it (`heldDeliveryResponse`).
+ * An activity held is a `held-peer-delivery` record `{ recipient, activity }` (holding the same activity
+ * again is the same record) and one log line `{ at, recipient, of }` naming it, at the instant it was held, which
+ * the peer's pull reads: a late admission is read from the day it was held, never from the day its activity names.
  */
-export const HELD_DELIVERY_OBJECT_KIND = "held-peer-delivery";
+export const HELD_DELIVERY_TYPE = "held-peer-delivery";
 const HELD_PAGE = 50;
 
-const heldJournal = (dataRoot) => createSemanticRecordJournal({ root: dataRoot, objectKind: HELD_DELIVERY_OBJECT_KIND });
-
-/** The held activities addressed to `recipient`, oldest first, each once, as { id, activity }. */
-function heldRows(dataRoot, recipient) {
-  const seen = new Set();
-  const rows = [];
-  for (const { id, record } of heldJournal(dataRoot).query({ category: "held" })) {
-    if (record?.recipient !== recipient || seen.has(id)) continue;
-    seen.add(id);
-    rows.push(Object.freeze({ id, activity: record.activity }));
-  }
-  return rows;
-}
-
 /** Hold one activity for `recipient`. Holding the same activity again is a no-op. */
-export function holdForPeer({ dataRoot, recipient, activity, at = new Date().toISOString() }) {
+export function holdForPeer({ dataRoot, recipient, activity }) {
   if (typeof dataRoot !== "string" || dataRoot === "") throw new TypeError("holding a delivery needs this node's data root");
   if (typeof recipient !== "string" || recipient === "") throw new TypeError("a held delivery names the actor it is held for");
   if (activity === null || typeof activity !== "object" || Array.isArray(activity)) throw new TypeError("a held delivery is one authored activity");
   const record = JSON.parse(JSON.stringify({ recipient, activity }));
-  const bytes = canonicalJson(record.activity);
-  const known = heldRows(dataRoot, recipient).find((row) => canonicalJson(row.activity) === bytes);
-  if (known !== undefined) return Object.freeze({ held: true, recipient, id: known.id });
-  const { id } = heldJournal(dataRoot).record({ category: "held", recordedAt: at, record, told: { for: true, against: false } });
+  const id = semanticId(record);
+  if (has(dataRoot, HELD_DELIVERY_TYPE, id)) return Object.freeze({ held: true, recipient, id });
+  // The line first: a line whose record never arrived reads as nothing, and a record without its line would never be pulled.
+  append(dataRoot, HELD_DELIVERY_TYPE, { at: new Date().toISOString(), recipient, of: id });
+  put(dataRoot, HELD_DELIVERY_TYPE, record);
   return Object.freeze({ held: true, recipient, id });
 }
 
-const HELD_CURSOR = "held-peer-delivery.cursor.v1";
-const CURSOR_PREFIX = "held-v2.";
-const INLINE_CURSOR_PREFIX = "held-v1.";
-const ADDRESS = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
-const CURSOR_ADDRESS = /^held-v2\.[A-Za-z0-9_-]{43}$/u;
-const cursorJournal = dataRoot => createSemanticRecordJournal({ root: dataRoot, objectKind: "held-peer-delivery-cursor" });
+const CURSOR = /^held-v3\.(\d{4}-\d{2}-\d{2})\.(\d{1,15})$/u;
 const invalidCursor = message => Object.assign(new TypeError(message), { code: "ERR_HELD_DELIVERY_CURSOR" });
 
-function cursorOf(after, recipient, dataRoot) {
-  // An old semantic address cannot prove an admission frontier. Replay it safely once.
-  if (after === undefined || after === null || ADDRESS.test(after)) {
-    return { cursor: journalCursorStart(HELD_DELIVERY_OBJECT_KIND), reset: after != null };
-  }
-  let value;
-  if (typeof after === "string" && CURSOR_ADDRESS.test(after)) {
-    const id = "ni:///sha-256;" + after.slice(CURSOR_PREFIX.length);
-    value = cursorJournal(dataRoot).query({ category: "continuation" }).find(row => row.id === id)?.record;
-    if (value === undefined) throw invalidCursor("held delivery cursor is not in this node's custody");
-  } else if (typeof after === "string" && after.startsWith(INLINE_CURSOR_PREFIX) && after.length <= 65536) {
-    // Accept already issued inline cursors that fit transport, but never emit another one.
-    try { value = JSON.parse(Buffer.from(after.slice(INLINE_CURSOR_PREFIX.length), "base64url").toString("utf8")); }
-    catch { throw invalidCursor("held delivery cursor must contain valid cursor data"); }
-  } else {
-    throw invalidCursor("held delivery cursor must be one bounded admission cursor");
-  }
-  const cursor = value?.cursor;
-  if (value?.kind !== HELD_CURSOR || value.recipient !== recipient
-    || cursor?.kind !== "semiotic-eavt.journal-cursor.v1" || cursor.objectKind !== HELD_DELIVERY_OBJECT_KIND
-    || cursor.feeds === null || typeof cursor.feeds !== "object" || Array.isArray(cursor.feeds)
-    || Object.values(cursor.feeds).some(offset => !Number.isSafeInteger(offset) || offset < 0)) {
-    throw invalidCursor("held delivery cursor must belong to this recipient and journal");
-  }
-  return { cursor, reset: false };
+/** Where a pull resumes in the held log: the day and the byte position after the last line it read. */
+function cursorOf(after) {
+  if (after === undefined || after === null) return { date: null, position: 0 };
+  const found = typeof after === "string" ? CURSOR.exec(after) : null;
+  if (found === null) throw invalidCursor("held delivery cursor must be a valid cursor: held-v3.<day>.<position>");
+  return { date: found[1], position: Number(found[2]) };
 }
 
-function encodeCursor(cursor, recipient, dataRoot) {
-  // Keep the complete frontier in existing durable semantic custody. Only its fixed-length
-  // content identity travels in the signed URL, independently of how many daily feeds exist.
-  // This separate object kind never changes the held-delivery feeds being acknowledged.
-  const journal = cursorJournal(dataRoot);
-  const record = { kind: HELD_CURSOR, recipient, cursor };
-  const bytes = canonicalJson(record);
-  const existing = journal.query({ category: "continuation" }).find(row => canonicalJson(row.record) === bytes);
-  const id = existing?.id ?? journal.record({ category: "continuation", record,
-    recordedAt: new Date().toISOString(), told: { for: true, against: false } }).id;
-  if (!ADDRESS.test(id)) throw new TypeError("held delivery custody returned no canonical content identity");
-  return CURSOR_PREFIX + id.slice("ni:///sha-256;".length);
-}
+const encodeCursor = ({ date, position }) => (date === null ? undefined : `held-v3.${date}.${position}`);
 
 /**
- * A bounded page in the journal's append custody, never a recordedAt watermark. The Data owner's
- * feed handles, byte reader and witness projection are the same contracts readSince uses. Retain
- * offsets only through the page's last admitted witness, so a fifty-item page cannot acknowledge
- * its unsent tail. New earlier-date feeds and appends to old feeds are read from their own offsets.
- * A shortened feed replays, as the native journal cursor contract requires.
+ * A bounded page of the held log, read from the cursor's day and byte position: the activities held
+ * for `recipient`, oldest first, each once. The cursor it returns stands after the last line read, so a
+ * fifty-item page cannot acknowledge its unsent tail; later days and appends to the cursor's day are read
+ * from their own positions.
  */
 export function heldDeliveryPage({ dataRoot, recipient, after, limit = HELD_PAGE }) {
   if (!Number.isSafeInteger(limit) || limit < 1) throw new TypeError("held delivery page limit must be a positive integer");
   const cap = Math.min(limit, HELD_PAGE);
-  const start = cursorOf(after, recipient, dataRoot);
-  const store = journalDirectoryOf(heldJournal(dataRoot).root);
-  const feeds = kindFeeds(store, HELD_DELIVERY_OBJECT_KIND);
-  const shortened = feeds.some(log => feedSize(log) < (start.cursor.feeds[relative(store, log)] ?? 0));
-  const positions = shortened ? {} : { ...start.cursor.feeds };
+  const start = cursorOf(after);
+  let cursor = start;
   const rows = [], seen = new Set();
-  outer: for (const log of feeds) {
-    const feed = relative(store, log), from = positions[feed] ?? 0, end = feedSize(log);
-    for (const entry of linesFrom(segmentPath(log), from, end)) {
-      const record = semanticRecordOf(parseJournalWitness(JSON.parse(entry.line)));
-      positions[feed] = entry.next;
-      if (record?.category !== "held" || record.record?.recipient !== recipient || seen.has(record.id)) continue;
-      seen.add(record.id);
-      rows.push(Object.freeze({ id: record.id, activity: record.record.activity }));
+  outer: for (const date of logDates(dataRoot, HELD_DELIVERY_TYPE)) {
+    if (start.date !== null && date < start.date) continue;
+    for (const { line, next } of readLog(dataRoot, HELD_DELIVERY_TYPE, date, { from: date === start.date ? start.position : 0 })) {
+      cursor = { date, position: next };
+      if (line.recipient !== recipient || typeof line.of !== "string" || seen.has(line.of)) continue;
+      const record = get(dataRoot, HELD_DELIVERY_TYPE, line.of);
+      if (record === undefined) continue;
+      seen.add(line.of);
+      rows.push(Object.freeze({ id: line.of, activity: record.activity }));
       if (rows.length === cap) break outer;
     }
   }
-  const cursor = Object.freeze({ ...journalCursorStart(HELD_DELIVERY_OBJECT_KIND), feeds: Object.freeze(positions) });
-  return Object.freeze({ items: Object.freeze(rows), after: encodeCursor(cursor, recipient, dataRoot), reset: start.reset || shortened });
+  return Object.freeze({ items: Object.freeze(rows), after: encodeCursor(cursor) });
 }
 
-/** Held activities after an admission cursor; historical address cursors safely replay. */
+/** Held activities after a cursor. */
 export function heldFor(options) { return heldDeliveryPage(options).items; }
 
 /**
@@ -143,7 +86,7 @@ export function heldFor(options) { return heldDeliveryPage(options).items; }
  */
 export async function deliverOrHold({ config, provider, deliver = deliverActivity, request, at }) {
   if (presenceOf(config, request.recipient) === "known-intermittent" && config.metroplatDataRoot !== undefined) {
-    return holdForPeer({ dataRoot: config.metroplatDataRoot, recipient: request.recipient, activity: request.activity, at });
+    return holdForPeer({ dataRoot: config.metroplatDataRoot, recipient: request.recipient, activity: request.activity });
   }
   return deliver(provider, request);
 }
@@ -184,7 +127,7 @@ export async function heldDeliveryResponse({ config, request, signerOf }) {
   if (signer !== recipient) return heldRefusal(403, "a peer pulls only what is held for its own actor");
   if (presenceOf(config, signer) !== "known-intermittent") return heldRefusal(403, `${signer} is not a known-intermittent peer of this node; nothing is held for it`);
   const after = url.searchParams.get("after") ?? undefined;
-  try { cursorOf(after, recipient, config.metroplatDataRoot); }
+  try { cursorOf(after); }
   catch (error) {
     if (error.code !== "ERR_HELD_DELIVERY_CURSOR") throw error;
     return heldRefusal(400, error.message);
@@ -196,7 +139,7 @@ export async function heldDeliveryResponse({ config, request, signerOf }) {
   const self = new URL(page);
   if (url.searchParams.has("after")) self.searchParams.set("after", url.searchParams.get("after"));
   const next = new URL(page);
-  if (items.length > 0) next.searchParams.set("after", delivery.after);
+  if (items.length > 0 && delivery.after !== undefined) next.searchParams.set("after", delivery.after);
   return new Response(JSON.stringify({
     "@context": "https://www.w3.org/ns/activitystreams",
     id: self.href,
@@ -204,7 +147,6 @@ export async function heldDeliveryResponse({ config, request, signerOf }) {
     partOf: new URL(`/actors/${encodeURIComponent(instance)}/outbox`, config.publicBaseUrl).href,
     orderedItems: items.map(({ activity }) => activity),
     ...(items.length > 0 ? { next: next.href } : {}),
-    ...(delivery.reset ? { heldCursorReset: true } : {}),
   }), { status: 200, headers: { "content-type": "application/activity+json", "cache-control": "private, no-store" } });
 }
 

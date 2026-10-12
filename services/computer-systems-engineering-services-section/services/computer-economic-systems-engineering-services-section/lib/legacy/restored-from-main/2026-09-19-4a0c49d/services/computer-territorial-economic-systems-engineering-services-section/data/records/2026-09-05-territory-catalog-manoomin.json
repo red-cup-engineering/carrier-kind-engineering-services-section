@@ -1,0 +1,97 @@
+{
+  "identity": {
+    "name": "manoomin (wild rice)",
+    "kind": "commodity",
+    "issuer": "unknown",
+    "rail": "unknown"
+  },
+  "denomination": {
+    "unit": "pound (finished, hand-parched grain)"
+  },
+  "custody": "unknown",
+  "yieldForm": "none",
+  "laborForm": "hand-harvested from a canoe using knocking sticks and a push pole, within the licensed statewide season (Minnesota DNR, 'Wild Rice Regulations')",
+  "liquidity": {
+    "exitPath": "sold directly to a buyer, through a state-licensed wild rice buyer, or processed and sold as a packaged food product by a tribally-owned foods enterprise",
+    "exitsToRow": null
+  },
+  "extractionCeiling": {
+    "cap": "unknown; no per-harvester poundage cap found for state waters, and reservation wild rice committees set their own harvest rules on reservation waters",
+    "resetPeriod": "annual (statewide season runs August 15 to September 30, 9 a.m. to 3 p.m. daily; reservation committees set their own opening dates and hours no less than 24 hours before opening)",
+    "antiBotRule": "a Minnesota wild-rice harvester license (season or one-day) is required for residents and nonresidents; members of a federally recognized Minnesota tribe with a valid tribal ID card are exempt from the state license"
+  },
+  "identityCost": {
+    "kycRequired": false,
+    "perHumanSlot": true,
+    "detail": "a state wild-rice harvester license, or a tribal ID card for exempt tribal members; license and buyer-license fees are deposited in a dedicated wild-rice management account (Minnesota DNR, 'Wild Rice Regulations')"
+  },
+  "witnesses": [
+    {
+      "source": "state regulator's first-party regulation page",
+      "sourceUrl": "https://www.dnr.state.mn.us/regulations/wildrice/index.html",
+      "observedOn": "2026-09-05"
+    },
+    {
+      "source": "tribally-owned foods enterprise's first-party site",
+      "sourceUrl": "https://redlakenationfoods.com/home-1-2/",
+      "observedOn": "2026-09-05"
+    }
+  ],
+  "provenance": {
+    "sourceUrl": "https://www.dnr.state.mn.us/aquatic_plants/emergent_plants/wildrice.html",
+    "observedOn": "2026-09-05",
+    "evidenceStatus": "measured"
+  },
+  "territory": {
+    "path": "lib/emsenn/services/561-group/services/public-services-section/services/public-ecological-services-section/services/ecological-adaptation-services-section/services/turtle-island-ecological-adaptation-services/services/turtle-island-northern-forests-regional-ecological-adaptation-services-section/services/great-lakes-ecological-adaptation-services-section/services/lake-superior-ecological-adaptation-services-section/services/north-shore-ecological-adaptation-services-section",
+    "plainName": "North Shore"
+  },
+  "material": {
+    "scientificName": "Zizania palustris",
+    "commonName": "manoomin (wild rice)",
+    "materialKind": "species"
+  },
+  "knownProducts": [
+    {
+      "product": "hand-harvested raw wild rice grain, parched and finished for food",
+      "use": "food; higher protein content than most cereal grains, a subsistence and cultural keystone for Anishinaabe communities of the Lake Superior basin, protected by 1837, 1842, and 1854 treaty harvesting rights",
+      "citation": {
+        "sourceUrl": "https://www.dnr.state.mn.us/aquatic_plants/emergent_plants/wildrice.html",
+        "sourceTitle": "Wild Rice (Zizania palustris) | Minnesota DNR",
+        "accessedOn": "2026-09-05"
+      }
+    },
+    {
+      "product": "packaged cultivated and hand-harvested wild rice, wild-fruit jellies, jams, and gift foods",
+      "use": "retail food product sold under a tribally-owned brand; cited here as the reference-implementation market for Minnesota wild rice, not as evidence that this North Shore territory's own harvest reaches this specific enterprise (Red Lake Nation is a different band's reservation)",
+      "citation": {
+        "sourceUrl": "https://redlakenationfoods.com/home-1-2/",
+        "sourceTitle": "Red Lake Nation Foods",
+        "accessedOn": "2026-09-05"
+      }
+    }
+  ],
+  "markets": [
+    {
+      "buyer": "Red Lake Nation Foods (Red Lake Nation's tribally-owned enterprise), cited as the reference-implementation market for hand-harvested and cultivated Minnesota wild rice",
+      "kind": "reference-implementation, tribally-owned food enterprise",
+      "citation": {
+        "sourceUrl": "https://redlakenationfoods.com/home-1-2/",
+        "sourceTitle": "Red Lake Nation Foods",
+        "accessedOn": "2026-09-05"
+      }
+    },
+    {
+      "buyer": "state-licensed wild rice buyers",
+      "kind": "state-licensed buyer channel",
+      "citation": {
+        "sourceUrl": "https://www.dnr.state.mn.us/regulations/wildrice/index.html",
+        "sourceTitle": "Wild Rice Regulations | Minnesota DNR",
+        "accessedOn": "2026-09-05"
+      }
+    }
+  ],
+  "chainPositionHeld": "unknown",
+  "benefitSharingRecord": null,
+  "observedAt": "2026-09-05"
+}

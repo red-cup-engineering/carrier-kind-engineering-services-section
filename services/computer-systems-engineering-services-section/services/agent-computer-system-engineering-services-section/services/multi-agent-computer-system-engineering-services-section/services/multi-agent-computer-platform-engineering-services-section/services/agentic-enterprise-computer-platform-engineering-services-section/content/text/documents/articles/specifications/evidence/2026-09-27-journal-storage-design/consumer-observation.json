@@ -1,0 +1,366 @@
+{
+  "scope": "Static import/name evidence in lib non-test mjs; not a complete executable dependency proof. Fabrication must close actual imports, exports and command routing.",
+  "specificationSha256": "0df0d58fd0c5ee2429547342311495b16c77d886672caaa5033a6ee7fab944b9",
+  "matches": [
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/indigenous-data-governance-consulting-services-section/services/indigenous-data-governance-consulting-service/scripts/record-indigenous-data-governance-consulting-founding-receipt.mjs",
+      "sha256": "e5a764603a0ca00e1af7c6c23258df504b7167faedf082f11cf5dc010fa642dc"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/institutional-annual-contracts-services-section/services/institutional-annual-contract-service/scripts/record-institutional-annual-contract-founding-receipt.mjs",
+      "sha256": "5c4c0038754f61c4ca0fbfd42ac70781566de678dd012e8af2ab37e95ad0ec14"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/structural-claims-register-services-section/src/operations.mjs",
+      "sha256": "63d2c6e5d8864b65de38db2cbc9cde0715c1f2100d6a4244008707a84ffaa1d9"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-node-services-section/services/jsnode-packaging-services-section/services/npm-services-section/services/npm-registry-services-section/services/npm-workspace-publication-service/scripts/publish-package.mjs",
+      "sha256": "cd7e10eabe452800f7075cba600c144bf4f0681bae8812ece38beff2419efa25"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/admit-semantic-record.mjs",
+      "sha256": "d7d4e5ca0c55ece956a6ec7751cad3107beefa9db5c83c6f56d1588755e98821"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-documents-engineering-services-section/services/ebook-engineering-services-section/scripts/record-founding.mjs",
+      "sha256": "7630345f0db25c1e4e6c44c7541234f7d17b3cbf36b16ce45d5205105d6bd8ca"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/typed-computer-content-engineering-services-section/services/computer-text-data-services-section/services/markdown-engineering-services-section/services/markdown-vault-services-section/services/markdown-vault-bundle-services-section/scripts/bundle-markdown-vault-carriers.mjs",
+      "sha256": "eed8df0303fc59157141048ed9155ff56cd451c1302135761d06f32ddeb4ba2d"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section/apps/market-561-group/scripts/serve-market.mjs",
+      "sha256": "09af0b9aaf37b5b178c24be6f62b05c8e86ac8bef9fc989ca255fe7e51bbb0eb"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section/apps/x402-hive-exit-tightness-seller-cli.mjs",
+      "sha256": "748fd666fbdbb527f680f78789327054af680c3573cb692a31febfed1a432513"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section/scripts/assay-x402-facilitator.mjs",
+      "sha256": "24bfd14534736df870db82d5a4d85dbfca6186903efaec506f2eb4824cdcb3fa"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section/src/hive/exit-tightness-sale-ledger.mjs",
+      "sha256": "2a5d875427dbc7867ec4432ceb576a936a1f8e7e54ad82e037ce8e32cfd83456"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/x402-services-section/src/settlement-derivation/record-set-of-x402-settlement-candidates.mjs",
+      "sha256": "aeb337dd7408e5d65635cbeef509654969ca775d78f4df4465b8841df778d34e"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/apps/agent-organization-engine/lib/organizing/src/enterprise/store.mjs",
+      "sha256": "2546b5b7dbeef9f6fef778da8ac970d12e02e83ed1e72efe3fa055e842a01dea"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/agent-harness-computer-system-engineering-services-section/src/harness-lifecycle.mjs",
+      "sha256": "20b5241e4a1fe99cd710166a5cc8667afe17873a68dd6ca86ccb081714612e98"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/content-mill/newsroom.mjs",
+      "sha256": "c00f22092a5dfa7217031bbad5a4a5a5c682f50675ea200743d1e9aa4b5499f6"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos/src/content-mill/newsroom/settlement.mjs",
+      "sha256": "9d084f5cad0882f92f9b68a5e4fe385ea0f31e3af1026c7181c1c046913f2cc3"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/record-cold-red-gate-metroplat-deployment.mjs",
+      "sha256": "7b7928a830ded46f803e2d9275e8a7d1d0d6612e68a3d00b117de6eb0f25c20a"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/clock.mjs",
+      "sha256": "13aeabf825bf9361f8a007d2c2acff96cebe13ed7a0466e6b433592cbdadc771"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/src/offices.mjs",
+      "sha256": "0ef0753cbeae6068639427fff8e04821ce4f07cc86fae2d59152e319c05dbc5e"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/curation-services-section/services/cast-set-of-votes-service/scripts/cast-set-of-votes.mjs",
+      "sha256": "def2cfb9efc5c8a4e809347b6b3b4087457dc538ff15872b03d5c82aed567248"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/curation-services-section/services/run-hive-curation-cycle-service/scripts/run-hive-curation-cycle.mjs",
+      "sha256": "025270c4bc1927b6f83ca29d2918661f6ce6646ef57d62e2bda52d52f746d07f"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/hive-fleet-operations-service/src/core/journal.mjs",
+      "sha256": "eb25164d5e8b92cfda5380b30542a39d7a65b6aead186e4c92c968064b4a16d6"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/internal-market-services-section/services/apply-peg-ladder-service/src/apply-peg-ladder.mjs",
+      "sha256": "35cdc91c634159c48f3753f23cada52b7cac166a05cb2ed26674d21605b4ccbf"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/internal-market-services-section/services/hive-peg-ladder-cycle-service/apps/peg-ladder-cycle.mjs",
+      "sha256": "97d341c8dfc13c0f352d6e52c6ec4cb251bd0863a86fcfe4982931e7bb86c1f3"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/key-management-services-section/scripts/create-wallet.mjs",
+      "sha256": "a1eb307520f3d2d1e9ca01d3526191316b38d3830088eb90671f8394d0fa0a03"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/key-management-services-section/scripts/sign-with-wallet.mjs",
+      "sha256": "84f0c20fa2f0ce56208226d50d6fcb5b8e29ed7477b6c7bac572647d890525a4"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine/src/mission/mission-pipeline.mjs",
+      "sha256": "0107da54a1b36de1c6820d8e71fd1dacc6ea611bc557123c54741fa49dac327d"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine/src/mission/program.mjs",
+      "sha256": "e395fb0ae202d2163f824eddcc6c6dae48d0639e40a4e623ee14aa4997127e9d"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine/src/mission/trajectory-memory.mjs",
+      "sha256": "72ca731d9d4f6ef451cf18422a2ec1b975936c5f4fe7bb6b0c24f9a58b973a17"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/apps/computer-inference-engine/src/dispatch/inference-purchase.mjs",
+      "sha256": "1bc68e7601426a02d3b141187429ce843571ee4805323f0763fdcfccd32dca60"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/apps/computer-inference-engine/src/dispatch/witness-journal-settlement-store.mjs",
+      "sha256": "9668fbb8e952dcf38ec7fc050152c77a8269f4c6e667c68441771c4f0364933d"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/graphical-knowledge-game-server/src/review-store.mjs",
+      "sha256": "96b95687566dfca4be54f55f9bf97d9fc27ef58f97e5936447be91898d661e41"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/language-message-runtime-service/scripts/record-nlnet-language-fiber-ratification.mjs",
+      "sha256": "fa87c3cf1ae6fdac86a4a898e9688ddae7e999985816eb8bcfdc1e0553644eb3"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/language-message-runtime-service/scripts/record-semiotic-language-model-salvage-campaign.mjs",
+      "sha256": "5fc31d22bac4ca1175616ce5a3f02f055113feb72b5d5d56d8d39ff83755dbe4"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/language-message-runtime-service/scripts/record-verifier-honesty-wedge-campaign.mjs",
+      "sha256": "3d11a09d7f9cfd7f2f850c3f7b413ae538707139eb47969366092b06e0556caa"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-systems-publishing-engineering-services-section/apps/news-property/src/newsroom-day.mjs",
+      "sha256": "34517f34042abbc4cd4177a52d0cb4aca5600c04beb23b7c00bf30fbd33f5e04"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-systems-publishing-engineering-services-section/apps/news-property/src/newsroom-day/settlement.mjs",
+      "sha256": "e0064ce8ddb0cad3a24931712dd8acf9408201c89bb907d1b7f6784af69002c0"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-advertising-system-engineering-services-section/scripts/sync-ad-receipts-to-journal.mjs",
+      "sha256": "376263a25a5cef63125436acd95569547b24b643c6976d746a3124ca2aac5b49"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/cloud-services-section/services/cloudflare-services-section/services/cloudflare-activitystreams-operation-services-section/src/boundary-witness.mjs",
+      "sha256": "0795a1ba82bf4bd7ed6184cb46fb99cc39d1d712afe26a51dfa241343fae1e87"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/crowdfunding-services-section/src/journal.mjs",
+      "sha256": "4859cbbc3085faa3a03799e3e4de44a8d3eaf37110c63fd36eee4be4e3f0eb47"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-financial-brokerage-platform-services-section/services/alpaca-services-section/scripts/record-cold-red-gate-paper-loop-deployment.mjs",
+      "sha256": "9c8e8d0d32e29850bc3cb9c6fc074079fbea26061823410e1446fedb3a9cd8be"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-financial-brokerage-platform-services-section/services/alpaca-services-section/services/alpaca-esther-paper-redistributor-loop/src/run-loop.mjs",
+      "sha256": "4fe3e19520eefe40bcceddbdd15684f488b7e5c1ab51cf09746b38514f393d63"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-financial-brokerage-platform-services-section/services/alpaca-services-section/services/alpaca-esther-paper-trading-loop/src/run-loop.mjs",
+      "sha256": "51687662ba7a71678d503a5a42ae88111d82b56195826bc1fb68cc9859942944"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-financial-brokerage-platform-services-section/services/alpaca-services-section/services/virtuals-brokerage-products-border/scripts/run-virtuals-production.mjs",
+      "sha256": "f432165e00715205dc426b8e506f2c20cd9352708820c0cc89225cbb08be13e4"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-financial-brokerage-platform-services-section/services/alpaca-services-section/src/union-runtime.mjs",
+      "sha256": "f39649eed4f17e65ee8e0bdb70c8396b77e0894e1020fe72021cdcf6e843169a"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-payment-platform-services-section/services/stripe-services-section/src/service.mjs",
+      "sha256": "01e6d9f92213d34b1169b44624fd9fe4710adf6dfaed2d59cf5c77dd7cfe5027"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-payment-platform-services-section/services/tips-services-section/scripts/book-tip.mjs",
+      "sha256": "3461ab196b25e6fbb1639ecd1045190d58ba0be6ad06ddc9f030a40b839dcaae"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web2-platform-services-section/services/web2-financial-platform-services-section/services/web2-payment-platform-services-section/services/tips-services-section/scripts/verify-tip-receipt.mjs",
+      "sha256": "f37c6f9250bfba586d0e451e3fd60455cb9b6ae09b025996ac684eb05b00b333"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/services/forecasting-service/apps/forecast-weather-markets-cli.mjs",
+      "sha256": "5a3f424ba61098c2494dbb133ba77c39feacb3714b5203fcdf35ed9406cc7444"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/services/forecasting-service/apps/forecasting-daily-cycle.mjs",
+      "sha256": "9c1890dbc8732e147e899bd38337aa68279fea14638349fc542c52f80dffc812"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/services/forecasting-service/scripts/record-forecast.mjs",
+      "sha256": "337b28fb39ef1194e4161772500c0b0f89d139200bcefcca29f52a4332ade4d8"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/services/forecasting-service/scripts/score-forecast.mjs",
+      "sha256": "42c384d4b1794b9405e7c4dd2196f69e6fbe89f565a91c099e54b0bf8177512a"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/services/kalshi-stake-path-service/src/journal.mjs",
+      "sha256": "3017f7920a69793c16d5b80dd3af08f49b754070c157398f936e601468f27ed2"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section/services/semiotic-agent-services-section/services/attention-services-section/services/attention-allocation-readout-service/src/record-journal.mjs",
+      "sha256": "84a1beeaed9a80335d6cf3dc416db2d961786a0ff32ad33f4a30c5a3897dd88b"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/financial-engineering-services-section/services/venue-algebra-services-section/services/brokerage-independent-witness-and-books/src/witness.mjs",
+      "sha256": "b1032b711074b8005c1b173a57c623897cf24d8b36b5df361e47c2b802f05356"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/services/emsenn-one-of-one-artifacts-services-section/src/journal.mjs",
+      "sha256": "332b9478082aa0f5cb9499de3228be206c102ff2861f077d31b0ddd49bc9abd2"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/public-community-services-section/services/turntide-islands/sites/pool.turntide.561.group/scripts/record-deployment.mjs",
+      "sha256": "50273b003ef4bd468ed5c220cbbc5615c67bd0ace035cf42a798bc6d4f0351fb"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-games-services-section/services/public-web-games-services-section/sites/ruinfold.play.561.group/src/server.mjs",
+      "sha256": "79540dda69000a7939c56c03163f94b579cb312d0cac494515d5b4cab66a8fa4"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news-services-section/services/independent-editorial-assessment/src/record-journal.mjs",
+      "sha256": "bcb962ac315181e764fb468e029e780f5588c6a8299af589028d1d9b94b3c094"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news-services-section/services/koios-intelligence-briefing/src/launch-state-record.mjs",
+      "sha256": "9226eaf4d2d52bdb6f9655e8bffd86912536562ebf229516c67f6cf376cc00ab"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news-services-section/services/newscable-source-broker/src/record-journal.mjs",
+      "sha256": "9d48de3a42fc3a0ea8cc6e71ddd32a2c4b7d34dbcb88c28418d8d09c7538f491"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news-services-section/services/web-source-acquisition/src/record-journal.mjs",
+      "sha256": "979d010ea37f4c8b831bd5327a7f1a5d0763bf8e46cfd5bd4a3c16c5430cae18"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news-services-section/src/boundary.mjs",
+      "sha256": "ae4f7081f5893b72138a50e9ad3dfb0c8c69a7b164826f9bcd44fe1ee7cdd759"
+    },
+    {
+      "search": "record-semantic-record",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/apps/obsmetrologia-change-bundle-qualification/src/contract-change-bundle-qualification.mjs",
+      "sha256": "5b817077811c539867a0102409cbef4355d7a356664805b1401eea35383f82f0"
+    },
+    {
+      "search": "query-semantic-records",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/check-semantic-record-references.mjs",
+      "sha256": "a47edf7574a0108ed9d45ef79df1b940c3c84bd808b02c138d78150fae73fcf5"
+    },
+    {
+      "search": "query-semantic-records",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/check-semantic-record-responses.mjs",
+      "sha256": "e6cb6ecd6c75c2fbfc22c67363955faf4993f7ce1652055fe02892008546611d"
+    },
+    {
+      "search": "query-semantic-records",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/record-semantic-record.mjs",
+      "sha256": "4b68686aa601609213d6ed8df2b5d2bb55637330bbd9fe77bcc3f3bc178a14be"
+    },
+    {
+      "search": "journal/filesystem/segment-store",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/query-semantic-records.mjs",
+      "sha256": "3feed6b5094b3d95afb5c5a7f6247b3cac98dee09ad4c80e6f5eef4fbd8d8e06"
+    },
+    {
+      "search": "journal/filesystem/segment-store",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/record-semantic-record.mjs",
+      "sha256": "4b68686aa601609213d6ed8df2b5d2bb55637330bbd9fe77bcc3f3bc178a14be"
+    },
+    {
+      "search": "journal/filesystem/segment-store",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/write-journal-store.mjs",
+      "sha256": "702e61ad9130b4f7c76c80704e6cd0b2c4d3ecbb01f66524181fe9a33ddffead"
+    },
+    {
+      "search": "compactJournalStore",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/write-journal-store.mjs",
+      "sha256": "702e61ad9130b4f7c76c80704e6cd0b2c4d3ecbb01f66524181fe9a33ddffead"
+    },
+    {
+      "search": "compactJournalStore",
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/journal.mjs",
+      "sha256": "880f65f55840efefbcb1f1b9aad6ca6c89d78427803f66ce85c29bd3e127d962"
+    }
+  ]
+}

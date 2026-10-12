@@ -1,0 +1,42 @@
+{
+  "name": "@red-cup-engineering/multi-agent-resource-sharing-host",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MARSH, the multi-agent resource-sharing host: the 561 Group's on-chain engine that puts resource-sharing operations on-chain, one implementation per chain. It holds the MARSH resource contract, its reads and operations, on Base EVM and on the Hive-Engine sidechain, plus the house chain (a Besu QBFT network) with its genesis, node, and host bootstrap and assay.",
+  "license": "UNLICENSED",
+  "exports": {
+    "./resource-read": "./src/resource-read.mjs",
+    "./resource-operations": "./src/resource-operations.mjs",
+    "./resource-read.hive-engine": "./src/resource-read.hive-engine.mjs",
+    "./resource-operations.hive-engine": "./src/resource-operations.hive-engine.mjs",
+    "./resource-intents.hive-engine": "./src/resource-intents.hive-engine.mjs",
+    "./house-chain": "./src/house-chain.mjs",
+    "./house-chain-host-assay": "./src/house-chain-host-assay.mjs",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "generate-house-chain-genesis": "./scripts/generate-network.mjs",
+    "run-house-chain-node": "./scripts/run-node.mjs",
+    "forward-house-chain-rpc-loopback": "./scripts/forward-rpc-loopback.mjs",
+    "generate-house-chain-host-bootstrap": "./scripts/generate-house-chain-host-bootstrap.mjs",
+    "assay-house-chain-host": "./scripts/assay-house-chain-host.mjs"
+  },
+  "files": [
+    "src",
+    "scripts",
+    "data/records/systemd-unit-records",
+    "foundry.toml"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "dependencies": {
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/ethereum-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/hive-blockchain-client-service": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*"
+  }
+}

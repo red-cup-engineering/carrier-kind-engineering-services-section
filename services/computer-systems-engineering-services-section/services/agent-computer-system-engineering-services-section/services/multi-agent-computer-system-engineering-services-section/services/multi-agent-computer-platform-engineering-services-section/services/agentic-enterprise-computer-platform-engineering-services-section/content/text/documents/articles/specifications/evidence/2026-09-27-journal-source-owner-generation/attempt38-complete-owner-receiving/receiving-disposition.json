@@ -1,0 +1,75 @@
+{
+  "kind": "frozen-journal-owner-receiving-disposition",
+  "createdAt": "2026-09-28T03:27:23.095456+00:00",
+  "status": "assessed dependency candidate under recorded inputs; live integration and promotion withheld",
+  "previousGoalTurn": "no progress toward implementation: answered the user\u2019s explanatory request; this turn resumed concrete independent receiving",
+  "candidateSha256": "9c2c2fb743a4958fd4130cdf1f3a3c20fc3b23124850e8cf71bc9538d05f825f",
+  "sourceSha256": "fcf416306ad105e6da04a10f1cd43ef304501dff8fb55677ba2f76b7d355851c",
+  "originalReceiving": {
+    "path": "assessment.json",
+    "sha256": "925a491f519f6b8e32f1418eb7552507e5610e7fe35dec4d38b226c9b8dc97ef",
+    "passed": 23,
+    "total": 23,
+    "preGenerationCommitment": true
+  },
+  "supplement": {
+    "path": "supplement/assessment.json",
+    "sha256": "c55ef57f7b52e27efe71436da5b12c226eec9496c831e9a8090a0d6b46ceaf88",
+    "rawPassed": 18,
+    "rawTotal": 20,
+    "validUnaffectedObservations": 16,
+    "supersededFixtureObservations": [
+      "initialization directory-sync failure preserves host for identical retry",
+      "line capacity refuses before creating custody",
+      "batch capacity refuses before creating custody",
+      "aggregate source capacity refuses next publication without alteration"
+    ],
+    "preGenerationCommitment": false
+  },
+  "fixtureCorrection": {
+    "path": "supplement-corrected/assessment.json",
+    "sha256": "955f901ed58a4e23c5e1abf792c1efb981cb8d55bd4fc9895443b5eb9a97120a",
+    "passed": 4,
+    "total": 4,
+    "preGenerationCommitment": false,
+    "productChanged": false,
+    "providerInvoked": false,
+    "reason": "canonicalJson returns a string; fixture incorrectly used .text in host comparison and byte calculations"
+  },
+  "dependencySnapshot": {
+    "path": "supplement-corrected/pinned-inputs.json",
+    "sha256": "6bf4dcdaaf62004f2f672ad4e5da0aa727a19d31d03888dfe0cb4eec2768ed30",
+    "files": 101
+  },
+  "checkoutDrift": [
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/substrate.mjs",
+      "generationDigest": "039871c716b629da807539e0cd6fe814cc2edabe4915594728f5693e7e6f4d21",
+      "currentDigest": "bbeaf4c9a918f0e16787b461c46aefe46458aa31d47fbacfe8d8586d3151b84c",
+      "disposition": "current checkout file is shadowed by exact committed candidate or recovered protected input in assessment namespace; no checkout modification"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/canonical-json.mjs",
+      "generationDigest": "a10d27199ba7a00ff0e99fbf2f8a622317c99207da9f71ef5907375a02c60a50",
+      "currentDigest": "21c4b0fb8d1ce06e7e95f0b4e40bde25613b4392a80bb40a36749f7375d4b1b3",
+      "disposition": "current checkout file is shadowed by exact committed candidate or recovered protected input in assessment namespace; no checkout modification"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/is-json-value.mjs",
+      "generationDigest": "a82b23fd6e4846b8f5722b3b566cf69ff710ed2ede13f6c1818c56fcaa457be1",
+      "currentDigest": "f154946c4578044ae978132103ad297826ea196ede2ec583ddd800e129cc25b7",
+      "disposition": "current checkout file is shadowed by exact committed candidate or recovered protected input in assessment namespace; no checkout modification"
+    },
+    {
+      "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/package.json",
+      "generationDigest": "d8c6499405c39dbb7d2b25b3b1b4d0efcf1081456caeeab4898cfe9ea36e7d83",
+      "currentDigest": "08573a0062334d2ab99ca6075e3a4d448ebebcdcce07b8c3c1ec2ff71b52f985",
+      "disposition": "current checkout file is shadowed by exact committed candidate or recovered protected input in assessment namespace; no checkout modification"
+    }
+  ],
+  "promoted": false,
+  "endToEndAssistantAccepted": false,
+  "productionHostAccepted": false,
+  "oldWriterRetired": false,
+  "nextRequiredEffect": "Integrate the accepted source capability with authorized request admission and original-command recovery, using an explicitly reconciled dependency set; demonstrate a request yielding an independently accepted useful result, then migrate consumers and retire old custody routes."
+}

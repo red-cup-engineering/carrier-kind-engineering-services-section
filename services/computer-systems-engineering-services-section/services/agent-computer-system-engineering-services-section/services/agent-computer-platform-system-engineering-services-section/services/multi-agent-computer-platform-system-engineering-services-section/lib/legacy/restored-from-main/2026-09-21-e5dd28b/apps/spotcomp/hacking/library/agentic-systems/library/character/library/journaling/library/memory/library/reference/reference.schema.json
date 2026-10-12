@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://voidmath.active.development.561.group/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/thing/library/system/library/agentic-systems/library/character/library/journaling/library/memory/library/reference/reference.schema.json",
+  "title": "reference",
+  "description": "Predication-shape for a reference memory: a factual pointer at an external system, resource, or address that the character may need to consult.",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../memory.schema.json"
+    },
+    {
+      "required": [
+        "has-kind"
+      ],
+      "properties": {
+        "has-kind": {
+          "const": "reference"
+        },
+        "points-at": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The external system or location the reference identifies (URL, path, service name, etc.)."
+        }
+      }
+    }
+  ]
+}

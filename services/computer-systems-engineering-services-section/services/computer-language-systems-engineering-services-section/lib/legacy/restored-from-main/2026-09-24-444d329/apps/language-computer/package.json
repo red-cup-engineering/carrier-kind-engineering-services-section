@@ -1,0 +1,41 @@
+{
+  "name": "@emsenn/language-computer",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "The language domain's computing: the app form over the language-* math layers — parse, settle, analyze, judge grammaticality, measure similarity, and generate, across language fibers.",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "bin": {
+    "language-computer": "./src/cli.mjs"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "test": "node --test \"**/*.test.mjs\"",
+    "prepack": "pnpm run build"
+  },
+  "main": "./src/index.mjs",
+  "files": [
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@561-group/language-generation": "0.0.1",
+    "@emsenn/language-algebra": "0.0.0",
+    "@emsenn/language-analysis": "0.0.0",
+    "@emsenn/language-codecs": "0.0.0",
+    "@emsenn/language-conformance-topology": "0.0.1",
+    "@emsenn/language-geometry": "0.0.0",
+    "@emsenn/language-logic": "0.0.0",
+    "@emsenn/language-topology": "0.0.1",
+    "@lenticule-science/english-language-algebra": "0.1.7"
+  },
+  "sideEffects": false
+}

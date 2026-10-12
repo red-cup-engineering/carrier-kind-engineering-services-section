@@ -1,0 +1,30 @@
+{
+  "type": "ClimateResearchEnterpriseActivation",
+  "status": "active-public-reuse",
+  "historicalProvider": "NASA POWER",
+  "projectionProcessor": "NASA NCCS THREDDS NetCDF Subset Service",
+  "projectionDataset": "NASA NEX-GDDP-CMIP6 v2.0",
+  "projectionScenario": "SSP5-8.5",
+  "projectionUse": "public-commercial-transformation-allowed-under-CC0",
+  "researchMethodVersion": 2,
+  "projectionConcurrency": 4,
+  "liveEvidence": {
+    "verifiedAt": "2026-07-22T12:13:43.688Z",
+    "place": "Chicago, Illinois, US",
+    "order": "urn:sha256:6d9f0439859f4fddfcac29471c35e546a3b3cd8782962b0b7030dcef81c7dc6c",
+    "packet": "urn:sha256:bb6e10aadd27e3ee8e80809f3f98f4d7a54dca49b990f084741b2af939d0dbd2",
+    "sourceDigest": "sha256:d792e5de7ba4e0a1161928b52e7adfd0334f4acd21a882dde8dc27bd21836878",
+    "settlementReceipt": "urn:sha256:853c3b95f32427fbfb0de3efe1e8f3454517bc760e657d56003b3c8b5436c233",
+    "disposition": "admitted-public-reuse"
+  },
+  "legacyPilotReuseEvidence": {
+    "law": "ni:///sha-256;_1wWWI3Q3LWqjdoDVFMqR_qgYjYNU32LUI02eL25Hbo",
+    "rectification": "urn:sha256:fe16126dbc16f9e5d174ccf0fcd3e29b5b6df9112d281652c2da569b46fbda8d",
+    "legacyPacket": "urn:sha256:cb1b3c3b3866f1552612a8dabab6938d16998dfc731f1cb4553630bf4b5b3ca8",
+    "currentMethodPacket": "urn:sha256:bb6e10aadd27e3ee8e80809f3f98f4d7a54dca49b990f084741b2af939d0dbd2",
+    "scope": "one attributed non-monetized public educational YouTube release; future legacy production and creator monetization withheld"
+  },
+  "priceMicros": 350000,
+  "accountingUnit": "USD-micros",
+  "authorityWithheld": ["place-selection", "channel-budget-custody", "notebooklm", "youtube-publication"]
+}

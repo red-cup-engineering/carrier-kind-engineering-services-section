@@ -1,0 +1,15 @@
+{
+  "name": "@red-cup-engineering/roadmap-engineering-services-section",
+  "version": "0.1.0",
+  "description": "Derives a RoadmapReadout from the work rail, the ledger, the registry, and the record journals; stores nothing.",
+  "type": "module",
+  "private": true,
+  "keywords": [
+    "engineering"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/read-text-file-service": "0.1.2",
+    "@red-cup-engineering/derive-set-of-work-intents-from-roadmap-cut-service": "0.2.0",
+    "@red-cup-engineering/derive-roadmap-readout-service": "0.1.0"
+  }
+}

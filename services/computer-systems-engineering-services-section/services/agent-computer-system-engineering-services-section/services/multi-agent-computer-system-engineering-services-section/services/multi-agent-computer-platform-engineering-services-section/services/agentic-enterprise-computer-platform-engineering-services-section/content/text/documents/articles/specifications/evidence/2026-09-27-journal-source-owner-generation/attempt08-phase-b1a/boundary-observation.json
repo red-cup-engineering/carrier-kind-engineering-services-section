@@ -1,0 +1,12 @@
+{
+  "observations": {
+    "checkoutVisible": false,
+    "assayVisible": false,
+    "workEmpty": true,
+    "tmpEmpty": true,
+    "schemaVisible": true,
+    "pid": 2
+  },
+  "profileSha256": "e97b53394a5ec37b2ef6c5703a0b4ce73a8b4f7fad709d6ec40d2997c11806f4",
+  "beforeGeneration": true
+}

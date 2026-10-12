@@ -68,7 +68,7 @@ test('signed enterprise compute uses native x402 task payments, governed executi
   facilitatorUrl:'http://127.0.0.1:'+facilitator.address().port,maxTimeoutSeconds:300,
   requestPricing:{mode:'canonical-json-byte-bands',includedBytes:1,additionalUnitBytes:1,additionalUnitAtomic:'1',maximumAtomic:'11'}};
  record('enterprises','foundry',{kind:'node',entity:'fixture',host:'fixture-host',faces:'Provide resource transformation',offices:['engineer'],x402});
- const config={stateDir:root,agencyRoot,metroplatDataRoot:dataRoot,instance:{name:'fixture-host'},activityPub:{origin,nodeHost:'fixture-host',statePath:join(root,'federation.sqlite'),keysDirectory:join(root,'keys'),instanceActor:{identifier:'fixture-host',actorName:'Fixture Host',summary:'Offers the installed native transformations'}}};
+ const config={stateDir:root,agencyRoot,metroplatDataRoot:dataRoot,instance:{name:'fixture-host'},activityPub:{origin,nodeHost:'fixture-host',stateDirectory:join(root,'federation.state'),keysDirectory:join(root,'keys'),instanceActor:{identifier:'fixture-host',actorName:'Fixture Host',summary:'Offers the installed native transformations'}}};
  const configuration=join(root,'host.json');writeFileSync(configuration,JSON.stringify(config));
  const boot=async()=>{
   backend=undefined;diagnostic='';child=fork(fileURLToPath(new URL('./fixtures/enterprise-actor-host.mjs',import.meta.url)),[configuration],{env:{...process.env,NODE_EXTRA_CA_CERTS:cert},stdio:['ignore','ignore','pipe','ipc']});

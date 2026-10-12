@@ -1,0 +1,213 @@
+--- src/http-options.mjs
++++ src/http-options.mjs
+@@ -149,7 +149,7 @@
+  * is configured, the request presents it exactly (constant-time, length-guarded)
+  * in `x-metroplat-gateway-token`, and the subject is a non-empty, bounded,
+  * grammatically admitted principal name. Never throws: any malformed input
+- * yields `undefined`, i.e. no assertion, i.e. the process subject applies.
++ * yields `undefined`.
+  *
+  * @param headers - Inbound request headers.
+  * @param config - The process's own HTTP configuration, carrying `gatewayToken`.
+@@ -167,3 +167,31 @@
+     return undefined;
+   }
+ }
++
++/** Resolve one closed HTTP identity decision without exposing malformed input. */
++export function resolveHttpRequestIdentity(headers, config) {
++  try {
++    if (config?.gatewayToken !== undefined) {
++      const configuredToken = config.gatewayToken;
++      if (typeof configuredToken !== "string" || configuredToken.length === 0) {
++        return Object.freeze({ kind: "refused" });
++      }
++      const token = singleHeaderValue(headers, ASSERTED_GATEWAY_TOKEN_HEADER);
++      const subject = singleHeaderValue(headers, ASSERTED_SUBJECT_HEADER);
++      if (token === undefined || subject === undefined || subject.length === 0
++        || subject.length > ASSERTED_SUBJECT_MAX_LENGTH
++        || !ASSERTED_SUBJECT_PATTERN.test(subject)
++        || !timingSafeStringEqual(token, configuredToken)) {
++        return Object.freeze({ kind: "refused" });
++      }
++      return Object.freeze({ kind: "gateway", subject });
++    }
++    if (headers[ASSERTED_SUBJECT_HEADER] !== undefined
++      || headers[ASSERTED_GATEWAY_TOKEN_HEADER] !== undefined) {
++      return Object.freeze({ kind: "refused" });
++    }
++    return Object.freeze({ kind: "process" });
++  } catch {
++    return Object.freeze({ kind: "refused" });
++  }
++}
+--- src/http/server.mjs
++++ src/http/server.mjs
+@@ -24,33 +24,35 @@
+ import { httpResources, routeHttpResource } from "@red-cup-engineering/metroplat/http/resource-router";
+ import { servedRequest } from "@red-cup-engineering/computer-web-server/platform-http/request";
+ import { routeOpenAIChatGuest } from "@red-cup-engineering/metroplat/http/openai-chat";
+-import { assertedHttpSubject } from "@red-cup-engineering/metroplat/http-options";
++import { resolveHttpRequestIdentity } from "@red-cup-engineering/metroplat/http-options";
+ import { isJsonRecord } from "@red-cup-engineering/json-services-section";
+ 
+ export { bindHttpServerLifecycle } from "@red-cup-engineering/metroplat/http/lifecycle";
+ 
+-/**
+- * Per-request dispatch identity: the gateway-asserted subject when the request
+- * proves it (see `assertedHttpSubject`), else the process's own fixed subject.
+- * The process subject invoking an operation asserted-only is refused downstream
+- * by ordinary capability-standing authorization — no special-casing here.
+- */
++/** Resolve one immutable dispatch-options snapshot for an ordinary HTTP request. */
+ function requestDispatchOptions(req, options) {
+-  if (options.httpConfig === undefined) return options;
+-  const asserted = assertedHttpSubject(req.headers, options.httpConfig);
+-  if (asserted === undefined) return options;
++  const identity = resolveHttpRequestIdentity(req.headers, options.httpConfig);
++  if (identity.kind === "refused") return undefined;
++  const dispatchOptions = { ...options, gatewaySubjects: false };
++  if (identity.kind === "process") return dispatchOptions;
+   const baseCaller = isJsonRecord(options.caller) ? options.caller : {};
+   return {
+-    ...options,
+-    subject: asserted,
+-    caller: { ...baseCaller, transport: "http", asserted: asserted !== options.subject },
++    ...dispatchOptions,
++    subject: identity.subject,
++    caller: { ...baseCaller, transport: "http", asserted: true },
+   };
++}
++
++function writeAuthenticationRequired(res) {
++  res.writeHead(401, { "content-type": "application/json", "cache-control": "no-store" });
++  res.end("{\"error\":\"authentication-required\"}");
+ }
+ 
+ function claimSessionOptions(options) {
+   return {
+     ...(options.claimSession === undefined ? {} : { persistence: options.claimSession }),
+     ...(options.lifecycle === undefined ? {} : { lifecycle: options.lifecycle }),
++    resolveRequestIdentity: (req) => requestDispatchOptions(req, options),
+     now: options.now,
+   };
+ }
+@@ -81,10 +83,14 @@
+   const server = createHttpServer({ handle: (req, res) => {
+     void (async () => {
+       const pathname = new URL(req.url ?? "/", "http://localhost").pathname;
++      const dispatchOptions = requestDispatchOptions(req, { ...options, journalFeed });
++      if (dispatchOptions === undefined) {
++        writeAuthenticationRequired(res);
++        return;
++      }
+       if (pathname === "/v1/chat/completions" && options.openAIChat !== undefined) {
+         const subscription = new AbortController();
+         res.once("close", () => subscription.abort());
+-        const dispatchOptions = requestDispatchOptions(req, options);
+         const response = await routeOpenAIChatGuest(
+           await servedRequest(req),
+           dispatchOptions,
+@@ -94,7 +100,7 @@
+         await writeOpenAIChatGuestResponse(res, response);
+         return;
+       }
+-      const resourceResponse = await routeHttpResource(resources, req, res, options);
++      const resourceResponse = await routeHttpResource(resources, req, res, dispatchOptions);
+       if (resourceResponse !== undefined) {
+         res.writeHead(resourceResponse.status, { "content-type": resourceResponse.type, ...(resourceResponse.headers ?? {}) });
+         res.end(resourceResponse.body);
+@@ -102,7 +108,7 @@
+       }
+       const request = await servedRequest(req);
+       const induced = inducedRef ?? projectSurface(operations);
+-      const response = await routeRequest(induced, request, requestDispatchOptions(req, { ...options, journalFeed }));
++      const response = await routeRequest(induced, request, dispatchOptions);
+       res.writeHead(response.status, { "content-type": response.type, ...(response.headers ?? {}) });
+       res.end(response.body);
+     })();
+@@ -146,10 +152,14 @@
+         res.end(JSON.stringify(answer.value));
+         return;
+       }
++      const dispatchOptions = requestDispatchOptions(req, options);
++      if (dispatchOptions === undefined) {
++        writeAuthenticationRequired(res);
++        return;
++      }
+       if (pathname === "/v1/chat/completions" && options.openAIChat !== undefined) {
+         const subscription = new AbortController();
+         res.once("close", () => subscription.abort());
+-        const dispatchOptions = requestDispatchOptions(req, options);
+         const response = await routeOpenAIChatGuest(
+           await servedRequest(req),
+           dispatchOptions,
+@@ -159,14 +169,14 @@
+         await writeOpenAIChatGuestResponse(res, response);
+         return;
+       }
+-      const resourceResponse = await routeHttpResource(resources, req, res, options);
++      const resourceResponse = await routeHttpResource(resources, req, res, dispatchOptions);
+       if (resourceResponse !== undefined) {
+         res.writeHead(resourceResponse.status, { "content-type": resourceResponse.type, ...(resourceResponse.headers ?? {}) });
+         res.end(resourceResponse.body);
+         return;
+       }
+       const request = await servedRequest(req);
+-      const response = await routeSchemaNamespace(mounts, request, requestDispatchOptions(req, options));
++      const response = await routeSchemaNamespace(mounts, request, dispatchOptions);
+       res.writeHead(response.status, { "content-type": response.type, ...(response.headers ?? {}) });
+       res.end(response.body);
+     })();
+--- src/http/ws-session.mjs
++++ src/http/ws-session.mjs
+@@ -25,13 +25,18 @@
+   dataRoot,
+   rootName,
+   input,
++  identity,
+ ) {
+   const observation = websocketClaimSessionObservation(input);
+   return openJournal(dataRoot).appendRows(claimSessionFeed.name, claimSessionStatementRows(observation), {
+     at: input.at,
+     rootName,
+     subject: input.sessionId,
+-    caller: Object.freeze({ transport: "websocket-session", session: input.sessionId }),
++    caller: Object.freeze({
++      transport: "websocket-session",
++      session: input.sessionId,
++      ...(identity?.caller?.asserted === true ? { authenticatedSubject: identity.subject } : {}),
++    }),
+   });
+ }
+ 
+@@ -75,6 +80,20 @@
+       socket.destroy();
+       return;
+     }
++    let identity;
++    if (options.resolveRequestIdentity !== undefined) {
++      try {
++        identity = options.resolveRequestIdentity(req);
++        if (identity === undefined || identity === null
++          || (typeof identity.then === "function")) {
++          socket.end("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\n\r\n");
++          return;
++        }
++      } catch {
++        socket.end("HTTP/1.1 401 Unauthorized\r\nConnection: close\r\nContent-Length: 0\r\n\r\n");
++        return;
++      }
++    }
+     socket.write(
+       "HTTP/1.1 101 Switching Protocols\r\n" +
+         "Upgrade: websocket\r\nConnection: Upgrade\r\n" +
+@@ -111,7 +130,7 @@
+               session: next,
+               reply,
+               at: persistence.now?.() ?? processIsoNow(),
+-            });
++            }, identity);
+           }
+           session = next;
+           writeSessionFrame(socket, judgementFrame(reply), options, sessionId);

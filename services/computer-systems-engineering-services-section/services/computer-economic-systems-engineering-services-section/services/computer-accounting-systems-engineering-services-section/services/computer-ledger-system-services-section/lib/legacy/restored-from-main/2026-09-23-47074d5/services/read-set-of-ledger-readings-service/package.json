@@ -1,0 +1,30 @@
+{
+  "name": "@red-cup-engineering/read-set-of-ledger-readings-service",
+  "version": "0.1.0",
+  "description": "Reads the standard set of ledger reports a books page needs in one call \u2014 balance sheet,\nincome statement, the reconcile worklist, journal statistics, and the account list \u2014 by\ncomposing `readLedgerReport` once per reading against the same journal. Contains no report\nlogic of its own.",
+  "type": "module",
+  "private": false,
+  "license": "UNLICENSED",
+  "exports": "./scripts/read-set-of-ledger-readings.mjs",
+  "bin": {
+    "read-set-of-ledger-readings": "scripts/read-set-of-ledger-readings.mjs"
+  },
+  "files": [
+    "scripts",
+    "README.md",
+    "package.json"
+  ],
+  "dependencies": {
+    "@red-cup-engineering/read-ledger-report-service": "0.1.2",
+    "@red-cup-engineering/javascript-node-services-section": "0.3.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "check": "node --check scripts/read-set-of-ledger-readings.mjs",
+    "test": "node --test test/*.test.mjs",
+    "pack:dry-run": "npm pack --dry-run --ignore-scripts"
+  },
+  "engines": {
+    "node": ">=24.2.0"
+  }
+}

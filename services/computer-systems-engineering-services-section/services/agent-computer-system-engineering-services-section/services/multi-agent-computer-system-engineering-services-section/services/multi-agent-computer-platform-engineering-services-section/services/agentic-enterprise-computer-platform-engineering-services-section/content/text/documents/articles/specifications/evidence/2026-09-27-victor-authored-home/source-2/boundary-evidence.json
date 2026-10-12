@@ -1,0 +1,13 @@
+{
+  "checkoutUnavailable": true,
+  "assayDirectoryUnavailable": true,
+  "workEmpty": true,
+  "pidNamespace": "pid:[4026532296]",
+  "cliVersion": "codex-cli 0.158.0-alpha.2.1",
+  "executableSha256": "e8039ff5fdb49ad420a410903efae62dac2c904e616ca4261ede9e327c225619",
+  "codeModeHostSha256": "7f14323b5ee0d64b4fc2dc4db48888abf84cc54eb3303c86c9b747cc5be66f00",
+  "modelCatalogSha256": "4c71117ea95b47282c790658650704eaa43f7ad6aa78d04cc3571e3cb86ef444",
+  "publicInputSha256": "a31c4dbd9f6a5211250973ea75e72d64f4709696d8e06f105e4f227e6feb2c38",
+  "priorRefusedRun": "/tmp/muse-generation-nge3sr2d",
+  "limits": "Model catalog is runtime metadata; user/project configuration, history, skills, checkout and assays remain excluded."
+}

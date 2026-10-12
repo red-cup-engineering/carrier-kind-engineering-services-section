@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/eavt-row.schema.json",
+  "title": "SPOTCOMP EAVT row",
+  "type": "object",
+  "required": ["e", "a", "v", "t"],
+  "additionalProperties": false,
+  "properties": {
+    "e": {
+      "description": "Entity, subject, or traced resource identifier.",
+      "type": "string",
+      "minLength": 1
+    },
+    "a": {
+      "description": "Attribute, predicate, morphism, or generator identifier.",
+      "type": "string",
+      "minLength": 1
+    },
+    "v": {
+      "description": "Value. May be any JSON value; finite algebras such as FOUR are projection choices, not required row shape."
+    },
+    "t": {
+      "description": "Transaction time or transaction identifier. RFC 3339 date-time strings are preferred for time-bearing rows.",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
+

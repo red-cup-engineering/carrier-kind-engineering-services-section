@@ -1,0 +1,111 @@
+{
+  "id": "one-application-per-capability-suite",
+  "name": "One application per suite of capabilities; a site is a config variable pointing at content",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "Leader, 2026-09-18: \"Point app at dir, generate website\" is such a standard thing. ... truly, one application for each suite of capabilities, no divergent, duplicate, parallel systems. Typed, functional programming. / \"This should legit be one config variable, pointing to content.\" / 2026-09-22: I am trying to have there be FEWER pieces of software here ... computer-data under computer-data, code under computer-code, networking under computer-networking, and then the systems under systems. / 2026-09-27: MetroPlat is meant to host L-Space as an app. L-Space is meant to be a GEODE instance.",
+  "met-when": [
+    {
+      "cell": "capability-suite:systems-apps-are-the-engine-platform-and-phoss",
+      "target": "held",
+      "command": "sh -c 'test \"$(ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps | tr \"\\n\" \" \")\" = \"computer-system-engine computer-system-platform phoss-in-a-box \"'",
+      "expected-exit": 0
+    }
+  ],
+  "tier": "major",
+  "x-provenance": {
+    "recorded-by": "Lenticule Science Senior and Red Cup Engineer Senior (pass web-sites-public of debt-2026-10-09-leader-words-held-in-corpus)",
+    "recorded-on": "2026-10-10",
+    "customer": "urn:leader:emsenn",
+    "basis": "Leader utterances of 2026-09-18 to 2026-09-27, rendered in EARS; the requirements carry no scope the words do not. Full statement: engineering-services-section/content/text/documents/articles/notes/2026/10/10/2026-10-10-note-on-the-consolidation-directives-of-september-2026.md",
+    "cites-utterances": [
+      "ni:///sha-256;fmF7Jj7BWctpV4ERX75Rm7yx-QO3oMbQBVVgOJTcwC4",
+      "ni:///sha-256;M6T2qlur_6fEuIcLrxOjJ37GtBYDeqAeSduZ6t4s9sY",
+      "ni:///sha-256;hC2tDy_7BTZ6gK14nNJs5DibqtltZsfYLG3Mk9u8F5Y",
+      "ni:///sha-256;PCj53nM7lhTSujrSa4T6EuX15FRZERtVdU1Ao7KNULw",
+      "ni:///sha-256;Cqsji1hrZVJjRi08IOWc-h_gW9XJIaTXu4xJRJurc-Q",
+      "ni:///sha-256;aq3WuxPGDBu7g1LeiSO_P9HqgsG2DV6-27qu3w0cR6g",
+      "ni:///sha-256;procKi3vj8XLJRC15CRcf4pNuN5z81d6fkuUpxH9fBw",
+      "ni:///sha-256;mWHUqJhASFj-APOQ9MQM0cTRVFfYM4nmHC_xvZBMm7Q",
+      "ni:///sha-256;qtgxfjVNeV9_DyGWIiDNqVaYuLL29qbJ2MfBtw9TfJs",
+      "ni:///sha-256;3KPDdD0rtGMBOXIGSJx6swOPl6Ki3v24PdmPjB_jopI"
+    ],
+    "board-opening": {
+      "speech-act": "request",
+      "need": "Each suite of capabilities lives in one engineering application, and a site is an instance of an application pointed at content.",
+      "requirements": [
+        {
+          "id": "R1",
+          "says": "The engineering section shall hold exactly one application for each suite of capabilities.",
+          "class": "constraint",
+          "moscow": "must",
+          "rationale": "The Leader: \"truly, one application for each suite of capabilities, no divergent, duplicate, parallel systems\"."
+        },
+        {
+          "id": "R2",
+          "says": "A website served from the Group's content shall be configured by one variable that points at its content directory.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "The Leader: \"This should legit be one config variable, pointing to content.\""
+        },
+        {
+          "id": "R3",
+          "says": "The L-Space instance shall be a GEODE instance hosted by MetroPlat as an app.",
+          "class": "constraint",
+          "moscow": "must",
+          "rationale": "The Leader, 2026-09-27: \"MetroPlat is meant to host L-Space as an app. L-Space is meant to be a GEODE instance.\""
+        },
+        {
+          "id": "R4",
+          "says": "The L-Space instance shall offer Google login.",
+          "class": "functional",
+          "moscow": "must",
+          "rationale": "The Leader, 2026-09-26: \"L-Space doesn't have an option for Google login, it should\"."
+        },
+        {
+          "id": "R5",
+          "says": "The L-Space instance shall keep its caches and data stores within what its content needs.",
+          "class": "quality",
+          "moscow": "should",
+          "rationale": "The Leader, 2026-09-26, of 2.4 GB: \"L-SPace should not be 2.4gb\"."
+        },
+        {
+          "id": "R6",
+          "says": "The CAIRN application shall hold its archive in the admitted content and carry no SQLite store.",
+          "class": "constraint",
+          "moscow": "should",
+          "rationale": "The Leader, 2026-09-25: \"I don't know why CAIRN has a sqlite store\"."
+        },
+        {
+          "id": "R7",
+          "says": "Each application's main name shall state what it is, with its acronym carried as its brand name.",
+          "class": "constraint",
+          "moscow": "should",
+          "rationale": "The Leader, 2026-09-21: \"we do like the acronym names as like brand names ... just not the main name\"."
+        },
+        {
+          "id": "R8",
+          "says": "The computer-systems apps directory shall hold only applications that compose computer-networking, computer-code and computer-data capabilities into systems.",
+          "class": "constraint",
+          "moscow": "must",
+          "rationale": "The Leader, 2026-09-22: data, then code, then networking, then systems, so that there is one set of code for each job."
+        }
+      ],
+      "conditions": [
+        {
+          "id": "capability-suite:systems-apps-are-the-engine-platform-and-phoss",
+          "says": "The apps directory of computer-systems holds computer-system-engine, computer-system-platform and phoss-in-a-box.",
+          "method": "inspection",
+          "verifies": [
+            "R8"
+          ]
+        }
+      ]
+    },
+    "sign-cell": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;jhN1NQSy3XZ2UEvlbRKjPwNM9VfxWGiKyGXE9tXoR_o",
+      "cell": "ni:///sha-256;iWZs2rUHIxUGzuLibDqtLHyz__x9_bDBz-9no0jVasY"
+    }
+  }
+}

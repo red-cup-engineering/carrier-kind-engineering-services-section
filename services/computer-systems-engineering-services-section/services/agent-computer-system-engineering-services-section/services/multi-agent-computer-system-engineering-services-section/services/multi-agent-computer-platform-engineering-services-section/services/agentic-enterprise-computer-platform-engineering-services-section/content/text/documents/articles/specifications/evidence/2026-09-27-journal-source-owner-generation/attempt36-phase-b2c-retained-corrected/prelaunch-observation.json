@@ -1,0 +1,12 @@
+{
+  "status": "launcher failed before Popen and before invocation record",
+  "error": "OSError ENOMEM while reading generator executable for SHA-256",
+  "recovery": "Use native SHA-256 for files above 16 MiB; verify the same full executable contents on each launch.",
+  "providerInvocationStarted": false,
+  "secondPythonHashAttempt": "64 KiB reads also failed before model launch",
+  "nativeHashObservation": {
+    "tool": "/usr/bin/sha256sum",
+    "exitCode": 0,
+    "sha256": "e8039ff5fdb49ad420a410903efae62dac2c904e616ca4261ede9e327c225619"
+  }
+}

@@ -1,0 +1,4 @@
+minimumReleaseAgeExclude:
+  - '@lenticule-science/metrologic@0.1.0'
+  - '@red-cup-engineering/relating@0.1.5'
+  - '@lenticule-science/communicating@0.0.5'

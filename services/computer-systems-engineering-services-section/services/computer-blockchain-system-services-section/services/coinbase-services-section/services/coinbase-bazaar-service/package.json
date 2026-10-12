@@ -1,0 +1,39 @@
+{
+  "name": "@red-cup-engineering/coinbase-bazaar-service",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Read-only client for Coinbase's x402 Bazaar catalog: page the directory, determine whether our own resources are listed (three-valued, so an unread catalog never reads as an absent listing), and reduce the published per-resource quality data into demand evidence \u2014 unique payers, price distribution, and category demand. Zero runtime dependencies.",
+  "keywords": [
+    "561-group",
+    "x402",
+    "coinbase",
+    "bazaar",
+    "discovery",
+    "agent-commerce"
+  ],
+  "scripts": {
+    "check": "for f in src/*.mjs; do node --check \"$f\" || exit 1; done",
+    "test": "node --test test/*.test.mjs",
+    "listing": "node scripts/check-listing.mjs"
+  },
+  "exports": {
+    "./discovery": {
+      "types": "./src/discovery.d.ts",
+      "default": "./src/discovery.mjs"
+    },
+    "./market": {
+      "types": "./src/market.d.ts",
+      "default": "./src/market.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "sideEffects": false,
+  "files": [
+    "src",
+    "scripts",
+    "README.md"
+  ]
+}

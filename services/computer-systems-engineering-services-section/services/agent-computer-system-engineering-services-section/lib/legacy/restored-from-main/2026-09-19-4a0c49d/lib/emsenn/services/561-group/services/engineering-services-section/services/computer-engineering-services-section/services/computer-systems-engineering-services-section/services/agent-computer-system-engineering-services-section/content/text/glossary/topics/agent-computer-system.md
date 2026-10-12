@@ -1,0 +1,7 @@
+# Agent Computer System
+
+Agent Computer System is the engineering register of the agent-computing kernel (formerly relational-computing) — a chain of category-theoretic/topos-theoretic faculties (relating → animating/communicating/knowing/playing → computing/gaming/socializing/organizing) implemented as TypeScript/Node packages modeling agency, language, games, knowledge, and society. It sits alongside semiotic-computer-system-services-section as a second, independently-developed system family under computer-systems-engineering-services-section. The theory register — the dated research papers this corpus's development produced — lives sciences-side at agential-semioverse-repository-services-section; see its content/text/documents/articles/notes/.
+
+A divergent fork of communicating is separately published as `@lenticule-science/communicating` (from `linguistics-services-section/lib/communicating`) and is the consumer-facing lineage pinned by five live language fibers (english, latin, lakota, tokipona, mandarin-language-algebra); any future dedup of `communicating` must treat that fork as consumer-facing or provide a migration path for its dependents rather than assuming this package's `communicating` is the only lineage.
+
+See services/ for the nine constituent packages and lib/legacy/2026-08-11-services-animating-fork/ for an unreconciled earlier fork of animating/ kept for future review.

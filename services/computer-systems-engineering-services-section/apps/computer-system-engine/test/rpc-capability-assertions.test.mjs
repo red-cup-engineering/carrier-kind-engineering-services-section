@@ -6,9 +6,8 @@ import path from "node:path";
 import test from "node:test";
 
 import { grantAssertion, revokeAssertion } from "@red-cup-engineering/computer-networking-engineering-services-section/object-capability";
-import { each, extend } from "@red-cup-engineering/semiotic-eavt-services-section/store";
-import { recordFile } from "@red-cup-engineering/semiotic-eavt-services-section/layout";
-import { admitCapabilityAssertions, capabilityAssertionFeed, readCapabilityAssertions } from "../src/rpc/capability-assertions.mjs";
+import { append, extend, put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { admitCapabilityAssertions, capabilityAssertionThread, capabilityAssertionType, readCapabilityAssertions } from "../src/rpc/capability-assertions.mjs";
 import { authorizationFromCapabilityAssertions, authorizationFromStanding, dispatch } from "../src/rpc/dispatch.mjs";
 import { invocation } from "../src/rpc/invocation.mjs";
 import { createOperationCatalog, operation } from "../src/rpc/operation.mjs";
@@ -19,10 +18,13 @@ function fixture() {
   return mkdtempSync(path.join(tmpdir(), "capability-assertions-"));
 }
 
-/** Actual addressed capability records in the current store. */
-function assertionRecordFiles(dataRoot) {
-  return [...each(dataRoot, capabilityAssertionFeed, { strict: true })]
-    .map(({ address }) => recordFile(dataRoot, capabilityAssertionFeed, address));
+/** The bucket files that hold the assertion records. */
+function recordFiles(dataRoot) {
+  const directory = path.join(dataRoot, "data", "records", `${capabilityAssertionType}-records`);
+  return readdirSync(directory, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".jsonl"))
+    .map((entry) => path.join(entry.parentPath, entry.name))
+    .sort();
 }
 
 function admitInAnotherProcess(dataRoot, assertion) {
@@ -142,6 +144,7 @@ test("a real RPC authorization denies an externally revoked subject while an ind
     const denied = await dispatch({ catalog: createOperationCatalog([action]), witness: rpcWitness(), authorize, now: () => AT }, rpcInvocation(action, "actor:fixture"));
     assert.equal(denied.ok, false);
     assert.equal(denied.phase, "authorization");
+    // Granted and revoked: both sides told, the extremal reading object-capability standing uses.
     assert.equal(denied.decision.reading, "contested");
     const independent = await dispatch({ catalog: createOperationCatalog([action]), witness: rpcWitness(), authorize, now: () => AT }, rpcInvocation(action, "group:independent"));
     assert.equal(independent.ok, true);
@@ -151,7 +154,7 @@ test("a real RPC authorization denies an externally revoked subject while an ind
   }
 });
 
-test("the reader follows later admitted records and fails closed on malformed named-thread rows", () => {
+test("the reader follows the whole thread and fails closed on a malformed record", () => {
   const dataRoot = fixture();
   try {
     admitCapabilityAssertions({
@@ -165,54 +168,53 @@ test("the reader follows later admitted records and fails closed on malformed na
       assertions: [revokeAssertion("test", "urn:test:holder", "infograph#orientation", "2026-09-05T12:00:00.000Z")],
     });
     assert.equal(readCapabilityAssertions(dataRoot).length, 2);
-    extend(dataRoot, capabilityAssertionFeed, capabilityAssertionFeed, {
-      e: "urn:test:bad-row", a: { kind: "capability.assertion" }, v: { kind: "not-capability-assertion" }, t: "2026-09-06T12:00:00.000Z",
-    });
-    assert.deepEqual(readCapabilityAssertions(dataRoot), [], "a malformed asserted feed must deny every standing rather than ignore a possible revocation");
+    extend(dataRoot, capabilityAssertionType, capabilityAssertionThread, { kind: "not-capability-assertion", at: "2026-09-06T12:00:00.000Z" });
+    assert.deepEqual(readCapabilityAssertions(dataRoot), [], "a malformed asserted thread must deny every standing rather than ignore a possible revocation");
   } finally {
     rmSync(dataRoot, { recursive: true, force: true });
   }
 });
 
-test("an overwritten capability record denies standing instead of reading as empty", () => {
+test("an overwritten capability bucket denies standing instead of reading as empty", () => {
   const dataRoot = fixture();
   try {
     admitCapabilityAssertions({ dataRoot, date: AT.slice(0, 10), assertions: [grantAssertion("test", "urn:test:holder", "infograph#orientation", AT)] });
-    const [segment] = assertionRecordFiles(dataRoot);
-    assert.notEqual(segment, undefined);
-    writeFileSync(segment, "{not valid JSON", "utf8");
+    const [bucket] = recordFiles(dataRoot);
+    assert.notEqual(bucket, undefined);
+    writeFileSync(bucket, "{not valid JSON", "utf8");
     assert.deepEqual(readCapabilityAssertions(dataRoot), []);
   } finally {
     rmSync(dataRoot, { recursive: true, force: true });
   }
 });
 
-test("a deleted revocation record denies standing instead of reviving its preceding grant", () => {
+test("a deleted revocation bucket denies standing instead of reviving its preceding grant", () => {
   const dataRoot = fixture();
   try {
     admitCapabilityAssertions({ dataRoot, date: AT.slice(0, 10), assertions: [grantAssertion("test", "urn:test:holder", "infograph#orientation", AT)] });
-    const beforeRevocation = new Set(assertionRecordFiles(dataRoot));
+    const beforeRevocation = new Set(recordFiles(dataRoot));
     admitCapabilityAssertions({
       dataRoot,
       date: "2026-09-05",
       assertions: [revokeAssertion("test", "urn:test:holder", "infograph#orientation", "2026-09-05T12:00:00.000Z")],
     });
-    const revocationSegment = assertionRecordFiles(dataRoot).find((filePath) => !beforeRevocation.has(filePath));
-    assert.notEqual(revocationSegment, undefined);
-    rmSync(revocationSegment);
+    const revocationBucket = recordFiles(dataRoot).find((filePath) => !beforeRevocation.has(filePath));
+    assert.notEqual(revocationBucket, undefined, "the revocation lands in a bucket of its own for this fixture");
+    rmSync(revocationBucket);
     assert.deepEqual(readCapabilityAssertions(dataRoot), []);
   } finally {
     rmSync(dataRoot, { recursive: true, force: true });
   }
 });
 
-test("unrelated record types do not enter the authorization read", () => {
+test("unrelated types and logs do not enter the authorization read", () => {
   const dataRoot = fixture();
   try {
     admitCapabilityAssertions({ dataRoot, date: AT.slice(0, 10), assertions: [grantAssertion("test", "urn:test:holder", "infograph#orientation", AT)] });
-    for (let index = 0; index < 512; index += 1) extend(dataRoot, "unrelated-audit-feed", "unrelated-audit-feed", {
-      e: `urn:test:unrelated:${index}`, a: { kind: "unrelated" }, v: { index }, t: AT,
-    });
+    for (let index = 0; index < 64; index += 1) {
+      put(dataRoot, "unrelated-audit", { index, at: AT });
+      append(dataRoot, "unrelated-audit", { at: AT, index });
+    }
     assert.equal(readCapabilityAssertions(dataRoot).length, 1);
   } finally {
     rmSync(dataRoot, { recursive: true, force: true });

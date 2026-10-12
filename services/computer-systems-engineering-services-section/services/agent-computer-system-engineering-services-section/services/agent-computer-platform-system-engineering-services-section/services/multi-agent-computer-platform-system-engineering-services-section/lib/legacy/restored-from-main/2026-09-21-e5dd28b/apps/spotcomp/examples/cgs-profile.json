@@ -1,0 +1,81 @@
+{
+  "profileId": "example-cgs-modeled-player",
+  "status": "candidate",
+  "evidence": [
+    "CGS-EMBEDDING.md",
+    "MODELED-PLAYERS.md"
+  ],
+  "arena": {
+    "events": [
+      {
+        "id": "evt:observe-frontier:alice:1",
+        "kind": "observe-frontier",
+        "polarity": "opponent",
+        "actor": "player:alice",
+        "frontier": ["row:frontier:1"],
+        "symmetryClass": "sym:delivery-order",
+        "evidence": ["CGS-EMBEDDING.md#4-causality"]
+      },
+      {
+        "id": "evt:governance-check:alice:1",
+        "kind": "governance-check",
+        "polarity": "opponent",
+        "actor": "governance:example",
+        "causes": ["evt:observe-frontier:alice:1"],
+        "symmetryClass": "sym:governance-preserving-player-renaming",
+        "evidence": ["CGS-EMBEDDING.md#4-causality"]
+      },
+      {
+        "id": "evt:trace-append:alice:1",
+        "kind": "trace-append",
+        "polarity": "player",
+        "actor": "player:alice",
+        "causes": [
+          "evt:observe-frontier:alice:1",
+          "evt:governance-check:alice:1"
+        ],
+        "traceRows": ["row:alice:outbox:1"],
+        "symmetryClass": "sym:delivery-order",
+        "evidence": ["CGS-EMBEDDING.md#7-strategies"]
+      }
+    ],
+    "minimalConflicts": [],
+    "symmetryClasses": [
+      {
+        "id": "sym:delivery-order",
+        "preserves": ["causality", "conflict", "polarity", "trace-identity"],
+        "evidence": ["CGS-EMBEDDING.md#6-symmetry"]
+      },
+      {
+        "id": "sym:governance-preserving-player-renaming",
+        "preserves": ["causality", "conflict", "polarity", "governance"],
+        "evidence": ["CGS-EMBEDDING.md#6-symmetry"]
+      }
+    ]
+  },
+  "strategies": [
+    {
+      "playerId": "player:alice",
+      "strategyClass": "concurrent",
+      "observes": ["evt:observe-frontier:alice:1"],
+      "acts": ["evt:trace-append:alice:1"],
+      "maxConcurrentPlayerMoves": 2,
+      "handedness": {
+        "recv": "trace:inbox/alice",
+        "send": "trace:outbox/alice",
+        "actuate": "capability:none",
+        "observe": "frontier:local"
+      },
+      "governance": "governance:example",
+      "localSettling": "local-settling:player:alice",
+      "receptivityClaim": "open:requires-proof",
+      "symmetryQuotient": "sym:delivery-order",
+      "evidence": ["MODELED-PLAYERS.md#5-concurrent-game-reading"]
+    }
+  ],
+  "openObligations": [
+    "full-receptivity-proof",
+    "strategy-interaction-and-hiding-composition",
+    "symmetry-groupoid-law-checker"
+  ]
+}

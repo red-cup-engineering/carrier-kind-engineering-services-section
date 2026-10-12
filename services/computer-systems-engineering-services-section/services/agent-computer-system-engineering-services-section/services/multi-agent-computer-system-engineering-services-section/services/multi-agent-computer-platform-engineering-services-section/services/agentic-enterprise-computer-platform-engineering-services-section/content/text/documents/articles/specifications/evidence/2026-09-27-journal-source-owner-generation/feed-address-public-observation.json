@@ -1,0 +1,11 @@
+{
+  "method": "Invoke existing pure address constructor and journal-root law",
+  "anchor": "/fixture",
+  "address": "/fixture/data/journals/2026/09/27/2026-09-27-admit-fixture-principal.jsonl",
+  "journalDirectory": "/fixture/data/journals",
+  "feed": "2026/09/27/2026-09-27-admit-fixture-principal.jsonl",
+  "sourceOwnerExercised": false,
+  "filesystemMutation": false,
+  "probeSha256": "cbfd961912afa247d447cc75e6e0915c1ac9f2c30ffde2dc12ac941b5d6928c3",
+  "orderSha256": "928850f831afcf12af2c53d29219b41f27f86d155c11a0da4bc8f96873880706"
+}

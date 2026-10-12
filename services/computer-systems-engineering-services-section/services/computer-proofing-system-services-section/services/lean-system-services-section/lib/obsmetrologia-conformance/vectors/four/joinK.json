@@ -1,0 +1,18 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Reading.joinK","cases":[
+  {"op":"joinK","args":[[false,false],[false,false]],"result":[false,false]},
+  {"op":"joinK","args":[[false,false],[true,false]],"result":[true,false]},
+  {"op":"joinK","args":[[false,false],[false,true]],"result":[false,true]},
+  {"op":"joinK","args":[[false,false],[true,true]],"result":[true,true]},
+  {"op":"joinK","args":[[true,false],[false,false]],"result":[true,false]},
+  {"op":"joinK","args":[[true,false],[true,false]],"result":[true,false]},
+  {"op":"joinK","args":[[true,false],[false,true]],"result":[true,true]},
+  {"op":"joinK","args":[[true,false],[true,true]],"result":[true,true]},
+  {"op":"joinK","args":[[false,true],[false,false]],"result":[false,true]},
+  {"op":"joinK","args":[[false,true],[true,false]],"result":[true,true]},
+  {"op":"joinK","args":[[false,true],[false,true]],"result":[false,true]},
+  {"op":"joinK","args":[[false,true],[true,true]],"result":[true,true]},
+  {"op":"joinK","args":[[true,true],[false,false]],"result":[true,true]},
+  {"op":"joinK","args":[[true,true],[true,false]],"result":[true,true]},
+  {"op":"joinK","args":[[true,true],[false,true]],"result":[true,true]},
+  {"op":"joinK","args":[[true,true],[true,true]],"result":[true,true]}
+]}

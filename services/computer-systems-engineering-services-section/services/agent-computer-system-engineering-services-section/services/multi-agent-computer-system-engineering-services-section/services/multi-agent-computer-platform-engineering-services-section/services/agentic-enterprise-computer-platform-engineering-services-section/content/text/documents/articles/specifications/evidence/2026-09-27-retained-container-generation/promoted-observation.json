@@ -1,0 +1,29 @@
+{
+  "kind": "retained-container-codec-observation",
+  "source": {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/scripts/canonical-json.mjs",
+    "sha256": "a10d27199ba7a00ff0e99fbf2f8a622317c99207da9f71ef5907375a02c60a50"
+  },
+  "artifact": {
+    "canonicalBytes": 400045,
+    "ordinaryEnvelopeAdmitted": true
+  },
+  "containerBytes": 400181,
+  "defaultContainer": {
+    "accepted": false,
+    "name": "TypeError",
+    "code": "string-limit"
+  },
+  "lineBoundedContainer": {
+    "accepted": true,
+    "bytes": 400180
+  },
+  "boundedDeepContainer": {
+    "accepted": true,
+    "bytes": 30001
+  },
+  "claims": {
+    "ownerExercised": false,
+    "artifactIdentityExercised": false
+  }
+}

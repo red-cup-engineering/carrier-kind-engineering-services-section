@@ -1,0 +1,66 @@
+{
+  "source": {
+    "path": "/home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/store-root.mjs",
+    "sha256": "85fe0833ed4aa0093eda77a9a121cc0a10e6f06ea821e0850d281057924f9fca"
+  },
+  "examples": [
+    {
+      "log": "/fixture/data/journals/2026/09/27/2026-09-27-admit-person.jsonl",
+      "root": "/fixture/data/journals",
+      "settlement": "/fixture",
+      "oldRelative": "2026/09/27/2026-09-27-admit-person.jsonl"
+    },
+    {
+      "log": "/fixture/report.jsonl",
+      "root": "/fixture/.metroplat-journal",
+      "settlement": null,
+      "oldRelative": "../report.jsonl"
+    },
+    {
+      "log": "/other/report.jsonl",
+      "root": "/other/.metroplat-journal",
+      "settlement": null,
+      "oldRelative": "../report.jsonl"
+    },
+    {
+      "log": "/fixture/data/logs/report.jsonl",
+      "refused": true,
+      "name": "TypeError"
+    }
+  ],
+  "ownerExercised": false,
+  "priorOperationSha256": "4100abcb0315919b062f010eb9426886fac7d72947a3740ca9966d41c6de21ba",
+  "operationSha256": "679927505921b00e316763306537b72ddebbae9d31067a7383fa0a05a52a4155",
+  "probe": {
+    "path": "muse-owner-feed-mapping-observation.mjs",
+    "sha256": "754aedcf5039acc42eb78169b8fbd7ee9842ba2345d6f9192661862ab857a938"
+  },
+  "sources": [
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/store-root.mjs",
+      "sha256": "85fe0833ed4aa0093eda77a9a121cc0a10e6f06ea821e0850d281057924f9fca"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/journal.mjs",
+      "sha256": "880f65f55840efefbcb1f1b9aad6ca6c89d78427803f66ce85c29bd3e127d962"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/filesystem/write-journal-store.mjs",
+      "sha256": "702e61ad9130b4f7c76c80704e6cd0b2c4d3ecbb01f66524181fe9a33ddffead"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/src/journal/frontier.mjs",
+      "sha256": "5e10bfa0e4dea9a0c09a74da434a0aec0037822d80bdeab6a29598ebf36e2ea8"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/substrate.mjs",
+      "sha256": "039871c716b629da807539e0cd6fe814cc2edabe4915594728f5693e7e6f4d21"
+    }
+  ],
+  "clauses": [
+    "L-O24",
+    "L-O25"
+  ],
+  "runtimeAccepted": false,
+  "decision": "Preserve existing address partition semantics, close standalone membership and frontier shape, reconcile disposable warm reuse with historical-block provenance."
+}

@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/implementation-core-profile.schema.json",
+  "title": "SPOTCOMP implementation core profile declaration",
+  "type": "object",
+  "required": [
+    "profileId",
+    "evidence",
+    "derivationDirection",
+    "traceCarrier",
+    "jsonlAndStreams",
+    "canonicalIdentity",
+    "appendMerge",
+    "recognitionAdmission",
+    "trcTdpRuntime",
+    "pamClosure",
+    "packetProjection",
+    "wireFederation",
+    "modeledPlayerRuntime",
+    "operationsRuntime",
+    "minimumRuntimeComponents",
+    "nonConformanceBoundary"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "$ref": "#/$defs/nonEmptyStringArray"
+    },
+    "derivationDirection": {
+      "type": "array",
+      "prefixItems": [
+        { "const": "aperiodic-articulating" },
+        { "const": "transfinite-predicating" },
+        { "const": "scott-continuous-positing" },
+        { "const": "finite-settling" }
+      ],
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "traceCarrier": {
+      "$ref": "#/$defs/section"
+    },
+    "jsonlAndStreams": {
+      "$ref": "#/$defs/section"
+    },
+    "canonicalIdentity": {
+      "$ref": "#/$defs/section"
+    },
+    "appendMerge": {
+      "$ref": "#/$defs/section"
+    },
+    "recognitionAdmission": {
+      "$ref": "#/$defs/section"
+    },
+    "trcTdpRuntime": {
+      "$ref": "#/$defs/section"
+    },
+    "pamClosure": {
+      "$ref": "#/$defs/section"
+    },
+    "packetProjection": {
+      "$ref": "#/$defs/section"
+    },
+    "wireFederation": {
+      "$ref": "#/$defs/section"
+    },
+    "modeledPlayerRuntime": {
+      "$ref": "#/$defs/section"
+    },
+    "operationsRuntime": {
+      "$ref": "#/$defs/section"
+    },
+    "minimumRuntimeComponents": {
+      "type": "object",
+      "required": ["components", "evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "components": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        },
+        "evidence": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        }
+      }
+    },
+    "nonConformanceBoundary": {
+      "$ref": "#/$defs/section"
+    }
+  },
+  "$defs": {
+    "nonEmptyStringArray": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "section": {
+      "type": "object",
+      "required": ["evidence"],
+      "additionalProperties": {
+        "type": "boolean"
+      },
+      "properties": {
+        "evidence": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        }
+      }
+    }
+  }
+}

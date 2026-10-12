@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://experimental.561.group/spotcomp/schema/federation-admission-profile.schema.json",
+  "title": "SPOTCOMP federation admission profile",
+  "type": "object",
+  "required": [
+    "profileId",
+    "evidence",
+    "representations",
+    "identityChecks",
+    "signatureChecks",
+    "admissionGates",
+    "regimeBindings",
+    "outcomes",
+    "nonConformanceBoundary"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "profileId": { "type": "string", "minLength": 1 },
+    "evidence": { "$ref": "#/$defs/nonEmptyStringArray" },
+    "representations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectRecord" },
+      "minItems": 1
+    },
+    "identityChecks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectRecord" },
+      "minItems": 1
+    },
+    "signatureChecks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectRecord" },
+      "minItems": 1
+    },
+    "admissionGates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectRecord" },
+      "minItems": 1
+    },
+    "regimeBindings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectRecord" },
+      "minItems": 1
+    },
+    "outcomes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objectRecord" },
+      "minItems": 1
+    },
+    "nonConformanceBoundary": {
+      "type": "object",
+      "required": ["evidence"],
+      "properties": {
+        "evidence": { "$ref": "#/$defs/nonEmptyStringArray" }
+      },
+      "additionalProperties": { "type": "boolean" }
+    }
+  },
+  "$defs": {
+    "nonEmptyStringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "objectRecord": {
+      "type": "object",
+      "required": ["id", "evidence"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "evidence": { "$ref": "#/$defs/nonEmptyStringArray" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

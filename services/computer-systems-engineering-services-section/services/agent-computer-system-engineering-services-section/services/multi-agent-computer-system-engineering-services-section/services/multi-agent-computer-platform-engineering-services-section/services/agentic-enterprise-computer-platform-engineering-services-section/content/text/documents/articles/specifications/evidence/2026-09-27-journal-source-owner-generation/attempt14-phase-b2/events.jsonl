@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a0e5a7-f9fd-7623-8c86-ec2e59e07438"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"kind\":\"source-patchset\",\"version\":1,\"disposition\":\"refused\",\"reason\":\"I cannot supply a complete, contract-conforming B2 owner candidate from the provided inputs. The remaining scope and durability work requires a coherent implementation across publication, protected source refresh, exact selection and closure, host binding, and descriptor cleanup. Returning partial replacements as a complete-owner candidate would misrepresent the requested result.\",\"changes\":[]}"}}
+{"type":"turn.completed","usage":{"input_tokens":82045,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":808,"reasoning_output_tokens":711}}

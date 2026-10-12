@@ -1,0 +1,17 @@
+{
+  "kind": "public-source-review",
+  "phase": "B2b2b complete host composition",
+  "sourceSha256": "fc4d490aea781f304e0b3b46c7ca9c40be0e9f459bc039ecda5d7e996ece0075",
+  "resolved": [
+    "Pre-scope lock-opening binding failures now invoke permanent owner invalidation; acquire contention remains outside that catch.",
+    "Unused initializer declaration removed.",
+    "Generated replacement bytes preserved in mechanically coalesced package."
+  ],
+  "findings": [],
+  "B2cMayProceed": true,
+  "completeReceivingMayProceed": false,
+  "remaining": [
+    "Both publication seams, coherent publication composition and complete independent receiving."
+  ],
+  "privateReceivingRun": false
+}

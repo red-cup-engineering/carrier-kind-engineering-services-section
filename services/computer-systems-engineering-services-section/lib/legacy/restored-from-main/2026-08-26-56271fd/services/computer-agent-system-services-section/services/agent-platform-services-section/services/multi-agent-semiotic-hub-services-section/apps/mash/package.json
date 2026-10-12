@@ -1,0 +1,24 @@
+{
+  "name": "@red-cup-engineering/mash",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "MASH — the Node realization of the multi-agent semiotic hub: the tick that composes many sovereign FARS substrates, reading each member's settled face (σ) toward the composite π = σ∘Δ.",
+  "license": "UNLICENSED",
+  "private": true,
+  "bin": {
+    "mash": "./src/cli/mash.mjs"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs"
+    },
+    "./cli": {
+      "import": "./src/cli/verbs.mjs"
+    }
+  },
+  "scripts": {
+    "check": "find src test -type f -name '*.mjs' -exec sh -c 'for file do node --check \"$file\" || exit; done' sh {} +",
+    "test": "node --test test/*.test.mjs",
+    "verify": "npm run check && npm test"
+  }
+}

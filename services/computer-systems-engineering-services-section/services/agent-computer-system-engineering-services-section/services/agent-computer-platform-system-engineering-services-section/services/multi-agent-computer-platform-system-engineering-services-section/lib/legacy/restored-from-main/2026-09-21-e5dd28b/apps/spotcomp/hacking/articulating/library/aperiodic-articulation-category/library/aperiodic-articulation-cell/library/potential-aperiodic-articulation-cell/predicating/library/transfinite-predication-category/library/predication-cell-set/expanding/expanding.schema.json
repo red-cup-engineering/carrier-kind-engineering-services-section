@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/expanding/expanding.schema.json",
+  "title": "Expanding morphism record",
+  "description": "Morphism: a predication-cell-set (presented by its generators E = entity-set and Pi = predicate-set) -> its predication-cell-family, the Cartesian product Phi = E x Pi x E. Generates every (subject, predicate, object) position and checks the derived count |E|*|Pi|*|E| and that every component is in its generator.",
+  "type": "object",
+  "required": ["input", "output"],
+  "additionalProperties": false,
+  "properties": {
+    "input": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/predication-cell-set.schema.json" },
+    "output": { "$ref": "https://561.group/spotcomp/articulating/library/aperiodic-articulation-category/library/aperiodic-articulation-cell/library/potential-aperiodic-articulation-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell-family/predication-cell-family.schema.json" }
+  }
+}

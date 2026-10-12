@@ -1,0 +1,18 @@
+{"suite":"four-mix","declaration":"Obsmetrologia.readingPar","cases":[
+  {"op":"readingPar","args":[[false,false],[false,false]],"result":[true,false]},
+  {"op":"readingPar","args":[[false,false],[true,false]],"result":[true,false]},
+  {"op":"readingPar","args":[[false,false],[false,true]],"result":[false,false]},
+  {"op":"readingPar","args":[[false,false],[true,true]],"result":[false,false]},
+  {"op":"readingPar","args":[[true,false],[false,false]],"result":[true,false]},
+  {"op":"readingPar","args":[[true,false],[true,false]],"result":[true,false]},
+  {"op":"readingPar","args":[[true,false],[false,true]],"result":[true,false]},
+  {"op":"readingPar","args":[[true,false],[true,true]],"result":[true,false]},
+  {"op":"readingPar","args":[[false,true],[false,false]],"result":[false,false]},
+  {"op":"readingPar","args":[[false,true],[true,false]],"result":[true,false]},
+  {"op":"readingPar","args":[[false,true],[false,true]],"result":[false,true]},
+  {"op":"readingPar","args":[[false,true],[true,true]],"result":[false,true]},
+  {"op":"readingPar","args":[[true,true],[false,false]],"result":[false,false]},
+  {"op":"readingPar","args":[[true,true],[true,false]],"result":[true,false]},
+  {"op":"readingPar","args":[[true,true],[false,true]],"result":[false,true]},
+  {"op":"readingPar","args":[[true,true],[true,true]],"result":[true,true]}
+]}

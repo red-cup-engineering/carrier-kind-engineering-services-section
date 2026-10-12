@@ -1,0 +1,1 @@
+Inequivalence is a [[condition]] of [[negation]] that is [[combining]] with a condition of [[equivalence]], [[resulting]] in a condition of not being equivalent.

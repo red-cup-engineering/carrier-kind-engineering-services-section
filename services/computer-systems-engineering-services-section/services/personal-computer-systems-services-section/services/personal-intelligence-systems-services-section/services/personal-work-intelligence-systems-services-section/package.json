@@ -1,0 +1,11 @@
+{
+  "name": "@red-cup-engineering/personal-work-intelligence-systems-services-section",
+  "version": "0.1.0",
+  "description": "Odometer Work Systems — Red Cup Engineering's work division: the pure compute, record schemas, statement importers, companion intelligence, and assistant engine that observe, project, or advise on one person's work state.",
+  "type": "module",
+  "keywords": [
+    "brand:odometer-work-systems",
+    "personal-work-intelligence-systems",
+    "red-cup-engineering"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "astronomy/world/scripts/thinning/content/hole/scripts/opening/content/portal",
+  "title": "portal",
+  "description": "A boundary-determined morphism φ : P → W from a hole (pool) P into a world W. By (PM1) the value at any interior point of P depends only on that point's germ at the boundary ∂P — only boundary information crosses, nothing of the hole's deep interior. The controlled inter-world connection; pushforward φ_* along a chosen traveller fibration realizes the inter-world jump.",
+  "type": "object",
+  "required": [
+    "from-hole",
+    "into-world",
+    "boundary-determined"
+  ],
+  "properties": {
+    "from-hole": {
+      "description": "the hole (pool) P the portal opens from",
+      "$ref": "astronomy/world/scripts/thinning/content/hole"
+    },
+    "into-world": {
+      "description": "the world W the portal opens into",
+      "$ref": "astronomy/world"
+    },
+    "boundary-determined": {
+      "description": "(PM1) φ(p) = φ(q) whenever p, q share their germ at ∂P",
+      "const": true
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "@red-cup-engineering/agent-computer-system-engineering-services-section",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Groups the reusable apps and specialized engineering services that make up the agent-computing corpus (formerly relational-computing).",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
+  }
+}

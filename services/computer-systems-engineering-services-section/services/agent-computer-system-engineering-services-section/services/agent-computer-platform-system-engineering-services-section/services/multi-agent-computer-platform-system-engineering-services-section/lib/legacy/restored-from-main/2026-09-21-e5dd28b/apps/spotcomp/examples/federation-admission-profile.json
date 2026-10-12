@@ -1,0 +1,138 @@
+{
+  "profileId": "spotcomp-federation-admission-v0",
+  "evidence": [
+    "library/wire-federation/specification.md",
+    "WIRE-PROFILES.md",
+    "RECOGNITION.md",
+    "GOVERNANCE.md",
+    "REGIME-FEDERATION.md"
+  ],
+  "representations": [
+    {
+      "id": "representation:incoming-envelope-1",
+      "wireProfileId": "spotcomp-eavt-envelope-v1",
+      "payloadKind": "trace-increment",
+      "mediaType": "application/spotcomp-envelope+json",
+      "transport": "http",
+      "contentType": "application/spotcomp-envelope+json",
+      "representationRef": "http-request:incoming-envelope-1:body",
+      "receivedBeforeAdmission": true,
+      "evidence": [
+        "library/wire-federation/specification.md#3-representation-profiles"
+      ]
+    }
+  ],
+  "identityChecks": [
+    {
+      "id": "identity:incoming-envelope-1",
+      "representation": "representation:incoming-envelope-1",
+      "canonicalization": "rfc8785",
+      "duplicateNamePolicy": "reject-or-downgrade",
+      "canonicalIdentityBeforeMerge": true,
+      "rowIdsUseSha256Jcs": true,
+      "signatureInputRef": "signature-input:canonical-unsigned-envelope-1",
+      "evidence": [
+        "CANONICAL-IDENTITY.md",
+        "library/wire-federation/specification.md#4-canonical-identity-and-signatures"
+      ]
+    }
+  ],
+  "signatureChecks": [
+    {
+      "id": "signature:incoming-envelope-1",
+      "representation": "representation:incoming-envelope-1",
+      "algorithm": "Ed25519",
+      "required": true,
+      "keyBindingRef": "key-binding:sender-a:ed25519-spki",
+      "signatureVerifiedBeforeAdmission": true,
+      "signatureValidityIsAdmission": false,
+      "evidence": [
+        "WIRE-PROFILES.md#3-signature-and-canonicalization",
+        "library/wire-federation/specification.md#5-federation-admission"
+      ]
+    }
+  ],
+  "admissionGates": [
+    {
+      "id": "gates:incoming-envelope-1",
+      "representation": "representation:incoming-envelope-1",
+      "gateOrder": [
+        "representation-kind",
+        "rfc-parse",
+        "canonical-identity",
+        "signature-verification",
+        "identifier-binding",
+        "recognition",
+        "governance",
+        "capability",
+        "observation-action-bounds",
+        "regime-compatibility"
+      ],
+      "allGatesBeforeAppend": true,
+      "recognitionReceiverRelative": true,
+      "governanceAndCapabilityApplied": true,
+      "playerLocalBoundsApplied": true,
+      "failedGateRecordsAuditOrDowngrade": true,
+      "evidence": [
+        "RECOGNITION.md",
+        "GOVERNANCE.md",
+        "library/wire-federation/specification.md#5-federation-admission"
+      ]
+    }
+  ],
+  "regimeBindings": [
+    {
+      "id": "regime:incoming-envelope-1",
+      "representation": "representation:incoming-envelope-1",
+      "payloadKind": "trace-increment",
+      "regimeProfileRef": "regime-profile:receiver-local-scott-continuous",
+      "replayOrSettlePolicy": "append-trace-increment-then-replay-under-local-regime",
+      "downgradeBehavior": "accept-as-trace-only",
+      "endpointAloneIsFinalEvidence": false,
+      "evidence": [
+        "REGIME-FEDERATION.md",
+        "library/wire-federation/specification.md#5-federation-admission"
+      ]
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "outcome:incoming-envelope-1",
+      "representation": "representation:incoming-envelope-1",
+      "decision": "admitted",
+      "appendMode": "trace-rows",
+      "auditEvidenceRef": "trace:row:admission-audit-incoming-envelope-1",
+      "httpProblem": false,
+      "evidence": [
+        "library/wire-federation/specification.md#5-federation-admission"
+      ]
+    },
+    {
+      "id": "outcome:bad-envelope-problem",
+      "representation": "representation:incoming-envelope-1",
+      "decision": "rejected",
+      "appendMode": "audit-only",
+      "auditEvidenceRef": "trace:row:rejected-bad-envelope",
+      "httpProblem": true,
+      "problemDetail": {
+        "type": "https://experimental.561.group/spotcomp/problems/admission-signature-failed",
+        "title": "Signature verification failed",
+        "status": 400
+      },
+      "evidence": [
+        "library/wire-federation/specification.md#6-http-and-problem-details"
+      ]
+    }
+  ],
+  "nonConformanceBoundary": {
+    "noTransportReceiptAsAdmission": true,
+    "noSignatureAsAdmission": true,
+    "noJsonlAsInternetWireProfile": true,
+    "noEndpointStateAsAperiodicProof": true,
+    "noProblemDetailAsAuditReplacement": true,
+    "noAdmissionWithoutLocalRecognitionGovernanceAndBounds": true,
+    "evidence": [
+      "library/wire-federation/specification.md#9-non-conformance-cases"
+    ]
+  }
+}

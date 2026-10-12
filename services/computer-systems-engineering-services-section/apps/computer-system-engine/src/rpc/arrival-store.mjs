@@ -1,16 +1,16 @@
+import { join } from "node:path";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
-import { admitCloudEventArrival, arrivalDispatchClaimFromCloudEvent, arrivalReceiptWithAdmission, ARRIVAL_ADMISSION_TERM, ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
-import { } from "@red-cup-engineering/json-services-section";
+import { admitCloudEventArrival, arrivalDispatchClaimFromCloudEvent, arrivalReceiptWithAdmission, ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { arrivalUtteranceFromCloudEvent, cloudEventContract } from "@red-cup-engineering/json-services-section/cloudevent-identity";
 
-import { writeFileAtomic } from "@red-cup-engineering/computer-system-engine/filesystem";
-import { openJournal, journal } from "@red-cup-engineering/computer-system-engine/journal/journal";
-import { journalAppendAddress } from "@red-cup-engineering/computer-system-engine/journal/filesystem/operations";
+import { extend, append, readHead, walk } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { immutableContentKey } from "@red-cup-engineering/immutable-content-custody-service";
+import { createFileStoreSync } from "@red-cup-engineering/immutable-content-custody-service/file-store";
+import { makeNiUri, verifyNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { statementValue } from "@red-cup-engineering/eavt-services-section/statement";
 import { address, utteranceCell } from "@red-cup-engineering/signcell/cell";
-import { eavtRecord, toEavt } from "@red-cup-engineering/eavt-services-section/row";
 
 /** An uttered claim's reflexive SignCell and its address. */
 const utteredCell = (token, claim) => { const told = utteranceCell(token, claim); return Object.freeze({ cell: told, address: address(told) }); };
@@ -20,16 +20,6 @@ const utteredCell = (token, claim) => { const told = utteranceCell(token, claim)
 
 function packetDigest(value) {
   return sha256Hex(canonicalJson(value));
-}
-
-function writePacket(store, log, receipt) {
-  const packet = store.storePacket(log, canonicalJson(receipt.packet));
-  return Object.freeze({
-    digest: packet.sha256,
-    path: packet.path,
-    relativePath: packet.relativePath,
-    bytes: packet.bytes,
-  });
 }
 
 function stringAt(value, ...keys) {
@@ -109,6 +99,7 @@ function arrivalDispatchEvent(event) {
     state: "admitted",
     ...(transport === undefined ? {} : { transport }),
     ...(claim.program === undefined ? {} : { program: claim.program }),
+    ...(claim.operation === undefined ? {} : { operation: claim.operation }),
     ...(claim.claimedSubject === undefined ? {} : { claimedSubject: claim.claimedSubject }),
     ...(claim.argv[0] === undefined ? {} : { verb: claim.argv[0] }),
     argv: claim.argv,
@@ -118,15 +109,10 @@ function arrivalDispatchEvent(event) {
   });
 }
 
-function arrivalPacketReference(row) {
-  const { e, v } = eavtRecord(row);
-  const packetPath = stringAt(recordAt(v, "packet"), "path");
-  const sha256 = stringAt(recordAt(v, "packet"), "sha256") ?? stringAt(e, "sha256");
-  const identity = stringAt(recordAt(v, "cloudEvent"), "identity") ?? stringAt(e, "cloudEventIdentity");
+function arrivalPacketReference(record) {
   return Object.freeze({
-    ...(packetPath === undefined ? {} : { path: packetPath }),
-    ...(sha256 === undefined ? {} : { sha256 }),
-    ...(identity === undefined ? {} : { identity }),
+    ...(typeof record.packetDigest === "string" ? { sha256: record.packetDigest } : {}),
+    ...(typeof record.cloudEventIdentity === "string" ? { identity: record.cloudEventIdentity } : {}),
   });
 }
 
@@ -142,19 +128,18 @@ function checkedPacket(value) {
   return packet;
 }
 
-function projectArrivalRow(log, row, options) {
-  const { t, v } = eavtRecord(row);
-  const ref = arrivalPacketReference(row);
+function projectArrivalRecord(root, record, options) {
+  const ref = arrivalPacketReference(record);
   const obstructions = [];
   let packet;
   let receipt;
-  if (ref.path === undefined) {
-    obstructions.push("arrival row does not carry packet.path");
+  if (record.packet === undefined && record.packetNi === undefined) {
+    obstructions.push("arrival record does not carry its packet");
   } else {
     try {
-      const packetValue = journal.readPacket(log, ref.path, options);
+      const packetValue = readPacket(root, record, options);
       const digest = packetDigest(packetValue);
-      if (ref.sha256 !== undefined && ref.sha256 !== digest) obstructions.push("arrival row packet sha256 does not match packet content");
+      if (ref.sha256 !== undefined && ref.sha256 !== digest) obstructions.push("arrival record packet sha256 does not match packet content");
       packet = checkedPacket(packetValue);
       receipt = admitCloudEventArrival(packet.presentation, {
         generatedEndpoint: packet.carrier.generatedEndpoint,
@@ -183,11 +168,10 @@ function projectArrivalRow(log, row, options) {
   const dispatchEvent = event === undefined ? undefined : arrivalDispatchEvent(event);
   return Object.freeze({
     kind: "metroplat.arrival.settlement-entry",
-    ...(typeof v?.rootName === "string" ? { rootName: v.rootName } : {}),
-    ...(typeof t === "string" ? { at: t } : {}),
+    ...(typeof record.rootName === "string" ? { rootName: record.rootName } : {}),
+    ...(typeof record.at === "string" ? { at: record.at } : {}),
     ...(ref.identity === undefined ? {} : { cloudEventIdentity: ref.identity }),
     ...(ref.sha256 === undefined ? {} : { packetDigest: ref.sha256 }),
-    ...(ref.path === undefined ? {} : { packetPath: ref.path }),
     ...(packet === undefined ? {} : { packet }),
     ...(packet === undefined ? {} : { presentationCheck: Object.freeze({
       ok: packet.presentsCarrier.ok,
@@ -207,89 +191,86 @@ function projectArrivalRow(log, row, options) {
   });
 }
 
-function isArrivalAdmissionRow(row) {
-  return canonicalJson(eavtRecord(row).a) === canonicalJson(ARRIVAL_ADMISSION_TERM);
+/** A record of at most this many bytes of canonical JSON holds its packet inline; a larger packet is bytes in content custody. */
+const INLINE_PACKET_BYTES_MAX = 48 * 1024;
+
+/** The content custody that holds the packets too large for a record: a directory beside the settlement's `data`. */
+const custodyOf = (root, options = {}) => createFileStoreSync(options.custodyRoot ?? join(root, "custody"));
+
+/** How an arrival record holds its packet: inline, or by the `ni:` address of its bytes in content custody. */
+function packetHolding(root, packet, options) {
+  const text = canonicalJson(packet);
+  const bytes = Buffer.from(text, "utf8");
+  if (bytes.length <= INLINE_PACKET_BYTES_MAX) return Object.freeze({ packet });
+  const ni = makeNiUri(bytes);
+  custodyOf(root, options).putIfAbsent(immutableContentKey(ni), { body: bytes, mediaType: "application/json" });
+  return Object.freeze({ packetNi: ni, packetBytes: bytes.length });
 }
 
-function hasArrivalAdmissionRows(logPath) {
-  let found = false;
-  journal.scan(logPath, undefined, (_accum, row) => {
-    if (isArrivalAdmissionRow(row)) found = true;
-    return undefined;
-  });
-  return found;
+function readPacket(root, record, options) {
+  if (record.packet !== undefined) return record.packet;
+  const held = custodyOf(root, options).get(immutableContentKey(record.packetNi));
+  if (held === null) throw new TypeError("arrival packet bytes are not held in content custody");
+  if (!verifyNiUri(held.body, record.packetNi)) throw new TypeError("arrival packet bytes do not match their ni address");
+  return JSON.parse(Buffer.from(held.body).toString("utf8"));
 }
 
-export function arrivalStatementRows(receipt, packet, at, rootName) {
+/** The record an arrival is: what the world must remember of it, once, at the address its content computes. */
+export function arrivalRecord(receipt, at, rootName, holding) {
   const event = receipt.event;
-  const value = Object.freeze({
-    // Frozen legacy wire discriminant; this value is the recorded source admission.
-    kind: "metroplat.arrival.source-witness",
-    rootName,
+  return Object.freeze({
+    at,
+    ...(rootName === undefined ? {} : { rootName }),
     ok: receipt.ok,
-    packet: Object.freeze({
-      mediaType: "application/json",
-      sha256: receipt.packetDigest,
-      bytes: packet.bytes,
-      href: `blob:sha256:${receipt.packetDigest}`,
-      path: packet.relativePath,
-    }),
-    cloudEvent: Object.freeze({
-      identity: receipt.cloudEventIdentity,
-      source: event.source,
-      id: event.id,
-      type: event.type,
-      time: event.time,
-    }),
+    packetDigest: receipt.packetDigest,
+    cloudEventIdentity: receipt.cloudEventIdentity,
+    cloudEvent: Object.freeze({ source: event.source, id: event.id, type: event.type, time: event.time }),
     traceSettlement: receipt.traceSettlement.kind,
     obstructions: receipt.obstructions,
+    ...holding,
   });
-  return Object.freeze([
-    toEavt({
-      e: Object.freeze({
-        kind: "metroplat.arrival.packet",
-        sha256: receipt.packetDigest,
-        cloudEventIdentity: receipt.cloudEventIdentity,
-      }),
-      a: ARRIVAL_ADMISSION_TERM,
-      v: value,
-      t: at,
-    }),
-  ]);
 }
 
+/**
+ * Admit one arrival: the record follows no cause (the same event at the same time is the same
+ * record, written once), joins the day's head so peers converge on the day by `pull`, and one log
+ * line names it by address for the readers that follow arrivals by time.
+ */
 export function appendArrivalAtRoot(root, event, options = {}) {
   const at = options.at ?? event.time;
-  const store = openJournal(root);
-  const appendOptions = { ...options, at, subject: options.subject ?? "arrival" };
-  const feed = journalAppendAddress(root, ARRIVAL_FEED, at, appendOptions);
-  const rootName = feed.rootName;
   const receipt = admitCloudEventArrival(event);
-  const packet = writePacket(store, feed, receipt);
-  const admission = store.appendRows(ARRIVAL_FEED, arrivalStatementRows(receipt, packet, at, rootName), {
-    ...appendOptions,
-    rootName,
-    caller: options.caller ?? Object.freeze({
-      transport: "arrival-admission",
-      cloudEventIdentity: receipt.cloudEventIdentity,
-    }),
-  });
-  return Object.freeze({ ...arrivalReceiptWithAdmission(receipt, admission, packet.relativePath), rootName });
+  const record = arrivalRecord(receipt, at, options.rootName, packetHolding(root, receipt.packet, options));
+  const day = at.slice(0, 10);
+  const held = readHead(root, ARRIVAL_FEED, day)?.frontier ?? [];
+  const arrived = extend(root, ARRIVAL_FEED, day, record, { causes: [] });
+  if (!held.includes(arrived)) {
+    append(root, ARRIVAL_FEED, { at, of: arrived, from: String(receipt.event.source).slice(0, 256), kind: String(receipt.event.type).slice(0, 256) });
+  }
+  const admission = Object.freeze({ type: ARRIVAL_FEED, thread: day, address: arrived });
+  return Object.freeze({ ...arrivalReceiptWithAdmission(receipt, admission), ...(options.rootName === undefined ? {} : { rootName: options.rootName }) });
 }
 
-export function readArrivalLogProjection(logPath, options) {
-  const description = journal.describe(logPath);
-  const entries = [];
-  const folded = journal.scan(logPath, undefined, (_accum, row) => {
-    entries.push(projectArrivalRow(logPath, row, options));
-    return undefined;
-  });
+/** The most arrivals one day's reading follows. */
+const DAY_LIMIT = 4096;
+
+/** Read a day's arrivals: the records of the day's head, in order of their time. */
+export function readArrivalProjection(root, date, options = {}) {
+  const head = readHead(root, ARRIVAL_FEED, date);
+  const records = [];
+  let truncated = false;
+  for (const step of walk(root, ARRIVAL_FEED, head?.frontier ?? [], { limit: options.limit ?? DAY_LIMIT })) {
+    if (step.truncated === true) truncated = true;
+    else if (step.record !== undefined) records.push(step);
+  }
+  records.sort((left, right) => (left.record.at < right.record.at ? -1 : left.record.at > right.record.at ? 1 : left.address < right.address ? -1 : 1));
+  const entries = records.map(({ record }) => projectArrivalRecord(root, record, options));
   const transports = Object.freeze([...new Set(entries.flatMap((entry) => entry.transport === undefined ? [] : [entry.transport]))].sort());
   return Object.freeze({
-    kind: "metroplat.arrival.log-settlement",
-    root: description.root,
-    date: description.date,
-    rows: folded.rows,
+    kind: "metroplat.arrival.day-settlement",
+    root,
+    date,
+    rows: records.length,
+    truncated,
     processed: entries.length,
     validPackets: entries.filter((entry) => entry.obstructions.length === 0).length,
     obstructedPackets: entries.filter((entry) => entry.obstructions.length > 0).length,
@@ -301,17 +282,6 @@ export function readArrivalLogProjection(logPath, options) {
     transports,
     entries: Object.freeze(entries),
   });
-}
-
-export function arrivalLogPathForDate(root, date) {
-  return journal.feed(root, ARRIVAL_FEED, `${date}T00:00:00.000Z`, { subject: "arrival" });
-}
-
-export function projectArrivalLogPathState(logArtifact, options) {
-  if (!hasArrivalAdmissionRows(logArtifact)) return undefined;
-  const projection = readArrivalLogProjection(logArtifact, options);
-  writeFileAtomic(journal.projectPath(logArtifact, "state", "json"), `${canonicalJson(projection)}\n`);
-  return projection;
 }
 
 export function filesystemArrivalOptions(

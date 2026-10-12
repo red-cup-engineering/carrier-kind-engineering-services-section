@@ -1,0 +1,12 @@
+{
+  "inputs": {
+    "code/src/semiotic-eavt/journal/event.mjs": "69160a522e6f7f9319a6e4743d8940ef2cac00c44150591b845c992c594f1833"
+  },
+  "outputs": {
+    "code/src/semiotic-eavt/journal/event.mjs": "6069defbde3eef4ec64bb4ae2e1d6c9b3951b92f69f16c3ff7bea7695dce7970"
+  },
+  "workOrderSha256": "fdcc7d1df19831909688a64913eb582ec348972099a133b639630c856d4fb100",
+  "candidateJsonSha256": "6a7f60ca055042daa00d2aba981537b00dd530717fdf1a3b84797d5fe73e8b5a",
+  "materializerSha256": "de3eafe7d59a4dfe1f46d8eb614f264b7ca7ad74f059a311ab33915ac04c1eaf",
+  "status": "staged-unaccepted"
+}

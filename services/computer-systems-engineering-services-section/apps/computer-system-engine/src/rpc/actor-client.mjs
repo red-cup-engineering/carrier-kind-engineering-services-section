@@ -20,7 +20,7 @@ export function createActorClient({provider,inbox,origin,admitSender}){
  if(!provider||typeof admitSender!=='function')throw new TypeError('actor client needs a provider and current sender admission');
  const publicOrigin=new URL(origin).origin;
  return Object.freeze({
-  async send({identifier,address,text,admit,taskId,paymentPayload}){
+  async send({identifier,address,text,admit,requestKey,taskId,paymentPayload,reuse=false}){
    await admitSender(identifier);
    if(typeof text!=='string'||!text.trim()||Buffer.byteLength(text)>16384)throw new TypeError('message must be nonempty and at most 16384 bytes');
    let kind='feltos.actor.message',value={text};
@@ -34,18 +34,44 @@ export function createActorClient({provider,inbox,origin,admitSender}){
     if(request.operation!==undefined)parseNiUri({uri:request.operation});
     kind='metroplat.dispatch.arrival-material';value={kind,argv:[request.verb],stdin:JSON.stringify(request.input),...(request.operation===undefined?{}:{operation:request.operation})};
    }
+   if(taskId!==undefined&&(typeof taskId!=='string'||!taskId))throw new TypeError('actor work taskId must be nonempty text');
    if(paymentPayload!==undefined && (kind!=='metroplat.dispatch.arrival-material'||typeof taskId!=='string'||!taskId))throw new TypeError('a signed payment needs its original actor operation and taskId');
    if(paymentPayload!==undefined)requireJsonValue(paymentPayload,'actor signed payment');
+   if(requestKey!==undefined&&(typeof requestKey!=='string'||!requestKey||Buffer.byteLength(requestKey)>4096))throw new TypeError('actor request reuse needs a bounded request key');
    const recipient=await resolveActivityPubRecipient(provider,address);
    await admit?.();
    await admitSender(identifier);
    const bytes=senActivityObjectBytes({objectKind:kind,value});
-   const activity=projectSenActivity({type:'Create',origin:publicOrigin,identifier,recipient:recipient.recipient,
+   const activity=projectSenActivity({type:'Create',origin:publicOrigin,identifier,recipient:recipient.actorId,
     objectBytes:bytes,a2aMessage:{...userSenMessage(bytes),...(taskId===undefined?{}:{taskId}),
-      ...(paymentPayload===undefined?{}:{metadata:{'x402.payment.status':'payment-submitted','x402.payment.payload':paymentPayload}})},a2aRole:'ROLE_USER',
+      ...((paymentPayload===undefined&&requestKey===undefined)?{}:{metadata:{...(requestKey===undefined?{}:{'feltos.request.key':requestKey}),...(paymentPayload===undefined?{}:{'x402.payment.status':'payment-submitted','x402.payment.payload':paymentPayload})}})},a2aRole:'ROLE_USER',
     agentCard:new URL('/actors/'+encodeURIComponent(identifier)+'/agent-card.json',publicOrigin).href,eventTime:new Date().toISOString()});
-   await deliverActivity(provider,{identifier,recipient:recipient.recipient,inbox:recipient.inbox,activity});
-   return {id:activity.id,request:readActorMessage(activity,new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href,recipient.recipient).id,recipient:recipient.recipient};
+   if(reuse && typeof provider.retainRequest !== 'function')throw new TypeError('reusable actor work requires durable request custody');
+   if(reuse && typeof inbox?.replyFor !== 'function')throw new TypeError('reusable actor work requires correlated reply custody');
+   const sent=reuse?(await provider.retainRequest(activity)).held:activity;
+   const requestId=readActorMessage(sent,new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href,recipient.actorId).id;
+   const reply=reuse?await inbox.replyFor({identifier,request:requestId,sender:recipient.actorId}):null;
+   await admit?.();await admitSender(identifier);
+   if(reply){
+    const outcome=readActorMessage(reply,recipient.actorId,new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href);
+    if(outcome.kind==='metroplat.dispatch.result' && outcome.value.request===requestId && outcome.value.result?.code===0)
+     return {id:sent.id,request:requestId,recipient:recipient.actorId,result:outcome.value.result};
+   }
+   await deliverActivity(provider,{identifier,recipient:recipient.actorId,inbox:recipient.inboxId,activity:sent});
+   return {id:sent.id,request:readActorMessage(sent,new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href,recipient.actorId).id,recipient:recipient.actorId};
+  },
+  async result({identifier,submission}){
+   await admitSender(identifier);
+   parseNiUri({uri:submission.request});
+   if(typeof inbox?.replyFor!=='function')throw new TypeError('actor results need correlated private custody');
+   const recipient=new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href;
+   const reply=await inbox.replyFor({identifier,request:submission.request,sender:submission.recipient});
+   await admitSender(identifier);
+   if(!reply)return undefined;
+   const outcome=readActorMessage(reply,submission.recipient,recipient);
+   if(outcome.kind!=='metroplat.dispatch.result'||outcome.value.request!==submission.request)
+    throw new TypeError('actor result does not match its addressed request');
+   return outcome.value.result;
   },
   async read({identifier,cursor}){
    await admitSender(identifier);

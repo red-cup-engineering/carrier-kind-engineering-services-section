@@ -1,0 +1,5 @@
+{
+  "method": "node --check on source without private fixture execution",
+  "exitCode": 1,
+  "stderr": "/tmp/muse-semantic-generation-trv1rijx/stage/src/semiotic-eavt/semantic-record.mjs:45\n}\n^\n\nSyntaxError: Unexpected token '}'\n    at checkSyntax (node:internal/main/check_syntax:72:5)\n\nNode.js v24.19.0\n"
+}

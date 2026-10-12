@@ -1,0 +1,48 @@
+{
+  "startedAt": 1790559552.2035892,
+  "argv": [
+    "/generator",
+    "exec",
+    "--ignore-user-config",
+    "--ignore-rules",
+    "--ephemeral",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--model",
+    "gpt-6-luna",
+    "--disable",
+    "shell_tool",
+    "--disable",
+    "multi_agent",
+    "-c",
+    "apps._default.enabled=false",
+    "-c",
+    "web_search=\"disabled\"",
+    "-c",
+    "model_reasoning_effort=\"high\"",
+    "--output-schema",
+    "/input/output-schema.json",
+    "--json",
+    "-"
+  ],
+  "publicInputSha256": "3902ce3a521d8371a67d0e4a3b5a9999217b8f15a9c958639dd4469d841b6a51",
+  "profileSha256": "5a3912932fa1f5600d6bd91e7fd842a369d8cd861ac9a7467e21798b6c7af5bb",
+  "modelRequested": "gpt-6-luna",
+  "cashCost": "unavailable",
+  "generatorSha256": "e8039ff5fdb49ad420a410903efae62dac2c904e616ca4261ede9e327c225619",
+  "assayCommitment": {
+    "manifestSha256": "b3263e59bbb75f35ae8bfe281b8b039137c650e702b60c447499d1a62db50601",
+    "committedBeforeGeneration": true
+  },
+  "environmentKeys": [
+    "CODEX_HOME",
+    "HOME",
+    "LANG",
+    "PATH"
+  ],
+  "pid": 1499851,
+  "exitCode": 0,
+  "finishedAt": 1790559655.208749,
+  "durationSeconds": 103.00515985488892
+}

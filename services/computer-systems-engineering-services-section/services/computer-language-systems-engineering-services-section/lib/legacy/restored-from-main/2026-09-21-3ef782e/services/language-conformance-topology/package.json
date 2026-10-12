@@ -1,0 +1,63 @@
+{
+  "name": "@emsenn/language-conformance-topology",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "language-conformance-topology: prose conformance findings over the language span topology \u2014 bilattice-charged linting rules that settle conflicts by descent. The conformance domain fused with language.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emsenn/language-conformance-topology.git"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "clean": "rm -rf dist .tmp/test-dist",
+    "check": "tsc --noEmit",
+    "build": "pnpm run clean && tsc -p tsconfig.build.json && node ../../scripts/package-boundary/copy-dmts-to-dts.mjs dist",
+    "test": "pnpm run build && tsc -p tsconfig.test.json && node --test \".tmp/test-dist/**/*.test.mjs\"",
+    "audit:boundary": "node ../../scripts/package-boundary/audit-package-boundary.mjs .",
+    "verify": "pnpm run check && pnpm run test && pnpm run audit:boundary",
+    "prepack": "pnpm run build"
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.mjs"
+    },
+    "./rules": {
+      "types": "./dist/rules/index.d.ts",
+      "import": "./dist/rules/index.mjs"
+    },
+    "./detect": {
+      "types": "./dist/detect.d.ts",
+      "import": "./dist/detect.mjs"
+    },
+    "./report": {
+      "types": "./dist/report.d.ts",
+      "import": "./dist/report.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@emsenn/language-algebra": "0.0.0",
+    "@emsenn/language-topology": "0.0.1",
+    "@emsenn/english-language-algebra": "0.0.1",
+    "@561-group/conformance-topology": "0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3"
+  },
+  "sideEffects": false
+}

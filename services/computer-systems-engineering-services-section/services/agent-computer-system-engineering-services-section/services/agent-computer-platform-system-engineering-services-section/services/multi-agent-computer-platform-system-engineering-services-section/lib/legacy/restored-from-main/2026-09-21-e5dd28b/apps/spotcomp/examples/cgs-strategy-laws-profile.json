@@ -1,0 +1,77 @@
+{
+  "profileId": "spotcomp-cgs-strategy-laws-candidate",
+  "objectBoundary": {
+    "primeEventStructureRequired": true,
+    "minimalConflictGeneratesInheritedConflict": true,
+    "conflictInheritanceRequired": true,
+    "polarityAdditionalToEventStructure": true,
+    "polarityNotPlayerIdentity": true,
+    "symmetryGroupoidPreservesCausalityConflictPolarity": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/hacking/library/event/hacking/library/event-structure/hacking/library/prime-event-structure/docs/dev/journal/2026-05-26.md",
+      "lab/hacking/articulating/library/stable-articulation-cell/predicating/hacking/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/object/library/thing/library/category/hacking/library/computing/code/structures/cgs.md"
+    ]
+  },
+  "morphismBoundary": {
+    "arenaFormula": "A^perp || B",
+    "dualizesDomainPolarity": true,
+    "strategyMapFromEventStructure": true,
+    "quotientBySymmetryGroupoid": true,
+    "receptiveToOpponentExtensions": true,
+    "noPlayerSequentializationRequired": true,
+    "causalityPreserving": true,
+    "conflictPreserving": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/hacking/library/event/hacking/library/event-structure/hacking/library/arena/hacking/library/strategy/hacking/library/concurrent-strategy/docs/dev/journal/2026-05-26.md",
+      "lab/hacking/articulating/library/stable-articulation-cell/predicating/hacking/library/predication-cell-set/library/predicate-set/library/predicate-category/hacking/library/object/library/thing/library/category/hacking/library/computing/code/structures/cgs.md"
+    ]
+  },
+  "compositionBoundary": {
+    "compositionIsInteractionAndHiding": true,
+    "parallelInteractionOverSharedInterface": true,
+    "intermediateMovesHidden": true,
+    "associativeUpToCanonicalIsomorphism": true,
+    "wellDefinedRequiresReceptivity": true,
+    "wellDefinedRequiresCausalityPreservation": true,
+    "wellDefinedRequiresConflictPreservation": true,
+    "notTraceConcatenation": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/hacking/library/event/hacking/library/event-structure/hacking/library/arena/hacking/library/strategy/hacking/library/concurrent-strategy/docs/dev/journal/2026-05-26.md"
+    ]
+  },
+  "restrictionBoundary": {
+    "sequentialIsRestrictionOfConcurrent": true,
+    "innocentIsRestrictionOfConcurrent": true,
+    "deterministicConcurrentAtMostOnePlayerMove": true,
+    "innocenceRequiresPlayerViewDependence": true,
+    "innocenceRequiresFiniteViewActionEvidence": true,
+    "fullFaithfulEmbeddingOnlyAsRestriction": true,
+    "generalSwarmModelAllowsConcurrentPlayerMoves": true,
+    "evidence": [
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/hacking/library/event/hacking/library/event-structure/hacking/library/arena/hacking/library/strategy/hacking/library/concurrent-strategy/docs/dev/journal/2026-05-26.md",
+      "development/active/articulating/library/aperiodic-predication-category/library/aperiodic-predication-cell/library/potential-aperiodic-predication-cell/predicating/library/transfinite-predication-category/library/predication-cell-set/library/predication-cell/hacking/library/event/hacking/library/event-structure/hacking/library/arena/hacking/library/strategy/hacking/library/innocent-strategy/docs/dev/journal/2026-05-26.md"
+    ]
+  },
+  "swarmBoundary": {
+    "strategyEquivalenceNotKeyIdentity": true,
+    "strategyEquivalenceNotTraceLoopEquality": true,
+    "localObservationViewsRequired": true,
+    "playerActionsMayBeConcurrent": true,
+    "traceMergeRespectingSymmetryRemainsOpen": true,
+    "unknownStrategyLawsBlockStrongSwarmConformance": true,
+    "evidence": [
+      "MODELED-PLAYERS.md",
+      "CGS-EMBEDDING.md",
+      "INFORMATION-GAMES.md"
+    ]
+  },
+  "openObligations": [
+    "Prove receptivity for concrete modeled-player strategy declarations.",
+    "Derive interaction-and-hiding composition for SPOTCOMP federation and local player bindings.",
+    "Prove the trace-merge symmetry quotient needed for final swarm conformance."
+  ],
+  "evidence": [
+    "CGS-STRATEGY-LAWS.md",
+    "DERIVATION-OBLIGATIONS.md D9"
+  ]
+}

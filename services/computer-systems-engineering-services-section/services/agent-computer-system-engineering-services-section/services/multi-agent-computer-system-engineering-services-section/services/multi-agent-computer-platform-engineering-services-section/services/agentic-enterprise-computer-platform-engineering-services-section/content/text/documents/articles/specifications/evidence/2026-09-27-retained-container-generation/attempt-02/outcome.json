@@ -1,0 +1,5 @@
+{
+  "disposition": "provider-refused",
+  "sourceChanged": false,
+  "followup": "Split source generation into dependent projection/raw-predicate and strict-parser phases; retain full final acceptance and no intermediate promotion."
+}

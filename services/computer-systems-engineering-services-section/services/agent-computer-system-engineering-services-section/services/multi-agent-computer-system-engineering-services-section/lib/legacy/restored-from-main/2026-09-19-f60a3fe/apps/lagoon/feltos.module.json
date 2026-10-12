@@ -1,0 +1,212 @@
+{
+  "kind": "feltos.package-module",
+  "version": 1,
+  "package": {
+    "name": "@red-cup-engineering/lagoon",
+    "version": "0.2.1"
+  },
+  "model": {
+    "kind": "lagoon.modeled-unix-dimension",
+    "worldState": {
+      "format": "eavt",
+      "defaultPath": "data/state/world.eavt"
+    },
+    "behaviorExecution": "receipt-backed-flatfile-operation-binder"
+  },
+  "behaviors": [
+    {
+      "id": "world-look",
+      "path": "scripts/world-look.mjs",
+      "exportName": "look",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "read: EAVT world trace"
+    },
+    {
+      "id": "world-go",
+      "path": "scripts/world-go.mjs",
+      "exportName": "go",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "append: EAVT world trace"
+    },
+    {
+      "id": "world-say",
+      "path": "scripts/world-say.mjs",
+      "exportName": "say",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "append: EAVT world trace"
+    },
+    {
+      "id": "seed-world",
+      "path": "scripts/seed-world.mjs",
+      "exportName": "seed",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "read records and append: EAVT world trace"
+    },
+    {
+      "id": "seed-offices",
+      "path": "scripts/seed-offices.mjs",
+      "exportName": "seed",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "read harness records and append: EAVT world trace"
+    },
+    {
+      "id": "seed-systemd-services",
+      "path": "scripts/seed-systemd-services.mjs",
+      "exportName": "seed",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "observe systemd and append: EAVT world trace"
+    },
+    {
+      "id": "fold-harness-lifecycle",
+      "path": "scripts/fold-harness-lifecycle.mjs",
+      "exportName": "fold",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "read witness journals and append: EAVT world trace"
+    },
+    {
+      "id": "fold-harness-turns",
+      "path": "scripts/fold-harness-turns.mjs",
+      "exportName": "fold",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "read witness journals and append: EAVT world trace"
+    },
+    {
+      "id": "eavt-worker",
+      "path": "scripts/eavt-worker.mjs",
+      "exportName": "start",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "stdio worker; declared operation effects only"
+    },
+    {
+      "id": "look-cli",
+      "path": "scripts/look.scm",
+      "exportName": "main",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "string"
+      },
+      "effect": "read: EAVT world trace; write: terminal"
+    },
+    {
+      "id": "verify-worker-contract",
+      "path": "scripts/verify.scm",
+      "exportName": "main",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "string"
+      },
+      "effect": "process: node worker; write: terminal"
+    },
+    {
+      "id": "run-node-worker-tests",
+      "path": "scripts/run-node-worker-tests.scm",
+      "exportName": "main",
+      "inputSchema": {
+        "type": "object"
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "effect": "process: Guile test runner"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "@red-cup-engineering/cbor-codec-service",
+      "version": "0.0.2"
+    },
+    {
+      "name": "@red-cup-engineering/cbor-ni-service",
+      "version": "0.0.2"
+    },
+    {
+      "name": "@red-cup-engineering/computer-data-type-engine",
+      "version": "0.8.0"
+    },
+    {
+      "name": "@red-cup-engineering/eavt",
+      "version": "0.10.0"
+    },
+    {
+      "name": "@red-cup-engineering/feltos",
+      "version": "0.15.1"
+    },
+    {
+      "name": "@red-cup-engineering/harness-lifecycle-journal-service",
+      "version": "0.3.0"
+    },
+    {
+      "name": "@red-cup-engineering/inference-dispatch-service",
+      "version": "0.36.0"
+    },
+    {
+      "name": "@red-cup-engineering/principal-office-seating-service",
+      "version": "0.1.3"
+    },
+    {
+      "name": "@red-cup-engineering/relation-model-notation-json-codec",
+      "version": "0.2.1"
+    },
+    {
+      "name": "@red-cup-engineering/systemd-unit-inventory-observation-service",
+      "version": "0.1.1"
+    },
+    {
+      "name": "@red-cup-engineering/witness-journal-log-service",
+      "version": "0.3.0"
+    },
+    {
+      "name": "@red-cup-engineering/computer-platform",
+      "version": "0.5.0"
+    }
+  ]
+}

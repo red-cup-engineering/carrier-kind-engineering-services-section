@@ -1,0 +1,38 @@
+{
+  "name": "@red-cup-engineering/feng-shui-app",
+  "version": "0.1.0",
+  "description": "Local-first desk-review computer system for the 561 Group Feng Shui program.",
+  "type": "module",
+  "engines": {
+    "node": ">=24.2.0"
+  },
+  "exports": {
+    ".": "./apps/feng-shui-browser-app.mjs",
+    "./scene": "./src/desk-scene.mjs",
+    "./advice": "./src/retrieve-desk-advice.mjs"
+  },
+  "files": [
+    "src",
+    "apps",
+    "public"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "build": "node apps/feng-shui-browser-app.mjs build",
+    "dev": "node apps/feng-shui-browser-app.mjs serve"
+  },
+  "dependencies": {
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/json-schema-services-section": "workspace:*",
+    "@red-cup-engineering/static-site-publisher": "workspace:*"
+  },
+  "keywords": [
+    "engineering"
+  ],
+  "servedProjections": [
+    {
+      "from": "src",
+      "to": "public"
+    }
+  ]
+}

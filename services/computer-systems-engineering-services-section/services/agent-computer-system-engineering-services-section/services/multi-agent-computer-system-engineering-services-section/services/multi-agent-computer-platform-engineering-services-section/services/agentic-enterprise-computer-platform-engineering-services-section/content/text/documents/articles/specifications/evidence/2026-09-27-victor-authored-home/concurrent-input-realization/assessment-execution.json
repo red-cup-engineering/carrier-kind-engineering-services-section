@@ -1,0 +1,8 @@
+{
+  "exitCode": 0,
+  "durationSeconds": 2.107234912982676,
+  "assayRunnerSha256": "206f4e2ce3acb205f31263a1195d7bb8dd2802720428b60f2afe0bc88e0f3494",
+  "privateOutputDisclosed": false,
+  "dependencyMirror": "/tmp/muse-assessment-root-d_mayvdu",
+  "environmentCorrection": "Added current imported design-tokens module to dependency mirror; candidate unchanged."
+}

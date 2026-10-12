@@ -1,0 +1,18 @@
+{"suite":"four-bilattice","declaration":"Obsmetrologia.Valued.meetK","cases":[
+  {"op":"meetK","args":[{"value":[false,false],"for":[],"against":[]},{"value":[false,false],"for":[],"against":[]}],"result":{"value":[false,false],"for":[],"against":[]}},
+  {"op":"meetK","args":[{"value":[false,false],"for":[],"against":[]},{"value":[true,false],"for":["c"],"against":[]}],"result":{"value":[false,false],"for":["c"],"against":[]}},
+  {"op":"meetK","args":[{"value":[false,false],"for":[],"against":[]},{"value":[false,true],"for":[],"against":["d"]}],"result":{"value":[false,false],"for":[],"against":["d"]}},
+  {"op":"meetK","args":[{"value":[false,false],"for":[],"against":[]},{"value":[true,true],"for":["c"],"against":["d"]}],"result":{"value":[false,false],"for":["c"],"against":["d"]}},
+  {"op":"meetK","args":[{"value":[true,false],"for":["a"],"against":[]},{"value":[false,false],"for":[],"against":[]}],"result":{"value":[false,false],"for":["a"],"against":[]}},
+  {"op":"meetK","args":[{"value":[true,false],"for":["a"],"against":[]},{"value":[true,false],"for":["c"],"against":[]}],"result":{"value":[true,false],"for":["a","c"],"against":[]}},
+  {"op":"meetK","args":[{"value":[true,false],"for":["a"],"against":[]},{"value":[false,true],"for":[],"against":["d"]}],"result":{"value":[false,false],"for":["a"],"against":["d"]}},
+  {"op":"meetK","args":[{"value":[true,false],"for":["a"],"against":[]},{"value":[true,true],"for":["c"],"against":["d"]}],"result":{"value":[true,false],"for":["a","c"],"against":["d"]}},
+  {"op":"meetK","args":[{"value":[false,true],"for":[],"against":["b"]},{"value":[false,false],"for":[],"against":[]}],"result":{"value":[false,false],"for":[],"against":["b"]}},
+  {"op":"meetK","args":[{"value":[false,true],"for":[],"against":["b"]},{"value":[true,false],"for":["c"],"against":[]}],"result":{"value":[false,false],"for":["c"],"against":["b"]}},
+  {"op":"meetK","args":[{"value":[false,true],"for":[],"against":["b"]},{"value":[false,true],"for":[],"against":["d"]}],"result":{"value":[false,true],"for":[],"against":["b","d"]}},
+  {"op":"meetK","args":[{"value":[false,true],"for":[],"against":["b"]},{"value":[true,true],"for":["c"],"against":["d"]}],"result":{"value":[false,true],"for":["c"],"against":["b","d"]}},
+  {"op":"meetK","args":[{"value":[true,true],"for":["a"],"against":["b"]},{"value":[false,false],"for":[],"against":[]}],"result":{"value":[false,false],"for":["a"],"against":["b"]}},
+  {"op":"meetK","args":[{"value":[true,true],"for":["a"],"against":["b"]},{"value":[true,false],"for":["c"],"against":[]}],"result":{"value":[true,false],"for":["a","c"],"against":["b"]}},
+  {"op":"meetK","args":[{"value":[true,true],"for":["a"],"against":["b"]},{"value":[false,true],"for":[],"against":["d"]}],"result":{"value":[false,true],"for":["a"],"against":["b","d"]}},
+  {"op":"meetK","args":[{"value":[true,true],"for":["a"],"against":["b"]},{"value":[true,true],"for":["c"],"against":["d"]}],"result":{"value":[true,true],"for":["a","c"],"against":["b","d"]}}
+]}

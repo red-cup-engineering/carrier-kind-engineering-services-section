@@ -1,0 +1,34 @@
+{
+  "src/build.mjs": {
+    "sha256": "85c1cfa44c2a25c7fde380eee2b0af984e04890b89da653fe336a060b4f77abb",
+    "bytes": 23865
+  },
+  "src/config.mjs": {
+    "sha256": "5a3ddbfff439e4e17410a78ac3b4bc4f34bedd56cb09c508bb984e3d07ff7f8b",
+    "bytes": 15041
+  },
+  "src/catalog.mjs": {
+    "sha256": "399ee4bae62828d28f52a750898398d2e0b22f3239e96708ea1b76054eca6d62",
+    "bytes": 10713
+  },
+  "src/page.mjs": {
+    "sha256": "384e51573e1c1caaf34ba87dae9bc09a5ce3a0563a04ac25218319ba77eddcc9",
+    "bytes": 17437
+  },
+  "src/feeds.mjs": {
+    "sha256": "66806b5a6b5b462c12beabd966344d58694d7db01a25c5eb5cd8f92945c1998d",
+    "bytes": 1518
+  },
+  "src/tiles.mjs": {
+    "sha256": "1146ea7da4e249b62085aaffd7d3aef7beeb1372090d496a76483bbd6c06cb0c",
+    "bytes": 3497
+  },
+  "src/publication-archives.mjs": {
+    "sha256": "f37cd3509e4dfee0a3d90542350303eda9f9a75bc991a985bdb5a83461b249a5",
+    "bytes": 8295
+  },
+  "README.md": {
+    "sha256": "8bf413b63bebe8cf7ae9bce4f034fc86fcd4e48d15c52d6876be0d55c1b0a641",
+    "bytes": 12685
+  }
+}

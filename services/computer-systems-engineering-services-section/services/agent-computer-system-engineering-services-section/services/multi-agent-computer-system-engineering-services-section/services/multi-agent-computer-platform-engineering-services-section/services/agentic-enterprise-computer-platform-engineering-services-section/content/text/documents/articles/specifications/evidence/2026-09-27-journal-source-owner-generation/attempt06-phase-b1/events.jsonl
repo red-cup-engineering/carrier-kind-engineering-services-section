@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a0e592-3478-7773-a0bb-0107eac54587"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"kind\":\"source-patchset\",\"version\":1,\"disposition\":\"refused\",\"reason\":\"I cannot supply a complete B1 implementation that meets F-S15’s bounded discovery, verified source mapping, and L-O25 cache reuse requirements from the available source inputs. Returning a partial candidate would misrepresent it as a compliant stage.\",\"changes\":[]}"}}
+{"type":"turn.completed","usage":{"input_tokens":49983,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":1628,"reasoning_output_tokens":1546}}

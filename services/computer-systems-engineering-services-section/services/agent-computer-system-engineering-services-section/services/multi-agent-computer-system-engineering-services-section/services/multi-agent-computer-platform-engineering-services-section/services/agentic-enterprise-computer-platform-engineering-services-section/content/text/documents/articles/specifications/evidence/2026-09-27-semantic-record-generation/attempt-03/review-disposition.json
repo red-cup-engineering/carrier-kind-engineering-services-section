@@ -1,0 +1,8 @@
+{
+  "accepted": false,
+  "clause": "F-R01",
+  "finding": "projectSemanticRecords uses undefined as both the absence marker and a legitimate resolver-thrown value. It replaces throw undefined with Error(\"resolver failure sentinel\").",
+  "observation": "resolver-review-observation.json",
+  "candidateSourceSha256": "52231cd0a864528ba06e6a3506de7157e0f7d1c68d6c7a3a995c2163ee9d531e",
+  "nextAction": "Derive a narrowly scoped generated codemod from the existing unchanged resolver-propagation contract and public source-review diagnostic; preserve thrown values independently of whether failure occurred. Reassess the composed generated candidate; no hand repair or promotion."
+}

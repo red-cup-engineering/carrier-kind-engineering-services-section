@@ -1,0 +1,21 @@
+import {createHash} from 'node:crypto';
+import {jsonToTerm,termToJson} from 'file:///home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/json-codec.mjs';
+import {tm} from 'file:///home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/notation.mjs';
+import {identifyJsonSemanticContent,EMPTY_WITNESS_ROOT} from 'file:///home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-expression-notation/runtime.mjs';
+import {normalizeSeavtRow} from 'file:///home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/normalize-seavt-row.mjs';
+import {addressArtifact,verifyArtifact} from 'file:///home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/identity/index.mjs';
+import {journalWitness,parseJournalWitness} from 'file:///home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/journal/event.mjs';
+const value={meeting:'fixture',note:'historical content'},category='meeting-note',objectKind='fixture-notes';
+const id=identifyJsonSemanticContent({objectKind,value,witnessRoot:EMPTY_WITNESS_ROOT}).id;
+const tuple=[jsonToTerm(id),jsonToTerm(category),jsonToTerm(value),{originalTime:'unspecified calendar'}];
+const raw=JSON.stringify(tuple)+'\r';const file=Buffer.from(raw+'\n'+raw+'\n');
+const source={path:'data/logs/fixture/witness-journal-seavt.jsonl',sha256:createHash('sha256').update(file).digest('hex'),bytes:file.length};
+const row=normalizeSeavtRow(JSON.parse(raw));
+const importedAt='2026-09-27T12:00:00.000Z';
+const make=line=>{const artifact=addressArtifact({kind:'metroplat.journal.legacy-seavt-row',version:1,source,line,offset:(line-1)*(Buffer.byteLength(raw)+1),length:Buffer.byteLength(raw),raw,row});const witness=journalWitness({kind:'metroplat.journal.observation',seat:'fixture:operator',claim:tm.mark('semantic-record.legacy-import'),address:tm.mark(artifact.ref),time:importedAt,causes:[],payload:{kind:'metroplat.journal.legacy-import',version:1,row:artifact.ref},referencedArtifacts:[artifact.ref]});return {artifact,witness}};
+const first=make(1),second=make(2),parsed=parseJournalWitness(first.witness);verifyArtifact(first.artifact.ref,first.artifact.canonical.text);
+const checks={duplicateOccurrencesHaveDistinctArtifacts:first.artifact.ref!==second.artifact.ref,duplicateOccurrencesHaveDistinctCustodyWitnesses:first.witness.id!==second.witness.id,witnessRoundTrip:parsed.id===first.witness.id,externalRowReferenceRetained:parsed.core.referencedArtifacts.includes(first.artifact.ref),migrationTimeSeparateFromOriginalTime:parsed.observation.time===importedAt&&JSON.stringify(row.t)===JSON.stringify(tuple[3]),contentIdentityRecoverable:termToJson(row.e)===id,recordRecoverable:JSON.stringify(termToJson(row.v))===JSON.stringify(value),rawSliceReproducesBytes:Buffer.from(raw).equals(file.subarray(0,Buffer.byteLength(raw)))};
+
+const {projectSemanticRecords}=await import('file:///home/emsenn/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/src/semiotic-eavt/semantic-record.mjs');
+let caught=false, failure;try{projectSemanticRecords({objectKind,category,witnesses:[first.witness]},()=>{throw undefined})}catch(e){caught=true;failure=e}
+console.log(JSON.stringify({method:"source-review diagnostic for unchanged resolver exception contract",caught,originalUndefinedPreserved:caught&&failure===undefined,observedType:failure?.constructor?.name??null,observedMessage:failure?.message??null}));

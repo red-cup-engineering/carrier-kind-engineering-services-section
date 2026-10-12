@@ -1,0 +1,1569 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:561:specification:personal-interaction-body:1",
+  "title": "Version 1 personal interaction body",
+  "description": "Closed structural contract. Semantic admission, reference correspondence, authority and resource limits in the companion LLD are mandatory. This file is not an operating permission grant.",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "context",
+        "requestId",
+        "conversation",
+        "replyTo",
+        "kind",
+        "payload"
+      ],
+      "properties": {
+        "context": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "conversation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "replyTo": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "kind": {
+          "const": "message"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "text",
+            "attachments"
+          ],
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "attachments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact",
+                  "use"
+                ],
+                "properties": {
+                  "artifact": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                  },
+                  "use": {
+                    "enum": [
+                      "interpret-request",
+                      "plan-work",
+                      "produce-result"
+                    ]
+                  }
+                }
+              },
+              "uniqueItems": true,
+              "maxItems": 65536
+            }
+          },
+          "anyOf": [
+            {
+              "properties": {
+                "text": {
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "properties": {
+                "attachments": {
+                  "minItems": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "conversation": {
+              "type": "null"
+            },
+            "replyTo": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "conversation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "replyTo": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "context",
+        "requestId",
+        "conversation",
+        "replyTo",
+        "kind",
+        "payload"
+      ],
+      "properties": {
+        "context": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "conversation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "replyTo": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "kind": {
+          "const": "correction"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "target",
+            "change",
+            "supporting"
+          ],
+          "properties": {
+            "target": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "change": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "claim"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "replace-claim"
+                    },
+                    "claim": {
+                      "description": "Any JSON value admitted under the shared JSON_RESOURCE_ENVELOPE; this is a claim or observation, never authority."
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind",
+                    "restriction"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "restrict-use"
+                    },
+                    "restriction": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "kind"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "const": "withhold-from-work"
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "purposes"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "const": "deny-inference"
+                            },
+                            "purposes": {
+                              "type": "array",
+                              "minItems": 1,
+                              "maxItems": 3,
+                              "uniqueItems": true,
+                              "items": {
+                                "enum": [
+                                  "interpret-request",
+                                  "plan-work",
+                                  "produce-result"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "supporting": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "journal",
+                  "subject",
+                  "event",
+                  "payload"
+                ],
+                "properties": {
+                  "journal": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                  },
+                  "event": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                  },
+                  "payload": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                  }
+                }
+              },
+              "uniqueItems": true,
+              "maxItems": 65536,
+              "description": "Ordinal canonical-byte-sorted distinct full references; full resolution is a protected domain obligation."
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "conversation": {
+              "type": "null"
+            },
+            "replyTo": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "conversation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "replyTo": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "context",
+        "requestId",
+        "conversation",
+        "replyTo",
+        "kind",
+        "payload"
+      ],
+      "properties": {
+        "context": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "conversation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "replyTo": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "kind": {
+          "const": "decision"
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "proposal",
+                "disposition",
+                "validity"
+              ],
+              "properties": {
+                "proposal": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "journal",
+                    "subject",
+                    "event",
+                    "payload"
+                  ],
+                  "properties": {
+                    "journal": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "subject": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "event": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    },
+                    "payload": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    }
+                  }
+                },
+                "disposition": {
+                  "const": "approve"
+                },
+                "validity": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "notBefore",
+                    "notAfter"
+                  ],
+                  "properties": {
+                    "notBefore": {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+                      "description": "Must represent a real UTC instant under the shared exact timestamp law; lexical matching alone is insufficient."
+                    },
+                    "notAfter": {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$",
+                      "description": "Must represent a real UTC instant under the shared exact timestamp law; lexical matching alone is insufficient."
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "proposal",
+                "disposition",
+                "validity"
+              ],
+              "properties": {
+                "proposal": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "journal",
+                    "subject",
+                    "event",
+                    "payload"
+                  ],
+                  "properties": {
+                    "journal": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "subject": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "event": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    },
+                    "payload": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    }
+                  }
+                },
+                "disposition": {
+                  "const": "deny"
+                },
+                "validity": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "from-admission"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "proposal",
+                "disposition",
+                "approval",
+                "validity"
+              ],
+              "properties": {
+                "proposal": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "journal",
+                    "subject",
+                    "event",
+                    "payload"
+                  ],
+                  "properties": {
+                    "journal": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "subject": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "event": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    },
+                    "payload": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    }
+                  }
+                },
+                "disposition": {
+                  "const": "withdraw"
+                },
+                "approval": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "journal",
+                    "subject",
+                    "event",
+                    "payload"
+                  ],
+                  "properties": {
+                    "journal": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "subject": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                    },
+                    "event": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    },
+                    "payload": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                    }
+                  }
+                },
+                "validity": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "from-admission"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "conversation": {
+              "type": "null"
+            },
+            "replyTo": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "conversation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "replyTo": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "context",
+        "requestId",
+        "conversation",
+        "replyTo",
+        "kind",
+        "payload"
+      ],
+      "properties": {
+        "context": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "conversation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "replyTo": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "kind": {
+          "const": "cancel"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "intent",
+            "reason"
+          ],
+          "properties": {
+            "intent": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "conversation": {
+              "type": "null"
+            },
+            "replyTo": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "conversation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "replyTo": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "context",
+        "requestId",
+        "conversation",
+        "replyTo",
+        "kind",
+        "payload"
+      ],
+      "properties": {
+        "context": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "requestId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+        },
+        "conversation": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "replyTo": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          ]
+        },
+        "kind": {
+          "const": "assessment"
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "result",
+            "disposition",
+            "evidence",
+            "observation"
+          ],
+          "properties": {
+            "result": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "disposition": {
+              "enum": [
+                "accept",
+                "reject"
+              ]
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "journal",
+                  "subject",
+                  "event",
+                  "payload"
+                ],
+                "properties": {
+                  "journal": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                  },
+                  "subject": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                  },
+                  "event": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                  },
+                  "payload": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                  }
+                }
+              },
+              "uniqueItems": true,
+              "maxItems": 65536,
+              "description": "Ordinal canonical-byte-sorted distinct full references; full resolution is a protected domain obligation."
+            },
+            "observation": {
+              "description": "Any JSON value admitted under the shared JSON_RESOURCE_ENVELOPE; this is a claim or observation, never authority."
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "conversation": {
+              "type": "null"
+            },
+            "replyTo": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "conversation": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            },
+            "replyTo": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "journal",
+                "subject",
+                "event",
+                "payload"
+              ],
+              "properties": {
+                "journal": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "subject": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "description": "Exact Unicode scalar identifier; shared semantic validation rejects unpaired surrogates and normalization."
+                },
+                "event": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                },
+                "payload": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Must also pass the existing shared artifact reference validator. Syntax does not grant access or prove custody."
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spacetime.lab.development.561.group/library/informational-spacetime/library/condensing/library/quantum-spacetime/library/collapsing/collapsing.schema.json",
+  "title": "collapsing",
+  "description": "The scott-continuous generator: run cohering, package the fiber as a presheaf, seed value (bottom charge on every amplitude); value enters here. Is the kernel's posit. Info/physics: measurement / wavefunction collapse — the value-free amplitude fibration (superposition) acquires definite charge, value-free -> valued; the quantum -> classical seam. Generates classical-spacetime. io types are the kernel's via the promoted voidmath-kernel-schema package.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "const": "collapsing" },
+    "kind": { "type": "string", "const": "morphism" },
+    "is": { "type": "string", "const": "posit" },
+    "domain": { "type": "string", "const": "quantum-spacetime" },
+    "codomain": { "type": "string", "const": "classical-spacetime" },
+    "generator-of": { "type": "string", "const": "classical-spacetime" },
+    "io": { "$ref": "https://voidmath.active.development.561.group/articulating/library/category/predicating/library/category/positing/positing.schema.json" }
+  },
+  "required": ["name", "is", "codomain"]
+}

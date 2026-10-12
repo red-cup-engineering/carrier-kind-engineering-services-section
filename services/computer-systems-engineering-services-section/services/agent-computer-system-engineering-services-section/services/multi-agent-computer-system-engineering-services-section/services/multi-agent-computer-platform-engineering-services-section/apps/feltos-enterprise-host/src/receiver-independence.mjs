@@ -97,8 +97,7 @@ export function receivedOutcomeFields({ proposal, discharge, office, at }) {
   };
 }
 
-const outcomeJournals = new Map();
-const outcomeJournalOf = root => outcomeJournals.get(root) ?? outcomeJournals.set(root, outcomeJournal(root)).get(root);
+const outcomeJournalOf = root => outcomeJournal(root);
 
 /** Tell the already admitted independent judgment, including failure-report evidence, exactly once.
  * Admission and any inference-delivery resolution remain with the caller that owns the receipt. */

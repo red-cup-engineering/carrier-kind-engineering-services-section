@@ -1,0 +1,23 @@
+{
+  "status": "promoted",
+  "changedFiles": [
+    "victor/src/page.mjs"
+  ],
+  "inputs": {
+    "victor/src/page.mjs": "437f7d8cf020753b4e416ce1a37bea6103c3107314cfd3e3cff3818591d6b766",
+    "tufte/src/tufte-rendering.mjs": "ee957834feea0692736d02b015fee50e0989468489ca9538b0adbbcc963508bb",
+    "tufte/src/tufte-browser.mjs": "c097893be3dcb5318d79cbf1989d44343e5c714d1fd40c167a89f21faf78ee07"
+  },
+  "outputs": {
+    "victor/src/page.mjs": "1450a776310aaa7f32acea5e424b9465fba08bfca8a3c15e624ef8454d6f05f4",
+    "tufte/src/tufte-rendering.mjs": "ee957834feea0692736d02b015fee50e0989468489ca9538b0adbbcc963508bb"
+  },
+  "assessment": {
+    "baseline": false,
+    "buildExit": 0,
+    "browserExit": 0,
+    "output": "/tmp/muse-presentation-assessment-g8t3z8fj",
+    "durationSeconds": 5.715442343003815,
+    "assayManifestSha256": "965a7d46d2fd0c8e939e3077f44e44bcdcccb2336659995f495ae65a374042eb"
+  }
+}

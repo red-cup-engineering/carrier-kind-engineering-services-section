@@ -1,0 +1,37 @@
+{
+  "kind": "source-edit-coalescing-recovery",
+  "status": "bound-before-staging",
+  "originalCandidateSha256": "dd28a4a3111e403797d9357b0f661ca6f146915308358b209363bdcdfe07fdaf",
+  "originalGenerationOrderSha256": "32a6db7d6229aad0c59b2fa0a60a4b13472d9dca277ff2d7269d4f1b1011d6ef",
+  "recoveryOrderSha256": "224affce407a3dab27d5123572278795e5f4ad954ab1c26f357f029e939c0f9f",
+  "scriptSha256": "b0c4de0c3f97debca5689c90cd9b198afa1e5953b89778b0208fe0ac40eea11f",
+  "originalSourceSha256": "11d96dc15341e70a68cd9f6f6cd66b3cd74a62981f132789baa79be88dd0f261",
+  "afterSha256": [
+    "1fe39823e1524fc3a83fc41a90befa3260e4073a8a837acaad650d19c73d0e4c",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  ],
+  "selector": {
+    "originalBeforeSha256": [
+      "32db25cb75c00a505337179b45e47ac726c68fbc8d7e86ae19d0cac360a100c2",
+      "c578922adb2c550553bc35651e5f7129884624022e9f111dc0195d4fe975bce2"
+    ],
+    "replacementAfterSha256": [
+      "1fe39823e1524fc3a83fc41a90befa3260e4073a8a837acaad650d19c73d0e4c",
+      "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ],
+    "disjointOriginalSpans": [
+      [
+        86201,
+        86231
+      ],
+      [
+        88753,
+        88782
+      ]
+    ],
+    "operation": "coalesce duplicate edit records preserving ordered replacements"
+  },
+  "expectedOutputSha256": "fc4d490aea781f304e0b3b46c7ca9c40be0e9f459bc039ecda5d7e996ece0075",
+  "assayCommitmentSha256": "4b1b476965d1bc4d40d7ca3389103aa2a810c2653754accedada0aa7eaa64af5",
+  "privateReceivingRun": false
+}
