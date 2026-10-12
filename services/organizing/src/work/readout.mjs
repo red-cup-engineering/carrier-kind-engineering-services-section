@@ -20,8 +20,7 @@ import {
 import {
   juralClaimRowOf,
   workRoadmapOfObservations,
-  workItemDiamondsByScope,
-  workItemStatusOfScope,
+  workItemStatusesOfObservations,
 
 } from "./read-models.mjs";
 
@@ -62,12 +61,11 @@ function workParents(diamonds) {
   }).sort((left, right) => String(left.parent ?? "").localeCompare(String(right.parent ?? ""))));
 }
 
-function workRead(observations, roadmap) {
+function workRead(observations, roadmap, statuses) {
   const diamonds = diamondsByItem(observations);
-  const byScope = workItemDiamondsByScope(observations);
-  const scopes = Object.freeze([...byScope.keys()].sort((left, right) => left.localeCompare(right)).map((scope) => Object.freeze({
+  const scopes = Object.freeze([...statuses.keys()].sort((left, right) => left.localeCompare(right)).map((scope) => Object.freeze({
     scope,
-    status: workItemStatusOfScope(scope, byScope),
+    status: statuses.get(scope),
   })));
   return Object.freeze({
     observations: observations.length,
@@ -108,7 +106,7 @@ function carriedFieldsOf(obligation, node) {
 
 function dutyRead(
   duty,
-  byScope,
+  statuses,
   roadmapNodes,
   obligations,
   allocations,
@@ -127,7 +125,7 @@ function dutyRead(
     passive: duty.relation.passive,
     standing: duty.relation.standing,
     via: duty.via,
-    status: workItemStatusOfScope(duty.relation.scope, byScope),
+    status: statuses.get(duty.relation.scope) ?? "open",
     structural: roadmapNode?.structural ?? Object.freeze({ state: "blocked", blockers: Object.freeze(["scope-not-declared"]) }),
     coordination: roadmapNode?.coordination ?? Object.freeze({ state: "clear" }),
     conflicts: roadmapNode?.conflicts ?? Object.freeze([]),
@@ -158,7 +156,7 @@ function dutyRead(
 function agentRead(
   agent,
   claimRows,
-  byScope,
+  statuses,
   roadmapNodes,
   obligations,
   allocations,
@@ -177,7 +175,7 @@ function agentRead(
     const key = `${agencyWorkAllocationKey(duty.relation)}\u0000${duty.via}\u0000${duty.office ?? ""}`;
     currentDuties.set(key, duty);
   }
-  const duties = Object.freeze([...currentDuties.values()].map((duty) => dutyRead(duty, byScope, roadmapNodes, obligations, allocations, assignments, executions)));
+  const duties = Object.freeze([...currentDuties.values()].map((duty) => dutyRead(duty, statuses, roadmapNodes, obligations, allocations, assignments, executions)));
   return Object.freeze({
     agent,
     duties: duties.length,
@@ -267,7 +265,7 @@ export function agentWorkReadoutCollector() {
         voids.set(scope, result);
         return result;
       };
-      const byScope = workItemDiamondsByScope(observations);
+      const statuses = workItemStatusesOfObservations(observations);
       const roadmap = workRoadmapOfObservations(observations);
       const roadmapNodes = new Map(roadmap.nodes.map((node) => [node.scope, node]));
       const relations = juralRelationsOfClaimRows(claimRows);
@@ -275,7 +273,7 @@ export function agentWorkReadoutCollector() {
       const outcomeContainers = new Set(roadmap.nodes.flatMap((node) => node.parents));
       const allocatedScopes = new Set([...allocations.values()].map((allocation) => allocation.scope));
       const unallocated = options.agents === undefined ? Object.freeze([...obligations.values()]
-        .filter((obligation) => !allocatedScopes.has(obligation.item) && !voided(obligation.item) && workItemStatusOfScope(obligation.item, byScope) === "open")
+        .filter((obligation) => !allocatedScopes.has(obligation.item) && !voided(obligation.item) && statuses.get(obligation.item) === "open")
         // Undeclared parent outcomes compose their children; declared services
         // can still execute at any canonical scope, including a parent.
         .filter((obligation) => obligation.work !== undefined || obligation.skill !== undefined || !outcomeContainers.has(obligation.item))
@@ -303,9 +301,9 @@ export function agentWorkReadoutCollector() {
         subject: options.subject,
         date: options.date,
         feed: options.feed ?? "claim-session",
-        work: workRead(observations, roadmap),
+        work: workRead(observations, roadmap, statuses),
         unallocated,
-        agents: Object.freeze(agents.map((agent) => agentRead(agent, claimRows, byScope, roadmapNodes, obligations, allocations, assignments, executions, voided,
+        agents: Object.freeze(agents.map((agent) => agentRead(agent, claimRows, statuses, roadmapNodes, obligations, allocations, assignments, executions, voided,
           (relation) => succeeded.has(agencyWorkAllocationKey(relation))))),
         evidence: Object.freeze([
           `rows:${rows}`,
