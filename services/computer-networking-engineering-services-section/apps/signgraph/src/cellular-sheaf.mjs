@@ -115,6 +115,38 @@ export function cochain(sheaf, entries) {
   return out;
 }
 
+/**
+ * A completely observed numeric 0-cochain. The legacy `cochain` constructs
+ * an algebraic section with zeros at missing vertices; that is correct for a
+ * freely chosen cochain but unsafe for empirical measurements (no report is
+ * not an observed zero). This entrance therefore admits exactly one finite
+ * value per stalk coordinate of every vertex or refuses the observation.
+ *
+ * IDs use the same SignCell coincidence as cellularSheaf. A complete cochain
+ * is mathematical input, not a claim that the observed sources are independent,
+ * fresh, causally related, or economically predictive.
+ */
+export function completeCochain(sheaf, entries) {
+  if (sheaf?.kind !== "signgraph.cellularSheaf" || !Array.isArray(entries))
+    throw new TypeError("completeCochain: sheaf and observations required");
+  const positions = new Map(sheaf.vertices.map((vertex, index) => [coincidenceKey(vertex.id), index]));
+  const seen = new Set();
+  for (const entry of entries) {
+    if (!entry || !Object.hasOwn(entry, "vertex"))
+      throw new TypeError("completeCochain: observed vertex required");
+    const key = coincidenceKey(entry.vertex);
+    const index = positions.get(key);
+    if (index === undefined) throw new RangeError("completeCochain: unrecognized observed vertex");
+    if (seen.has(key)) throw new RangeError("completeCochain: duplicate observed vertex");
+    seen.add(key);
+    const vector = Array.isArray(entry.value) ? entry.value : [entry.value];
+    if (vector.length !== sheaf.vertices[index].dim || !vector.every((value) => typeof value === "number" && Number.isFinite(value)))
+      throw new TypeError("completeCochain: finite observed stalk coordinates required");
+  }
+  if (seen.size !== sheaf.vertices.length) throw new RangeError("completeCochain: unobserved vertices cannot be zero-filled");
+  return Object.freeze(cochain(sheaf, entries));
+}
+
 // — sparse matrices: rows of [column, value] pairs, columns ascending —
 
 const sparse = (rows, cols, entries) => Object.freeze({ kind: "signgraph.sparseMatrix", rows, cols, entries: Object.freeze(entries.map((row) => Object.freeze(row.map((pair) => Object.freeze(pair))))) });
