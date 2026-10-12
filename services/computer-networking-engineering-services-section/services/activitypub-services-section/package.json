@@ -13,8 +13,6 @@
     ".": "./src/provider.mjs",
     "./deliver": "./src/deliver.mjs",
     "./bounded-exchange": "./src/exchange.mjs",
-    "./sqlite-runtime": "./src/sqlite-runtime.mjs",
-    "./sqlite-custody": "./src/sqlite-custody.mjs",
     "./outbox-store": "./src/outbox-store.mjs",
     "./local-server": "./src/local-server.mjs",
     "./sen-activity": "./src/sen-activity.mjs",
@@ -32,8 +30,7 @@
     "./journal-custody": "./src/journal-custody.mjs",
     "./flatfile-runtime": "./src/flatfile-runtime.mjs",
     "./flatfile-kv": "./src/flatfile-kv.mjs",
-    "./flatfile-queue": "./src/flatfile-queue.mjs",
-    "./import-sql-custody": "./src/import-sql-custody.mjs"
+    "./flatfile-queue": "./src/flatfile-queue.mjs"
   },
   "bin": {
     "deliver-activitypub-activity": "./src/deliver.mjs",
@@ -46,7 +43,6 @@
   },
   "dependencies": {
     "@fedify/fedify": "2.3.1",
-    "@fedify/sqlite": "2.3.1",
     "@fedify/vocab": "2.3.1",
     "@red-cup-engineering/a2a-services-section": "workspace:*",
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",

@@ -3,9 +3,8 @@ import test from "node:test";
 import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { DatabaseSync } from "node:sqlite";
 import { createActivityPubOutboxStore } from "../src/outbox-store.mjs";
-import { createActivityPubSqliteCustody } from "../src/sqlite-custody.mjs";
+import { createActivityPubJournalCustody } from "../src/journal-custody.mjs";
 import { createLocalActivityPubProvider } from "../src/local-server.mjs";
 import { deliverActivity, importActorKeyPairs } from "../src/provider.mjs";
 import { generateActorKeyMaterial } from "../src/keys.mjs";
@@ -80,7 +79,7 @@ test("authored JSON imports in display order and is never rewritten by publicati
   }
 });
 
-async function fixtureNode(statePath, names, arrivals = []) {
+async function fixtureNode(stateDirectory, names, arrivals = []) {
   let local;
   const running = await serveActivityPubProvider({
     provider: { origin: "http://127.0.0.1", fetch: request => local.provider.fetch(request) },
@@ -89,7 +88,7 @@ async function fixtureNode(statePath, names, arrivals = []) {
   const origin = "http://127.0.0.1:" + running.server.address().port;
   try {
     local = await createLocalActivityPubProvider({
-      environment: {}, origin, statePath,
+      environment: {}, origin, stateDirectory,
       bearerToken: "fixture-token-".repeat(4), queue: false, allowPrivateAddress: true,
       actors: await Promise.all(names.map(async identifier => ({
         identifier, actorName: identifier, summary: "Protocol receiving fixture",
@@ -106,8 +105,8 @@ test("native consumers publish, page actor-isolated history, retrieve old object
   const arrivals = [];
   let source, receiver;
   try {
-    source = await fixtureNode(path.join(dir, "source.sqlite"), ["source", "other"]);
-    receiver = await fixtureNode(path.join(dir, "receiver.sqlite"), ["receiver"], arrivals);
+    source = await fixtureNode(path.join(dir, "source"), ["source", "other"]);
+    receiver = await fixtureNode(path.join(dir, "receiver"), ["receiver"], arrivals);
     const actor = source.origin + "/actors/source";
     const denied = await fetch(actor + "/outbox", { method: "POST", body: JSON.stringify(create(actor, 0)) });
     assert.equal(denied.status, 401);
@@ -151,9 +150,9 @@ test("native consumers publish, page actor-isolated history, retrieve old object
     assert.deepEqual(extractSenActivity({ ...arrivals[0].jsonLd, actor: arrivals[0].sender.actorId }, {
       expectedActor: actor, expectedRecipient: recipient, expectedAgentCard: source.origin + "/.well-known/agent-card.json",
     }).objectBytes, bytes);
-    const incoming = createActivityPubSqliteCustody({ database: receiver.runtime.database });
+    const incoming = createActivityPubJournalCustody({ stateDirectory: path.join(dir, "receiver") });
     assert.equal((await incoming.inbox.get(arrivals[0].settlement)).activity.id, activity.id);
-    const custody = createActivityPubSqliteCustody({ database: source.runtime.database });
+    const custody = createActivityPubJournalCustody({ stateDirectory: path.join(dir, "source") });
     assert.equal(custody.outbox.count({ actorId: actor }), 206);
     assert.equal((await json(actor + "/outbox")).totalItems, 205);
     assert.equal((await json(actor + "/outbox", source.bearerToken)).totalItems, 206);
@@ -161,9 +160,7 @@ test("native consumers publish, page actor-isolated history, retrieve old object
     assert.equal((await json(activity.id, source.bearerToken)).id, activity.id);
     assert.equal((await custody.outbox.get({ activityId: activity.id })).id.href, activity.id);
     await source.close(); source = undefined;
-    const database = new DatabaseSync(path.join(dir, "source.sqlite"));
-    try { assert.equal(createActivityPubSqliteCustody({ database }).outbox.count({ actorId: actor }), 206); }
-    finally { database.close(); }
+    assert.equal(createActivityPubJournalCustody({ stateDirectory: path.join(dir, "source") }).outbox.count({ actorId: actor }), 206);
   } finally {
     await source?.close(); await receiver?.close();
     await rm(dir, { recursive: true, force: true });

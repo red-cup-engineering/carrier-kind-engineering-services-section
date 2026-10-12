@@ -6,34 +6,25 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 
 import { assayX402Facilitator } from "../src/facilitator-assay.mjs";
 
 /** This package's own root, the semantic-record-journal custody root for facilitator assay receipts. */
 export const NODE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** The objectKind this section's semantic record journal uses for facilitator assay receipts. */
-export const FACILITATOR_ASSAY_OBJECT_KIND = "x402.facilitator-assay";
-
-/** The journal category facilitator assay receipts are written and queried under. */
-export const FACILITATOR_ASSAY_CATEGORY = "x402.facilitator-assay";
+/** The store type facilitator assay receipts are written under. */
+export const FACILITATOR_ASSAY_TYPE = "facilitator-assay";
 
 /**
  * Record one facilitator assay result into this section's semantic record journal.
  * @param {object} assayResult the object returned by {@link assayX402Facilitator}
  * @param {{dataRoot?: string, recordedAt?: string}} [options]
- * @returns {{id: string, objectKind: string, appended: number, appended: number, told: { for: boolean, against: boolean }}} the journal's record receipt
+ * @returns {{id: string}} the address of the recorded assay
  */
 export function recordFacilitatorAssay(assayResult, options = {}) {
   const dataRoot = resolve(options.dataRoot ?? NODE_ROOT);
-  const journal = createSemanticRecordJournal({ root: dataRoot, objectKind: FACILITATOR_ASSAY_OBJECT_KIND });
-  return journal.record({
-    category: FACILITATOR_ASSAY_CATEGORY,
-    recordedAt: options.recordedAt ?? new Date().toISOString(),
-    record: assayResult,
-    told: { for: assayResult.qualified === true, against: assayResult.qualified === false },
-  });
+  return { id: put(dataRoot, FACILITATOR_ASSAY_TYPE, { ...assayResult, at: options.recordedAt ?? new Date().toISOString() }) };
 }
 
 function arg(name, fallback) {

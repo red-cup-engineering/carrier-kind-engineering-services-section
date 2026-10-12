@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { runMain } from "@red-cup-engineering/javascript-file-services-section/javascript-file-main-guard";
 import { resolve } from "node:path";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { startFilesystemWitnessJournalProviderProcess } from "@red-cup-engineering/witness-journal-document-service/filesystem-provider";
 import { startMarket } from "../../../src/market/node.mjs";
 
@@ -27,7 +27,7 @@ export async function main(env = process.env) {
   const market = createMarket561Group(bound);
   const port = Number(env.PORT) || 4021;
   const server = await startMarket(market, { port, host: env.HOST ?? "0.0.0.0", trustProxy: 1, base: env.MARKET_ORIGIN ?? `https://${MARKET_NAME}` });
-  const journal = createSemanticRecordJournal({ root: resolve(dataRoot), objectKind: "market-561-group.deployment-event" });
+  const journalRoot = resolve(dataRoot);
   const rails = market.rails();
   const ready = {
     event: "market-561-group-ready",
@@ -38,12 +38,12 @@ export async function main(env = process.env) {
     offers: catalog().map((offer) => ({ gateway: offer.declaration.gateway, operation: offer.declaration.operation, route: offer.declaration.route, price: offer.declaration.price })),
     witnessJournalAgent: witnessJournal.agentCardUrl,
   };
-  journal.record({ category: "market-561-group.deployment.ready", recordedAt: new Date().toISOString(), record: ready, told: { for: true, against: false } });
+  put(journalRoot, "deployment-event", { ...ready, at: new Date().toISOString() });
   console.log(JSON.stringify(ready));
 
   async function stop(signal) {
     const stopping = { event: "market-561-group-stopping", signal };
-    journal.record({ category: "market-561-group.deployment.stopping", recordedAt: new Date().toISOString(), record: stopping, told: { for: true, against: false } });
+    put(journalRoot, "deployment-event", { ...stopping, at: new Date().toISOString() });
     console.log(JSON.stringify(stopping));
     await server.close();
     await witnessJournal.close();

@@ -1,11 +1,10 @@
 import { randomUUID } from "node:crypto";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { each, put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { parseOptions } from "@red-cup-engineering/hive-fleet-operations-service/hive-engine-exit-tightness";
 import { formHbdPaymentRequirement } from "../hbd/form-hbd-payment-requirement.mjs";
 import { sellHiveExitTightnessResource } from "./sell-hive-exit-tightness-resource.mjs";
 
-export const HIVE_EXIT_TIGHTNESS_SALE_OBJECT_KIND = "hive-exit-tightness-sale";
-export const HIVE_EXIT_TIGHTNESS_SALE_CATEGORY = "sale";
+export const HIVE_EXIT_TIGHTNESS_SALE_TYPE = "hive-exit-tightness-sale";
 
 function fail(message) {
   throw new TypeError(`hive-exit-tightness-sale-ledger: ${message}`);
@@ -18,8 +17,11 @@ function normalizeReportRequest(request) {
   return parseOptions(args);
 }
 
-function allRecords(journal) {
-  return journal.query({ category: HIVE_EXIT_TIGHTNESS_SALE_CATEGORY }).map((row) => row.record);
+function allRecords(root) {
+  return [...each(root, HIVE_EXIT_TIGHTNESS_SALE_TYPE)]
+    .map(({ address, record }) => ({ address, record }))
+    .sort((left, right) => String(left.record.at).localeCompare(String(right.record.at)) || left.address.localeCompare(right.address))
+    .map(({ record }) => record);
 }
 
 function snapshot(records, saleId) {
@@ -52,14 +54,8 @@ export function createHiveExitTightnessSaleLedger({
   if (typeof sellerAccount !== "string" || sellerAccount.length === 0) fail("sellerAccount is required");
   if (typeof makeReport !== "function") fail("makeReport is required");
   if (!Array.isArray(hiveNodes) || hiveNodes.length !== 2) fail("hiveNodes must contain two public Hive nodes");
-  const journal = createSemanticRecordJournal({ root: journalRoot, objectKind: HIVE_EXIT_TIGHTNESS_SALE_OBJECT_KIND });
   const deliveriesInFlight = new Map();
-  const record = (entry) => journal.record({
-    category: HIVE_EXIT_TIGHTNESS_SALE_CATEGORY,
-    recordedAt: now(),
-    record: entry,
-    told: { for: true, against: false },
-  });
+  const record = (entry) => put(journalRoot, HIVE_EXIT_TIGHTNESS_SALE_TYPE, { ...entry, at: now() });
 
   function quote(reportRequest) {
     const normalizedRequest = normalizeReportRequest(reportRequest);
@@ -86,7 +82,7 @@ export function createHiveExitTightnessSaleLedger({
 
   function read(saleId) {
     if (typeof saleId !== "string" || saleId.length === 0) fail("saleId is required");
-    const state = snapshot(allRecords(journal), saleId);
+    const state = snapshot(allRecords(journalRoot), saleId);
     if (!state.issued) return null;
     return {
       saleId,
@@ -116,7 +112,7 @@ export function createHiveExitTightnessSaleLedger({
       });
       if (response.status !== 200) return response;
       settlement = response.body.settlement;
-      const duplicate = allRecords(journal).find((entry) => entry.type === "HiveExitTightnessSaleSettled"
+      const duplicate = allRecords(journalRoot).find((entry) => entry.type === "HiveExitTightnessSaleSettled"
         && entry.settlement.witnessRecord.transaction === settlement.witnessRecord.transaction
         && entry.saleId !== saleId);
       if (duplicate) return { status: 409, body: { error: "payment-already-applied", saleId: duplicate.saleId } };

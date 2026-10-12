@@ -2,7 +2,7 @@ import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engi
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
 import { Activity } from "@fedify/vocab";
 import { semanticAddress } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { each, get, put, readHead, threadName, writeHead } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import path from "node:path";
 import { FlatfileKvStore } from "./flatfile-kv.mjs";
 import { extractSenActivity } from "./sen-activity.mjs";
@@ -24,19 +24,19 @@ const correlate=activity=>{
   };
 
 /**
- * ActivityPub custody as semantic records in one witness journal: every verified arrival, every
- * follow and its undoing, and every outgoing activity is a told record (held, or denied for an
- * undone follow) under its own category, content-addressed by the journal. Reads fold the journal;
- * nothing is updated in place. Fedify's disposable key-value cache is a flat-file store beside it.
- * This replaces the SQLite custody, which is now only read once, to admit what it held
- * (`import-sql-custody.mjs`).
+ * ActivityPub custody as records of the store at one root: every verified arrival (`activitypub-inbox`),
+ * every follow and its undoing (`activitypub-follower`, `following` false for an undone follow) and every
+ * outgoing activity (`activitypub-outbox`) is a record carrying the instant it was recorded. Reads fold the
+ * records in that order; nothing is updated in place. An arrival and an outgoing activity are also found by
+ * a head named by their key, so retaining one again reads one file. Fedify's disposable key-value cache is a
+ * flat-file store beside it.
  */
-const OBJECT_KIND = "activitypub.custody";
-const HELD = Object.freeze({ for: true, against: false });
-const DENIED = Object.freeze({ for: false, against: true });
+export const INBOX_TYPE = "activitypub-inbox";
+export const FOLLOWER_TYPE = "activitypub-follower";
+export const OUTBOX_TYPE = "activitypub-outbox";
 const PAGE = 100;
 
-/** Recording instants that strictly increase within the process, so journal order is append order. */
+/** Recording instants that strictly increase within the process, so record order is append order. */
 function instants() {
   let last = 0;
   return () => {
@@ -44,6 +44,22 @@ function instants() {
     last = now;
     return new Date(now).toISOString();
   };
+}
+
+/** Every record of a type in the order it was recorded. */
+const recordedIn = (root, type) => [...each(root, type)].map(({ record }) => record)
+  .sort((left, right) => (left.at < right.at ? -1 : left.at > right.at ? 1 : 0));
+
+/** Keep a record and the head that finds it by `name`; the first record kept under a name stays. */
+function keep(root, type, name, record) {
+  const address = put(root, type, record);
+  writeHead(root, type, threadName(semanticAddress({ type, name }).id), { frontier: [address] });
+}
+
+/** The record kept under `name`, or undefined. */
+function kept(root, type, name) {
+  const address = readHead(root, type, threadName(semanticAddress({ type, name }).id))?.frontier[0];
+  return address === undefined ? undefined : get(root, type, address);
 }
 
 const validReceipt = (receipt) => receipt !== null && typeof receipt === "object"
@@ -67,8 +83,8 @@ function pageOf(rows, { cursor, limit, invalid }) {
   return { items: rows.slice(start, end).reverse(), ...(start > 0 ? { nextCursor: String(start) } : {}) };
 }
 
-function inboxOf(journal, now) {
-  const arrivals = () => journal.query({ category: "inbox" }).map((row) => row.record);
+function inboxOf(root, now) {
+  const arrivals = () => recordedIn(root, INBOX_TYPE);
   const keyOf = (receipt) => sha256Hex(canonicalJson(receipt));
   return Object.freeze({
     async retain(arrival) {
@@ -77,12 +93,12 @@ function inboxOf(journal, now) {
       const activityJson = canonicalJson(activity);
       const receipt = Object.freeze({ type: "ActivityPubVerifiedArrivalReceipt", version: 1, bodySha256: sha256Hex(activityJson), recipient: arrival.recipient ?? null });
       const key = keyOf(receipt);
-      const held = arrivals().find((row) => row.key === key);
+      const held = kept(root, INBOX_TYPE, key);
       if (held !== undefined) {
         if (canonicalJson(held.activity) !== activityJson || canonicalJson(held.receipt) !== canonicalJson(receipt)) throw new Error("immutable ActivityPub custody record differs from the verified arrival");
         return receipt;
       }
-      journal.record({ category: "inbox", recordedAt: now(), told: HELD, record: { key, receipt, recipient: receipt.recipient, activity } });
+      keep(root, INBOX_TYPE, key, { key, receipt, recipient: receipt.recipient, activity, at: now() });
       return receipt;
     },
     async replyFor({ identifier, request, sender }) {
@@ -94,7 +110,7 @@ function inboxOf(journal, now) {
     },
     async get(receipt) {
       if (!validReceipt(receipt)) throw new TypeError("ActivityPub verified-arrival receipt is invalid");
-      const held = arrivals().find((row) => row.key === keyOf(receipt));
+      const held = kept(root, INBOX_TYPE, keyOf(receipt));
       if (held === undefined) return null;
       if (canonicalJson(held.receipt) !== canonicalJson(receipt) || sha256Hex(canonicalJson(held.activity)) !== receipt.bodySha256) throw new Error("immutable ActivityPub custody record does not match its receipt");
       return Object.freeze({ activity: held.activity, receipt });
@@ -107,14 +123,13 @@ function inboxOf(journal, now) {
   });
 }
 
-function followersOf(journal, now) {
+function followersOf(root, now) {
   /** The current followers of one identifier, in the order each first followed since it last stopped. */
   const current = (identifier) => {
     const following = new Map();
-    for (const row of journal.query({ category: "followers" })) {
-      const record = row.record;
+    for (const record of recordedIn(root, FOLLOWER_TYPE)) {
       if (record.identifier !== identifier) continue;
-      if (row.told.for && !row.told.against) {
+      if (record.following === true) {
         following.delete(record.actorId);
         following.set(record.actorId, { actorId: record.actorId, inboxId: record.inboxId, sharedInboxId: record.sharedInboxId ?? null });
       } else {
@@ -128,11 +143,11 @@ function followersOf(journal, now) {
       if (typeof identifier !== "string" || identifier === "") throw new TypeError("ActivityPub follower identifier is required");
       if (typeof actorId !== "string" || actorId === "") throw new TypeError("ActivityPub follower actorId is required");
       if (typeof inboxId !== "string" || inboxId === "") throw new TypeError("ActivityPub follower inboxId is required");
-      journal.record({ category: "followers", recordedAt: now(), told: HELD, record: { identifier, actorId, inboxId, sharedInboxId: sharedInboxId ?? null } });
+      put(root, FOLLOWER_TYPE, { identifier, actorId, inboxId, sharedInboxId: sharedInboxId ?? null, following: true, at: now() });
     },
     async remove({ identifier, actorId }) {
       if (!current(identifier).some((follower) => follower.actorId === actorId)) return;
-      journal.record({ category: "followers", recordedAt: now(), told: DENIED, record: { identifier, actorId } });
+      put(root, FOLLOWER_TYPE, { identifier, actorId, following: false, at: now() });
     },
     async count({ identifier }) { return current(identifier).length; },
     async list({ identifier, cursor, limit }) {
@@ -142,13 +157,14 @@ function followersOf(journal, now) {
   });
 }
 
-/** Outgoing activities, one immutable carrier per id, as held records of the journal at `root`. */
-export function createActivityPubJournalOutbox({ root, journal = createSemanticRecordJournal({ root, objectKind: OBJECT_KIND }), now = instants() } = {}) {
+/** Outgoing activities, one immutable carrier per id, as records of the store at `root`. */
+export function createActivityPubJournalOutbox({ root, now = instants() } = {}) {
   const outgoing = () => {
     const byId = new Map();
-    for (const row of journal.query({ category: "outbox" })) if (!byId.has(row.record.activityId)) byId.set(row.record.activityId, row.record);
+    for (const record of recordedIn(root, OUTBOX_TYPE)) if (!byId.has(record.activityId)) byId.set(record.activityId, record);
     return [...byId.values()];
   };
+  const keepOutgoing = (record) => keep(root, OUTBOX_TYPE, record.activityId, { ...record, at: now() });
   const select = ({ actorId, publicOnly = false } = {}) => outgoing().filter((row) => (actorId === undefined || row.actorId === actorId) && (!publicOnly || row.isPublic));
   const open = async (row) => {
     if (semanticAddress(row.activity).id !== row.contentNi) throw new Error("ActivityPub outgoing custody differs from its SignCell identity");
@@ -157,7 +173,7 @@ export function createActivityPubJournalOutbox({ root, journal = createSemanticR
   return Object.freeze({
     count: (selection) => select(selection).length,
     async get({ activityId, actorId, publicOnly = false }) {
-      const row = outgoing().find((item) => item.activityId === activityId);
+      const row = kept(root, OUTBOX_TYPE, activityId);
       return row === undefined || (publicOnly && !row.isPublic) || (actorId !== undefined && row.actorId !== actorId) ? null : open(row);
     },
     async listOutbox({ actorId, cursor, publicOnly = false } = {}) {
@@ -189,7 +205,7 @@ export function createActivityPubJournalOutbox({ root, journal = createSemanticR
       }
       if (outgoing().some(row => row.activityId === wire.id)) throw new TypeError("reusable request collides with another outgoing event");
       const identity = semanticAddress(wire);
-      journal.record({ category: "outbox", recordedAt: now(), told: HELD, record: { activityId: wire.id, actorId: actor, contentNi: identity.id, isPublic: false, requestNi, activity: JSON.parse(canonicalJson(wire)) } });
+      keepOutgoing({ activityId: wire.id, actorId: actor, contentNi: identity.id, isPublic: false, requestNi, activity: JSON.parse(canonicalJson(wire)) });
       return Object.freeze({ appended: true, contentNi: identity.id, held: Object.freeze(JSON.parse(canonicalJson(wire))) });
     },
     async append(wire) {
@@ -197,7 +213,7 @@ export function createActivityPubJournalOutbox({ root, journal = createSemanticR
       const activity = await Activity.fromJsonLd(wire);
       if (activity.id?.href !== wire.id || activity.actorIds.length !== 1) throw new TypeError("ActivityPub outgoing custody requires one durable activity and one actor");
       const identity = semanticAddress(wire);
-      const held = outgoing().find((row) => row.activityId === wire.id);
+      const held = kept(root, OUTBOX_TYPE, wire.id);
       if (held !== undefined) {
         if (held.contentNi === identity.id) return Object.freeze({ appended: false, contentNi: held.contentNi });
         throw new TypeError("ActivityPub outgoing activity id already names different immutable content");
@@ -207,25 +223,24 @@ export function createActivityPubJournalOutbox({ root, journal = createSemanticR
       // Unaddressed authored publications preserve their existing public role.
       // Addressed peer messages stay private unless explicitly addressed to Public.
       const isPublic = addressed.length === 0 || visibleRecipients.some((id) => id.href === "https://www.w3.org/ns/activitystreams#Public");
-      journal.record({ category: "outbox", recordedAt: now(), told: HELD, record: { activityId: wire.id, actorId: activity.actorIds[0].href, contentNi: identity.id, isPublic, activity: JSON.parse(canonicalJson(wire)) } });
+      keepOutgoing({ activityId: wire.id, actorId: activity.actorIds[0].href, contentNi: identity.id, isPublic, activity: JSON.parse(canonicalJson(wire)) });
       return Object.freeze({ appended: true, contentNi: identity.id });
     },
   });
 }
 
-/** The whole custody of one ActivityPub state directory: journal records and the flat-file KV. */
+/** The whole custody of one ActivityPub state directory: store records and the flat-file KV. */
 export function createActivityPubJournalCustody({ stateDirectory } = {}) {
   if (typeof stateDirectory !== "string" || stateDirectory === "") throw new TypeError("ActivityPub journal custody requires a state directory");
   const root = path.resolve(stateDirectory, "journal");
-  const journal = createSemanticRecordJournal({ root, objectKind: OBJECT_KIND });
   const now = instants();
-  const inbox = inboxOf(journal, now);
+  const inbox = inboxOf(root, now);
   return Object.freeze({
     kv: new FlatfileKvStore({ directory: path.resolve(stateDirectory, "kv") }),
     inbox,
     inboxIndex: inbox,
-    followers: followersOf(journal, now),
-    outbox: createActivityPubJournalOutbox({ root, journal, now }),
+    followers: followersOf(root, now),
+    outbox: createActivityPubJournalOutbox({ root, now }),
     root,
   });
 }

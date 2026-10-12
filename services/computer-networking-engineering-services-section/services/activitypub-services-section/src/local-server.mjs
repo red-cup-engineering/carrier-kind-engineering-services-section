@@ -3,7 +3,6 @@ import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createFlatfileActivityPubRuntime } from "./flatfile-runtime.mjs";
 import { createActivityPubJournalCustody } from "./journal-custody.mjs";
-import { admitSqlActivityPubCustody } from "./import-sql-custody.mjs";
 import { importActivityPubOutbox } from "./outbox-store.mjs";
 import { createActivityPubProvider, importActorKeyPairs } from "./provider.mjs";
 import { generateActorKeyMaterial } from "./keys.mjs";
@@ -21,7 +20,7 @@ function required(environment, name) {
  * module's own `authorizeInbox` binding below), so it must be stable across
  * an ordinary restart — an operator or script that captured it once needs it
  * to keep working. It is therefore persisted 0600 in the state directory
- * (`<dirname(ACTIVITYPUB_SQLITE_PATH)>/bearer-token`, or the exact path in
+ * (`<ACTIVITYPUB_STATE_DIR>/bearer-token`, or the exact path in
  * `ACTIVITYPUB_INBOX_BEARER_TOKEN_FILE` if that's set — the same file-shape
  * contract the activitypub-server application's `readBearerToken` reads for
  * the cloud path) and reused on the next boot unless rotation is requested. There is
@@ -30,11 +29,11 @@ function required(environment, name) {
  * that injects its own `runtime`); in that case the token stays in-memory
  * only, matching the previous ephemeral-per-boot behavior.
  */
-async function resolveBearerToken({ environment, statePath, rotate }) {
+async function resolveBearerToken({ environment, stateDirectory, rotate }) {
   const explicit = environment.ACTIVITYPUB_INBOX_BEARER_TOKEN_FILE;
   const tokenPath = typeof explicit === "string" && explicit.trim() !== ""
     ? path.resolve(explicit)
-    : (statePath === undefined ? undefined : path.resolve(path.dirname(statePath), "bearer-token"));
+    : (stateDirectory === undefined ? undefined : path.resolve(stateDirectory, "bearer-token"));
   if (tokenPath === undefined) return { bearerToken: randomBytes(32).toString("base64url"), bearerTokenPath: null };
   await mkdir(path.dirname(tokenPath), { recursive: true });
   if (!rotate) {
@@ -81,19 +80,17 @@ async function persistentActorKeyPairs(keyPath) {
 
 /**
  * Construct one embeddable local ActivityPub provider without opening a
- * network listener. The returned lifecycle owns the durable SQLite runtime
+ * network listener. The returned lifecycle owns the durable state-directory runtime
  * and persisted inbox token created for the provider.
  */
 export async function createLocalActivityPubProvider(options = {}) {
   const environment = options.environment ?? process.env;
-  const runtime = options.runtime ?? createFlatfileActivityPubRuntime({ environment, statePath: options.statePath, stateDirectory: options.stateDirectory });
+  const runtime = options.runtime ?? createFlatfileActivityPubRuntime({ environment, stateDirectory: options.stateDirectory });
   const custody = options.custody ?? createActivityPubJournalCustody({ stateDirectory: runtime.stateDirectory });
-  // Custody kept in SQLite before it moved to the journal is admitted once, read-only.
-  if (options.custody === undefined && runtime.statePath !== undefined) await admitSqlActivityPubCustody({ databasePath: runtime.statePath, custody, queue: runtime.queue });
   const rotate = options.rotateBearerToken === true || environment.ACTIVITYPUB_ROTATE_BEARER_TOKEN === "true";
   const resolvedToken = options.bearerToken !== undefined
     ? { bearerToken: options.bearerToken, bearerTokenPath: null }
-    : await resolveBearerToken({ environment, statePath: options.statePath ?? environment.ACTIVITYPUB_SQLITE_PATH ?? (runtime.stateDirectory === undefined ? undefined : path.join(runtime.stateDirectory, "state")), rotate });
+    : await resolveBearerToken({ environment, stateDirectory: runtime.stateDirectory, rotate });
   const bearerToken = resolvedToken.bearerToken;
   if (typeof bearerToken !== "string" || bearerToken.length < 32) throw new TypeError("ActivityPub inbox bearer token must contain at least 32 characters");
   const resolvedOutboxPath = options.outboxPath ?? environment.ACTIVITYPUB_OUTBOX_PATH;

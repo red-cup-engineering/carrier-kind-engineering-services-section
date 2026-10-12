@@ -1,10 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { Activity } from "@fedify/vocab";
-import { mkdir, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { mkdir } from "node:fs/promises";
 import { createActivityPubJournalOutbox } from "./journal-custody.mjs";
-import { readSqlActivityPubCustody } from "./import-sql-custody.mjs";
 
 /**
  * Read a static, read-once-at-boot ActivityPub outbox from one JSON file: a
@@ -52,25 +50,13 @@ export async function importActivityPubOutbox(outboxPath, outbox) {
 }
 
 /** Standalone disk binding of the same journal custody a local provider keeps.
- * Existing authored JSON remains an optional import source; an outbox kept in SQLite
- * before custody moved to the journal is admitted once, read-only. */
+ * Existing authored JSON remains an optional import source. */
 export async function createActivityPubOutboxStore({ outboxPath }) {
   if (typeof outboxPath !== "string" || outboxPath.trim() === "") throw new TypeError("ActivityPub outbox store requires an outboxPath");
   const resolved = path.resolve(outboxPath);
   const root = `${resolved}.journal`;
   await mkdir(root, { recursive: true });
   const outbox = createActivityPubJournalOutbox({ root });
-  const databasePath = `${resolved}.sqlite`;
-  if (existsSync(databasePath) && !existsSync(path.join(root, "sql-admission.json"))) {
-    const { outgoing, requests } = readSqlActivityPubCustody(databasePath);
-    const byId = new Map(requests.map(request => [request.activityId, request]));
-    for (const wire of outgoing) {
-      const request = byId.get(wire.id);
-      if (request === undefined) await outbox.append(wire);
-      else await outbox.retainRequest(wire, { expectedRequestNi: request.requestNi });
-    }
-    await writeFile(path.join(root, "sql-admission.json"), `${JSON.stringify({ type: "ActivityPubSqlOutboxAdmission", version: 1, from: databasePath, at: new Date().toISOString(), outgoing: outgoing.length }, null, 2)}\n`, { flag: "wx" });
-  }
   await importActivityPubOutbox(resolved, outbox);
   return Object.freeze({ ...outbox, path: resolved, root, close: () => {} });
 }
