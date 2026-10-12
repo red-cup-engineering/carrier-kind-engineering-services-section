@@ -2,6 +2,7 @@
   "name": "@red-cup-engineering/oauth-services-section",
   "version": "0.1.0",
   "type": "module",
+  "receivingTests": ["test/authorization-server.test.mjs","test/client-credentials.test.mjs","test/json-web-token.test.mjs","test/oauth-error.test.mjs"],
   "description": "The OAuth 2.0/2.1 section: the one authorization server (metadata, dynamic and URL-identified clients, S256 PKCE, resource-bound tokens, refresh rotation, client credentials, revocation, consent, and the IndieAuth profile), its client-credentials client, principal-admission judgment, JSON Web Tokens, and OAuthError; Google and IndieAuth are nested sections.",
   "exports": {
     ".": { "types": "./src/oauth-error.d.mts", "import": "./src/oauth-error.mjs" },
