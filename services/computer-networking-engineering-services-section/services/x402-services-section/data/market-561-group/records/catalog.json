@@ -404,12 +404,12 @@
       "house-seller-catalog"
     ],
     "compute": {
-      "package": "@lenticule-science/divination-services-section",
+      "package": "@lenticule-science/divination-computer-system-service",
       "subpath": "./services/divination-services-section/services/ephemeris-tracking-team/src/ephemeris-product.mjs",
       "export": "computeEphemeris"
     },
     "validate": {
-      "package": "@lenticule-science/divination-services-section",
+      "package": "@lenticule-science/divination-computer-system-service",
       "subpath": "./services/divination-services-section/services/ephemeris-tracking-team/src/ephemeris-product.mjs",
       "export": "normalizeInstant"
     }
@@ -582,7 +582,7 @@
       {
         "key": "default",
         "title": "Precision Moment",
-        "description": "Precision Moment: JPL DE440-backed astrology for one exact UTC instant and Earth location\u2014raw apparent positions, houses, Ascendant/MC, nodes, lots, sect, dignities, expanded aspects, and cross-engine measurement evidence.",
+        "description": "Precision Moment: JPL DE440-backed astrology for one exact UTC instant and Earth location—raw apparent positions, houses, Ascendant/MC, nodes, lots, sect, dignities, expanded aspects, and cross-engine measurement evidence.",
         "tags": [
           "ephemeris",
           "astrology",
@@ -599,7 +599,7 @@
       "house-seller-catalog"
     ],
     "compute": {
-      "package": "@lenticule-science/divination-services-section",
+      "package": "@lenticule-science/divination-computer-system-service",
       "subpath": "./services/divination-services-section/services/ephemeris-tracking-team/src/precision-moment.mjs",
       "export": "computePrecisionMoment",
       "args": [
@@ -608,7 +608,7 @@
       ]
     },
     "validate": {
-      "package": "@lenticule-science/divination-services-section",
+      "package": "@lenticule-science/divination-computer-system-service",
       "subpath": "./services/divination-services-section/services/ephemeris-tracking-team/src/precision-moment.mjs",
       "export": "normalizePrecisionRequest",
       "args": [
@@ -723,11 +723,11 @@
       "house-seller-catalog"
     ],
     "compute": {
-      "package": "@lenticule-science/astronomy-services-section",
+      "package": "@lenticule-science/astronomy-position-computation-service",
       "export": "computeAstronomyPositions"
     },
     "validate": {
-      "package": "@lenticule-science/astronomy-services-section",
+      "package": "@lenticule-science/astronomy-position-computation-service",
       "export": "normalizeInstant"
     }
   },
@@ -791,7 +791,7 @@
           {
             "body": "Sun",
             "lon_deg": 118.28082814466296,
-            "lat_deg": -9.54e-05,
+            "lat_deg": -0.0000954,
             "distance_au": 1.0160791606164674
           }
         ],
@@ -860,7 +860,7 @@
       "house-seller-catalog"
     ],
     "compute": {
-      "package": "@lenticule-science/astronomy-services-section",
+      "package": "@lenticule-science/astronomy-position-computation-service",
       "subpath": "./node",
       "export": "computePrecisionAstronomyPositions",
       "args": [
@@ -869,7 +869,7 @@
       ]
     },
     "validate": {
-      "package": "@lenticule-science/astronomy-services-section",
+      "package": "@lenticule-science/astronomy-position-computation-service",
       "subpath": "./node",
       "export": "normalizePrecisionAstronomyRequest",
       "args": [
@@ -2252,12 +2252,12 @@
       "house-seller-catalog"
     ],
     "compute": {
-      "package": "@red-cup-engineering/blockchain-trashpanda",
+      "package": "@red-cup-engineering/blockchain-trashpanda-services-section",
       "subpath": "./market-action-admission",
       "export": "evaluateMarketActionAdmission"
     },
     "validate": {
-      "package": "@red-cup-engineering/blockchain-trashpanda",
+      "package": "@red-cup-engineering/blockchain-trashpanda-services-section",
       "subpath": "./market-action-admission",
       "export": "normalizeMarketActionAdmissionRequest"
     }
@@ -2585,7 +2585,7 @@
       }
     ],
     "compute": {
-      "package": "@red-cup-engineering/brokerage-control-api-federation",
+      "package": "@red-cup-engineering/alpaca-services-section",
       "subpath": "./evidence-packet",
       "export": "formIssuerEvidencePacket",
       "args": [
@@ -2593,7 +2593,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/brokerage-control-api-federation",
+      "package": "@red-cup-engineering/alpaca-services-section",
       "subpath": "./evidence-packet",
       "export": "validateIssuerEvidenceRequest",
       "args": [
@@ -3291,7 +3291,7 @@
       "one live ActivityStreams contract call to the deployment-hired Divination sovereign enterprise (env DIVINATION_BASE_URL)"
     ],
     "compute": {
-      "package": "@lenticule-science/divination-services-section",
+      "package": "@lenticule-science/divination-computer-system-service",
       "subpath": "./contract-daily-reading",
       "export": "readDailyReading",
       "args": [
@@ -3300,7 +3300,7 @@
       ]
     },
     "validate": {
-      "package": "@lenticule-science/divination-services-section",
+      "package": "@lenticule-science/divination-computer-system-service",
       "subpath": "./contract-daily-reading",
       "export": "validateDailyReadingRequest",
       "args": [
@@ -7116,18 +7116,18 @@
         "memory": {
           "entries": [
             {
-              "source": "\u674e\u660e",
+              "source": "李明",
               "target": "Li Ming"
             },
             {
-              "source": "\u7f8e\u56fd",
+              "source": "美国",
               "target": "United States"
             }
           ]
         },
         "segments": [
           {
-            "source": "\u5c0a\u656c\u7684\u5ba2\u6237\uff1a",
+            "source": "尊敬的客户：",
             "target": "Dear Customer:",
             "targets": {
               "natural": "Dear Customer:"
@@ -7145,7 +7145,7 @@
             }
           },
           {
-            "source": "\u8d35\u516c\u53f8\u7684\u533b\u7597\u5668\u68b0\u6ce8\u518c\u5c06\u4e8e12\u670831\u65e5\u5230\u671f\uff0c\u8bf7\u5c3d\u5feb\u63d0\u4f9b\u5e74\u5ea6\u66f4\u65b0\u6240\u9700\u7684\u8d44\u6599\uff0c\u4ee5\u514d\u5f71\u54cd\u4ea7\u54c1\u5728\u7f8e\u56fd\u7684\u6b63\u5e38\u9500\u552e\u3002",
+            "source": "贵公司的医疗器械注册将于12月31日到期，请尽快提供年度更新所需的资料，以免影响产品在美国的正常销售。",
             "target": "Your company's medical device registration expires on December 31. Please provide the materials required for the annual update as soon as possible to avoid affecting the normal sales of your products in the United States.",
             "targets": {
               "natural": "Your company's medical device registration expires on December 31. Please provide the materials required for the annual update as soon as possible to avoid affecting the normal sales of your products in the United States."
@@ -7179,7 +7179,7 @@
     "operation": "mandarin-english",
     "route": "/v1/translate/zh-en",
     "bodyExample": {
-      "text": "\u5c0a\u656c\u7684\u5ba2\u6237\uff1a\n\n\u8d35\u516c\u53f8\u7684\u533b\u7597\u5668\u68b0\u6ce8\u518c\u5c06\u4e8e12\u670831\u65e5\u5230\u671f\uff0c\u8bf7\u5c3d\u5feb\u63d0\u4f9b\u5e74\u5ea6\u66f4\u65b0\u6240\u9700\u7684\u8d44\u6599\uff0c\u4ee5\u514d\u5f71\u54cd\u4ea7\u54c1\u5728\u7f8e\u56fd\u7684\u6b63\u5e38\u9500\u552e\u3002"
+      "text": "尊敬的客户：\n\n贵公司的医疗器械注册将于12月31日到期，请尽快提供年度更新所需的资料，以免影响产品在美国的正常销售。"
     },
     "bodySchema": {
       "properties": {
@@ -7394,7 +7394,7 @@
             "id": "1",
             "start": 800,
             "end": 2200,
-            "source": "\u987e\u603b\u88c1\uff0c\u60a8\u7684\u5496\u5561\u3002",
+            "source": "顾总裁，您的咖啡。",
             "target": "Mr. Gu, your coffee.",
             "issues": []
           }
@@ -7406,7 +7406,7 @@
         "seriesTerms": [
           {
             "direction": "zh-en",
-            "source": "\u987e\u603b\u88c1",
+            "source": "顾总裁",
             "target": "Mr. Gu"
           }
         ],
@@ -7429,12 +7429,12 @@
     "operation": "cdrama-episode-zh-en",
     "route": "/v1/translate/zh-en/cdrama-subtitles",
     "bodyExample": {
-      "subtitles": "1\n00:00:00,800 --> 00:00:02,200\n\u987e\u603b\u88c1\uff0c\u60a8\u7684\u5496\u5561\u3002\n",
+      "subtitles": "1\n00:00:00,800 --> 00:00:02,200\n顾总裁，您的咖啡。\n",
       "episodeId": "episode-1",
       "approvedTerms": [
         {
           "direction": "zh-en",
-          "source": "\u987e\u603b\u88c1",
+          "source": "顾总裁",
           "target": "Mr. Gu"
         }
       ]
@@ -7631,14 +7631,14 @@
         "seriesRevision": 0,
         "status": "draft",
         "reviewRequired": true,
-        "translation": "1\n00:00:00,800 --> 00:00:02,200\n\u987e\u5148\u751f\uff0c\u60a8\u7684\u5496\u5561\u3002\n",
+        "translation": "1\n00:00:00,800 --> 00:00:02,200\n顾先生，您的咖啡。\n",
         "cues": [
           {
             "index": 0,
             "id": "1",
             "start": 800,
             "end": 2200,
-            "source": "\u987e\u603b\u88c1\uff0c\u60a8\u7684\u5496\u5561\u3002",
+            "source": "顾总裁，您的咖啡。",
             "target": "Mr. Gu, your coffee.",
             "issues": []
           }
@@ -7650,7 +7650,7 @@
         "seriesTerms": [
           {
             "direction": "zh-en",
-            "source": "\u987e\u603b\u88c1",
+            "source": "顾总裁",
             "target": "Mr. Gu"
           }
         ],
@@ -7679,7 +7679,7 @@
         {
           "direction": "en-zh",
           "source": "Mr. Gu",
-          "target": "\u987e\u603b\u88c1"
+          "target": "顾总裁"
         }
       ]
     },
@@ -7881,7 +7881,7 @@
             "id": "1",
             "start": 800,
             "end": 2200,
-            "source": "\u987e\u603b\u88c1\uff0c\u60a8\u7684\u5496\u5561\u3002",
+            "source": "顾总裁，您的咖啡。",
             "target": "Mr. Gu, your coffee.",
             "issues": []
           }
@@ -7893,7 +7893,7 @@
         "seriesTerms": [
           {
             "direction": "zh-en",
-            "source": "\u987e\u603b\u88c1",
+            "source": "顾总裁",
             "target": "Mr. Gu"
           }
         ],
@@ -7913,7 +7913,7 @@
             "terms": [
               {
                 "direction": "zh-en",
-                "source": "\u987e\u603b\u88c1",
+                "source": "顾总裁",
                 "target": "Mr. Gu"
               }
             ],
@@ -7948,7 +7948,7 @@
       "terms": [
         {
           "direction": "zh-en",
-          "source": "\u987e\u603b\u88c1",
+          "source": "顾总裁",
           "target": "Mr. Gu"
         }
       ],
@@ -8157,7 +8157,7 @@
             "id": "1",
             "start": 800,
             "end": 2200,
-            "source": "\u987e\u603b\u88c1\uff0c\u60a8\u7684\u5496\u5561\u3002",
+            "source": "顾总裁，您的咖啡。",
             "target": "Mr. Gu, your coffee.",
             "issues": []
           }
@@ -8169,7 +8169,7 @@
         "seriesTerms": [
           {
             "direction": "zh-en",
-            "source": "\u987e\u603b\u88c1",
+            "source": "顾总裁",
             "target": "Mr. Gu"
           }
         ],
@@ -8189,7 +8189,7 @@
             "terms": [
               {
                 "direction": "zh-en",
-                "source": "\u987e\u603b\u88c1",
+                "source": "顾总裁",
                 "target": "Mr. Gu"
               }
             ],
@@ -8274,7 +8274,7 @@
     "price": "$0.01",
     "category": "translation",
     "bodyExample": {
-      "text": "\u5c11\u7237\uff0c\u8001\u592b\u4eba\u8ba9\u60a8\u56de\u5bb6\u5403\u996d\u3002",
+      "text": "少爷，老夫人让您回家吃饭。",
       "module": "cdrama-subtitles",
       "levels": [
         "hanzi",
@@ -8377,41 +8377,41 @@
         ],
         "segments": [
           {
-            "source": "\u5c11\u7237\uff0c\u8001\u592b\u4eba\u8ba9\u60a8\u56de\u5bb6\u5403\u996d\u3002",
+            "source": "少爷，老夫人让您回家吃饭。",
             "words": [
               {
-                "hanzi": "\u5c11\u7237",
-                "pinyin": "sh\u00e0oye",
+                "hanzi": "少爷",
+                "pinyin": "shàoye",
                 "gloss": "Young Master",
                 "source": "glossary"
               },
               {
-                "hanzi": "\u8001\u592b\u4eba",
-                "pinyin": "l\u01ceof\u016br\u00e9n",
+                "hanzi": "老夫人",
+                "pinyin": "lǎofūrén",
                 "gloss": "Madam (the family matriarch)",
                 "source": "glossary"
               },
               {
-                "hanzi": "\u8ba9",
-                "pinyin": "r\u00e0ng",
+                "hanzi": "让",
+                "pinyin": "ràng",
                 "gloss": "to yield",
                 "source": "lexicon"
               },
               {
-                "hanzi": "\u60a8",
-                "pinyin": "n\u00edn",
+                "hanzi": "您",
+                "pinyin": "nín",
                 "gloss": "you",
                 "source": "lexicon"
               },
               {
-                "hanzi": "\u56de\u5bb6",
-                "pinyin": "hu\u00edji\u0101",
+                "hanzi": "回家",
+                "pinyin": "huíjiā",
                 "gloss": "to return home",
                 "source": "lexicon"
               },
               {
-                "hanzi": "\u5403\u996d",
-                "pinyin": "ch\u012bf\u00e0n",
+                "hanzi": "吃饭",
+                "pinyin": "chīfàn",
                 "gloss": "to have a meal",
                 "source": "lexicon"
               }
@@ -8421,7 +8421,7 @@
             }
           }
         ],
-        "text": "\u5c11\u7237 \u8001\u592b\u4eba \u8ba9 \u60a8 \u56de\u5bb6 \u5403\u996d\nsh\u00e0oye l\u01ceof\u016br\u00e9n r\u00e0ng n\u00edn hu\u00edji\u0101 ch\u012bf\u00e0n\nYoung Master | Madam (the family matriarch) | to yield | you | to return home | to have a meal\nnatural: Young Master, Madam is asking you to come home for dinner.",
+        "text": "少爷 老夫人 让 您 回家 吃饭\nshàoye lǎofūrén ràng nín huíjiā chīfàn\nYoung Master | Madam (the family matriarch) | to yield | you | to return home | to have a meal\nnatural: Young Master, Madam is asking you to come home for dinner.",
         "translations": {
           "natural": "Young Master, Madam is asking you to come home for dinner."
         },
@@ -8771,7 +8771,7 @@
     "runtime": "edge",
     "bodyExample": {
       "references": [
-        "S\u00e9n\u00e9chal, M., & Young, L. (2008). The effect of family literacy interventions on children's acquisition of reading. Review of Educational Research, 78(4), 880\u2013907. doi:10.3102/0034654308320319",
+        "Sénéchal, M., & Young, L. (2008). The effect of family literacy interventions on children's acquisition of reading. Review of Educational Research, 78(4), 880–907. doi:10.3102/0034654308320319",
         "Davis, E. (2019). The Library as Liberation. Journal of Imaginary Studies 12(3).",
         {
           "type": "book",
@@ -10994,7 +10994,7 @@
           ],
           [
             "name",
-            "Phez\u030ci Ocha\u0301\u01e7e"
+            "Pheži Ocháǧe"
           ],
           [
             "blank",
@@ -11552,7 +11552,7 @@
       "bounded standards operation on the existing Worker, without model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-field-transformations",
       "export": "validateField",
       "args": [
@@ -11560,7 +11560,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-field-transformations",
       "export": "validateField",
       "args": [
@@ -12242,7 +12242,7 @@
               "type": "item",
               "value": {
                 "type": "displayString",
-                "value": "caf\u00e9"
+                "value": "café"
               }
             }
           ],
@@ -12296,7 +12296,7 @@
       "bounded standards operation on the existing Worker, without model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-field-transformations",
       "export": "fieldToJson",
       "args": [
@@ -12304,7 +12304,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-field-transformations",
       "export": "fieldToJson",
       "args": [
@@ -12371,7 +12371,7 @@
             "type": "item",
             "value": {
               "type": "displayString",
-              "value": "caf\u00e9"
+              "value": "café"
             }
           }
         ],
@@ -12467,7 +12467,7 @@
       "bounded standards operation on the existing Worker, without model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-field-transformations",
       "export": "jsonToField",
       "args": [
@@ -12475,7 +12475,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-field-transformations",
       "export": "jsonToField",
       "args": [
@@ -12958,7 +12958,7 @@
       "bounded native byte transformation on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./compression",
       "export": "compressContent",
       "args": [
@@ -12966,7 +12966,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./compression",
       "export": "compressContent",
       "args": [
@@ -13142,7 +13142,7 @@
       "bounded native byte transformation on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./compression",
       "export": "decompressContent",
       "args": [
@@ -13150,7 +13150,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./compression",
       "export": "decompressContent",
       "args": [
@@ -13566,7 +13566,7 @@
     "category": "data",
     "runtime": "edge",
     "bodyExample": {
-      "text": "Phe\u017e\u00ed Och\u00e1\u01e7e \ud83d\udef6"
+      "text": "Pheží Ocháǧe 🛶"
     },
     "bodySchema": {
       "type": "object",
@@ -13649,7 +13649,7 @@
       "native scalar-text/byte conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./text-codecs",
       "export": "encodeUtf8Text",
       "args": [
@@ -13657,7 +13657,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./text-codecs",
       "export": "encodeUtf8Text",
       "args": [
@@ -13746,7 +13746,7 @@
         }
       },
       "example": {
-        "text": "Phe\u017e\u00ed Och\u00e1\u01e7e \ud83d\udef6",
+        "text": "Pheží Ocháǧe 🛶",
         "byteLength": 21
       }
     },
@@ -13776,7 +13776,7 @@
       "native scalar-text/byte conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./text-codecs",
       "export": "decodeUtf8Text",
       "args": [
@@ -13784,7 +13784,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./text-codecs",
       "export": "decodeUtf8Text",
       "args": [
@@ -13820,7 +13820,7 @@
     "category": "data",
     "runtime": "edge",
     "bodyExample": {
-      "text": "Cafe\u0301",
+      "text": "Café",
       "form": "NFC"
     },
     "bodySchema": {
@@ -13886,7 +13886,7 @@
         }
       },
       "example": {
-        "text": "Caf\u00e9",
+        "text": "Café",
         "form": "NFC",
         "changed": true,
         "inputBytes": 6,
@@ -13919,7 +13919,7 @@
       "native scalar-text/byte conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./text-codecs",
       "export": "normalizeUnicodeText",
       "args": [
@@ -13927,7 +13927,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./text-codecs",
       "export": "normalizeUnicodeText",
       "args": [
@@ -14060,7 +14060,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase16Content",
       "args": [
@@ -14068,7 +14068,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase16Content",
       "args": [
@@ -14202,7 +14202,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase16Content",
       "args": [
@@ -14210,7 +14210,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase16Content",
       "args": [
@@ -14342,7 +14342,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase32Content",
       "args": [
@@ -14350,7 +14350,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase32Content",
       "args": [
@@ -14484,7 +14484,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase32Content",
       "args": [
@@ -14492,7 +14492,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase32Content",
       "args": [
@@ -14624,7 +14624,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase58Content",
       "args": [
@@ -14632,7 +14632,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase58Content",
       "args": [
@@ -14766,7 +14766,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase58Content",
       "args": [
@@ -14774,7 +14774,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase58Content",
       "args": [
@@ -14906,7 +14906,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase64urlContent",
       "args": [
@@ -14914,7 +14914,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "encodeBase64urlContent",
       "args": [
@@ -15048,7 +15048,7 @@
       "bounded native byte/alphabet conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase64urlContent",
       "args": [
@@ -15056,7 +15056,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./binary-text",
       "export": "decodeBase64urlContent",
       "args": [
@@ -15201,7 +15201,7 @@
       "bounded native header conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./mime-type",
       "export": "parseMimeType",
       "args": [
@@ -15209,7 +15209,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./mime-type",
       "export": "parseMimeType",
       "args": [
@@ -15396,7 +15396,7 @@
       "bounded native header conversion on the existing Worker; no model or upstream API"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./mime-type",
       "export": "serializeMimeType",
       "args": [
@@ -15404,7 +15404,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./mime-type",
       "export": "serializeMimeType",
       "args": [
@@ -15448,7 +15448,7 @@
           "a/b"
         ],
         "query": {
-          "q": "caf\u00e9",
+          "q": "café",
           "tag": "rfc 6570"
         },
         "limit": 10,
@@ -16857,7 +16857,7 @@
         "b": [
           true,
           null,
-          "caf\u00e9"
+          "café"
         ]
       }
     },
@@ -17618,7 +17618,7 @@
         "children": [
           {
             "kind": "element",
-            "name": "\u732b",
+            "name": "猫",
             "attributes": {
               "value": "a\tb\nc\rd"
             },
@@ -17734,7 +17734,7 @@
         "additionalProperties": false
       },
       "example": {
-        "xml": "<\u732b value=\"a&#9;b&#10;c&#13;d\">x&#13;y &amp; z<![CDATA[<literal>]]></\u732b>",
+        "xml": "<猫 value=\"a&#9;b&#10;c&#13;d\">x&#13;y &amp; z<![CDATA[<literal>]]></猫>",
         "byteLength": 74
       }
     },
@@ -18128,7 +18128,7 @@
         }
       },
       "example": {
-        "text": "\u2233 \u00acit; \u20ac \ufffd",
+        "text": "∳ ¬it; € �",
         "byteLength": 17,
         "context": "text"
       }
@@ -18203,7 +18203,7 @@
     "runtime": "edge",
     "requestMaxBytes": 1048576,
     "bodyExample": {
-      "text": "a\rb <\u732b> & emoji \ud83d\ude00"
+      "text": "a\rb <猫> & emoji 😀"
     },
     "bodySchema": {
       "type": "object",
@@ -18311,7 +18311,7 @@
     "runtime": "edge",
     "requestMaxBytes": 1048576,
     "bodyExample": {
-      "html": "<!doctype html><p>A &amp; B<svg><text>\u732b</text></svg><template><b>inert</b></template>"
+      "html": "<!doctype html><p>A &amp; B<svg><text>猫</text></svg><template><b>inert</b></template>"
     },
     "bodySchema": {
       "type": "object",
@@ -18435,7 +18435,7 @@
                               "children": [
                                 {
                                   "kind": "text",
-                                  "value": "\u732b",
+                                  "value": "猫",
                                   "source": {
                                     "start": 38,
                                     "end": 39
@@ -19682,7 +19682,7 @@
       {
         "key": "default",
         "title": "RFC 9110 HTTP-date to UTC JSON",
-        "description": "Parse the three RFC 9110 HTTP-date formats and normalize to IMF-fixdate plus exact UTC fields. Strict ASCII case/spacing/GMT. Obsolete two-digit years require referenceUnixMilliseconds and use the rolling 50-year rule. Years1900\u20139999; validates calendar and weekday. Leap-second notation is retained with unixMilliseconds:null, without certifying historical insertion. No ambient clock/model/upstream. Bounded request/output below4096 UTF-8 bytes.",
+        "description": "Parse the three RFC 9110 HTTP-date formats and normalize to IMF-fixdate plus exact UTC fields. Strict ASCII case/spacing/GMT. Obsolete two-digit years require referenceUnixMilliseconds and use the rolling 50-year rule. Years1900–9999; validates calendar and weekday. Leap-second notation is retained with unixMilliseconds:null, without certifying historical insertion. No ambient clock/model/upstream. Bounded request/output below4096 UTF-8 bytes.",
         "tags": [
           "http",
           "http-date",
@@ -19704,7 +19704,7 @@
       "one bounded pure conversion on the existing edge worker, no upstream API or model"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-date-transformations",
       "export": "httpDateToJson",
       "args": [
@@ -19712,7 +19712,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-date-transformations",
       "export": "httpDateToJson",
       "args": [
@@ -19903,7 +19903,7 @@
       {
         "key": "default",
         "title": "UTC JSON Fields to RFC 9110 HTTP-date",
-        "description": "Format explicit UTC year/month/day/hour/minute/second fields as RFC 9110 IMF-fixdate, computing the correct weekday. Preserve :60 at23:59; reject impossible calendar values instead of rolling them forward. Years1900\u20139999; validates calendar and weekday. Leap-second notation is retained with unixMilliseconds:null, without certifying historical insertion. No ambient clock/model/upstream. Bounded request/output below4096 UTF-8 bytes.",
+        "description": "Format explicit UTC year/month/day/hour/minute/second fields as RFC 9110 IMF-fixdate, computing the correct weekday. Preserve :60 at23:59; reject impossible calendar values instead of rolling them forward. Years1900–9999; validates calendar and weekday. Leap-second notation is retained with unixMilliseconds:null, without certifying historical insertion. No ambient clock/model/upstream. Bounded request/output below4096 UTF-8 bytes.",
         "tags": [
           "http",
           "http-date",
@@ -19925,7 +19925,7 @@
       "one bounded pure conversion on the existing edge worker, no upstream API or model"
     ],
     "compute": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-date-transformations",
       "export": "jsonToHttpDate",
       "args": [
@@ -19933,7 +19933,7 @@
       ]
     },
     "validate": {
-      "package": "@red-cup-engineering/computer-data-serialization-services-section",
+      "package": "@red-cup-engineering/computer-serialized-content-engineering-services-section",
       "subpath": "./http-date-transformations",
       "export": "jsonToHttpDate",
       "args": [

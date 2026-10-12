@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/x402-services-section",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "private": false,
   "type": "module",
   "description": "Independently hireable x402 v2 HTTP payment boundary and optional currency-obligation evidence adapter using the official x402 implementation.",
@@ -143,7 +143,9 @@
     "@red-cup-engineering/jsonl-services-section": "workspace:*",
     "@red-cup-engineering/toml-services-section": "workspace:*",
     "@red-cup-engineering/yaml-frontmatter-codec-service": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/multiformats-services-section": "workspace:*",
+    "@red-cup-engineering/html-structural-projection-service": "workspace:*"
   },
   "engines": {
     "node": ">=22.18"
