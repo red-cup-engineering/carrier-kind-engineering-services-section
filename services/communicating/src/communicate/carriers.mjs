@@ -1,5 +1,5 @@
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { memeCarrier } from "@red-cup-engineering/relating";
+import { memeCarrier } from "@red-cup-engineering/relating/carriers";
 
 const memeSlot = {
   $ref: memeCarrier.id,
