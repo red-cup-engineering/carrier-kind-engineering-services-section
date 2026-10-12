@@ -4,7 +4,7 @@
  * or ordering do not hold. Event identity is the semantic content identity of the
  * event body carried as a relational witness-journal document.
  */
-import { semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticBytes, semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { relationalWitnessJournalDocument } from "@red-cup-engineering/witness-journal-document-service";
 import inputSchema from "../../content/schemas/work/fabrication-run-observation-input.schema.json" with { type: "json" };
 import outputSchema from "../../content/schemas/work/fabrication-run-observation-output.schema.json" with { type: "json" };

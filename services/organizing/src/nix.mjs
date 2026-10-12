@@ -9,7 +9,7 @@
  * transitive settled dependency set witnessed as ledger rows.
  */
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { semanticHex } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticHex } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { tmCarrier } from "@red-cup-engineering/relating";
 import { evaluate } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/eval";
 

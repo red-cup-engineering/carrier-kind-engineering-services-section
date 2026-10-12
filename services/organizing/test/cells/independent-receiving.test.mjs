@@ -6,7 +6,7 @@ import {
   deniesReceiving,
   independentReceivingReceipt,
 } from "../../src/cells/receiving.mjs";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
 /** The receiving needs only the producer's receipt id, outcome, executed resource and completion time. */
 function execution(ok = true, request = "request:1") {

@@ -11,7 +11,7 @@
  */
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
-import { semanticHex } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticHex } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
 import { canonicalJson as canonical } from "@red-cup-engineering/json-services-section/canonical-json";
 import { cell } from "@red-cup-engineering/eavt-services-section/ledger/cells";

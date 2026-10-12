@@ -31,7 +31,7 @@
  * (group-operations `work-arena-law-findings`), never a reason to stop.
  * @packageDocumentation
  */
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
 export const WORK_ARENA_LAW = "work-arena";
 /** The agency record whose head names the adopted edition: `<group section>/lib/agency/policies/work-arena-law.json`. */

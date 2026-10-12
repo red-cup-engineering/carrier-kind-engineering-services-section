@@ -5,7 +5,7 @@
  * are kept separately from their derived standing so callers cannot directly
  * supply "held" as an effect-gate fact.
  */
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 function nonempty(value, label) {

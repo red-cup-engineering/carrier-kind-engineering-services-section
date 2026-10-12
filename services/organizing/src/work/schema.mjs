@@ -6,7 +6,7 @@ import { gitSourceClosureSchema, gitSourceResultSchema } from "@red-cup-engineer
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { validateJsonSchemaDocument } from "@red-cup-engineering/json-schema-services-section/validation";
 import { canonicalJson, canonicalizeJson, JSON_RESOURCE_ENVELOPE, parseJsonValue, requireJsonValue, isJsonRecord, jsonValuesOfText } from "@red-cup-engineering/json-services-section";
-import { canonicalCarrier, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { canonicalCarrier, semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { JURAL_KINDS } from "@red-cup-engineering/socializing/jural";
 import { admitJavascriptNodeCommandExecutionRequest } from "@red-cup-engineering/javascript-node-services-section/admit-javascript-node-command-execution-request";
 
