@@ -97,6 +97,7 @@
   "sideEffects": false,
   "dependencies": {
     "@red-cup-engineering/computer-code-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-text-content-engineering-services-section": "0.1.0",

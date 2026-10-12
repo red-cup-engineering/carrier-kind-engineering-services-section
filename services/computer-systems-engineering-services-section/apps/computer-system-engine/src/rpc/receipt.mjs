@@ -1,6 +1,6 @@
 /** Typed authorization decisions and execution receipts. */
 import { addressArtifact } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { requireJsonValue } from "@red-cup-engineering/json-services-section";
 
 /**

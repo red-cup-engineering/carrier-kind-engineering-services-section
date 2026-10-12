@@ -7,7 +7,7 @@
 import { NI_URI_PATTERN as NI } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { canonicalEqual } from "@red-cup-engineering/cbor-services-section";
 import { decodeRelationalValue, encodeRelationalValue, RELATIONAL_VALUE_TYPE, relationalValueId } from "./relational-value.mjs";
-import { bytesCompare, semanticId, utf8Bytes } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { bytesCompare, semanticId, utf8Bytes } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { FOUR, four, isKnowledgeCover, joinKnowledgeWire, knowledgeLeqWire, validateFour, witnessBit } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { decodeSemantic, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 
 import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { encodeCanonical } from "@red-cup-engineering/cbor-services-section";

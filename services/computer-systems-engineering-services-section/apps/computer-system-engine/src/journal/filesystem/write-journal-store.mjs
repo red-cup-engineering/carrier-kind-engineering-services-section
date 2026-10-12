@@ -23,6 +23,7 @@
  * laws are computed against or written through.
  */
 import path from "node:path";
+import { lstatSync, realpathSync, statSync } from "node:fs";
 import { createVerifiedContentReader } from "@red-cup-engineering/immutable-content-custody-service";
 import { verifyArtifact } from "@red-cup-engineering/semiotic-eavt-services-section/identity";
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
@@ -58,16 +59,18 @@ import {
 
 } from "@red-cup-engineering/semiotic-eavt-services-section/journal/substrate";
 import { validateAddressedWitnessCore } from "@red-cup-engineering/semiotic-eavt-services-section/journal/witness";
-import { artifactStoreRoot, journalDirectoryOf, receivedSearchRoot } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
+import { artifactStoreRoot, journalDirectoryOf, journalIndexDirectory, receivedSearchRoot } from "@red-cup-engineering/semiotic-eavt-services-section/journal/store-root";
 import {
   dataArtifactHandlePath,
   dataStoreFromLogPath,
-  dataTierDirectory,
+  dataArtifactAddress,
+  dataArtifactOfPath,
   feedArtifactPath,
   logRecordArtifactPath,
   projectDataArtifactPath,
 
 } from "@red-cup-engineering/eavt-services-section/data-artifact-address";
+import { dataKinds } from "@red-cup-engineering/eavt-services-section/data-artifact-listing";
 import { closeStateAccum, foldStateAccumRow, initialStateAccum } from "@red-cup-engineering/eavt-services-section/ledger/state-fold";
 import {
   journalAppendAddress,
@@ -651,51 +654,16 @@ export function projectLegacyLog(logPath, seat) {
 
 function directorySignature(dirPath) {
   const stat = statPathOrNull(dirPath);
-  return stat === null ? "absent" : `${stat.mtimeMs}:${stat.size}`;
+  return stat === null ? "absent" : `${stat.mtimeMs}:${stat.ctimeMs}:${stat.size}`;
 }
 
-/** A cheap structural signature over every dated log directory under one
- * settlement root: three bounded `readdir` passes (years, months, days),
- * never a walk of the files inside them. Changes exactly when a new dated
- * log directory or a new feed directly under one appears. This is the one
- * effect `territory-cache.mjs`'s pure read-through law is computed against;
- * `journal.mjs` supplies it on `source.territorySignature` at every call. */
+/** Discovery depends on the kind directories and their date-bearing entries.
+ * File content verification remains the admitted store reader's responsibility. */
 export function territoryStructuralSignature(root) {
   const logsRoot = journalDirectoryOf(root);
   if (!pathExists(logsRoot)) return "absent";
-  const parts = [];
-  let years;
-  try {
-    years = readDirectoryEntries(logsRoot);
-  } catch {
-    return "absent";
-  }
-  for (const year of years) {
-    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
-    const yearDir = path.join(logsRoot, year.name);
-    let months;
-    try {
-      months = readDirectoryEntries(yearDir);
-    } catch {
-      continue;
-    }
-    for (const month of months) {
-      if (!month.isDirectory()) continue;
-      const monthDir = path.join(yearDir, month.name);
-      let days;
-      try {
-        days = readDirectoryEntries(monthDir);
-      } catch {
-        continue;
-      }
-      for (const day of days) {
-        if (!day.isDirectory()) continue;
-        const dayDir = path.join(monthDir, day.name);
-        parts.push(`${year.name}-${month.name}-${day.name}:${directorySignature(dayDir)}`);
-      }
-    }
-  }
-  return parts.sort().join("|");
+  return [directorySignature(logsRoot), ...dataKinds(root, "log")
+    .map(({ directory }) => `${directory}:${directorySignature(directory)}`)].join("|");
 }
 
 // ── compaction: carrying a root from the one-file-per-fact layout into segments ──
@@ -734,9 +702,16 @@ export function compactJournalStore(dataRoot, { remove = false } = {}) {
 
 // ── heads: small mutable causal-head indexes ──
 
+function headIndexBinding(root) {
+  // Resolve first: the provider's missing-store fallback must not hide a dangling link.
+  const storeRoot = physicalDirectory(journalDirectoryOf(root));
+  return Object.freeze({ indexDirectory: journalIndexDirectory(storeRoot) });
+}
+
 export function readJournalHead(root, at, namespace, key) {
+  const file = headPath(headIndexBinding(root), at, namespace, key);
   try {
-    const value = parse(readFileUtf8(headPath(root, at, namespace, key)));
+    const value = parse(readFileUtf8(file));
     return value !== null && typeof value === "object" && !Array.isArray(value)
       ? value
       : undefined;
@@ -746,7 +721,7 @@ export function readJournalHead(root, at, namespace, key) {
 }
 
 export function writeJournalHead(root, at, namespace, key, value) {
-  writeFileAtomic(headPath(root, at, namespace, key), `${JSON.stringify(value)}\n`);
+  writeFileAtomic(headPath(headIndexBinding(root), at, namespace, key), `${JSON.stringify(value)}\n`);
 }
 
 // ── index: the journal's derived artifact tiers (projections, packets, state, records) ──
@@ -824,40 +799,42 @@ export function scanSourceFilesInternal(
  * rows' own structure answers, not the filename they happened to land in.
  */
 export function listDailyFeedsInternal(dataRoot, date) {
-  const directory = dataTierDirectory(dataRoot, "log", date);
-  if (!pathExists(directory)) return Object.freeze([]);
-  try {
-    return listDailyFeedsAtDirectory(directory, date);
-  } catch {
-    return Object.freeze([]);
-  }
+  const feeds = dataKinds(dataRoot, "log")
+    .flatMap(({ directory }) => listDailyFeedsAtDirectory(directory, date));
+  return Object.freeze([...new Set(feeds)].sort((left, right) => left.localeCompare(right)));
+}
+
+function canonicalDailyFeed(logPath, date) {
+  const coordinate = dataArtifactOfPath(logPath);
+  return coordinate?.tier === "log" && coordinate.act === "admit" && (date === undefined || coordinate.date === date)
+    && dataArtifactAddress({ root: coordinate.root, tier: "log", encoding: "jsonl", at: coordinate.date,
+      subject: coordinate.subject, action: coordinate.token }).path === logPath;
 }
 
 function listDailyFeedsAtDirectory(directory, date) {
-  const admitPrefix = `${date}-admit-`;
   const feeds = new Set();
   for (const entry of readDirectoryEntries(directory)) {
-    if (entry.isFile() && entry.name.startsWith(admitPrefix) && entry.name.endsWith(".jsonl")) {
-      feeds.add(path.join(directory, entry.name));
-    } else if (entry.isFile() && entry.name.startsWith(admitPrefix) && entry.name.endsWith(`.jsonl${SEGMENT_SUFFIX}`)) {
-      feeds.add(path.join(directory, entry.name.slice(0, -SEGMENT_SUFFIX.length)));
-    } else if (entry.isDirectory() && entry.name.startsWith(admitPrefix) && entry.name.endsWith(".jsonl.statements")) {
-      feeds.add(path.join(directory, entry.name.slice(0, -".statements".length)));
-    }
+    let name;
+    if (entry.isFile() && entry.name.endsWith(".jsonl")) name = entry.name;
+    else if (entry.isFile() && entry.name.endsWith(`.jsonl${SEGMENT_SUFFIX}`)) name = entry.name.slice(0, -SEGMENT_SUFFIX.length);
+    else if (entry.isDirectory() && entry.name.endsWith(".jsonl.statements")) name = entry.name.slice(0, -".statements".length);
+    if (name !== undefined && canonicalDailyFeed(path.join(directory, name), date)) feeds.add(path.join(directory, name));
   }
-  return Object.freeze([...feeds].sort((left, right) => left.localeCompare(right)));
+  return [...feeds];
 }
 
+/** A date exists when it has source feeds or dated legacy identity sidecars,
+ * not merely because a now-retired date directory exists. */
 export function journalDateStatus(dataRoot, date) {
-  const directory = dataTierDirectory(dataRoot, "log", date);
-  if (!pathExists(directory)) return Object.freeze({ exists: false, legacyIdentitySidecars: 0 });
-  try {
-    const legacyIdentitySidecars = readDirectoryEntries(directory)
-      .filter((entry) => entry.isFile() && entry.name.endsWith(".identities")).length;
-    return Object.freeze({ exists: true, legacyIdentitySidecars });
-  } catch {
-    return Object.freeze({ exists: false, legacyIdentitySidecars: 0 });
+  let feeds = 0;
+  let legacyIdentitySidecars = 0;
+  for (const { directory } of dataKinds(dataRoot, "log")) {
+    feeds += listDailyFeedsAtDirectory(directory, date).length;
+    legacyIdentitySidecars += readDirectoryEntries(directory).filter((entry) => entry.isFile()
+      && entry.name.endsWith(".identities")
+      && canonicalDailyFeed(path.join(directory, entry.name.slice(0, -".identities".length)), date)).length;
   }
+  return Object.freeze({ exists: feeds > 0 || legacyIdentitySidecars > 0, legacyIdentitySidecars });
 }
 
 export function discoverJournalRoots(root, maxDepth = 7) {
@@ -893,27 +870,10 @@ export function enclosingJournalRoot(targetPath, fallback) {
 }
 
 export function journalAdmissionSpan(dataRoot) {
-  const logsDir = journalDirectoryOf(dataRoot);
-  if (!pathExists(logsDir)) return Object.freeze({ first: null, last: null, feeds: 0 });
-  let first = null;
-  let last = null;
-  let feeds = 0;
-  for (const year of readDirectoryEntries(logsDir)) {
-    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
-    for (const month of readDirectoryEntries(path.join(logsDir, year.name))) {
-      if (!month.isDirectory()) continue;
-      for (const day of readDirectoryEntries(path.join(logsDir, year.name, month.name))) {
-        if (!day.isDirectory()) continue;
-        const date = `${year.name}-${month.name}-${day.name}`;
-        const count = listDailyFeedsInternal(dataRoot, date).length;
-        if (count === 0) continue;
-        feeds += count;
-        if (first === null || date < first) first = date;
-        if (last === null || date > last) last = date;
-      }
-    }
-  }
-  return Object.freeze({ first, last, feeds });
+  const logs = [...new Set([...territoryLogPathsInternal(dataRoot),
+    ...dataKinds(dataRoot, "log").flatMap(({ directory }) => listDailyFeedsAtDirectory(directory))].map((log) => path.resolve(log)))];
+  const dates = logs.map((log) => dataArtifactOfPath(log).date).sort();
+  return Object.freeze({ first: dates[0] ?? null, last: dates.at(-1) ?? null, feeds: logs.length });
 }
 
 /** Fold every recorded EAVT row for one date across every admitted log file
@@ -952,89 +912,46 @@ export function readDailyAdmitRows(dataRoot, date) {
 /** The dated feeds a root's admitted index says witnesses went into, through an inclusive frontier.
  *  Readers enumerate these beside the root's directories, so a feed whose segment is gone is still
  *  read, and its read fails closed, instead of silently dropping out of the reading. */
-function admittedLogPathsThrough(logsRoot, throughDate, subjectSuffix) {
+function admittedLogPathsThrough(logsRoot, throughDate, subject) {
   const logPaths = [];
-  const prefix = path.resolve(logsRoot) + path.sep;
-  for (const logPath of segmentAdmittedLogs(logsRoot)) {
-    if (subjectSuffix !== undefined && !logPath.endsWith(subjectSuffix)) continue;
-    const relative = logPath.startsWith(prefix) ? logPath.slice(prefix.length) : path.relative(logsRoot, logPath);
-    const [year, month, day, name] = relative.split(path.sep);
-    const date = `${year}-${month}-${day}`;
-    if (!/^\d{4}-\d{2}-\d{2}$/u.test(date) || !name?.startsWith(`${date}-admit-`) || !name.endsWith(".jsonl")) continue;
-    if (subjectSuffix !== undefined && name !== date + subjectSuffix) continue;
-    if (throughDate === undefined || date <= throughDate) logPaths.push(logPath);
+  for (const logPath of segmentAdmittedLogs(logsRoot, subject === undefined ? {} : { kind: subject })) {
+    const coordinate = dataArtifactOfPath(logPath);
+    if (!canonicalDailyFeed(logPath) || artifactStoreRoot(logPath) !== path.resolve(logsRoot)) continue;
+    if (subject !== undefined && coordinate.subject !== subject) continue;
+    if (throughDate === undefined || coordinate.date <= throughDate) logPaths.push(logPath);
   }
   return logPaths;
 }
 
-/**
- * Whether a root still holds the earlier one-file-per-fact layout (its v1 causal-admission index),
- * whose feeds its admission index does not record. A root carried into segments
- * (`compactJournalStore`) has every feed in its admission index, which is then the one authority
- * on what feeds the root holds: its date directories are not walked.
- */
+/** Earlier one-file-per-fact stores still need representation discovery beside
+ * the genuine admission ledger. Never replace ledger-selected feeds with only
+ * currently present source files: a missing segment must fail when read. */
 const holdsEarlierLayout = (logsRoot) => legacyStore(path.join(logsRoot, "compaction.jsonl"));
 
-/**
- * @param dataRoot Settlement root.
- * @returns Every log path recorded anywhere in the territory.
- */
 export function territoryLogPathsInternal(dataRoot, throughDate) {
   const logsRoot = journalDirectoryOf(dataRoot);
   if (!pathExists(logsRoot)) return Object.freeze([]);
   const logPaths = new Set(admittedLogPathsThrough(logsRoot, throughDate));
-  if (!holdsEarlierLayout(logsRoot)) return Object.freeze([...logPaths].sort((left, right) => left.localeCompare(right)));
-  for (const year of readDirectoryEntries(logsRoot)) {
-    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
-    const yearDirectory = path.join(logsRoot, year.name);
-    for (const month of readDirectoryEntries(yearDirectory)) {
-      if (!month.isDirectory() || !/^(0[1-9]|1[0-2])$/u.test(month.name)) continue;
-      const monthDirectory = path.join(yearDirectory, month.name);
-      for (const day of readDirectoryEntries(monthDirectory)) {
-        if (!day.isDirectory() || !/^(0[1-9]|[12]\d|3[01])$/u.test(day.name)) continue;
-        const date = `${year.name}-${month.name}-${day.name}`;
-        if (throughDate !== undefined && date > throughDate) continue;
-        for (const logPath of listDailyFeedsAtDirectory(path.join(monthDirectory, day.name), date)) logPaths.add(logPath);
+  if (holdsEarlierLayout(logsRoot)) {
+    for (const { directory } of dataKinds(dataRoot, "log")) {
+      for (const logPath of listDailyFeedsAtDirectory(directory)) {
+        if (throughDate === undefined || dataArtifactOfPath(logPath).date <= throughDate) logPaths.add(path.resolve(logPath));
       }
     }
   }
   return Object.freeze([...logPaths].sort((left, right) => left.localeCompare(right)));
 }
 
-/**
- * Locate one subject's feeds without first enumerating every feed in the
- * territory. A subject's address is deterministic for each calendar
- * partition: its feeds are the admission index's feeds bearing that address.
- * Only a root still holding the earlier layout walks its date tree and tests
- * the address in each partition.
- */
-export function subjectLogPathsInternal(
-  dataRoot,
-  subject,
-  throughDate,
-) {
+/** Normalize the subject once and read only its canonical kind directory and
+ * ledger. Unrelated feed contents and nested artifact directories are not probed. */
+export function subjectLogPathsInternal(dataRoot, subject, throughDate) {
   const logsRoot = journalDirectoryOf(dataRoot);
   if (!pathExists(logsRoot)) return Object.freeze([]);
-  // The canonical filename varies only by its date prefix. Resolve the subject
-  // once, before looking at admission metadata; never probe every unrelated
-  // feed's filesystem address during an exact-subject read.
-  const sampleDate = "2000-01-01";
-  const suffix = path.basename(journalAppendAddress(dataRoot, subject, sampleDate, { subject }).path).slice(sampleDate.length);
-  const paths = new Set(admittedLogPathsThrough(logsRoot, throughDate, suffix));
-  if (!holdsEarlierLayout(logsRoot)) return Object.freeze([...paths].sort((left, right) => left.localeCompare(right)));
-  for (const year of readDirectoryEntries(logsRoot)) {
-    if (!year.isDirectory() || !/^\d{4}$/u.test(year.name)) continue;
-    const yearDirectory = path.join(logsRoot, year.name);
-    for (const month of readDirectoryEntries(yearDirectory)) {
-      if (!month.isDirectory() || !/^(0[1-9]|1[0-2])$/u.test(month.name)) continue;
-      const monthDirectory = path.join(yearDirectory, month.name);
-      for (const day of readDirectoryEntries(monthDirectory)) {
-        if (!day.isDirectory() || !/^(0[1-9]|[12]\d|3[01])$/u.test(day.name)) continue;
-        const date = `${year.name}-${month.name}-${day.name}`;
-        if (date > throughDate) continue;
-        const addressed = journalAppendAddress(dataRoot, subject, date, { subject });
-        if (pathExists(`${addressed.path}${SEGMENT_SUFFIX}`) || pathExists(`${addressed.path}.statements`) || pathExists(addressed.path)) paths.add(addressed.path);
-      }
+  const coordinate = journalAppendAddress(dataRoot, subject, "2000-01-01", { subject });
+  const paths = new Set(admittedLogPathsThrough(logsRoot, throughDate, coordinate.subject));
+  if (holdsEarlierLayout(logsRoot) && pathExists(coordinate.directory)) {
+    for (const logPath of listDailyFeedsAtDirectory(coordinate.directory)) {
+      if (throughDate === undefined || dataArtifactOfPath(logPath).date <= throughDate) paths.add(path.resolve(logPath));
     }
   }
   return Object.freeze([...paths].sort((left, right) => left.localeCompare(right)));
@@ -1284,29 +1201,106 @@ export function projectDomainRecordInternal(
   }), context);
 }
 
-/** Write one immutable packet (create-exclusive, idempotent by content) and
- *  return its coordinates. The one packet-write primitive: arrival and hook
- *  admission import this rather than carrying their own copies of the
- *  directory layout and EEXIST tolerance. `bytes` counts the content, not the
- *  trailing newline the file carries. */
-export function writePacketText(logDir, text) {
-  const sha256 = sha256Hex(text);
-  const packetPath = packetArtifactPath(logDir, sha256);
-  try {
-    writeFileAtomicNew(packetPath, `${text}\n`);
-  } catch (error) {
-    if (!alreadyExists(error)) throw error;
+/** Resolve a selected directory, allowing a not-yet-created ordinary store but
+ * refusing dangling links and non-directories. This does not create anything. */
+function physicalDirectory(directory) {
+  const absolute = path.resolve(directory);
+  try { lstatSync(absolute); }
+  catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    const parent = path.dirname(absolute);
+    if (parent === absolute) throw error;
+    return path.join(physicalDirectory(parent), path.basename(absolute));
   }
-  return Object.freeze({
-    sha256,
-    bytes: Buffer.byteLength(text, "utf8"),
-    path: packetPath,
-    relativePath: packetReferencePath(logDir, packetPath),
-  });
+  const physical = realpathSync.native(absolute); // includes dangling-link refusal
+  if (!statSync(physical).isDirectory()) throw new TypeError(`journal store is not a directory: ${directory}`);
+  return physical;
 }
 
-function packetReference(logDir, text) {
-  const packet = writePacketText(logDir, text);
+/** The selected store link is legitimate; links beneath it are not packet
+ * custody. Check existing ancestors and the leaf before any packet-byte read
+ * or write. The caller controls the local filesystem during this operation. */
+function requirePacketCustody(anchor, file) {
+  const relative = path.relative(anchor, file);
+  if (!relative || relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new TypeError("journal packet lies outside its selected store");
+  }
+  let current = anchor;
+  for (const part of relative.split(path.sep)) {
+    current = path.join(current, part);
+    let entry;
+    try { entry = lstatSync(current); }
+    catch (error) { if (error.code === "ENOENT") return; throw error; }
+    if (entry.isSymbolicLink()) throw new TypeError("journal packet custody contains a symbolic link");
+  }
+}
+
+function packetCoordinates(logPath, digest) {
+  const log = path.resolve(logPath);
+  const store = artifactStoreRoot(log);
+  const physicalStore = physicalDirectory(store);
+  const shared = packetArtifactPath(physicalStore, digest);
+  const relativePath = packetReferencePath(path.dirname(log), packetArtifactPath(store, digest));
+  // Standalone feeds sit beside their hidden store. Settled feeds sit within it.
+  const localAnchor = path.dirname(store) === path.dirname(log) ? physicalDirectory(path.dirname(log)) : physicalStore;
+  const local = path.join(localAnchor, path.relative(path.dirname(store) === path.dirname(log) ? path.dirname(log) : store,
+    path.dirname(log)), "packets", "sha256", `${digest}.json`);
+  requirePacketCustody(physicalStore, shared);
+  requirePacketCustody(localAnchor, local);
+  return { shared, local, relativePath };
+}
+
+/** Write exact input text plus one LF; identity and bytes commit to input text
+ * alone. The actual feed handle supplies the unchanged feed-relative carrier. */
+export function writePacketText(logPath, text) {
+  const sha256 = sha256Hex(text);
+  const { shared: packetPath, local, relativePath } = packetCoordinates(logPath, sha256);
+  const expected = Buffer.from(`${text}\n`, "utf8");
+  for (const file of new Set([packetPath, local])) {
+    try {
+      if (!readFileBuffer(file).equals(expected)) throw new Error("journal packet destination conflicts with addressed bytes");
+    } catch (error) { if (error.code !== "ENOENT") throw error; }
+  }
+  try {
+    writeFileAtomicNew(packetPath, expected);
+  } catch (error) {
+    if (!alreadyExists(error)) throw error;
+    if (!readFileBuffer(packetPath).equals(expected)) throw new Error("journal packet destination conflicts with addressed bytes");
+  }
+  return Object.freeze({ sha256, bytes: Buffer.byteLength(text, "utf8"), path: packetPath, relativePath });
+}
+
+/** Read only the exact current feed-relative target or the unchanged historical
+ * packets/sha256 reference. Verify raw text-plus-one-LF, never reserialize JSON. */
+export function readPacketText(logPath, relativePath, options = {}) {
+  if (typeof relativePath !== "string") throw new TypeError("journal packet requires a relative path");
+  const digest = /(?:^|\/)([0-9a-f]{64})\.json$/u.exec(relativePath)?.[1];
+  if (digest === undefined) throw new TypeError("journal packet reference has no canonical digest");
+  const { shared, local, relativePath: current } = packetCoordinates(logPath, digest);
+  if (relativePath !== current && relativePath !== `packets/sha256/${digest}.json`) {
+    throw new TypeError("journal packet reference is not an addressed target of this feed");
+  }
+  const present = [];
+  for (const file of [...new Set([shared, local])]) {
+    try { present.push({ file, bytes: readFileBuffer(file) }); }
+    catch (error) { if (error.code !== "ENOENT") throw error; }
+  }
+  if (present.length === 0) throw Object.assign(new Error("journal packet is absent"), { code: "ENOENT" });
+  const { file, bytes } = present[0];
+  if (present.some((entry) => !entry.bytes.equals(bytes))) throw new Error("journal packet copies conflict");
+  if (bytes.at(-1) !== 10 || sha256Hex(bytes.subarray(0, -1)) !== digest) {
+    throw new Error("journal packet bytes do not match their digest");
+  }
+  const text = bytes.toString("utf8");
+  if (!Buffer.from(text, "utf8").equals(bytes)) throw new Error("journal packet is not valid UTF-8");
+  if (options.readFileUtf8 !== undefined && options.readFileUtf8(file) !== text) {
+    throw new Error("journal packet reader changed the verified bytes");
+  }
+  return text.slice(0, -1);
+}
+
+function packetReference(logPath, text) {
+  const packet = writePacketText(logPath, text);
   return Object.freeze({
     kind: "metroplat.witness-packet-reference",
     mediaType: "application/json",
@@ -1317,22 +1311,22 @@ function packetReference(logDir, text) {
   });
 }
 
-function packetizeValue(logDir, value, inlineLimitBytes) {
+function packetizeValue(logPath, value, inlineLimitBytes) {
   const text = canonicalJson(value);
-  return Buffer.byteLength(text, "utf8") <= inlineLimitBytes ? value : packetReference(logDir, text);
+  return Buffer.byteLength(text, "utf8") <= inlineLimitBytes ? value : packetReference(logPath, text);
 }
 
 /** Bound one admitted row by replacing an oversized value with a durable packet
  *  reference. If the row is still too large after that, packet the whole row
  *  and admit an obstruction that points at the packet instead of erasing the
  *  original material. */
-function packetizeOversizedRow(logDir, row) {
+function packetizeOversizedRow(logPath, row) {
   const { e, a, v, t } = eavtRecord(row);
-  const valuePacketized = toEavt({ e, a, v: packetizeValue(logDir, v, STATEMENT_ROW_MAX_BYTES), t });
+  const valuePacketized = toEavt({ e, a, v: packetizeValue(logPath, v, STATEMENT_ROW_MAX_BYTES), t });
   const rowText = canonicalJson(valuePacketized);
   if (Buffer.byteLength(rowText, "utf8") <= STATEMENT_ROW_MAX_BYTES) return valuePacketized;
   const [entity, attribute, , time] = row;
-  const originalPacket = packetReference(logDir, canonicalJson(row));
+  const originalPacket = packetReference(logPath, canonicalJson(row));
   return toEavt({
     e: entity,
     a: attribute,
@@ -1352,7 +1346,7 @@ function packetizeOversizedRow(logDir, row) {
  * content-addressed statement. The feed JSONL path is only the logical handle
  * callers use to name the statement set; no live write publishes a feed file.
  * Over-threshold values are written as immutable content-addressed packet files
- * under `packets/sha256/`, and statement payloads carry packet references
+ * under the shared store packet directory, and statement payloads carry packet references
  * instead of dropping the original material.
  */
 function writeIndexRows(
@@ -1370,7 +1364,7 @@ function writeIndexRows(
       "journal append result",
     );
   }
-  const admitted = rows.map((row) => packetizeOversizedRow(store.logDir, row));
+  const admitted = rows.map((row) => packetizeOversizedRow(logPath, row));
   const writes = writeRows(logPath, admitted, options.caller === undefined ? feed : options.caller, {
     ...(options.eventClaim === undefined ? {} : { claim: options.eventClaim }),
     ...(options.eventCauses === undefined ? {} : { causes: options.eventCauses }),
