@@ -36,6 +36,7 @@ import { enterpriseOperationRuntime } from "./enterprise-runtime.mjs";
 import { EnterpriseExecutionWorker } from "./enterprise-execution.mjs";
 import { linkLiveModules } from "./probe-link.mjs";
 import { startNativeActorService, nativeActorReadiness } from "./native-actor-service.mjs";
+import { signedGetAs } from "./held-delivery.mjs";
 
 export function metroplatEnvironment(config) {
   return {
@@ -265,8 +266,39 @@ export function createEnterpriseServicePlatform({
   const grantStoreProfile = services.oauthGrantStoreProfile ?? environment.OAUTH_GRANT_STORE_PROFILE;
   let platform;
   let runtime;
+  const nativeProvider = () => {
+    const actor = platform.capabilities()["native-actor"];
+    if (actor?.state() !== "running") throw new TypeError("native replication requires the running instance actor");
+    return actor.activityPub.provider;
+  };
+  const selectedPeer = peer => {
+    if (!workPeersOf(config).includes(peer)) throw new TypeError("native replication port names no declared work peer");
+    return peer;
+  };
   const executionWorker = new EnterpriseExecutionWorker({ hostPath: installed.web.hostPath, environment,
-    openWork: (opening) => runtime.openWork(opening) });
+    openWork: (opening) => runtime.openWork(opening),
+    replication: {
+      deliver: async request => {
+        selectedPeer(request.recipient);
+        if (request.identifier !== config.activityPub?.instanceActor?.identifier
+          || request.inbox !== `${request.recipient.replace(/\/$/u, "")}/inbox`) throw new TypeError("native replication delivery differs from its instance actor or peer inbox");
+        await deliverActivity(nativeProvider(), request);
+      },
+      "signed-get": async value => {
+        const url = new URL(value);
+        const peer = workPeersOf(config).find(peer => `${peer.replace(/\/$/u, "")}/outbox` === `${url.origin}${url.pathname}`);
+        selectedPeer(peer);
+        const identifier = config.activityPub?.instanceActor?.identifier;
+        if (url.searchParams.get("held-for") !== new URL(`/actors/${encodeURIComponent(identifier)}`, config.publicBaseUrl).href
+          || [...url.searchParams.keys()].some(key => key !== "held-for" && key !== "after")) throw new TypeError("native replication pull differs from its addressed held-delivery collection");
+        return signedGetAs(nativeProvider(), identifier)(url.href);
+      },
+      "admit-held": async ({ activity, peer }) => {
+        selectedPeer(peer);
+        await nativeProvider().admitHeld(activity, { peer });
+      },
+    },
+  });
   runtime = enterpriseOperationRuntime({
     installed, config, environment,
     sourceWorkspaces: services.sourceWorkspaces,

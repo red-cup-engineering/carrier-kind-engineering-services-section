@@ -12,7 +12,7 @@ import { workReplicationOperations } from "./work-replication.mjs";
 import { enterpriseLoopOperations, enterpriseLoopSchedules } from "./enterprise-loops.mjs";
 
 /** The one installed MetroPlat operation surface used by both request dispatch and clock work. */
-export function enterpriseOperationRuntime({ installed, config, environment, activityPubProvider = () => undefined, activityPubInbox = () => undefined, openWork: hostOpenWork, executeIsolatedWork, sourceWorkspaces, sourceReadResource }) {
+export function enterpriseOperationRuntime({ installed, config, environment, activityPubProvider = () => undefined, activityPubInbox = () => undefined, openWork: hostOpenWork, executeIsolatedWork, replicationTransport, sourceWorkspaces, sourceReadResource }) {
   const schedules = [
     ...(installed.schedules ?? []),
     ...enterpriseLoopSchedules({ agency: agencyAt(config.agencyRoot), host: config.activityPub?.nodeHost ?? installed.identity.id, account: installed.identity.id }),
@@ -75,7 +75,7 @@ export function enterpriseOperationRuntime({ installed, config, environment, act
     operationSources: Object.freeze([
       Object.freeze({ module: "@red-cup-engineering/feltos-enterprise-host/conurbation-readout", operations: conurbationOperations(binding) }),
       Object.freeze({ module: "@red-cup-engineering/feltos-enterprise-host/enterprise-loops", operations: enterpriseLoops }),
-      Object.freeze({ module: "@red-cup-engineering/feltos-enterprise-host/work-replication", operations: workReplicationOperations({ config, binding, provider: activityPubProvider, host: nodeHost }) }),
+      Object.freeze({ module: "@red-cup-engineering/feltos-enterprise-host/work-replication", operations: workReplicationOperations({ config, binding, provider: activityPubProvider, host: nodeHost, executeIsolatedWork, ...replicationTransport }) }),
     ]),
     createWorkOptions: (options) => {
       hostWorkOptions = { ...Object.fromEntries(Object.entries(options).filter(([key]) => !sourceKeys.includes(key))), ...heldSourcePorts };

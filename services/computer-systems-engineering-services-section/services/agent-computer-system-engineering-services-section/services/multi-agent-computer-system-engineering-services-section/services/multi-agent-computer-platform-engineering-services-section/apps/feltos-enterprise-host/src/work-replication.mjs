@@ -374,7 +374,7 @@ export async function pullHeldFromPeers({ config, binding, provider, signedGet, 
 }
 
 /** The operation a node schedule runs to keep the work peer current (MetroPlat instance `schedules`). */
-export function workReplicationOperations({ config, binding, provider, host }) {
+export function workReplicationOperations({ config, binding, provider, host, executeIsolatedWork, deliver, signedGet, admit }) {
   return Object.freeze([operation({
     verb: "work-peer-catch-up",
     inputFormat: "json", outputFormat: "json",
@@ -382,10 +382,13 @@ export function workReplicationOperations({ config, binding, provider, host }) {
     description: "Domain: {}. A known-intermittent node first pulls what each peer holds for it. Then it ships this board's told moves (openings and tellings) the peer has not received, and the coordinated moves this node decided on threads homed here; a known-intermittent peer has them held for it to pull. Idempotent; a failed delivery or pull is tried again on the next run.",
     relation: "boundary",
     effects: { class: "external", replay: "idempotency-key", coordination: "coordination-free", deterministic: "unmeasured", totality: "schema-bounded" },
-    run: async () => {
+    run: async (input, arguments_, context) => {
+      if (executeIsolatedWork !== undefined && context?.kind === "metroplat.rpc.execution-context") {
+        return executeIsolatedWork({ operation: "work-peer-catch-up", input, arguments: arguments_, context });
+      }
       // A node that cannot be pushed to takes what is held for it before it hands anything on.
-      const pulls = await pullHeldFromPeers({ config, binding, provider: provider() });
-      const result = await catchUpWorkPeer({ config, provider: provider(), binding, host });
+      const pulls = await pullHeldFromPeers({ config, binding, provider: provider(), signedGet, admit });
+      const result = await catchUpWorkPeer({ config, provider: provider(), binding, host, deliver });
       // An empty work queue is no longer a blind interval for an already-declared peer.
       // Re-read held peers before a public observation; no new recipient or grant is created.
       const held = new Set(workPeersOf(config));
