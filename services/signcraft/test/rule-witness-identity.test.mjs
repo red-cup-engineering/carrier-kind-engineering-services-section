@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { address, cell, triple } from "@red-cup-engineering/signcell/cell";
 import { derivation, fireRule, fireRuleIn, rule, step } from "@red-cup-engineering/signchain/rules";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { closureOrbit, evidenceIn, relate, settleCells, settlementAdmits } from "../src/settle.mjs";
 
 const premise = cell("job", "has", "input", { for: ["observed"], against: ["disputed"] });

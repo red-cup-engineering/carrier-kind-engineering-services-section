@@ -4,7 +4,7 @@ import {mkdtempSync,readFileSync,writeFileSync,rmSync,readdirSync,statSync,unlin
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {cell} from '@red-cup-engineering/signcell/cell';
-import {semanticId} from '@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address';
+import {semanticId} from '@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address';
 import {createHistory,observeHistory,queryHistory,materializeHistory,historyHeads,historySize,withFunctionalPredicates,checkpointHistory} from '../src/history.mjs';
 import {MEDIA} from './_history-store-media.mjs';
 import {createFileHistoryStore} from '../src/file-history-store.mjs';

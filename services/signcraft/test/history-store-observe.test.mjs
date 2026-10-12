@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { cell } from "@red-cup-engineering/signcell/cell";
-import { semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { createHistory, historyHeads, historySection, historySize, materializeHistory, observeHistory, queryHistory } from "../src/history.mjs";
 import { MEDIA, overMedia } from "./_history-store-media.mjs";
 

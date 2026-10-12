@@ -7,7 +7,7 @@
  * Query indexes are disposable readings of that carrier.
  */
 import { address, admitCell, cell, cellSet, coincides, evidenced, knowledgeReading } from "@red-cup-engineering/signcell/cell";
-import { bytesToHex, retainedCarrier, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-engineering-services-section/semiotic-content-address";
+import { bytesToHex, retainedCarrier, semanticBytes, semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { PersistentMap } from "./persistent-map.mjs";
 
 // Address arbitrary history content through the same SCA carrier as every cell.
