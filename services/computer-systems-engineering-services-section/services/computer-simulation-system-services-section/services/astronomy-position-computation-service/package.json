@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "prepack": "npm run rebuild",
-    "rebuild": "npm run build"
+    "check": "node --check src/index.mjs && node --check src/astronomy-positions.mjs && node --check src/precision-provider.mjs",
+    "prepack": "npm test"
   },
   "main": "./src/index.mjs",
   "files": [
