@@ -16,12 +16,14 @@ derivation does not authorize a brokerage order.
 ## The model
 
 An utterance `[token, claim]` settles to a finite fixed point through
-`articulate -> predicate -> posit -> settle`. Nothing is seeded: every
-cell's charge is measured from what was given. `absurd` is only ever
-reached (by the meet, under contradiction), never stamped; the evidence
-carrier only ever grows (knowledge never falls). The charge algebra
-itself (`bilattice-charge`) is not defined here: it is metrologic's, one
-implementation of Obsmetrologia's Charge/FOUR.
+`articulate -> predicate -> posit -> settle`. A cell with no tellings
+reads `absurd` (the *knowledge-bottom* point); it is **missing
+evidence**, not itself a contradiction. Contradictory support and
+refutation together read `stable` (knowledge top). The evidence
+carrier only grows under monotone settlement. A separate lattice meet
+may write a value not measured directly by its retained witnesses;
+such a written value must not be mistaken for fresh observed evidence.
+FOUR and its operations are upstream, not reimplemented by SignCraft.
 
 The current SignCell representation has a `for` witness set and an
 `against` witness set. Its FOUR value is derived from those sets unless a
