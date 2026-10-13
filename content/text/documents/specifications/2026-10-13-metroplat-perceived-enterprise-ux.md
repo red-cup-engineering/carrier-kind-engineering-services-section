@@ -494,3 +494,41 @@ The evidence is `evidence/2026-10-13-metroplat-perceived-enterprise-ux/frozen-in
 and `github-intake-fabrication.json`. These receive the named source/consumer
 boundaries. The combined newer runtime and complete catalogue still require
 fabrication before operating or human-workflow receiving and production promotion.
+
+
+## Complete supplier installation and external catalogue construction
+
+The common source at Root b76c381 installs its 218 selected packages and 583
+external packages with the unchanged frozen lock, exact 20 Gitlinks and registry
+supply policy. Its selected build realizes JSON Schema and the TOML codec.
+The receipts are `evidence/2026-10-13-metroplat-perceived-enterprise-ux/common-frozen-installation.json`
+and `common-selected-build.json`. Installation and these products do not receive
+the assembled operating system.
+
+Complete declared-carrier compilation refuses x402's dangling `./receipt-record`
+export. The sole historical adapter depends on the retired witness-journal and
+value-settlement interfaces; bounded active-source reading finds no caller.
+Retire the unimplemented declaration and correct the active package overview,
+retaining the original historical source without importing it into runtime.
+Current settlement observations and seller corroboration retain their own
+meaning and authority boundaries.
+
+All 61 native operation families now finish declaration construction through
+the genuine installed suppliers, with operational ports held inert. Their held
+catalogue differs. The existing constructor gains `--output path` so the native
+selected command can produce a separate artifact without dirtying frozen source.
+Its seed hook still replaces only the held catalogue's import inside construction;
+staging and concurrent-output custody remain intact. Attribute the resulting
+artifact to the exact constructor and supplier source before admitting it to
+MetroPlat's published library. No empty catalogue, missing supplier waiver,
+operating result, machine realization or feature parity is claimed.
+
+The existing selected command received the external 958,503-byte catalogue product
+with source unchanged. Its 61 families contain 263 declarations, compared with
+259 held declarations. Four current Kalshi declarations appear; filesystem and
+workspace readout identities now reflect the current normalized contracts. World,
+energy, pricing and policy metadata retain their supplying owner changes. Exact
+constructor/supplier revision and output digest are recorded in
+`evidence/2026-10-13-metroplat-perceived-enterprise-ux/catalogue-product-receipt.json`.
+The product is adopted into the existing tracked MetroPlat catalogue; this is
+declaration construction, not execution of those operations.

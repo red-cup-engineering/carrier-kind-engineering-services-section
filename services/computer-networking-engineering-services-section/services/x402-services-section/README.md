@@ -24,7 +24,7 @@ There is one package, `@red-cup-engineering/x402-services-section`, and one paym
 - `./market` serves declared offers; `./market-561-group` is the sole deployment configuration and catalog.
 - `./market-observation/*` reads settlement facts; `./settlement-derivation/*` corroborates seller settlements.
 - `./hbd/*` realizes the HBD scheme; `./hive/exit-tightness` exposes the one Hive product adapter.
-- `./value-settlement` carries settlement values; `./boundary-reference/*` observes a public boundary.
+- `./x402-settlement-evidence` retains facilitator observations bound to the signed payment; `./boundary-reference/*` observes a public boundary.
 
 Product implementations that merely happen to be sold through x402 stay with their own product domain; they are consumers of this boundary, not a second x402 implementation.
 
