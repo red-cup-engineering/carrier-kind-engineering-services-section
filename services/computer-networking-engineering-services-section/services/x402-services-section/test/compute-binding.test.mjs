@@ -98,7 +98,8 @@ test("declareCatalog admits offers from many gateways and refuses a route or ope
 test("sellerCatalogRows derives the whole catalog's rows on one set of rails", () => {
   const rows = sellerCatalogRows([declaration()], RAILS);
   assert.equal(rows.length, 1);
-  assert.equal(rows[0].seller, "astronomy");
+  assert.equal(rows[0].gateway, "astronomy");
+  assert.equal(rows[0].seller, null, "a serving gateway does not establish the seller's admitted enterprise");
   assert.equal(rows[0].expectedAmount, "40000");
   assert.equal(rows[0].payTo, RAILS.payTo);
 });
@@ -108,3 +109,4 @@ test("a binding reads facts of its own offer, so one function can sell several o
   const args = projectArguments({ package: "@a/b", export: "f", args: ["offer.operation", "env"] }, { method: "GET", route: "/v1/publications/x", operation: "x" }, { env: { bucket: true } });
   assert.deepEqual(args, ["x", { bucket: true }]);
 });
+

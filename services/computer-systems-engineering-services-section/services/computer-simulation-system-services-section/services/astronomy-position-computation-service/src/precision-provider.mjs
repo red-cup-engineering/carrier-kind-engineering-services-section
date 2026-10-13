@@ -9,6 +9,12 @@ export const DE440_SHA256 = "29915576d0a6555766b99485ac3056ee415e86df4fce282611c
 export const OXIEPHEMERIS_VERSION = "0.1.1";
 
 function coordinate(value, name, low, high) {
+  // URL query numbers and literal JSON numbers share one meaning. Null,
+  // booleans, blank strings and containers are absence/malformed data, not
+  // invented zero-degree measurements through JavaScript Number coercion.
+  if (typeof value !== "number" && (typeof value !== "string" || value.trim() === "")) {
+    throw new TypeError(`${name} must be an explicit number or nonempty numeric string`);
+  }
   const number = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(number) || number < low || number > high) throw new RangeError(`${name} must be a finite number from ${low} through ${high}`);
   return number;
@@ -52,3 +58,4 @@ export async function computePrecisionAstronomyPositions(date, options, dependen
   const fields = ["body", "lon_deg", "lat_deg", "lon_speed_deg_per_day", "lat_speed_deg_per_day", "distance_au", "light_time_days", "declination_deg", "retrograde", "out_of_bounds"];
   return Object.freeze({ tier: "astronomy-precision-positions", time: request.time, location: Object.freeze({ latitudeDegreesNorth: request.latitude, longitudeDegreesEast: request.longitude }), metrology: Object.freeze({ coordinateFrame: "apparent geocentric ecliptic-of-date (true equinox)", ephemeris: "JPL DE440", ephemerisSha256: DE440_SHA256, supplier: `OxiEphemeris ${OXIEPHEMERIS_VERSION}`, supplierLicense: "Apache-2.0", qualification: "Raw numeric resolution is preserved. No unsupported universal uncertainty is inferred; per-body divergence from the independently implemented essentials engine is reported below." }), bodies: Object.freeze(chart.bodies.map((body) => Object.fromEntries(fields.filter((field) => field in body).map((field) => [field, body[field]])))), nodes: chart.nodes, essentialsCrossCheck: crossCheck(computeAstronomyPositions(request.time), chart) });
 }
+

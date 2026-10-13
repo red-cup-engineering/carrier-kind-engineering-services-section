@@ -4,7 +4,8 @@ import { decodePaymentSignatureHeader } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/server";
 import { paymentMiddleware } from "@x402/express";
-import { evmNetwork } from "./evm-network.mjs";
+import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
+import { evmNetwork, routeSet } from "./route-configuration.mjs";
 import { x402SettlementEvidence as projectX402SettlementEvidence } from "./x402-settlement-evidence.mjs";
 export { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
@@ -25,22 +26,7 @@ export function x402SettlementEvidence(context, { identify = x402PaymentIdentity
 }
 
 /** Validate one explicit EVM CAIP-2 network identifier, shared by every transport-specific boundary. */
-export { evmNetwork };
-
-/** Validate one nonempty official route configuration set, shared by every transport-specific boundary. */
-export function routeSet(value, scheme) {
-  if (value === null || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length === 0) {
-    throw new TypeError("x402 routes must be one nonempty official route configuration");
-  }
-  for (const [route, configuration] of Object.entries(value)) {
-    if (!/^(?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) \/\S*$/u.test(route)) throw new TypeError(`invalid x402 route ${route}`);
-    const accepts = Array.isArray(configuration?.accepts) ? configuration.accepts : [configuration?.accepts];
-    if (accepts.length === 0 || accepts.some((entry) => entry?.scheme !== scheme)) {
-      throw new TypeError(`${route} must use the official x402 ${scheme} scheme`);
-    }
-  }
-  return value;
-}
+export { evmNetwork, routeSet };
 
 /**
  * Procure an official x402 v2 exact-EVM resource boundary. The customer owns
@@ -60,7 +46,9 @@ export function createExactEvmPaymentBoundary({
     throw new TypeError("x402 facilitatorUrl is required when no contracted facilitator client is supplied");
   }
   const facilitator = facilitatorClient ?? new HTTPFacilitatorClient({ url: facilitatorUrl });
-  const resourceServer = new x402ResourceServer(facilitator).register(selectedNetwork, new ExactEvmScheme());
+  const resourceServer = new x402ResourceServer(facilitator)
+    .register(selectedNetwork, new ExactEvmScheme())
+    .registerExtension(bazaarResourceServerExtension);
   if (afterSettle !== undefined) resourceServer.onAfterSettle(afterSettle);
   return Object.freeze({
     network: selectedNetwork,
@@ -93,7 +81,9 @@ export function createBatchEvmPaymentBoundary({
     ...(receiverAuthorizerSigner === undefined ? {} : { receiverAuthorizerSigner }),
     ...(withdrawDelay === undefined ? {} : { withdrawDelay }),
   });
-  const resourceServer = new x402ResourceServer(facilitator).register(selectedNetwork, scheme);
+  const resourceServer = new x402ResourceServer(facilitator)
+    .register(selectedNetwork, scheme)
+    .registerExtension(bazaarResourceServerExtension);
   if (afterSettle !== undefined) resourceServer.onAfterSettle(afterSettle);
   return Object.freeze({
     network: selectedNetwork,
@@ -102,3 +92,4 @@ export function createBatchEvmPaymentBoundary({
     middleware: paymentMiddleware(routeSet(routes, "batch-settlement"), resourceServer),
   });
 }
+
