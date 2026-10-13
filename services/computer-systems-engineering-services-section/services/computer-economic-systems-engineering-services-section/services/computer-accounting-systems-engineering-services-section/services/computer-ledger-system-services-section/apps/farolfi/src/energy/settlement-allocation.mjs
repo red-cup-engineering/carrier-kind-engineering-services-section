@@ -1,11 +1,27 @@
 import { canonicalJson } from "@red-cup-engineering/json-services-section/canonical-json";
-import { addDecimalStrings as sum, divideDecimalStrings as divide, multiplyDecimalStrings as multiply } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { decimalOfRational, rationalOfDecimal, terminatingPlaces } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { rationalOfBigInts, ratAdd, ratMultiply, ratSign, ratZero } from "@red-cup-engineering/exact-number-data-service/exact-number";
 
 const FACTOR_FOR_ASSET = Object.freeze({
   "cpu-seconds": "cpuSecondsToJoules",
   "network-ingress-bytes": "byteToJoules",
   "network-egress-bytes": "byteToJoules",
 });
+
+const UNIT_FOR_ASSET = Object.freeze({
+  "cpu-seconds": "second",
+  "network-ingress-bytes": "byte",
+  "network-egress-bytes": "byte",
+});
+
+function resourceQuantity(receipt) {
+  const { numerator, denominator } = receipt?.price?.amount ?? {};
+  if (typeof numerator !== "string" || !/^(?:0|[1-9][0-9]*)$/u.test(numerator)
+    || typeof denominator !== "string" || !/^[1-9][0-9]*$/u.test(denominator)) {
+    throw new TypeError("energy accounting: resource amount requires nonnegative canonical integer numerator and positive denominator");
+  }
+  return rationalOfBigInts(BigInt(numerator), BigInt(denominator));
+}
 
 function requiredString(value, name) {
   if (typeof value !== "string" || value.length === 0) throw new TypeError(`energy accounting: ${name} must be a non-empty string`);
@@ -68,15 +84,30 @@ export function allocateSettlementEnergy(input) {
   for (const { row } of rows) {
     const matched = attributed.get(row.rowId);
     if (matched.length === 0) { unmatchedRowIds.push(row.rowId); continue; }
-    const contributions = [];
+    let joulesExact = ratZero;
     for (const receipt of matched) {
-      const asset = receipt?.price?.denomination?.asset;
+      const denomination = receipt?.price?.denomination;
+      const asset = denomination?.asset;
       const factorKey = FACTOR_FOR_ASSET[asset];
       const factor = factorKey === undefined ? undefined : input.conversionFactors[factorKey];
       if (factor === undefined) return Object.freeze({ refused: true, reason: "no-conversion-factor-for-asset", asset });
-      contributions.push(multiply(divide(receipt.price.amount.numerator, receipt.price.amount.denominator), factor.value));
+      if ((denomination.kind !== undefined && denomination.kind !== "resource")
+        || (denomination.unit !== undefined && denomination.unit !== UNIT_FOR_ASSET[asset])) {
+        return Object.freeze({ refused: true, reason: "resource-denomination-disagreement", asset, sourceReceipts: Object.freeze([receipt]) });
+      }
+      if (typeof factor?.value !== "string") throw new TypeError("energy accounting: conversion factor must be a nonnegative decimal string");
+      const conversion = rationalOfDecimal(factor.value);
+      if (ratSign(conversion) < 0) throw new TypeError("energy accounting: conversion factor must be a nonnegative decimal string");
+      // Composition takes place in the upstream exact rational carrier. A
+      // decimal projection at each receipt loses positive usage and violates
+      // conservation under partitioning; render only the complete total.
+      joulesExact = ratAdd(joulesExact, ratMultiply(resourceQuantity(receipt), conversion));
     }
-    receipts.push(Object.freeze({ type: "SettledRowEnergyReceipt", version: 1, rowId: row.rowId, joules: sum(contributions), boundary: input.boundary, conversionFactors: input.conversionFactors, sourceReceipts: matched }));
+    const places = terminatingPlaces(joulesExact);
+    const joules = decimalOfRational(joulesExact, places ?? 10, { rounding: "toward-zero" });
+    receipts.push(Object.freeze({ type: "SettledRowEnergyReceipt", version: 1, rowId: row.rowId,
+      joules, joulesExact, joulesRounding: places === null ? "toward-zero" : "exact",
+      boundary: input.boundary, conversionFactors: input.conversionFactors, sourceReceipts: matched }));
   }
   return Object.freeze({ receipts: Object.freeze(receipts), unmatchedRowIds: Object.freeze(unmatchedRowIds) });
 }
