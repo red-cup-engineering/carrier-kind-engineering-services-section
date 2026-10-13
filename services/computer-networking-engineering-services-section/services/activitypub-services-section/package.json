@@ -2,7 +2,11 @@
   "name": "@red-cup-engineering/activitypub-services-section",
   "version": "0.8.1",
   "type": "module",
-  "receivingTests": ["test/delivery-queue-responsiveness.test.mjs","test/journal-custody.test.mjs","test/flatfile-queue-recovery-custody.test.mjs"],
+  "receivingTests": [
+    "test/delivery-queue-responsiveness.test.mjs",
+    "test/journal-custody.test.mjs",
+    "test/flatfile-queue-recovery-custody.test.mjs"
+  ],
   "description": "The Union's public transport: ActivityPub federation carrying CloudEvents whose data is an A2A message with one RMN part.",
   "files": [
     "README.md",
@@ -34,6 +38,7 @@
     "./flatfile-queue": "./src/flatfile-queue.mjs"
   },
   "bin": {
+    "receive-preserved-activitypub-spool": "./src/flatfile-queue.mjs",
     "deliver-activitypub-activity": "./src/deliver.mjs",
     "generate-activitypub-keys": "./src/keys.mjs",
     "generate-encrypted-evm-wallet": "./src/generate-encrypted-evm-wallet.mjs",
