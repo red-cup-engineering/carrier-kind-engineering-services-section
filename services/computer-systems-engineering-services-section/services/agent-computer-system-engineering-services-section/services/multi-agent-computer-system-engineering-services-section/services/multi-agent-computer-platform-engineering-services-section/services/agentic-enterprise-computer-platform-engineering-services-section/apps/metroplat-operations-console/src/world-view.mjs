@@ -1,3 +1,4 @@
+import { commandDraft } from "./command-draft.mjs";
 /**
  * The world drawn: the city as a game, over the page that plays it without a script.
  *
@@ -410,6 +411,8 @@ async function start(mount) {
   client.write(transcript.split("\n").filter(Boolean).slice(-60));
   if (mount.dataset.journal) followJournal();
   await speak("look");
+  const draft = commandDraft(location.search);
+  if (draft) client.draft(draft);
 }
 
 const mount = document.getElementById("world-view");

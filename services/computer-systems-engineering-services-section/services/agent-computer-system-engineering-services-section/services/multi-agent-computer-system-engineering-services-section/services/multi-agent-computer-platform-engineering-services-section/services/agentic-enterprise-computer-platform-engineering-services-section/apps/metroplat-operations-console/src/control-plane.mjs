@@ -1,3 +1,4 @@
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 /**
  * The bare-cedar-fog.561.group control plane: `/world`, `/world/:address`, `/records`, `/records/<path>`,
  * `/tasks`, `/tasks/view`, `/books`, `/books/view`, and `/books/report` read; `POST /tasks` admits
@@ -17,7 +18,7 @@ import { fromSection } from "@red-cup-engineering/html-structural-projection-ser
 import { renderTuftePacket } from "@red-cup-engineering/web-page-tiling-engine";
 
 const CONTROL_PLANE_LINKS = Object.freeze([
-  { href: "/play", label: "Play" }, { href: "/network", label: "Network" }, { href: "/tasks/view", label: "Work" },
+  { href: "/play", label: "Play" }, { href: "/network", label: "Network" }, { href: "/work", label: "Work" },
   { href: "/world", label: "World" }, { href: "/records", label: "Records" },
   { href: "/books/view", label: "Books" },
 ]);
@@ -147,7 +148,7 @@ function workAdmission(run, runAs, navigation) {
         if (from !== headers.host) return refused(403, "cross-origin", "work is written from ops's own pages");
       }
       // A bearer principal is already the authorization server's subject, as over /mcp.
-      const producer = principal.provider === "bearer" ? principal.subjectHash : `${principal.provider}:${principal.subjectHash}`;
+      const producer = subjectOf(principal);
       let body;
       let intent;
       let opening;

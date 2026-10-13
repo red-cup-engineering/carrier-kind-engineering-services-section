@@ -1,3 +1,4 @@
+import { commandDraft } from "./command-draft.mjs";
 /**
  * The world in the browser: a person plays the 561 Group's MUD as their own character. Each
  * line goes to MetroPlat's `world-command` with the person's subject, so the world answers
@@ -69,7 +70,7 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
   };
   // A document, not an SHP packet: a packet is inert by construction, and this page holds no
   // settled cells for one to carry; its content is the play itself.
-  const page = (lines, subject) => htmlRepr(renderTufteDocument({
+  const page = (lines, subject, draft = "") => htmlRepr(renderTufteDocument({
     title: "World",
     tiles: [
       { title: navigation.title ?? "Group", links: navigation, span: 12 },
@@ -77,7 +78,7 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
       { title: "The world", span: 12, html: `<pre class="world-transcript">${lines.join("\n").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c])}</pre>` },
       ...(perceptions.get(subject)?.situation?.actions?.length ? [{ title: "Operations here", span: 12, html: perceivedOperationsHtml(perceptions.get(subject), "/play") }] : []),
       ...(perceptions.has(subject) ? [{ title: "Perceived evidence", span: 12, html: projectFiber(perceptions.get(subject)).entries.filter((entry) => entry.cells && entry.kind !== "exit").map((entry) => `<details><summary>${escapeHtml(entry.label)}</summary>${renderSignCellSection(entry.cells)}</details>`).join("") }] : []),
-      { title: "Speak", span: 12, form: { action: "/play", method: "post", fields: [{ name: "line", label: "command", value: "", placeholder: "look, go <exit>, powers, <power> {json}" }], submitters: [{ label: "Send" }] } },
+      { title: "Speak", span: 12, form: { action: "/play", method: "post", fields: [{ name: "line", label: "command", value: draft, placeholder: "look, go <exit>, powers, <power> {json}" }], submitters: [{ label: "Send" }] } },
     ],
   }, { importMap: VIEW.importMap, scripts: [{ src: `${VIEW.path}/${VIEW_ENTRY}` }], styles: GAME_STYLES }), { cacheControl: { noStore: true } });
   const turn = async (subject, verb, input) => {
@@ -226,7 +227,7 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
       const subject = subjectOf(principal);
       if (ctx.req.method === "GET") {
         const lines = transcripts.get(subject) ?? append(subject, await turn(subject, "world-connect", {}));
-        return page(lines, subject);
+        return page(lines, subject, commandDraft(ctx.url.search));
       }
       if (!sameOrigin(ctx.req.headers)) return { status: 403 };
       const params = await readFormBody(ctx.req, { maxBytes: 64 * 1024 });

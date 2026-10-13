@@ -13,6 +13,48 @@ and functions as gauges connected by gradients. SignCell, SCA, SEN and SEAVT
 normalization must reduce software complexity while increasing these capabilities.
 Both machines consume one release with different instance configuration.
 
+The delivery unit is a complete human workflow: discover the subject, read its
+current situation, take an authorized action, follow its returned outcome and
+inspect its evidence. Neither a generic JSON page nor a passing isolated fixture
+discharges this requirement. Leader, 2026-10-13: “Right now it provides NO interface
+that any human user would find useful: no real way to look at work, no real way
+to look at code, knowledge, resources of any sort, no real way to talk to agents.”
+
+## Meet-then-beat capability obligations
+
+These are continuing product obligations, not claims of implemented parity.
+
+| Workspace | Benchmark platforms | Required human capabilities |
+| --- | --- | --- |
+| Agents | OpenClaw, Codex, Claude Code | Discover capable actors, start and resume conversations, follow sessions and delegated work, inspect tools, costs, permissions, failures and correlated outcomes. |
+| Enterprise | Odoo, ERPNext | Connected customer, order, procurement, inventory, manufacturing, accounting and service workflows with real transactions and receiving. |
+| Work | Asana, Linear, Jira, Monday.com | Create and find work, inspect contracts, dependencies and parallel takers, navigate projects, play moves, follow execution, receive delivery and judge conditions. |
+| Code | GitHub, GitLab | Browse source and history, search symbols and consumers, review diffs, propose and commit changes, inspect releases and connect code to its work and evidence. |
+| Knowledge | Notion, Confluence | Discover, read, author and relate knowledge with citations, competing claims, history, permissions and useful retrieval. |
+| Conversations | Slack, Teams, Mattermost | Discover recipients, compose and resume durable conversations, search and page history, retain replies and attachments, follow asynchronous requests. |
+| Customers | Salesforce, HubSpot | Contacts, organizations, opportunities, customer conversations, obligations, orders and service histories connected to the same enterprise evidence. |
+| Assets and services | ServiceNow, Snipe-IT | Discover owned resources, receive stock and custody movements, maintain assets, track incidents and changes, inspect service and supplier obligations. |
+| Industrial and systems control | Ignition, Grafana, Backstage | Inspect real telemetry and models, alarms, MAPE-K loops, services and deployments; execute bounded governed actions and receive their actual effects. |
+
+All are lenses and actions of the shared modeled world, with equivalent useful
+access through accessible documents and the spatial interface. SEAFOAM,
+ABYSSAL CURRENT and gyrobifastigial tessellation work remains part of that
+architecture. Neither material gradients nor an aggregated dashboard may replace
+typed contradictory evidence with an invented scalar truth or physical law.
+
+The section sites remain owed: Lenticule/science (Aperture Science and Once Human),
+Red Cup/engineering (Black Mesa and EVE), Coesite/operations (SCP and Backrooms),
+Causeway/services (TESCREAL and Civics), and the Group's own SEAFORM glass courts,
+temples and whirling forests. Recover their authored design specifications and
+actual hosting owners; receive public entrances and useful services rather than
+treating themed previews as relaunched enterprises.
+
+Official baseline sources: https://docs.openclaw.ai/session-tool,
+https://www.odoo.com/page/docs and
+https://help.asana.com/s/article/task-dependencies. Other named platforms identify
+the comparison families; detailed parity still requires their authoritative
+capability and workflow research.
+
 ## Requirements and recovered sources
 
 The existing `metroplat-front-door-is-a-shared-world` requirement calls for the
@@ -163,3 +205,96 @@ lockfile-fresh job, carrying existing resolution records and preserving all
 other importers and registry artifacts. These records are source composition,
 not full frozen release or machine receiving. A codec must terminate at EOF
 when a bounded lock source ends at its importer section.
+
+## Enterprise work receiving
+
+The console's primary Work surface shall read the native work-board and world
+journal under the authenticated principal. Thread standing, horizon, readiness,
+dues, operative requirements, deliveries and witness judgments come from the
+arena, never from a second workflow state machine. Parallel takers and opposed
+judgments remain visible. Filtering and pagination retain the board's exact
+cursor and native reading position. A missing read is unavailable, not empty.
+
+Use the existing allocation/execution projection as an execution lens, retaining
+its outline/structured-intent capability. A thread's next-move link prepares a
+command in the existing world client; following it never submits that command.
+Both script and no-script tiers preserve that boundary. Native schema, cast,
+standing, edition and mesh admission still decide execution.
+
+Sources: Group notes of 2026-10-02, “The work arena typed as a game,” the seventh
+edition (witness judgments in FOUR and attention ordered by distance from the
+user), and the sixteenth edition (refusals carry reasons and every finding has
+a receiving reader); organizing/enterprise work-arena and FeltOS's declared
+work-board domain/codomain and world-journal. Receive CES335's canonical authored
+SignCraft occurrence-frame restoration before composing the next release.
+
+Accessible data tables use native captions and row/column headers, with native
+links and labeled filters: https://www.w3.org/WAI/tutorials/tables/. Input errors
+retain user input and provide visible feedback:
+https://www.w3.org/WAI/tutorials/forms/notifications/. These are implementation
+obligations, not an assertion of complete accessibility conformance.
+
+The shared board filter contract derives kinds from the arena, including supply,
+and is consumed by both the host operation and the Work UI. Bounded receiving
+used a genuine local work-board replay with native witness addresses, plus an
+isolated journal/operation port: captions and row headers, native pagination,
+principal forwarding, operative requirements and unknown verification readings,
+supply filters, preserved invalid filter input, unavailable-versus-empty reads,
+and command preparation in no-script, text, 2D and 3D. No package tests ran.
+
+Full runtime fabrication remains unqualified: the retained JSON file codec's
+TypeScript source imports two unavailable Science packages. A catalogue check
+also refused an unreceived computer-inference-engine source. No supplier was
+stubbed. The generator supplies its empty construction module through a scoped
+Node module hook without writing the held catalogue, and stages a complete
+replacement before publication; receiving
+the actual refusal preserved the prior artifact's bytes. Current catalogue
+freshness, full frozen release and machine receiving remain owed.
+
+## Direct enterprise workspaces
+
+The console composes Work, Conversations, Code, Knowledge and Resources into
+one navigation and accessible document presentation. Requests open through the
+native work-open operation with operative requirements and a demonstration
+condition. Thread move forms call work-move; its current cast, standing, law
+edition and protocol remain the admission authority. Source-derived move choices
+are discovery, not a grant. The board receipt leads back to the original thread;
+opening identity and response thread identity are distinct native fields.
+
+Conversations uses the existing messages/message commands and Comm.Inbox /
+Comm.Submission packets. Full typed messages and returned stdout, stderr,
+obstructions, request and task identifiers remain available. Exact sender,
+request, task and word filters apply to the current native page; opaque pagination
+is preserved through conversation and resource links. A native refusal is an
+unavailable reading, never an empty inbox. Unconfirmed sends preserve the draft
+and do not automatically retry. Cookie form writes require this origin.
+
+Resource requests send the existing read operation through that same private
+actor carrier. The actor, rather than a new console filesystem bypass, determines
+the available source and current authority. Returned filesystem projections
+preserve path, projector coordinates, content, carried items and arrival evidence.
+Directory files are navigable without another host read. Code has escaped source
+and line anchors; knowledge remains readable inert content. A returned reading
+is its sender's testimony, not independent receiving or a new canonical store.
+Source editing, global discovery, agent/session management, rich collaborative
+conversation history and enterprise transactional parity remain owed.
+
+An observed shared TUFTE defect hid navigation and explanatory content when a
+tile also supplied a table or form. Its shared server/browser renderer now
+composes retained parts in reading order rather than selecting one field. Native
+caption, row headers, labels, details and skip navigation remain usable without
+script. Workspace controls use 44px minimum heights and visible focus, and narrow
+views retain region scrolling instead of scrolling the whole document sideways.
+References: https://www.w3.org/WAI/tutorials/page-structure/,
+https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html and
+https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html.
+
+Receiving fabricates the 64-module browser closure before exercising actual
+HTTP handlers and Chromium in no-script and text/2D/3D tiers. It includes genuine
+isolated native request opening and promise replay, refused-move input retention,
+private inbox paging and correlation, explicit singular sending, refused-sender
+and inbox behavior, signed-out and cross-origin refusal, full messages, native
+resource requests, directory navigation, escaped code, line anchors, absent-file
+404 and a 390px viewport. The private transport ports are explicitly fixtures;
+this does not qualify signatures, remote effects, estate standing, business
+receiving, complete accessibility, catalogue freshness or a machine release.

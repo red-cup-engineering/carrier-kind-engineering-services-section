@@ -1,5 +1,11 @@
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { controlPlaneApp } from "./control-plane.mjs";
 import { libraryApp } from "./library.mjs";
+import { workCenterApp } from "./work-center.mjs";
+import { workActionsApp } from "./work-actions.mjs";
+import { conversationsApp } from "./conversations.mjs";
+import { resourceWorkspaceApp } from "./resource-workspace.mjs";
+import { WORKSPACE_LINKS } from "./workspace-document.mjs";
 import { worldClientApp } from "./world-client.mjs";
 import { obligationsApp } from "./obligations.mjs";
 import { guardOperators, peopleApp } from "./people.mjs";
@@ -16,10 +22,9 @@ export function operationsConsole({ config, configuration = {}, run, runAs, reso
     return owner === rOwner && (name === "*" || name === rName);
   });
   const navigation = [
-    { href: "/play", label: "Play" }, { href: "/network", label: "Network" },
-    { href: "/tasks/view", label: "Work" }, { href: "/books/view", label: "Books" },
+    ...WORKSPACE_LINKS,
     ...(configuration.navigationLinks ?? []),
-    { href: "/obligations", label: "Obligations" }, { href: "/people", label: "People" },
+    { href: "/obligations", label: "Obligations" },
   ];
   const obligations = obligationsApp({ stateDir: config.stateDir, sources: configuration.obligationSources ?? [], runAs, navigation, navigationTitle: label });
   return {
@@ -44,7 +49,7 @@ export function operationsConsole({ config, configuration = {}, run, runAs, reso
       admitArguments: false,
       annotations: { readOnlyHint: false, idempotentHint: true, openWorldHint: false },
       handler: (args, context) => {
-        const producer = context?.principal?.subject;
+        const producer = subjectOf(context?.principal);
         if (typeof producer !== "string" || !producer) throw new TypeError("sign in to open work");
         return runAs(producer, "work-open", args);
       },
@@ -55,7 +60,7 @@ export function operationsConsole({ config, configuration = {}, run, runAs, reso
       admitArguments: false,
       annotations: { readOnlyHint: false, idempotentHint: true, openWorldHint: true },
       handler: (args, context) => {
-        const producer = context?.principal?.subject;
+        const producer = subjectOf(context?.principal);
         if (typeof producer !== "string" || !producer) throw new TypeError("sign in to synchronize GitHub reports");
         if (!federates(args.repository)) throw new TypeError(`${args.repository} is not among this instance's GitHub issue sources`);
         return syncGitHubIssues({ repository: args.repository, producer, office: args.as, issueNumbers: args.issueNumbers,
@@ -64,15 +69,17 @@ export function operationsConsole({ config, configuration = {}, run, runAs, reso
             resolveGitHubReceivingBinding({ repository, repositoryRecord, subject: producer, office: args.as }) }) });
       },
     }])],
-    rootRoutes: [
-      { id: "operations.work", match: "/work", methods: ["GET"], handler: () => ({ status: 303, headers: { location: "/tasks/view" }, cacheControl: { noStore: true } }) },
-    ],
+    rootRoutes: [],
     applications: [
       guardOperators(controlPlaneApp(config.dataDir, { run, runAs, navigationTitle: label, navigationLinks: configuration.navigationLinks ?? [] }),
         (resource) => /^ops-control-plane\.(books|records?|world|businesses|group-financial-readout)/u.test(resource.id),
         { stateDir: config.stateDir, allowedEmail: config.allowedEmail, navigation, navigationTitle: label }),
       peopleApp({ stateDir: config.stateDir, allowedEmail: config.allowedEmail, navigation, navigationTitle: label }),
       { resources: obligations.resources },
+      workCenterApp({ runAs, navigation, navigationTitle: label }),
+      workActionsApp({ runAs, navigation, navigationTitle: label }),
+      conversationsApp({ runAs, navigation, navigationTitle: label }),
+      resourceWorkspaceApp({ runAs, navigation, navigationTitle: label }),
       worldClientApp({ title: config.instance.title ?? label, navigation, navigationTitle: label, run, runAs, landing: obligations.landing }),
       libraryApp({ dataRoot: config.metroplatDataRoot }),
     ],
