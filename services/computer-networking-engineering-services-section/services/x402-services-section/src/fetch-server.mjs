@@ -1,9 +1,11 @@
-import { HTTPFacilitatorClient, x402HTTPResourceServer, x402ResourceServer } from "@x402/core/server";
+import { HTTPFacilitatorClient, SETTLEMENT_OVERRIDES_HEADER, x402HTTPResourceServer, x402ResourceServer } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { UptoEvmScheme } from "@x402/evm/upto/server";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
-import { evmNetwork, routeSet } from "./route-configuration.mjs";
+import { boundUptoSettlement, evmNetwork, routeSet } from "./route-configuration.mjs";
 import { identifyPaidResponseAuthorization, inspectPaidResponseRequest, recoverPaidResponse } from "./paid-response-recovery.mjs";
 export { declareDiscoveryExtension } from "@x402/extensions/bazaar";
+export { SETTLEMENT_OVERRIDES_HEADER } from "@x402/core/server";
 
 /**
  * Adapt the standard Fetch API `Request` to the official x402 HTTP adapter
@@ -61,23 +63,25 @@ async function releasePurchase(purchaseStore, claim) {
  * respond)` function instead of Express middleware, because a fetch handler
  * has no persistent response object to buffer and rewrite around.
  */
-export function createExactEvmFetchPaymentBoundary({
+function createEvmFetchPaymentBoundary({
   network,
   routes,
   facilitatorUrl,
   facilitatorClient,
   afterSettle,
-}) {
+}, scheme) {
   const selectedNetwork = evmNetwork(network);
+  const selectedRoutes = routeSet(routes, scheme.scheme, selectedNetwork);
   if (facilitatorClient === undefined && (typeof facilitatorUrl !== "string" || !/^https?:\/\//u.test(facilitatorUrl))) {
     throw new TypeError("x402 facilitatorUrl is required when no contracted facilitator client is supplied");
   }
   const facilitator = facilitatorClient ?? new HTTPFacilitatorClient({ url: facilitatorUrl });
   const resourceServer = new x402ResourceServer(facilitator)
-    .register(selectedNetwork, new ExactEvmScheme())
+    .register(selectedNetwork, scheme)
     .registerExtension(bazaarResourceServerExtension);
+  if (scheme.scheme === "upto") resourceServer.onBeforeSettle(boundUptoSettlement);
   if (afterSettle !== undefined) resourceServer.onAfterSettle(afterSettle);
-  const httpServer = new x402HTTPResourceServer(resourceServer, routeSet(routes, "exact"));
+  const httpServer = new x402HTTPResourceServer(resourceServer, selectedRoutes);
   // A Workers subrequest not awaited by the request that spawned it is cancelled the instant that
   // request's response completes, so the handshake must not fire at construction or during an unpriced
   // request that would return before awaiting it; it is armed lazily on the first request that itself awaits it.
@@ -99,6 +103,9 @@ export function createExactEvmFetchPaymentBoundary({
       const adapter = new FetchAdapter(request, url, body);
       const context = { adapter, path: url.pathname, method: request.method };
       if (!httpServer.requiresPayment(context)) return respond(request);
+      if (purchaseStore !== undefined && scheme.scheme !== "exact") {
+        throw new TypeError("recoverable purchase storage currently admits only exact-EVM authorizations");
+      }
 
       // A completed purchase is returned before facilitator verification, which
       // rejects the already-used EIP-3009 nonce on a client retry.
@@ -165,7 +172,9 @@ export function createExactEvmFetchPaymentBoundary({
       if (handlerResponse.status >= 400) {
         if (claim !== undefined) await releasePurchase(purchaseStore, claim);
         await cancellationDispatcher.cancel({ reason: "handler_failed", responseStatus: handlerResponse.status });
-        return handlerResponse;
+        const headers = new Headers(handlerResponse.headers);
+        headers.delete(SETTLEMENT_OVERRIDES_HEADER);
+        return new Response(handlerResponse.body, { status: handlerResponse.status, statusText: handlerResponse.statusText, headers });
       }
 
       let responseBody;
@@ -177,6 +186,8 @@ export function createExactEvmFetchPaymentBoundary({
         throw error;
       }
       const responseHeaders = Object.fromEntries(handlerResponse.headers);
+      const deliveredHeaders = new Headers(handlerResponse.headers);
+      deliveredHeaders.delete(SETTLEMENT_OVERRIDES_HEADER);
       const responsePreparation = {
         basis: "server-response-preparation",
         elapsedMs: Math.max(0, Math.ceil(performance.now() - preparationStarted)),
@@ -190,7 +201,7 @@ export function createExactEvmFetchPaymentBoundary({
             response: {
               status: handlerResponse.status,
               statusText: handlerResponse.statusText,
-              headers: responseHeaders,
+              headers: Object.fromEntries(deliveredHeaders),
               body: responseBody,
             },
           });
@@ -209,7 +220,7 @@ export function createExactEvmFetchPaymentBoundary({
       );
       if (!settleResult.success) return toResponse(settleResult.response);
 
-      const finalHeaders = new Headers(handlerResponse.headers);
+      const finalHeaders = deliveredHeaders;
       for (const [key, value] of Object.entries(settleResult.headers)) finalHeaders.set(key, value);
       if (claim !== undefined) {
         try {
@@ -223,5 +234,18 @@ export function createExactEvmFetchPaymentBoundary({
       return new Response(handlerResponse.body, { status: handlerResponse.status, headers: finalHeaders });
     },
   });
+}
+
+export function createExactEvmFetchPaymentBoundary(options) {
+  return createEvmFetchPaymentBoundary(options, new ExactEvmScheme());
+}
+
+/** Reuse the same official HTTP adapter for usage-based EVM settlement.
+ * The handler returns the native Settlement-Overrides response header;
+ * the shared settlement hook bounds the resolved amount before the facilitator.
+ * That internal header is never returned or retained as a delivered header.
+ */
+export function createUptoEvmFetchPaymentBoundary(options) {
+  return createEvmFetchPaymentBoundary(options, new UptoEvmScheme());
 }
 
