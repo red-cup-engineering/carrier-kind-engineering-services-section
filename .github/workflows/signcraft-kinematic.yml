@@ -2,7 +2,7 @@ name: SignCraft kinematic inference
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
     paths:
       - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
       - 'lib/signstuff/signcraft/src/inference/infer.mjs'
