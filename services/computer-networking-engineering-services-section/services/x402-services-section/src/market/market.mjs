@@ -325,6 +325,19 @@ export function createMarket({
   // but market-561-group's edge face, once it sets NODE_MARKET_ORIGIN)
   // leaves this exactly the empty array it always was.
   const proxyOffers = nodeOrigin === undefined ? [] : declareCatalog(proxyCatalog, { admit: false });
+  // A configured origin is not necessarily safe or reachable. Keep that
+  // distinction available to operational receivers without probing or
+  // forwarding any customer traffic during a status read.
+  const proxyOriginHttpsQualified = (() => {
+    if (proxyOffers.length === 0) return null;
+    try {
+      const url = new URL(nodeOrigin);
+      return url.protocol === "https:" && !url.username && !url.password &&
+        !url.search && !url.hash;
+    } catch {
+      return false;
+    }
+  })();
   // Discovery (status, agent card, catalog, the public page) reports every
   // offer this face actually answers, proxied or not; only the priced-route
   // handler distinguishes the two.
@@ -551,6 +564,8 @@ export function createMarket({
           proxyListedOffers: proxyOffers.filter((offer) => offer.declaration.listed !== false).length,
           runtime: env.MARKET_RUNTIME ?? null,
           nodeProxyConfigured: nodeOrigin !== undefined,
+          nodeProxyTransport: proxyOriginHttpsQualified === null ? "not-used" :
+            proxyOriginHttpsQualified ? "https-configured-not-received" : "insecure-refused",
           build: env.MARKET_BUILD_SHA ?? null,
           workerVersion: env.CF_VERSION_METADATA === undefined ? null : {
             id: env.CF_VERSION_METADATA.id ?? null,
