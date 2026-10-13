@@ -1,3 +1,22 @@
+> **Source authority correction · 2026-10-13**
+>
+> The public **market.561.group site, published catalog, Worker, UI and shop/discovery presentation**
+> are now owned by **[causeway-services/market.561.group](https://github.com/causeway-services/market.561.group)**.
+> The copy in this engineering monorepo is retained temporarily as a **legacy Node
+> deployment/state-carrier and migration reference**, not another independent merchant,
+> catalog authority, or site source to enhance. Do not fix site/UI/catalog defects here.
+>
+> Red Cup continues to own the independent `@red-cup-engineering/x402-services-section`
+> payment protocol, SDK/Bazaar, facilitator and settlement evidence implementation.
+> Do not remove the old Node process until the new site's compiled compute imports,
+> live `/v1/catalog`, all listed 402 challenges, paid byte delivery, append-only
+> settlement journal, R2/credential custody, and independent receiving are preserved.
+> A source-copy audit or successful unsigned GET is **not** sufficient for cutover.
+> The standalone buyer `red-cup-engineering/x402-exact-purchase-service` and
+> the embedded buyer source also remain divergent; unify package identity only
+> after cross-workspace dependency and witness-history qualification.
+> Preserve historical content-addressed references while decommissioning replicas.
+
 > **Public-site ownership:** As of 2026-10-13, Causeway Public Services
 > / Public Agent Services owns the market.561.group public site, targeted at
 > `causeway-services/market.561.group`. This Red Cup directory remains the
