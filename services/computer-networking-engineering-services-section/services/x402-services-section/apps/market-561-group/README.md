@@ -1,3 +1,12 @@
+> **Public-site ownership:** As of 2026-10-13, Causeway Public Services
+> / Public Agent Services owns the market.561.group public site, targeted at
+> `causeway-services/market.561.group`. This Red Cup directory remains the
+> **operational transition adapter** and reusable x402 seller/compiled catalog
+> source until an independently received Causeway deployment replaces it.
+> Do not create new site features or a second authoritative catalog here.
+> Do not delete the running edge/Node entrypoints or settled records before
+> the public cutover is independently received.
+
 # market.561.group
 
 The one x402 market of the 561 Group.
