@@ -98,7 +98,11 @@ that the presented dependency graph agrees with the existing rule data.
 
 `@red-cup-engineering/signcraft/proof-motion-carrier` exports
 `proofMotionCarrierOf(order, settlement)` and
-`proofMotionLeanSourceOf(order, settlement)`. They refuse unreplayed ancestry;
+`proofMotionLeanSourceOf(order, settlement)`. The ordinary
+`infer(engine, { facts, denials, query, includeSignedMotion: true })` also
+returns `signedMotion` as the source-replayed finite carrier, while leaving
+the default inference response unchanged. This is the actual consumer
+interface, not a parallel proof queue. They refuse unreplayed ancestry;
 the latter emits a bounded finite indexed Lean obligation and explicitly
 returns `verifiedByLean: false` until an independent Lean check. A stage-ordered
 proof graph is still not a theorem that its rules preserve a world judgment.
