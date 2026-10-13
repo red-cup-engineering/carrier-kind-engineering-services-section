@@ -13,6 +13,8 @@ on:
       - 'lib/signstuff/signcraft/src/inference/infer.mjs'
       - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
       - 'lib/signstuff/signcraft/package.json'
+      - 'lib/signstuff/signgraph/src/cell-graph.mjs'
+      - 'lib/signstuff/signgraph/test/cell-graph.test.mjs'
       - '.github/workflows/signcraft-kinematic.yml'
   pull_request:
     paths:
@@ -25,6 +27,8 @@ on:
       - 'lib/signstuff/signcraft/src/inference/infer.mjs'
       - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
       - 'lib/signstuff/signcraft/package.json'
+      - 'lib/signstuff/signgraph/src/cell-graph.mjs'
+      - 'lib/signstuff/signgraph/test/cell-graph.test.mjs'
       - '.github/workflows/signcraft-kinematic.yml'
   workflow_dispatch:
 
@@ -45,6 +49,7 @@ jobs:
       - name: Execute actual inference-motion regressions without runtime service dependencies
         run: |
           node --check lib/signstuff/signcraft/src/inference/infer.mjs
+          node --check lib/signstuff/signgraph/src/cell-graph.mjs
           node --check lib/signstuff/signcraft/src/inference/kinematic.mjs
           node --test lib/signstuff/signcraft/test/kinematic.test.mjs
           node --check lib/signstuff/signcraft/src/settle.mjs
