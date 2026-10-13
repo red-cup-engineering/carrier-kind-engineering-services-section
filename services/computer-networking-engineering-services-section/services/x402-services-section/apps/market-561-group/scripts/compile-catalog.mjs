@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-import { createHash } from "node:crypto";
 import { readFileText } from "@red-cup-engineering/computer-file-engineering-services-section/read-file";
 import { parseArgs } from "node:util";
-import { resolve, sep } from "node:path";
+import { resolve } from "node:path";
 import { writeFileText } from "@red-cup-engineering/computer-file-engineering-services-section/write-file";
 import { runMain } from "@red-cup-engineering/javascript-file-services-section/javascript-file-main-guard";
 
@@ -10,58 +9,18 @@ import { bindingSpecifier, defaultArguments, resolveBinding } from "../../../src
 
 import { deriveCapabilityOutbox } from "../../../src/capability-outbox.mjs";
 import { declareCatalog } from "../../../src/offer.mjs";
+import { catalogDeclarations } from "../src/catalog-source.mjs";
+export { catalogDeclarations } from "../src/catalog-source.mjs";
 import source from "../../../data/market-561-group/records/catalog.json" with { type: "json" };
 
-const repositoryRoot = import.meta.filename.split("/lib/emsenn/services/")[0];
-const servicesRoot = "lib/emsenn/services/561-group/services";
+// The integrated forest still provides this known source composition. A
+// package installed elsewhere has no authority to infer another source tree.
+const forestDelimiter = "/lib/emsenn/services/";
+const forestIndex = import.meta.filename.indexOf(forestDelimiter);
+const integratedSourceRoot = forestIndex < 0 ? undefined : import.meta.filename.slice(0, forestIndex);
 // The rails market-561-group's deployment settles on (marketEnvironment's default network and its
 // Circle-issued USDC), which the capability Offers quote their price in.
 const MARKET_RAILS = Object.freeze({ network: "eip155:8453", asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" });
-
-/** Resolve publication selectors from the authoritative book offer and accepted edition. */
-export async function catalogDeclarations({ records = source, read = path => readFileText(resolve(repositoryRoot, path)) } = {}) {
-  const loaded = new Map();
-  async function record(path) {
-    const absolute = resolve(repositoryRoot, path);
-    if (!absolute.startsWith(`${repositoryRoot}${sep}`)) throw new TypeError("publication evidence must be inside the repository");
-    if (!loaded.has(path)) loaded.set(path, Promise.resolve(read(path)).then(text => JSON.parse(text)));
-    return loaded.get(path);
-  }
-  return Promise.all(records.map(async declaration => {
-    if (declaration.seller) {
-      const reference = declaration.seller.record;
-      const absolute = resolve(repositoryRoot, reference.path);
-      if (!absolute.startsWith(`${repositoryRoot}${sep}`)) throw new TypeError("seller evidence must be inside the repository");
-      const bytes = await read(reference.path), seller = JSON.parse(bytes);
-      const seat = reference.path.split("/lib/agency/enterprises/")[0];
-      if (createHash("sha256").update(bytes).digest("hex") !== reference.sha256 || seller.id !== declaration.seller.enterprise ||
-          seller.entity !== declaration.seller.entity || !(declaration.section === seat || declaration.section.startsWith(`${seat}/`))) {
-        throw new TypeError(`${declaration.name}: seller record digest, identity, entity and production scope must match the declared enterprise`);
-      }
-    }
-    if (!declaration.publication) return declaration;
-    const { publication: reference, ...operationDeclaration } = declaration;
-    const catalog = await record(reference.catalog);
-    const rows = (catalog.offerings ?? []).filter(row => row.id === reference.id);
-    if (rows.length !== 1) throw new TypeError(`${reference.id}: publication selector must name exactly one catalog book`);
-    const row = rows[0];
-    if (!row.release || !row.book?.acceptance || row.currency !== "usd" || !Number.isInteger(row.priceCents) || row.priceCents <= 0) throw new TypeError(`${row.id}: publication requires a release, accepted edition and USD price`);
-    const manifest = await record(`${servicesRoot}/${row.book.manuscript}/ebook.json`);
-    const acceptance = await record(`${servicesRoot}/${row.book.acceptance}`);
-    if (acceptance.type !== "EbookEditionAcceptance" || acceptance.status !== "accepted" || !/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(acceptance.editionInputDigest ?? "")) throw new TypeError(`${row.id}: publication names no accepted edition`);
-    const hex = value => {
-      if (!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(value ?? "")) throw new TypeError(`${row.id}: acceptance artifact has no content address`);
-      return Buffer.from(value.slice("ni:///sha-256;".length), "base64url").toString("hex");
-    };
-    const publication = { release: acceptance.editionInputDigest, artifacts: { epub: hex(acceptance.artifacts?.epub?.sha256), screenPdf: hex(acceptance.artifacts?.screenPdf?.sha256) }, available: row.status === "live" };
-    const binding = name => ({ package: "@red-cup-engineering/digital-goods-storefront-services-section", subpath: "./paid-release", export: name, args: ["offer.operation", "env", "offer.compute.configuration"], configuration: publication });
-    return { ...operationDeclaration, name: row.title ?? manifest.title, operation: row.release, price: `$${(row.priceCents / 100).toFixed(2)}`, listed: publication.available,
-      output: { schema: { type: "string", description: "A ZIP binary containing the accepted EPUB and PDF edition." }, example: `${row.release}.zip` },
-      framings: [{ key: "default", title: row.title ?? manifest.title, description: (manifest.description ?? manifest.title).slice(0, 500), tags: (manifest.keywords ?? ["ebook"]).filter(tag => /^[\x20-\x7e]{1,32}$/u.test(tag)).slice(0, 5), serviceName: row.id.slice(0, 32) }],
-      resources: [`one immutable EPUB-and-PDF bundle of accepted edition ${publication.release}`],
-      compute: binding("readPaidRelease"), validate: binding("admitPaidRelease") };
-  }));
-}
 
 /**
  * An offer is sold with a request example a buyer can send as written, so the
@@ -96,11 +55,11 @@ export async function admitOfferExamples(declarations, { load } = {}) {
  * Usage: compile-catalog
  */
 await runMain(async () => {
-  const { values } = parseArgs({ options: { "previous-catalog": { type: "string" } } });
+  const { values } = parseArgs({ options: { "previous-catalog": { type: "string" }, "source-root": { type: "string" } } });
   const previous = await import("../src/compiled-offers.mjs");
   const candidates = [...(previous.HISTORICAL_DECLARATIONS ?? [])];
   if (values["previous-catalog"]) candidates.push(...JSON.parse(await readFileText(resolve(values["previous-catalog"]))));
-  const declarations = await catalogDeclarations();
+  const declarations = await catalogDeclarations({ records: source, sourceRoot: values["source-root"] ?? integratedSourceRoot });
   await admitOfferExamples(declarations);
   const offers = declareCatalog(declarations);
   const currentSkus = new Set(offers.map(offer => offer.sku));
