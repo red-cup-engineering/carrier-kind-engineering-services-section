@@ -2,7 +2,7 @@ import { renderTufteDocument } from '@red-cup-engineering/web-page-tiling-engine
 import { escapeHtml, admitTufteUrl } from '@red-cup-engineering/web-page-tiling-engine/browser';
 
 export const WORKSPACE_LINKS = Object.freeze([
-  { href: '/work', label: 'Work' }, { href: '/conversations', label: 'Conversations' },
+  { href: '/work', label: 'Work' }, { href: '/agents', label: 'Agents and offices' }, { href: '/conversations', label: 'Conversations' },
   { href: '/code', label: 'Code' }, { href: '/knowledge', label: 'Knowledge' },
   { href: '/resources', label: 'Resources' }, { href: '/books/view', label: 'Accounts' },
   { href: '/people', label: 'People' }, { href: '/network', label: 'Systems' },

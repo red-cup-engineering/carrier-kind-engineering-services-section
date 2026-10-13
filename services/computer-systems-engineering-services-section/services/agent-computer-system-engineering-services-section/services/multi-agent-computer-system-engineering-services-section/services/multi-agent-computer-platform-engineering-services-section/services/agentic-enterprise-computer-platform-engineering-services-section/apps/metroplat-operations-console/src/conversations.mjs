@@ -26,6 +26,21 @@ export async function sendPrivateMessage(runAs, subject, recipient, text) {
   return receipt;
 }
 
+/** Durable character/office mail uses the body's existing carrier, not a network address. */
+export async function sendCharacterMail(runAs, subject, recipient, text) {
+  if (typeof recipient !== 'string' || !recipient.trim() || recipient.length > 2048) throw new TypeError('Choose a character or office.');
+  if (typeof text !== 'string' || !text.trim() || text.length > 2000) throw new TypeError('Supply a message of at most 2000 characters.');
+  const receipt = await runAs(subject, 'mail', { to: recipient, words: text });
+  if (receipt?.kind !== 'metroplat.mail-sent' || typeof receipt.id !== 'string' || !Array.isArray(receipt.to)) throw new TypeError('The native mail carrier did not confirm the addressed message.');
+  return receipt;
+}
+
+export async function readCharacterMail(runAs, subject) {
+  const body = await runAs(subject, 'body', {});
+  if (body?.kind !== 'organizing.agency.lived-body' || !Array.isArray(body.mail?.messages) || !Array.isArray(body.mail?.unread)) throw new TypeError('The native body did not return its mail history.');
+  return body;
+}
+
 export function sameOriginRequest(req) {
   try { return new URL(req.headers.origin ?? '').host === req.headers.host; } catch { return false; }
 }
@@ -57,19 +72,26 @@ export function conversationTiles(entry, cursor) {
 
 export function conversationsApp({ runAs, navigation, navigationTitle }) {
   const page = (title, tiles, status = 200) => htmlRepr(workspaceDocument({ title, tiles, navigation, navigationTitle,
-    subtitle: 'Private actor conversations and returned operations' }), { status, cacheControl: { noStore: true } });
+    subtitle: 'Character mail, federated actor conversations and returned operations' }), { status, cacheControl: { noStore: true } });
   const compose = params => ({ title: 'Write to an agent or person', span: 6, form: {
     action: '/conversations', method: 'post', enhance: false, fields: [
-      { name: 'recipient', label: 'Actor address', value: params.get('recipient') ?? '', required: true, placeholder: 'actor@instance or an actor URL' },
+      { name: 'channel', kind: 'select', label: 'Delivery', value: params.get('channel') ?? 'actor', options: [
+        { value: 'character', label: 'Character or office mail' }, { value: 'actor', label: 'Federated actor message' },
+      ] },
+      { name: 'recipient', label: params.get('channel') === 'character' ? 'Character or office' : 'Actor address', value: params.get('recipient') ?? '', required: true,
+        description: 'Find a recipient in Agents and offices. Network actors use their actual actor address.' },
       { name: 'text', kind: 'textarea', label: 'Message', value: params.get('text') ?? '', required: true,
-        description: 'Your signed private message goes to this actor. Operation requests use the native {verb,input} JSON form.' },
-    ], submitters: [{ label: 'Send private message' }],
-  } });
+        description: 'Character mail allows 2000 characters and waits for a session to read it. Federated messages allow 16384 bytes.' },
+    ], submitters: [{ label: 'Send message' }],
+  }, links: [{ href: '/agents', label: 'Find an agent or office' }] });
   const filter = params => ({ title: 'Find a conversation', span: 6, form: { action: '/conversations', method: 'get', fields: [
+    { name: 'channel', kind: 'select', label: 'Inbox', value: params.get('channel') ?? 'actor', options: [{ value: 'character', label: 'Your character mail' }, { value: 'actor', label: 'Your federated messages' }] },
     { name: 'sender', label: 'Exact sender', value: params.get('sender') ?? '' },
-    { name: 'request', label: 'Request address', value: params.get('request') ?? '' },
-    { name: 'task', label: 'Task identifier', value: params.get('task') ?? '' },
-    { name: 'q', label: 'Words in this inbox page', value: params.get('q') ?? '' },
+    ...(params.get('channel') === 'character' ? [] : [
+      { name: 'request', label: 'Request address', value: params.get('request') ?? '' },
+      { name: 'task', label: 'Task identifier', value: params.get('task') ?? '' },
+    ]),
+    { name: 'q', label: params.get('channel') === 'character' ? 'Words in your mail history' : 'Words in this inbox page', value: params.get('q') ?? '' },
   ], submitters: [{ label: 'Find replies' }] } });
   return { resources: [{ id: 'ops-conversations', match: '/conversations', methods: ['GET', 'POST'], produces: ['text/html'], handler: async ctx => {
     const principal = ctx.locals?.principal;
@@ -77,13 +99,43 @@ export function conversationsApp({ runAs, navigation, navigationTitle }) {
       ? { status: 303, headers: { location: `/sign-in?return_to=${encodeURIComponent(ctx.url.pathname + ctx.url.search)}` } } : { status: 401 };
     if (ctx.req.method === 'POST' && !sameOriginRequest(ctx.req)) return { status: 403 };
     const subject = subjectOf(principal), params = ctx.req.method === 'POST' ? await readFormBody(ctx.req, { maxBytes: 64 * 1024 }) : ctx.url.searchParams;
+    const channel = params.get('channel') ?? 'actor';
+    if (!['character', 'actor'].includes(channel)) return page('Error: Invalid delivery', [compose(params), { title: 'Choose a delivery', span: 12, content: 'Choose character mail or federated actor messages.' }], 400);
     let receipt, sendError;
     if (ctx.req.method === 'POST') {
-      try { receipt = await sendPrivateMessage(runAs, subject, params.get('recipient'), params.get('text')); }
+      try { receipt = await (channel === 'character' ? sendCharacterMail : sendPrivateMessage)(runAs, subject, params.get('recipient'), params.get('text')); }
       catch (error) { sendError = error; }
     }
-    const tiles = [filter(ctx.url.searchParams), compose(receipt ? new URLSearchParams({ recipient: params.get('recipient') }) : params),
-      ...(receipt ? submissionTiles(receipt) : []), ...(sendError ? [{ title: 'The message was not confirmed submitted', span: 12, content: sendError.message }] : [])];
+    const inboxParams = new URLSearchParams(ctx.url.searchParams); inboxParams.set('channel', channel);
+    const tiles = [filter(inboxParams), compose(receipt ? new URLSearchParams({ recipient: params.get('recipient'), channel }) : params),
+      ...(receipt ? channel === 'character' ? [{ title: 'Mail recorded · awaiting a session to read it', span: 12, content: `Message ${receipt.id} is addressed to ${receipt.to.join(', ')}.`, links: [{ href: '/conversations?channel=character', label: 'Read your character mail' }] }, evidenceTile('Native mail receipt', receipt)] : submissionTiles(receipt) : []),
+      ...(sendError ? [{ title: 'The message was not confirmed submitted', span: 12, content: sendError.message }] : [])];
+    if (channel === 'character') {
+      try {
+        const body = await readCharacterMail(runAs, subject), unread = new Set(body.mail.unread.map(message => message.id));
+        const query = ctx.url.searchParams;
+        const pageNumber = Number(query.get('page') ?? '1');
+        if (!Number.isSafeInteger(pageNumber) || pageNumber < 1) return page('Error: Check the mail page', [...tiles, { title: 'Invalid page', span: 12, content: 'Choose a positive whole page number.' }], 400);
+        const messages = body.mail.messages.filter(message => (!query.get('sender') || message.from === query.get('sender'))
+          && (!query.get('q') || message.words.toLowerCase().includes(query.get('q').toLowerCase())));
+        tiles.push({ title: 'Your character mail', span: 12, content: `${body.character.name ?? body.character.id}: ${body.mail.total} received messages; ${body.mail.unread.length} unread. Reading this page does not mark mail read.`,
+          links: [{ href: `/agents?${new URLSearchParams({ character: body.character.key })}`, label: 'Inspect your character and sessions' }] });
+        tiles.push({ title: 'Mail history', span: 12, table: { caption: 'Durable messages to your character and its offices', columns: [{ label: 'Message', rowHeader: true }, 'From', 'Addressed to', 'Sent', 'Reading'],
+          rows: [...messages].reverse().slice((pageNumber - 1) * 50, pageNumber * 50).map(message => [{ text: message.id, href: link({ ...Object.fromEntries(query), channel, message: message.id }) }, message.from, [message.to].flat().join(', '), message.at, unread.has(message.id) ? 'Unread' : 'Read by a session']), empty: 'No matching mail on this page.' },
+          content: `${messages.length} matching messages; page ${pageNumber}, up to 50 messages.`, links: [
+            ...(pageNumber > 1 ? [{ href: link({ ...Object.fromEntries(query), channel, page: String(pageNumber - 1) }), label: 'Newer mail' }] : []),
+            ...(pageNumber * 50 < messages.length ? [{ href: link({ ...Object.fromEntries(query), channel, page: String(pageNumber + 1) }), label: 'Older mail' }] : []),
+          ] });
+        if (query.has('message')) {
+          const selected = body.mail.messages.find(message => message.id === query.get('message'));
+          tiles.push(...(selected ? [contentTile('Message', selected.words), { title: 'Reply', span: 12, links: [{ href: link({ channel, recipient: selected.from }), label: 'Write to the sender' }] }, evidenceTile('Mail and original address', selected)] : [{ title: 'Message unavailable', span: 12, content: 'This body reading does not contain the selected message.' }]));
+        }
+        return page(sendError ? 'Error: Message submission unconfirmed' : 'Character conversations', tiles, sendError ? 502 : 200);
+      } catch (error) {
+        if (ctx.signal?.aborted) throw error;
+        return page('Error: Character mail unavailable', [...tiles, { title: 'Your mail history could not be read', span: 12, content: error.message }], 502);
+      }
+    }
     try {
       const inbox = await readPrivateInbox(runAs, subject, ctx.url.searchParams.get('cursor') ?? undefined);
       const query = ctx.url.searchParams;

@@ -4,6 +4,7 @@ import { libraryApp } from "./library.mjs";
 import { workCenterApp } from "./work-center.mjs";
 import { workActionsApp } from "./work-actions.mjs";
 import { conversationsApp } from "./conversations.mjs";
+import { agentsApp } from "./agents.mjs";
 import { resourceWorkspaceApp } from "./resource-workspace.mjs";
 import { WORKSPACE_LINKS } from "./workspace-document.mjs";
 import { worldClientApp } from "./world-client.mjs";
@@ -79,6 +80,7 @@ export function operationsConsole({ config, configuration = {}, run, runAs, reso
       workCenterApp({ runAs, navigation, navigationTitle: label }),
       workActionsApp({ runAs, navigation, navigationTitle: label }),
       conversationsApp({ runAs, navigation, navigationTitle: label }),
+      agentsApp({ runAs, navigation, navigationTitle: label }),
       resourceWorkspaceApp({ runAs, navigation, navigationTitle: label }),
       worldClientApp({ title: config.instance.title ?? label, navigation, navigationTitle: label, run, runAs, landing: obligations.landing }),
       libraryApp({ dataRoot: config.metroplatDataRoot }),

@@ -29,7 +29,7 @@ export function workCenterApp({ runAs, navigation, navigationTitle = 'Group' }) 
       { name: 'view', kind: 'hidden', value: 'board' },
       { name: 'kind', kind: 'select', label: 'Kind', value: params.get('kind') ?? '', options: [{ value: '', label: 'Every kind' }, ...OPENING_MOVES.map(value => ({ value, label: value }))] },
       { name: 'horizon', kind: 'select', label: 'Horizon', value: params.get('horizon') ?? '', options: [{ value: '', label: 'Every horizon' }, ...HORIZONS.map(value => ({ value, label: value }))] },
-      ...['step', 'home', 'tag', 'source'].map(name => ({ name, label: name === 'source' ? 'Exact source citation' : name[0].toUpperCase() + name.slice(1), value: params.get(name) ?? '' })),
+      ...['step', 'owes', 'home', 'tag', 'source'].map(name => ({ name, label: name === 'source' ? 'Exact source citation' : name === 'owes' ? 'Owed by this player or office' : name[0].toUpperCase() + name.slice(1), value: params.get(name) ?? '' })),
       { name: 'extent', kind: 'select', label: 'Standing extent', value: params.get('extent') ?? 'open', options: [{ value: 'open', label: 'Open threads' }, { value: 'all', label: 'All threads' }] },
       { name: 'limit', kind: 'number', label: 'Threads per page', min: '1', max: '200', step: '1', value: params.get('limit') ?? '50' },
     ], submitters: [{ label: 'Read work' }],

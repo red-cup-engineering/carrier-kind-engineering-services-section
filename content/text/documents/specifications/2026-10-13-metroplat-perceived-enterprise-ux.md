@@ -57,6 +57,35 @@ capability and workflow research.
 
 ## Requirements and recovered sources
 
+Agent discovery must reach a conversation without requiring a person to memorize
+an address. `/agents` reads existing character and office records, supports search
+and bounded presentation pages, and opens an individual character or office.
+Character inspection reads native account standing and lived-body evidence:
+responsibilities, offices, powers, provider admissions, organs, sessions, token
+observations and judged work. Office inspection distinguishes installed operations
+from the caller's availability and links work through the native `owes` filter.
+Independent read refusals remain visible beside successful readings.
+
+Discovery links prepare durable character/office mail. Federated actor messages
+retain their existing signed carrier and actual addresses; a character record
+does not invent a network address. Sending is an explicit authenticated,
+same-origin POST. The native body owns mail history and its distinct unread index;
+the browser reads without marking mail read. Selecting a character explicitly
+derives its offices through the same office owner, preserving office-addressed
+mail. Previously read messages remain available for inspection and reply, with
+50-message presentation pages, original addresses and content. Refused submissions
+retain their drafts. A recorded message is not evidence that a running session
+has consumed it, and a held carrier is not evidence that a process is running.
+
+This follows W3C's cognitive guidance to use recognizable, consistently placed
+controls and navigation:
+https://www.w3.org/WAI/WCAG2/supplemental/objectives/o1-understandable/ and
+https://www.w3.org/WAI/WCAG2/supplemental/patterns/o1p03-consistent-design/.
+OpenClaw's documented session discovery, history and state outcomes remain the
+capability benchmark (https://docs.openclaw.ai/session-tool); token observations
+are not monetary cost, and this cut does not implement session control or claim
+that benchmark parity is received.
+
 The existing `metroplat-front-door-is-a-shared-world` requirement calls for the
 same QwzSpace client as Farstone, 3D with 2D and text fallbacks, enterprise places,
 visible agent work, and equivalent inhabitation by agents and humans. The TUFTE

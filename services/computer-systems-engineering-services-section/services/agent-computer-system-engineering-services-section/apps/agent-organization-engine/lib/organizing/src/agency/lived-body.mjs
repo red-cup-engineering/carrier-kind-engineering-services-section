@@ -129,7 +129,7 @@ export function livedBodyOf(agency, ref, told = {}) {
     present: Object.freeze(sessions.filter((entry) => entry.held).map((entry) => entry.session)),
     standing: Object.freeze(standing),
     spend: Object.freeze(spend),
-    mail: Object.freeze({ total: mine.length, unread: Object.freeze(mine.filter((entry) => !read.has(entry.id))) }),
+    mail: Object.freeze({ total: mine.length, messages: Object.freeze(mine), unread: Object.freeze(mine.filter((entry) => !read.has(entry.id))) }),
     memory: Object.freeze([...memory.values()].map(({ key, text: said, at }) => Object.freeze({ key, text: said, at }))),
   });
 }
