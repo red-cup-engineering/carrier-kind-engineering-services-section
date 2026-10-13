@@ -23,7 +23,8 @@
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/qwzspace": "workspace:*",
     "@red-cup-engineering/web-page-tiling-engine": "workspace:*",
-    "@red-cup-engineering/github-semioverse-settler-service": "workspace:*"
+    "@red-cup-engineering/github-semioverse-settler-service": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*"
   },
   "bin": {
     "metroplat-check-live-ledger": "scripts/check-live-ledger.mjs"

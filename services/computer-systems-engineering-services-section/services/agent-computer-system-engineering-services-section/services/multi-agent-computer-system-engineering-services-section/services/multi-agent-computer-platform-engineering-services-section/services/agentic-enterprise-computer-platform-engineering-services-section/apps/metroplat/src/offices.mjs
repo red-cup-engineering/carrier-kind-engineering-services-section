@@ -35,7 +35,8 @@ import { knowledgeJoinAll, readingAs, readingSchema } from "@red-cup-engineering
 import { incumbencyState, officeIncumbencyClaimCell } from "@red-cup-engineering/socializing/office";
 import { AGENCY_POOLS, agencyRootFrom, bearersHandedBy, governanceOf, isToldBearer, officeCoordinationBoundary as officeBoundary, officeReading, officesOf, resolve, toldBearersOf, withSeatClaims, withToldHands } from "@red-cup-engineering/organizing/agency";
 import { agencyAt, agencyMoved } from "@red-cup-engineering/organizing/agency/held";
-import { castCensus, masksOf as castMasksOf, playersOf, subjectOf } from "@red-cup-engineering/organizing/agency/cast";
+import { castCensus, masksOf as castMasksOf, playersOf } from "@red-cup-engineering/organizing/agency/cast";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { embodiedPlayers } from "@red-cup-engineering/organizing/agency/organs";
 import { politicCensus } from "@red-cup-engineering/organizing/agency/politic";
 import { controlCensus } from "@red-cup-engineering/organizing/agency/control";

@@ -23,7 +23,7 @@ import { readFormBody, readJsonBody } from "@red-cup-engineering/http-services-s
 import { renderTufteDocument } from "@red-cup-engineering/web-page-tiling-engine/rendering";
 import { readBrowserModuleClosure, servedBrowserModules } from "@red-cup-engineering/web-page-tiling-engine/modules";
 import { GAME_STYLES } from "@red-cup-engineering/qwzspace/game-styles";
-import { subjectOf } from "@red-cup-engineering/organizing/agency/cast";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { streetAliases, streetAtlas, streetPulse } from "./metroplex-street.mjs";
 
 const KEEP = 400;

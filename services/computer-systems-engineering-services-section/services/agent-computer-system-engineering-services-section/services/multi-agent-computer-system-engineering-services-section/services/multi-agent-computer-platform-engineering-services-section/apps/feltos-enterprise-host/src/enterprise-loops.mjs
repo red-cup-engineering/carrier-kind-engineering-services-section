@@ -20,7 +20,8 @@ import { deedsOf, doersOf, enterpriseRecord, governingRight, incumbentsOf, openS
 import { enactAgencyRecords } from "@red-cup-engineering/organizing/agency/records";
 import { firmPoolAuthorityResolver } from "@red-cup-engineering/metroplat/firm-pool-authority";
 import { canonicalPlayer, resolve as resolveAgency } from "@red-cup-engineering/organizing/agency";
-import { playerOfAct, subjectOf } from "@red-cup-engineering/organizing/agency/cast";
+import { playerOfAct } from "@red-cup-engineering/organizing/agency/cast";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { agencyAt, bearerTestimonyOf, handedAgency, officeServiceSession, officesOfAccount, providersOfAccount, seatedAgencyOf, tellSessionHand } from "@red-cup-engineering/metroplat/offices";
 import { readAgentWorkDispatchReadout } from "@red-cup-engineering/feltos/work/dispatch-readout";
 import { workHomesOf } from "./federated-work.mjs";

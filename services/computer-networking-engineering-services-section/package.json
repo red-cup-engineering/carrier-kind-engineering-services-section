@@ -31,6 +31,7 @@
     "@red-cup-engineering/computer-system-engine": "workspace:*"
   },
   "exports": {
+    "./identity/subject": "./src/identity/subject.mjs",
     "./package.json": "./package.json",
     "./otlp": "./src/otlp.mjs",
     "./otlp-schema": "./src/otlp-schema.mjs",

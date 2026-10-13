@@ -42,7 +42,7 @@ import { composeCapabilities, defineCapability } from "@red-cup-engineering/felt
 import { message } from "@red-cup-engineering/feltos/engine";
 import { move, placeOf, values, witnessesOf, subjects, certainValue, contentsOf, exitsOf } from "@red-cup-engineering/feltos/world";
 import { canonicalPlayer, officeReading, resolve } from "@red-cup-engineering/organizing/agency";
-import { subjectOf } from "@red-cup-engineering/organizing/agency/cast";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { OPENING_MOVES, RESPONSE_MOVES, deliveriesToAssay, threadSummary } from "@red-cup-engineering/organizing/enterprise";
 import { readServicesSectionTree } from "@red-cup-engineering/services-section-form-services-section/read-services-section-tree";
 import { tellBodyRecords } from "./bodies.mjs";

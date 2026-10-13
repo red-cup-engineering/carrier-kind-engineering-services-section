@@ -24,7 +24,7 @@ import { renderTufteDocument, renderSignCellSection } from "@red-cup-engineering
 import { projectFiber } from "@red-cup-engineering/qwzspace/fiber";
 import { readBrowserModuleClosure, servedBrowserModules } from "@red-cup-engineering/web-page-tiling-engine/modules";
 import { GAME_STYLES } from "@red-cup-engineering/qwzspace/game-styles";
-import { subjectOf } from "@red-cup-engineering/organizing/agency/cast";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { streetAliases, streetAtlas, streetPulse } from "./world-street.mjs";
 
 const KEEP = 400;

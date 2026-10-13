@@ -74,6 +74,19 @@ tiers, inert TUFTE rendering, and a deliberately isolated enterprise frame with
 contrary evidence and operational affordances. No package tests discharge this
 contract. Local receiving is distinct from native admission and live release.
 
+The consumed fabrication method now resolves module files at their real supplier
+location, matching Node's resolution through symlinked packages. A lexical source
+path lost cbor2's transitive `@cto.af/wtf8` dependency during fabrication. TUFTE's
+served module closure also exposes its full SCA alongside its shortened cache path.
+This is the same carrier commitment, not another bundle identity convention.
+
+The authenticated-subject read is owned by Networking at `identity/subject`.
+Its implementation preserves the prior provider/hash and invocation precedence
+exactly. The agency cast, enterprise loops, MetroPlat and operations-console
+consumers import it directly. The structural-claims receiver in the Group tree
+also migrates. A page reading a principal no longer loads the agency/game graph
+and its unrelated XML dependency. This changes ownership and loading, not standing.
+
 ## Continuing session work
 
 Accessibility sources retrieved 2026-10-13: W3C's [target size guidance](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html),
