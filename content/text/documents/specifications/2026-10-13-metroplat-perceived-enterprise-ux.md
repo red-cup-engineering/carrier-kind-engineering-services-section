@@ -359,3 +359,31 @@ These bounded facts do not receive production actor effects or the shared machin
 release. Work, conversations, source editing, agent management, ERP/ICS/CRM,
 spatial semantics, federation and the four section sites retain their full
 capability obligations.
+
+
+## Frozen selected source preparation
+
+Native source planning at Root41d9027 selected 218 of 803 lock importers. Receive
+current Code main through #55/#100/#101/#99, retaining publication custody, safe
+missing sparse ancestors and existing-owner expansion; reconcile only the two
+publication-owner dependency removals. The exact Root89a5251 candidate then
+reached a genuine checkout-control omission: Git acquires ancestor `.gitattributes`
+for selected package bytes. Code103 shares the initial/expanded projection and
+includes only the regular recorded attribute controls governing selected paths.
+Unrelated corpus bodies and nonconforming transport remain refused.
+
+Actual native materialization reached 217 selected projects across 19 recorded
+source mounts, with the committed full lock preserved. Frozen PNPM installation
+then refused source/lock disagreement; its own install receipt remains `refused`.
+The source manifest reading records eight raw demand differences (including
+registry versus workspace spellings); it does not independently receive overrides,
+dependency group changes or resolve those demands. Read original owner obligations
+before reconciliation. The retained evidence is
+`evidence/2026-10-13-metroplat-perceived-enterprise-ux/selected-source-preparation.json`
+and `selected-manifest-reading.json` in that directory.
+
+The remaining selected demand for the old JSON-file-codec owner comes from the
+relation-model-notation evaluator, not JSON Schema. Assess that actual semiotic
+owner before extending normalization; do not promote an all-Data build or a
+source/lock refusal into business receiving. The complete release and full human
+workflow, enterprise, spatial, federation and section-site obligations remain owed.
