@@ -387,3 +387,28 @@ relation-model-notation evaluator, not JSON Schema. Assess that actual semiotic
 owner before extending normalization; do not promote an all-Data build or a
 source/lock refusal into business receiving. The complete release and full human
 workflow, enterprise, spatial, federation and section-site obligations remain owed.
+
+
+## Canonical evaluator data boundary
+
+Receive the original RMN evaluator repair (#4) at its actual notation repository,
+then normalize its public JSDoc type onto `json-services-section/types` (#6).
+The earlier proposal's local recursive typedef is replaced by the existing shared
+Data type; evaluation introduces no runtime API or parallel model. Its stale
+standalone npm lock is retired from active source, with history retained. Remove
+the brittle exact dependency-key assertion rather than treating it as capability.
+
+Native TypeScript declaration fabrication with noEmitOnError retains that JSON
+type on input and output. Actual native evaluator/notation/JSON bridge receiving
+preserves a nested resource carrier, readonly input, Unicode, zero, false and null.
+The receipt is `evidence/2026-10-13-metroplat-perceived-enterprise-ux/rmn-json-owner-receiving.json`.
+This qualifies the existing pure evaluation boundary, not full SEN migration,
+authenticated operation, frozen installation, runtime or production.
+
+Current upstream Root780 already repairs five raw demand differences. The three
+Polymarket registry/workspace spellings are covered by the source workspace's
+explicit overrides; a raw specifier comparison cannot judge them as defects.
+Repeated dependency names in runtime and development groups likewise require
+PNPM's group normal form, not a naive set comparison. Keep the earlier refusal
+as evidence of the exact invocation; use complete source/policy composition for
+the next release candidate instead of changing meaningful demands to satisfy it.
