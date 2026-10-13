@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { runMain } from "@red-cup-engineering/javascript-file-services-section/javascript-file-main-guard";
 
-import { catalog } from "../src/market.mjs";
+import { declareCatalog, OFFER_DECLARATION_KIND } from "../../../src/offer.mjs";
+import { observeX402Resource, publicHttpsUrl } from "../../../src/resource-observation.mjs";
 
 const DEFAULT_MARKET = "https://market.561.group";
 const PROVIDER = "561 Group";
@@ -17,118 +18,108 @@ function classificationFor({ status, runtime }) {
   return "unreachable";
 }
 
-function classifyPaymentRequired(response, requestedUrl) {
-  const encoded = response.headers.get("payment-required");
-  if (!encoded?.trim()) {
-    return { classification: "402-invalid-challenge", challengeError: "missing PAYMENT-REQUIRED header" };
+function marketOrigin(value) {
+  const url = new URL(publicHttpsUrl(value, "market"));
+  if (url.pathname !== "/" || url.search !== "") throw new TypeError("market must name one public HTTPS deployment origin");
+  return url.origin;
+}
+
+function probeConcurrency(value) {
+  if (!Number.isSafeInteger(value) || value < 1 || value > 32) {
+    throw new TypeError("projection audit concurrency must be an integer from 1 through 32");
   }
-  try {
-    const challenge = JSON.parse(Buffer.from(encoded.trim(), "base64").toString("utf8"));
-    if (challenge?.x402Version !== 2) {
-      return { classification: "402-invalid-challenge", challengeError: "x402Version must be 2" };
-    }
-    if (!Array.isArray(challenge.accepts) || challenge.accepts.length === 0) {
-      return { classification: "402-invalid-challenge", challengeError: "accepts must be a non-empty array" };
-    }
-    const resourceUrl = challenge?.resource?.url;
-    if (typeof resourceUrl !== "string" || !resourceUrl.trim()) {
-      return { classification: "402-invalid-challenge", challengeError: "resource.url is required" };
-    }
-    let requested;
-    let resource;
-    try {
-      requested = new URL(requestedUrl).href;
-      resource = new URL(resourceUrl).href;
-    } catch {
-      return {
-        classification: "402-invalid-challenge",
-        challengeResourceUrl: resourceUrl,
-        challengeError: "resource.url must be an absolute URL",
-      };
-    }
-    if (resource !== requested) {
-      return {
-        classification: "402-resource-mismatch",
-        challengeResourceUrl: resource,
-        challengeError: `challenge names ${resource} instead of requested ${requested}`,
-      };
-    }
-    return { classification: "402-ready", challengeResourceUrl: resource };
-  } catch (error) {
-    return {
-      classification: "402-invalid-challenge",
-      challengeError: error instanceof Error ? error.message : String(error),
-    };
+  return value;
+}
+
+async function sourceOffers(sourceCatalog) {
+  if (sourceCatalog === undefined) return (await import("../src/market.mjs")).catalog({ admit: false });
+  if (!Array.isArray(sourceCatalog) || sourceCatalog.some(offer => offer?.kind !== OFFER_DECLARATION_KIND)) {
+    throw new TypeError("sourceCatalog must contain admitted x402 offers");
   }
+  return declareCatalog(sourceCatalog);
 }
 
 async function readJson(fetch, url) {
+  let response;
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(20_000), redirect: "manual" });
+    response = await fetch(url, { signal: AbortSignal.timeout(20_000), redirect: "manual" });
     const text = await response.text();
     let body;
     try { body = JSON.parse(text); } catch { body = { raw: text.slice(0, 500) }; }
     return { status: response.status, body };
   } catch (error) {
-    return { status: "unreachable", error: error instanceof Error ? error.message : String(error) };
+    return { status: response?.status ?? "unreachable", error: error instanceof Error ? error.message : String(error) };
   }
 }
 
-async function probe(fetch, offer) {
+async function probe(fetch, offer, market) {
   const registration = offer.index402Registration({
     provider: PROVIDER,
     paymentAsset: PAYMENT_ASSET,
     paymentNetwork: PAYMENT_NETWORK,
   });
+  const sourceUrl = new URL(registration.url);
+  // Candidate receiving projects the same operation and query onto the selected
+  // deployment origin; its original declaration and identity are unchanged.
+  const projectedUrl = new URL(market);
+  projectedUrl.pathname = sourceUrl.pathname;
+  projectedUrl.search = sourceUrl.search;
+  const url = projectedUrl.href;
+  const row = {
+    gateway: offer.declaration.gateway,
+    operation: offer.declaration.operation,
+    name: offer.declaration.name,
+    runtime: offer.declaration.runtime ?? "edge",
+    method: registration.http_method,
+    url,
+    ...(url === registration.url ? {} : { sourceUrl: registration.url }),
+    priceUsd: registration.price_usd,
+  };
+  let response;
   try {
-    const response = await fetch(registration.url, {
+    const observation = await observeX402Resource({
+      resourceUrl: url,
       method: registration.http_method,
-      redirect: "manual",
-      signal: AbortSignal.timeout(30_000),
-      ...(registration.probe_body === undefined ? {} : {
-        headers: { "content-type": "application/json" },
-        body: registration.probe_body,
-      }),
+      ...(registration.probe_body === undefined ? {} : { jsonBody: JSON.parse(registration.probe_body) }),
+      timeoutMs: 30_000,
+      fetchImpl: async (...args) => {
+        response = await fetch(...args);
+        return response;
+      },
     });
-    const status = response.status;
-    let detail;
-    let challenge;
-    if (status !== 402) {
-      const text = await response.text();
-      detail = text.slice(0, 500);
-    } else {
-      challenge = classifyPaymentRequired(response, registration.url);
-      await response.body?.cancel();
-    }
     return {
-      gateway: offer.declaration.gateway,
-      operation: offer.declaration.operation,
-      name: offer.declaration.name,
-      runtime: offer.declaration.runtime ?? "edge",
-      method: registration.http_method,
-      url: registration.url,
-      priceUsd: registration.price_usd,
-      status,
-      classification: status === 402
-        ? challenge.classification
-        : classificationFor({ status, runtime: offer.declaration.runtime ?? "edge" }),
-      ...(challenge?.challengeResourceUrl ? { challengeResourceUrl: challenge.challengeResourceUrl } : {}),
-      ...(challenge?.challengeError ? { challengeError: challenge.challengeError } : {}),
-      ...(detail ? { detail } : {}),
+      ...row,
+      status: observation.transport.status,
+      classification: "402-ready",
+      challengeResourceUrl: observation.paymentRequired.resource.url,
+      observationDigest: observation.observationDigest,
     };
   } catch (error) {
+    const status = response?.status ?? "unreachable";
+    const message = error instanceof Error ? error.message : String(error);
+    if (status === 402) {
+      return {
+        ...row,
+        status,
+        classification: message === "x402 declared resource URL does not match the observed URL"
+          ? "402-resource-mismatch"
+          : "402-invalid-challenge",
+        challengeError: message,
+      };
+    }
+    let detail;
+    if (response !== undefined) {
+      try { detail = (await response.text()).slice(0, 500); } catch { /* retain the observed HTTP status */ }
+    }
     return {
-      gateway: offer.declaration.gateway,
-      operation: offer.declaration.operation,
-      name: offer.declaration.name,
-      runtime: offer.declaration.runtime ?? "edge",
-      method: registration.http_method,
-      url: registration.url,
-      priceUsd: registration.price_usd,
-      status: "unreachable",
-      classification: "unreachable",
-      error: error instanceof Error ? error.message : String(error),
+      ...row,
+      status,
+      classification: classificationFor({ status, runtime: row.runtime }),
+      ...(detail ? { detail } : {}),
+      ...(response === undefined ? { error: message } : {}),
     };
+  } finally {
+    try { await response?.body?.cancel(); } catch { /* the body may already be consumed or closed */ }
   }
 }
 
@@ -146,7 +137,9 @@ async function mapLimit(items, limit, map) {
 
 /**
  * Compare the compiled source catalog with the public market face and probe
- * every currently listed offer. This is a release/operations assay, not a
+ * every currently listed offer at the selected deployment origin. An explicit
+ * sourceCatalog must already contain admitted offers; otherwise the production
+ * catalog is loaded lazily. This is a release/operations assay, not a
  * directory listing count: the market's own public 402 behavior is the
  * prerequisite that external directories are supposed to project.
  */
@@ -155,14 +148,17 @@ export async function auditPublicMarketProjection({
   now = () => new Date().toISOString(),
   market = DEFAULT_MARKET,
   concurrency = 6,
+  sourceCatalog,
 } = {}) {
-  const source = catalog({ admit: false });
+  const selectedConcurrency = probeConcurrency(concurrency);
+  const selectedMarket = marketOrigin(market);
+  const source = await sourceOffers(sourceCatalog);
   const listed = source.filter((offer) => offer.declaration.listed !== false);
   const [status, publicCatalog] = await Promise.all([
-    readJson(fetch, `${market}/v1/status`),
-    readJson(fetch, `${market}/v1/catalog`),
+    readJson(fetch, `${selectedMarket}/v1/status`),
+    readJson(fetch, `${selectedMarket}/v1/catalog`),
   ]);
-  const offers = await mapLimit(listed, concurrency, (offer) => probe(fetch, offer));
+  const offers = await mapLimit(listed, selectedConcurrency, (offer) => probe(fetch, offer, selectedMarket));
   const byClassification = {};
   for (const offer of offers) byClassification[offer.classification] = (byClassification[offer.classification] ?? 0) + 1;
   const ready = offers.filter((offer) => offer.classification === "402-ready").length;
@@ -171,7 +167,7 @@ export async function auditPublicMarketProjection({
   return Object.freeze({
     recordType: "561-group.x402-public-projection-audit",
     observedAt: now(),
-    market,
+    market: selectedMarket,
     source: {
       totalOffers: source.length,
       listedOffers: listed.length,
@@ -211,3 +207,4 @@ await runMain(async ({ argv }) => auditPublicMarketProjection({
   moduleUrl: import.meta.url,
   formatResult: (result) => `${JSON.stringify(result, null, 2)}\n`,
 });
+
