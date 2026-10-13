@@ -294,6 +294,30 @@ test("a compute failure carrying an HTTP status is reported with that status", a
   assert.deepEqual(await paid.json(), { error: "upstream chain unavailable" });
 });
 
+test("Node proxy fails closed on public HTTP origins before forwarding signed purchase credentials or bodies", async () => {
+  const market = demoMarket({
+    catalog: [postDeclaration()],
+    nodeOrigin: "http://node-market.561.group:8087",
+    proxyCatalog: [getDeclaration(), getDeclaration({
+      route: "/v1/private-compute", method: "POST", operation: "private-compute",
+      bodyExample: { input: "confidential" }, bodySchema: { type: "object" },
+    })],
+  });
+  for (const [path, init] of [
+    ["/v1/lookup?q=private", { headers: { "PAYMENT-SIGNATURE": "signed-secret", "X-Payment-Recovery": "recovery-secret" } }],
+    ["/v1/private-compute", {
+      method: "POST", headers: { "content-type": "application/json", "PAYMENT-SIGNATURE": "signed-secret" },
+      body: JSON.stringify({ input: "confidential" }),
+    }],
+  ]) {
+    const response = await market.fetch(new Request(`https://market.test${path}`, init));
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(response.headers.get("retry-after"), "120");
+    assert.match((await response.json()).error, /HTTPS/u);
+  }
+});
+
 test("status is served unpriced on both probes and counts the catalog", async () => {
   const market = demoMarket();
   for (const path of ["/v1/status", "/healthz"]) {
