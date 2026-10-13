@@ -14,6 +14,9 @@ function name(value, field) {
     return normalized;
 }
 
+/** Validated module -> in-project source path; external imports remain external. */
+export const sourcePathForModule = module => name(module, "module").replaceAll(".", "/") + ".lean";
+
 /** Typed compiler actions, never arbitrary command or shell arguments. */
 export function planLeanCheck(input) {
     const project = path.resolve(nonempty(input?.project, "project"));
