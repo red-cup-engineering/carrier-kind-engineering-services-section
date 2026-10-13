@@ -412,3 +412,29 @@ Repeated dependency names in runtime and development groups likewise require
 PNPM's group normal form, not a naive set comparison. Keep the earlier refusal
 as evidence of the exact invocation; use complete source/policy composition for
 the next release candidate instead of changing meaningful demands to satisfy it.
+
+
+## Frozen installation and runtime source fidelity
+
+Rootbf63d13 passes the actual frozen selected install for 216 importers, 583
+external packages and 640 supply-policy entries, preserving configuration and
+source custody. The lock's FeltOS development group duplicated two runtime
+packages; PNPM11.19's actual verifier excludes runtime names from that group.
+Normalize only those two redundant lock entries; retain runtime links and demands.
+The selected producer command builds only JSON Schema and the TOML file codec.
+The Group construction owner is separately installed in the exact 218-importer
+construction selection; its static compilation remains distinct from execution.
+
+Complete console compilation exposed two missing Git evidence exports. Git16
+already implements that meaningful public-source retention and complete paging
+capability on merged release history, while canonical main retained the earlier
+receiver. Git56 receives the exact two file blobs alongside current Git54/55.
+No API shim, substituted package, reduced console surface or new receipt ledger
+is introduced. The existing console intake then compiles against those real
+sources. Reconcile Git54's removed unconsumed RDF demand in the deployment lock;
+registry snapshots and other demands remain held.
+
+The evidence is `evidence/2026-10-13-metroplat-perceived-enterprise-ux/frozen-installation.json`
+and `github-intake-fabrication.json`. These receive the named source/consumer
+boundaries. The combined newer runtime and complete catalogue still require
+fabrication before operating or human-workflow receiving and production promotion.
