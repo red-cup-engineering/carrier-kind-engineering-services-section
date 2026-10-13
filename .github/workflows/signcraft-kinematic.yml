@@ -5,6 +5,10 @@ on:
     branches: ['**']
     paths:
       - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
+      - 'lib/signstuff/signcraft/src/inference/generate.mjs'
+      - 'lib/signstuff/signcraft/scripts/inference/generate-continuation.mjs'
+      - 'lib/signstuff/signcraft/test/inference/generate-continuation.test.mjs'
+      - 'lib/signstuff/signcraft/test/inference/energy.test.mjs'
       - 'lib/signstuff/signcraft/src/settle.mjs'
       - 'lib/signstuff/signcraft/src/proof-motion-carrier.mjs'
       - 'lib/signstuff/signcraft/test/settle.test.mjs'
@@ -19,6 +23,10 @@ on:
   pull_request:
     paths:
       - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
+      - 'lib/signstuff/signcraft/src/inference/generate.mjs'
+      - 'lib/signstuff/signcraft/scripts/inference/generate-continuation.mjs'
+      - 'lib/signstuff/signcraft/test/inference/generate-continuation.test.mjs'
+      - 'lib/signstuff/signcraft/test/inference/energy.test.mjs'
       - 'lib/signstuff/signcraft/src/settle.mjs'
       - 'lib/signstuff/signcraft/src/proof-motion-carrier.mjs'
       - 'lib/signstuff/signcraft/test/settle.test.mjs'
@@ -49,6 +57,10 @@ jobs:
       - name: Execute actual inference-motion regressions without runtime service dependencies
         run: |
           node --check lib/signstuff/signcraft/src/inference/infer.mjs
+          node --check lib/signstuff/signcraft/src/inference/generate.mjs
+          node --check lib/signstuff/signcraft/scripts/inference/generate-continuation.mjs
+          node --check lib/signstuff/signcraft/test/inference/energy.test.mjs
+          node --check lib/signstuff/signcraft/test/inference/generate-continuation.test.mjs
           node --check lib/signstuff/signgraph/src/cell-graph.mjs
           node --check lib/signstuff/signcraft/src/inference/kinematic.mjs
           node --test lib/signstuff/signcraft/test/kinematic.test.mjs
