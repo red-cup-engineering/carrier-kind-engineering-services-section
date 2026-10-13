@@ -1,4 +1,3 @@
-import {deliverActivity,resolveActivityPubRecipient} from '@red-cup-engineering/activitypub-services-section';
 import {extractSenActivity,projectSenActivity,senActivityObjectBytes} from '@red-cup-engineering/activitypub-services-section/sen-activity';
 import {userSenMessage} from '@red-cup-engineering/a2a-services-section/sen-part';
 import {admitNormalizedSemanticContent} from '@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime';
@@ -22,6 +21,7 @@ export function createActorClient({provider,inbox,origin,admitSender}){
  return Object.freeze({
   async send({identifier,address,text,admit,requestKey,taskId,paymentPayload,reuse=false}){
    await admitSender(identifier);
+   const {deliverActivity,resolveActivityPubRecipient}=await import('@red-cup-engineering/activitypub-services-section');
    if(typeof text!=='string'||!text.trim()||Buffer.byteLength(text)>16384)throw new TypeError('message must be nonempty and at most 16384 bytes');
    let kind='feltos.actor.message',value={text};
    if(text.trimStart().startsWith('{')){
@@ -63,6 +63,7 @@ export function createActorClient({provider,inbox,origin,admitSender}){
   async result({identifier,submission}){
    await admitSender(identifier);
    parseNiUri({uri:submission.request});
+   if(typeof submission.recipient!=='string'||!/^https?:\/\//u.test(submission.recipient))throw new TypeError('actor result needs its exact HTTP(S) responder');
    if(typeof inbox?.replyFor!=='function')throw new TypeError('actor results need correlated private custody');
    const recipient=new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href;
    const reply=await inbox.replyFor({identifier,request:submission.request,sender:submission.recipient});
@@ -71,7 +72,10 @@ export function createActorClient({provider,inbox,origin,admitSender}){
    const outcome=readActorMessage(reply,submission.recipient,recipient);
    if(outcome.kind!=='metroplat.dispatch.result'||outcome.value.request!==submission.request)
     throw new TypeError('actor result does not match its addressed request');
-   return outcome.value.result;
+   // The reply read has one addressed receipt shape. Business consumers project
+   // its processing result; the original admitted envelope remains in custody.
+   return Object.freeze({request:submission.request,recipient:submission.recipient,
+    reply:outcome.id,result:outcome.value.result});
   },
   async read({identifier,cursor}){
    await admitSender(identifier);

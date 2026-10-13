@@ -155,7 +155,7 @@ export function createEnterpriseActorMesh({config,binding,provider,inbox}){
    const deadline=Date.now()+timeoutMs;
    for(;;){
     const {identifier,port}=await client(account,true);
-    const result=submission.result??await port.result({identifier,submission});
+    const result=submission.result??(await port.result({identifier,submission}))?.result;
     if(result){
      if(result.code!==0)throw new Error(`Actor request ${submission.request} refused: ${result.stderr}`);
      return JSON.parse(result.stdout);

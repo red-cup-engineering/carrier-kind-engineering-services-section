@@ -86,6 +86,33 @@ capability benchmark (https://docs.openclaw.ai/session-tool); token observations
 are not monetary cost, and this cut does not implement session control or claim
 that benchmark parity is received.
 
+A submission must lead directly to its addressed reply and resource. The browser
+uses the native `messages result <request-ni> <responder-url>` read through the
+current account's actor mesh, preserving the original admitted envelope address
+and complete result. `awaiting-reply` differs from an obstructed returned result;
+neither receipt nor zero exit code establishes business acceptance. Reply lookup
+does not send, replay, or scan unrelated inbox pages. Code, knowledge and resource
+lenses share one returned-resource renderer over that same native reply.
+
+The actor client's result read returns one complete addressed receipt. Enterprise
+request loops explicitly project its processing result rather than asking for a
+second return shape with a Boolean switch. Caller admission is checked before
+and after private lookup; foreign requests and recipients remain refused. The
+earlier host caller is migrated to the same projection while its replacement
+receiving remains owed. Historical Content package address aliases are removed
+from the active Data surface: executable consumers in the bounded source reading
+already use the canonical Content Address provider, while retained evidence and
+legacy originals are left available in their existing custody.
+
+Receiving after source compilation carried an 8754-byte native SEN result through
+the actual actor client, world reply projection, HTTP handlers and no-script
+Chromium to a directory and escaped code. It retained original reply identity,
+awaiting and obstructed states, refused foreign recipients and withdrawn callers,
+and performed one private lookup per read. TUFTE's shared document body now wraps
+long identifiers; the same reply fits 390px without body overflow. Private custody
+and caller admission are isolated fixtures, not signature verification, actual
+session consumption, estate authority or production acceptance.
+
 The existing `metroplat-front-door-is-a-shared-world` requirement calls for the
 same QwzSpace client as Farstone, 3D with 2D and text fallbacks, enterprise places,
 visible agent work, and equivalent inhabitation by agents and humans. The TUFTE

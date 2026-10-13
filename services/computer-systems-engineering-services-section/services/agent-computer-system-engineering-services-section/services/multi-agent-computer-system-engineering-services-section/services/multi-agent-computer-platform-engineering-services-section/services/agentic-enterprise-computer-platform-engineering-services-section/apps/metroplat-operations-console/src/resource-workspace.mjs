@@ -2,17 +2,39 @@ import { htmlRepr } from '@red-cup-engineering/http-services-section/representat
 import { readFormBody } from '@red-cup-engineering/http-services-section/body';
 import { subjectOf } from '@red-cup-engineering/computer-networking-engineering-services-section/identity/subject';
 import { workspaceDocument, evidenceTile, contentTile } from './workspace-document.mjs';
-import { readPrivateInbox, sendPrivateMessage, sameOriginRequest, submissionTiles } from './conversations.mjs';
+import { readPrivateInbox, readCorrelatedReply, operationResultTiles, sendPrivateMessage, sameOriginRequest, submissionTiles } from './conversations.mjs';
 
 const LENSES = { '/code': 'Code', '/knowledge': 'Knowledge', '/resources': 'Resources' };
 const url = (route, params) => `${route}?${new URLSearchParams(params)}`;
 
 /** A returned resource remains its sender's reading; this view supplies no host access. */
 export function returnedResource(entry) {
-  if (entry.kind !== 'metroplat.dispatch.result' || entry.value?.result?.code !== 0 || typeof entry.value.result.stdout !== 'string') return undefined;
+  return entry.kind === 'metroplat.dispatch.result' ? returnedResourceResult(entry.value?.result) : undefined;
+}
+
+export function returnedResourceResult(result) {
+  if (result?.code !== 0 || typeof result.stdout !== 'string') return undefined;
   let reading;
-  try { reading = JSON.parse(entry.value.result.stdout); } catch { return undefined; }
+  try { reading = JSON.parse(result.stdout); } catch { return undefined; }
   return reading?.kind === 'metroplat.filesystem.read-result' && typeof reading.path === 'string' && typeof reading.content === 'string' ? reading : undefined;
+}
+
+function resourceTiles(reading, { route, query, sender, request, outcomeHref, evidence }) {
+  const tiles = [{ title: 'Source of this reading', span: 12,
+    content: `${reading.path} · ${reading.type} · ${reading.corner} · ${reading.rung}. Returned by ${sender}. Request ${request}.`,
+    links: [{ href: outcomeHref, label: 'Read the full operation outcome' }, { href: url(route, { recipient: sender, path: reading.path, corner: reading.corner }), label: 'Prepare an updated reading' },
+      ...Object.entries(LENSES).filter(([view]) => view !== route).map(([view, label]) => ({ href: url(view, Object.fromEntries(query)), label: `View as ${label.toLowerCase()}` }))] }];
+  let status = 200, manifest;
+  try { const parsed = JSON.parse(reading.content); if (parsed?.kind === 'metroplat.directory-manifest' && parsed.files && typeof parsed.files === 'object' && !Array.isArray(parsed.files)) manifest = parsed; } catch { /* A prose or code resource is not a JSON manifest. */ }
+  if (manifest) {
+    tiles.push({ title: 'Files', span: 4, table: { caption: 'Files carried by this returned directory', columns: [{ label: 'File', rowHeader: true }],
+      rows: Object.keys(manifest.files).map(file => [{ text: file, href: url(route, { ...Object.fromEntries(query), file }) }]) } });
+    const file = query.get('file');
+    if (file !== null && Object.hasOwn(manifest.files, file) && typeof manifest.files[file] === 'string') tiles.push(contentTile(file, manifest.files[file], { code: route === '/code', span: 8 }));
+    else if (file !== null) { status = 404; tiles.push({ title: 'File unavailable in this reading', span: 12, content: 'This directory reading does not carry the selected file.' }); }
+  } else tiles.push(contentTile(reading.path, reading.content, { code: route === '/code' }));
+  tiles.push(evidenceTile('Native projection and carried items', reading), evidenceTile('Native transport and returned witness', evidence));
+  return { tiles, status };
 }
 
 export function resourceWorkspaceApp({ runAs, navigation, navigationTitle }) {
@@ -47,6 +69,23 @@ export function resourceWorkspaceApp({ runAs, navigation, navigationTitle }) {
           tiles.push(...submissionTiles(receipt));
         } catch (error) { status = 502; tiles.push({ title: 'The reading request was not confirmed submitted', span: 12, content: error.message }); }
       }
+      if (ctx.req.method === 'GET' && (query.has('request') || query.has('responder'))) {
+        try {
+          const receipt = await readCorrelatedReply(runAs, subject, query.get('request'), query.get('responder'));
+          tiles.push(evidenceTile('Native addressed resource reply', receipt));
+          if (receipt.stage === 'awaiting-reply') tiles.push({ title: 'Awaiting a resource reply', span: 12, content: 'No matching reply is held in this reading.' });
+          else {
+            const reading = returnedResourceResult(receipt.result);
+            if (!reading) tiles.push(...operationResultTiles(receipt.result, receipt.request), { title: 'No resource projection in this reply', span: 12, content: 'Inspect the returned operation outcome and evidence.' });
+            else {
+              const rendered = resourceTiles(reading, { route, query, sender: receipt.recipient, request: receipt.request,
+                outcomeHref: url('/conversations', { view: 'result', request: receipt.request, responder: receipt.recipient }), evidence: receipt });
+              status = rendered.status; tiles.push(...rendered.tiles);
+            }
+          }
+        } catch (error) { if (ctx.signal?.aborted) throw error; status = 502; tiles.push({ title: 'The addressed resource reply could not be read', span: 12, content: error.message }); }
+        return page();
+      }
       try {
         const inbox = await readPrivateInbox(runAs, subject, query.get('cursor') ?? undefined);
         const readings = inbox.items.map(entry => ({ entry, reading: returnedResource(entry) })).filter(item => item.reading);
@@ -61,20 +100,9 @@ export function resourceWorkspaceApp({ runAs, navigation, navigationTitle }) {
           if (!found) tiles.push({ title: 'Resource not available on this page', span: 12, content: 'The message may be on another inbox page or may carry a refused operation rather than a resource reading.' });
           else {
             const { entry, reading } = found;
-            tiles.push({ title: 'Source of this reading', span: 12,
-              content: `${reading.path} · ${reading.type} · ${reading.corner} · ${reading.rung}. Returned by ${entry.sender}. Request ${entry.value.request}.`,
-              links: [{ href: url('/conversations', { message: entry.id, ...(query.has('cursor') ? { cursor: query.get('cursor') } : {}) }), label: 'Read the full operation outcome' },
-                { href: url(route, { recipient: entry.sender, path: reading.path, corner: reading.corner }), label: 'Prepare an updated reading' }] });
-            let manifest;
-            try { const parsed = JSON.parse(reading.content); if (parsed?.kind === 'metroplat.directory-manifest' && parsed.files && typeof parsed.files === 'object' && !Array.isArray(parsed.files)) manifest = parsed; } catch { /* A prose or code resource is not a JSON manifest. */ }
-            if (manifest) {
-              tiles.push({ title: 'Files', span: 4, table: { caption: 'Files carried by this returned directory', columns: [{ label: 'File', rowHeader: true }],
-                rows: Object.keys(manifest.files).map(file => [{ text: file, href: url(route, { ...Object.fromEntries(query), file }) }]) } });
-              const file = query.get('file');
-              if (file !== null && Object.hasOwn(manifest.files, file) && typeof manifest.files[file] === 'string') tiles.push(contentTile(file, manifest.files[file], { code: route === '/code', span: 8 }));
-              else if (file !== null) { status = 404; tiles.push({ title: 'File unavailable in this reading', span: 12, content: 'This directory reading does not carry the selected file.' }); }
-            } else tiles.push(contentTile(reading.path, reading.content, { code: route === '/code' }));
-            tiles.push(evidenceTile('Native projection and carried items', reading), evidenceTile('Signed transport and returned witness', entry));
+            const rendered = resourceTiles(reading, { route, query, sender: entry.sender, request: entry.value.request,
+              outcomeHref: url('/conversations', { message: entry.id, ...(query.has('cursor') ? { cursor: query.get('cursor') } : {}) }), evidence: entry });
+            status = Math.max(status, rendered.status); tiles.push(...rendered.tiles);
           }
         }
       } catch (error) { status = 502; tiles.push({ title: 'Returned resources could not be read', span: 12, content: error.message }); }

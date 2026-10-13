@@ -18,6 +18,16 @@ export async function readPrivateInbox(runAs, subject, cursor) {
   return inbox;
 }
 
+/** Read one addressed native reply; never send, replay or scan inbox pages. */
+export async function readCorrelatedReply(runAs, subject, request, responder) {
+  if (typeof request !== 'string' || !request || /\s/u.test(request) || request.length > 4096) throw new TypeError('Supply one request address.');
+  if (typeof responder !== 'string' || !responder || /\s/u.test(responder) || responder.length > 2048) throw new TypeError('Supply the expected responder’s actor URL.');
+  const result = packageData(await runAs(subject, 'world-command', { line: `messages result ${request} ${responder}` }), 'Comm.Result');
+  if (result?.request !== request || result.recipient !== responder || !['awaiting-reply', 'reply-received'].includes(result.stage)) throw new TypeError('The native reply reading does not match this request and responder.');
+  if (result.stage === 'reply-received' && (typeof result.reply !== 'string' || !result.result || typeof result.result !== 'object' || Array.isArray(result.result))) throw new TypeError('The native reply did not retain its envelope and result.');
+  return result;
+}
+
 export async function sendPrivateMessage(runAs, subject, recipient, text) {
   if (typeof recipient !== 'string' || !recipient || /\s/u.test(recipient) || recipient.length > 2048) throw new TypeError('Supply one actor address.');
   if (!text?.trim() || Buffer.byteLength(text) > 16384) throw new TypeError('Supply a message of at most 16384 bytes.');
@@ -47,9 +57,28 @@ export function sameOriginRequest(req) {
 
 export const submissionTiles = receipt => [
   { title: 'Submitted · awaiting a returned result', span: 12, content: `Request ${receipt.request} was submitted to ${receipt.recipient}.`,
-    links: [{ href: link({ request: receipt.request }), label: 'Find the correlated reply' }] },
+    links: [{ href: link({ request: receipt.request, responder: receipt.recipient, view: 'result' }), label: 'Read the addressed reply' }] },
   evidenceTile('Submission receipt', receipt),
 ];
+
+export function operationResultTiles(result, request) {
+  return [{ title: 'Returned operation result', span: 12,
+    content: `Request: ${request ?? 'Not supplied'}. Operation: ${result?.verb ?? 'Not supplied'}. State: ${result?.state ?? 'Not supplied'}. Exit code: ${result?.code ?? 'Not supplied'}. Exit code alone does not establish that the requested business outcome was accepted.` },
+    ...(typeof result?.stdout === 'string' ? [contentTile('Output', result.stdout)] : []),
+    ...(typeof result?.stderr === 'string' && result.stderr ? [contentTile('Error output', result.stderr)] : []),
+    ...(result?.obstructions?.length ? [contentTile('Obstructions', result.obstructions.join('\n'))] : []),
+  ];
+}
+
+export function correlatedReplyTiles(receipt) {
+  return [{ title: receipt.stage === 'reply-received' ? 'Addressed reply received' : 'Awaiting an addressed reply', span: 12,
+    content: `Request ${receipt.request}. Expected responder ${receipt.recipient}. ${receipt.stage === 'awaiting-reply' ? 'No matching reply is held in this reading.' : `Original reply ${receipt.reply}.`}` },
+    ...(receipt.stage === 'reply-received' ? [...operationResultTiles(receipt.result, receipt.request), { title: 'Continue the work', span: 12, links: [
+      { href: `/resources?${new URLSearchParams({ request: receipt.request, responder: receipt.recipient })}`, label: 'Open returned resource' },
+      { href: link({ recipient: receipt.recipient }), label: 'Write to the responder' },
+    ] }] : []), evidenceTile('Native addressed reply reading', receipt),
+  ];
+}
 
 export function conversationTiles(entry, cursor) {
   const tiles = [{ title: 'Conversation', span: 12, content: `From ${entry.sender ?? 'Sender unavailable'}. Kind: ${entry.kind}.`,
@@ -57,11 +86,7 @@ export function conversationTiles(entry, cursor) {
   if (entry.kind === 'feltos.actor.message' && typeof entry.value?.text === 'string') tiles.push(contentTile('Message', entry.value.text));
   else if (entry.kind === 'metroplat.dispatch.result') {
     const result = entry.value?.result;
-    tiles.push({ title: 'Returned operation result', span: 12,
-      content: `Request: ${entry.value?.request ?? 'Not supplied'}. Operation: ${result?.verb ?? 'Not supplied'}. State: ${result?.state ?? 'Not supplied'}. Exit code: ${result?.code ?? 'Not supplied'}. Exit code alone does not establish that the requested business outcome was accepted.` });
-    if (typeof result?.stdout === 'string') tiles.push(contentTile('Output', result.stdout));
-    if (typeof result?.stderr === 'string' && result.stderr) tiles.push(contentTile('Error output', result.stderr));
-    if (result?.obstructions?.length) tiles.push(contentTile('Obstructions', result.obstructions.join('\n')));
+    tiles.push(...operationResultTiles(result, entry.value?.request));
     tiles.push({ title: 'Resource views', span: 12, links: [
       { href: `/resources?${new URLSearchParams({ message: entry.id, ...(cursor === undefined ? {} : { cursor }) })}`, label: 'Open returned resource' },
     ] });
@@ -93,6 +118,11 @@ export function conversationsApp({ runAs, navigation, navigationTitle }) {
     ]),
     { name: 'q', label: params.get('channel') === 'character' ? 'Words in your mail history' : 'Words in this inbox page', value: params.get('q') ?? '' },
   ], submitters: [{ label: 'Find replies' }] } });
+  const follow = params => ({ title: 'Follow an operation request', span: 12, form: { action: '/conversations', method: 'get', fields: [
+    { name: 'view', kind: 'hidden', value: 'result' }, { name: 'channel', kind: 'hidden', value: 'actor' },
+    { name: 'request', label: 'Request address from submission', value: params.get('request') ?? '', required: true },
+    { name: 'responder', label: 'Expected responder’s actor URL', value: params.get('responder') ?? '', required: true },
+  ], submitters: [{ label: 'Read addressed reply' }] } });
   return { resources: [{ id: 'ops-conversations', match: '/conversations', methods: ['GET', 'POST'], produces: ['text/html'], handler: async ctx => {
     const principal = ctx.locals?.principal;
     if (!principal) return ctx.req.method === 'GET'
@@ -134,6 +164,16 @@ export function conversationsApp({ runAs, navigation, navigationTitle }) {
       } catch (error) {
         if (ctx.signal?.aborted) throw error;
         return page('Error: Character mail unavailable', [...tiles, { title: 'Your mail history could not be read', span: 12, content: error.message }], 502);
+      }
+    }
+    tiles.push(follow(inboxParams));
+    if (ctx.req.method === 'GET' && ctx.url.searchParams.get('view') === 'result') {
+      try {
+        const receipt = await readCorrelatedReply(runAs, subject, ctx.url.searchParams.get('request'), ctx.url.searchParams.get('responder'));
+        return page('Operation reply', [...tiles, ...correlatedReplyTiles(receipt)]);
+      } catch (error) {
+        if (ctx.signal?.aborted) throw error;
+        return page('Error: Reply unavailable', [...tiles, { title: 'The addressed reply could not be read', span: 12, content: error.message }], 502);
       }
     }
     try {
