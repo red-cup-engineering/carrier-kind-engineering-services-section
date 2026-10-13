@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { setImmediate } from "node:timers/promises";
 
@@ -29,7 +29,16 @@ export class FlatfileMessageQueue {
     mkdirSync(this.#ready, { recursive: true, mode: 0o700 });
     mkdirSync(this.#claimed, { recursive: true, mode: 0o700 });
     this.#pollMs = durationMs(pollInterval);
-    for (const name of readdirSync(this.#claimed)) renameSync(path.join(this.#claimed, name), path.join(this.#ready, name));
+    // Check every recovery destination before moving even one claimed file.
+    // rename(2) replaces an existing file silently: do not destroy ready custody
+    // when a resumed worker and a preserved claim share a filename.
+    const stranded = readdirSync(this.#claimed);
+    for (const name of stranded) {
+      if (existsSync(path.join(this.#ready, name))) {
+        throw new Error("flatfile queue recovery refuses claimed/ready filename collision");
+      }
+    }
+    for (const name of stranded) renameSync(path.join(this.#claimed, name), path.join(this.#ready, name));
   }
 
   #put(message, options, now) {
