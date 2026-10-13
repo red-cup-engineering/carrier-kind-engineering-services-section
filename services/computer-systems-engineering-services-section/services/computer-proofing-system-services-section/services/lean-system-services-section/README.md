@@ -22,6 +22,12 @@ MetroPlat composes this section's `lean-check` operation. All Lean execution use
 one bounded runner: one active run per node, an atomic runtime lock, a wall-clock
 limit, and the deployed Lake wrapper in a named scope below `lean.slice`.
 Completion and timeout both kill/check the whole scope before returning.
+A successful compiler exit is necessary but not sufficient: incomplete stdout/stderr,
+a scope retaining processes, source changes, or compiler diagnostics all **refuse**
+success. Declaration inspection is withheld unless that final admission passes.
+A locally present declaration module source is SHA-256 fingerprinted and
+rechecked; modules imported only from dependencies are not falsely reported
+as locally fingerprinted.
 Request and result records are appended to the `lean-checks` journal feed.
 
 Pass a named Lake `project` and optional `timeoutMs` with one typed action:

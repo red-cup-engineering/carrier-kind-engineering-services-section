@@ -3,7 +3,8 @@ import { open, readdir, readFile, stat, unlink, realpath, mkdtemp, writeFile, rm
 import path from "node:path";
 import os from "node:os";
 import { createHash } from "node:crypto";
-import { readLeanDeclarationInspection } from "./plan.mjs";
+import { readLeanDeclarationInspection, sourcePathForModule } from "./plan.mjs";
+import { leanCheckSucceeded } from "./admission.mjs";
 import { fileURLToPath } from "node:url";
 
 import { parseLeanBuildOutput } from "../codec/build-oracle.mjs";
@@ -131,14 +132,31 @@ export async function runLeanCheck(plan, options = {}) {
         let args = plan.args;
         let command = options.lakeWrapper ?? lakeWrapper;
         let source;
+        let resolvedSourcePath;
         if (plan.mode === "file") {
             const project = await realpath(plan.project);
             const file = await realpath(path.join(plan.project, plan.file));
             const relative = path.relative(project, file);
             if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) throw new TypeError("lean-check: source symlink escapes the project");
             args = ["env", "lean", file];
+            resolvedSourcePath = file;
             source = { file: plan.file, digest: createHash("sha256").update(await readFile(file)).digest("hex") };
         } else if (plan.mode === "declaration") {
+            // Local source is part of a declaration check's claim. External
+            // imports cannot be fingerprinted from this Lake project.
+            const project = await realpath(plan.project);
+            const relativeSource = sourcePathForModule(plan.module);
+            const pathInProject = path.join(project, relativeSource);
+            try {
+                resolvedSourcePath = await realpath(pathInProject);
+                const relative = path.relative(project, resolvedSourcePath);
+                if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative))
+                    throw new TypeError("lean-check: declaration source symlink escapes the project");
+                source = { file: relativeSource, digest: createHash("sha256").update(await readFile(resolvedSourcePath)).digest("hex") };
+            } catch (error) {
+                if (error?.code !== "ENOENT") throw error;
+                resolvedSourcePath = undefined;
+            }
             temporary = await mkdtemp(path.join(os.tmpdir(), "lean-declaration-"));
             const file = path.join(temporary, "Inspect.lean");
             await writeFile(file, plan.program);
@@ -162,22 +180,32 @@ export async function runLeanCheck(plan, options = {}) {
         const settled = outcome ?? await execution;
         const cleanup = await terminateScope(plan.unit, knownControlGroup);
         const parsed = parseLeanBuildOutput(settled.stdout.text, settled.stderr.text);
-        let inspection;
-        if (plan.mode === "declaration" && !timedOut && settled.code === 0 && parsed.errors.length === 0)
-            inspection = readLeanDeclarationInspection(settled.stdout.text, plan.declaration);
         let sourceChanged = false;
         if (source !== undefined) {
-            try { sourceChanged = createHash("sha256").update(await readFile(path.join(plan.project, plan.file))).digest("hex") !== source.digest; }
-            catch { sourceChanged = true; }
+            try {
+                const finalPath = await realpath(path.join(plan.project, source.file));
+                sourceChanged = finalPath !== resolvedSourcePath ||
+                    createHash("sha256").update(await readFile(finalPath)).digest("hex") !== source.digest;
+            } catch { sourceChanged = true; }
         }
+        const outputTruncated = settled.stdout.truncated || settled.stderr.truncated;
+        const succeeded = leanCheckSucceeded({
+            timedOut, exitCode: settled.code, signal: settled.signal,
+            spawnError: settled.error, compilerErrors: parsed.errors,
+            outputTruncated, scopeClean: cleanup.clean, sourceChanged,
+        });
+        // Never surface axioms/dependencies from a run that fails final admission.
+        let inspection;
+        if (plan.mode === "declaration" && succeeded)
+            inspection = readLeanDeclarationInspection(settled.stdout.text, plan.declaration);
         return Object.freeze({ kind: "metroplat.lean.check-result", id: plan.id,
-            state: timedOut ? "timed-out" : !sourceChanged && settled.code === 0 && parsed.errors.length === 0 ? "succeeded" : "failed",
+            state: timedOut ? "timed-out" : succeeded ? "succeeded" : "failed",
             project: plan.project, mode: plan.mode ?? "build", ...(plan.targets === undefined ? {} : { targets: plan.targets }),
             ...(source === undefined ? {} : { source, sourceChanged }),
             ...(plan.program === undefined ? {} : { program: plan.program, module: plan.module, declaration: plan.declaration }),
             ...(inspection === undefined ? {} : { inspection }), unit: plan.unit, started, ended: new Date().toISOString(), timeoutMs: plan.timeoutMs,
             exitCode: settled.code, signal: settled.signal, stdout: settled.stdout.text, stderr: settled.stderr.text,
-            outputTruncated: settled.stdout.truncated || settled.stderr.truncated, ...parsed, cleanup });
+            outputTruncated, ...parsed, cleanup });
     } finally {
         if (timeout !== undefined) clearTimeout(timeout);
         await terminateScope(plan.unit, knownControlGroup).catch(() => undefined);
