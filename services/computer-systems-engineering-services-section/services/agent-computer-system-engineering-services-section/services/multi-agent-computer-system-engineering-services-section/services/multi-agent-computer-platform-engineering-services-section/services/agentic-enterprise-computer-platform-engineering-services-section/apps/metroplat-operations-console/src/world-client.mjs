@@ -38,12 +38,8 @@ const VIEW = servedBrowserModules("/_play", await readBrowserModuleClosure({
 }));
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
-function turnLines(turn) {
-  return [
-    ...(turn?.messages ?? []),
-    ...(turn?.results ?? []).map((result) => `${result.ok ? "✓" : "✗"} ${result.verb}: ${JSON.stringify(result.ok ? result.value : result.error, null, 2)}`),
-  ];
-}
+import { turnLines } from "./turn-lines.mjs";
+import { perceivedOperationsHtml, perceivedCommand } from "./perceived-operations.mjs";
 
 /** The front door: the city drawn from the street under the instance's title card. Without a
  *  script the card stands alone, which is the whole of the door's text tier. */
@@ -79,7 +75,7 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
       { title: navigation.title ?? "Group", links: navigation, span: 12 },
       { title: "The city", span: 12, html: `<div id="world-view" data-mode="play" data-turn="/play/turn" data-atlas="/play/atlas" data-pulse="/play/pulse" data-tellings="/play/tellings" data-journal="/play/journal" data-title="${escapeHtml(title)}" data-navigation="${escapeHtml(JSON.stringify(navigation.map(({ href, label }) => ({ href, label }))))}"><noscript>The city is drawn with JavaScript; the world below plays without it.</noscript></div>` },
       { title: "The world", span: 12, html: `<pre class="world-transcript">${lines.join("\n").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c])}</pre>` },
-      ...(perceptions.get(subject)?.situation?.actions?.length ? [{ title: "Operations here", span: 12, html: perceptions.get(subject).situation.actions.map((action) => `<details><summary>${escapeHtml(action.command)}</summary><p>${escapeHtml(action.description)}</p><form method="post" action="/play"><label>Command <input name="line" value="${escapeHtml(action.command)}" required></label><button type="submit">Send</button></form></details>`).join("") }] : []),
+      ...(perceptions.get(subject)?.situation?.actions?.length ? [{ title: "Operations here", span: 12, html: perceivedOperationsHtml(perceptions.get(subject), "/play") }] : []),
       ...(perceptions.has(subject) ? [{ title: "Perceived evidence", span: 12, html: projectFiber(perceptions.get(subject)).entries.filter((entry) => entry.cells && entry.kind !== "exit").map((entry) => `<details><summary>${escapeHtml(entry.label)}</summary>${renderSignCellSection(entry.cells)}</details>`).join("") }] : []),
       { title: "Speak", span: 12, form: { action: "/play", method: "post", fields: [{ name: "line", label: "command", value: "", placeholder: "look, go <exit>, powers, <power> {json}" }], submitters: [{ label: "Send" }] } },
     ],
@@ -233,7 +229,10 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
         return page(lines, subject);
       }
       if (!sameOrigin(ctx.req.headers)) return { status: 403 };
-      const line = String((await readFormBody(ctx.req, { maxBytes: 64 * 1024 })).get("line") ?? "").trim();
+      const params = await readFormBody(ctx.req, { maxBytes: 64 * 1024 });
+      let line;
+      try { line = perceivedCommand(perceptions.get(subject), params); }
+      catch (error) { return page(append(subject, [`✗ ${error.message}`]), subject); }
       if (line === "") return page(transcripts.get(subject) ?? [], subject);
       if (!transcripts.has(subject)) append(subject, await turn(subject, "world-connect", {}));
       return page(append(subject, [`> ${line}`, ...(await turn(subject, "world-command", { line }))]), subject);

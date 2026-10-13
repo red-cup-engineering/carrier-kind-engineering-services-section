@@ -73,3 +73,11 @@ export function projectOperationAffordances(operations, standing, subject) {
 }
 
 export const operationAffordanceCategories = categories;
+
+/** The same subject-bound installed contracts as actions in a perceived situation. */
+export function operationSituationActions(projection) {
+  return Object.freeze(categories.flatMap(category => (projection[category] ?? []).map(power => Object.freeze({
+    command: power.verb, description: power.summary ?? power.verb, ref: power.ref, category,
+    ...Object.fromEntries(["input", "output", "locus", "scope"].filter(key => power[key] !== undefined).map(key => [key, power[key]])),
+  }))));
+}

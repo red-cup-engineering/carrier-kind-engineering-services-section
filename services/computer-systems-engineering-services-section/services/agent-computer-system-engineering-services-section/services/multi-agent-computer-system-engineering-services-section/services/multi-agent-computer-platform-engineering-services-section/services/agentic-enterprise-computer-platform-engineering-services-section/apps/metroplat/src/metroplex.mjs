@@ -47,7 +47,7 @@ import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-
 import { OPENING_MOVES, RESPONSE_MOVES, deliveriesToAssay, threadSummary } from "@red-cup-engineering/organizing/enterprise";
 import { walkPosixPaths } from "@red-cup-engineering/computer-filepath-engineering-services-section/walk-posix-paths";
 import { agencyAt, agencyRootOf, officesOfAccount, providersOfAccount, readCharacterMasks, readIncumbencyClaims, readStanding } from "./offices.mjs";
-import { operationAffordanceCategories, projectOperationAffordances } from "./operation-affordances.mjs";
+import { operationAffordanceCategories, projectOperationAffordances, operationSituationActions } from "./operation-affordances.mjs";
 import { JURISDICTION_TINTS, atlasSchema, cityLayout, jurisdictionOf, metroplexAtlas, metroplexFrame } from "./metroplex-atlas.mjs";
 import { createPulse, pulseSchema, pulseSites } from "./metroplex-pulse.mjs";
 import { QUESTS, createQuests, journalLine, journalSchema, questLine } from "./metroplex-quests.mjs";
@@ -348,29 +348,8 @@ function standingIn(world, actor) {
  * (`measures=[{"name":"readers","unit":"reader"}]`); a quoted value is text; a dotted key
  * (`values.callerName="Ada"`) sets a field of an object.
  */
-export function readPowerInput(argument, schema = {}) {
-  const text = String(argument ?? "").trim();
-  if (text === "") return {};
-  if (text.startsWith("{")) return JSON.parse(text);
-  const input = {};
-  for (const match of text.matchAll(/([A-Za-z][\w.-]*)=(?:"((?:[^"\\]|\\.)*)"|'([^']*)'|(\S+))|(\S+)/gu)) {
-    const [, key, doubled, single, bare, stray] = match;
-    if (stray !== undefined) throw new SyntaxError(`"${stray}" is not key=value`);
-    const path = key.split(".");
-    let target = input;
-    for (const part of path.slice(0, -1)) target = target[part] = target[part] && typeof target[part] === "object" ? target[part] : {};
-    const field = path.at(-1);
-    if (doubled !== undefined || single !== undefined) { target[field] = (doubled ?? single).replace(/\\(.)/gu, "$1"); continue; }
-    if (/^[[{]/u.test(bare)) {
-      try { target[field] = JSON.parse(bare); continue; } catch { /* words, as any other */ }
-    }
-    const declared = path.length === 1 ? schema.properties?.[key] : undefined;
-    const textOnly = declared !== undefined && (declared.type === "string" || (declared.enum ?? []).every((v) => typeof v === "string") && declared.enum !== undefined);
-    const scalar = (word) => (textOnly ? word : word === "true" ? true : word === "false" ? false : /^-?\d+(\.\d+)?$/u.test(word) ? Number(word) : word);
-    target[field] = bare.includes(",") ? bare.split(",").filter(Boolean).map(scalar) : scalar(bare);
-  }
-  return input;
-}
+import { readPowerInput } from "./power-input.mjs";
+export { readPowerInput } from "./power-input.mjs";
 
 /**
  * A move's input as typed after its thread or kind: key=value pairs (or JSON) set its fields, and
@@ -378,7 +357,7 @@ export function readPowerInput(argument, schema = {}) {
  */
 export function readSaidInput(argument, said, schema = {}) {
   const text = String(argument ?? "").trim();
-  if (text.startsWith("{")) return JSON.parse(text);
+  if (/^(?:[\[{"]|true$|false$|null$|-?\d)/u.test(text)) return JSON.parse(text);
   const pairs = [], words = [];
   for (const [, pair, word] of text.matchAll(/([A-Za-z][\w.-]*=(?:"(?:[^"\\]|\\.)*"|'[^']*'|\S+))|(\S+)/gu)) (pair === undefined ? words : pairs).push(pair ?? word);
   const input = readPowerInput(pairs.join(" "), schema);
@@ -671,7 +650,7 @@ export function createMetroplex({ binding, operations, identity, actorMesh, now 
   const current = async () => state ?? (building ??= build().finally(() => { building = undefined; }));
   const situationOf = (world, actor) => {
     const place = world.server.situatedActions(actor), projection = world.affordances(actor);
-    const powers = operationAffordanceCategories.flatMap(category => (projection[category] ?? []).map(power => Object.freeze({ command: power.verb, description: power.summary ?? power.verb, ref: power.ref, ...(power.scope === undefined ? {} : { scope: power.scope }) })));
+    const powers = operationSituationActions(projection);
     return Object.freeze({ ...place, actions: Object.freeze([...place.actions, ...powers]) });
   };
   // The character an account enters as: its first settled mask, else itself.

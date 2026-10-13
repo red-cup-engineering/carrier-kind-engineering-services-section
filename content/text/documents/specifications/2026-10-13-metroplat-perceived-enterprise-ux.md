@@ -139,3 +139,27 @@ instead. Follow these into their Science/formal owners before selecting flow
 laws. A decorative fluid field or a sum of evidence counts does not implement
 that contract. The ABYSSAL entry identifies the running background computation
 as the engineering gap, while describing the mathematics as existing.
+
+## Operation input receiving
+
+Carry the installed operation reference, input/output contract descriptors, locus
+and subject-bound scope from the standing projection through the FeltOS
+perception frame. World and Metroplex consume the same projection. Share one
+browser-safe schema-to-controls and controls-to-input owner in TUFTE; the Living
+Web Server and world clients consume it. Native forms, keyboard controls and
+JSON input remain available. Choosing or preparing an operation does not execute
+it. A submitted command still crosses native standing, schema and effect
+admission, including the existing recheck before mesh sending.
+
+Optional absent controls must remain absent rather than turning into false, zero
+or a selected enum. Show scope explicitly and bind it to the installed locus;
+client or posted schema data cannot grant authority. Server forms resolve their
+operation from the authenticated subject's retained perception; they never
+accept a posted schema as the contract. Preserve full JSON entry for shapes the
+form projection cannot describe. Scoped input disagreement is an input refusal.
+
+Shared source-lock receiving reconciles the six importers reported by PR775's
+lockfile-fresh job, carrying existing resolution records and preserving all
+other importers and registry artifacts. These records are source composition,
+not full frozen release or machine receiving. A codec must terminate at EOF
+when a bounded lock source ends at its importer section.

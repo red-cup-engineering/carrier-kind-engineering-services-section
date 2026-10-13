@@ -87,10 +87,7 @@ const centreOf = (body) => {
   return [(x0 + x1) / 2, (y0 + y1) / 2];
 };
 
-const linesOf = (turn) => [
-  ...(turn.messages ?? []),
-  ...(turn.results ?? []).map((result) => `${result.ok ? "✓" : "✗"} ${result.verb}: ${JSON.stringify(result.ok ? result.value : result.error, null, 2)}`),
-];
+import { turnLines as linesOf } from "./turn-lines.mjs";
 
 async function start(mount) {
   const street = mount.dataset.mode === "street";
