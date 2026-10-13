@@ -298,3 +298,27 @@ resource requests, directory navigation, escaped code, line anchors, absent-file
 404 and a 390px viewport. The private transport ports are explicitly fixtures;
 this does not qualify signatures, remote effects, estate standing, business
 receiving, complete accessibility, catalogue freshness or a machine release.
+
+## Canonical source receiving
+
+Receive MetroPlat48/49 and Computer Engineering341: the active package is now
+the canonical red-cup-engineering/metroplat repository at the same importer path.
+Its world-library root and confined instance/profile reader are retained. The six
+enterprise UX source files were transferred from the published Computer branch
+to MetroPlat17b86eaa7b643211aa6e28e01896a25090e79e5d, compared byte for byte,
+and received by the parent as a gitlink. The historical embedded tree keeps the
+upstream's exact tree identity; it is not an active second implementation.
+
+Code's existing importer-EOF repair is retained while reconciling current main
+and the incoming 59952fb source selection branch. Its actual Git4.1 supplier is
+received at cbb1495497130294e13020b9e89cb8b507f310b5. Selected produced output
+names its owning importer; deployment roots do not become software packages.
+The additional source-owned exact PNPM filters constrain selected discovery and
+installation. These source advances are separately reviewed and published.
+
+Browser receiving against the canonical owner retains the same 64-module SCA.
+The receiver now uses the complete declared pulse shape, including heat, instead
+of relying on finishing before its incomplete fixture was polled. Current
+catalogue construction still refuses the unreceived inference supplier while
+preserving the held artifact. These are bounded source/consumer facts, not
+production or commercial receiving.
