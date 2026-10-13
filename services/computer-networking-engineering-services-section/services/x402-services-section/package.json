@@ -25,6 +25,7 @@
     "./market/node": "./src/market/node.mjs",
     "./market/access-grants": "./src/market/access-grants.mjs",
     "./market/settlement-demand-evidence": "./src/market/settlement-demand-evidence.mjs",
+    "./market/unit-economics": "./src/market/unit-economics.mjs",
     "./sign-in-with-x": "./src/sign-in-with-x.mjs",
     "./market-observation/settlement": {
       "default": "./src/market-observation/settlement.mjs"
@@ -72,7 +73,8 @@
     "settle-hbd-purchase": "./src/hbd/settle-hbd-purchase.mjs",
     "serve-x402-hive-exit-tightness": "./apps/serve-hive-exit-tightness.mjs",
     "x402-hive-exit-tightness-seller-cli": "./apps/x402-hive-exit-tightness-seller-cli.mjs",
-    "audit-x402-market-projection": "./apps/market-561-group/scripts/audit-public-projection.mjs"
+    "audit-x402-market-projection": "./apps/market-561-group/scripts/audit-public-projection.mjs",
+    "audit-market-unit-economics": "./apps/market-561-group/scripts/audit-unit-economics.mjs"
   },
   "publishConfig": {
     "access": "public"
