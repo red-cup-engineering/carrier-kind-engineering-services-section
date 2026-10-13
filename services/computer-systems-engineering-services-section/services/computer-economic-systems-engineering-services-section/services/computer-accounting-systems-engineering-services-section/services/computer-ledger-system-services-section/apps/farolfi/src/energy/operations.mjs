@@ -4,17 +4,15 @@
  * Metroplat catalog, not through a separate ad-hoc command package.
  */
 import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
+import { parseDecimal as decimal, divideDecimalStrings as divide } from "@red-cup-engineering/exact-number-data-service/decimal-string";
+import { allocateSettlementEnergy } from "./settlement-allocation.mjs";
+export { allocateSettlementEnergy } from "./settlement-allocation.mjs";
 import { readLedgerReport } from "@red-cup-engineering/farolfi/ledger/reports";
 import { ledgerJournalPath } from "../ledger/operations.mjs";
 import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/u;
 const US_DATE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/u;
-const FACTOR_FOR_ASSET = Object.freeze({
-  "cpu-seconds": "cpuSecondsToJoules",
-  "network-ingress-bytes": "byteToJoules",
-  "network-egress-bytes": "byteToJoules",
-});
 
 export const energyPriceDirectiveRequestContract = schemaFrom({
   $id: "metroplat/energy/price-directives-request",
@@ -33,53 +31,6 @@ export const ledgerEnergyValuationRequestContract = schemaFrom({
   type: "object", required: ["asOf"], additionalProperties: false,
   properties: { asOf: { type: "string", minLength: 1 } },
 });
-
-function decimal(text) {
-  const match = /^(-)?(?:(\d+)(?:\.(\d+))?|\.(\d+))$/u.exec(String(text).trim());
-  if (match === null) throw new TypeError(`energy accounting: not a plain decimal ${JSON.stringify(text)}`);
-  return { negative: match[1] === "-", whole: match[2] ?? "0", fraction: match[4] ?? match[3] ?? "" };
-}
-
-function scaled(value, scale) {
-  const negative = value < 0n;
-  const digits = (negative ? -value : value).toString().padStart(scale + 1, "0");
-  const whole = scale === 0 ? digits : digits.slice(0, -scale);
-  const fraction = scale === 0 ? "" : digits.slice(-scale).replace(/0+$/u, "");
-  const body = fraction === "" ? whole : `${whole}.${fraction}`;
-  return negative && /[1-9]/u.test(body) ? `-${body}` : body;
-}
-
-function divide(leftText, rightText, places = 10) {
-  const left = decimal(leftText);
-  const right = decimal(rightText);
-  const leftMagnitude = BigInt(`${left.whole}${left.fraction}`);
-  const rightMagnitude = BigInt(`${right.whole}${right.fraction}`);
-  if (rightMagnitude === 0n) throw new RangeError("energy accounting: cannot divide by zero");
-  const numerator = leftMagnitude * 10n ** BigInt(right.fraction.length + places);
-  const denominator = rightMagnitude * 10n ** BigInt(left.fraction.length);
-  const quotient = numerator / denominator;
-  return scaled(left.negative === right.negative ? quotient : -quotient, places);
-}
-
-function multiply(leftText, rightText, places = 10) {
-  const left = decimal(leftText);
-  const right = decimal(rightText);
-  const magnitude = BigInt(`${left.whole}${left.fraction}`) * BigInt(`${right.whole}${right.fraction}`);
-  const raw = scaled(left.negative === right.negative ? magnitude : -magnitude, left.fraction.length + right.fraction.length);
-  const value = decimal(raw);
-  const fraction = value.fraction.slice(0, places).replace(/0+$/u, "");
-  return `${value.negative ? "-" : ""}${value.whole}${fraction === "" ? "" : `.${fraction}`}`;
-}
-
-function sum(values) {
-  if (!Array.isArray(values) || values.length === 0) throw new RangeError("energy accounting: expected at least one value");
-  const parsed = values.map(decimal);
-  const scale = Math.max(...parsed.map((value) => value.fraction.length));
-  return scaled(parsed.reduce((total, value) => {
-    const magnitude = BigInt(`${value.whole}${value.fraction.padEnd(scale, "0")}`);
-    return total + (value.negative ? -magnitude : magnitude);
-  }, 0n), scale);
-}
 
 function requiredString(value, name) {
   if (typeof value !== "string" || value.length === 0) throw new TypeError(`energy accounting: ${name} must be a non-empty string`);
@@ -145,27 +96,6 @@ export function deriveEnergyPriceDirectives(input) {
   return Object.freeze({ type: "EnergyPriceDirectiveSet", version: 1, date, directiveCount: priced.length * 2, priced: Object.freeze(priced), unpriced: Object.freeze(unpriced) });
 }
 
-/** Attribute metered CPU/network receipts to every overlapping settlement row. */
-export function allocateSettlementEnergy(input) {
-  if (!Array.isArray(input?.settledRows) || !Array.isArray(input?.resourceReceipts)) throw new TypeError("energy accounting: settledRows and resourceReceipts must be arrays");
-  if (input.conversionFactors === null || typeof input.conversionFactors !== "object" || !Array.isArray(input.boundary) || input.boundary.length === 0) throw new TypeError("energy accounting: conversionFactors and a non-empty boundary are required");
-  const receipts = [];
-  const unmatchedRowIds = [];
-  for (const row of input.settledRows) {
-    const matched = input.resourceReceipts.filter((receipt) => receipt.intervalStart < row.intervalEnd && receipt.intervalEnd > row.intervalStart);
-    if (matched.length === 0) { unmatchedRowIds.push(row.rowId); continue; }
-    const contributions = [];
-    for (const receipt of matched) {
-      const asset = receipt?.price?.denomination?.asset;
-      const factorKey = FACTOR_FOR_ASSET[asset];
-      const factor = factorKey === undefined ? undefined : input.conversionFactors[factorKey];
-      if (factor === undefined) return Object.freeze({ refused: true, reason: "no-conversion-factor-for-asset", asset });
-      contributions.push(multiply(divide(receipt.price.amount.numerator, receipt.price.amount.denominator), factor.value));
-    }
-    receipts.push(Object.freeze({ type: "SettledRowEnergyReceipt", version: 1, rowId: row.rowId, joules: sum(contributions), boundary: input.boundary, conversionFactors: input.conversionFactors, sourceReceipts: matched }));
-  }
-  return Object.freeze({ receipts: Object.freeze(receipts), unmatchedRowIds: Object.freeze(unmatchedRowIds) });
-}
 
 function unpricedCommodities(report) {
   return [...new Set((report.rows ?? []).filter((row) => row.marketPrice === null).map((row) => row.units?.grade).filter((grade) => typeof grade === "string"))];
@@ -186,7 +116,8 @@ export async function valueConfiguredLedgerInKwh(input) {
 export function energyAccountingOperations() {
   return Object.freeze([
     operation({ verb: "energy-price-directives", inputFormat: "json", outputFormat: "json", domain: energyPriceDirectiveRequestContract, summary: "Derive source-attributed KWH, propane, and diesel price directives.", description: "Accepts declared tariff and recorded or fetched weekly series data; returns forward and inverse Beancount price directives without fetching or storing secrets.", run: deriveEnergyPriceDirectives }),
-    operation({ verb: "settlement-energy-allocation", inputFormat: "json", outputFormat: "json", domain: settlementEnergyRequestContract, summary: "Allocate metered CPU and network energy to settlement rows.", description: "Overlapping resource receipts are converted using declared factors and returned as evidence-carrying joule receipts.", run: allocateSettlementEnergy }),
+    operation({ verb: "settlement-energy-allocation", inputFormat: "json", outputFormat: "json", domain: settlementEnergyRequestContract, summary: "Allocate metered CPU and network energy to settlement intervals once.", description: "Complete uniquely contained meter intervals are converted using declared factors. Partial, shared, duplicate or owner-disagreeing source witnesses remain refused, without invented prorating or zero consumption.", run: allocateSettlementEnergy }),
     operation({ verb: "ledger-energy-valuation", inputFormat: "json", outputFormat: "json", domain: ledgerEnergyValuationRequestContract, summary: "Value Metroplat's configured book of record in USD and KWH.", description: "Uses only METROPLAT_LEDGER_JOURNAL; callers cannot substitute a journal path or inline book.", run: valueConfiguredLedgerInKwh }),
   ]);
 }
+

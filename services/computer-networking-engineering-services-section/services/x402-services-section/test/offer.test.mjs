@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { validateBazaarRouteExtensions, validateDiscoveryExtension, validateDiscoveryExtensionSpec, isValidRouteTemplate, isValidServiceName } from "@x402/extensions/bazaar";
+import { createExactEvmFetchPaymentBoundary } from "../src/fetch-server.mjs";
 
 import {
   CAPABILITY_OFFER_KIND,
@@ -117,11 +118,12 @@ test("declareOffer refuses a framing with more than five tags or an overlong ser
   })), /offer declaration is not admissible/u);
 });
 
-test("declareOffer refuses a ledger account that is not the gateway's income account", () => {
+test("declareOffer refuses a ledger account outside the seller's income account namespace", () => {
   assert.throws(
-    () => declareOffer(postDeclaration({ ledgerAccount: "Income:Sales:X402:Something-else" })),
-    /must be Income:Sales:X402:Paid-pacing-intelligence-gateway/u,
+    () => declareOffer(postDeclaration({ ledgerAccount: "Assets:Cash" })),
+    /ledgerAccount/u,
   );
+  assert.equal(declareOffer(postDeclaration({ ledgerAccount: "Income:Sales:Seller" })).ledgerAccount, "Income:Sales:Seller");
 });
 
 test("declareOffer refuses a declaration carrying an unknown market", () => {
@@ -138,7 +140,7 @@ test("declareOffer admits by schema by default, and still refuses a schema-inval
   assert.throws(() => declareOffer(withoutPrice, { admit: true }), /offer declaration is not admissible/u);
 });
 
-test("declareOffer({admit: false}) trusts an already-valid declaration without compiling Ajv's validator", () => {
+test("declareOffer({admit: false}) trusts prior schema admission of an already-valid declaration", () => {
   const admitted = declareOffer(postDeclaration(), { admit: false });
   const bySchema = declareOffer(postDeclaration());
   assert.deepEqual(admitted.declaration, bySchema.declaration);
@@ -146,13 +148,10 @@ test("declareOffer({admit: false}) trusts an already-valid declaration without c
 });
 
 test("declareOffer({admit: false}) skips the schema check but still enforces the ledger-account rule", () => {
-  // The ledgerAccount check is a string comparison, not an Ajv compile, so it
-  // stays on for both admission modes: `admit: false` is a trust boundary for
-  // the schema compile a Workers isolate cannot run, never a bypass of every
-  // admission rule this module owns.
+  // Trusting prior schema admission still preserves the seller-account guard.
   assert.throws(
-    () => declareOffer(postDeclaration({ ledgerAccount: "Income:Sales:X402:Something-else" }), { admit: false }),
-    /must be Income:Sales:X402:Paid-pacing-intelligence-gateway/u,
+    () => declareOffer(postDeclaration({ ledgerAccount: "Assets:Cash" }), { admit: false }),
+    /offer ledgerAccount must name an income account/u,
   );
 });
 
@@ -177,11 +176,10 @@ test("x402Route derives a priced route with a schema-valid Bazaar extension", ()
   assert.equal(entry.serviceName, "561-group-pacing-analysis");
   assert.deepEqual(entry.tags, ["pacing", "hrv"]);
   assert.equal(entry.mimeType, "application/json");
-  assert.equal(entry.extensions.bazaar.routeTemplate, "/v1/pacing/analysis");
+  assert.equal(Object.hasOwn(entry.extensions.bazaar, "routeTemplate"), false);
   assert.equal(entry.extensions.bazaar.info.input.method, "POST");
   assert.equal(entry.extensions.bazaar.info.input.bodyType, "json");
   assert.deepEqual(entry.extensions.bazaar.info.input.body, { observations: [{ metric: "hrv-rmssd" }] });
-  assert.ok(isValidRouteTemplate(entry.extensions.bazaar.routeTemplate));
   assert.ok(isValidServiceName(entry.serviceName));
   assert.deepEqual(validateDiscoveryExtensionSpec(entry.extensions.bazaar), { valid: true });
   assert.deepEqual(validateDiscoveryExtension(entry.extensions.bazaar), { valid: true });
@@ -191,7 +189,7 @@ test("x402Route derives a GET route whose discovery extension carries the GET me
   const offer = declareOffer(getDeclaration());
   const entry = offer.x402Route(RAILS)["GET /base/gas-oracle"];
   assert.equal(entry.extensions.bazaar.info.input.method, "GET");
-  assert.equal(entry.extensions.bazaar.routeTemplate, "/base/gas-oracle");
+  assert.equal(Object.hasOwn(entry.extensions.bazaar, "routeTemplate"), false);
   assert.deepEqual(validateDiscoveryExtension(entry.extensions.bazaar), { valid: true });
 });
 
@@ -266,7 +264,37 @@ test("index402Registration uses an explicit probe URL when the route is a templa
     probeUrl: "https://base-chain.example.test/v1/ephemeris/moment/2026-07-21",
   }));
   assert.equal(offer.index402Registration().url, "https://base-chain.example.test/v1/ephemeris/moment/2026-07-21");
-  assert.equal(offer.x402Route(RAILS)["GET /v1/ephemeris/moment/:date"].extensions.bazaar.routeTemplate, "/v1/ephemeris/moment/{date}");
+  const extension = offer.x402Route(RAILS)["GET /v1/ephemeris/moment/:date"].extensions.bazaar;
+  assert.equal(extension.routeTemplate, "/v1/ephemeris/moment/:date");
+  assert.ok(isValidRouteTemplate(extension.routeTemplate));
+});
+
+test("the official Bazaar extension publishes one canonical route and concrete path parameters for every date", async () => {
+  const offer = declareOffer(getDeclaration({
+    route: "/v1/ephemeris/moment/{date}",
+    pathParamsSchema: { type: "object", properties: { date: { type: "string" } }, required: ["date"] },
+  }));
+  const boundary = createExactEvmFetchPaymentBoundary({
+    network: NETWORK,
+    facilitatorClient: {
+      async getSupported() { return { kinds: [{ x402Version: 2, scheme: "exact", network: NETWORK }], extensions: [], signers: {} }; },
+      async verify() { throw new Error("discovery must not verify an unpaid request"); },
+      async settle() { throw new Error("discovery must not settle an unpaid request"); },
+    },
+    routes: offer.x402Route(RAILS),
+  });
+  for (const date of ["2026-07-21", "2026-10-13"]) {
+    const response = await boundary.handle(
+      new Request(`https://base-chain.example.test/v1/ephemeris/moment/${date}`),
+      () => { throw new Error("discovery must not execute unpaid compute"); },
+    );
+    assert.equal(response.status, 402);
+    const challenge = JSON.parse(Buffer.from(response.headers.get("payment-required"), "base64").toString("utf8"));
+    assert.equal(challenge.extensions.bazaar.routeTemplate, "/v1/ephemeris/moment/:date");
+    assert.deepEqual(challenge.extensions.bazaar.info.input.pathParams, { date });
+    assert.deepEqual(validateDiscoveryExtension(challenge.extensions.bazaar), { valid: true });
+  }
+  assert.equal(offer.declaration.route, "/v1/ephemeris/moment/{date}");
 });
 
 test("capabilityOffer derives an org.emsenn.capability-offer.v3 object with typed residuals", () => {
@@ -277,7 +305,9 @@ test("capabilityOffer derives an org.emsenn.capability-offer.v3 object with type
     expiresAt: "2027-07-25T00:00:00.000Z",
   });
   assert.equal(projection.kind, CAPABILITY_OFFER_KIND);
-  assert.equal(projection.provider, "urn:ame:paid-pacing-intelligence-gateway");
+  assert.equal(projection.provider, "https://pacing.example.test/actors/market");
+  assert.equal(projection.seller, null);
+  assert.equal(projection.book, null);
   assert.equal(projection.operation, "analyze-pacing");
   assert.deepEqual(projection.price, { protocol: "x402", asset: USDC, amount: "50000", network: NETWORK });
   assert.equal(projection.coordinates.signedAgentCard.kind, "reference");
@@ -299,7 +329,11 @@ test("capabilityOffer refuses without an agent card or an ISO expiry", () => {
 test("sellerCatalogRow derives the row shape the paid-sellers assay validates", () => {
   const offer = declareOffer(postDeclaration());
   assert.deepEqual(offer.sellerCatalogRow(RAILS), {
-    seller: "paid-pacing-intelligence-gateway",
+    seller: null,
+    servingProvider: "https://pacing.example.test/actors/market",
+    gateway: "paid-pacing-intelligence-gateway",
+    sellerRecord: null,
+    book: null,
     gatewayPackageName: "@red-cup-engineering/paid-pacing-intelligence-gateway",
     url: "https://pacing.example.test/v1/pacing/analysis",
     method: "POST",
@@ -314,6 +348,26 @@ test("sellerCatalogRow derives the row shape the paid-sellers assay validates", 
   const row = get.sellerCatalogRow(RAILS);
   assert.equal(row.listed, false);
   assert.equal("body" in row, false);
+});
+
+test("seller projections carry the declared enterprise and book independently of the serving gateway", () => {
+  const seller = {
+    enterprise: "pacing-service",
+    entity: "Causeway Services",
+    record: { path: "lib/emsenn/services/561-group/lib/agency/enterprises/pacing-service.json", sha256: "ab".repeat(32) },
+  };
+  const offer = declareOffer(postDeclaration({ seller, ledgerAccount: "Income:Sales:Pacing" }));
+  const row = offer.sellerCatalogRow(RAILS);
+  assert.equal(row.seller, seller.enterprise);
+  assert.deepEqual(row.sellerRecord, seller.record);
+  assert.deepEqual(row.book, { enterprise: seller.enterprise, account: "Income:Sales:Pacing" });
+  assert.equal(row.gateway, "paid-pacing-intelligence-gateway");
+  const capability = offer.capabilityOffer({
+    ...RAILS, agentCard: "https://pacing.example.test/.well-known/agent-card.json", expiresAt: "2027-07-25T00:00:00.000Z",
+  });
+  assert.deepEqual(capability.seller, seller);
+  assert.deepEqual(capability.book, row.book);
+  assert.equal(capability.provider, row.servingProvider);
 });
 
 test("the catalog row's expected amount equals the amount in the derived challenge", () => {
@@ -348,9 +402,9 @@ test("settlementWitness logs the settlement and posts it to a bound sink", async
     log: (line) => lines.push(line),
   });
   const result = await witness({
-    transportContext: { request: { method: "POST", path: "/v1/pacing/heart-rate-threshold" } },
+    transportContext: { request: { method: "POST", path: "/v1/pacing/heart-rate-threshold" }, responseStatus: 200, responseBody: new Uint8Array(12) },
     requirements: { amount: "10000", asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", payTo: "0x1111111111111111111111111111111111111111" },
-    result: { network: NETWORK, transaction: `0x${"a".repeat(64)}`, payer: "0xdeadbeef" },
+    result: { success: true, network: NETWORK, transaction: `0x${"a".repeat(64)}`, payer: "0xdeadbeef" },
   });
   assert.deepEqual({ ...result, witnessId: undefined }, {
     version: 2,
@@ -360,6 +414,10 @@ test("settlementWitness logs the settlement and posts it to a bound sink", async
     operation: "estimate-heart-rate-threshold",
     sku: offers[1].sku,
     ledgerAccount: offers[1].ledgerAccount,
+    seller: null,
+    book: null,
+    paymentObservation: { basis: "facilitator-result", success: true, independentlyVerifiedTransfer: false },
+    deliveryObservation: { basis: "server-response-prepared", status: 200, bodyBytes: 12, requesterAccepted: null },
     offerDeclaration: offers[1].declaration,
     network: NETWORK,
     transaction: `0x${"a".repeat(64)}`,
@@ -447,3 +505,4 @@ test("settlementWitness treats a non-success sink response as a refused delivery
   assert.equal(lines.length, 2);
   assert.equal(JSON.parse(lines[1]).reason, "sink responded 503");
 });
+
