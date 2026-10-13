@@ -55,6 +55,302 @@ export const consumerSchema = Object.freeze({
   }
 });
 
+export const developmentProductRequestSchema = Object.freeze({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe/software/development/product-request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "question",
+    "artifact"
+  ],
+  "properties": {
+    "question": {
+      "type": "string",
+      "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"
+    },
+    "artifact": {
+      "type": "string",
+      "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"
+    },
+    "offset": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 131072
+    },
+    "projection": {
+      "enum": [
+        "product",
+        "source-text"
+      ]
+    }
+  },
+  "x-codegen": {
+    "exportName": "developmentProductRequestSchema",
+    "typeName": "DevelopmentProductRequest",
+    "runtimeName": "developmentProductRequestType"
+  },
+  "title": "DevelopmentProductRequest",
+  "description": "An exact addressed product in native custody with a bounded byte window, or an explicit source-text projection measured in Unicode codepoints"
+});
+
+export const developmentRequestSchema = Object.freeze({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe/software/development/request",
+  "type": "object",
+  "required": [
+    "objective",
+    "work"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "work": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workType": {
+      "enum": [
+        "inquiry",
+        "software-change"
+      ]
+    },
+    "artifacts": {
+      "type": "object"
+    },
+    "resume": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question",
+        "effect"
+      ],
+      "properties": {
+        "question": {
+          "type": "string",
+          "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"
+        },
+        "effect": {
+          "type": "string",
+          "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"
+        }
+      }
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The exact authored requirement revision selected by the requesting actor"
+    }
+  },
+  "x-codegen": {
+    "exportName": "developmentRequestSchema",
+    "typeName": "DevelopmentRequest",
+    "runtimeName": "developmentRequestType"
+  },
+  "title": "DevelopmentRequest",
+  "description": "Intent addressed to a development actor; authority remains receiver-owned"
+});
+
+export const engineeringArtifactSchema = Object.freeze({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe.software.development.artifact.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "text",
+    "inputs",
+    "unresolved",
+    "basis",
+    "authority",
+    "derivation",
+    "readings",
+    "admission",
+    "semanticProof"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "prior-art-synthesis",
+        "system-operational-concept",
+        "software-requirements-specification",
+        "software-architecture-specification",
+        "high-level-design",
+        "low-level-design",
+        "artifact-specifications"
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "product": {
+      "type": "object"
+    },
+    "basis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "authority": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "derivation": {
+      "type": "object"
+    },
+    "readings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "admission": {
+      "const": "machine-grounded-contribution"
+    },
+    "semanticProof": {
+      "const": "unestablished"
+    }
+  },
+  "x-codegen": {
+    "exportName": "engineeringArtifactSchema",
+    "typeName": "EngineeringArtifact",
+    "runtimeName": "engineeringArtifactType"
+  },
+  "title": "EngineeringArtifact",
+  "description": "A causally grounded engineering product consumed by the next development transformation"
+});
+
+export const engineeringContributionSchema = Object.freeze({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe.software.development.contribution.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "role",
+    "text",
+    "unresolved"
+  ],
+  "properties": {
+    "role": {
+      "enum": [
+        "prior-art-synthesis",
+        "system-operational-concept",
+        "software-requirements-specification",
+        "software-architecture-specification",
+        "high-level-design",
+        "low-level-design",
+        "artifact-specifications"
+      ]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 65536
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "product": {
+      "type": "object"
+    }
+  },
+  "x-codegen": {
+    "exportName": "engineeringContributionSchema",
+    "typeName": "EngineeringContribution",
+    "runtimeName": "engineeringContributionType"
+  },
+  "title": "EngineeringContribution",
+  "description": "Inferential content consumed by development; causal identities and authority are established by the engine"
+});
+
+export const fabricationRefusalSchema = Object.freeze({
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aoe/software/development/fabrication-refusal",
+  "title": "DevelopmentFabricationRefusal",
+  "description": "Native fabrication counterexample retained as an input to executable specification revision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "specification",
+    "phase",
+    "fingerprint",
+    "reason",
+    "code",
+    "product"
+  ],
+  "properties": {
+    "source": {
+      "type": "string",
+      "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$(?![\\s\\S])"
+    },
+    "specification": {
+      "type": "string",
+      "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$(?![\\s\\S])"
+    },
+    "phase": {
+      "enum": [
+        "native-handoff",
+        "module-plan",
+        "module-derivation"
+      ]
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{42}[AEIMQUYcgkosw048]$(?![\\s\\S])"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "product": {}
+  },
+  "x-codegen": {
+    "exportName": "fabricationRefusalSchema",
+    "typeName": "DevelopmentFabricationRefusal",
+    "runtimeName": "fabricationRefusalType"
+  }
+});
+
 export const locationSchema = Object.freeze({
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "aoe.software.location.v1",
@@ -234,6 +530,11 @@ export const workSchema = Object.freeze({
 
 export const artifactType = defineSchemaType(artifactSchema);
 export const consumerType = defineSchemaType(consumerSchema);
+export const developmentProductRequestType = defineSchemaType(developmentProductRequestSchema);
+export const developmentRequestType = defineSchemaType(developmentRequestSchema);
+export const engineeringArtifactType = defineSchemaType(engineeringArtifactSchema);
+export const engineeringContributionType = defineSchemaType(engineeringContributionSchema);
+export const fabricationRefusalType = defineSchemaType(fabricationRefusalSchema);
 export const locationType = defineSchemaType(locationSchema);
 export const ownerType = defineSchemaType(ownerSchema);
 export const placementType = defineSchemaType(placementSchema);

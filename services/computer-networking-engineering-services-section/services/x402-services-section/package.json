@@ -47,7 +47,6 @@
     "./market-561-group/listing-reconciliation-operation": "./apps/market-561-group/src/listing-reconciliation-operation.mjs",
     "./market-561-group/catalog": "./data/market-561-group/records/catalog.json",
     "./market-561-group/access-grants": "./data/market-561-group/records/access-grants.json",
-    "./receipt-record": "./src/market/receipt-record.mjs",
     "./purchase-publication": "./src/purchase-publication.mjs",
     "./seller-settlements": "./src/settlement-derivation/book-market-seller-settlements.mjs",
     "./route-configuration": "./src/route-configuration.mjs"

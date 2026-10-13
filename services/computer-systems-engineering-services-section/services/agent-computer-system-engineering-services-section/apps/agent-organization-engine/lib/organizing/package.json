@@ -45,7 +45,8 @@
     "@red-cup-engineering/signcraft": "workspace:*",
     "@red-cup-engineering/signgraph": "workspace:*",
     "@red-cup-engineering/git-services-section": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
   },
   "exports": {
     ".": "./src/index.mjs",
