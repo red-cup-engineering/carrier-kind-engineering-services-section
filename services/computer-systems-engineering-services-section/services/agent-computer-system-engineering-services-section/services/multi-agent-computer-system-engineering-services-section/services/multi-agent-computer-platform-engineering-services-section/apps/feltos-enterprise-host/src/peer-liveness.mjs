@@ -16,10 +16,13 @@
  * chosen by policy (optimistic collapses ⊥ to alive, pessimistic to not alive), never a second
  * detector.
  *
- * Witnesses are semantic records in the node's own journal (`record-semantic-record`), told for,
- * against or neither, so liveness is substrate content a peer can federate and an audit can read.
+ * Witnesses and their FOUR-sided evaluations are two immutable native EAVT store
+ * record types. The subject's NI address is shared by opposed evaluations,
+ * which join without a special journal, sidecar index, or mutable truth flag.
+ * The store's declared legacy-layout refusal is preserved: migration must be
+ * separately received before an old settlement can activate this consumer.
  */
-import { createSemanticRecordJournal } from "@red-cup-engineering/semiotic-eavt-services-section/record-semantic-record";
+import { put, get, each } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 
 /** The journal object kind and category liveness witnesses are kept under. */
@@ -27,9 +30,11 @@ export const PEER_LIVENESS_KIND = "peer-liveness";
 // Retain the current public kind name while both call forms use semantic-record custody.
 export const PEER_LIVENESS_TYPE = PEER_LIVENESS_KIND;
 const CATEGORY = "heartbeat";
-const journalOf = (rootOrJournal) => typeof rootOrJournal === "string"
-  ? createSemanticRecordJournal({ root: rootOrJournal, objectKind: PEER_LIVENESS_KIND })
-  : rootOrJournal;
+export const PEER_LIVENESS_EVIDENCE_TYPE = "peer-liveness-evidence";
+const requireRoot = root => {
+  if (typeof root !== "string" || root.trim() === "") throw new TypeError("peer liveness requires the native store root");
+  return root;
+};
 
 /** The default observation window and suspicion threshold, in seconds. */
 export const LIVENESS_WINDOW_SECONDS = 300;
@@ -109,18 +114,37 @@ export function projectLiveness(reading, policy = "optimistic") {
   throw new TypeError(`peer liveness: unknown projection policy ${policy}`);
 }
 
-const toldOf = (side) => ({ for: side === "for", against: side === "against" });
-const sidesOf = (told) => told.for && told.against ? ["for", "against"] : [told.for ? "for" : told.against ? "against" : "none"];
+/** Native immutable evaluations of a peer's observation, independent of insertion order.
+ * A witness holds an identity and content. A valuation names that NI address;
+ * opposite valuations converge under the existing FOUR reader rather than
+ * rewriting or erasing either. Missing referenced facts fail closed.
+ */
+export function witnessesIn(root) {
+  requireRoot(root);
+  return [...each(root, PEER_LIVENESS_EVIDENCE_TYPE, { strict: true })].map(({ record: evaluation }) => {
+    if (evaluation?.kind !== CATEGORY || !["for", "against", "none"].includes(evaluation.side))
+      throw new TypeError("unqualified peer-liveness evaluation");
+    const source = get(root, PEER_LIVENESS_KIND, evaluation.witness);
+    if (!source || source.kind !== CATEGORY || source.peer === undefined)
+      throw new TypeError("peer-liveness evaluation has no held source witness");
+    return Object.freeze({ ...source, side: evaluation.side });
+  });
+}
 
-/** The liveness witnesses in a semantic-record journal, supplied directly or by custody root. */
-export const witnessesIn = (rootOrJournal) => journalOf(rootOrJournal).query({ objectKind: PEER_LIVENESS_KIND, category: CATEGORY })
-  .flatMap(({ record, told }) => sidesOf(told).map((side) => Object.freeze({ ...record, side })));
-
-/** Keep one witness in the journal, told as its side says. */
-export function keepWitness(rootOrJournal, witness) {
-  const journal = journalOf(rootOrJournal);
+/** Admit an immutable observation and its native FOUR evaluation.
+ * Repeating the identical observation/side does not multiply custody.
+ * A different side on the same observation retains the same subject address.
+ */
+export function keepWitness(root, witness) {
+  requireRoot(root);
+  if (!witness || typeof witness !== "object" || !["for", "against", "none"].includes(witness.side)
+    || typeof witness.at !== "string" || !Number.isFinite(Date.parse(witness.at))
+    || typeof witness.peer !== "string" || !witness.peer)
+    throw new TypeError("peer liveness requires a sourced, timed observation and one FOUR side");
   const { side, ...record } = witness;
-  journal.record({ objectKind: PEER_LIVENESS_KIND, category: CATEGORY, recordedAt: witness.at, record, told: toldOf(side) });
+  const witnessId = put(root, PEER_LIVENESS_KIND, { kind: CATEGORY, ...record });
+  put(root, PEER_LIVENESS_EVIDENCE_TYPE, { kind: CATEGORY, witness: witnessId, side, at: witness.at });
+  return witnessId;
 }
 
 /**
