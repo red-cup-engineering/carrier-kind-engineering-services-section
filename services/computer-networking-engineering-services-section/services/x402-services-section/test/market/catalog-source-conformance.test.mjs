@@ -4,7 +4,9 @@
 // This catches forest/superrepo rename drift before exposing false SKUs.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,6 +22,23 @@ const edge = catalog.filter(offer => offer.runtime !== "node");
 const STATIC_EXTERNAL_PUBLICATIONS = new Set([
   "@red-cup-engineering/digital-goods-storefront-services-section/paid-release",
 ]);
+
+test("the packed merchant retains the offer schema required by its native admission module", () => {
+  const cache = mkdtempSync(resolve(tmpdir(), "x402-pack-cache-"));
+  try {
+    const packed = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts", "--offline", "--cache", cache], {
+      cwd: root, encoding: "utf8", timeout: 30_000, maxBuffer: 16 * 1024 * 1024,
+    }));
+    assert.equal(packed.length, 1);
+    const paths = new Set(packed[0].files.map(file => file.path));
+    assert.ok(paths.has("src/offer.mjs"), "the native offer admission module must be packed");
+    assert.match(read("src/offer.mjs"), /\.\.\/schemas\/offer\.schema\.json/u);
+    assert.ok(paths.has("schemas/offer.schema.json"), "the packed offer admission module must retain its JSON schema");
+    assert.doesNotThrow(() => JSON.parse(read("schemas/offer.schema.json")));
+  } finally {
+    rmSync(cache, { recursive: true, force: true });
+  }
+});
 
 test("market is one canonical merchant and source catalog operations have unique paid URLs", () => {
   assert.ok(catalog.length >= 131, "the merchant should not lose its existing inventory");
@@ -71,3 +90,4 @@ test("all listings have explicit prior-payment admission and runnable probe surf
   ]);
   assert.deepEqual(malformed, []);
 });
+
