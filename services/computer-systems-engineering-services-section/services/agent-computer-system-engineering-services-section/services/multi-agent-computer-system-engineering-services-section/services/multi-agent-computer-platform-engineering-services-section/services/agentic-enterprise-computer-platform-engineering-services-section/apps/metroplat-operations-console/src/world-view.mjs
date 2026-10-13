@@ -116,6 +116,7 @@ async function start(mount) {
   // The house at work. `base` is the city as projected; what is drawn is it with the halls aglow
   // and the figures standing where the jianghu has them.
   const jianghu = createJianghu({
+    motion: () => client.motion,
     spotOf: (room, who) => {
       const body = atlas.places[room]?.region.body;
       return body && spotOn(body, who, { open: room === atlas.start });

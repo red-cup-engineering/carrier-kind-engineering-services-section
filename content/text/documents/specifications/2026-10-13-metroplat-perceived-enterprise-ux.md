@@ -76,6 +76,34 @@ contract. Local receiving is distinct from native admission and live release.
 
 ## Continuing session work
 
+Accessibility sources retrieved 2026-10-13: W3C's [target size guidance](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html),
+[focus guidance](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html),
+[motion guidance](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html),
+and [cognitive accessibility patterns](https://www.w3.org/WAI/WCAG2/supplemental/),
+plus NN/g's [recognition over recall](https://www.nngroup.com/articles/recognition-and-recall/)
+and [progressive disclosure](https://www.nngroup.com/articles/progressive-disclosure/).
+The client uses native controls, visible focus, 44-pixel menu targets, searchable
+described operations, explicit drawing-tier links and camera buttons, and optional
+motion initialized from the user's preference. Character shortcuts require focus
+on a drawing surface and do not intercept native controls. Text-mode controls and
+content reflow separately. These are implementation decisions, not a claim of
+complete accessibility conformance or receiving by disabled participants.
+
+The sidequest adds four public section sites under their actual service owners:
+
+| Site | Owner | Requested visual direction |
+| --- | --- | --- |
+| science.561.group | Lenticule Science | Aperture Science / Once Human |
+| engineering.561.group | Red Cup Engineering | Black Mesa / EVE |
+| operations.561.group | Coesite Operations | SCP / Backrooms |
+| services.561.group | Causeway Services | TESCREAL / Civics |
+
+Recover each owner's existing design specifications before selecting its
+composition. 561 Group keeps its distinct SEAFORM wuxian glass temples, courts
+and whirling forests. Shared TUFTE capabilities impose no common visual theme.
+Use the current owning GitHub sources, commit and push qualified changes, and
+improve the consumed engineering/receiving methods while doing this work.
+
 The complete contract remains active. Recover the full SEAFOAM and ABYSSAL
 CURRENT specifications and their mathematical owners; connect native SEN/SEAVT
 enterprise operations, their required inputs and receipts to editable working
