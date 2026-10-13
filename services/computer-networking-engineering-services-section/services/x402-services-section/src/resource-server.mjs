@@ -2,12 +2,14 @@ import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engine
 import { HTTPFacilitatorClient, x402ResourceServer } from "@x402/core/server";
 import { decodePaymentSignatureHeader } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { UptoEvmScheme } from "@x402/evm/upto/server";
 import { BatchSettlementEvmScheme } from "@x402/evm/batch-settlement/server";
 import { paymentMiddleware } from "@x402/express";
 import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
-import { evmNetwork, routeSet } from "./route-configuration.mjs";
+import { boundUptoSettlement, evmNetwork, routeSet } from "./route-configuration.mjs";
 import { x402SettlementEvidence as projectX402SettlementEvidence } from "./x402-settlement-evidence.mjs";
 export { declareDiscoveryExtension } from "@x402/extensions/bazaar";
+export { setSettlementOverrides } from "@x402/express";
 
 /** Identify one exact x402 payment payload consistently at HTTP and hook faces. */
 export function x402PaymentIdentity(value) {
@@ -42,6 +44,7 @@ export function createExactEvmPaymentBoundary({
   afterSettle,
 }) {
   const selectedNetwork = evmNetwork(network);
+  const selectedRoutes = routeSet(routes, "exact", selectedNetwork);
   if (facilitatorClient === undefined && (typeof facilitatorUrl !== "string" || !/^https?:\/\//u.test(facilitatorUrl))) {
     throw new TypeError("x402 facilitatorUrl is required when no contracted facilitator client is supplied");
   }
@@ -53,7 +56,7 @@ export function createExactEvmPaymentBoundary({
   return Object.freeze({
     network: selectedNetwork,
     resourceServer,
-    middleware: paymentMiddleware(routeSet(routes, "exact"), resourceServer),
+    middleware: paymentMiddleware(selectedRoutes, resourceServer),
   });
 }
 
@@ -70,6 +73,7 @@ export function createBatchEvmPaymentBoundary({
   afterSettle,
 }) {
   const selectedNetwork = evmNetwork(network);
+  const selectedRoutes = routeSet(routes, "batch-settlement", selectedNetwork);
   if (!/^0x[0-9a-fA-F]{40}$/u.test(receiver ?? "")) throw new TypeError("batch receiver must be one EVM smart-account address");
   if (storage === undefined) throw new TypeError("batch settlement requires explicit sovereign channel storage");
   if (facilitatorClient === undefined && (typeof facilitatorUrl !== "string" || !/^https?:\/\//u.test(facilitatorUrl))) {
@@ -89,7 +93,26 @@ export function createBatchEvmPaymentBoundary({
     network: selectedNetwork,
     scheme,
     resourceServer,
-    middleware: paymentMiddleware(routeSet(routes, "batch-settlement"), resourceServer),
+    middleware: paymentMiddleware(selectedRoutes, resourceServer),
   });
+}
+
+/** Official usage-based EVM boundary. The route price is the buyer's ceiling;
+ * the owning handler sets actual consideration with setSettlementOverrides.
+ * No clock, resource tariff, sponsor or ledger is inferred by this provider.
+ */
+export function createUptoEvmPaymentBoundary({ network, routes, facilitatorUrl, facilitatorClient, afterSettle }) {
+  const selectedNetwork = evmNetwork(network);
+  const selectedRoutes = routeSet(routes, "upto", selectedNetwork);
+  if (facilitatorClient === undefined && (typeof facilitatorUrl !== "string" || !/^https?:\/\//u.test(facilitatorUrl))) {
+    throw new TypeError("x402 facilitatorUrl is required when no contracted facilitator client is supplied");
+  }
+  const facilitator = facilitatorClient ?? new HTTPFacilitatorClient({ url: facilitatorUrl });
+  const resourceServer = new x402ResourceServer(facilitator)
+    .register(selectedNetwork, new UptoEvmScheme())
+    .registerExtension(bazaarResourceServerExtension);
+  resourceServer.onBeforeSettle(boundUptoSettlement);
+  if (afterSettle !== undefined) resourceServer.onAfterSettle(afterSettle);
+  return Object.freeze({ network: selectedNetwork, resourceServer, middleware: paymentMiddleware(selectedRoutes, resourceServer) });
 }
 
