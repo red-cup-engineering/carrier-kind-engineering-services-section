@@ -2,7 +2,7 @@
   "name": "@red-cup-engineering/signcraft",
   "version": "0.1.0",
   "type": "module",
-  "description": "SignCell/SignChain/SignGraph settlement and inference, including bounded kinematic dependency plans and replayable history.",
+  "description": "SignCell/SignChain/SignGraph settlement and inference, including source-replayed signed derivation, bounded proof-motion carriers and kinematic scheduling.",
   "files": [
     "src",
     "scripts"
@@ -29,7 +29,8 @@
     "./history": "./src/history.mjs",
     "./membrane": "./src/membrane.mjs",
     "./primitives": "./src/primitives.mjs",
-    "./inference/kinematic": "./src/inference/kinematic.mjs"
+    "./inference/kinematic": "./src/inference/kinematic.mjs",
+    "./proof-motion-carrier": "./src/proof-motion-carrier.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/signcell": "workspace:*",

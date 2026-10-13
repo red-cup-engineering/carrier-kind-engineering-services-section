@@ -86,6 +86,29 @@ A kinematic dependency rank is **not** a physical Lorentzian metric or a
 certificate about the material world. It is a directly usable scheduling and
 debugging property of the actual inference engine.
 
+## Signed proof motion from replayed settlement
+
+The current `@red-cup-engineering/signcraft/settle` export now supplies
+`derivationOrderOf(settlement)`, `derivationOrderAdmits(order, settlement)`,
+`derivationPath`, `derivationCone`, and `derivationSeparation`.
+These read distinct positive and negative evidence **occurrences** and the
+actual full version-2 SignChain witness identities, not incidental term
+sharing. Only the stronger admission with the original settlement establishes
+that the presented dependency graph agrees with the existing rule data.
+
+`@red-cup-engineering/signcraft/proof-motion-carrier` exports
+`proofMotionCarrierOf(order, settlement)` and
+`proofMotionLeanSourceOf(order, settlement)`. The ordinary
+`infer(engine, { facts, denials, query, includeSignedMotion: true })` also
+returns `signedMotion` as the source-replayed finite carrier, while leaving
+the default inference response unchanged. This is the actual consumer
+interface, not a parallel proof queue. They refuse unreplayed ancestry;
+the latter emits a bounded finite indexed Lean obligation and explicitly
+returns `verifiedByLean: false` until an independent Lean check. A stage-ordered
+proof graph is still not a theorem that its rules preserve a world judgment.
+Unversioned historical settlements are replayed **as they were** and cannot
+be promoted into signed proof motion without declaring the source version.
+
 The single cross-section [Obsmetrologia → SignCraft → Lean → fabrication
 integration note](../docs/obsmetrologia-proofing-and-fabrication.md) owns the
 source-to-consumer boundary map and outstanding signed-replay/physical-device

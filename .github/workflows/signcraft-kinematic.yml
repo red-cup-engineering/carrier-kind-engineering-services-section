@@ -5,6 +5,11 @@ on:
     branches: ['**']
     paths:
       - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
+      - 'lib/signstuff/signcraft/src/settle.mjs'
+      - 'lib/signstuff/signcraft/src/proof-motion-carrier.mjs'
+      - 'lib/signstuff/signcraft/test/settle.test.mjs'
+      - 'lib/signstuff/signcraft/test/proof-motion-carrier.test.mjs'
+      - 'lib/signstuff/signcraft/test/proof-motion-standalone.test.mjs'
       - 'lib/signstuff/signcraft/src/inference/infer.mjs'
       - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
       - 'lib/signstuff/signcraft/package.json'
@@ -12,6 +17,11 @@ on:
   pull_request:
     paths:
       - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
+      - 'lib/signstuff/signcraft/src/settle.mjs'
+      - 'lib/signstuff/signcraft/src/proof-motion-carrier.mjs'
+      - 'lib/signstuff/signcraft/test/settle.test.mjs'
+      - 'lib/signstuff/signcraft/test/proof-motion-carrier.test.mjs'
+      - 'lib/signstuff/signcraft/test/proof-motion-standalone.test.mjs'
       - 'lib/signstuff/signcraft/src/inference/infer.mjs'
       - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
       - 'lib/signstuff/signcraft/package.json'
@@ -37,3 +47,6 @@ jobs:
           node --check lib/signstuff/signcraft/src/inference/infer.mjs
           node --check lib/signstuff/signcraft/src/inference/kinematic.mjs
           node --test lib/signstuff/signcraft/test/kinematic.test.mjs
+          node --check lib/signstuff/signcraft/src/settle.mjs
+          node --check lib/signstuff/signcraft/src/proof-motion-carrier.mjs
+          node --test lib/signstuff/signcraft/test/proof-motion-standalone.test.mjs
