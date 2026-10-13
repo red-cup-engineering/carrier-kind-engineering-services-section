@@ -33,7 +33,8 @@
     "@red-cup-engineering/computer-filepath-engineering-services-section": "workspace:*",
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/exact-number-data-service": "workspace:*"
+    "@red-cup-engineering/exact-number-data-service": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*"
   },
   "scripts": {
     "test": "node --test \"test/**/*.test.mjs\""
