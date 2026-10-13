@@ -19,6 +19,7 @@
     "./facilitator-assay": "./src/facilitator-assay.mjs",
     "./src/priced-capability-boundary.mjs": "./src/priced-capability-boundary.mjs",
     "./offer": "./src/offer.mjs",
+    "./capability-outbox": "./src/capability-outbox.mjs",
     "./compute-binding": "./src/compute-binding.mjs",
     "./x402-settlement-witness-identity": "./scripts/x402-settlement-witness-identity.mjs",
     "./market": "./src/market/market.mjs",
