@@ -507,10 +507,21 @@ export function createMarket({
       route,
       async handler(context) {
         const target = new URL(`${context.url.pathname}${context.url.search}`, nodeOrigin);
+        // The Node producer settles its own payments, so forwarding its signed
+        // PAYMENT-SIGNATURE or recovery credentials over public HTTP exposes a
+        // replayable customer authorization. A tailnet hop *after* the public
+        // ingress does not protect the first hop. Never forward data or headers
+        // unless the target URL has secure transport and no URL credentials.
+        if (target.protocol !== "https:" || target.username || target.password ||
+            target.hash || (new URL(nodeOrigin)).search) {
+          return Response.json({ error: "Node market origin requires authenticated HTTPS before paid proxying" },
+            { status: 503, headers: { "cache-control": "no-store", "retry-after": "120" } });
+        }
         const upstream = await fetch(target, {
           method: context.request.method,
           headers: context.request.headers,
           body: ["GET", "HEAD"].includes(context.request.method) ? undefined : await context.request.arrayBuffer(),
+          redirect: "error",
         });
         return projectProxyResponse(upstream, {
           publicUrl: new URL(`${context.url.pathname}${context.url.search}`, offer.declaration.origin).href,
