@@ -44,6 +44,38 @@ admission into a cell (`eavt`), and `closure-bridge` (the floor's
 `settle` as the finite-regime restriction of metrologic's general
 closure morphism).
 
+## Kinematic inference available to real consumers
+
+`@red-cup-engineering/signcraft/inference/infer` already derives attributed rule-witness chains. The ordinary `infer(engine, input)` interface is unchanged. To obtain an execution order and identify the longest dependency chain in a verdict, set `includeMotion: true`:
+
+```js
+import { makeInference, infer } from "@red-cup-engineering/signcraft/inference/infer";
+
+const engine = makeInference({
+  attributes: ["supplied", "derived", "deliverable"],
+  rules: [
+    { name: "first", if: ["supplied"], then: ["derived"] },
+    { name: "second", if: ["derived"], then: ["deliverable"] },
+  ],
+});
+const answer = infer(engine, {
+  facts: ["supplied"], query: "deliverable", includeMotion: true,
+});
+// answer.motion.stages is dependency-ordered; criticalPathLength is 2.
+// An opposing lane, when present, has a separate answer.counterMotion.
+```
+
+The underlying pure function `motionOfDerivation` is exported at
+`@red-cup-engineering/signcraft/inference/kinematic`. It rejects a missing
+premise, cyclic dependency or malformed event, and computes stage and critical
+path lengths iteratively rather than recursing through potentially long
+derivations. The existing SignChain rule identity still owns the inference
+license; no extra source of truth for those rules is introduced.
+
+A kinematic dependency rank is **not** a physical Lorentzian metric or a
+certificate about the material world. It is a directly usable scheduling and
+debugging property of the actual inference engine.
+
 ## Depends on
 
 `@red-cup-engineering/computer-system-engine`, `@lenticule-science/metrologic`
