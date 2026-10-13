@@ -322,3 +322,9 @@ of relying on finishing before its incomplete fixture was polled. Current
 catalogue construction still refuses the unreceived inference supplier while
 preserving the held artifact. These are bounded source/consumer facts, not
 production or commercial receiving.
+
+The shared native power-input reader traverses only own data fields and defines
+literal properties without inherited setters. Actual hostile dotted paths retained
+their literal __proto__/constructor data while leaving Object/Array prototypes
+unchanged; typed strings, zero and false are retained. This corrects mutation
+before operation admission at the shared owner used by both world readers.
