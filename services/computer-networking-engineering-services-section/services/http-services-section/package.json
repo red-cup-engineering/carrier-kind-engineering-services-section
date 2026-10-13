@@ -69,7 +69,8 @@
     "./content-digest": "./src/content-digest.mjs",
     "./json-api-query": "./src/json-api-query.mjs",
     "./public-json-observation": "./src/public-json-observation.mjs",
-    "./operations": "./src/operations.mjs"
+    "./operations": "./src/operations.mjs",
+    "./retry-after": "./src/retry-after.mjs"
   },
   "engines": {
     "node": ">=22.18"
