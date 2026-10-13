@@ -42,3 +42,6 @@
 	path = services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/continuous-delivery-services-section
 	url = https://github.com/red-cup-engineering/continuous-delivery-services-section.git
 	branch = main
+[submodule "metroplat"]
+	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat
+	url = https://github.com/red-cup-engineering/metroplat.git

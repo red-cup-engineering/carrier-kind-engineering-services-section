@@ -31,3 +31,35 @@ test("coordinate-only astronomy calls retain provider defaults and admit no char
   });
   assert.deepEqual(observed, { time: TIME, latitude: 70, longitude: -87.6298 });
 });
+
+test("precision coordinates retain real zero and accepted numeric query strings", () => {
+  for (const [latitude, longitude, expected] of [
+    [0, 0, { latitude: 0, longitude: 0 }],
+    ["0", "0", { latitude: 0, longitude: 0 }],
+    ["-90", "180", { latitude: -90, longitude: 180 }],
+    [" 41.8781 ", "-87.6298", LOCATION],
+  ]) assert.deepEqual(normalizePrecisionAstronomyRequest(TIME, { latitude, longitude }), { time: TIME, ...expected });
+});
+
+test("precision admission refuses absence and containers before numerical supplier execution", async () => {
+  const malformed = [undefined, null, false, true, "", " ", [], [0], ["0"], {}, { valueOf: () => 0 }];
+  for (const field of ["latitude", "longitude"]) {
+    for (const value of malformed) {
+      let executions = 0;
+      await assert.rejects(() => computePrecisionAstronomyPositions(TIME, { ...LOCATION, [field]: value }, {
+        execute: async () => { executions += 1; return chart(); },
+      }), TypeError);
+      assert.equal(executions, 0, `${field}: ${String(value)}`);
+    }
+  }
+});
+
+test("nonfinite and out-of-range precision coordinates remain refused", () => {
+  for (const field of ["latitude", "longitude"]) {
+    for (const value of [NaN, Infinity, -Infinity, "NaN", "Infinity", "1e999", "abc", 181, -181]) {
+      assert.throws(() => normalizePrecisionAstronomyRequest(TIME, { ...LOCATION, [field]: value }), RangeError);
+    }
+  }
+  for (const latitude of [90.00001, -90.00001]) assert.throws(() => normalizePrecisionAstronomyRequest(TIME, { ...LOCATION, latitude }), RangeError);
+});
+

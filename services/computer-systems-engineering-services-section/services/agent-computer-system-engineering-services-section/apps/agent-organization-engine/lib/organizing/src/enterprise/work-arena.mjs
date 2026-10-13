@@ -1814,6 +1814,27 @@ function extendPrivatePosition(position, input, playerIdentity) {
 // same instant keep the order they were played in (the sort is stable over the journal's order).
 const order = (a, b) => a.at.localeCompare(b.at) || (OPENING_MOVES.includes(b.move) - OPENING_MOVES.includes(a.move));
 
+/** Witnessed precedence resolves simultaneous plays; independent facts keep
+ * their supplied order. Content-address enumeration is not play order. */
+export function orderedWorkArenaRecords(records) {
+  const sorted = [...records].sort((a, b) => order(a.record, b.record));
+  const byId = new Map(sorted.map(row => [row.id, row]));
+  const done = new Set(), active = new Set(), result = [];
+  const visit = row => {
+    if (done.has(row.id)) return;
+    if (active.has(row.id)) throw new TypeError("work arena simultaneous plays have a precedence cycle");
+    active.add(row.id);
+    for (const cause of row.causes ?? []) {
+      const id = typeof cause === "string" ? cause : cause?.type === "work-arena-move" ? cause.id : undefined;
+      const previous = byId.get(id);
+      if (previous !== undefined && previous.record.at === row.record.at) visit(previous);
+    }
+    active.delete(row.id); done.add(row.id); result.push(row);
+  };
+  for (const row of sorted) visit(row);
+  return result;
+}
+
 /** What a request offers at a time: its amount grown by its daily rate, up to its ceiling. */
 export function offerAt(opening, at) {
   if (opening.offer === undefined) return undefined;
@@ -1974,8 +1995,7 @@ export function createWorkArenaReader({ players, homes: homesOf } = {}) {
     const changedIdentity = identityRevision === undefined || revision[0] !== identityRevision[0] || revision[1] !== identityRevision[1];
     identityRevision = revision;
     canonical = identity?.canonical ?? exactPlayer;
-    const eligible = records.filter(({ record }) => record.at <= at)
-      .sort((left, right) => order(left.record, right.record));
+    const eligible = orderedWorkArenaRecords(records.filter(({ record }) => record.at <= at));
     if (eligible.some(({ id }) => typeof id !== "string" || id.length === 0)) {
       throw new TypeError("work arena replay requires verified move record identifiers");
     }
