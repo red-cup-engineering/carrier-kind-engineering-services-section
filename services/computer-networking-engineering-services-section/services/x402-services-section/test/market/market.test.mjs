@@ -303,6 +303,11 @@ test("Node proxy fails closed on public HTTP origins before forwarding signed pu
       bodyExample: { input: "confidential" }, bodySchema: { type: "object" },
     })],
   });
+  const health = await market.fetch(new Request("https://market.test/v1/status"));
+  assert.equal(health.status, 200);
+  const healthBody = await health.json();
+  assert.equal(healthBody.nodeProxyConfigured, true);
+  assert.equal(healthBody.nodeProxyTransport, "insecure-refused");
   for (const [path, init] of [
     ["/v1/lookup?q=private", { headers: { "PAYMENT-SIGNATURE": "signed-secret", "X-Payment-Recovery": "recovery-secret" } }],
     ["/v1/private-compute", {
@@ -323,7 +328,7 @@ test("status is served unpriced on both probes and counts the catalog", async ()
   for (const path of ["/v1/status", "/healthz"]) {
     const response = await market.fetch(new Request(`https://market.test${path}`));
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, build: null, workerVersion: null });
+    assert.deepEqual(await response.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, nodeProxyTransport: "not-used", build: null, workerVersion: null });
   }
 });
 
@@ -480,11 +485,11 @@ test("the same engine serves the Workers face and the Node transport identically
     facilitatorClient: unpaidFacilitator(),
   }));
   const viaWorker = await worker.fetch(new Request("https://market.test/v1/status"), ENV);
-  assert.deepEqual(await viaWorker.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, build: null, workerVersion: null });
+  assert.deepEqual(await viaWorker.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, nodeProxyTransport: "not-used", build: null, workerVersion: null });
   const server = await startMarket(demoMarket(), { port: 0, host: "127.0.0.1" });
   t.after(() => server.close());
   const viaNode = await connect(`http://127.0.0.1:${server.port}/v1/status`);
-  assert.deepEqual(await viaNode.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, build: null, workerVersion: null });
+  assert.deepEqual(await viaNode.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, nodeProxyTransport: "not-used", build: null, workerVersion: null });
   const unpaid = await connect(`http://127.0.0.1:${server.port}/v1/lookup`);
   assert.equal(unpaid.status, 402);
 });
