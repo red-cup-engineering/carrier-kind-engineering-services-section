@@ -56,6 +56,7 @@ function readPath(context, path) {
   let value = context;
   for (const segment of path.split(".")) {
     if (value === null || value === undefined) return undefined;
+    if (!Object.hasOwn(value, segment)) return undefined;
     value = value[segment];
   }
   return value;
@@ -82,14 +83,18 @@ export function projectArguments(binding, declaration, context) {
  * @returns {(context: {body?: unknown, query?: object, params?: object, env?: object}) => Promise<unknown>}
  */
 export function resolveBinding(binding, declaration, { load = (specifier) => import(specifier) } = {}) {
-  const admitted = requireBinding(binding, "compute");
+  const source = requireBinding(binding, "compute");
+  // An offer's admitted operation cannot change while its first import is
+  // pending. Retain a private projection instead of a mutable caller record.
+  const admitted = Object.freeze({ ...source, ...(source.args === undefined ? {} : { args: Object.freeze([...source.args]) }) });
+  const operation = Object.freeze({ ...declaration });
   const specifier = bindingSpecifier(admitted);
   let loaded;
   async function callable() {
     if (loaded === undefined) {
       loaded = (async () => {
         const module = await load(specifier);
-        const candidate = module?.[admitted.export];
+        const candidate = module !== null && module !== undefined && Object.hasOwn(module, admitted.export) ? module[admitted.export] : undefined;
         if (typeof candidate === "function") return candidate;
         // A house operation (built with rpc/operation's `operation({...})`, a
         // systems-layer construct this networking-layer module never imports)
@@ -102,10 +107,19 @@ export function resolveBinding(binding, declaration, { load = (specifier) => imp
         throw new TypeError(`${specifier} exports no function named ${admitted.export}`);
       })();
     }
-    return loaded;
+    const attempt = loaded;
+    try {
+      return await attempt;
+    } catch (error) {
+      // Share one in-flight load, but do not permanently poison a seller after
+      // a transient loader failure. A handler failure never evicts its module.
+      if (loaded === attempt) loaded = undefined;
+      throw error;
+    }
   }
   return async function invoke(context) {
     const fn = await callable();
-    return fn(...projectArguments(admitted, declaration, context));
+    return fn(...projectArguments(admitted, operation, context));
   };
 }
+

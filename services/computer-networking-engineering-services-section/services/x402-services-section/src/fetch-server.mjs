@@ -1,6 +1,7 @@
 import { HTTPFacilitatorClient, x402HTTPResourceServer, x402ResourceServer } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
-import { evmNetwork, routeSet } from "./resource-server.mjs";
+import { bazaarResourceServerExtension } from "@x402/extensions/bazaar";
+import { evmNetwork, routeSet } from "./route-configuration.mjs";
 import { identifyPaidResponseAuthorization, inspectPaidResponseRequest, recoverPaidResponse } from "./paid-response-recovery.mjs";
 export { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
@@ -72,7 +73,9 @@ export function createExactEvmFetchPaymentBoundary({
     throw new TypeError("x402 facilitatorUrl is required when no contracted facilitator client is supplied");
   }
   const facilitator = facilitatorClient ?? new HTTPFacilitatorClient({ url: facilitatorUrl });
-  const resourceServer = new x402ResourceServer(facilitator).register(selectedNetwork, new ExactEvmScheme());
+  const resourceServer = new x402ResourceServer(facilitator)
+    .register(selectedNetwork, new ExactEvmScheme())
+    .registerExtension(bazaarResourceServerExtension);
   if (afterSettle !== undefined) resourceServer.onAfterSettle(afterSettle);
   const httpServer = new x402HTTPResourceServer(resourceServer, routeSet(routes, "exact"));
   // A Workers subrequest not awaited by the request that spawned it is cancelled the instant that
@@ -165,7 +168,14 @@ export function createExactEvmFetchPaymentBoundary({
         return handlerResponse;
       }
 
-      const responseBody = Buffer.from(await handlerResponse.clone().arrayBuffer());
+      let responseBody;
+      try {
+        responseBody = Buffer.from(await handlerResponse.clone().arrayBuffer());
+      } catch (error) {
+        if (claim !== undefined) await releasePurchase(purchaseStore, claim);
+        await cancellationDispatcher.cancel({ reason: "handler_threw", error });
+        throw error;
+      }
       const responseHeaders = Object.fromEntries(handlerResponse.headers);
       const responsePreparation = {
         basis: "server-response-preparation",
@@ -214,3 +224,4 @@ export function createExactEvmFetchPaymentBoundary({
     },
   });
 }
+
