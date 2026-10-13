@@ -192,12 +192,10 @@ function coordinate(name, value, reason) {
 }
 
 /**
- * `validateJsonSchema` compiles its Ajv validator with `new Function`, which
- * a fetch-handler host's isolate refuses to run at all (not only at module
- * load, unlike the file-URL refusals elsewhere in this module). `admit:
- * false` skips that compile and trusts the caller's own admission, for a
- * deployment that already validated this exact declaration set on a host
- * that can run Ajv (its own test suite, on Node) before publishing it.
+ * Live declarations use the shared JSON Schema evaluator. `admit: false`
+ * trusts prior admission of the exact declaration set, such as a compiled
+ * catalog validated before publication; it avoids repeating schema evaluation
+ * and never substitutes for admission of new or altered buyer data.
  */
 function admitDeclaration(input, { admit = true } = {}) {
   if (admit) {
@@ -252,8 +250,7 @@ function discoveryExtension(declaration) {
  * @param {object} input One offer declaration, validated against
  *   `schemas/offer.schema.json`.
  * @param {{admit?: boolean}} [options] `admit: false` trusts `input` as
- *   already schema-checked rather than compiling Ajv's validator, for a
- *   host (a Workers fetch handler) that cannot run one at all.
+ *   already schema-checked, such as an immutable compiled catalog.
  * @returns {Readonly<object>} The admitted offer: its frozen `declaration`,
  *   its derived identities, and one derivation per market.
  * @throws {TypeError} When the declaration fails the schema or its
@@ -302,8 +299,10 @@ export function declareOffer(input, { admit = true, identities } = {}) {
    */
   function x402Route({ framing, payTo, network, asset, assetExtra } = {}) {
     const selected = selectFraming(declaration, framing);
+    const routeTemplate = declaration.route.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/gu, ":$1");
+    const parameterized = routeTemplate !== declaration.route;
     return Object.freeze({
-      [`${declaration.method} ${declaration.route.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/gu, ":$1")}`]: {
+      [`${declaration.method} ${routeTemplate}`]: {
         accepts: [{
           scheme: "exact",
           network: requireNetwork(network),
@@ -317,7 +316,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
         mimeType,
         serviceName: selected.serviceName,
         tags: selected.tags,
-        extensions: { bazaar: { ...discoveryOf().bazaar, routeTemplate: declaration.route } },
+        extensions: { bazaar: { ...discoveryOf().bazaar, ...(parameterized ? { routeTemplate } : {}) } },
       },
     });
   }
@@ -612,3 +611,4 @@ function routeTemplateMatches(template, path) {
     .join("");
   return new RegExp(`^${expression}$`, "u").test(path);
 }
+

@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/farolfi",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "license": "UNLICENSED",
   "type": "module",
   "description": "Command-line journal reader for the maintained Red Cup Engineering accounting system.",
@@ -47,7 +47,8 @@
     "./ledger/maintenance/fixed-assets": "./src/ledger/maintenance/fixed-assets.mjs",
     "./energy/operations": "./src/energy/operations.mjs",
     "./ledger/maintenance/settlements": "./src/ledger/maintenance/settlements.mjs",
-    "./accountable-transaction/purchase-record": "./src/accountable-transaction/purchase-record.mjs"
+    "./accountable-transaction/purchase-record": "./src/accountable-transaction/purchase-record.mjs",
+    "./energy/settlement-allocation": "./src/energy/settlement-allocation.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
