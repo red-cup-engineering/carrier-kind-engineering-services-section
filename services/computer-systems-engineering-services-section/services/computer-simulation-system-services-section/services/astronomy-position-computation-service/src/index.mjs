@@ -13,3 +13,4 @@ export {
 export { universalJulianDay, isoUtcFromTerrestrialJulianDay } from "./time.mjs";
 export { ASTRONOMY_EVENT_KINDS, MAX_EVENT_WINDOW_DAYS, admitAstronomyEventWindow, computeAstronomyEventWindow } from "./event-products.mjs";
 export { eclipticUnitVector, sphericalSeparationDegrees, admitAngularGeometryRequest, computeAngularGeometry, MAX_ANGULAR_GEOMETRY_BODIES } from "./angular-geometry.mjs";
+export { meanObliquityOfDateDegrees, eclipticToEquatorial, equatorialToEcliptic, computeEquatorialPositions } from "./equatorial-positions.mjs";
