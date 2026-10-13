@@ -9,8 +9,7 @@ import { bindingSpecifier, defaultArguments, resolveBinding } from "../../../src
 
 import { deriveCapabilityOutbox } from "../../../src/capability-outbox.mjs";
 import { declareCatalog } from "../../../src/offer.mjs";
-import { catalogDeclarations } from "../src/catalog-source.mjs";
-export { catalogDeclarations } from "../src/catalog-source.mjs";
+import { catalogDeclarations as readCatalogDeclarations } from "../src/catalog-source.mjs";
 import source from "../../../data/market-561-group/records/catalog.json" with { type: "json" };
 
 // The integrated forest still provides this known source composition. A
@@ -18,6 +17,11 @@ import source from "../../../data/market-561-group/records/catalog.json" with { 
 const forestDelimiter = "/lib/emsenn/services/";
 const forestIndex = import.meta.filename.indexOf(forestDelimiter);
 const integratedSourceRoot = forestIndex < 0 ? undefined : import.meta.filename.slice(0, forestIndex);
+// Preserve the compiler's existing source-backed API while the reusable
+// reader receives its records and composition explicitly.
+export function catalogDeclarations({ records = source, read, sourceRoot = integratedSourceRoot } = {}) {
+  return readCatalogDeclarations({ records, read, sourceRoot });
+}
 // The rails market-561-group's deployment settles on (marketEnvironment's default network and its
 // Circle-issued USDC), which the capability Offers quote their price in.
 const MARKET_RAILS = Object.freeze({ network: "eip155:8453", asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" });
