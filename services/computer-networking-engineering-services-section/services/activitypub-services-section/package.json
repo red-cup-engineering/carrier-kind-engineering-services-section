@@ -2,7 +2,7 @@
   "name": "@red-cup-engineering/activitypub-services-section",
   "version": "0.8.1",
   "type": "module",
-  "receivingTests": ["test/delivery-queue-responsiveness.test.mjs","test/journal-custody.test.mjs"],
+  "receivingTests": ["test/delivery-queue-responsiveness.test.mjs","test/journal-custody.test.mjs","test/flatfile-queue-recovery-custody.test.mjs"],
   "description": "The Union's public transport: ActivityPub federation carrying CloudEvents whose data is an A2A message with one RMN part.",
   "files": [
     "README.md",
@@ -40,7 +40,8 @@
     "materialize-sen-outbox-activity": "./scripts/materialize-sen-outbox-activity.mjs"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "test:queue-custody": "node --test test/flatfile-queue-recovery-custody.test.mjs"
   },
   "dependencies": {
     "@fedify/fedify": "2.3.1",
