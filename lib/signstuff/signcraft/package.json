@@ -2,7 +2,7 @@
   "name": "@red-cup-engineering/signcraft",
   "version": "0.1.0",
   "type": "module",
-  "description": "Settlement, history, inference and presentations composed from SignCell, SignChain and SignGraph.",
+  "description": "SignCell/SignChain/SignGraph settlement and inference, including bounded kinematic dependency plans and replayable history.",
   "files": [
     "src",
     "scripts"
@@ -28,7 +28,8 @@
     "./settlement-signature": "./src/settlement-signature.mjs",
     "./history": "./src/history.mjs",
     "./membrane": "./src/membrane.mjs",
-    "./primitives": "./src/primitives.mjs"
+    "./primitives": "./src/primitives.mjs",
+    "./inference/kinematic": "./src/inference/kinematic.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/signcell": "workspace:*",
