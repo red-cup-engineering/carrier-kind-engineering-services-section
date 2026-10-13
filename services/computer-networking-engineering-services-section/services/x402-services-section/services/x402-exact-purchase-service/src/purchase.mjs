@@ -275,6 +275,19 @@ export async function purchaseHttpResource({
   try { required = protocol.getPaymentRequiredResponse(name => unpaid.headers.get(name)); }
   finally { await unpaid.body?.cancel(); }
   if (required?.x402Version !== 2) throw new TypeError("one official x402 v2 challenge is required");
+  // Bind the quote to the requested endpoint. A 561 market seller may
+  // advertise the canonical path without caller-supplied query parameters,
+  // while the paid replay retains those exact input parameters. Never admit
+  // a different host, path, scheme, or a *rewritten* nonempty query.
+  const quotedResourceUrl = required.resource?.url;
+  const canonicalEndpointUrl = `${resource.origin}${resource.pathname}`;
+  if (quotedResourceUrl !== resource.href && quotedResourceUrl !== canonicalEndpointUrl) {
+    throw new X402ResourceResponseError("x402 v2 challenge names a different resource URL", {
+      boundary: "unpaid resource challenge",
+      status: 402,
+      contentType: unpaid.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() ?? null,
+    });
+  }
   const eligible = (required.accepts ?? []).filter(candidate =>
     candidate.scheme === "exact" && candidate.network === selectedNetwork
     && candidate.asset?.toLowerCase() === selectedAsset
@@ -313,6 +326,21 @@ export async function purchaseHttpResource({
   if (!settlementMatchesRequirements) {
     await paid.body?.cancel();
     const error = new Error("paid response does not carry a matching successful x402 settlement");
+    error.receipt = receipt;
+    throw error;
+  }
+  // Settlement is not evidence of delivery: preserve a charged HTTP error
+  // as an independently actionable failure, not as fulfilled work.
+  if (!paid.ok) {
+    await paid.body?.cancel();
+    const error = new X402ResourceResponseError(
+      `paid resource returned HTTP ${paid.status} after successful settlement`,
+      {
+        boundary: "paid resource response",
+        status: paid.status,
+        contentType: paid.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() ?? null,
+      },
+    );
     error.receipt = receipt;
     throw error;
   }

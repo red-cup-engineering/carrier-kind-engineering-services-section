@@ -51,7 +51,8 @@
     "./receipt-record": "./src/market/receipt-record.mjs",
     "./purchase-publication": "./src/purchase-publication.mjs",
     "./seller-settlements": "./src/settlement-derivation/book-market-seller-settlements.mjs",
-    "./route-configuration": "./src/route-configuration.mjs"
+    "./route-configuration": "./src/route-configuration.mjs",
+    "./market/catalog": "./src/market/catalog.mjs"
   },
   "files": [
     "src/",

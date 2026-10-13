@@ -103,6 +103,59 @@ test("POST preserves exact method, body and caller headers", async () => {
   assert.equal(receipt.request.bodySha256, createHash("sha256").update(calls[1].body).digest("hex"));
 });
 
+test("challenge cannot rewrite the requested origin, path, or nonempty query", async () => {
+  for (const alteredUrl of [
+    "https://unrelated.example/report?q=one",
+    "https://ordinary.example/report?q=two",
+    "https://ordinary.example/other",
+  ]) {
+    let calls = 0, intents = 0;
+    const challenged = new Response("", {
+      status: 402,
+      headers: { "payment-required": encodePaymentRequiredHeader({
+        x402Version: 2, resource: { url: alteredUrl }, accepts: [terms],
+      }) },
+    });
+    await assert.rejects(purchaseHttpResource({
+      ...options,
+      beforePayment: () => { intents++; },
+      fetchImpl: async () => { calls++; return challenged; },
+    }), error => {
+      assert.equal(error.code, "X402_RESOURCE_INVALID_RESPONSE");
+      assert.equal(error.boundary, "unpaid resource challenge");
+      assert.equal(error.status, 402);
+      return true;
+    });
+    assert.equal(calls, 1);
+    assert.equal(intents, 0);
+  }
+});
+
+test("a canonical query-free endpoint challenge is payable while preserving the input query", async () => {
+  const canonical = "https://ordinary.example/report";
+  let calls = 0, savedRequest, chargedReceipt;
+  const result = await purchaseHttpResource({
+    ...options,
+    beforePayment: ({ request }) => { savedRequest = request; },
+    onSettlement: receipt => { chargedReceipt = receipt; },
+    fetchImpl: async (requestedUrl, init) => {
+      assert.equal(requestedUrl, url);
+      if (++calls === 1) return new Response("", {
+        status: 402, headers: { "payment-required": encodePaymentRequiredHeader({
+          x402Version: 2, resource: { url: canonical }, accepts: [terms],
+        }) },
+      });
+      assert.equal(init.method, "GET");
+      assert.ok(init.headers["PAYMENT-SIGNATURE"]);
+      return delivered();
+    },
+  });
+  assert.equal(calls, 2);
+  assert.equal(savedRequest.url, url);
+  assert.equal(chargedReceipt.settlement.transaction, transaction);
+  assert.equal(result.delivery.sha256, createHash("sha256").update(Buffer.from([0,255,42])).digest("hex"));
+});
+
 test("wrong token and excessive price cannot reach the signed request", async () => {
   for (const amendment of [{ asset: payTo }, { amount: "8" }]) {
     let calls = 0, intents = 0;
@@ -126,6 +179,35 @@ test("settled delivery failure retains the charge evidence and does not invent a
     assert.equal(error.receipt.delivery, undefined);
     return error instanceof RangeError;
   });
+  assert.equal(observed.settlement.transaction, transaction);
+  assert.equal(calls, 2);
+});
+
+test("settled HTTP 503 preserves the paid charge but is never fulfilled", async () => {
+  let calls = 0, observed;
+  await assert.rejects(purchaseHttpResource({
+    ...options,
+    onSettlement: value => { observed = value; },
+    fetchImpl: async () => {
+      if (++calls === 1) return challenge();
+      return new Response("runtime unavailable", {
+        status: 503, headers: {
+          "content-type": "text/plain",
+          "payment-response": encodePaymentResponseHeader({
+            success: true, network, transaction, payer: signer.address,
+          }),
+        },
+      });
+    },
+  }), error => {
+    assert.equal(error.code, "X402_RESOURCE_INVALID_RESPONSE");
+    assert.equal(error.boundary, "paid resource response");
+    assert.equal(error.status, 503);
+    assert.equal(error.receipt?.settlement?.transaction, transaction);
+    assert.equal(error.receipt?.delivery, undefined);
+    return true;
+  });
+  assert.equal(observed.status, 503);
   assert.equal(observed.settlement.transaction, transaction);
   assert.equal(calls, 2);
 });
