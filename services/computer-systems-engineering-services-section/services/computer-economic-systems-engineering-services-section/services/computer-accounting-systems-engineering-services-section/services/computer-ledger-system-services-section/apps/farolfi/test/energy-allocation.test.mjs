@@ -91,3 +91,50 @@ test("a resource without a declared energy conversion is still unknown", () => {
   memory.price.denomination = { kind: "resource", asset: "memory-peak-bytes", unit: "byte" };
   assert.deepEqual(allocate([row("one")], [memory]), { refused: true, reason: "no-conversion-factor-for-asset", asset: "memory-peak-bytes" });
 });
+
+test("positive fine-grained metering survives a decimal display cutoff", () => {
+  const source = meter();
+  source.price.amount = { numerator: "1", denominator: "1000000000000" };
+  const receipt = allocate([row("one")], [source]).receipts[0];
+  assert.equal(receipt.joules, "0.000000000065");
+  assert.deepEqual(receipt.joulesExact, { kind: "exactNumber.rational", num: "13", den: "200000000000" });
+  assert.equal(receipt.joulesRounding, "exact");
+});
+
+test("rational resource partitions conserve the complete attributed total", () => {
+  const sources = [meter(START, "2026-10-13T00:00:03.000Z"), meter("2026-10-13T00:00:03.000Z", "2026-10-13T00:00:06.000Z"), meter("2026-10-13T00:00:06.000Z", END)];
+  for (const source of sources) source.price.amount = { numerator: "1", denominator: "3" };
+  const receipt = allocate([row("one")], sources).receipts[0];
+  assert.equal(receipt.joules, "65");
+  assert.deepEqual(receipt.joulesExact, { kind: "exactNumber.rational", num: "65", den: "1" });
+  assert.equal(receipt.joulesRounding, "exact");
+});
+
+test("a recurring decimal is an explicit projection beside its exact source total", () => {
+  const source = meter();
+  source.price.amount = { numerator: "1", denominator: "3" };
+  const receipt = allocate([row("one")], [source]).receipts[0];
+  assert.equal(receipt.joules, "21.6666666666");
+  assert.deepEqual(receipt.joulesExact, { kind: "exactNumber.rational", num: "65", den: "3" });
+  assert.equal(receipt.joulesRounding, "toward-zero");
+});
+
+test("an asset label does not authorize a different denomination or unit", () => {
+  for (const disagreement of [{ kind: "currency" }, { unit: "byte" }]) {
+    const source = meter();
+    Object.assign(source.price.denomination, disagreement);
+    const result = allocate([row("one")], [source]);
+    assert.equal(result.reason, "resource-denomination-disagreement");
+    assert.deepEqual(result.sourceReceipts, [source]);
+  }
+});
+
+test("negative consumption, zero denominators and negative conversion factors cannot be booked", () => {
+  for (const amount of [{ numerator: "-1", denominator: "1" }, { numerator: "1", denominator: "0" }, { numerator: 1, denominator: "1" }]) {
+    const source = meter();
+    source.price.amount = amount;
+    assert.throws(() => allocate([row("one")], [source]), /canonical integer numerator and positive denominator/u);
+  }
+  assert.throws(() => allocateSettlementEnergy({ settledRows: [row("one")], resourceReceipts: [meter()],
+    conversionFactors: { cpuSecondsToJoules: { value: "-65" } }, boundary: ["hosts"] }), /nonnegative decimal string/u);
+});
