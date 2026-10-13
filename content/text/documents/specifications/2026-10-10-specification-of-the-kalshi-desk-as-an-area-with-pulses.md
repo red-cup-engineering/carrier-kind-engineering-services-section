@@ -26,6 +26,12 @@ provenance:
 
 This specification states a design only. It writes no code. Where the house already holds a mechanism it names it and adds only what the Leader's words require. Notes: `2026-10-09-note-on-the-kalshi-proven-false-lane.md` (financial section) holds the observed state; `2026-10-10-note-on-the-leaders-trading-direction.md` holds the direction.
 
+## Operating host and ASSIST destination
+
+Leader, 2026-10-13: "Our Kalshi ASSIST shouldn't depend on my laptop running in order to do whatever it does." The Kalshi service's credentials, state and autonomous pulses belong on its operating web host; the Leader's laptop is a development and access client. Verify the host's own signing and execution, with no runtime dependency on the laptop.
+
+The directed public destination is `public-kalshi-services-section/sites/kalshi.assist.561.group` at `https://kalshi.assist.561.group`: a rich ASSIST application whose MetroPlat instance carries the Kalshi Semioverse and a Kalshi Paracosm for each Person. It supports account monitoring and prompts that lead agents to improve strategies and upstream applications, including other people who join. This destination guides architecture; the Leader explicitly says it is beyond today's work. Today's delivery remains working, improving Kalshi account operation, current source reconciliation, issues, PRs and deployment before the day's markets.
+
 ## Composition
 
 1. **The Area.** The Kalshi services section is a typed Resource of the MetroPlat instance on Cold Red Gate. Its Area holds Characters (the desk, the forecaster, the recorder, the category shadows), each with pulses (the cycle the desk already runs every 60 seconds becomes a pulse), heartbeats (liveness) and ticks (the unit of advance). The seven Kalshi jobs now declared only on the host are declared in the section under source control (CN-4) as pulses, not as systemd timers.
@@ -44,4 +50,4 @@ Obsmetrologia is the Leader's measure of "coordination and conflict in complex s
 ## Open
 
 - The Area's Character list and the exact pulse period of each are not settled; the desk's 60-second cycle is the only observed period.
-- Whether the web server named by the Leader is Cold Red Gate or another host is not stated.
+- Cold Red Gate is the current operating host. The distinct Kalshi ASSIST instance and public destination above remain a future delivery; they are not an acceptance condition for today.
