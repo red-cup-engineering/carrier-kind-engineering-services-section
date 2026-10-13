@@ -65,6 +65,16 @@ const answer = infer(engine, {
 // An opposing lane, when present, has a separate answer.counterMotion.
 ```
 
+For the next actionable step, `includeMotion: true` also exposes
+`answer.motion.execution` (and `counterMotion.execution` for opposing
+evidence). Its `waves` are the earliest dependency-respecting parallel
+rounds **after removing facts already provided by the caller**; the reader
+prunes the full ancestry of cached intermediates. Missing external `given`
+facts are reported in `openAssumptions`, with downstream work blocked, not
+fabricated as runnable deductions. A closed wavefront is conditional on the
+caller-supplied rules and evidence. This is an executable scheduling property,
+**not** soundness or authentication of an interpreted proof.
+
 The underlying pure function `motionOfDerivation` is exported at
 `@red-cup-engineering/signcraft/inference/kinematic`. It rejects a missing
 premise, cyclic dependency or malformed event, and computes stage and critical
@@ -81,3 +91,7 @@ debugging property of the actual inference engine.
 `@red-cup-engineering/computer-system-engine`, `@lenticule-science/metrologic`
 for its metrology, and the three seats below it -- `@red-cup-engineering/sign-cell`,
 `@red-cup-engineering/sign-chain`, `@red-cup-engineering/sign-graph`.
+
+The companion `scheduleOfDerivation(derivation, target, available)` is exported
+from the same `/inference/kinematic` entry point and remains independently
+testable without the rest of the workspace.
