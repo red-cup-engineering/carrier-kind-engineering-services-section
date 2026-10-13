@@ -127,3 +127,15 @@ systems and business effects through that interface, capability by capability.
 Then fabricate one closure and receive it on Bare Cedar Fog and Cold Red Gate,
 including sign-in, actor operation and ActivityPub++ circulation. A native
 connection refusal or an unpromoted source branch cannot establish that relaunch.
+
+Further recovered anchors in Engineering's glossary are
+`semantics-energy-arena.md`, `modeled-union-dimension.md`, and
+`adic-bound-yoneda-semantic-syntax-activating-locally-coherent-unions-of-relational-ribosomes-engaging-neural-node-topology.md`
+(alias `ABYSSAL-CURRENT`, with a hyphen). They describe MUD as the incidence/union
+site, FOAM as its field of local models, and the current as monotone settling.
+The SEA entry explicitly rejects interpreting FOUR as a Dirichlet scalar energy;
+it names witness con-failure, H¹ obstruction, and a meet-preservation defect
+instead. Follow these into their Science/formal owners before selecting flow
+laws. A decorative fluid field or a sum of evidence counts does not implement
+that contract. The ABYSSAL entry identifies the running background computation
+as the engineering gap, while describing the mathematics as existing.
