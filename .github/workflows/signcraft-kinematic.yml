@@ -1,0 +1,38 @@
+name: SignCraft kinematic inference
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
+      - 'lib/signstuff/signcraft/src/inference/infer.mjs'
+      - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
+      - 'lib/signstuff/signcraft/package.json'
+      - '.github/workflows/signcraft-kinematic.yml'
+  pull_request:
+    paths:
+      - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
+      - 'lib/signstuff/signcraft/src/inference/infer.mjs'
+      - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
+      - 'lib/signstuff/signcraft/package.json'
+      - '.github/workflows/signcraft-kinematic.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-kinematic-inference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '24'
+      - name: Execute actual inference-motion regressions without runtime service dependencies
+        run: |
+          node --check lib/signstuff/signcraft/src/inference/infer.mjs
+          node --test lib/signstuff/signcraft/test/kinematic.test.mjs
