@@ -357,7 +357,7 @@ async function start(mount) {
         ...held(room), room.seated?.length ? `${room.seated.length} seated` : null,
       ].filter(Boolean).join(" · ")) : null,
     );
-    client.exits(scene.entries.filter((entry) => entry.kind === "exit").map((exit) => ({
+    client.exits(scene.entries.filter((entry) => entry.kind === "exit" && entry.destination !== null).map((exit) => ({
       label: exit.label === "up" ? `↑ ${nameOf(exit.destination) || "up"}` : nameOf(exit.destination) || exit.label,
       title: `go ${exit.label}`,
       act: () => speak(`go ${exit.label}`),

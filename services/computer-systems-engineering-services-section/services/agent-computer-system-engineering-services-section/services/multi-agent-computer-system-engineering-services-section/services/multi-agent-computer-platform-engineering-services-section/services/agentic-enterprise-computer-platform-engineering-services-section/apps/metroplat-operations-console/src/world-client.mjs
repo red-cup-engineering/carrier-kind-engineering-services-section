@@ -20,7 +20,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { htmlRepr, jsonRepr, textRepr } from "@red-cup-engineering/http-services-section/representation";
 import { readFormBody, readJsonBody } from "@red-cup-engineering/http-services-section/body";
-import { renderTufteDocument } from "@red-cup-engineering/web-page-tiling-engine/rendering";
+import { renderTufteDocument, renderSignCellSection } from "@red-cup-engineering/web-page-tiling-engine/rendering";
+import { projectFiber } from "@red-cup-engineering/qwzspace/fiber";
 import { readBrowserModuleClosure, servedBrowserModules } from "@red-cup-engineering/web-page-tiling-engine/modules";
 import { GAME_STYLES } from "@red-cup-engineering/qwzspace/game-styles";
 import { subjectOf } from "@red-cup-engineering/organizing/agency/cast";
@@ -64,6 +65,7 @@ function doorPage(title) {
 export function worldClientApp({ title = "MetroPlat", navigation: links, navigationTitle = "Group", run, runAs, landing = async () => "/play" }) {
   const navigation = Object.assign([...links], { title: navigationTitle });
   const transcripts = new Map();
+  const perceptions = new Map();
   const append = (subject, lines) => {
     const next = [...(transcripts.get(subject) ?? []), ...lines].slice(-KEEP);
     transcripts.set(subject, next);
@@ -71,17 +73,23 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
   };
   // A document, not an SHP packet: a packet is inert by construction, and this page holds no
   // settled cells for one to carry; its content is the play itself.
-  const page = (lines) => htmlRepr(renderTufteDocument({
+  const page = (lines, subject) => htmlRepr(renderTufteDocument({
     title: "World",
     tiles: [
       { title: navigation.title ?? "Group", links: navigation, span: 12 },
       { title: "The city", span: 12, html: `<div id="world-view" data-mode="play" data-turn="/play/turn" data-atlas="/play/atlas" data-pulse="/play/pulse" data-tellings="/play/tellings" data-journal="/play/journal" data-title="${escapeHtml(title)}" data-navigation="${escapeHtml(JSON.stringify(navigation.map(({ href, label }) => ({ href, label }))))}"><noscript>The city is drawn with JavaScript; the world below plays without it.</noscript></div>` },
       { title: "The world", span: 12, html: `<pre class="world-transcript">${lines.join("\n").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c])}</pre>` },
+      ...(perceptions.get(subject)?.situation?.actions?.length ? [{ title: "Operations here", span: 12, html: perceptions.get(subject).situation.actions.map((action) => `<details><summary>${escapeHtml(action.command)}</summary><p>${escapeHtml(action.description)}</p><form method="post" action="/play"><label>Command <input name="line" value="${escapeHtml(action.command)}" required></label><button type="submit">Send</button></form></details>`).join("") }] : []),
+      ...(perceptions.has(subject) ? [{ title: "Perceived evidence", span: 12, html: projectFiber(perceptions.get(subject)).entries.filter((entry) => entry.cells && entry.kind !== "exit").map((entry) => `<details><summary>${escapeHtml(entry.label)}</summary>${renderSignCellSection(entry.cells)}</details>`).join("") }] : []),
       { title: "Speak", span: 12, form: { action: "/play", method: "post", fields: [{ name: "line", label: "command", value: "", placeholder: "look, go <exit>, powers, <power> {json}" }], submitters: [{ label: "Send" }] } },
     ],
   }, { importMap: VIEW.importMap, scripts: [{ src: `${VIEW.path}/${VIEW_ENTRY}` }], styles: GAME_STYLES }), { cacheControl: { noStore: true } });
   const turn = async (subject, verb, input) => {
-    try { return turnLines(await runAs(subject, verb, input)); }
+    try {
+      const result = await runAs(subject, verb, { ...input, frame: true });
+      if (result.frame) perceptions.set(subject, result.frame);
+      return turnLines(result);
+    }
     catch (error) { return [`✗ ${error?.message ?? String(error)}`]; }
   };
   // A browser's cookie is sent cross-site too; only this origin's pages may speak as the person.
@@ -207,6 +215,7 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
         return jsonRepr({ error: error?.message ?? String(error) }, { status: 502, cacheControl: { noStore: true } });
       }
       // The page's transcript is the text tier of the same play: a reload shows what was drawn.
+      if (turn.frame) perceptions.set(subject, turn.frame);
       append(subject, [`> ${line}`, ...turnLines(turn)]);
       return jsonRepr(turn, { cacheControl: { noStore: true } });
     },
@@ -221,13 +230,13 @@ export function worldClientApp({ title = "MetroPlat", navigation: links, navigat
       const subject = subjectOf(principal);
       if (ctx.req.method === "GET") {
         const lines = transcripts.get(subject) ?? append(subject, await turn(subject, "world-connect", {}));
-        return page(lines);
+        return page(lines, subject);
       }
       if (!sameOrigin(ctx.req.headers)) return { status: 403 };
       const line = String((await readFormBody(ctx.req, { maxBytes: 64 * 1024 })).get("line") ?? "").trim();
-      if (line === "") return page(transcripts.get(subject) ?? []);
+      if (line === "") return page(transcripts.get(subject) ?? [], subject);
       if (!transcripts.has(subject)) append(subject, await turn(subject, "world-connect", {}));
-      return page(append(subject, [`> ${line}`, ...(await turn(subject, "world-command", { line }))]));
+      return page(append(subject, [`> ${line}`, ...(await turn(subject, "world-command", { line }))]), subject);
     },
   }] };
 }
