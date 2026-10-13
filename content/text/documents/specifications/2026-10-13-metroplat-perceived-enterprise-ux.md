@@ -242,10 +242,14 @@ principal forwarding, operative requirements and unknown verification readings,
 supply filters, preserved invalid filter input, unavailable-versus-empty reads,
 and command preparation in no-script, text, 2D and 3D. No package tests ran.
 
-Full runtime fabrication remains unqualified: the retained JSON file codec's
-TypeScript source imports two unavailable Science packages. A catalogue check
-also refused an unreceived computer-inference-engine source. No supplier was
-stubbed. The generator supplies its empty construction module through a scoped
+Full runtime fabrication remains unqualified. An earlier helper attempted every
+Data TypeScript producer, so its obsolete JSON-file-codec/Science refusal did not
+establish the selected MetroPlat runtime closure. The actual JSON Schema root did
+retain a file-codec dependency for JSON primitives; that boundary is now moved to
+the canonical JSON owner, with truthful adjacent declarations and JSON admission
+before policy inspection. Strict TypeScript fabrication and the actual built root
+receive resource-selection admission, duplicate/missing-field refusal and canonical
+identity. No supplier was stubbed. The generator supplies its empty construction module through a scoped
 Node module hook without writing the held catalogue, and stages a complete
 replacement before publication; receiving
 the actual refusal preserved the prior artifact's bytes. Current catalogue
@@ -318,9 +322,10 @@ installation. These source advances are separately reviewed and published.
 
 Browser receiving against the canonical owner retains the same 64-module SCA.
 The receiver now uses the complete declared pulse shape, including heat, instead
-of relying on finishing before its incomplete fixture was polled. Current
-catalogue construction still refuses the unreceived inference supplier while
-preserving the held artifact. These are bounded source/consumer facts, not
+of relying on finishing before its incomplete fixture was polled. Inference and code-development sources have since been received at their real
+Git pins. Catalogue construction now reaches the declared age-encryption dependency;
+the temporary source bindings do not establish a frozen registry closure. The
+held artifact remains preserved. These are bounded source/consumer facts, not
 production or commercial receiving.
 
 The shared native power-input reader traverses only own data fields and defines
@@ -328,3 +333,29 @@ literal properties without inherited setters. Actual hostile dotted paths retain
 their literal __proto__/constructor data while leaving Object/Array prototypes
 unchanged; typed strings, zero and false are retained. This corrects mutation
 before operation admission at the shared owner used by both world readers.
+
+
+## Selected fabrication boundaries
+
+Fabricate the selected importer and its real dependency closure, using the native
+selected-workspace release machinery and exact frozen sources. Building every
+producer in a containing Data tree is not evidence about this selected closure.
+The canonical JSON provider now publishes declarations beside its existing runtime
+ports, including a type-only JSON value port. A record-shape guard alone does not
+admit its descendants as JSON. JSON Schema removes its file-codec edge rather than
+loading a codec barrel merely for data primitives. Its strict compiler options are
+retained; unique-item canonicalization passes only the item to the native owner.
+
+Inference18 supplies the pure FOUR-Mark SEN demand contract. Procurement admission
+now consumes that same owner; effect execution retains its original exported
+contract. Receiving decoded the four Marks and refused a malformed term without
+performing procurement. FeltOS54's lazy default inference dispatch is reconciled
+with the current native SEAVT store and SCA imports, preserving current intake
+ownership instead of restoring the proposal's historical EAVT ports.
+
+The JSON/inference receipt is retained at
+`evidence/2026-10-13-metroplat-perceived-enterprise-ux/json-owner-receiving.json`.
+These bounded facts do not receive production actor effects or the shared machine
+release. Work, conversations, source editing, agent management, ERP/ICS/CRM,
+spatial semantics, federation and the four section sites retain their full
+capability obligations.
