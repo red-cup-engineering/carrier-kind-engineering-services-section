@@ -75,7 +75,8 @@
     "test/work-forwarding.test.mjs",
     "test/work-peer-presence.test.mjs",
     "test/host-declaration.test.mjs",
-    "test/held-delivery-journal.test.mjs"
+    "test/held-delivery-journal.test.mjs",
+    "test/peer-liveness-semantic-receiving.test.mjs"
   ],
   "devDependencies": {
     "@red-cup-engineering/relating": "workspace:*"
