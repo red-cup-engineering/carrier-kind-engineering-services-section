@@ -49,6 +49,7 @@
   },
   "files": [
     "src/",
+    "schemas/",
     "apps/",
     "scripts/",
     "data/",
@@ -151,3 +152,4 @@
     "node": ">=22.18"
   }
 }
+
