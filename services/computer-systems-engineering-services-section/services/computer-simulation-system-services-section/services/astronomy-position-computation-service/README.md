@@ -119,6 +119,41 @@ transformation or printed coordinate **do not make the underlying positions
 more accurate**. The separate DE440 provider carries the pin of the actual
 precision binary and rejects unavailable suppliers.
 
+### Precision runtime identity
+
+The Node adapter measures the regular file named by `OXIEPH_DE` with streaming
+SHA-256 on every call and requires the existing classic-binary DE440 pin
+`29915576d0a6555766b99485ac3056ee415e86df4fce282611c31afb329ad062`.
+It resolves `OXIEPH_BIN` (or `oxieph` on the process search path) once, measures
+that executable, and requires its `--version` response to be `oxieph 0.1.1`.
+The version handshake is the existing supplier's
+[published Clap CLI contract](https://static.crates.io/crates/oxiephemeris-cli/oxiephemeris-cli-0.1.1.crate).
+Both resolved files' identity, size and modification/change times must remain
+unchanged through verification and chart execution. Missing files, a different
+kernel, mismatched version, process errors and observed input changes refuse
+the computation; there is no approximate fallback or environment hash override.
+
+Successful native responses retain their coordinates, nodes, cross-checks and
+existing metrology fields. The additional `supplierSha256` identifies measured
+executable bytes, and `runtimeIdentity` is
+`verified-file-and-reported-version`. This verifies the kernel pin and the
+executable's **self-reported** version, not a signed supplier build or a trusted
+executable digest. The configured executable and files must be trusted and
+stable; file-stat checks detect ordinary changes, not a hostile host replacing
+inputs between observations. This is runtime provenance, not a new rights,
+accuracy or commercial-activation claim. The approximate-model cross-check
+retains its separate scientific and source provenance.
+
+`executeOxiEphemeris` continues returning the raw chart. A custom
+`dependencies.execute` result can retain the verified metrology only by
+returning the unchanged chart actually received by this adapter for that exact
+request. Other injected, cloned, changed or replayed charts still support
+numerical projection, but their ephemeris, hash, supplier and software-license
+fields are `null`, with `runtimeIdentity: "unverified-executor"`.
+Tests exercise real temporary files and local synthetic child processes with
+known fixture hashes. They do not assert execution of the actual Oxi/DE440
+numerical supplier or qualification of SPK input.
+
 The `computeAstronomyEventWindow` products make observational promises only
 to the limit of the underlying ephemeris and Earth-rotation model. Do not
 represent a one-second bisection/root tolerance as a one-second ephemeris
