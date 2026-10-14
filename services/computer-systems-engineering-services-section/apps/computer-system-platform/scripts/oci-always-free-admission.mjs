@@ -185,11 +185,42 @@ export function classifyOciLaunchRefusal(detail) {
  */
 export function projectOciAlwaysFreeCapacity(request, headroom, {homeRegion, observedAt, qualifiedDomains, domainsObserved}={}){
   const r=requireAlwaysFreeRequest(request);
-  if(typeof homeRegion!=='string'||!homeRegion||typeof observedAt!=='string'||!Number.isFinite(Date.parse(observedAt))||
+  const instantValid=typeof observedAt==='string' &&
+    /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,9})?Z$/u.test(observedAt) &&
+    Number.isFinite(Date.parse(observedAt)) &&
+    new Date(observedAt).toISOString().slice(0,19)===observedAt.slice(0,19);
+  if(typeof homeRegion!=='string'||!homeRegion||!instantValid||
      !Number.isSafeInteger(qualifiedDomains)||qualifiedDomains<0||
      !Number.isSafeInteger(domainsObserved)||domainsObserved<1||qualifiedDomains>domainsObserved||
      !headroom||headroom.qualified!=='conservative-always-free-envelope'||headroom.billingVerified!==false)
     throw new TypeError('complete source-qualified Oracle capacity observation required');
+  // Projection cannot change the admitted shape or manufacture a different
+  // quantity from an otherwise valid provider reading. The original native
+  // source has still not been independently attested or economically booked.
+  const expected={
+    ocpus:String(r.ocpus??0),memoryGBs:String(r.memoryGBs??0),
+    microInstances:String(r.shape===MICRO?1:0),bootAndBlockGB:String(r.bootGB),
+  };
+  const capacity={ocpus:2,memoryGBs:12,microInstances:2,bootAndBlockGB:200};
+  const residual={
+    ocpus:headroom.remainingOcpus,memoryGBs:headroom.remainingMemoryGBs,
+    microInstances:headroom.remainingMicroInstances,
+    bootAndBlockGB:headroom.remainingBootAndBlockGB,
+  };
+  for(const [key,maximum] of Object.entries(capacity)){
+    const raw=headroom.observedUsage?.[key],proposed=headroom.requested?.[key];
+    if(typeof raw!=='string'||!/^(?:0|[1-9]\d*)(?:\.\d+)?$/u.test(raw)||
+       proposed!==expected[key]||!Number.isFinite(residual[key])||residual[key]<0||
+       Math.abs(maximum-Number(raw)-Number(proposed)-residual[key])>1e-9)
+      throw new TypeError('Oracle capacity quantities disagree with admitted headroom');
+  }
+  const a1Container=Number(headroom.observedUsage?.a1ContainerOcpus);
+  const a1ContainerMemory=Number(headroom.observedUsage?.a1ContainerMemoryGBs);
+  if(!Number.isFinite(a1Container)||a1Container<0||
+     !Number.isFinite(a1ContainerMemory)||a1ContainerMemory<0||
+     a1Container>Number(headroom.observedUsage.ocpus)||
+     a1ContainerMemory>Number(headroom.observedUsage.memoryGBs))
+    throw new TypeError('A1 container breakdown exceeds the shared resource pool');
   const dimensions=[
     ['compute.oracle.a1','OCPU','ocpus',String(headroom.remainingOcpus)],
     ['compute.oracle.a1-memory','GB','memoryGBs',String(headroom.remainingMemoryGBs)],
