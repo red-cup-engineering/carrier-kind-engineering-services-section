@@ -6,7 +6,7 @@ import {
   measureExecutionEconomy,
   projectExecutionGeometryCircuit,
 } from "../../../src/becoming/doing/working/software-change/mission/execution-circuit.mjs";
-import { deriveExecutionGeometry } from "../../../src/becoming/doing/working/software-change/mission/program.mjs";
+import { deriveExecutionGeometry } from "../../../src/becoming/doing/working/software-change/mission/execution-circuit.mjs";
 
 const producer = "eip155:31337:0x0000000000000000000000000000000000000001";
 

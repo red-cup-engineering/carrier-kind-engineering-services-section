@@ -10,8 +10,8 @@ import { canonicalCarrier, semanticId } from "@red-cup-engineering/computer-cont
 import { JURAL_KINDS } from "@red-cup-engineering/socializing/jural";
 import { admitJavascriptNodeCommandExecutionRequest } from "@red-cup-engineering/javascript-node-services-section/admit-javascript-node-command-execution-request";
 
-/** The office-work result keeps its historical outer sum while retaining an optional
- * producer-native outcome. A later codomain assay and independent acceptance are distinct. */
+/** An office-work result retains its native invocation outcome and its declared
+ * codomain projection. Independent acceptance remains a separate judgment. */
 const codomainAssaySchema = {
   type: "object", required: ["source", "returns"], additionalProperties: false,
   properties: { source: { type: "string", minLength: 1 }, returns: { type: "object" } },
@@ -20,12 +20,12 @@ const codomainAssaySchema = {
 export const agencyWorkResultSchema = {
   $id: "metroplat/work/agency-work-result",
   oneOf: [
-    { type: "object", required: ["kind", "value"], properties: {
+    { type: "object", required: ["kind", "value", "skillOutcome"], properties: {
       kind: { const: "skill-result" }, value: {},
       skillOutcome: { $ref: "animating/becoming/doing/working/governing/skill-result" },
       codomainAssay: codomainAssaySchema,
     }, additionalProperties: false },
-    { type: "object", required: ["kind", "error"], properties: {
+    { type: "object", required: ["kind", "error", "skillOutcome"], properties: {
       kind: { const: "skill-error" }, error: { type: "string", minLength: 1 },
       skillOutcome: { $ref: "animating/becoming/doing/working/governing/skill-result" },
       codomainAssay: codomainAssaySchema,
@@ -61,16 +61,8 @@ function nativeSkillOutcome(value) {
 
 /** Validate before persistence. A native error can never masquerade as outer success. */
 export function admitAgencyWorkResult(value) {
-  // Preserve the legacy domain. New native-bearing records use the existing bounded
-  // transport codec and a frozen snapshot before schema checks or assay recomputation.
-  const carriesNative = isJsonRecord(value)
-    && (Object.hasOwn(value, "skillOutcome") || Object.hasOwn(value, "codomainAssay"));
-  const snapshot = carriesNative ? canonicalizeJson(value, JSON_RESOURCE_ENVELOPE).value : value;
+  const snapshot = canonicalizeJson(value, JSON_RESOURCE_ENVELOPE).value;
   const result = agencyWorkResultContract.assert(snapshot, "agency work result");
-  if (result.skillOutcome === undefined) {
-    if (result.codomainAssay !== undefined) throw new TypeError("result codomain assay requires a native source outcome");
-    return result;
-  }
   const native = nativeSkillOutcome(result.skillOutcome);
   const actual = result.kind === "skill-result" ? { kind: result.kind, value: result.value }
     : { kind: result.kind, error: result.error };
@@ -95,7 +87,7 @@ export function admitAgencyWorkResult(value) {
   return canonicalCarrier({ ...result, skillOutcome: native });
 }
 
-/** Native SkillResult -> legacy-compatible office result, preserving the exact native value. */
+/** Project the exact native SkillResult into the office-work contract. */
 export function workResultFromSkillResult(value) {
   const native = nativeSkillOutcome(value);
   return admitAgencyWorkResult(Object.freeze(native.ok
@@ -106,7 +98,6 @@ export function workResultFromSkillResult(value) {
 /** Producer-native context for execution and receiving; never an acceptance decision. */
 export function workResultSkillContext(value) {
   const result = admitAgencyWorkResult(value);
-  if (result.skillOutcome === undefined) return undefined;
   const native = result.skillOutcome;
   return Object.freeze({ reading: native.reading, routing: skillResultRouting(native),
     ...(native.ok ? {} : { errorClass: native.error.errorClass }) });
@@ -813,7 +804,7 @@ export function validateResultCodomain(value) {
  * that this transport would rewrite rather than silently change its contract.
  * This conservative whole-schema limit includes annotation text; it does not
  * attempt to decide which normalization changes preserve schema semantics.
- * Legacy results without native evidence retain their existing schema domain. */
+ */
 function admitNativeResultCodomain(value) {
   const snapshot = canonicalizeJson(value, JSON_RESOURCE_ENVELOPE).value;
   if (canonicalJson(snapshot) !== canonicalJson(canonicalCarrier(snapshot))) {
@@ -835,10 +826,9 @@ export function typedResultOf(returns, result) {
   result = admitAgencyWorkResult(result);
   if (returns === undefined || result.kind !== "skill-result") return result;
   const native = result.skillOutcome;
-  const declaredCodomain = native === undefined ? returns : admitNativeResultCodomain(returns);
+  const declaredCodomain = admitNativeResultCodomain(returns);
   validateResultCodomain(declaredCodomain);
-  const projected = typedValueResultOf(declaredCodomain, native === undefined ? result.value : native.output);
-  if (native === undefined) return projected;
+  const projected = typedValueResultOf(declaredCodomain, native.output);
   return admitAgencyWorkResult({ ...projected, skillOutcome: native,
     codomainAssay: { source: semanticId(native), returns: declaredCodomain } });
 }

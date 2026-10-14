@@ -452,14 +452,15 @@ export function createMarket({
         }
         : {}),
       async handler(context) {
-        const rightsRefusal = sourceRightsGate(offer);
-        if (rightsRefusal) return rightsRefusal;
         // An already purchased edition remains recoverable if today's edition
-        // is unavailable, or a newer edition has replaced it.
+        // is unavailable, a newer edition has replaced it, or the current
+        // rights claim no longer authorizes a new purchase.
         if (purchaseStore) {
           const recovered = await recoverPaidResponse(context.request, purchaseStore);
           if (recovered) return recovered;
         }
+        const rightsRefusal = sourceRightsGate(offer);
+        if (rightsRefusal) return rightsRefusal;
         if (offer.declaration.recoverable && !purchaseStore) {
           return Response.json({ error: "Publication delivery storage is unavailable" }, { status: 503, headers: { "retry-after": "30" } });
         }

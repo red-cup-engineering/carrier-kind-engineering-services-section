@@ -39,7 +39,10 @@ import { semanticId } from "@red-cup-engineering/computer-content-address-engine
 import { readingFamilies, readingOfSides } from "@red-cup-engineering/computer-data-engineering-services-section/four";
 import { formatGraded, gradedAdd, gradedFromParts, gradedIsZero, gradedNegate, gradedOfDecimal, gradedQuotient, gradedTimes, gradedToDecimalString } from "@red-cup-engineering/exact-number-data-service/graded";
 import { canonicalJson, canonicalizeJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
-import { makeNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
+import { isNiUri, makeNiUri, verifyNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
+import { immutableContentKey } from "@red-cup-engineering/immutable-content-custody-service";
+import { createFileStoreSync } from "@red-cup-engineering/immutable-content-custody-service/file-store";
+import { join } from "node:path";
 import { open, posting, transaction } from "../accounting/ledger.mjs";
 import { printEntries } from "../accounting/report.mjs";
 import { resourcesOf, sumResources } from "./resources.mjs";
@@ -169,6 +172,52 @@ const reportJudgmentsOf = outcomes => Object.freeze({
 /** The store type the work arena's moves are recorded under (FeltOS's work board). */
 export const WORK_ARENA_MOVE_TYPE = "work-arena-move";
 
+/** Evidence prose is content, rather than an oversized record coordinate. */
+function mapWorkArenaEvidence(move, visit) {
+  const project = value => {
+    if (Array.isArray(value)) return value.map(project);
+    if (value === null || typeof value !== "object") return value;
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key,
+      key === "evidence" && Array.isArray(item) ? item.map(visit) : project(item)]));
+  };
+  return project(move);
+}
+
+export function addressedWorkArenaEvidence(move, keepText) {
+  return mapWorkArenaEvidence(move, text => {
+    if (typeof text !== "string" || Buffer.byteLength(text, "utf8") <= 4096) return text;
+    const body = Buffer.from(text, "utf8"), ni = makeNiUri(body);
+    keepText?.(ni, body);
+    return ni;
+  });
+}
+
+/** Retrieve only evidence referenced by this reading, never expose the whole store. */
+export function readWorkArenaEvidence(root, move) {
+  const custody = createFileStoreSync(join(root, "data", "custody"));
+  return mapWorkArenaEvidence(move, reference => {
+    if (typeof reference !== "string" || !isNiUri(reference)) return reference;
+    const held = custody.get(immutableContentKey(reference));
+    // A referenced external artifact remains its reference; only locally retained
+    // evidence prose has this media type and is expanded by this owner.
+    if (held === null || held.mediaType !== "text/plain") return reference;
+    const bytes = Buffer.from(held.body);
+    if (!verifyNiUri(bytes, reference)) throw new TypeError("work evidence differs from its content address");
+    return bytes.toString("utf8");
+  });
+}
+
+/** Persist only the evidence of a move already admitted by its arena. */
+export function keepWorkArenaEvidence(root, move) {
+  const custody = createFileStoreSync(join(root, "data", "custody"));
+  return addressedWorkArenaEvidence(move, (ni, body) => {
+    const key = immutableContentKey(ni);
+    custody.putIfAbsent(key, { body, mediaType: "text/plain" });
+    const held = custody.get(key);
+    if (held === null || !Buffer.from(held.body).equals(body)) throw new TypeError("work evidence differs from immutable custody");
+  });
+}
+
 /**
  * The outcomes the work arena's assayers judged: one for each delivery of a request whose verdict
  * the board derives (accepted when its witnesses hold it and its assayer validated the need,
@@ -204,8 +253,8 @@ export function arenaOutcomesOf(board) {
  */
 export function workArenaMovesAt(root) {
   return [...each(root, WORK_ARENA_MOVE_TYPE)].map(({ address, record }) => {
-    const { causes: _causes, ...move } = record;
-    return Object.freeze({ id: address, record: move });
+    const { causes, ...move } = record;
+    return Object.freeze({ id: address, record: move, causes: Object.freeze(causes ?? []) });
   });
 }
 
