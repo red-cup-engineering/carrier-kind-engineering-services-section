@@ -53,6 +53,10 @@ export function marketCatalogReadout(offers, rails = {}) {
       category: offer.declaration.category ?? "data",
       description: offer.declaration.framings[0].description,
       ...(offer.declaration.evidence === undefined ? {} : { evidence: offer.declaration.evidence }),
+      ...(offer.declaration.sourceRightsClaim === undefined ? {} : {
+        sourceRightsClaim: offer.declaration.sourceRightsClaim,
+        sourceRightsVerification: "unassayed",
+      }),
       ...(offer.declaration.compute === undefined ? {} : { compute: { package: offer.declaration.compute.package, export: offer.declaration.compute.export, ...(offer.declaration.compute.configuration === undefined ? {} : { configuration: offer.declaration.compute.configuration }) } }),
       output: offer.declaration.output,
     })),
