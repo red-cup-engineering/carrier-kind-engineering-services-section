@@ -50,3 +50,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/services/linux-services-section/services/persistent-linux-machine-engineering-services-section/services/guix-machine-release-service
 	url = https://github.com/red-cup-engineering/guix-machine-release-service.git
 	branch = main
+[submodule "content-mill-newsroom-services-section"]
+	path = services/computer-systems-engineering-services-section/services/content-mill-newsroom-services-section
+	url = https://github.com/red-cup-engineering/content-mill-newsroom-services-section.git
+	branch = main
