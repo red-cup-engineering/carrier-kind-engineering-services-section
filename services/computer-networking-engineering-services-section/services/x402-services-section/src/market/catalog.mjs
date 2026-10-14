@@ -70,3 +70,16 @@ export function marketCatalogReadout(offers, rails = {}) {
   });
 }
 
+
+/** Project buyer-visible catalogue rows without discarding typed source
+ * declarations needed for internal receiving and historical identity. A
+ * merchant with only held/private offers still answers with an empty public
+ * catalogue and its original seller/settlement metadata.
+ */
+export function publicMarketCatalogReadout(offers, rails = {}) {
+  const admitted = marketCatalogReadout(offers, rails);
+  return Object.freeze({
+    ...admitted,
+    offers: Object.freeze(admitted.offers.filter((row) => row.listed === true)),
+  });
+}
