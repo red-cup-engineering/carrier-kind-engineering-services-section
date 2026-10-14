@@ -18,6 +18,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows } from "./oci-always-free-admission.mjs";
 
 const run = promisify(execFile);
 
@@ -29,8 +30,15 @@ function option(name, fallback) {
 const NAME = option("name");
 const SHAPE = option("shape");
 const NETWORK = option("network", NAME);
-const SHAPE_CONFIG = SHAPE.endsWith(".Flex") ? JSON.stringify({ ocpus: Number(option("ocpus")), memoryInGBs: Number(option("memory-gb")) }) : undefined;
-const BOOT_VOLUME_GB = option("boot-gb", "50");
+const REQUEST = requireAlwaysFreeRequest({
+  shape: SHAPE,
+  ocpus: SHAPE.endsWith(".Flex") ? Number(option("ocpus")) : undefined,
+  memoryGBs: SHAPE.endsWith(".Flex") ? Number(option("memory-gb")) : undefined,
+  bootGB: Number(option("boot-gb", "50")),
+});
+const SHAPE_CONFIG = REQUEST.shape.endsWith(".Flex")
+  ? JSON.stringify({ ocpus: REQUEST.ocpus, memoryInGBs: REQUEST.memoryGBs }) : undefined;
+const BOOT_VOLUME_GB = String(REQUEST.bootGB);
 const CAPACITY_REFUSAL = /out of host capacity|capacity|TooManyRequests|too many requests/iu;
 
 const oci = process.env.OCI_CLI ?? join(homedir(), ".local/bin/oci");
@@ -59,11 +67,48 @@ async function tenancyOf(profileName) {
 }
 
 const tenancy = await tenancyOf(profile);
-const existing = (await ociJson("compute", "instance", "list", "--compartment-id", tenancy, "--display-name", NAME, "--all"))
-  .data.find((instance) => instance["lifecycle-state"] !== "TERMINATED");
+const profileContents = await readFile(configFile, "utf8");
+const section = profileContents.split(/^\[([^\]]+)\]\s*$/gmu);
+const profileIndex = section.indexOf(profile);
+const configuredRegion = profileIndex >= 0
+  ? section[profileIndex + 1].match(/^region\s*=\s*(\S+)/mu)?.[1] : null;
+const subscriptions = (await ociJson("iam", "region-subscription", "list", "--tenancy-id", tenancy)).data;
+const homeRegions = Array.isArray(subscriptions)
+  ? subscriptions.filter((region) => region["is-home-region"] === true).map((region) => region["region-name"]) : [];
+if (homeRegions.length !== 1 || !configuredRegion || configuredRegion !== homeRegions[0]) {
+  throw new Error("Always Free OCI work requires proven tenancy home-region configuration");
+}
+const compartments = (await ociJson("iam", "compartment", "list",
+  "--compartment-id", tenancy, "--compartment-id-in-subtree", "true", "--all")).data;
+if (!Array.isArray(compartments)) throw new Error("OCI compartment inventory is incomplete");
+const ids = [tenancy, ...compartments.filter((row) => row["lifecycle-state"] === "ACTIVE").map((row) => row.id)];
+if (ids.some((id) => typeof id !== "string" || !id) || new Set(ids).size !== ids.length)
+  throw new Error("OCI compartment scope cannot be qualified");
+const instances = [], containerInstances = [];
+for (const id of ids) {
+  const containers = (await ociJson("container-instances", "container-instance", "list", "--compartment-id", id, "--all")).data;
+  if (!Array.isArray(containers)) throw new Error("OCI container instances inventory is incomplete");
+  containerInstances.push(...containers);
+  const rows = (await ociJson("compute", "instance", "list", "--compartment-id", id, "--all")).data;
+  if (!Array.isArray(rows)) throw new Error("OCI instances inventory is incomplete");
+  for (const instance of rows) {
+    if (instance.shape === "VM.Standard.A1.Flex" && instance["lifecycle-state"] !== "TERMINATED") {
+      // The list endpoint is not guaranteed to include the full shape config.
+      const observed = (await ociJson("compute", "instance", "get", "--instance-id", instance.id)).data;
+      instances.push({ ...instance, "shape-config": observed?.["shape-config"] });
+    } else instances.push(instance);
+  }
+}
+const existing = instances.find((instance) => instance["display-name"] === NAME
+  && instance["lifecycle-state"] !== "TERMINATED");
 if (existing) {
-  process.stdout.write(`${NAME} exists (${existing["lifecycle-state"]}): ${existing.id}\n`);
-  process.exit(0);
+  const state = existing["lifecycle-state"];
+  if (state === "RUNNING") {
+    process.stdout.write(`${NAME} already running; LAGOON/Guix receiving still required\n`);
+    process.exit(0);
+  }
+  process.stderr.write(`${NAME} exists in state ${state}; start/recover through owning operator, do not duplicate\n`);
+  process.exit(75);
 }
 
 const vcn = (await ociJson("network", "vcn", "list", "--compartment-id", tenancy, "--display-name", `${NETWORK}-vcn`, "--all")).data[0];
@@ -73,7 +118,25 @@ const image = (await ociJson(
   "--operating-system", "Canonical Ubuntu", "--operating-system-version", "24.04", "--sort-by", "TIMECREATED", "--all",
 )).data[0];
 const sshKey = (await readFile(sshPublicKeyFile, "utf8")).trim();
-const domains = (await ociJson("iam", "availability-domain", "list", "--compartment-id", tenancy)).data.map((domain) => domain.name);
+const domainRows = (await ociJson("iam", "availability-domain", "list", "--compartment-id", tenancy)).data;
+if (!Array.isArray(domainRows) || domainRows.length === 0) throw new Error("OCI availability domain inventory is incomplete");
+const domains = domainRows.map((domain) => domain.name);
+if (domains.some((name) => typeof name !== "string" || !name)) throw new Error("invalid OCI availability domain");
+const bootVolumes = [], blockVolumes = [];
+for (const id of ids) {
+  const blocks = (await ociJson("bv", "volume", "list", "--compartment-id", id, "--all")).data;
+  if (!Array.isArray(blocks)) throw new Error("OCI block volume inventory is incomplete");
+  blockVolumes.push(...blocks);
+  for (const domain of domains) {
+    const boots = (await ociJson("bv", "boot-volume", "list", "--compartment-id", id,
+      "--availability-domain", domain, "--all")).data;
+    if (!Array.isArray(boots)) throw new Error("OCI boot volume inventory is incomplete");
+    bootVolumes.push(...boots);
+  }
+}
+// Do not count capacity from a partial CLI enumeration or an unknown billing
+// plan. This envelope is conservative, not an invoice or permission to spend.
+requireAlwaysFreeHeadroom(REQUEST, { instances, bootVolumes, blockVolumes, containerInstances });
 
 // The limits a LimitExceeded refusal names, each with the request's share of it; a refusal is
 // rationing, not a spent limit, when every named limit still has that much available.
@@ -93,6 +156,24 @@ async function limitsHaveRoom(detail, domain) {
 }
 
 for (const domain of domains) {
+  // Every attempted AD must attest the resource-specific provider limit.
+  // Oracle can refuse a VM despite positive entitlement (host stock).
+  const names = REQUEST.shape === "VM.Standard.A1.Flex"
+    ? ["standard-a1-core-count", "standard-a1-memory-count"]
+    : ["vm-standard-e2-1-micro-count"];
+  const availability = {};
+  try {
+    for (const limitName of names) {
+      const response = await ociJson("limits", "resource-availability", "get",
+        "--service-name", "compute", "--limit-name", limitName,
+        "--compartment-id", tenancy, "--availability-domain", domain);
+      availability[limitName] = response.data?.available;
+    }
+  } catch {
+    // A denied or unsupported native limit is not zero-cost admission.
+    continue;
+  }
+  if (!providerAvailabilityAllows(REQUEST, availability)) continue;
   try {
     const launched = await ociJson(
       "compute", "instance", "launch", "--no-retry",
@@ -103,7 +184,7 @@ for (const domain of domains) {
       "--is-pv-encryption-in-transit-enabled", "true",
       "--metadata", JSON.stringify({ ssh_authorized_keys: sshKey }),
     );
-    process.stdout.write(`${NAME} launched in ${domain} from ${image["display-name"]}: ${launched.data.id}\n`);
+    process.stdout.write(`${NAME} provider launch accepted in ${domain}; LAGOON/Guix receiving and billing readback remain required\n`);
     process.exit(0);
   } catch (error) {
     const detail = `${error.stderr ?? ""}${error.message}`;
