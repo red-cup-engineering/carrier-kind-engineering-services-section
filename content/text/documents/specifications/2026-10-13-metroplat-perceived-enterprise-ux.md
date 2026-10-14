@@ -552,3 +552,33 @@ remain owed. The existing proposed Guix portable receiver correctly requires
 source or derived-output attribution for packed generated files; receive the
 Schema/TOML build products through their existing construction owner before
 sealing, without adding a hand-maintained payload exemption.
+
+
+## Native source custody and coherent package boundaries
+
+Code's bounded source acquisition now finishes in Git's native submodule
+metadata layout. The existing committed-manifest reader requires that custody,
+while the former loose nested Git directories broke parent traversal. Actual
+native Git normalization receives all 20 selected sources, preserving their
+original admission facts and the original frozen selection before and after.
+The unchanged manifest consumer reads 115 declarations through Web and its
+TUFTE, Kalshi and Polymarket repositories. Static construction precedes this
+source receiving; no application or package suite runs. The exact constructors
+and receipt are in `evidence/2026-10-13-metroplat-perceived-enterprise-ux/native-source-metadata-receiving.json`.
+
+Receive current Web source including deterministic mounted-route matching,
+complete account-scoped Cloudflare inventory, bounded Workers Builds observations,
+verified Sent mail and gift collision refusal, bounded Stripe webhook intake
+and merchant policy gates. An initial UTF-8 BOM must remain in the signed body
+until JSON admission; the decoder now preserves it. The Stripe documentation
+connector refused with reauthentication required; public official signature
+guidance was available. This source intake makes no provider, mail, payment,
+account activation or customer-acceptance claim.
+
+The Alpaca consumer receives the existing SignGraph/Schema declarations and
+constructs a complete observed cochain through the actual primitive. The SDK
+entrance declares genuine ACP0.1.15, read through the house registry and checked
+against its original provider source, including the policy-bound signFn port.
+No SDK agent is started and the existing one-job scope is not broadened.
+The common lock and full installed graph still need construction after these
+source changes. The original compilation refusal remains an exact prior input.
