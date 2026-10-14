@@ -18,7 +18,7 @@ const edge=(from,to,change={})=>({
   ...change,
 });
 const base=(changes={})=>({
-  nodes:[node("cold-red-gate",{backlog:100,servicePerTick:5}),
+  nodes:[node("cold-red-gate",{backlog:200,servicePerTick:5}),
     node("oracle-a1",{servicePerTick:8})],
   links:[edge("cold-red-gate","oracle-a1")],
   work,asOf:now,horizonTicks:10,...changes,
@@ -56,9 +56,9 @@ test("spare evidenced compute increases useful work without inventing or losing 
   assert.equal(out.routed.completed,130);
   assert.equal(out.goodputGainUnits,80);
   assert.deepEqual(out.routed.transfers,[{route:"cold-red-gate→oracle-a1",forecastWorkUnits:80}]);
-  assert.equal(out.baseline.acceptedWork,100);
-  assert.equal(out.routed.acceptedWork,100);
-  assert.equal(out.routed.completed+Object.values(out.routed.remaining).reduce((a,b)=>a+b,0),100);
+  assert.equal(out.baseline.acceptedWork,200);
+  assert.equal(out.routed.acceptedWork,200);
+  assert.equal(out.routed.completed+Object.values(out.routed.remaining).reduce((a,b)=>a+b,0),200);
   assert.equal(out.actionable,false);
   assert.equal(out.forecastOnly,true);
   assert.equal(out.providerReadbackIndependentlyVerified,false);
