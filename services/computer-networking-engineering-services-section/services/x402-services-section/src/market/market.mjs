@@ -570,12 +570,24 @@ export function createMarket({
         const target = new URL(`${context.url.pathname}${context.url.search}`, nodeOrigin);
         const forwardedBody = ["GET", "HEAD"].includes(context.request.method)
           ? undefined : await context.request.arrayBuffer();
-        const upstream = await fetch(target, {
-          method: context.request.method,
-          headers: context.request.headers,
-          body: forwardedBody,
-          redirect: "error",
-        });
+        let upstream;
+        try {
+          upstream = await fetch(target, {
+            method: context.request.method,
+            headers: context.request.headers,
+            body: forwardedBody,
+            redirect: "error",
+          });
+        } catch {
+          // The request may have reached a settlement facilitator before the
+          // origin connection was interrupted. Never call it unpaid, retry a
+          // signed request with a new signature, or expose transport internals.
+          // Buyers must recover using their original authorization and token.
+          return Response.json({
+            error: "Node market origin is unavailable; payment outcome is unknown",
+            recovery: "Retry the identical request with the original payment signature and recovery token",
+          }, { status: 503, headers: { "cache-control": "no-store", "retry-after": "120" } });
+        }
         const signedRequest = context.request.headers.has("payment-signature");
         let expectedTerms;
         if (upstream.status === 402 || (upstream.ok && signedRequest)) {
@@ -763,13 +775,13 @@ export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, 
     description: "The 561 Group's served offers. Inputs, examples, prices and response schemas are derived from the same catalogue used for execution. Inspect each live 402 quote before payment; declared contracts do not prove delivery or settlement." });
 }
 
-/** The RFC 9727 API catalog of the served offers: each is an item; the catalog readout describes them. */
+/** RFC 9727 API catalog: expose only publicly saleable, currently served offers. */
 export function marketApiCatalog(offers, { origin } = {}) {
   const base = offerOrigin(offers, origin);
   return {
     linkset: [{
       anchor: `${base}${API_CATALOG_ROUTE}`,
-      item: offers.map(({ declaration }) => ({ href: `${base}${declaration.route}`, title: declaration.name ?? declaration.operation })),
+      item: offers.filter(publiclySaleableOffer).map(({ declaration }) => ({ href: `${base}${declaration.route}`, title: declaration.name ?? declaration.operation })),
       "service-desc": [{ href: `${base}${OPENAPI_ROUTE}`, type: "application/vnd.oai.openapi+json;version=3.1" }, { href: `${base}${CATALOG_ROUTE}`, type: "application/json" }],
       "service-doc": [{ href: `${base}${LLMS_ROUTE}`, type: "text/markdown" }, { href: `${base}/`, type: "text/html" }],
     }],

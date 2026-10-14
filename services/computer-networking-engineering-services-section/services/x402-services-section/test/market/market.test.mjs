@@ -196,6 +196,13 @@ test("holding a publicly named offer prevents every buyer-facing projection from
   assert.equal(readout.offers[1].listed, true);
   const discovery = marketX402Discovery(market.offers, market.rails());
   assert.equal(discovery.resources.length, 1);
+  const apiCatalog = marketApiCatalog(market.offers);
+  assert.deepEqual(apiCatalog.linkset[0].item, [
+    { href: "https://market.test/v1/lookup", title: "Other Lookup" },
+  ]);
+  const apiResponse = await market.fetch(new Request("https://market.test/.well-known/api-catalog"));
+  assert.equal(apiResponse.status, 200);
+  assert.deepEqual(await apiResponse.json(), apiCatalog);
   assert.match(marketLlmsText(market.offers), /Other Lookup/u);
   assert.doesNotMatch(marketLlmsText(market.offers), /Demo Reading/u);
   const withheld = await market.fetch(new Request("https://market.test/v1/demo", {
@@ -218,6 +225,24 @@ test("public catalog and llms.txt never disclose held/private names while intern
   assert.doesNotMatch(machineText,/Demo Reading|Other Lookup/u);
   const publicCard=await (await market.fetch(new Request("https://market.test/.well-known/agent-card.json"))).json();
   assert.equal(publicCard.skills.length,0);
+  const apiResponse = await market.fetch(new Request("https://market.test/.well-known/api-catalog"));
+  assert.equal(apiResponse.status, 200);
+  const apiCatalog = await apiResponse.json();
+  assert.deepEqual(apiCatalog, marketApiCatalog(market.offers));
+  assert.deepEqual(apiCatalog.linkset[0].item, []);
+  assert.equal(apiCatalog.linkset[0].anchor, "https://market.test/.well-known/api-catalog");
+  assert.deepEqual(apiCatalog.linkset[0]["service-desc"].map(link => link.href), [
+    "https://market.test/openapi.json", "https://market.test/v1/catalog",
+  ]);
+  assert.deepEqual(apiCatalog.linkset[0]["service-doc"].map(link => link.href), [
+    "https://market.test/llms.txt", "https://market.test/",
+  ]);
+  assert.doesNotMatch(JSON.stringify(apiCatalog), /Demo Reading|Other Lookup|\/v1\/demo|\/v1\/lookup/u);
+  const apiHead = await market.fetch(new Request("https://market.test/.well-known/api-catalog", { method: "HEAD" }));
+  assert.equal(apiHead.status, 200);
+  assert.equal(apiHead.headers.get("link"), '<https://market.test/.well-known/api-catalog>; rel="api-catalog"');
+  assert.equal(await apiHead.text(), "");
+  assert.equal(market.catalog().offers.length, 2, "public discovery does not discard internal source");
   const held=await market.fetch(new Request("https://market.test/v1/demo",{
     method:"POST",headers:{"content-type":"application/json"},body:'{"seed":1}'
   }));
@@ -534,7 +559,9 @@ test("the RFC 9727 API catalog lists every offer as an item, answers HEAD with i
   const [set] = catalog.linkset;
   assert.equal(set.item.length, market.offers.length);
   assert.ok(set.item.every((item, index) => item.href.endsWith(market.offers[index].declaration.route)));
-  assert.ok(set["service-desc"][0].href.endsWith("/v1/catalog"));
+  assert.deepEqual(set["service-desc"].map(link => link.href), [
+    "https://market.test/openapi.json", "https://market.test/v1/catalog",
+  ]);
   assert.ok(set["service-doc"].some((link) => link.href.endsWith("/llms.txt")));
   const head = await market.fetch(new Request("https://market.test/.well-known/api-catalog", { method: "HEAD" }));
   assert.equal(head.status, 200);
@@ -769,5 +796,44 @@ test("process usage windows are observed but never attributed as paid per-reques
     for (const key of ["userCpuMicroseconds","systemCpuMicroseconds","rssBeforeBytes","rssAfterBytes"]) {
       assert.match(usage[key],/^[0-9]+$/u);
     }
+  }
+});
+
+
+test("Node proxy transport interruption preserves settlement uncertainty for unsigned and signed requests", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const market = demoMarket({
+    catalog: [postDeclaration()],
+    nodeOrigin: "https://node-market.561.group",
+    proxyCatalog: [getDeclaration()],
+  });
+  try {
+    globalThis.fetch = async (url, options) => {
+      assert.equal(String(url), "https://node-market.561.group/v1/lookup?q=1");
+      assert.equal(options.redirect, "error");
+      calls.push(options.headers.get("payment-signature"));
+      throw new TypeError("private origin transport details");
+    };
+    for (const signed of [false, true]) {
+      const response = await market.fetch(new Request("https://market.test/v1/lookup?q=1", {
+        headers: signed ? {
+          "payment-signature": "same-original-signature",
+          "x-payment-recovery": "same-original-recovery-token",
+        } : {},
+      }));
+      assert.equal(response.status, 503);
+      assert.equal(response.headers.get("cache-control"), "no-store");
+      assert.equal(response.headers.get("retry-after"), "120");
+      assert.equal(response.headers.get("payment-response"), null);
+      assert.equal(response.headers.get("payment-required"), null);
+      const result = await response.json();
+      assert.match(result.error, /outcome is unknown/u);
+      assert.match(result.recovery, /original payment signature and recovery token/u);
+      assert.ok(!JSON.stringify(result).includes("private origin transport details"));
+    }
+    assert.deepEqual(calls, [null, "same-original-signature"]);
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });
