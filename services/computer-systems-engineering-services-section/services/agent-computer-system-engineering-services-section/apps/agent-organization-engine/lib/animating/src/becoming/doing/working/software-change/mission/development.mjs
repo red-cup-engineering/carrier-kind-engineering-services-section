@@ -253,7 +253,7 @@ export async function compileEngineeringDesign(input, options={}) {
   ...(options.fabricationOptions?.schemaProjection?.program?{projectionProgram:options.fabricationOptions.schemaProjection.program}:{}),
  });
  const need=stamp('software-development.need',{objective:nonempty(input.objective,'objective'),constraints:input.constraints??[],source,readableSource,receivingFeedback:options.receivingFeedback??null,
-  authority:input.authority??[],workType:input.workType??'software-change',submittedArtifacts:semanticId(input.artifacts??null),contributionContract:semanticId(engineeringContributionSchema),fabricationContract:fabricationContract.id,readablePaths:input.readablePaths??input.engineeringReadablePaths??paths,acceptance:input.acceptanceCommand??input.verifyCommand??null});
+  authority:input.authority??[],producerActor:options.producerActor??null,workType:input.workType??'software-change',submittedArtifacts:semanticId(input.artifacts??null),contributionContract:semanticId(engineeringContributionSchema),fabricationContract:fabricationContract.id,readablePaths:input.readablePaths??input.engineeringReadablePaths??paths,acceptance:input.acceptanceCommand??input.verifyCommand??null});
  const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,need.id);
  if (!journal.products().some(product=>product.id===fabricationContract.id)) journal.tell(fabricationContract,[]);
  if (!journal.products().some(product=>product.id===need.id)) journal.tell(need,source===null?[]:[source.id]);
@@ -411,13 +411,22 @@ export async function compileProgram(input, options={}) {
  if(input.workType==='inquiry')return {engineeringDesign:design,source:design.source};
  // The construction design is qualified from real immutable SignCraft
  // products BEFORE invoking any native fabrication, compiler or test.
- const reviewRequest=constructionReviewRequest(design,
-  historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question).products());
- if(typeof options.qualifyConstruction!=='function')
+ const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
+ const reviewRequest=constructionReviewRequest(design,journal.products());
+ // The request is an actual SignCraft product, so another office can read,
+ // review and admit the exact design in a later session. No shadow queue.
+ if(!journal.products().some(item=>item.id===reviewRequest.id)){
+  const {id,...value}=reviewRequest;
+  journal.tell(Object.freeze({kind:reviewRequest.kind,value,id}),reviewRequest.stages.map(stage=>stage.artifact));
+ }
+ const historicalReview=journal.products().findLast(item=>
+  item.kind==='software-development.construction-review'&&item.value.request===reviewRequest.id);
+ if(typeof options.qualifyConstruction!=='function'&&!historicalReview)
   return {engineeringDesign:design,source:design.source,status:'awaiting-design-review',reviewRequest};
  await options.authorizeEffect?.({phase:'design-review',question:design.question,review:reviewRequest.id});
  const reviewed=admitConstructionReview(reviewRequest,
-  await options.qualifyConstruction(reviewRequest),{producerActor:options.producerActor});
+  typeof options.qualifyConstruction==='function'?await options.qualifyConstruction(reviewRequest):historicalReview.value,
+  {producerActor:options.producerActor});
  await options.authorizeEffect?.({phase:"compile"});
  const root=design.territory;
  const operations=fabricationOperations({repositoryRoot:root},{dependencyProjectRoot:root,...options.fabricationOptions});
@@ -641,6 +650,132 @@ export function developmentOperations(binding, options={}) {
     ...(result.delivery===undefined?{}:{delivery:result.delivery}),
     outcome:{verified:result.outcome.verified,answered:result.outcome.answered===true},
     ...(result.obstruction===undefined?{}:{obstruction:result.obstruction})};
+  },
+ }),operation({
+  verb:'aoe-review-development-design',relation:'boundary',locus:'question',inputFormat:'json',outputFormat:'json',
+  summary:'Admit a separately authorized office review of an exact completed software design',
+  description:'Review evidence is admitted by the receiver host against its independently responsible office. A review is an NI-addressed SignCraft product. It qualifies construction for subsequent human, agent or API invocations, not ownership of another office or semantic proof by itself.',
+  domain:schemaFrom({$id:'aoe/software/development/review-input',type:'object',additionalProperties:false,
+   required:['question','request','evidence'],properties:{
+    question:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}
+  summary:'Read an exact development product by its content address',
+  domain:schemaFrom(developmentProductRequestSchema),
+  codomain:schemaFrom({$id:'aoe/software/development/product',type:'object'}),
+  effects:{class:'host-read',replay:'safe',coordination:'coordination-free',deterministic:true,totality:'partial'},
+  run:async ({question,artifact,offset=0,limit,projection='product'},_args,context)=>{
+   limit??=projection==='source-text'?8192:65536;
+   nonempty(context?.invocation?.subject,'product invoking subject');
+   if(!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(question))throw new TypeError('product custody needs an exact question identity');
+   const products=historyAt(dataRoot,question).products();
+   await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
+   const product=products.find(value=>value.id===artifact);
+   if(product===undefined)throw new TypeError('that development product is not held');
+   if(semanticId({kind:product.kind,value:product.value})!==product.id)throw new TypeError('development product identity differs from its content');
+   if(projection==='source-text'){
+    if(product.kind!=='software-development.source'||!product.value.content)throw new TypeError('that product is not an addressed source body');
+    const custody=createFileContentCustody({root:join(dataRoot,'software-development','sources')});
+    const window=custody.window(product.value.content,{offset,limit});
+    if(window.containsNul)throw new TypeError('source is not a text carrier');
+    await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
+    return {id:product.id,content:product.value.content,encoding:window.encoding,offset,total:window.total,text:window.text};
+   }
+   const bytes=Buffer.from(JSON.stringify(product));
+   if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>131072)throw new TypeError('product window must be bounded');
+   return {id:product.id,question,encoding:'json-utf8',offset,totalBytes:bytes.length,
+    bytesBase64:bytes.subarray(offset,offset+limit).toString('base64')};
+  },
+ })]);
+}
+},
+    request:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}
+  summary:'Read an exact development product by its content address',
+  domain:schemaFrom(developmentProductRequestSchema),
+  codomain:schemaFrom({$id:'aoe/software/development/product',type:'object'}),
+  effects:{class:'host-read',replay:'safe',coordination:'coordination-free',deterministic:true,totality:'partial'},
+  run:async ({question,artifact,offset=0,limit,projection='product'},_args,context)=>{
+   limit??=projection==='source-text'?8192:65536;
+   nonempty(context?.invocation?.subject,'product invoking subject');
+   if(!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(question))throw new TypeError('product custody needs an exact question identity');
+   const products=historyAt(dataRoot,question).products();
+   await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
+   const product=products.find(value=>value.id===artifact);
+   if(product===undefined)throw new TypeError('that development product is not held');
+   if(semanticId({kind:product.kind,value:product.value})!==product.id)throw new TypeError('development product identity differs from its content');
+   if(projection==='source-text'){
+    if(product.kind!=='software-development.source'||!product.value.content)throw new TypeError('that product is not an addressed source body');
+    const custody=createFileContentCustody({root:join(dataRoot,'software-development','sources')});
+    const window=custody.window(product.value.content,{offset,limit});
+    if(window.containsNul)throw new TypeError('source is not a text carrier');
+    await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
+    return {id:product.id,content:product.value.content,encoding:window.encoding,offset,total:window.total,text:window.text};
+   }
+   const bytes=Buffer.from(JSON.stringify(product));
+   if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>131072)throw new TypeError('product window must be bounded');
+   return {id:product.id,question,encoding:'json-utf8',offset,totalBytes:bytes.length,
+    bytesBase64:bytes.subarray(offset,offset+limit).toString('base64')};
+  },
+ })]);
+}
+},
+    evidence:{type:'array',minItems:6,maxItems:6,items:{type:'object',
+     required:['check','source'],additionalProperties:false,
+     properties:{check:{type:'string',minLength:1},source:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}
+  summary:'Read an exact development product by its content address',
+  domain:schemaFrom(developmentProductRequestSchema),
+  codomain:schemaFrom({$id:'aoe/software/development/product',type:'object'}),
+  effects:{class:'host-read',replay:'safe',coordination:'coordination-free',deterministic:true,totality:'partial'},
+  run:async ({question,artifact,offset=0,limit,projection='product'},_args,context)=>{
+   limit??=projection==='source-text'?8192:65536;
+   nonempty(context?.invocation?.subject,'product invoking subject');
+   if(!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(question))throw new TypeError('product custody needs an exact question identity');
+   const products=historyAt(dataRoot,question).products();
+   await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
+   const product=products.find(value=>value.id===artifact);
+   if(product===undefined)throw new TypeError('that development product is not held');
+   if(semanticId({kind:product.kind,value:product.value})!==product.id)throw new TypeError('development product identity differs from its content');
+   if(projection==='source-text'){
+    if(product.kind!=='software-development.source'||!product.value.content)throw new TypeError('that product is not an addressed source body');
+    const custody=createFileContentCustody({root:join(dataRoot,'software-development','sources')});
+    const window=custody.window(product.value.content,{offset,limit});
+    if(window.containsNul)throw new TypeError('source is not a text carrier');
+    await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
+    return {id:product.id,content:product.value.content,encoding:window.encoding,offset,total:window.total,text:window.text};
+   }
+   const bytes=Buffer.from(JSON.stringify(product));
+   if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>131072)throw new TypeError('product window must be bounded');
+   return {id:product.id,question,encoding:'json-utf8',offset,totalBytes:bytes.length,
+    bytesBase64:bytes.subarray(offset,offset+limit).toString('base64')};
+  },
+ })]);
+}
+}}}},
+   }}),
+  codomain:schemaFrom({$id:'aoe/software/development/review-receipt',type:'object'}),
+  effects:{class:'external',replay:'coordinated',coordination:'coordination-required',deterministic:true,totality:'partial'},
+  run:async({question,request:requestedId,evidence},_args,context)=>{
+   const subject=context?.invocation?.subject;
+   nonempty(subject,'review invoking subject');
+   if(typeof admitted?.receiveConstructionReview!=='function')
+    throw new TypeError('the receiving host has no independent software design review office');
+   const journal=historyAt(dataRoot,question),products=journal.products();
+   const need=products.find(item=>item.kind==='software-development.need'&&item.id===question);
+   const source=need?.value.source;
+   const held=products.find(item=>item.kind==='software-development.construction-review-request'&&item.id===requestedId);
+   if(!need||!source||!held)throw new TypeError('review request is not held by this exact development question');
+   const stages=held.value.stages.map(({role,artifact})=>{
+    const item=products.find(p=>p.id===artifact&&p.kind==='software-development.artifact');
+    if(!item)throw new TypeError('review is missing an exact source-owned design stage');
+    return {role,artifactId:artifact,artifact:item.value.text,unresolved:item.value.unresolved};
+   });
+   const reconstructed=constructionReviewRequest({type:'StandardsDrivenEngineeringDesign',question,source,stages},products);
+   if(reconstructed.id!==requestedId)throw new TypeError('review request is not the current qualified design');
+   const received=await admitted.receiveConstructionReview({question,request:reconstructed,
+    need,subject,evidence});
+   const reviewed=admitConstructionReview(reconstructed,received,{producerActor:need.value.producerActor});
+   const product=stamp('software-development.construction-review',reviewed);
+   if(!journal.products().some(item=>item.id===product.id))journal.tell(product,[requestedId]);
+   return {kind:product.kind,id:product.id,request:requestedId,
+    reviewingOffice:reviewed.office,reviewer:reviewed.actor};
   },
  }),operation({
   verb:'aoe-development-product',relation:'boundary',locus:'question',inputFormat:'json',outputFormat:'json',
