@@ -19,6 +19,7 @@ import { dispatchInferenceAsConfiguredCustomer, INFERENCE_WORK_CUSTOMER } from '
 import { fabricationOperations } from '@red-cup-engineering/computer-code-development-engine/fabrication/operations';
 import { captureSoftwareChangeSource, projectFabricatedSoftwareChanges, induceVerifiedSoftwareMissionProposal } from './agent-tools.mjs';
 import { validateAcceptanceCapsule, materializeAcceptanceCapsule, loadAcceptanceCapsule } from './acceptance-capsule.mjs';
+import { constructionReviewRequest, admitConstructionReview } from './construction-admission.mjs';
 
 export const ACTOR = 'urn:aoe:software-mission';
 export const DEVELOPMENT_STAGES = Object.freeze(engineeringArtifactSchema.properties.role.enum);
@@ -408,6 +409,15 @@ export async function compileEngineeringDesign(input, options={}) {
 export async function compileProgram(input, options={}) {
  const design=await compileEngineeringDesign(input,options);
  if(input.workType==='inquiry')return {engineeringDesign:design,source:design.source};
+ // The construction design is qualified from real immutable SignCraft
+ // products BEFORE invoking any native fabrication, compiler or test.
+ const reviewRequest=constructionReviewRequest(design,
+  historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question).products());
+ if(typeof options.qualifyConstruction!=='function')
+  return {engineeringDesign:design,source:design.source,status:'awaiting-design-review',reviewRequest};
+ await options.authorizeEffect?.({phase:'design-review',question:design.question,review:reviewRequest.id});
+ const reviewed=admitConstructionReview(reviewRequest,
+  await options.qualifyConstruction(reviewRequest),{producerActor:options.producerActor});
  await options.authorizeEffect?.({phase:"compile"});
  const root=design.territory;
  const operations=fabricationOperations({repositoryRoot:root},{dependencyProjectRoot:root,...options.fabricationOptions});
@@ -429,7 +439,7 @@ export async function compileProgram(input, options={}) {
    throw requireDesignRevision(journal,design.source,design.stages.at(-1).artifactId,'module-plan',plan,workOrder);
   }
  }
- return {engineeringDesign:design,source:design.source,workOrder,plan};
+ return {engineeringDesign:design,source:design.source,workOrder,plan,reviewRequest,reviewed};
 }
 
 /** Receiving is a host-granted effect port. Success requires the consumer condition to hold. */
@@ -459,6 +469,9 @@ export async function runProgram(input, options={}) {
  const design=compilation.engineeringDesign;
  if(input.workType==='inquiry')return {id:input.id??design.question,engineeringDesign:design,
   outcome:{answered:true,verified:false,inquiryResult:design.stages.at(-1).artifact},status:'answered'};
+ if(compilation.status==='awaiting-design-review')return {id:input.id??design.question,engineeringDesign:design,
+  reviewRequest:compilation.reviewRequest,status:'awaiting-design-review',
+  outcome:{verified:false,candidateVerified:false}};
  options.signal?.throwIfAborted();
  await options.authorizeEffect?.({phase:"fabricate"});
  const finalProduct=design.stages.at(-1).product;
@@ -617,12 +630,13 @@ export function developmentOperations(binding, options={}) {
    if(!granted?.demand||!granted?.authority?.length)throw new TypeError('development work lacks receiver-owned authority');
    const demand={...granted.demand,authority:granted.authority};
    if(demand.objective!==request.objective)throw new TypeError('development request differs from the admitted operative contract');
-   const execution={...admitted,...granted.execution,dataRoot};
+   const execution={...admitted,...granted.execution,dataRoot,producerActor:subject};
    if(request.resume)await admitted?.receiveProduct?.({question:request.resume.question,history:historyAt(dataRoot,request.resume.question).products(),subject});
    const result=request.resume?await resumeDevelopmentDelivery(request.resume,demand,execution):await runProgram(demand,execution);
    // The mesh exchanges references. Large source and history remain in native custody.
    return {id:result.id,status:result.status,question:result.engineeringDesign.question,
     artifacts:result.engineeringDesign.stages.map(stage=>({role:stage.role,id:stage.artifactId})),
+    ...(result.reviewRequest===undefined?{}:{reviewRequest:result.reviewRequest}),
     ...(result.effect===undefined?{}:{effect:result.effect}),
     ...(result.delivery===undefined?{}:{delivery:result.delivery}),
     outcome:{verified:result.outcome.verified,answered:result.outcome.answered===true},
