@@ -80,6 +80,9 @@ test('OCI A1 container instances are shared-quota users, not unseen free OCPUs',
   assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({containerInstances:[{
     id:'ci-unknown','lifecycle-state':'ACTIVE'
   }]})),/unavailable/);
+  assert.equal(requireAlwaysFreeHeadroom(a1,read({containerInstances:[{
+    id:'ci-deleted',shape:'CI.Standard.A1.Flex','lifecycle-state':'DELETED'
+  }]})).remainingOcpus,0);
 });
 
 test('native per-AD OCI limit readings are a necessary second admission gate',()=>{

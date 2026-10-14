@@ -4,7 +4,7 @@
 const A1 = 'VM.Standard.A1.Flex';
 const MICRO = 'VM.Standard.E2.1.Micro';
 const whole = (n,min,max) => Number.isSafeInteger(n) && n>=min && n<=max;
-const active = x => !['TERMINATED'].includes(x?.['lifecycle-state']);
+const active = x => !['TERMINATED', 'DELETED'].includes(x?.['lifecycle-state']);
 const array = (value,name) => {
   if (!Array.isArray(value)) throw new TypeError('incomplete OCI '+name+' reading');
   return value;
