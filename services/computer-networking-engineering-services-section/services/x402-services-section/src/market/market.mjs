@@ -673,7 +673,11 @@ export function createMarket({
       {
         match: CATALOG_ROUTE,
         methods: ["GET"],
-        handler: () => Response.json(marketCatalogReadout(servedOffers, rails ?? {})),
+        // The internal readout retains every typed source declaration for
+        // receiving. The public HTTP catalogue advertises only current
+        // sellable operations; held and private candidates stay out of this
+        // buyer-facing discovery route.
+        handler: () => Response.json(marketCatalogReadout(servedOffers.filter(publiclySaleableOffer), rails ?? {})),
       },
       {
         match: "/",
@@ -769,7 +773,7 @@ export function marketLlmsText(offers, { name = "market", origin } = {}) {
     `# ${name}`, "",
     `> Machine-buyable operations, each paid per call over x402 (HTTP 402) in USDC. Request an offer's route without payment to receive its payment challenge; the catalog at ${base}${CATALOG_ROUTE} lists every offer's input contract, price and example.`, "",
     "## Offers", "",
-    ...offers.map(({ declaration }) => `- [${declaration.name ?? declaration.operation}](${base}${declaration.route}): ${declaration.method} ${declaration.route}${declaration.price ? `, ${declaration.requestPricing ? "from " : ""}${offerPriceText(declaration)} per call` : ""}. ${offerSummary(declaration)}`),
+    ...offers.filter(publiclySaleableOffer).map(({ declaration }) => `- [${declaration.name ?? declaration.operation}](${base}${declaration.route}): ${declaration.method} ${declaration.route}${declaration.price ? `, ${declaration.requestPricing ? "from " : ""}${offerPriceText(declaration)} per call` : ""}. ${offerSummary(declaration)}`),
     "", "## Discovery", "",
     `- [Catalog](${base}${CATALOG_ROUTE}): every offer's contract, price, evidence and compute owner`,
     `- [OpenAPI](${base}${OPENAPI_ROUTE}): HTTP methods, inputs and declared response schemas`,
