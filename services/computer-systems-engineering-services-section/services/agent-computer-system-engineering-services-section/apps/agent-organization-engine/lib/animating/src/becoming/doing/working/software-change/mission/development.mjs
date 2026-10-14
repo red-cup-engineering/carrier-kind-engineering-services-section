@@ -657,98 +657,12 @@ export function developmentOperations(binding, options={}) {
   description:'Review evidence is admitted by the receiver host against its independently responsible office. A review is an NI-addressed SignCraft product. It qualifies construction for subsequent human, agent or API invocations, not ownership of another office or semantic proof by itself.',
   domain:schemaFrom({$id:'aoe/software/development/review-input',type:'object',additionalProperties:false,
    required:['question','request','evidence'],properties:{
-    question:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}
-  summary:'Read an exact development product by its content address',
-  domain:schemaFrom(developmentProductRequestSchema),
-  codomain:schemaFrom({$id:'aoe/software/development/product',type:'object'}),
-  effects:{class:'host-read',replay:'safe',coordination:'coordination-free',deterministic:true,totality:'partial'},
-  run:async ({question,artifact,offset=0,limit,projection='product'},_args,context)=>{
-   limit??=projection==='source-text'?8192:65536;
-   nonempty(context?.invocation?.subject,'product invoking subject');
-   if(!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(question))throw new TypeError('product custody needs an exact question identity');
-   const products=historyAt(dataRoot,question).products();
-   await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
-   const product=products.find(value=>value.id===artifact);
-   if(product===undefined)throw new TypeError('that development product is not held');
-   if(semanticId({kind:product.kind,value:product.value})!==product.id)throw new TypeError('development product identity differs from its content');
-   if(projection==='source-text'){
-    if(product.kind!=='software-development.source'||!product.value.content)throw new TypeError('that product is not an addressed source body');
-    const custody=createFileContentCustody({root:join(dataRoot,'software-development','sources')});
-    const window=custody.window(product.value.content,{offset,limit});
-    if(window.containsNul)throw new TypeError('source is not a text carrier');
-    await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
-    return {id:product.id,content:product.value.content,encoding:window.encoding,offset,total:window.total,text:window.text};
-   }
-   const bytes=Buffer.from(JSON.stringify(product));
-   if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>131072)throw new TypeError('product window must be bounded');
-   return {id:product.id,question,encoding:'json-utf8',offset,totalBytes:bytes.length,
-    bytesBase64:bytes.subarray(offset,offset+limit).toString('base64')};
-  },
- })]);
-}
-},
-    request:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}
-  summary:'Read an exact development product by its content address',
-  domain:schemaFrom(developmentProductRequestSchema),
-  codomain:schemaFrom({$id:'aoe/software/development/product',type:'object'}),
-  effects:{class:'host-read',replay:'safe',coordination:'coordination-free',deterministic:true,totality:'partial'},
-  run:async ({question,artifact,offset=0,limit,projection='product'},_args,context)=>{
-   limit??=projection==='source-text'?8192:65536;
-   nonempty(context?.invocation?.subject,'product invoking subject');
-   if(!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(question))throw new TypeError('product custody needs an exact question identity');
-   const products=historyAt(dataRoot,question).products();
-   await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
-   const product=products.find(value=>value.id===artifact);
-   if(product===undefined)throw new TypeError('that development product is not held');
-   if(semanticId({kind:product.kind,value:product.value})!==product.id)throw new TypeError('development product identity differs from its content');
-   if(projection==='source-text'){
-    if(product.kind!=='software-development.source'||!product.value.content)throw new TypeError('that product is not an addressed source body');
-    const custody=createFileContentCustody({root:join(dataRoot,'software-development','sources')});
-    const window=custody.window(product.value.content,{offset,limit});
-    if(window.containsNul)throw new TypeError('source is not a text carrier');
-    await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
-    return {id:product.id,content:product.value.content,encoding:window.encoding,offset,total:window.total,text:window.text};
-   }
-   const bytes=Buffer.from(JSON.stringify(product));
-   if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>131072)throw new TypeError('product window must be bounded');
-   return {id:product.id,question,encoding:'json-utf8',offset,totalBytes:bytes.length,
-    bytesBase64:bytes.subarray(offset,offset+limit).toString('base64')};
-  },
- })]);
-}
-},
+    question:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}$'},
+    request:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}$'},
     evidence:{type:'array',minItems:6,maxItems:6,items:{type:'object',
      required:['check','source'],additionalProperties:false,
-     properties:{check:{type:'string',minLength:1},source:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}
-  summary:'Read an exact development product by its content address',
-  domain:schemaFrom(developmentProductRequestSchema),
-  codomain:schemaFrom({$id:'aoe/software/development/product',type:'object'}),
-  effects:{class:'host-read',replay:'safe',coordination:'coordination-free',deterministic:true,totality:'partial'},
-  run:async ({question,artifact,offset=0,limit,projection='product'},_args,context)=>{
-   limit??=projection==='source-text'?8192:65536;
-   nonempty(context?.invocation?.subject,'product invoking subject');
-   if(!/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(question))throw new TypeError('product custody needs an exact question identity');
-   const products=historyAt(dataRoot,question).products();
-   await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
-   const product=products.find(value=>value.id===artifact);
-   if(product===undefined)throw new TypeError('that development product is not held');
-   if(semanticId({kind:product.kind,value:product.value})!==product.id)throw new TypeError('development product identity differs from its content');
-   if(projection==='source-text'){
-    if(product.kind!=='software-development.source'||!product.value.content)throw new TypeError('that product is not an addressed source body');
-    const custody=createFileContentCustody({root:join(dataRoot,'software-development','sources')});
-    const window=custody.window(product.value.content,{offset,limit});
-    if(window.containsNul)throw new TypeError('source is not a text carrier');
-    await admitted?.receiveProduct?.({question,history:products,subject:context.invocation.subject});
-    return {id:product.id,content:product.value.content,encoding:window.encoding,offset,total:window.total,text:window.text};
-   }
-   const bytes=Buffer.from(JSON.stringify(product));
-   if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>131072)throw new TypeError('product window must be bounded');
-   return {id:product.id,question,encoding:'json-utf8',offset,totalBytes:bytes.length,
-    bytesBase64:bytes.subarray(offset,offset+limit).toString('base64')};
-  },
- })]);
-}
-}}}},
+     properties:{check:{type:'string',minLength:1},source:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}$'}}
+    }}
    }}),
   codomain:schemaFrom({$id:'aoe/software/development/review-receipt',type:'object'}),
   // Review admission includes external host authority and persistent SignCraft

@@ -9,7 +9,9 @@
   },
   "scripts": {
     "check:software-change-carriers": "node scripts/aoe-codegen.mjs --specifications specifications/software-change --out src/becoming/doing/working/software-change/carriers.mjs --check",
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "check:development-rpc": "node --check src/becoming/doing/working/software-change/mission/development.mjs",
+    "verify": "npm run check:development-rpc && npm run check:software-change-carriers && npm test"
   },
   "bin": {
     "aoe-codemod": "./scripts/aoe-codemod.mjs",
