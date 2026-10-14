@@ -113,6 +113,16 @@ repository and World descriptors. Its exact output is adopted by MetroPlat.
 Group Engineering PR21 hires construction tools from its own declared suppliers,
 independently of the target application's runtime graph.
 
+Root2a43293's current catalogue freshness is received after native TypeScript
+emission. Portable console packing completes, but compilation refuses eight
+public carriers omitted by four publication declarations. The files are present
+in source. Shared Code PR113's declaration reader constructs the whole221-owner
+reading and identifies all eight exclusions; the four normalized declarations
+remove them. Group PR21 invokes this reader before packing. The reader does not
+prove ignore-rule selection, wildcard members or emitted artifact completeness;
+packed compilation remains necessary. Five Code package schemas now hire Data
+directly, removing their unused Systems dependency.
+
 These receipts qualify source installation and generation, not a packed runtime
 or operating delivery. The earlier full compilation refusal remains attached to
 its exact1dcea6 candidate. Native development compute, weighted measurement,

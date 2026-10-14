@@ -10,8 +10,7 @@
   "description": "The Union's public transport: ActivityPub federation carrying CloudEvents whose data is an A2A message with one RMN part.",
   "files": [
     "README.md",
-    "scripts/seat-activitypub-face.sh",
-    "scripts/materialize-sen-outbox-activity.mjs",
+    "scripts",
     "src"
   ],
   "exports": {
