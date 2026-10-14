@@ -537,7 +537,11 @@ export function declareOffer(input, { admit = true, identities } = {}) {
  */
 export function x402RoutesForOffers(offers, rails = {}) {
   if (!Array.isArray(offers) || offers.length === 0) throw new TypeError("x402RoutesForOffers requires one nonempty set of admitted offers");
-  const routes = Object.assign({}, ...offers.map((offer) => offer.x402Route({
+  // Operationally held offers remain typed catalog evidence but have no
+  // payable challenge, even when the caller knows the route URI. This is
+  // independent of listed:false, which only controls publication visibility.
+  const routes = Object.assign({}, ...offers.filter((offer) =>
+    offer.declaration.saleStatus !== "held").map((offer) => offer.x402Route({
     ...rails,
     framing: rails.framings?.[offer.declaration.route],
   })));
