@@ -132,3 +132,24 @@ export function receiveOciContainerCollection(value) {
     throw new TypeError('OCI container instances inventory contains invalid items');
   return items;
 }
+
+/** OCI CLI stderr is untrusted and can contain tenancy identifiers or other
+ * private data. Classify known *provider error kinds* for external receiving,
+ * never its full message. Quota headroom does not imply physical host stock.
+ */
+export function classifyOciLaunchRefusal(detail) {
+  if (typeof detail !== "string") return "unclassified";
+  if (/OutOfHostCapacity|NoHostCapacity|out of host capacity|insufficient host capacity/iu.test(detail))
+    return "host-capacity-unavailable";
+  if (/TooManyRequests|Throttl|RateLimit|rate.limit/iu.test(detail))
+    return "provider-rate-limited";
+  if (/LimitExceeded|ServiceLimitExceeded|QuotaExceeded/iu.test(detail))
+    return "provider-limit-exceeded";
+  if (/NotAuthenticated|NotAuthorizedOrNotFound|Forbidden|Unauthorized|AuthorizationFailed/iu.test(detail))
+    return "provider-authorization-refused";
+  if (/InvalidParameter|InvalidRequest|InvalidShape|MissingParameter|InvalidImage|ValidationError/iu.test(detail))
+    return "invalid-provisioning-request";
+  if (/InternalError|ServiceUnavailable|InternalServerError|ServiceError.*5[0-9][0-9]/iu.test(detail))
+    return "provider-service-unavailable";
+  return "unclassified";
+}

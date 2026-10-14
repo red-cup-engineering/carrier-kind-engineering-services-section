@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection,
+  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection, classifyOciLaunchRefusal,
 } from '../scripts/oci-always-free-admission.mjs';
 
 const a1={shape:'VM.Standard.A1.Flex',ocpus:2,memoryGBs:12,bootGB:50};
@@ -105,6 +105,32 @@ test('OCI native ContainerInstanceCollection carries items rather than a flat da
   for(const incomplete of [{}, {data:null}, {data:{}}, {data:{items:null}}, {data:{items:{}}},
     {data:{items:[null]}}, {data:{items:['invalid']}}])
     assert.throws(()=>receiveOciContainerCollection(incomplete),/incomplete|invalid/);
+});
+
+test('OCI native provider refusal classifier does not return private exception text',()=>{
+  const examples=[
+    ['ServiceError: OutOfHostCapacity', 'host-capacity-unavailable'],
+    ['out of host capacity', 'host-capacity-unavailable'],
+    ['ServiceError: TooManyRequests', 'provider-rate-limited'],
+    ['ServiceError: LimitExceeded', 'provider-limit-exceeded'],
+    ['ServiceError: NotAuthorizedOrNotFound', 'provider-authorization-refused'],
+    ['ServiceError: InvalidParameter', 'invalid-provisioning-request'],
+    ['ServiceError: InternalServerError', 'provider-service-unavailable'],
+    ['OCI says resource ocid1.test-private-data is weird', 'unclassified'],
+  ];
+  for(const [detail, expected] of examples){
+    assert.equal(classifyOciLaunchRefusal(detail),expected);
+    assert.equal(classifyOciLaunchRefusal(detail).includes('ocid1'),false);
+  }
+});
+
+test('real OCI launcher never publishes full provider stderr on denial',async()=>{
+  const {readFile}=await import('node:fs/promises');
+  const source=await readFile(new URL('../scripts/launch-oracle-instance.mjs',import.meta.url),'utf8');
+  assert.match(source,/classifyOciLaunchRefusal\(detail\)/);
+  assert.match(source,/kind: "oci.native-launch-refusal"/);
+  assert.equal(source.includes('process.stderr.write(detail)'),false);
+  assert.equal(source.includes('process.stderr.write(error.stderr)'),false);
 });
 
 test('native per-AD OCI limit readings are a necessary second admission gate',()=>{

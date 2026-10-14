@@ -18,7 +18,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection } from "./oci-always-free-admission.mjs";
+import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection, classifyOciLaunchRefusal } from "./oci-always-free-admission.mjs";
 
 const run = promisify(execFile);
 
@@ -40,7 +40,6 @@ const REQUEST = requireAlwaysFreeRequest({
 const SHAPE_CONFIG = REQUEST.shape.endsWith(".Flex")
   ? JSON.stringify({ ocpus: REQUEST.ocpus, memoryInGBs: REQUEST.memoryGBs }) : undefined;
 const BOOT_VOLUME_GB = String(REQUEST.bootGB);
-const CAPACITY_REFUSAL = /out of host capacity|capacity|TooManyRequests|too many requests/iu;
 
 const oci = process.env.OCI_CLI ?? join(homedir(), ".local/bin/oci");
 const configFile = process.env.OCI_CONFIG_FILE ?? join(homedir(), ".oci/config");
@@ -156,6 +155,7 @@ async function limitsHaveRoom(detail, domain) {
 }
 
 let quotaQualifiedDomains = 0;
+const launchRefusals = [];
 for (const domain of domains) {
   // Every attempted AD must attest the resource-specific provider limit.
   // Oracle can refuse a VM despite positive entitlement (host stock).
@@ -192,11 +192,23 @@ for (const domain of domains) {
     process.stdout.write(`${NAME} provider launch accepted in ${domain}; LAGOON/Guix receiving and billing readback remain required\n`);
     process.exit(0);
   } catch (error) {
-    const detail = `${error.stderr ?? ""}${error.message}`;
-    if (!CAPACITY_REFUSAL.test(detail) && !(/LimitExceeded/u.test(detail) && await limitsHaveRoom(detail, domain))) {
-      process.stderr.write(detail);
-      process.exit(1);
+    // No raw provider stderr is admitted to CI logs or public receipts.
+    const detail = `${error.stderr ?? ""}\n${error.message ?? ""}`;
+    const kind = classifyOciLaunchRefusal(detail);
+    launchRefusals.push(kind);
+    if (kind === "host-capacity-unavailable" || kind === "provider-rate-limited") continue;
+    if (kind === "provider-limit-exceeded") {
+      let rationed = false;
+      try { rationed = await limitsHaveRoom(detail, domain); } catch { rationed = false; }
+      if (rationed) continue;
     }
+    process.stderr.write(JSON.stringify({
+      kind: "oci.native-launch-refusal",
+      reason: kind,
+      quotaQualifiedDomains, attemptedDomains: launchRefusals.length,
+      launched: false, providerStatus: "refused",
+    }) + "\n");
+    process.exit(1);
   }
 }
 
@@ -224,5 +236,12 @@ if (OBSERVE_ONLY) {
   }) + "\n");
   process.exit(quotaQualifiedDomains > 0 ? 0 : 75);
 }
-process.stderr.write(`All ${domains.length} availability domains refused ${SHAPE} capacity.\n`);
+process.stderr.write(JSON.stringify({
+  kind: "oci.native-launch-refusal",
+  reason: launchRefusals.length ? (launchRefusals.every(x => x === "host-capacity-unavailable")
+    ? "host-capacity-unavailable" : "temporarily-unavailable") : "no-quota-qualified-domain",
+  quotaQualifiedDomains, attemptedDomains: launchRefusals.length,
+  refusalKinds: [...new Set(launchRefusals)].sort(),
+  launched: false, providerStatus: "unavailable",
+}) + "\n");
 process.exit(75);
