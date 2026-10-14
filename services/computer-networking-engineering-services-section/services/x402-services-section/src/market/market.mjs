@@ -761,13 +761,13 @@ export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, 
     description: "The 561 Group's served offers. Inputs, examples, prices and response schemas are derived from the same catalogue used for execution. Inspect each live 402 quote before payment; declared contracts do not prove delivery or settlement." });
 }
 
-/** The RFC 9727 API catalog of the served offers: each is an item; the catalog readout describes them. */
+/** The RFC 9727 API catalog advertises only publicly saleable served offers. */
 export function marketApiCatalog(offers, { origin } = {}) {
   const base = offerOrigin(offers, origin);
   return {
     linkset: [{
       anchor: `${base}${API_CATALOG_ROUTE}`,
-      item: offers.map(({ declaration }) => ({ href: `${base}${declaration.route}`, title: declaration.name ?? declaration.operation })),
+      item: offers.filter(publiclySaleableOffer).map(({ declaration }) => ({ href: `${base}${declaration.route}`, title: declaration.name ?? declaration.operation })),
       "service-desc": [{ href: `${base}${OPENAPI_ROUTE}`, type: "application/vnd.oai.openapi+json;version=3.1" }, { href: `${base}${CATALOG_ROUTE}`, type: "application/json" }],
       "service-doc": [{ href: `${base}${LLMS_ROUTE}`, type: "text/markdown" }, { href: `${base}/`, type: "text/html" }],
     }],
