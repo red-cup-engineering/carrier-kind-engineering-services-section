@@ -107,8 +107,8 @@ test("graded resource receipts contribute to scenario economics without falsifyi
   assert.equal(r.costReceiptsMatched, 1);
   assert.equal(r.modeledLossMakingCount, 1);
   assert.equal(r.modeledMarginsWithoutCostEvidence, 0);
-  const model = r.exposedOffers.length > 0 ? r.exposedOffers[0] : null;
-  assert.equal(model, null, "fee/headroom alert is independent from sourced resource costs");
+  assert.equal(r.exposedOffers.length, 1);
+  assert.equal(r.exposedOffers[0].modeledContributionAtomic, "-500");
   const row = analyzeMarketUnitEconomics(offers, { ...scenario, resourceCostReceipts: [receipt],
     minimumPrecomputeHeadroomAtomic: "3000" }).exposedOffers[0];
   assert.equal(row.preComputeHeadroomAtomic, "2000");
