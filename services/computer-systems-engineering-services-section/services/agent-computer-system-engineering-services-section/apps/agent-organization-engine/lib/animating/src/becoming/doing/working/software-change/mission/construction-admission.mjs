@@ -17,6 +17,14 @@ const CHECKS=Object.freeze([
  'verification-and-recovery-design',
  'independent-receiving-conditions',
 ]);
+const EVIDENCE_ROLES=Object.freeze({
+ 'science-and-stakeholder-requirements':'software-requirements-specification',
+ 'architecture-and-ownership':'software-architecture-specification',
+ 'producer-consumer-contracts':'low-level-design',
+ 'invariants-and-resource-bounds':'low-level-design',
+ 'verification-and-recovery-design':'artifact-specifications',
+ 'independent-receiving-conditions':'system-operational-concept',
+});
 const ni=value=>typeof value==='string'&&/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u.test(value);
 const own=(value)=>value!==null&&typeof value==='object'&&!Array.isArray(value);
 
@@ -62,7 +70,8 @@ export function constructionReviewRequest(design,products) {
   seen.add(product.id);predecessor=product.id;
  }
  const core={kind:'software-development.construction-review-request',version:1,
-  question:design.question,source:design.source.id,stages,checks:[...CHECKS]};
+  question:design.question,source:design.source.id,stages,checks:[...CHECKS],
+  evidenceRoles:{...EVIDENCE_ROLES}};
  // Same NI law as every held SignCraft product, so the review request can
  // be re-read by another authorized office in another session.
  return Object.freeze({...core,id:semanticId({kind:core.kind,value:core})});
@@ -87,7 +96,8 @@ export function admitConstructionReview(request,review,{producerActor}={}) {
  const received=new Map();
  for(const item of review.evidence){
   if(!own(item)||Object.keys(item).sort().join(',')!=='check,source'
-    ||!CHECKS.includes(item.check)||!ni(item.source)||received.has(item.check))
+    ||!CHECKS.includes(item.check)||!ni(item.source)||received.has(item.check)
+   ||item.source!==request.stages.find(stage=>stage.role===request.evidenceRoles[item.check])?.artifact)
    throw new TypeError('review lacks a unique source-identified verification obligation');
   received.set(item.check,item.source);
  }
@@ -98,3 +108,4 @@ export function admitConstructionReview(request,review,{producerActor}={}) {
 
 export const CONSTRUCTION_ROLES=ROLES;
 export const CONSTRUCTION_CHECKS=CHECKS;
+export const CONSTRUCTION_EVIDENCE_ROLES=EVIDENCE_ROLES;
