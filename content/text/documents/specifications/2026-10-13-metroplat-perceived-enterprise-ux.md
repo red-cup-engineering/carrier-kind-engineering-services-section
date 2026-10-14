@@ -533,6 +533,19 @@ boundaries. The combined newer runtime and complete catalogue still require
 fabrication before operating or human-workflow receiving and production promotion.
 
 
+The finalized Root6670bc source plan received the genuine frozen official
+pnpm11.28.5 toolchain through the existing Code owner. Current declared-source
+resolution acquired the exact selected Gitlinks, reported 215 current workspace
+projects, then refused an unpublished Buttondown0.2.0 registry demand from the
+selected Koios briefing. That briefing is part of the declared x402 closure;
+it is not an unrelated importer. The exact refusal and source/toolchain/log
+digests are retained in `current-declared-source-resolution-refusal.json`.
+No full compile, application, newsletter or financial operation was selected
+from that refusal. Source assessment instead recovered the briefing's authored
+establishment, imports, current genuine suppliers and draft/key APIs. Koios142
+binds its four internal suppliers to the selected workspace at the consumer;
+source publication is separate from complete fabrication and useful receiving.
+
 ## Complete supplier installation and external catalogue construction
 
 The common source at Root b76c381 installs its 218 selected packages and 583
