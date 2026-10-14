@@ -225,13 +225,26 @@ const command=args.slice(0,3).join(' ');
 let data;
 if(args[0]==='iam'&&args[1]==='region-subscription'&&args[2]==='list')
   data=[{'is-home-region':true,'region-name':'us-ashburn-1'}];
-else if(args[0]==='iam'&&args[1]==='compartment'&&args[2]==='list')data=[];
+else if(args[0]==='iam'&&args[1]==='compartment'&&args[2]==='list'){
+  if(args[args.indexOf('--access-level')+1]!=='ANY' ||
+     args[args.indexOf('--compartment-id-in-subtree')+1]!=='true') {
+    process.stderr.write('incomplete tenancy enumeration');
+    process.exit(93);
+  }
+  data=[];
+}
 else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]==='list')
   data={items:process.env.SIMULATE_A1_CONTAINER?[{id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE'}]:[]};
 else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]==='get')
   data={id:'ci-a1',shape:'CI.Standard.A1.Flex','shape-config':{ocpus:1,'memory-in-gbs':6}};
-else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='list')
+else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='list'){
+  if(process.env.SIMULATE_PRIVATE_ERROR){
+    process.stderr.write('ServiceError: NotAuthorizedOrNotFound PRIVATE_OCI_CREDENTIAL_OCID');
+    process.exit(81);
+  }
+  if(process.env.SIMULATE_BLANK_RESPONSE)process.exit(0);
   data=process.env.SIMULATE_EXISTING_VM?[{id:'i-a1',shape:'VM.Standard.A1.Flex','lifecycle-state':'RUNNING','display-name':'probe'}]:[];
+}
 else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='get')
   data={id:'i-a1',shape:'VM.Standard.A1.Flex','shape-config':{ocpus:1,'memory-in-gbs':6}};
 else if(args[0]==='iam'&&args[1]==='availability-domain'&&args[2]==='list')data=[{name:'AD-1'}];
@@ -301,4 +314,22 @@ process.stdout.write(JSON.stringify({data}));
   assert.equal(existingCapacity.launched,false);
   assert.equal(existingCapacity.capacity.readings[0].observedConsumption,'1');
   assert.equal(existingCapacity.capacity.readings[0].remainingAfterProposal,'0');
+  for(const [flag,expected] of [
+    ['SIMULATE_PRIVATE_ERROR','provider-authorization-refused'],
+    ['SIMULATE_BLANK_RESPONSE','OCI native response is empty'],
+  ]){
+    const refused=spawnSync(process.execPath,[
+      new URL('../scripts/launch-oracle-instance.mjs',import.meta.url).pathname,
+      '--observe-only','--shape','VM.Standard.A1.Flex',
+      '--ocpus','2','--memory-gb','12','--boot-gb','50',
+    ],{
+      env:{...process.env,OCI_CLI:fakeCli,OCI_CONFIG_FILE:config,OCI_PROFILE:'TEST_API_KEY',
+        SSH_PUBLIC_KEY_FILE:join(directory,'nonexistent-ssh-key'),[flag]:'1'},
+      encoding:'utf8',timeout:20000,
+    });
+    assert.notEqual(refused.status,0,'failed OCI inventory must not advertise capacity');
+    assert.equal(refused.stdout.trim(),'');
+    assert.match(refused.stderr,new RegExp(expected));
+    assert.doesNotMatch(refused.stderr,/PRIVATE_OCI_CREDENTIAL_OCID/u);
+  }
 });
