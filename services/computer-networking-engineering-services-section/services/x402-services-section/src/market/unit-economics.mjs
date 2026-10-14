@@ -1,3 +1,5 @@
+import { admitResourceMeasurements } from "@red-cup-engineering/exact-number-data-service/resource-measurement";
+
 /**
  * Read-only, scenario-specific contribution margin exposure for native x402
  * offers. Consumes the SAME admitted offers the real market sells: each
@@ -38,16 +40,27 @@ function admitResourceCostReceipts(receipts, { now, maxAgeDays } = {}) {
         entry.resourceReadings.length > 32) {
       throw new TypeError("resource cost receipt requires bounded typed resource readings");
     }
-    const seen = new Set();
-    const readings = entry.resourceReadings.map(({commodity, quantity}) => {
-      if (typeof commodity !== "string" || !/^[A-Za-z][A-Za-z0-9:._/-]{0,99}$/u.test(commodity) ||
-          seen.has(commodity)) throw new TypeError("resource reading must have a unique typed commodity");
-      seen.add(commodity);
-      return Object.freeze({commodity, quantity: atomic(quantity, "resource quantity").toString()});
+    // Only the exact graded-number owner admits physical units and actor scope.
+    // Money remains separately witnessed marginal cost; resource observations
+    // cannot be added together across distinct grades or converted into USDC.
+    const admitted = admitResourceMeasurements(entry.resourceReadings, {
+      supplierActorRef: entry.supplierActorRef,
+      consumerActorRef: entry.consumerActorRef,
     });
+    const readings = admitted.map(reading => Object.freeze({
+      resource: reading.resource,
+      unit: reading.unit,
+      amount: reading.amount,
+      ...(reading.sourceUnit === undefined ? {} : { sourceUnit: reading.sourceUnit }),
+      grade: reading.gradedAmount.grade,
+      interpretation: reading.interpretation,
+      evidenceStatus: reading.evidenceStatus,
+    }));
     records.set(entry.sku, Object.freeze({
       sku: entry.sku, source: entry.source, evidenceNi: entry.evidenceNi,
       observedAt: entry.observedAt, asset: BASE_USDC_ASSET,
+      supplierActorRef: entry.supplierActorRef,
+      consumerActorRef: entry.consumerActorRef,
       marginalCostAtomic: cost.toString(), resourceReadings: Object.freeze(readings),
     }));
   }
@@ -192,7 +205,7 @@ export function analyzeMarketUnitEconomics(offers, {
       "Beyond-free marginal fee; no claim about remaining wallet fee allowance or account-specific discounts",
       "Offer price floor is not a realized paid request; request-priced calls may charge more",
       "Compute, R2, bandwidth, support, refunds, payment failures and financing costs are unknown unless explicitly sourced cost observations were supplied",
-      "Resource readings preserve commodity grades and exact quantities; no implicit conversion into money or attribution of process-wide cost",
+      "Resource readings are exact actor-graded physical quantities admitted by the upstream number service; incompatible units cannot be summed or converted into money, and process-wide cost is never automatically attributed to a request",
       "Modeled contributions are scenario arithmetic, never booked cash, independently received payment, or realized profit",
       "Offsite referrals and paid transactions require independent observations, not this catalog"
     ],
