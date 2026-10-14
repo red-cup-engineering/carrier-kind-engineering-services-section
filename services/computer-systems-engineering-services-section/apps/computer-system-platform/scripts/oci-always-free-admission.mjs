@@ -32,9 +32,12 @@ export function requireAlwaysFreeRequest({shape,ocpus,memoryGBs,bootGB}){
 export function requireAlwaysFreeHeadroom(request,{instances,bootVolumes,blockVolumes,containerInstances}){
   const r=requireAlwaysFreeRequest(request);
   const seenInstances=new Set(),seenVolumes=new Set(),seenContainers=new Set();
-  // OCI A1 Container Instances share the Compute A1 quota. This VM launcher
-  // cannot promise a zero-bill mixed resource pool while an A1 container
-  // instance also consumes that allowance. Refuse rather than ignore it.
+  // A1 Container Instances consume the same OCI A1 OCPU and memory limits.
+  // Count the exact active container allocation before admitting another VM;
+  // never call a Container Instance "Always Free" merely because its shape
+  // shares the Compute quota.
+  let usedOcpus=0,usedMemoryGBs=0,usedMicro=0,usedStorageGB=0;
+  let containerA1Ocpus=0,containerA1MemoryGBs=0;
   for(const container of array(containerInstances,'container instances')){
     const id=getId(container,'container instance');
     if(seenContainers.has(id))throw new TypeError('duplicate OCI container instance in provider reading');
@@ -42,10 +45,16 @@ export function requireAlwaysFreeHeadroom(request,{instances,bootVolumes,blockVo
     if(!active(container))continue;
     if(typeof container.shape!=='string'||!container.shape)
       throw new TypeError('OCI container shape consumption is unavailable');
-    if(container.shape==='CI.Standard.A1.Flex')
-      throw new RangeError('A1 container usage requires a shared-pool capacity receiver');
+    if(container.shape==='CI.Standard.A1.Flex'){
+      const config=container['shape-config'];
+      const cpu=config?.ocpus, memory=config?.['memory-in-gbs'];
+      if(typeof cpu!=='number'||!Number.isFinite(cpu)||cpu<=0
+          ||typeof memory!=='number'||!Number.isFinite(memory)||memory<=0)
+        throw new TypeError('A1 container shape consumption is unavailable');
+      usedOcpus+=cpu; usedMemoryGBs+=memory;
+      containerA1Ocpus+=cpu; containerA1MemoryGBs+=memory;
+    }
   }
-  let usedOcpus=0,usedMemoryGBs=0,usedMicro=0,usedStorageGB=0;
   for(const instance of array(instances,'instances')){
     const id=getId(instance,'instance');
     if(seenInstances.has(id))throw new TypeError('duplicate OCI instance in provider reading');
@@ -81,6 +90,9 @@ export function requireAlwaysFreeHeadroom(request,{instances,bootVolumes,blockVo
     observedUsage:Object.freeze({
       ocpus:String(usedOcpus),memoryGBs:String(usedMemoryGBs),
       microInstances:String(usedMicro),bootAndBlockGB:String(usedStorageGB),
+      // These are contained in total A1 quantities, never additional quota.
+      a1ContainerOcpus:String(containerA1Ocpus),
+      a1ContainerMemoryGBs:String(containerA1MemoryGBs),
     }),
     requested:Object.freeze({
       ocpus:String(r.ocpus??0),memoryGBs:String(r.memoryGBs??0),
@@ -189,6 +201,11 @@ export function projectOciAlwaysFreeCapacity(request, headroom, {homeRegion, obs
     provider:'oracle-cloud-infrastructure',
     source:'OCI-CLI-enumerated-home-region-inventory-and-service-limits',
     observedAt,homeRegion,shape:r.shape,qualifiedDomains,domainsObserved,
+    containedUsage:Object.freeze({
+      a1ContainerOcpus:headroom.observedUsage?.a1ContainerOcpus??null,
+      a1ContainerMemoryGBs:headroom.observedUsage?.a1ContainerMemoryGBs??null,
+      additiveToA1Totals:false,
+    }),
     readings:Object.freeze(dimensions.map(([resourceClass,unit,key,remaining])=>Object.freeze({
       type:'ResourceCapacityReading',resourceClass,unit,
       observedConsumption:headroom.observedUsage?.[key]??null,
