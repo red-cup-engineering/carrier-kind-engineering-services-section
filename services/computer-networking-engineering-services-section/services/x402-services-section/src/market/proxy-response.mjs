@@ -24,7 +24,7 @@ function containsSameDeclaredFields(actual, expected) {
 /** Receive the merchant's native public challenge and preserve its header and body bytes.
  * The transport address is not the priced resource. The selected offer may name
  * its canonical endpoint while the actual HTTP request carries query inputs. */
-export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = publicUrl }) {
+export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = publicUrl, expectedTerms } = {}) {
   if (upstream.status !== 402) return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: upstream.headers });
   const encoded = upstream.headers.get("PAYMENT-REQUIRED");
   // A native payment boundary must never relay an unusable or unbounded quote.
@@ -40,6 +40,27 @@ export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = 
   try { challengedUrl = new URL(challenge.resource.url).href; } catch { /* refusal below */ }
   const admittedUrls = [publicUrl, resourceUrl].map(value => new URL(value).href);
   if (!admittedUrls.includes(challengedUrl)) return Response.json({ error: "upstream payment challenge names a different resource" }, { status: 502 });
+
+  // Runtime receiving uses the deployment's *actual* settlement authority
+  // and the same owner tariff that the direct boundary uses. The Node origin
+  // cannot unilaterally substitute another payee, network, token or quote.
+  if (expectedTerms !== undefined) {
+    const { network, asset, payTo, amount } = expectedTerms;
+    if (typeof network !== "string" || !/^eip155:[1-9][0-9]*$/u.test(network) ||
+        !/^0x[0-9a-fA-F]{40}$/u.test(asset ?? "") ||
+        !/^0x[0-9a-fA-F]{40}$/u.test(payTo ?? "") ||
+        !/^(0|[1-9][0-9]*)$/u.test(amount ?? "")) {
+      throw new TypeError("trusted proxy expectedTerms must supply network, asset, recipient and atomic quote");
+    }
+    if (!Array.isArray(challenge.accepts) || challenge.accepts.length === 0 ||
+        challenge.accepts.some((entry) =>
+          entry.scheme !== "exact" || entry.network !== network ||
+          entry.asset?.toLowerCase() !== asset.toLowerCase() ||
+          entry.payTo?.toLowerCase() !== payTo.toLowerCase() ||
+          entry.amount !== amount)) {
+      return Response.json({ error: "upstream payment challenge contradicts the merchant's admitted offer or payout terms" }, { status: 502 });
+    }
+  }
 
   const body = await upstream.arrayBuffer();
   const contentType = upstream.headers.get("content-type") ?? "";
