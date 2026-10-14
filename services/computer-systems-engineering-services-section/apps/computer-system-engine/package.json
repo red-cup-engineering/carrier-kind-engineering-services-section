@@ -56,7 +56,8 @@
     "./rpc/node": "./src/rpc/node.mjs",
     "./rpc/actor-processing": "./src/rpc/actor-processing.mjs",
     "./rpc/actor-client": "./src/rpc/actor-client.mjs",
-    "./rpc/http-observation-operations": "./src/rpc/http-observation-operations.mjs"
+    "./rpc/http-observation-operations": "./src/rpc/http-observation-operations.mjs",
+    "./rpc/node-job-operations": "./src/rpc/node-job-operations.mjs"
   },
   "files": [
     "src",
@@ -94,6 +95,8 @@
     "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
     "@red-cup-engineering/metrologic": "workspace:*",
     "@red-cup-engineering/node-process-services-section": "workspace:*",
+    "@red-cup-engineering/node-job-service": "workspace:*",
+    "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/relating": "workspace:*",
     "@red-cup-engineering/uri-services-section": "workspace:*",
     "@red-cup-engineering/signcell": "workspace:*",
