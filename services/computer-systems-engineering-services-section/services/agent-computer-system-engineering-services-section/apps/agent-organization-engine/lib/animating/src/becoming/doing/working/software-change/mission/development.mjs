@@ -41,6 +41,20 @@ function reviseFabrication(journal, source, specification, phase, cause, product
 }
 
 
+/** Correctness by Construction is a contract transition, never an automatic
+ * model/build retry. Record the refuted design in the same SignCraft work
+ * history, then return it to an independently authorized specification owner.
+ * A subsequent request must carry a different admitted requirement/specification
+ * identity. No fabricated candidate or acceptance command runs on this path. */
+function requireDesignRevision(journal, source, specification, phase, cause, product) {
+ const refusal=reviseFabrication(journal,source,specification,phase,cause,product);
+ const error=new Error('fabrication contradicts the admitted design; independent specification revision required',{cause});
+ error.code='AOE_DESIGN_REVISION_REQUIRED';
+ error.developmentObligation=refusal.id;
+ error.specification=specification;
+ return error;
+}
+
 function admittedPath(root, requested) {
  nonempty(requested, 'source path');
  const absolute = resolve(root, requested);
@@ -312,7 +326,6 @@ export async function compileEngineeringDesign(input, options={}) {
  };
  const inquiry=options.inquire??options.hireInquiry??defaultInquiry;
  for (const role of input.workType==='inquiry' ? DEVELOPMENT_STAGES.slice(0,1) : DEVELOPMENT_STAGES) {
-  for (;;) {
   options.signal?.throwIfAborted();
   await options.authorizeEffect?.({phase:"derive",role});
   const basis=[need.id,prior.id,...(role==='artifact-specifications'&&fabricationFeedback?[fabricationFeedback.id]:[])];
@@ -363,10 +376,10 @@ export async function compileEngineeringDesign(input, options={}) {
      }
      if(raw.product?.proposal)projectFabricatedSoftwareChanges(source,raw.product.proposal);
     }catch(error){
-     if(supplied!==undefined)throw error;
      const contribution=journal.tell(stamp('software-development.contribution',raw),basis);
-     fabricationFeedback=reviseFabrication(journal,source,contribution.id,'native-handoff',error,raw.product??raw.text);
-     observations.set(fabricationFeedback.id,fabricationFeedback);continue;
+     // Returning to an automatic inference loop would treat failing execution
+     // as the specification. The author must qualify a distinct new request.
+     throw requireDesignRevision(journal,source,contribution.id,'native-handoff',error,raw.product??raw.text);
     }
    }
 
@@ -387,15 +400,12 @@ export async function compileEngineeringDesign(input, options={}) {
   }
   observations.set(stage.id,stage);
   stages.push({role,artifact:stage.value.text,artifactId:stage.id,unresolved:stage.value.unresolved,...(stage.value.product===undefined?{}:{product:stage.value.product})});prior=stage;
-  break;
-  }
  }
  return {type:'StandardsDrivenEngineeringDesign',question:need.id,source,stages,history:journal.history,territory:root,inferenceAttempts};
 }
 
 /** The source-free order is the actual input to the existing module compiler. */
 export async function compileProgram(input, options={}) {
- for (;;) {
  const design=await compileEngineeringDesign(input,options);
  if(input.workType==='inquiry')return {engineeringDesign:design,source:design.source};
  await options.authorizeEffect?.({phase:"compile"});
@@ -416,12 +426,10 @@ export async function compileProgram(input, options={}) {
   plan=await invoke('fabrication-plan-jsnode-modules',{workOrder});
   if(plan.type!=='JsnodeModuleFabricationPlan'){
    const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
-   const feedback=reviseFabrication(journal,design.source,design.stages.at(-1).artifactId,'module-plan',plan,workOrder);
-   options={...options,fabricationFeedback:feedback};continue;
+   throw requireDesignRevision(journal,design.source,design.stages.at(-1).artifactId,'module-plan',plan,workOrder);
   }
  }
  return {engineeringDesign:design,source:design.source,workOrder,plan};
- }
 }
 
 /** Receiving is a host-granted effect port. Success requires the consumer condition to hold. */
@@ -484,8 +492,7 @@ export async function runProgram(input, options={}) {
   // Missing compute or unavailable installed dependencies cannot be repaired by rewriting the order.
   if(['NO_DERIVATION_CARRIER','ASSAY_CONTEXT_UNAVAILABLE'].includes(artifact.code))throw new TypeError(artifact.message??artifact.code);
   const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
-  const feedback=reviseFabrication(journal,compilation.source,design.stages.at(-1).artifactId,'module-derivation',artifact,compilation.workOrder);
-  return runProgram(input,{...options,fabricationFeedback:feedback});
+  throw requireDesignRevision(journal,compilation.source,design.stages.at(-1).artifactId,'module-derivation',artifact,compilation.workOrder);
  }
  const proposal=projectFabricatedSoftwareChanges(compilation.source,artifact);
  const receiver=options.receiver;
@@ -507,12 +514,18 @@ export async function runProgram(input, options={}) {
   validateAcceptanceCapsule(capsule,{territory:receiver.root});
   materializeAcceptanceCapsule(receiver.root,capsule);
  }
- const refuted=options.refutedTransitions??new Map();
- const transition=semanticId({source:compilation.source.id,changes:proposal.changes});
- if(refuted.has(transition)){
-  const refusal=refuted.get(transition);
-  const error=new Error('development repeated a source transition already refuted by its consumer');
-  error.receiving=refusal.value.receiving;error.developmentObligation=refusal.id;throw error;
+ // Cross-session refusal uses durable SignCraft custody, not an ephemeral Map.
+ // Repeating the same previously rejected proposal would run the test as a
+ // speculative design search. Only a newly reviewed design identity proceeds.
+ const previousRefusal=journal.products().findLast(value=>
+  value.kind==='software-development.receiving-refusal'
+  &&value.value.proposal===product.id&&value.value.source===compilation.source.id);
+ if(previousRefusal){
+  const error=new Error('development proposal already refuted; independent specification revision required');
+  error.code='AOE_RECEIVING_DESIGN_REVIEW_REQUIRED';
+  error.receiving=previousRefusal.value.receiving;
+  error.developmentObligation=previousRefusal.id;
+  throw error;
  }
  let receiving,delivery;
  try{
@@ -521,12 +534,15 @@ export async function runProgram(input, options={}) {
  }
  catch(error){
   const refusal=journal.tell(stamp('software-development.receiving-refusal',{proposal:product.id,
-   source:compilation.source.id,reason:error.message,receiving:error.receiving??null,activates:'artifact-specification-revision'}),[product.id]);
-  error.developmentObligation=refusal.id;
-  refuted.set(transition,refusal);
+   source:compilation.source.id,reason:error.message,receiving:error.receiving??null,activates:'independently-reviewed-specification-revision'}),[product.id]);
   options.signal?.throwIfAborted();
-  // The receiver counterexample is an input to renewed derivation under the same grant.
-  return runProgram(input,{...options,refutedTransitions:refuted,fabricationFeedback:refusal});
+  // Failed V&V contradicts the specification; it is not authority to ask
+  // inference for another patch or to rerun the same received source.
+  const review=new Error('consumer verification contradicted the design; independent specification review required',{cause:error});
+  review.code='AOE_RECEIVING_DESIGN_REVIEW_REQUIRED';
+  review.developmentObligation=refusal.id;
+  review.receiving=error.receiving??null;
+  throw review;
  }
  if(!receiving.verification?.passed||!receiving.acceptance?.passed)throw new TypeError('receiver did not establish the admitted consumer effect');
  const effect=journal.tell(stamp('software-development.effect',{proposal:product.id,receiving,

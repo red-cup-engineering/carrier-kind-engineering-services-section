@@ -14,34 +14,46 @@ function fixture(t){
   options:{dataRoot:join(root,'custody'),receiver:{root,writablePaths:['shape.mjs'],verifyCommand:command,acceptanceCommand:command}}};
 }
 const valid={schemaModules:[{path:'shape.mjs',format:'javascript',entries:[{exportName:'ItemSchema',typeName:'Item',schema:{type:'object',required:['id'],properties:{id:{type:'string',minLength:1}}}}]}]};
-test('a native fabrication refusal executes specification revision and retains preceding derivations',async t=>{
- const f=fixture(t),roles=[];let finals=0,feedbackRead;
- const result=await runProgram(f.input,{...f.options,inquire:async(request,ports)=>{
+test('invalid native handoff stops once and requires an independently authored new specification',async t=>{
+ const f=fixture(t),roles=[];let finals=0;
+ await assert.rejects(runProgram(f.input,{...f.options,inquire:async(request,ports)=>{
   roles.push(request.role);await ports.handlers.read_product({limit:16384});
-  if(request.context.fabricationFeedback){feedbackRead=await ports.handlers.read_product({id:request.context.fabricationFeedback.id});}
-  return {role:request.role,text:'Derived '+request.role,unresolved:['Semantic proof remains unestablished'],
+  return {role:request.role,text:'Derived '+request.role,unresolved:[],
    ...(request.role==='artifact-specifications'?{product:++finals===1?{schemaModules:[]}:valid}:{})};
+ }}),error=>{
+  assert.equal(error.code,'AOE_DESIGN_REVISION_REQUIRED');
+  assert.match(error.developmentObligation,/^ni:\/\/\/sha-256;/);
+  return true;
+ });
+ assert.deepEqual(roles,DEVELOPMENT_STAGES);
+ assert.equal(finals,1,'engine must not automatically ask for a second candidate');
+ assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
+ // The ordinary demand's refusal is retained under its original addressed question.
+ const result=await runProgram({...f.input,artifacts:{'artifact-specifications':{
+  role:'artifact-specifications',text:'Reviewed native schema module specification',
+  unresolved:[],product:valid}}},{...f.options,inquire:async(request,ports)=>{
+  await ports.handlers.read_product({limit:16384});
+  return {role:request.role,text:'Derived '+request.role,unresolved:[]};
  }});
- assert.equal(result.status,'applied');assert.equal(result.outcome.verified,true);
- assert.deepEqual(roles,[...DEVELOPMENT_STAGES,'artifact-specifications']);
- assert.equal(JSON.parse(feedbackRead.text).kind,'software-development.fabrication-refusal');
- assert.deepEqual(JSON.parse(feedbackRead.text).value.product,{schemaModules:[]});
+ assert.equal(result.status,'applied');
+ assert.equal(result.outcome.verified,true);
  const {ItemSchema}=await import('file://'+join(f.root,'shape.mjs'));
  assert.equal(ItemSchema.properties.id.minLength,1);
- const history=readDevelopmentProducts(f.options.dataRoot,result.engineeringDesign.question);
- const refusal=history.find(p=>p.kind==='software-development.fabrication-refusal');
- assert.ok(result.engineeringDesign.stages.at(-1).artifactId);
- const specification=history.find(p=>p.id===result.engineeringDesign.stages.at(-1).artifactId);
- assert.ok(specification.value.inputs.includes(refusal.id));
 });
-test('a repeated native refutation stops without mutating the consumer source',async t=>{
+
+test('a repeated unmodified refuted native handoff cannot change source',async t=>{
  const f=fixture(t);let finals=0;
- await assert.rejects(runProgram(f.input,{...f.options,inquire:async(request,ports)=>{
+ const derive=async(request,ports)=>{
   await ports.handlers.read_product({limit:16384});
   if(request.role==='artifact-specifications')finals++;
-  return {role:request.role,text:'Derived '+request.role,unresolved:[],...(request.role==='artifact-specifications'?{product:{schemaModules:[]}}:{})};
- }}),/already refuted/u);
- assert.equal(finals,2);assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
+  return {role:request.role,text:'Derived '+request.role,unresolved:[],
+   ...(request.role==='artifact-specifications'?{product:{schemaModules:[]}}:{})};
+ };
+ await assert.rejects(runProgram(f.input,{...f.options,inquire:derive}),
+  error=>error.code==='AOE_DESIGN_REVISION_REQUIRED');
+ await assert.rejects(runProgram(f.input,{...f.options,inquire:derive}),/already refuted/u);
+ assert.equal(finals,2,'only separately invoked attempts may inquire; there is no internal retry');
+ assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
 });
 test('an addressed captured schema reaches both generated carriers without inferential retranscription',async t=>{
  const f=fixture(t);
@@ -72,21 +84,42 @@ test('a substituted schema address is refuted before any receiving mutation',asy
   finals++;await ports.handlers.read_source({path:'requirement.schema.json'});
   return {role:request.role,text:'Substituted source address',unresolved:[],product:{schemaModules:[{path:'shape.mjs',format:'javascript',entries:[{
    schemaSource:{path:'requirement.schema.json',content:'ni:///sha-256;'+'A'.repeat(43)}}]}]}};
- }}),/already refuted/u);
- assert.equal(finals,2);assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
+ }}),error=>error.code==='AOE_DESIGN_REVISION_REQUIRED');
+ assert.equal(finals,1);assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
 });
-test('a consumer counterexample revises the executable specification while retaining accepted designs',async t=>{
- const f=fixture(t),roles=[];let finals=0,feedback;
- const result=await runProgram(f.input,{...f.options,inquire:async(request,ports)=>{
+test('a consumer contradiction stops the run and refuses a second identical design across sessions',async t=>{
+ const f=fixture(t),roles=[];let finals=0;
+ const inquire=async(request,ports)=>{
   roles.push(request.role);await ports.handlers.read_product({limit:16384});
-  if(request.context.fabricationFeedback)feedback=JSON.parse((await ports.handlers.read_product({id:request.context.fabricationFeedback.id,limit:16384})).text);
   if(request.role!=='artifact-specifications')return {role:request.role,text:'Derived '+request.role,unresolved:[]};
   const product=structuredClone(valid);product.schemaModules[0].entries[0].schema.properties.id.minLength=++finals===1?0:1;
   return {role:request.role,text:'Derive a consumer-admitted schema',unresolved:[],product};
+ };
+ let refusal;
+ await assert.rejects(runProgram(f.input,{...f.options,inquire}),error=>{
+  assert.equal(error.code,'AOE_RECEIVING_DESIGN_REVIEW_REQUIRED');
+  assert.match(error.developmentObligation,/^ni:\/\/\/sha-256;/);
+  refusal=error;
+  return true;
+ });
+ assert.equal(finals,1,'consumer failure cannot silently hire a patch author');
+ assert.deepEqual(roles,DEVELOPMENT_STAGES);
+ assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
+ await assert.rejects(runProgram(f.input,{...f.options,inquire}),error=>{
+  assert.equal(error.code,'AOE_RECEIVING_DESIGN_REVIEW_REQUIRED');
+  assert.equal(error.developmentObligation,refusal.developmentObligation);
+  return true;
+ });
+ assert.equal(finals,1,'rejected source identity must be held before a second model call');
+ const reviewed=await runProgram({...f.input,artifacts:{'artifact-specifications':{
+  role:'artifact-specifications',text:'Reviewed consumer-compatible schema',
+  unresolved:[],product:valid}}},{...f.options,inquire:async(request,ports)=>{
+  await ports.handlers.read_product({limit:16384});
+  return {role:request.role,text:'Derive '+request.role,unresolved:[]};
  }});
- assert.equal(result.outcome.verified,true);assert.deepEqual(roles,[...DEVELOPMENT_STAGES,'artifact-specifications']);
- assert.equal(feedback.kind,'software-development.receiving-refusal');assert.equal(feedback.value.receiving.verification.passed,false);
- assert.ok(feedback.value.receiving.verification.output.includes('AssertionError'));
- const final=readDevelopmentProducts(f.options.dataRoot,result.engineeringDesign.question).find(product=>product.id===result.engineeringDesign.stages.at(-1).artifactId);
- assert.ok(final.value.inputs.includes(feedback.id));
+ assert.equal(reviewed.outcome.verified,true);
+ const history=readDevelopmentProducts(f.options.dataRoot,reviewed.engineeringDesign.question);
+ assert.equal(history.some(p=>p.kind==='software-development.receiving-refusal'),false,
+  'new contract has a new content-addressed question, not a rewritten old refusal');
 });
+
