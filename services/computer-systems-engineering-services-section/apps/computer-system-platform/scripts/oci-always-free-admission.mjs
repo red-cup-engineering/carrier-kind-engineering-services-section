@@ -31,12 +31,14 @@ export function requireAlwaysFreeRequest({shape,ocpus,memoryGBs,bootGB}){
  */
 export function requireAlwaysFreeHeadroom(request,{instances,bootVolumes,blockVolumes,containerInstances}){
   const r=requireAlwaysFreeRequest(request);
-  const seenInstances=new Set(),seenVolumes=new Set();
+  const seenInstances=new Set(),seenVolumes=new Set(),seenContainers=new Set();
   // OCI A1 Container Instances share the Compute A1 quota. This VM launcher
   // cannot promise a zero-bill mixed resource pool while an A1 container
   // instance also consumes that allowance. Refuse rather than ignore it.
   for(const container of array(containerInstances,'container instances')){
     const id=getId(container,'container instance');
+    if(seenContainers.has(id))throw new TypeError('duplicate OCI container instance in provider reading');
+    seenContainers.add(id);
     if(!active(container))continue;
     if(typeof container.shape!=='string'||!container.shape)
       throw new TypeError('OCI container shape consumption is unavailable');
@@ -74,6 +76,16 @@ export function requireAlwaysFreeHeadroom(request,{instances,bootVolumes,blockVo
       || usedMicro+(r.shape===MICRO?1:0)>2 || usedStorageGB+r.bootGB>200)
     throw new RangeError('tenancy-wide Always Free allocation would be exceeded');
   return Object.freeze({qualified:'conservative-always-free-envelope',
+    // Source-only snapshot; an OCI list result neither proves billing status nor
+    // creates a reservation against another actor's future allocation.
+    observedUsage:Object.freeze({
+      ocpus:String(usedOcpus),memoryGBs:String(usedMemoryGBs),
+      microInstances:String(usedMicro),bootAndBlockGB:String(usedStorageGB),
+    }),
+    requested:Object.freeze({
+      ocpus:String(r.ocpus??0),memoryGBs:String(r.memoryGBs??0),
+      microInstances:String(r.shape===MICRO?1:0),bootAndBlockGB:String(r.bootGB),
+    }),
     remainingOcpus:2-usedOcpus-(r.ocpus??0),
     remainingMemoryGBs:12-usedMemoryGBs-(r.memoryGBs??0),
     remainingMicroInstances:2-usedMicro-(r.shape===MICRO?1:0),
@@ -152,4 +164,42 @@ export function classifyOciLaunchRefusal(detail) {
   if (/InternalError|ServiceUnavailable|InternalServerError|ServiceError.*5[0-9][0-9]/iu.test(detail))
     return "provider-service-unavailable";
   return "unclassified";
+}
+
+/**
+ * Interpret a qualified provider-native inventory in dimensioned, actor-safe
+ * observations. Never create a tradable lot or assign an intrinsic price:
+ * source attestation, recipient authority and billing remain separate.
+ */
+export function projectOciAlwaysFreeCapacity(request, headroom, {homeRegion, observedAt, qualifiedDomains, domainsObserved}={}){
+  const r=requireAlwaysFreeRequest(request);
+  if(typeof homeRegion!=='string'||!homeRegion||typeof observedAt!=='string'||!Number.isFinite(Date.parse(observedAt))||
+     !Number.isSafeInteger(qualifiedDomains)||qualifiedDomains<0||
+     !Number.isSafeInteger(domainsObserved)||domainsObserved<1||qualifiedDomains>domainsObserved||
+     !headroom||headroom.qualified!=='conservative-always-free-envelope'||headroom.billingVerified!==false)
+    throw new TypeError('complete source-qualified Oracle capacity observation required');
+  const dimensions=[
+    ['compute.oracle.a1','OCPU','ocpus',String(headroom.remainingOcpus)],
+    ['compute.oracle.a1-memory','GB','memoryGBs',String(headroom.remainingMemoryGBs)],
+    ['compute.oracle.e2-micro','instance','microInstances',String(headroom.remainingMicroInstances)],
+    ['storage.oracle.boot-block','GB','bootAndBlockGB',String(headroom.remainingBootAndBlockGB)],
+  ];
+  return Object.freeze({
+    type:'OciAlwaysFreeCapacityObservation',
+    provider:'oracle-cloud-infrastructure',
+    source:'OCI-CLI-enumerated-home-region-inventory-and-service-limits',
+    observedAt,homeRegion,shape:r.shape,qualifiedDomains,domainsObserved,
+    readings:Object.freeze(dimensions.map(([resourceClass,unit,key,remaining])=>Object.freeze({
+      type:'ResourceCapacityReading',resourceClass,unit,
+      observedConsumption:headroom.observedUsage?.[key]??null,
+      proposedReservation:headroom.requested?.[key]??null,
+      remainingAfterProposal:remaining,
+      quantitySource:'provider-inventory-plus-conservative-local-envelope',
+      pricedCost:null,availableForSale:false,independentlyReceived:false,
+    }))),
+    unknowns:Object.freeze({
+      actualBilling:null,entitlementLegalOwner:null,physicalHostCapacity:null,
+      rateLimitReset:null,competingAllocations:null,
+    }),
+  });
 }
