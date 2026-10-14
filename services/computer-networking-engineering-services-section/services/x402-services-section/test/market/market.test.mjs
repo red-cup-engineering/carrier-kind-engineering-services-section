@@ -183,6 +183,29 @@ test("a held, unlisted source candidate cannot execute, spend a grant, or receiv
   assert.equal(ordinary.status, 402, "other already-enabled offers remain payable");
 });
 
+test("holding a publicly named offer prevents every buyer-facing projection from advertising it", async () => {
+  const market = demoMarket({
+    catalog: [postDeclaration({ listed: true, saleStatus: "held" }), getDeclaration()],
+  });
+  const card = marketAgentCard(market.offers);
+  assert.equal(card.skills.length, 1);
+  assert.equal(card.skills[0].id, "other-gateway/look-up-other");
+  const readout = marketCatalogReadout(market.offers);
+  assert.equal(readout.offers[0].listed, false,
+    "an explicitly held seller cannot be advertised as a current payable operation");
+  assert.equal(readout.offers[1].listed, true);
+  const discovery = marketX402Discovery(market.offers, market.rails());
+  assert.equal(discovery.resources.length, 1);
+  assert.match(marketLlmsText(market.offers), /Other Lookup/u);
+  assert.doesNotMatch(marketLlmsText(market.offers), /Demo Reading/u);
+  const withheld = await market.fetch(new Request("https://market.test/v1/demo", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed: 2 }),
+  }));
+  assert.equal(withheld.status, 404);
+  assert.equal(withheld.headers.get("payment-required"), null);
+});
+
 test("marketRails reads the deployment and never invents a payout address", () => {
   assert.deepEqual(marketRails(ENV), { network: NETWORK, payTo: PAY_TO, asset: USDC, facilitatorUrl: "https://facilitator.invalid" });
   assert.throws(() => marketRails({ X402_NETWORK: NETWORK, X402_FACILITATOR: "https://f.invalid" }), /X402_PAY_TO/u);
