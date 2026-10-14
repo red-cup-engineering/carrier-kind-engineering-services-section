@@ -431,9 +431,14 @@ export function createMarket({
 
   function pricedResource(offer) {
     const route = offer.declaration.route;
-    const computeOffer = computeFor(offer);
-    const admit = validateFor(offer);
-    const purchaseStore = offer.declaration.recoverable ? purchaseStoreForOffer?.(offer) : undefined;
+    const held = offer.declaration.saleStatus === "held";
+    // A withheld proposal is evidence in the seller source, not an executable
+    // product. Do not even resolve its uninstalled producer/admission module,
+    // or open a recovery store, until an independently received release enables
+    // the offer. For enabled offers retain eager binding conformance checks.
+    const computeOffer = held ? null : computeFor(offer);
+    const admit = held ? undefined : validateFor(offer);
+    const purchaseStore = !held && offer.declaration.recoverable ? purchaseStoreForOffer?.(offer) : undefined;
     return {
       match: route.replace(/\{([A-Za-z0-9_-]+)\}/gu, ":$1"),
       methods: [offer.declaration.method],
