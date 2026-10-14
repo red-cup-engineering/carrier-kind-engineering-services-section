@@ -1,6 +1,6 @@
-import { operation } from "@red-cup-engineering/computer-system-engine/rpc/operation";
+import { operation } from "./operation.mjs";
 
-import { observePublicJson } from "./public-json-observation.mjs";
+import { observePublicJson } from "@red-cup-engineering/http-services-section/public-json-observation";
 
 export function publicHttpJsonObserveOperation({ clock = () => new Date().toISOString() } = {}) {
   return operation({
