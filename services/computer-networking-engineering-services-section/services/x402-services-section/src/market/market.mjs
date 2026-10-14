@@ -452,6 +452,13 @@ export function createMarket({
         }
         : {}),
       async handler(context) {
+        // A staged producer may be present for compilation and source tests
+        // without authorization to take money or perform customer work.
+        // Visibility (listed:false) and sale permission (held) are distinct.
+        if (offer.declaration.saleStatus === "held") {
+          return Response.json({ error: "This operation is not admitted for sale" },
+            { status: 404, headers: { "cache-control": "no-store" } });
+        }
         const rightsRefusal = sourceRightsGate(offer);
         if (rightsRefusal) return rightsRefusal;
         // An already purchased edition remains recoverable if today's edition
@@ -534,6 +541,13 @@ export function createMarket({
       name: offer.declaration.name,
       route,
       async handler(context) {
+        // A staged producer may be present for compilation and source tests
+        // without authorization to take money or perform customer work.
+        // Visibility (listed:false) and sale permission (held) are distinct.
+        if (offer.declaration.saleStatus === "held") {
+          return Response.json({ error: "This operation is not admitted for sale" },
+            { status: 404, headers: { "cache-control": "no-store" } });
+        }
         const rightsRefusal = sourceRightsGate(offer);
         if (rightsRefusal) return rightsRefusal;
         // This is the same exact admission predicate exposed on /v1/status.
