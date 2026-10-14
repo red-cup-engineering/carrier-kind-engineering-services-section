@@ -1,4 +1,5 @@
 import { isPaymentRequiredV2 } from "@x402/core/schemas";
+import { exactMerchantTermsMatch } from "../offer.mjs";
 
 function decodePaymentRequired(value) {
   try {
@@ -52,12 +53,7 @@ export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = 
         !/^(0|[1-9][0-9]*)$/u.test(amount ?? "")) {
       throw new TypeError("trusted proxy expectedTerms must supply network, asset, recipient and atomic quote");
     }
-    if (!Array.isArray(challenge.accepts) || challenge.accepts.length === 0 ||
-        challenge.accepts.some((entry) =>
-          entry.scheme !== "exact" || entry.network !== network ||
-          entry.asset?.toLowerCase() !== asset.toLowerCase() ||
-          entry.payTo?.toLowerCase() !== payTo.toLowerCase() ||
-          entry.amount !== amount)) {
+    if (!exactMerchantTermsMatch(challenge, expectedTerms)) {
       return Response.json({ error: "upstream payment challenge contradicts the merchant's admitted offer or payout terms" }, { status: 502 });
     }
   }
