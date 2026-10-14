@@ -239,6 +239,31 @@ test("one market serves offers from many gateways and refuses an empty or collid
   assert.throws(() => createMarket({ catalog: [postDeclaration(), getDeclaration({ route: "/v1/demo", method: "POST", bodyExample: {} })], env: ENV, compute: { "/v1/demo": () => ({}) } }), /declared by both/u);
 });
 
+test("source-qualified held proposals construct without installing compute bindings or customer stores", async () => {
+  let store = 0, imported = 0;
+  const market = createMarket({
+    catalog: [postDeclaration({ saleStatus: "held", listed: false,
+      compute: { package: "@red-cup-engineering/not-yet-installed", export: "futureProvider" },
+      validate: { package: "@red-cup-engineering/not-yet-installed", export: "futureAdmission" },
+      recoverable: true })],
+    env: ENV,
+    facilitatorClient: unpaidFacilitator(),
+    compute: {},
+    load: async () => { imported++; throw new Error("unreceived producer must not be loaded"); },
+    purchaseStoreForOffer: () => { store++; throw new Error("held proposal must not open customer storage"); },
+  });
+  const refused = await market.fetch(new Request("https://market.test/v1/demo", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed: 2 }),
+  }));
+  assert.equal(refused.status, 404);
+  assert.equal(refused.headers.get("payment-required"), null);
+  assert.equal(imported, 0);
+  assert.equal(store, 0);
+  assert.equal(market.catalog().offers.length, 1, "source identity survives without a live seller claim");
+  assert.equal(market.catalog().offers[0].listed, false);
+});
+
 test("an offer without a compute binding and without a supplied compute is refused at construction", () => {
   assert.throws(() => createMarket({ catalog: [postDeclaration()], env: ENV, compute: {} }), /declares no compute binding/u);
 });
