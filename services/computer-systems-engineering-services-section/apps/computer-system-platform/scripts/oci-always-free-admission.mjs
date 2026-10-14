@@ -117,3 +117,18 @@ export function selectOciProfile(configSource, environment = {}) {
   if (keys.length === 0 && names.length === 1) return names[0];
   throw new TypeError('more than one potential OCI principal; specify OCI_PROFILE');
 }
+
+/** OCI Container Instances list endpoints return a *collection object* with
+ * an items array, unlike ordinary Compute list endpoints. The existing CLI's
+ * --all requests all pages. Accept only complete supported payload forms; a
+ * missing collection is never evidence that no containers are consuming A1.
+ */
+export function receiveOciContainerCollection(value) {
+  const data = value?.data;
+  const items = Array.isArray(data) ? data
+    : (data && typeof data === 'object' && !Array.isArray(data) ? data.items : null);
+  if (!Array.isArray(items)) throw new TypeError('OCI container instances inventory is incomplete');
+  if (items.some(item => !item || typeof item !== 'object' || Array.isArray(item)))
+    throw new TypeError('OCI container instances inventory contains invalid items');
+  return items;
+}

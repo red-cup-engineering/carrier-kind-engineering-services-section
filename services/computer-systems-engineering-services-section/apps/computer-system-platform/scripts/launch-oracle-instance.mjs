@@ -18,7 +18,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile } from "./oci-always-free-admission.mjs";
+import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection } from "./oci-always-free-admission.mjs";
 
 const run = promisify(execFile);
 
@@ -87,8 +87,7 @@ if (ids.some((id) => typeof id !== "string" || !id) || new Set(ids).size !== ids
   throw new Error("OCI compartment scope cannot be qualified");
 const instances = [], containerInstances = [];
 for (const id of ids) {
-  const containers = (await ociJson("container-instances", "container-instance", "list", "--compartment-id", id, "--all")).data;
-  if (!Array.isArray(containers)) throw new Error("OCI container instances inventory is incomplete");
+  const containers = receiveOciContainerCollection(await ociJson("container-instances", "container-instance", "list", "--compartment-id", id, "--all"));
   containerInstances.push(...containers);
   const rows = (await ociJson("compute", "instance", "list", "--compartment-id", id, "--all")).data;
   if (!Array.isArray(rows)) throw new Error("OCI instances inventory is incomplete");

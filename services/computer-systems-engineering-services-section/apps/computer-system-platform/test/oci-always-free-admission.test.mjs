@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile,
+  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection,
 } from '../scripts/oci-always-free-admission.mjs';
 
 const a1={shape:'VM.Standard.A1.Flex',ocpus:2,memoryGBs:12,bootGB:50};
@@ -94,6 +94,17 @@ test('OCI profile follows current native configured authority rather than stale 
   assert.throws(()=>selectOciProfile(config+'[OTHER_API_KEY]\ntenancy = test-other\n'),/more than one/);
   assert.throws(()=>selectOciProfile(''),/unavailable/);
   assert.throws(()=>selectOciProfile('[DEFAULT]\n[DEFAULT]\n'),/ambiguous/);
+});
+
+
+test('OCI native ContainerInstanceCollection carries items rather than a flat data array',()=>{
+  const item={id:'oci-test-instance',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE'};
+  assert.deepEqual(receiveOciContainerCollection({data:{items:[item]}}),[item]);
+  assert.deepEqual(receiveOciContainerCollection({data:{items:[]}}),[]);
+  assert.deepEqual(receiveOciContainerCollection({data:[item]}),[item]);
+  for(const incomplete of [{}, {data:null}, {data:{}}, {data:{items:null}}, {data:{items:{}}},
+    {data:{items:[null]}}, {data:{items:['invalid']}}])
+    assert.throws(()=>receiveOciContainerCollection(incomplete),/incomplete|invalid/);
 });
 
 test('native per-AD OCI limit readings are a necessary second admission gate',()=>{
