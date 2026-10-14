@@ -234,6 +234,13 @@
       "type": "boolean",
       "description": "Whether the seller catalog row is listed (gating the assay's exit status). Defaults to true."
     },
+    "saleStatus": {
+      "enum": [
+        "held",
+        "enabled"
+      ],
+      "description": "Operational sale authorization, independent of public listing visibility. 'held' refuses compute, grants, and payment even if an endpoint path is known. Omitted means the existing enabled behavior for previously received offers."
+    },
     "compute": {
       "type": "object",
       "additionalProperties": false,

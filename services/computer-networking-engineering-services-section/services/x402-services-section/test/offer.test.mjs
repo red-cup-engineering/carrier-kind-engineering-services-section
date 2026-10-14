@@ -373,6 +373,20 @@ test("seller projections carry the declared enterprise and book independently of
   assert.equal(capability.provider, row.servingProvider);
 });
 
+test("held sale status blocks direct x402, directory, and ActivityPub publication independently of visibility", () => {
+  const held = declareOffer(getDeclaration({ listed: false, saleStatus: "held" }));
+  assert.equal(held.declaration.listed, false);
+  assert.throws(() => held.x402Route(RAILS), /held offer/u);
+  assert.throws(() => held.index402Registration({ provider: "561 Group" }), /held offer/u);
+  assert.throws(() => held.capabilityOffer({
+    ...RAILS, agentCard: "https://pacing.example.test/.well-known/agent-card.json",
+    expiresAt: "2027-10-13T20:00:00Z",
+  }), /held offer/u);
+  const privateOffer = declareOffer(getDeclaration({ listed: false }));
+  assert.ok(Object.keys(privateOffer.x402Route(RAILS)).length === 1,
+    "unlisted does not mean held: owner-directed private sales remain possible");
+});
+
 test("the catalog row's expected amount equals the amount in the derived challenge", () => {
   const offer = declareOffer(postDeclaration());
   assert.equal(

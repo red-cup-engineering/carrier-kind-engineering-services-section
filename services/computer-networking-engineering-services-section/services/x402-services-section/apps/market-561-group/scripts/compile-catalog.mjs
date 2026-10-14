@@ -64,7 +64,7 @@ export async function generateCatalogProducts({ sourceRoot, read, now, previousD
     const offer = declareCatalog([declaration])[0];
     if (!currentSkus.has(offer.sku)) historical.set(offer.sku, declaration);
   }
-  const edgeOffers = offers.filter(offer => offer.declaration.runtime !== "node");
+  const edgeOffers = offers.filter(offer => offer.declaration.runtime !== "node" && offer.declaration.saleStatus !== "held");
   // The edge face's module map: a fetch-handler bundle resolves no specifier
   // at runtime, so every binding of every edge offer is imported statically
   // here and the face loads from this map instead of importing by name.

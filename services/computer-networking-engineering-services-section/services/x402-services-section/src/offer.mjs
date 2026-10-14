@@ -23,6 +23,15 @@ import { sha256Bytes } from '@red-cup-engineering/cryptographic-computer-data-en
  * six-decimal quote. Neither form invents a dollar exchange rate for an asset.
  */
 
+/** Visibility and sale authority are different predicates. A public x402
+ * projection may advertise only a non-held, publicly listed offer; neither
+ * predicate establishes a settled payment, source rights or buyer acceptance. */
+export function publiclySaleableOffer(offer) {
+  return offer?.declaration !== undefined &&
+    offer.declaration.listed !== false &&
+    offer.declaration.saleStatus !== "held";
+}
+
 export const OFFER_DECLARATION_KIND = "org.emsenn.x402.offer-declaration.v1";
 export const CAPABILITY_OFFER_KIND = "org.emsenn.capability-offer.v3";
 export const COORDINATE_RESIDUAL_KIND = "org.emsenn.capability-offer.coordinate-residual.v1";
@@ -385,6 +394,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
    * discovery extension carrying `input.method` and `routeTemplate`.
    */
   function x402Route({ framing, payTo, network, asset, assetExtra } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot issue x402 payment requirements");
     const selected = selectFraming(declaration, framing);
     const routeTemplate = declaration.route.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/gu, ":$1");
     const parameterized = routeTemplate !== declaration.route;
@@ -416,6 +426,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
    * no rails.
    */
   function index402Registration({ framing, provider, paymentAsset, paymentNetwork, contactEmail } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot be registered as a payable API");
     if (typeof declaration.price !== "string") throw new TypeError("402index requires a declared dollar price; a native asset price has no implicit USD rate");
     const selected = selectFraming(declaration, framing);
     return Object.freeze({
@@ -436,6 +447,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
 
   /** Derive this offer's `org.emsenn.capability-offer.v3` object. */
   function capabilityOffer({ network, asset, agentCard, expiresAt, coordinates = {} } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot publish an ActivityPub capability Offer");
     requirePriceRails(declaration.price, network, asset);
     if (typeof agentCard !== "string" || agentCard === "") throw new TypeError("capability offer requires the provider's A2A agent card URL");
     if (!ISO_INSTANT.test(expiresAt ?? "")) throw new TypeError("capability offer requires expiresAt as one ISO-8601 UTC instant");
@@ -495,7 +507,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       network: requireNetwork(network),
       asset: requireAddress(asset, "the settlement asset"),
       payTo: requireAddress(payTo, "the payout address"),
-      listed: declaration.listed ?? true,
+      listed: publiclySaleableOffer({ declaration }),
     });
   }
 
@@ -537,7 +549,11 @@ export function declareOffer(input, { admit = true, identities } = {}) {
  */
 export function x402RoutesForOffers(offers, rails = {}) {
   if (!Array.isArray(offers) || offers.length === 0) throw new TypeError("x402RoutesForOffers requires one nonempty set of admitted offers");
-  const routes = Object.assign({}, ...offers.map((offer) => offer.x402Route({
+  // Operationally held offers remain typed catalog evidence but have no
+  // payable challenge, even when the caller knows the route URI. This is
+  // independent of listed:false, which only controls publication visibility.
+  const routes = Object.assign({}, ...offers.filter((offer) =>
+    offer.declaration.saleStatus !== "held").map((offer) => offer.x402Route({
     ...rails,
     framing: rails.framings?.[offer.declaration.route],
   })));

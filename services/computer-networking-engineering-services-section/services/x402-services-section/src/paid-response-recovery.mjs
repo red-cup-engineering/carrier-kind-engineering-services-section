@@ -118,6 +118,8 @@ function responseFromStored(value) {
  * Recover a completed opt-in digital-content purchase before the x402 library
  * rejects its already-used authorization. Stores implement atomic claim,
  * response preparation, and settlement finalization in the app's durable store.
+ * An explicit lazy store supplier is resolved only after signed-request and
+ * recovery-token inspection; a held proposal never opens storage on discovery.
  */
 export async function recoverPaidResponse(request, store) {
   if (store === undefined) return null;
@@ -125,7 +127,10 @@ export async function recoverPaidResponse(request, store) {
   const inspected = await inspectPaidResponseRequest(request);
   if (inspected === null) return Response.json({ error: "recoverable purchases require a valid X-Payment-Recovery token" }, { status: 400, headers: { "cache-control": "no-store" } });
   let result;
-  try { result = await store.recover(inspected); }
+  try {
+    const receivedStore = typeof store === "function" ? store() : store;
+    result = await receivedStore.recover(inspected);
+  }
   catch { return retryResponse(503, "purchase status is temporarily unavailable; retry this exact request shortly"); }
   if (result?.state === "complete") {
     const response = responseFromStored(result.response);
