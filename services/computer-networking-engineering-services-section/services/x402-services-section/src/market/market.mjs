@@ -1,4 +1,4 @@
-import { marketCatalogReadout, requestContract, DEFAULT_MAX_BODY_BYTES } from "./catalog.mjs";
+import { marketCatalogReadout, publicMarketCatalogReadout, requestContract, DEFAULT_MAX_BODY_BYTES } from "./catalog.mjs";
 export { marketCatalogReadout } from "./catalog.mjs";
 import { createWebApplication } from "@red-cup-engineering/computer-web-platform/application";
 import { admitCanonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
@@ -677,7 +677,7 @@ export function createMarket({
         // receiving. The public HTTP catalogue advertises only current
         // sellable operations; held and private candidates stay out of this
         // buyer-facing discovery route.
-        handler: () => Response.json(marketCatalogReadout(servedOffers.filter(publiclySaleableOffer), rails ?? {})),
+        handler: () => Response.json(publicMarketCatalogReadout(servedOffers, rails ?? {})),
       },
       {
         match: "/",
