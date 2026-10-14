@@ -78,6 +78,14 @@ writes their four declared dist/articulating products; the projection consumes
 that artifact boundary instead of transient Forge state. Complete producer,
 publication and immutable packed-byte receiving remain required.
 
+Native pre-install source admission now finds three destructured language exports
+that its module reader falsely classified as absent. Mandarin, Latin and English
+really export tagText through createTag. Normalize the shared corpus, introspection
+and documentation readers through the existing JavaScript binder. Preserve real
+binding identities and positions without inferring a callable signature for a
+factory property. The application installation is refused before effects while
+this current source transformation is qualified.
+
 Receive canonical Code110/111/112/114 source admission and native module generation.
 Group fabricates all declared module and TypeScript products before compilation
 and packing. SignChain's runtime sources and five tests are byte-identical to its
