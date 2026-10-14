@@ -624,6 +624,33 @@ fabrication. No data, journal, implementation or active supplier is removed by
 the dependency cut. Source publication remains separate from complete common
 construction and useful receiving.
 
+Native declared-source resolution completed for the whole221-owner closure;
+no selected internal supplier remains a published-range edge. Root1dcea6 commits
+the exact PNPM-produced lock49c9c9d5, replacing historical unselected resolution
+material. Its frozen pnpm11.28.5 installation received221 source owners and684
+external packages with supply policies intact. Native TypeScript emission records
+the actual JSON Schema and TOML products; catalogue freshness is then received.
+
+Complete declared-carrier compilation is refused on25 source bindings across
+HTTP structured-field/signature consumers, agent-development/knowledge carriers,
+harness setup, an inference exercise and sheaf forecasting. This is a complete
+source-construction refusal, not application health or business receiving. Keep
+that composition's assessment open; recover the whole provider/consumer contracts
+before changing implementations or retiring obsolete declarations. No app, actor,
+venue, order, payment, runtime packing or production operation ran.
+
+Receive current canonical Code109/Group18/19 through their actual owners.
+Code's current-demand acquisition hires Git58's bounded exact-blob batching,
+validates each returned object ID/type and does not use historical graphs as
+current admission. Group's existing fabrication operation emits the selected
+owners' configured TypeScript products before packing and compiles the packed
+closure; preparation hires the declared resolver through its verified supplier.
+These replace the manual generation/packing sequence that failed to order a
+catalogue consumer after TOML generation. No new orchestrator or protocol is
+introduced. The Root1dcea6 frozen installation and25-binding source refusal retain
+their exact earlier Code/Group custody; receiving newer tooling does not relabel
+those observations or qualify the outstanding full runtime.
+
 ## Native source custody and coherent package boundaries
 
 Code's bounded source acquisition now finishes in Git's native submodule
