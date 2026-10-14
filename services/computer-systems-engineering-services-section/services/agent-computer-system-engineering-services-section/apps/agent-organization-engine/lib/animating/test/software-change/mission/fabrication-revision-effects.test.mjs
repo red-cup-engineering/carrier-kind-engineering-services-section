@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
-import {runProgram,DEVELOPMENT_STAGES,readDevelopmentProducts} from '@red-cup-engineering/animating/software-change/mission';
+import {runProgram,DEVELOPMENT_STAGES,readDevelopmentProducts,developmentOperations} from '@red-cup-engineering/animating/software-change/mission';
 
 const qualifiedReview=request=>({kind:'software-development.construction-review',request:request.id,
  actor:'actor:independent-reviewer',office:'engineering#reviewer',decision:'admitted',
@@ -43,6 +43,50 @@ test('invalid native handoff stops once and requires an independently authored n
  assert.equal(result.outcome.verified,true);
  const {ItemSchema}=await import('file://'+join(f.root,'shape.mjs'));
  assert.equal(ItemSchema.properties.id.minLength,1);
+});
+
+
+test('a different office can authorize exact construction on a later session through native RPC',async t=>{
+ const f=fixture(t);const options={...f.options};
+ delete options.qualifyConstruction;
+ let asked=0;
+ const derivation=async(request,ports)=>{
+  asked++;await ports.handlers.read_product({limit:16384});
+  return {role:request.role,text:'Accepted '+request.role,unresolved:[],
+   ...(request.role==='artifact-specifications'?{product:valid}:{})};
+ };
+ const first=await runProgram(f.input,{...options,inquire:derivation});
+ assert.equal(first.status,'awaiting-design-review');
+ assert.equal(first.outcome.verified,false);
+ assert.equal(asked,DEVELOPMENT_STAGES.length);
+ assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
+ const held=readDevelopmentProducts(options.dataRoot,first.engineeringDesign.question);
+ assert.ok(held.some(p=>p.id===first.reviewRequest.id&&p.kind==='software-development.construction-review-request'));
+ let called=0;
+ const operations=developmentOperations({dataRoot:options.dataRoot},{softwareDevelopment:{
+  receiveConstructionReview:async ({subject,request,evidence})=>{
+   called++;
+   assert.equal(subject,'actor:independent-reviewer');
+   assert.equal(request.id,first.reviewRequest.id);
+   return {kind:'software-development.construction-review',request:request.id,
+    actor:subject,office:'red-cup-engineering#reviewing-office',decision:'admitted',evidence};
+  }
+ }});
+ const review=operations.find(op=>op.verb==='aoe-review-development-design');
+ assert.ok(review,'review must be an actual operation in the installed family');
+ const received=await review.execute({question:first.engineeringDesign.question,
+  request:first.reviewRequest.id,evidence:first.reviewRequest.checks.map(check=>({
+   check,source:first.reviewRequest.stages.at(-1).artifact
+  }))},undefined,{invocation:{subject:'actor:independent-reviewer'}});
+ assert.equal(received.request,first.reviewRequest.id);assert.equal(called,1);
+ const second=await runProgram(f.input,{...options,inquire:async()=>{throw new Error('old design must be reused rather than regenerated')}});
+ assert.equal(second.status,'applied');
+ assert.equal(second.outcome.verified,true);
+ assert.equal(asked,DEVELOPMENT_STAGES.length,'review does not repeat the model sequence');
+ const reviews=readDevelopmentProducts(options.dataRoot,first.engineeringDesign.question)
+  .filter(p=>p.kind==='software-development.construction-review');
+ assert.equal(reviews.length,1);
+ assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8').includes('minLength'),true);
 });
 
 test('a repeated unmodified refuted native handoff cannot change source',async t=>{
