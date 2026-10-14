@@ -9,7 +9,8 @@
     "./package.json": "./package.json",
     "./capability-lifecycle": "./src/capability-lifecycle.mjs",
     "./wire": "./src/wire.mjs",
-    "./obligation-driver": "./src/obligation-driver.mjs"
+    "./obligation-driver": "./src/obligation-driver.mjs",
+    "./klein-capacity-flow": "./src/klein-capacity-flow.mjs"
   },
   "files": [
     "src/*.mjs",
@@ -18,7 +19,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "oci:observe": "node scripts/launch-oracle-instance.mjs --observe-only",
-    "test:oci": "node --test test/oci-always-free-admission.test.mjs"
+    "test:oci": "node --test test/oci-always-free-admission.test.mjs",
+    "test:klein-capacity-flow": "node --test test/klein-capacity-flow.test.mjs"
   },
   "engines": {
     "node": ">=22.18"

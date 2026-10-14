@@ -148,14 +148,18 @@ export function forecastKleinCapacityFlow({
     for(let tick=0;tick<horizonTicks;tick++){
       for(const id of ids)queue[id]+=idMap.get(id).arrivalsPerTick;
       if(allowOffload){
+        // A received unit cannot be re-exported across a second border in
+        // the same tick. Every hop requires its own durable receiving event.
+        const sourceBudget={...queue};
         const pressure=id=>queue[id]/Math.max(1,idMap.get(id).servicePerTick);
         const edges=admissible.map(l=>({l,gap:pressure(l.from)-pressure(l.to)-l.latencyMilliseconds/tickMilliseconds}))
           .filter(e=>e.gap>0)
           .sort((a,b)=>b.gap-a.gap||a.l.from.localeCompare(b.l.from));
         for(const {l} of edges){
           const spare=Math.max(0,idMap.get(l.to).servicePerTick-queue[l.to]);
-          const count=Math.min(queue[l.from],spare,l.maxTransfersPerTick);
+          const count=Math.min(sourceBudget[l.from],spare,l.maxTransfersPerTick);
           if(count<=0)continue;
+          sourceBudget[l.from]-=count;
           queue[l.from]-=count;queue[l.to]+=count;
           const key=l.from+"→"+l.to;sent.set(key,(sent.get(key)??0)+count);
         }
