@@ -81,7 +81,7 @@ export function returnedResourceResult(result) {
 function resourceTiles(reading, { route, query, sender, request, outcomeHref, evidence }) {
   const tiles = [{ title: 'Source of this reading', span: 12,
     content: `${reading.path} · ${reading.type} · ${reading.corner} · ${reading.rung}. Returned by ${sender}. Request ${request}.`,
-    links: [{ href: outcomeHref, label: 'Read the full operation outcome' }, { href: url(route, { recipient: sender, path: reading.path, corner: reading.corner }), label: 'Prepare an updated reading' },
+    links: [{ href: outcomeHref, label: 'Read the full operation outcome' }, { href: url(route, { view: 'received', recipient: sender, path: reading.path, corner: reading.corner }), label: 'Prepare an updated reading' },
       ...Object.entries(LENSES).filter(([view]) => view !== route).map(([view, label]) => ({ href: url(view, Object.fromEntries(query)), label: `View as ${label.toLowerCase()}` }))] }];
   let status = 200, manifest;
   try { const parsed = JSON.parse(reading.content); if (parsed?.kind === 'metroplat.directory-manifest' && parsed.files && typeof parsed.files === 'object' && !Array.isArray(parsed.files)) manifest = parsed; } catch { /* A prose or code resource is not a JSON manifest. */ }
@@ -112,7 +112,7 @@ export function resourceWorkspaceApp({ runAs, navigation, navigationTitle }) {
         { href: url(route, { view: 'source' }), label: 'Read admitted repository source' },
         { href: url(route, { view: 'received' }), label: 'Read resources returned by actors' },
       ] });
-      if (ctx.req.method === 'GET' && (query.get('view') === 'source' || route === '/code' && query.get('view') !== 'received' && !query.has('request') && !query.has('responder') && !query.has('message') && !query.has('cursor'))) {
+      if (ctx.req.method === 'GET' && (query.get('view') === 'source' || route === '/code' && query.get('view') !== 'received' && !query.has('recipient') && !query.has('request') && !query.has('responder') && !query.has('message') && !query.has('cursor'))) {
         const result = await sourceWorkspace(runAs, subject, route, query, ctx.signal); tiles.push(...result.tiles); status = result.status; return page();
       }
       tiles.push({ title: `Read ${label.toLowerCase()} from an actor`, span: 6, form: {
@@ -124,6 +124,7 @@ export function resourceWorkspaceApp({ runAs, navigation, navigationTitle }) {
           ] },
         ], submitters: [{ label: 'Request resource reading' }],
       } }, { title: 'Find returned resources', span: 6, form: { action: route, method: 'get', fields: [
+        { name: 'view', kind: 'hidden', value: 'received' },
         { name: 'q', label: 'Words in resource paths on this page', value: query.get('q') ?? '' },
       ], submitters: [{ label: 'Find resources' }] } });
       if (ctx.req.method === 'POST') {
