@@ -1,13 +1,43 @@
 {
-  "type": "NodeRuntimeWorkspaceSelectionCommandReceipt",
-  "version": 1,
-  "commit": "ff8ec4a69e337126f7eeefd3edb0e5cb8bf5c501",
-  "executable": "pnpm",
-  "arguments": [
-    "--filter",
-    "@red-cup-engineering/metroplat",
-    "run",
-    "check:operation-family-descriptors"
+  "type": "MetroplatOperationCatalogueConstruction",
+  "sourceCommit": "4182fb8eaa65d98cd24603fae2b618a2ed2f49c8",
+  "metroplatImporter": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat",
+  "constructor": "scripts/generate-operation-family-descriptors.mjs",
+  "constructorSha256": "6b31a431866f6e4fbe160af7beb0df77b0faa9b08a8d96336256be965503deb5",
+  "productSha256": "eaec4dd620117cde49c6fb626d500d66f5bc925056ba4b4471f169579354ddd9",
+  "families": 61,
+  "operations": 263,
+  "changes": [
+    {
+      "family": "@red-cup-engineering/metroplat/integrations/filesystem",
+      "added": [],
+      "removed": [],
+      "changed": [
+        "read",
+        "write"
+      ]
+    },
+    {
+      "family": "@red-cup-engineering/metroplat/workspace-readout",
+      "added": [],
+      "removed": [],
+      "changed": [
+        "workspace-file-replace",
+        "workspace-file-slice",
+        "workspace-file-window",
+        "workspace-text-search"
+      ]
+    },
+    {
+      "family": "@red-cup-engineering/metroplat/world",
+      "added": [],
+      "removed": [],
+      "changed": [
+        "world-command",
+        "world-journal"
+      ]
+    }
   ],
-  "sourceConfigurationUnchanged": true
+  "applicationExecuted": false,
+  "operatingReceiving": false
 }

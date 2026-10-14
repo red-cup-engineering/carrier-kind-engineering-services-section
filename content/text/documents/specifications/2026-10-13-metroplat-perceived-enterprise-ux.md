@@ -105,11 +105,20 @@ The Data grammar names all28 exports of genuine http-structured-fields1.0.0;
 native interface comparison receives the complete vendor boundary without a parser
 fork. The three current receipts are in the existing evidence directory.
 
-These are source and isolated configuration findings. The earlier full compilation
-refusal remains attached to its exact1dcea6 candidate. No later common construction,
-application, inference purchase, HTTP-signature receiving or live guard qualification
-is claimed. Remaining native development compute, weighted measurement, industrial
-and enterprise workflows, machine receiving and public entrances remain owed.
+Native current resolution received221 owners and produced lock77bfafeb. Fixed
+Root4182fb8 received that closure with scripts ignored and supply policies intact;
+its actual Code supplier emitted the JSON Schema and TOML products. The native
+catalogue constructor retained all263 operations and updated eight filesystem,
+repository and World descriptors. Its exact output is adopted by MetroPlat.
+Group Engineering PR21 hires construction tools from its own declared suppliers,
+independently of the target application's runtime graph.
+
+These receipts qualify source installation and generation, not a packed runtime
+or operating delivery. The earlier full compilation refusal remains attached to
+its exact1dcea6 candidate. Native development compute, weighted measurement,
+industrial and enterprise workflows, machine receiving, accessibility receiving
+and public entrances remain owed. No inference purchase, HTTP-signature receiving
+or live guard qualification is claimed.
 
 ## Requirements and recovered sources
 
