@@ -1,6 +1,6 @@
 {
   "name": "@lenticule-science/astronomy-position-computation-service",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "type": "module",
   "description": "Pure, provenance-carrying geocentric ecliptic position computation for astronomy consumers.",
   "engines": {
@@ -28,3 +28,4 @@
   },
   "sideEffects": false
 }
+
