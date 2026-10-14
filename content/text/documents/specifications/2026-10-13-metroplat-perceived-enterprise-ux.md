@@ -604,6 +604,26 @@ Schema/TOML build products through their existing construction owner before
 sealing, without adding a hand-maintained payload exemption.
 
 
+The continuing source audit found ten remaining published internal ranges in
+Polymarket, semantic identity, RMN evaluation and typing. Prior normalization
+proposals changed only part of those families. Receive the original proposals,
+actual diffs and discussion; bind these remaining consumers to the genuine
+selected workspace owners. JSNode's selected version is 0.3.1-dev.0, so its
+actual definition/streams/disposition interface was inspected against the
+Polymarket callers rather than inventing a published 0.3.0 artifact. No venue,
+credential, order or payment operation runs during this source work. Polymarket5,
+Semantic Identity9 and continued RMN6 carry these source changes.
+
+Reconcile current canonical Data37faf63 through a normal merge, retaining this
+branch's canonical JSON ports, adjacent declarations, Schema admission and native
+SignCell projections. This receives Data167's fifteen unused declarations across
+ten owners and Data169's actual TOML generated-output publication files. The two
+declared direct TypeScript producers are JSON Schema and TOML. Their own compiler
+configurations, exported outputs and publication selection were inspected before
+fabrication. No data, journal, implementation or active supplier is removed by
+the dependency cut. Source publication remains separate from complete common
+construction and useful receiving.
+
 ## Native source custody and coherent package boundaries
 
 Code's bounded source acquisition now finishes in Git's native submodule
