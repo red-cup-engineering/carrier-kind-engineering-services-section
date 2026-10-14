@@ -33,9 +33,9 @@ export function workspaceDocument({ title, tiles, navigation = WORKSPACE_LINKS, 
 export const evidenceTile = (title, value) => ({ title, span: 12,
   html: `<details><summary>${escapeHtml(title)}</summary><pre>${escapeHtml(JSON.stringify(value, null, 2))}</pre></details>` });
 
-export function contentTile(title, content, { code = false, id = 'source', span = 12 } = {}) {
+export function contentTile(title, content, { code = false, id = 'source', span = 12, lines } = {}) {
   const html = code
-    ? `<pre class="workspace-code" aria-label="Source with line numbers"><code>${String(content).split('\n').map((line, i) => `<span id="${escapeHtml(id)}-L${i + 1}"><a href="#${escapeHtml(id)}-L${i + 1}" aria-label="Line ${i + 1}">${i + 1}</a>${escapeHtml(line)}</span>`).join('\n')}</code></pre>`
+    ? `<pre class="workspace-code" aria-label="Source with line numbers"><code>${(lines ?? String(content).split('\n').map((text, i) => ({ number: i + 1, text }))).map(line => `<span id="${escapeHtml(id)}-L${escapeHtml(String(line.number))}"><a href="#${escapeHtml(id)}-L${escapeHtml(String(line.number))}" aria-label="Line ${escapeHtml(String(line.number))}">${escapeHtml(String(line.number))}</a>${escapeHtml(line.text)}</span>`).join('\n')}</code></pre>`
     : `<div class="workspace-content">${escapeHtml(content)}</div>`;
   return { title, span, html };
 }

@@ -61,8 +61,10 @@ now require source assessment of the complete selected consumer/supplier
 composition before construction. The source-only harness index places methods
 first, links complete office/duty records, and includes recursively referenced
 local method sources in freshness custody. The actual primary projection received
-108 source digests, including development intake; a second projection was already
-current. This receives source context only: native `rules` remains unavailable to
+108 source digests, including development intake. A subsequent projection
+detected concurrent source changes. Both distinct generation/publication and
+supplier admission obligations were retained after their source was reconciled.
+Unresolved merge markers now refuse projection before replacing the briefing. This receives source context only: native `rules` remains unavailable to
 the authenticated account, and neither context nor partial compilation qualifies
 the public UX. Original enterprise workflows remain the delivery boundary.
 
@@ -321,6 +323,30 @@ Node module hook without writing the held catalogue, and stages a complete
 replacement before publication; receiving
 the actual refusal preserved the prior artifact's bytes. Current catalogue
 freshness, full frozen release and machine receiving remain owed.
+
+Source inspection now selects the existing host-admitted repository or duty
+worktree directly from `/code`, with equivalent source views under knowledge and
+resources. It renders the native file-slice line numbers and exact content
+address, searches one bounded source snapshot, opens a match at its original
+line, and pages source lines. Larger files use the existing 32-KiB byte-window
+owner; continuation carries its exact witnessed revision and refuses changed
+source. The source owner retains original actor/context and capacity admission;
+this presentation introduces no filesystem read, directory scan or standing.
+Returned actor resources and exact asynchronous reply views retain their routes.
+The common code tile accepts native numbered lines rather than maintaining a
+second source renderer. Input errors retain the source form; upstream refusals
+remain distinct. Native forms and links work without client JavaScript.
+
+The receiving boundary is the completed console/release composition followed
+by an admitted source read, search-to-line navigation and same-revision large-file
+continuation under the actual caller. Source syntax and diff review are complete;
+that end-to-end receiving and public promotion remain owed. The design uses the
+current W3C cognitive pattern for consistent controls and WCAG 2.2 focus/help
+requirements (retrieved 2026-10-13):
+https://www.w3.org/WAI/WCAG2/supplemental/patterns/o1p03-consistent-design/,
+https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html,
+https://www.w3.org/WAI/WCAG22/Understanding/consistent-help.html.
+These sources guide the design; they do not establish accessibility conformance.
 
 ## Direct enterprise workspaces
 

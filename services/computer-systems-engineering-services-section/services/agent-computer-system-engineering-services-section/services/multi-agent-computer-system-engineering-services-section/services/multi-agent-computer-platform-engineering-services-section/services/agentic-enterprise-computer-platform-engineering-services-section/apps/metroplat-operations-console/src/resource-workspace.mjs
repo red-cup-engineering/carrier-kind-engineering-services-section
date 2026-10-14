@@ -7,6 +7,65 @@ import { readPrivateInbox, readCorrelatedReply, operationResultTiles, sendPrivat
 const LENSES = { '/code': 'Code', '/knowledge': 'Knowledge', '/resources': 'Resources' };
 const url = (route, params) => `${route}?${new URLSearchParams(params)}`;
 
+/** Presentation of the existing host-admitted source operations. The host owns
+ * source selection, capacity, actor authority and reading; the UI never opens files. */
+async function sourceWorkspace(runAs, subject, route, query, signal) {
+  const path = query.get('path') ?? '', duty = query.get('duty') ?? '';
+  const mode = query.get('mode') ?? 'lines', words = query.get('q') ?? '';
+  const tiles = [{ title: 'Open source', span: 12, form: {
+    action: route, method: 'get', fields: [
+      { name: 'view', kind: 'hidden', value: 'source' },
+      { name: 'path', label: 'Exact file path in the admitted repository', value: path, required: true },
+      { name: 'duty', label: 'Duty worktree (optional)', value: duty },
+      { name: 'q', label: 'Find words in this file (optional)', value: words },
+      { name: 'mode', kind: 'select', label: 'Read as', value: mode, options: [{ value: 'lines', label: 'Numbered source lines' }, { value: 'window', label: 'Byte window for large files' }] },
+    ], submitters: [{ label: 'Read source' }],
+  } }];
+  if (!path) return { tiles, status: 200 };
+  let admitted = false;
+  try {
+    if (path.length > 512 || path.includes('\0') || duty.length > 512 || duty.includes('\0') || words.length > 1024 || !['lines', 'window'].includes(mode)) throw new TypeError('Use a bounded file path, duty and search query.');
+    const input = { scope: 'repository', path, ...(duty ? { duty } : {}) };
+    const integer = (name, fallback) => {
+      const value = query.has(name) ? Number(query.get(name)) : fallback;
+      if (!Number.isSafeInteger(value) || value < (name === 'startLine' ? 1 : 0)) throw new TypeError(`Choose a valid ${name}.`);
+      return value;
+    };
+    let verb;
+    if (words.trim()) { verb = 'workspace-text-search'; input.query = words; input.limit = 50; }
+    else if (mode === 'window') {
+      verb = 'workspace-file-window'; input.byteOffset = integer('byteOffset', 0); input.byteCount = 32768;
+      if (query.has('expected')) {
+        if (!/^[a-f0-9]{64}$/.test(query.get('expected'))) throw new TypeError('The continuation revision is invalid.');
+        input.expected = query.get('expected');
+      }
+    } else { verb = 'workspace-file-slice'; input.startLine = integer('startLine', 1); input.lineCount = 100; }
+    admitted = true;
+    const reading = await runAs(subject, verb, input);
+    tiles.push(evidenceTile('Source reading and host evidence', reading));
+    const link = (values, label) => ({ href: url(route, { view: 'source', path, ...(duty ? { duty } : {}), ...values }), label });
+    if (reading?.kind === 'workspace.read:obstruction' || reading?.kind === 'workspace.source-snapshot:obstruction') {
+      tiles.unshift({ title: 'Source unavailable', span: 12, content: reading.message ?? reading.reason,
+        links: [link({}, 'Reselect this source'), link({ mode: 'window' }, 'Read a bounded byte window')] });
+      return { tiles, status: 502 };
+    }
+    if (verb === 'workspace-text-search' && reading?.kind === 'metroplat.filesystem.workspace-text-search-readout' && Array.isArray(reading.matches)) {
+      tiles.push({ title: 'Matches in this source', span: 12, content: `Source ${reading.contentAddress}. ${reading.truncated ? 'The result limit was reached.' : 'This bounded search is complete.'}`,
+        table: { caption: `Words in ${reading.pathPrefix ?? path}`, columns: [{ label: 'Line', rowHeader: true }, 'Source'],
+          rows: reading.matches.map(match => [{ text: String(match.line), href: url(route, { view: 'source', path: match.path, ...(duty ? { duty } : {}), startLine: Math.max(1, match.line - 5) }) + `#source-L${match.line}` }, match.text]), empty: 'No matching lines in this source snapshot.' } });
+    } else if (verb === 'workspace-file-slice' && reading?.kind === 'metroplat.filesystem.workspace-file-slice-readout' && Array.isArray(reading.lines)) {
+      tiles.push(contentTile(reading.path, '', { code: true, lines: reading.lines }), { title: 'Position in this source', span: 12, content: `Source ${reading.contentAddress}. Each page reports the source it read.`,
+        links: [...(reading.truncatedBefore ? [link({ startLine: Math.max(1, reading.startLine - 100) }, 'Previous source lines')] : []),
+          ...(reading.truncatedAfter ? [link({ startLine: reading.startLine + reading.lineCount }, 'Next source lines')] : [])] });
+    } else if (verb === 'workspace-file-window' && reading?.kind === 'metroplat.filesystem.workspace-file-window-readout' && typeof reading.source === 'string') {
+      tiles.push(contentTile(reading.path, reading.source), { title: 'Position in this file', span: 12,
+        content: `Bytes ${reading.byteOffset}–${reading.byteOffset + reading.byteCount}. Window ${reading.contentAddress}. Revision ${reading.revision}.`,
+        links: [...(reading.eof ? [] : [link({ mode: 'window', byteOffset: reading.nextByteOffset, expected: reading.revision }, 'Continue at the same file revision')]), link({ mode: 'window' }, 'Reselect from the beginning')] });
+    } else throw new TypeError('The source owner did not return the requested reading.');
+    return { tiles, status: 200 };
+  } catch (error) { if (signal?.aborted) throw error; tiles.push({ title: admitted ? 'Source could not be read' : 'Check the source selection', span: 12, content: error.message }); return { tiles, status: admitted ? 502 : 400 }; }
+}
+
 /** A returned resource remains its sender's reading; this view supplies no host access. */
 export function returnedResource(entry) {
   return entry.kind === 'metroplat.dispatch.result' ? returnedResourceResult(entry.value?.result) : undefined;
@@ -49,6 +108,13 @@ export function resourceWorkspaceApp({ runAs, navigation, navigationTitle }) {
       const tiles = []; let status = 200;
       const page = () => htmlRepr(workspaceDocument({ title: status >= 400 ? `Error: ${label}` : label, tiles, navigation, navigationTitle,
         subtitle: 'Browse returned native resources, preserve their source, and request an updated reading' }), { status, cacheControl: { noStore: true } });
+      tiles.push({ title: 'Resource views', span: 12, links: [
+        { href: url(route, { view: 'source' }), label: 'Read admitted repository source' },
+        { href: url(route, { view: 'received' }), label: 'Read resources returned by actors' },
+      ] });
+      if (ctx.req.method === 'GET' && (query.get('view') === 'source' || route === '/code' && query.get('view') !== 'received' && !query.has('request') && !query.has('responder') && !query.has('message') && !query.has('cursor'))) {
+        const result = await sourceWorkspace(runAs, subject, route, query, ctx.signal); tiles.push(...result.tiles); status = result.status; return page();
+      }
       tiles.push({ title: `Read ${label.toLowerCase()} from an actor`, span: 6, form: {
         action: route, method: 'post', enhance: false, fields: [
           { name: 'recipient', label: 'Actor holding the resource', value: params.get('recipient') ?? '', required: true },
