@@ -19,3 +19,16 @@ test("other resources and contradictory inline terms are refused rather than ren
  for(const url of ["https://other.test/v1/four/reading-convert","https://market.561.group/v1/other","http://node-market.561.group:8087/v1/four/reading-convert"]){const out=await projectProxyResponse(response({...challenge,resource:{...challenge.resource,url}}),{publicUrl:endpoint});assert.equal(out.status,502);}
  const inline={...challenge,accepts:[{...challenge.accepts[0],amount:"999999"}]};assert.equal((await projectProxyResponse(response(challenge,JSON.stringify(inline)),{publicUrl:endpoint})).status,502);
 });
+
+test("missing and oversized upstream payment-required headers fail closed",async()=>{
+ const missing=new Response("payment needed",{status:402,headers:{"content-type":"text/plain"}});
+ const absent=await projectProxyResponse(missing,{publicUrl:endpoint});
+ assert.equal(absent.status,502);
+ assert.equal(absent.headers.get("payment-required"),null);
+ const oversized=new Response("oversized",{status:402,headers:{"payment-required":"A".repeat(65_537)}});
+ const refused=await projectProxyResponse(oversized,{publicUrl:endpoint});
+ assert.equal(refused.status,502);
+ assert.equal(refused.headers.get("payment-required"),null);
+ const empty=new Response("empty",{status:402,headers:{"payment-required":""}});
+ assert.equal((await projectProxyResponse(empty,{publicUrl:endpoint})).status,502);
+});
