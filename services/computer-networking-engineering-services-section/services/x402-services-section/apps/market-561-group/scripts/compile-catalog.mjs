@@ -12,14 +12,7 @@ import { declareCatalog } from "../../../src/offer.mjs";
 import { catalogDeclarations as readCatalogDeclarations } from "../src/catalog-source.mjs";
 import source from "../../../data/market-561-group/records/catalog.json" with { type: "json" };
 
-// The integrated forest still provides this known source composition. A
-// package installed elsewhere has no authority to infer another source tree.
-const forestDelimiter = "/lib/emsenn/services/";
-const forestIndex = import.meta.filename.indexOf(forestDelimiter);
-const integratedSourceRoot = forestIndex < 0 ? undefined : import.meta.filename.slice(0, forestIndex);
-// Preserve the compiler's existing source-backed API while the reusable
-// reader receives its records and composition explicitly.
-export function catalogDeclarations({ records = source, read, sourceRoot = integratedSourceRoot } = {}) {
+export function catalogDeclarations({ records = source, read, sourceRoot } = {}) {
   return readCatalogDeclarations({ records, read, sourceRoot });
 }
 // The rails market-561-group's deployment settles on (marketEnvironment's default network and its
@@ -124,7 +117,7 @@ export async function generateCatalogProducts({ sourceRoot, read, now, previousD
 
 await runMain(async () => {
   const { values } = parseArgs({ options: { "previous-catalog": { type: "string" }, "previous-outbox": { type: "string" }, "source-root": { type: "string" } } });
-  const sourceRoot = values["source-root"] ?? integratedSourceRoot;
+  const sourceRoot = values["source-root"];
   const result = await generateCatalogProducts({ sourceRoot, now: new Date().toISOString(),
     previousDeclarations: values["previous-catalog"] ? JSON.parse(await readFileText(resolve(values["previous-catalog"]))) : [],
     previousOutbox: values["previous-outbox"] ? JSON.parse(await readFileText(resolve(values["previous-outbox"]))) : [] });
