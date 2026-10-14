@@ -37,6 +37,35 @@ class FetchAdapter {
   getQueryParam(name) { return this.#url.searchParams.get(name) ?? undefined; }
 }
 
+/** The network payment boundary is an effectful observer, unlike its pure
+ * priced operations. Read only available Node process counters; Cloudflare
+ * Workers and other hosts without these counters retain an unknown reading.
+ * Deltas include concurrent activity and are NOT per-call CPU charges. */
+function processWindowSnapshot() {
+  if (typeof process === "undefined" || typeof process.cpuUsage !== "function" ||
+      typeof process.memoryUsage !== "function") return null;
+  try {
+    const cpu = process.cpuUsage();
+    const rss = process.memoryUsage().rss;
+    if (![cpu.user, cpu.system, rss].every(Number.isSafeInteger)) return null;
+    return { cpu, rss };
+  } catch { return null; }
+}
+
+function processWindowReading(start, end) {
+  if (!start || !end || end.cpu.user < start.cpu.user ||
+      end.cpu.system < start.cpu.system) return null;
+  return Object.freeze({
+    scope: "whole-process-during-response-preparation",
+    requestAttributable: false,
+    userCpuMicroseconds: String(end.cpu.user - start.cpu.user),
+    systemCpuMicroseconds: String(end.cpu.system - start.cpu.system),
+    rssBeforeBytes: String(start.rss),
+    rssAfterBytes: String(end.rss),
+    peakRssMeasured: false,
+  });
+}
+
 /** Project one official `HTTPResponseInstructions` result into a Fetch API `Response`. */
 function toResponse({ status, headers, body, isHtml }) {
   const responseHeaders = new Headers(headers ?? {});
@@ -161,6 +190,7 @@ function createEvmFetchPaymentBoundary({
       // verification, settlement and buyer receiving. This is elapsed time,
       // not CPU/provider cost or customer demand.
       const preparationStarted = performance.now();
+      const processBefore = processWindowSnapshot();
       let handlerResponse;
       try {
         handlerResponse = await respond(request);
@@ -188,10 +218,13 @@ function createEvmFetchPaymentBoundary({
       const responseHeaders = Object.fromEntries(handlerResponse.headers);
       const deliveredHeaders = new Headers(handlerResponse.headers);
       deliveredHeaders.delete(SETTLEMENT_OVERRIDES_HEADER);
+      const processUsageWindow = processWindowReading(processBefore, processWindowSnapshot());
       const responsePreparation = {
         basis: "server-response-preparation",
         elapsedMs: Math.max(0, Math.ceil(performance.now() - preparationStarted)),
         includes: ["handler", "response-body-read"],
+        ...(processUsageWindow === null ? {} : { processUsageWindow }),
+        // A process-wide sample is not attributable CPU, cost or energy.
         measuredCpu: false, measuredMonetaryCost: false, measuredPhysicalEnergy: false,
       };
       if (claim !== undefined) {
