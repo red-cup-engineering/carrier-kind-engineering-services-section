@@ -87,7 +87,21 @@ if (ids.some((id) => typeof id !== "string" || !id) || new Set(ids).size !== ids
 const instances = [], containerInstances = [];
 for (const id of ids) {
   const containers = receiveOciContainerCollection(await ociJson("container-instances", "container-instance", "list", "--compartment-id", id, "--all"));
-  containerInstances.push(...containers);
+  for (const container of containers) {
+    if (container.shape === "CI.Standard.A1.Flex" &&
+        !["TERMINATED", "DELETED"].includes(container["lifecycle-state"])) {
+      // ListContainerInstances omits resource details in some API revisions.
+      // Confirm every active shared-quota user's *actual* shape allocation
+      // from GetContainerInstance; a missing or conflicting receipt refuses.
+      const observed = (await ociJson("container-instances", "container-instance", "get",
+        "--container-instance-id", container.id)).data;
+      if (observed?.id !== container.id || observed.shape !== container.shape ||
+          !observed["shape-config"]) {
+        throw new TypeError("OCI A1 container detail does not match the inventory");
+      }
+      containerInstances.push({ ...container, "shape-config": observed["shape-config"] });
+    } else containerInstances.push(container);
+  }
   const rows = (await ociJson("compute", "instance", "list", "--compartment-id", id, "--all")).data;
   if (!Array.isArray(rows)) throw new Error("OCI instances inventory is incomplete");
   for (const instance of rows) {
