@@ -507,7 +507,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       network: requireNetwork(network),
       asset: requireAddress(asset, "the settlement asset"),
       payTo: requireAddress(payTo, "the payout address"),
-      listed: declaration.listed ?? true,
+      listed: publiclySaleableOffer({ declaration }),
     });
   }
 
