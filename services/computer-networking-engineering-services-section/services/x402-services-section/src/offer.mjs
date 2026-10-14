@@ -385,6 +385,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
    * discovery extension carrying `input.method` and `routeTemplate`.
    */
   function x402Route({ framing, payTo, network, asset, assetExtra } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot issue x402 payment requirements");
     const selected = selectFraming(declaration, framing);
     const routeTemplate = declaration.route.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/gu, ":$1");
     const parameterized = routeTemplate !== declaration.route;
@@ -416,6 +417,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
    * no rails.
    */
   function index402Registration({ framing, provider, paymentAsset, paymentNetwork, contactEmail } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot be registered as a payable API");
     if (typeof declaration.price !== "string") throw new TypeError("402index requires a declared dollar price; a native asset price has no implicit USD rate");
     const selected = selectFraming(declaration, framing);
     return Object.freeze({
@@ -436,6 +438,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
 
   /** Derive this offer's `org.emsenn.capability-offer.v3` object. */
   function capabilityOffer({ network, asset, agentCard, expiresAt, coordinates = {} } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot publish an ActivityPub capability Offer");
     requirePriceRails(declaration.price, network, asset);
     if (typeof agentCard !== "string" || agentCard === "") throw new TypeError("capability offer requires the provider's A2A agent card URL");
     if (!ISO_INSTANT.test(expiresAt ?? "")) throw new TypeError("capability offer requires expiresAt as one ISO-8601 UTC instant");
