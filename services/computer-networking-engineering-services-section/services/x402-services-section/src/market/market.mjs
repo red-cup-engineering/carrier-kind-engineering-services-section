@@ -219,7 +219,7 @@ const CAPABILITY_ACTOR_IDENTIFIER = "market";
  * Offers of the offers this face answers, so a peer node discovers what the market sells the way
  * it discovers any actor (WebFinger, then the actor, then its outbox), with nothing to sign.
  */
-function capabilityActorResources(servedOffers, capabilityOutbox, { name }) {
+function capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }) {
   const served = new Set(servedOffers.filter((offer) => publiclySaleableOffer(offer)).map((offer) => offer.routeKey));
   const activities = capabilityOutbox.filter((entry) => served.has(entry.routeKey)).map((entry) => entry.activity);
   if (activities.length === 0) return [];
@@ -234,7 +234,9 @@ function capabilityActorResources(servedOffers, capabilityOutbox, { name }) {
       handler: () => activityJson({
         "@context": "https://www.w3.org/ns/activitystreams", id: actor, type: "Service",
         preferredUsername: CAPABILITY_ACTOR_IDENTIFIER, name, url: `${origin}/`,
-        summary: `The x402 market of the 561 Group: ${activities.length} capability offers, each payable per call in USDC on Base.`,
+        summary: rails?.network && rails?.asset
+          ? `The x402 market of the 561 Group: ${activities.length} capability offers; check each exact x402 quote on ${rails.network} using asset ${rails.asset}.`
+          : `The x402 market of the 561 Group: ${activities.length} capability offers; settlement rails are not yet configured, so inspect each official x402 quote.`,
         outbox,
         attachment: { type: "Link", name: "A2A Agent Card", mediaType: "application/json", href: `${origin}${AGENT_CARD_ROUTE}` },
       }),
@@ -691,7 +693,7 @@ export function createMarket({
         handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin }),
           { status: 200, headers: { "content-type": "text/markdown; charset=utf-8" } }),
       },
-      ...capabilityActorResources(servedOffers, capabilityOutbox, { name }),
+      ...capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }),
       {
         match: CATALOG_ROUTE,
         methods: ["GET"],

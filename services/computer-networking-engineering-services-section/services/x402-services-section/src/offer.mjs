@@ -61,7 +61,18 @@ function atomicPrice(price) {
 }
 
 function requirePriceRails(price, network, asset) {
-  if (typeof price === "string") return;
+  if (typeof price === "string") {
+    // A dollar-denominated quote is only a valid six-decimal asset amount
+    // when the official network registry confirms its default settlement
+    // asset. A house Besu token or unknown ERC-20 has no inferred USD peg.
+    let known;
+    try { known = getDefaultAsset(network); } catch { /* native rail */ }
+    if (known?.decimals !== USDC_DECIMALS ||
+        known.address?.toLowerCase() !== asset?.toLowerCase()) {
+      throw new TypeError("nondefault settlement assets require exact CAIP-19 atomic offer prices, not dollar-string conversion");
+    }
+    return;
+  }
   const owned = atomicPrice(price);
   if (owned.network !== network || owned.asset !== asset?.toLowerCase()) {
     throw new TypeError("native offer price does not match the deployment's network and asset");
@@ -139,7 +150,6 @@ function paymentAssetAmount(amount, asset, network, assetExtra, price) {
   let known;
   try { known = getDefaultAsset(network); } catch { /* custom network */ }
   if (known?.address.toLowerCase() === asset.toLowerCase()) {
-    if (typeof price === "string" && known.decimals !== USDC_DECIMALS) throw new TypeError("offer prices require a six-decimal settlement asset");
     return {
       amount, asset,
       extra: {

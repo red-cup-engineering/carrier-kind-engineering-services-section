@@ -123,7 +123,18 @@ test("a standard x402 client can sign the quoted token domain and receive its pu
     ["eip155:8453", `0x${"22".repeat(20)}`, "Custom USD", "1"],
   ]) {
     const facilitator = paidFacilitator({}, network);
-    const market = demoMarket({ env: { ...ENV, X402_NETWORK: network, X402_ASSET: asset, X402_ASSET_NAME: name, X402_ASSET_VERSION: version }, facilitatorClient: facilitator });
+    const isCustom = asset.toLowerCase() === ("0x" + "22".repeat(20));
+    const atomic = value => ({ amountAtomic: value,
+      asset: network + "/erc20:" + asset.toLowerCase() });
+    const market = demoMarket({
+      ...(isCustom ? { catalog: [
+        postDeclaration({ price: atomic("20000") }),
+        getDeclaration({ price: atomic("10000") }),
+      ] } : {}),
+      env: { ...ENV, X402_NETWORK: network, X402_ASSET: asset,
+        X402_ASSET_NAME: name, X402_ASSET_VERSION: version },
+      facilitatorClient: facilitator,
+    });
     const url = "https://market.test/v1/lookup?n=7";
     const unsigned = await market.fetch(new Request(url));
     assert.equal(unsigned.status, 402);

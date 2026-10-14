@@ -69,6 +69,26 @@ function getDeclaration(overrides = {}) {
   };
 }
 
+test("nondefault and Besu assets use native atomic units rather than invented USD parity", () => {
+  const nondefault = "0x" + "22".repeat(20);
+  const privateChain = "eip155:5615611";
+  const customRails = { network: privateChain, asset: nondefault, payTo: PAY_TO,
+    assetExtra: { name: "Semiotic Settlement Unit", version: "1" } };
+  const dollarOffer = declareOffer(getDeclaration());
+  assert.throws(() => dollarOffer.x402Route(customRails), /exact CAIP-19 atomic/u);
+  assert.throws(() => dollarOffer.x402Route({ ...RAILS, asset: nondefault,
+    assetExtra: customRails.assetExtra }), /exact CAIP-19 atomic/u);
+  const atomicOffer = declareOffer(getDeclaration({
+    price: { amountAtomic: "1200", asset: privateChain + "/erc20:" + nondefault },
+  }));
+  const entry = atomicOffer.x402Route(customRails)["GET /base/gas-oracle"].accepts[0];
+  assert.equal(entry.network, privateChain);
+  assert.equal(entry.payTo, PAY_TO);
+  assert.deepEqual(entry.price, {
+    amount: "1200", asset: nondefault, extra: customRails.assetExtra,
+  });
+});
+
 test("priceAtomicUnits converts dollar strings to six-decimal atomic units", () => {
   assert.equal(priceAtomicUnits("$0.05"), "50000");
   assert.equal(priceAtomicUnits("$0.01"), "10000");
