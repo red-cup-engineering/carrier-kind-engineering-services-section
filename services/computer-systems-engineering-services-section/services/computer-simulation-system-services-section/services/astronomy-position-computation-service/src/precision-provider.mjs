@@ -1,9 +1,8 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
+import { executePinnedOxiEphemeris } from "./precision-runtime.mjs";
 import { ASTRONOMY_POSITION_ACCURACY_DEGREES, computeAstronomyPositions, normalizeInstant } from "./astronomy-positions.mjs";
 import { BODIES } from "./positions.mjs";
 
-const executeFile = promisify(execFile);
+const verifiedCharts = new WeakMap();
 export const PRECISION_RANGE = Object.freeze({ minYear: 1972, maxYear: 2050 });
 export const DE440_SHA256 = "29915576d0a6555766b99485ac3056ee415e86df4fce282611c31afb329ad062";
 export const OXIEPHEMERIS_VERSION = "0.1.1";
@@ -36,8 +35,15 @@ export function oxiEphemerisArguments(request, ephemerisFile) {
 export async function executeOxiEphemeris(request, runtime = process.env) {
   const binary = runtime.OXIEPH_BIN || "oxieph";
   if (!runtime.OXIEPH_DE) throw new Error("OXIEPH_DE must name the pinned JPL DE440 classic-binary ephemeris file");
-  const { stdout } = await executeFile(binary, oxiEphemerisArguments(request, runtime.OXIEPH_DE), { encoding: "utf8", maxBuffer: 8 * 1024 * 1024, timeout: 15_000 });
-  return JSON.parse(stdout);
+  const { chart, identity } = await executePinnedOxiEphemeris({
+    binary, ephemerisFile: runtime.OXIEPH_DE, ephemerisSha256: DE440_SHA256,
+    supplierVersion: OXIEPHEMERIS_VERSION,
+    argumentsForEphemeris: (file) => oxiEphemerisArguments(request, file),
+  });
+  if (chart && typeof chart === "object") {
+    verifiedCharts.set(chart, { identity, request: JSON.stringify(request), content: JSON.stringify(chart) });
+  }
+  return chart;
 }
 
 function crossCheck(essentials, chart) {
@@ -55,7 +61,9 @@ export async function computePrecisionAstronomyPositions(date, options, dependen
   const request = normalizePrecisionAstronomyRequest(date, options);
   const chart = await (dependencies.execute ?? executeOxiEphemeris)(request, dependencies.runtime);
   if (chart?.kind !== "natal" || !Array.isArray(chart.bodies)) throw new Error("precision supplier returned a non-chart payload");
+  const receipt = verifiedCharts.get(chart);
+  const identity = receipt?.request === JSON.stringify(request) && receipt.content === JSON.stringify(chart) ? receipt.identity : null;
   const fields = ["body", "lon_deg", "lat_deg", "lon_speed_deg_per_day", "lat_speed_deg_per_day", "distance_au", "light_time_days", "declination_deg", "retrograde", "out_of_bounds"];
-  return Object.freeze({ tier: "astronomy-precision-positions", time: request.time, location: Object.freeze({ latitudeDegreesNorth: request.latitude, longitudeDegreesEast: request.longitude }), metrology: Object.freeze({ coordinateFrame: "apparent geocentric ecliptic-of-date (true equinox)", ephemeris: "JPL DE440", ephemerisSha256: DE440_SHA256, supplier: `OxiEphemeris ${OXIEPHEMERIS_VERSION}`, supplierLicense: "Apache-2.0", qualification: "Raw numeric resolution is preserved. No unsupported universal uncertainty is inferred; per-body divergence from the independently implemented essentials engine is reported below." }), bodies: Object.freeze(chart.bodies.map((body) => Object.fromEntries(fields.filter((field) => field in body).map((field) => [field, body[field]])))), nodes: chart.nodes, essentialsCrossCheck: crossCheck(computeAstronomyPositions(request.time), chart) });
+  return Object.freeze({ tier: "astronomy-precision-positions", time: request.time, location: Object.freeze({ latitudeDegreesNorth: request.latitude, longitudeDegreesEast: request.longitude }), metrology: Object.freeze({ coordinateFrame: "apparent geocentric ecliptic-of-date (true equinox)", ephemeris: identity ? "JPL DE440" : null, ephemerisSha256: identity?.ephemerisSha256 ?? null, supplier: identity ? `OxiEphemeris ${identity.supplierVersion}` : null, supplierLicense: identity ? "Apache-2.0" : null, supplierSha256: identity?.supplierSha256 ?? null, runtimeIdentity: identity ? "verified-file-and-reported-version" : "unverified-executor", qualification: "Raw numeric resolution is preserved. No unsupported universal uncertainty is inferred; per-body divergence from the independently implemented essentials engine is reported below." }), bodies: Object.freeze(chart.bodies.map((body) => Object.fromEntries(fields.filter((field) => field in body).map((field) => [field, body[field]])))), nodes: chart.nodes, essentialsCrossCheck: crossCheck(computeAstronomyPositions(request.time), chart) });
 }
 
