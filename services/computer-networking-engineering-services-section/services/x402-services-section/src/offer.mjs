@@ -27,8 +27,9 @@ import { sha256Bytes } from '@red-cup-engineering/cryptographic-computer-data-en
  * projection may advertise only a non-held, publicly listed offer; neither
  * predicate establishes a settled payment, source rights or buyer acceptance. */
 export function publiclySaleableOffer(offer) {
-  return offer?.declaration?.listed !== false &&
-    offer?.declaration?.saleStatus !== "held";
+  return offer?.declaration !== undefined &&
+    offer.declaration.listed !== false &&
+    offer.declaration.saleStatus !== "held";
 }
 
 export const OFFER_DECLARATION_KIND = "org.emsenn.x402.offer-declaration.v1";
