@@ -23,7 +23,7 @@ function fixture(){
 }
 const review=request=>({kind:'software-development.construction-review',request:request.id,
  actor:'actor:reviewer',office:'engineering#qualified-architecture-review',
- decision:'admitted',evidence:request.checks.map(check=>({check,source:request.stages.at(-1).artifact}))});
+ decision:'admitted',evidence:request.checks.map(check=>({check,source:request.stages.find(stage=>stage.role===request.evidenceRoles[check]).artifact}))});
 
 test('all seven immutable stages and every contract yield one source-bound office review request',()=>{
  const f=fixture(),request=constructionReviewRequest(f.design,f.products);
@@ -65,6 +65,7 @@ test('a fake or incomplete reviewer does not authorize fabrication',()=>{
  assert.throws(()=>admitConstructionReview(request,good,{}),/independent/);
  assert.throws(()=>admitConstructionReview(request,{...good,request:'ni:///sha-256;'+'A'.repeat(43)},{producerActor:'actor:author'}),/independent/);
  assert.throws(()=>admitConstructionReview(request,{...good,evidence:good.evidence.slice(1)},{producerActor:'actor:author'}),/review/);
+ assert.throws(()=>admitConstructionReview(request,{...good,evidence:good.evidence.map((item,index)=>index===0?{...item,source:request.stages.at(-1).artifact}:item)},{producerActor:'actor:author'}),/source-identified/);
  assert.throws(()=>admitConstructionReview(request,{...good,evidence:[...good.evidence.slice(1),good.evidence[1]]},{producerActor:'actor:author'}),/unique/);
 });
 test('source-bound review carries no execution authority of its own',()=>{
