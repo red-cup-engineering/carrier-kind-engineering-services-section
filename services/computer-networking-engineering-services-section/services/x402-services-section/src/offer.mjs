@@ -23,6 +23,14 @@ import { sha256Bytes } from '@red-cup-engineering/cryptographic-computer-data-en
  * six-decimal quote. Neither form invents a dollar exchange rate for an asset.
  */
 
+/** Visibility and sale authority are different predicates. A public x402
+ * projection may advertise only a non-held, publicly listed offer; neither
+ * predicate establishes a settled payment, source rights or buyer acceptance. */
+export function publiclySaleableOffer(offer) {
+  return offer?.declaration?.listed !== false &&
+    offer?.declaration?.saleStatus !== "held";
+}
+
 export const OFFER_DECLARATION_KIND = "org.emsenn.x402.offer-declaration.v1";
 export const CAPABILITY_OFFER_KIND = "org.emsenn.capability-offer.v3";
 export const COORDINATE_RESIDUAL_KIND = "org.emsenn.capability-offer.coordinate-residual.v1";
