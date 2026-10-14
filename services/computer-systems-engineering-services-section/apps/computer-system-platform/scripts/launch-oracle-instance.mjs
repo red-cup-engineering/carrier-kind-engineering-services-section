@@ -27,10 +27,14 @@ function option(name, fallback) {
   if (index === -1) { if (fallback === undefined) throw new TypeError(`--${name} is required`); return fallback; }
   return process.argv[index + 1];
 }
-const NAME = option("name");
+const OBSERVE_ONLY = process.argv.includes("--observe-only");
+const NAME = option("name", OBSERVE_ONLY ? "" : undefined);
 const SHAPE = option("shape");
 const NETWORK = option("network", NAME);
-const OBSERVE_ONLY = process.argv.includes("--observe-only");
+if (!OBSERVE_ONLY && (!/^[a-z][a-z0-9-]{0,61}[a-z0-9]$/u.test(NAME) ||
+    !/^[a-z][a-z0-9-]{0,61}[a-z0-9]$/u.test(NETWORK))) {
+  throw new TypeError("OCI launch requires valid named machine and network");
+}
 const REQUEST = requireAlwaysFreeRequest({
   shape: SHAPE,
   ocpus: SHAPE.endsWith(".Flex") ? Number(option("ocpus")) : undefined,
@@ -112,7 +116,10 @@ for (const id of ids) {
     } else instances.push(instance);
   }
 }
-const existing = instances.find((instance) => instance["display-name"] === NAME
+// A tenancy capacity probe must not disappear when any similarly named VM
+// exists; observing a candidate and receiving a running machine are different
+// operations with distinct effects.
+const existing = OBSERVE_ONLY ? null : instances.find((instance) => instance["display-name"] === NAME
   && instance["lifecycle-state"] !== "TERMINATED");
 if (existing) {
   const state = existing["lifecycle-state"];
