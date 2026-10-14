@@ -13,6 +13,7 @@ import {
   declareOffer,
   incomeAccountFor,
   exactMerchantTermsMatch,
+  sourceRightsClaimCurrent,
   priceAtomicUnits,
   settlementWitness,
   x402RoutesForOffers,
@@ -568,4 +569,17 @@ test("one source-rights claim survives native catalog, actor offer and seller pr
     {expiresAt:"2026-10-12T00:00:00Z"},
   ]) assert.throws(() => declareOffer(getDeclaration({sourceRightsClaim:{...rights,...mutation}})),
     /commercial|HTTPS|source rights|admissible|expiry/u);
+});
+
+
+test("source-rights time admission is a pure temporal check and never a legal verification", () => {
+  const rights = { observedAt:"2026-10-13T12:00:00Z", expiresAt:"2026-10-14T00:00:00Z" };
+  const at = (instant) => sourceRightsClaimCurrent({sourceRightsClaim:rights}, Date.parse(instant));
+  assert.equal(at("2026-10-13T11:59:59Z"), false);
+  assert.equal(at("2026-10-13T12:00:00Z"), true);
+  assert.equal(at("2026-10-13T23:59:59Z"), true);
+  assert.equal(at("2026-10-14T00:00:00Z"), false);
+  assert.equal(sourceRightsClaimCurrent({sourceRightsClaim:{observedAt:rights.observedAt}},Date.parse("2026-10-14T00:00:00Z")),true);
+  assert.equal(sourceRightsClaimCurrent({},Date.parse("2026-10-14T00:00:00Z")),true);
+  assert.throws(() => sourceRightsClaimCurrent({},NaN), /finite instant/u);
 });
