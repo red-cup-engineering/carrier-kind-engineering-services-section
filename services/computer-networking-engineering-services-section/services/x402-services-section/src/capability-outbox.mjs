@@ -1,7 +1,7 @@
 import { ACTIVITYSTREAMS_PUBLIC } from "@red-cup-engineering/activitypub-services-section/activitystreams";
 import { projectSenActivity, senActivityObjectBytes } from "@red-cup-engineering/activitypub-services-section/sen-activity";
 
-import { CAPABILITY_OFFER_KIND } from "./offer.mjs";
+import { CAPABILITY_OFFER_KIND, publiclySaleableOffer } from "./offer.mjs";
 
 /**
  * The house capability market's leg of "one offer, every market": each offer
@@ -34,7 +34,7 @@ export function deriveCapabilityOutbox(offers, { rails, origin, now, horizonDays
   const kept = new Map(previous.map((entry) => [entry.sku, entry]));
   const agentCard = new URL(AGENT_CARD_ROUTE, origin).href;
   return Object.freeze(offers
-    .filter((offer) => offer.markets.includes(CAPABILITY_MARKET) && offer.declaration.listed !== false)
+    .filter((offer) => offer.markets.includes(CAPABILITY_MARKET) && publiclySaleableOffer(offer))
     .map((offer) => {
       const earlier = kept.get(offer.sku);
       const provider = `${origin}/actors/${CAPABILITY_ACTOR_IDENTIFIER}`;
