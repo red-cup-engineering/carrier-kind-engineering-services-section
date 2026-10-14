@@ -1,0 +1,37 @@
+name: Weiqi public receiver conformance
+on:
+  push:
+    paths:
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/wrangler.jsonc'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/public-release-contract.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/verify-public-release.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/router-wiring.test.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/public-release-contract.test.mjs'
+      - '.github/workflows/weiqi-public-receiver.yml'
+  pull_request:
+    paths:
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/wrangler.jsonc'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/public-release-contract.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/verify-public-release.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/router-wiring.test.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/public-release-contract.test.mjs'
+      - '.github/workflows/weiqi-public-receiver.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-route-source-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate the release observer and domain-binding source
+        run: |
+          node --check services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/public-release-contract.mjs
+          node --check services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/verify-public-release.mjs
+          node --check services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/public-release-contract.test.mjs
+      - name: Verify both public receivers and no implicit online-play deployment
+        run: node --test services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/router-wiring.test.mjs
