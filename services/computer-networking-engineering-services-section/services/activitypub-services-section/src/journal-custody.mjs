@@ -69,9 +69,37 @@ function instants() {
   };
 }
 
-/** Every record of a type in the order it was recorded. */
-const recordedIn = (root, type) => [...each(root, type)].map(({ record }) => record)
-  .sort((left, right) => (left.at < right.at ? -1 : left.at > right.at ? 1 : 0));
+/** Every record of a type in the order it was recorded.
+ * Follower timestamps use their original query comparison (localeCompare),
+ * which agrees with native canonical ISO instants and preserves accepted legacy
+ * timestamp spellings unchanged. Received histories can carry an append ordinal. Equal
+ * original instants preserve that order; subsequent unsequenced native events
+ * follow received history at a tie. A malformed or conflicting ordinal refuses
+ * the reading instead of letting address-bucket order decide a relationship.
+ */
+const recordedIn = (root, type) => {
+  const rows = [...each(root, type)].map(({ record }) => record);
+  const order = record => {
+    if (record.sourceOrder === undefined) return Infinity;
+    if (!Number.isSafeInteger(record.sourceOrder) || record.sourceOrder < 0) throw new TypeError("ActivityPub follower source order must be an exact nonnegative integer");
+    return record.sourceOrder;
+  };
+  if (type === FOLLOWER_TYPE) {
+    const seen = new Set();
+    for (const row of rows) {
+      order(row);
+      if (row.sourceOrder === undefined) continue;
+      const key = canonicalJson([row.identifier ?? null, row.at, row.sourceOrder]);
+      if (seen.has(key)) throw new TypeError("ActivityPub follower source order names conflicting history");
+      seen.add(key);
+    }
+  }
+  rows.sort((left, right) => (type === FOLLOWER_TYPE
+    ? String(left.at).localeCompare(String(right.at))
+    : (left.at < right.at ? -1 : left.at > right.at ? 1 : 0))
+    || (type === FOLLOWER_TYPE ? (order(left) < order(right) ? -1 : order(left) > order(right) ? 1 : 0) : 0));
+  return rows;
+};
 
 /** Keep a record and the head that finds it by `name`; the first record kept under a name stays. */
 function keep(root, type, name, record) {

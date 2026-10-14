@@ -5,7 +5,8 @@
   "receivingTests": [
     "test/delivery-queue-responsiveness.test.mjs",
     "test/journal-custody.test.mjs",
-    "test/flatfile-queue-recovery-custody.test.mjs"
+    "test/flatfile-queue-recovery-custody.test.mjs",
+    "test/follower-source-order.test.mjs"
   ],
   "description": "The Union's public transport: ActivityPub federation carrying CloudEvents whose data is an A2A message with one RMN part.",
   "files": [
