@@ -1,7 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { mkdtemp, writeFile, chmod } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import {
-  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection, classifyOciLaunchRefusal,
+  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection, classifyOciLaunchRefusal, projectOciAlwaysFreeCapacity,
 } from '../scripts/oci-always-free-admission.mjs';
 
 const a1={shape:'VM.Standard.A1.Flex',ocpus:2,memoryGBs:12,bootGB:50};
@@ -70,10 +74,18 @@ test('terminated capacity does not consume free envelope but unknown lifecycle i
   assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({instances:[instance('unknown',1,6,'UNKNOWN')]})),/allocation would be exceeded/);
 });
 
-test('OCI A1 container instances are shared-quota users, not unseen free OCPUs',()=>{
+test('OCI A1 container instances are included in the shared quota with exact native shape readings',()=>{
+  const activeA1={id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE',
+    'shape-config':{ocpus:1,'memory-in-gbs':6}};
+  assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({containerInstances:[activeA1]})),/allocation would be exceeded/);
+  const fits=requireAlwaysFreeHeadroom({...a1,ocpus:1,memoryGBs:6},read({containerInstances:[activeA1]}));
+  assert.equal(fits.remainingOcpus,0);
+  assert.equal(fits.remainingMemoryGBs,0);
+  assert.equal(fits.observedUsage.a1ContainerOcpus,'1');
+  assert.equal(fits.observedUsage.a1ContainerMemoryGBs,'6');
   assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({containerInstances:[{
-    id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE'
-  }]})),/shared-pool/);
+    ...activeA1,'shape-config':undefined
+  }]})),/A1 container shape consumption is unavailable/);
   assert.equal(requireAlwaysFreeHeadroom(a1,read({containerInstances:[{
     id:'ci-non-arm',shape:'CI.Standard.E4.Flex','lifecycle-state':'ACTIVE'
   }]})).remainingOcpus,0);
@@ -161,4 +173,123 @@ test('the provisioning launcher enforces native region, limits, complete tenancy
   assert.ok(code.includes('physicalHostCapacityVerified: false'));
   assert.ok(code.includes('launched: false'));
   assert.ok(code.indexOf('if (OBSERVE_ONLY) continue;') < code.indexOf('"compute", "instance", "launch"'));
+});
+
+test('OCI provider inventory is both dimensioned and explicitly not a bill, saleable lot or independent receiving',()=>{
+  const headroom=requireAlwaysFreeHeadroom({...a1,ocpus:1,memoryGBs:6},read({
+    instances:[instance('existing',1,6)],
+    bootVolumes:[boot('existing-boot',50)],
+  }));
+  const report=projectOciAlwaysFreeCapacity({...a1,ocpus:1,memoryGBs:6},headroom,{
+    homeRegion:'us-ashburn-1',observedAt:'2026-10-14T04:00:00Z',
+    qualifiedDomains:1,domainsObserved:2,
+  });
+  assert.equal(report.type,'OciAlwaysFreeCapacityObservation');
+  assert.equal(report.provider,'oracle-cloud-infrastructure');
+  assert.deepEqual(report.readings.map(x=>x.unit),['OCPU','GB','instance','GB']);
+  assert.equal(report.readings[0].observedConsumption,'1');
+  assert.equal(report.readings[0].proposedReservation,'1');
+  assert.equal(report.readings[0].remainingAfterProposal,'0');
+  assert.equal(report.readings[3].observedConsumption,'50');
+  assert.equal(report.readings[3].remainingAfterProposal,'100');
+  assert.ok(report.readings.every(x=>x.pricedCost===null&&x.availableForSale===false&&x.independentlyReceived===false));
+  assert.equal(report.containedUsage.a1ContainerOcpus,'0');
+  assert.equal(report.containedUsage.additiveToA1Totals,false);
+  assert.equal(report.unknowns.actualBilling,null);
+  assert.equal(report.unknowns.physicalHostCapacity,null);
+  assert.throws(()=>projectOciAlwaysFreeCapacity(a1,headroom,{homeRegion:'us-ashburn-1',observedAt:'2026-10-14T04:00:00Z',qualifiedDomains:3,domainsObserved:2}),/complete source-qualified/);
+});
+
+test('duplicate native container instances refuse even when not A1',()=>{
+  const container={id:'container-1',shape:'CI.Standard.E4.Flex','lifecycle-state':'ACTIVE'};
+  assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({containerInstances:[container,container]})),/duplicate OCI container instance/);
+});
+
+test('native OCI observe-only preflight requires no network, VM image or SSH key',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'oci-free-observer-'));
+  const config=join(directory,'oci-config');
+  const fakeCli=join(directory,'oci-mock.mjs');
+  await writeFile(config,'[TEST_API_KEY]\ntenancy = ocid1.tenancy.oc1..fixture\nregion = us-ashburn-1\n');
+  await writeFile(fakeCli,`#!/usr/bin/env node
+const args=process.argv.slice(2);
+const command=args.slice(0,3).join(' ');
+let data;
+if(args[0]==='iam'&&args[1]==='region-subscription'&&args[2]==='list')
+  data=[{'is-home-region':true,'region-name':'us-ashburn-1'}];
+else if(args[0]==='iam'&&args[1]==='compartment'&&args[2]==='list')data=[];
+else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]==='list')
+  data={items:process.env.SIMULATE_A1_CONTAINER?[{id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE'}]:[]};
+else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]==='get')
+  data={id:'ci-a1',shape:'CI.Standard.A1.Flex','shape-config':{ocpus:1,'memory-in-gbs':6}};
+else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='list')
+  data=process.env.SIMULATE_EXISTING_VM?[{id:'i-a1',shape:'VM.Standard.A1.Flex','lifecycle-state':'RUNNING','display-name':'probe'}]:[];
+else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='get')
+  data={id:'i-a1',shape:'VM.Standard.A1.Flex','shape-config':{ocpus:1,'memory-in-gbs':6}};
+else if(args[0]==='iam'&&args[1]==='availability-domain'&&args[2]==='list')data=[{name:'AD-1'}];
+else if(args[0]==='bv'&&['volume','boot-volume'].includes(args[1]))data=[];
+else if(args[0]==='limits'&&args[1]==='resource-availability'){
+  const name=args[args.indexOf('--limit-name')+1];
+  data={available:name==='standard-a1-memory-count'?12:2};
+}else{
+  process.stderr.write('forbidden provider operation in observe-only preflight: '+command);
+  process.exit(93);
+}
+process.stdout.write(JSON.stringify({data}));
+`);
+  await chmod(fakeCli,0o755);
+  const child=spawnSync(process.execPath,[
+    new URL('../scripts/launch-oracle-instance.mjs',import.meta.url).pathname,
+    '--observe-only','--shape','VM.Standard.A1.Flex',
+    '--ocpus','2','--memory-gb','12','--boot-gb','50',
+  ],{
+    env:{...process.env,OCI_CLI:fakeCli,OCI_CONFIG_FILE:config,OCI_PROFILE:'TEST_API_KEY',
+      SSH_PUBLIC_KEY_FILE:join(directory,'nonexistent-ssh-key')},
+    encoding:'utf8',timeout:20000,
+  });
+  assert.equal(child.status,0,child.stderr);
+  const received=JSON.parse(child.stdout);
+  assert.equal(received.mode,'read-only');
+  assert.equal(received.launched,false);
+  assert.equal(received.billingVerified,false);
+  assert.equal(received.physicalHostCapacityVerified,false);
+  assert.equal(received.quotaQualifiedDomains,1);
+  assert.equal(received.capacity.observedAt.endsWith('Z'),true);
+  assert.equal(received.capacity.type,'OciAlwaysFreeCapacityObservation');
+  assert.equal(received.capacity.readings[0].proposedReservation,'2');
+  assert.equal(received.capacity.readings[0].remainingAfterProposal,'0');
+  assert.equal(received.capacity.readings[2].remainingAfterProposal,'2');
+  assert.equal(received.capacity.readings[3].remainingAfterProposal,'150');
+  assert.equal(received.capacity.unknowns.competingAllocations,null);
+  const mixed=spawnSync(process.execPath,[
+    new URL('../scripts/launch-oracle-instance.mjs',import.meta.url).pathname,
+    '--observe-only','--name','probe-mixed','--shape','VM.Standard.A1.Flex',
+    '--ocpus','1','--memory-gb','6','--boot-gb','50',
+  ],{
+    env:{...process.env,OCI_CLI:fakeCli,OCI_CONFIG_FILE:config,OCI_PROFILE:'TEST_API_KEY',
+      SSH_PUBLIC_KEY_FILE:join(directory,'nonexistent-ssh-key'),SIMULATE_A1_CONTAINER:'1'},
+    encoding:'utf8',timeout:20000,
+  });
+  assert.equal(mixed.status,0,mixed.stderr);
+  const mixture=JSON.parse(mixed.stdout);
+  assert.equal(mixture.mode,'read-only');
+  assert.equal(mixture.capacity.containedUsage.a1ContainerOcpus,'1');
+  assert.equal(mixture.capacity.containedUsage.a1ContainerMemoryGBs,'6');
+  assert.equal(mixture.capacity.readings[0].observedConsumption,'1');
+  assert.equal(mixture.capacity.readings[0].remainingAfterProposal,'0');
+  assert.equal(mixture.capacity.readings[1].remainingAfterProposal,'0');
+  const existing=spawnSync(process.execPath,[
+    new URL('../scripts/launch-oracle-instance.mjs',import.meta.url).pathname,
+    '--observe-only','--name','probe','--shape','VM.Standard.A1.Flex',
+    '--ocpus','1','--memory-gb','6','--boot-gb','50',
+  ],{
+    env:{...process.env,OCI_CLI:fakeCli,OCI_CONFIG_FILE:config,OCI_PROFILE:'TEST_API_KEY',
+      SSH_PUBLIC_KEY_FILE:join(directory,'nonexistent-ssh-key'),SIMULATE_EXISTING_VM:'1'},
+    encoding:'utf8',timeout:20000,
+  });
+  assert.equal(existing.status,0,existing.stderr);
+  const existingCapacity=JSON.parse(existing.stdout);
+  assert.equal(existingCapacity.kind,'oci.always-free-native-preflight');
+  assert.equal(existingCapacity.launched,false);
+  assert.equal(existingCapacity.capacity.readings[0].observedConsumption,'1');
+  assert.equal(existingCapacity.capacity.readings[0].remainingAfterProposal,'0');
 });
