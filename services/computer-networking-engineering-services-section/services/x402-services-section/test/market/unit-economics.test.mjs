@@ -46,6 +46,15 @@ test("one canonical catalog produces actionable fee-only warnings, not fake prof
   assert.equal(r.exposedOffers[0].realizedRevenueAtomic, null);
 });
 
+test("unit-economics engine has no ambient clock; owner must supply exact observation time", () => {
+  const inputs = [offer("one", "1200")];
+  assert.throws(() => analyzeMarketUnitEconomics(inputs, { ...scenario, now: undefined }), /stale|future dated/u);
+  assert.throws(() => analyzeMarketUnitEconomics(inputs, { ...scenario, now: "2026-10-13T18:00:00Z" }), /stale|future dated/u);
+  const one = analyzeMarketUnitEconomics(inputs, scenario);
+  const again = analyzeMarketUnitEconomics(inputs, { ...scenario, now: new Date(NOW.toISOString()) });
+  assert.deepEqual(one, again, "same typed clock and offers produce identical evidence");
+});
+
 test("unclear native settlement asset never becomes a fictitious USD comparison", () => {
   const native = offer("other-asset", "10", { declaration: {
     price: { amountAtomic: "10", asset: "eip155:8453/erc20:0x1234567890123456789012345678901234567890" }
