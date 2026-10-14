@@ -751,7 +751,10 @@ export function developmentOperations(binding, options={}) {
 }}}},
    }}),
   codomain:schemaFrom({$id:'aoe/software/development/review-receipt',type:'object'}),
-  effects:{class:'external',replay:'coordinated',coordination:'coordination-required',deterministic:true,totality:'partial'},
+  // Review admission includes external host authority and persistent SignCraft
+  // witness effects. The inner predicate is deterministic; the operation as a
+  // whole is not a pure/replay-safe computation.
+  effects:{class:'external',replay:'coordinated',coordination:'coordination-required',deterministic:'unmeasured',totality:'partial'},
   run:async({question,request:requestedId,evidence},_args,context)=>{
    const subject=context?.invocation?.subject;
    nonempty(subject,'review invoking subject');
