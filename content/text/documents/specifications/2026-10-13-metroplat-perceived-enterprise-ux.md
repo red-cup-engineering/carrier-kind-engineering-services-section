@@ -123,6 +123,18 @@ prove ignore-rule selection, wildcard members or emitted artifact completeness;
 packed compilation remains necessary. Five Code package schemas now hire Data
 directly, removing their unused Systems dependency.
 
+Rootbba9cbf receives the final read/write Code-closure identities and the concurrent
+native development correction: absent host isolation preserves the specification
+rather than recursively revising it. Its frozen installation, TypeScript emission
+and catalogue freshness are received. Publication admission passes before packing;
+packed compilation refuses four undeclared Forge JSON products consumed by the
+Ethereum articulating projection. No app or endpoint probe runs. Reopen that whole
+generation/publication family; preserve this exact refusal and require the shared
+fabricator to compile the complete generated source selection before deploying it.
+Current Guix main12dad52 receives authenticated native module products and common
+software/target receipts; its original PR140/142 source contract is being assessed,
+not yet integrated or received in this deployment.
+
 These receipts qualify source installation and generation, not a packed runtime
 or operating delivery. The earlier full compilation refusal remains attached to
 its exact1dcea6 candidate. Native development compute, weighted measurement,

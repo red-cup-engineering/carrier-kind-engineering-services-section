@@ -1,8 +1,8 @@
 {
   "type": "NodeRuntimeWorkspaceSelectionInstallReceipt",
   "version": 1,
-  "workspace": "/home/emsenn/.cache/561-group/metroplat-web-ux/source-4182fb8",
-  "commit": "4182fb8eaa65d98cd24603fae2b618a2ed2f49c8",
+  "workspace": "/home/emsenn/.cache/561-group/metroplat-web-ux/source-bba9cbf",
+  "commit": "bba9cbf1e880b40f40bc96960f59bee35e622110",
   "roots": [
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat-operations-console",
@@ -13,11 +13,11 @@
   "sourceHashes": {
     "package.json": "0a8a8a04e049e7bddcbbb11aa0a7550baaa4065f790231522c7a7df2366d382c",
     "pnpm-workspace.yaml": "bc896a347cd467f2b1d1b256a90b8565d88886e5969c4b22077f6f58ff00ed30",
-    "pnpm-lock.yaml": "77bfafeb158a9424a0deee60ff68a8b3d3b3bc5d22c14a048cfb58ae1bfb0c9a"
+    "pnpm-lock.yaml": "09c27aa22d630e5b26e2af3d5f93cce3cd9efa6d5a365ab4bba68ad0e940de3d"
   },
   "manifestHashes": {
     ".": "0a8a8a04e049e7bddcbbb11aa0a7550baaa4065f790231522c7a7df2366d382c",
-    "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-engineering-services-section": "c8ca2444f6e2daf825f7112afd3b14d0a9fe326cf4cc562a4c964e1853065d88",
+    "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-engineering-services-section": "a8935565fe1766a8b57b1c52425416d9251c0de0dffb7aaff0f7a300fe4a775e",
     "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/structural-claims-register-services-section": "0db073b05288e1e034c1afcc0e7b782128474fcc91310bfa0a348c2a219ac615",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signchain": "9a872c71b1f131b34d5ae52cf7432db9b773c62b050984635082edca69d9a0f6",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcraft": "8e98c5b10962e80d171865bbc9e670abcaf9e5639ab584506d63120922c39074",
@@ -29,7 +29,7 @@
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-code-analysis-services-section/services/javascript-algebra": "3de72ab8c3450e6428d83e8c0c4dd9827a1114307178f13b3e364d313cbee94f",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-code-analysis-services-section/services/javascript-computer": "f1ab4a394b2f9ebf07038c2d8e889999022cba10bc074976cc42e8b80780eb13",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-code-fabrication-services-section/services/javascript-node-code-fabrication-services-section": "1f8eb588b5ecce6771892facdefe7f0d4a7d3bf117929b5f983bc32a0ad52fc5",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-code-fabrication-services-section/services/javascript-node-code-fabrication-services-section/services/jsnode-package-services-section": "a4e2645df2fccd01a73f74aaf9220dd798635dc05067439c5f2016e3f713c041",
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-code-fabrication-services-section/services/javascript-node-code-fabrication-services-section/services/jsnode-package-services-section": "cb1b18bdf6cae74dd6fd952139ceeb27279740a59d020ae2a3a1acc6d61a487d",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-file-services-section": "3fb52bd0b901cf064852139fe61882d7f3f6a53f3614a09e610a22d6bbcad09f",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-file-services-section/services/javascript-file-documentation-services-section/services/read-javascript-file-export-documentation-service": "28a95e5f276bcc0004de16f337618879d8e0e8da765bec1e5b0b27a1a1ed52fe",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/javascript-engineering-services-section/services/javascript-file-services-section/services/javascript-file-import-services-section": "b6bbbc118a01ab0d839eda0deb081b3b949b6e4a5343c98b226adc124568efd3",
@@ -102,7 +102,7 @@
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/number-services-section/services/exact-number-data-service": "371611621d55a9a6f662430a6352f21fa7733efcee0bd884808d3c906a091570",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section": "2d54fe120013a076d985db3a1545ce02ff6ba18219c3c9ac3c418baa411c8fbc",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/a2a-services-section": "05a9735c9a425f6db8677e812d2f48b71dc618aac7628cd288fcb18a3e249e82",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section": "ec8e5ad4da8e88f1770a3f44bf643459293743ed3167c892c45c42c9734f8457",
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section": "ae71134645536db1b522f517dffc154775ce6af9d7f1b4b954e7fb47a567e066",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/arcgis-rest-services-section": "f1a9d6de6765b31bf06c842b8e35c24f83d5910a3de8baf410b08b05717335c2",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/consolidated-screening-list-services-section": "4e6afffd173ac6c79666821cce45093b80bf66af35b8a684f36d08748b955204",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section": "dd733841101cc14123ad2dc2e1b07029354dfe791a69ec2483cca87a0239686d",
@@ -163,14 +163,14 @@
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section/apps/computer-inference-engine": "c97f2eb10919f74f2fe28ba8bb278d337bc358e3db97def351940dbf40afecc1",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/knowledge-system-server": "1867d4f44ead743476d9fa6c13705845eca2f3d2a3b3bbc649df41f4c3a478ca",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/bibliography-engineering-services-section": "e5b81d8ff5811ee3da674f243114b24c9f2665db0df7842b19579a4dd13ffee4",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/carrier-kind-engineering-services-section": "f7fe9b1e92ce348b14c697b075a6541adb95e9d956f1937fb9415382d33c91f7",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/computer-glossary-systems-engineering-services-section/services/term-engineering-services-section": "607f546320fdab92fe33676705c578b5af86edd08a939280cdc3dffc7515c082",
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/carrier-kind-engineering-services-section": "a9a45f650842ea848159db6205b5ac3518daaf8858ae47739a14de317c884b03",
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/computer-glossary-systems-engineering-services-section/services/term-engineering-services-section": "1cef56aa55e845a93000195117ec20307199ca2b38ae2b30153ac6498f0eaf29",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/corpus-census-service": "c3ac4a49eef2956fd3db6f16a8c222df1926d7df1acf62cbe47077d38f08b463",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section": "20609f7d612c6fdfacbd258a410a064263c5e0ebbc3a2f9b3434302ef7eaefca",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/english-language-corpus": "5623a508e464020c1a554ee4a261692c7319541e2d4b9b9f9f2ebc07fe269dcf",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/english-language-algebra": "ed8ccefcfc3904bb0d09b71a0bc0db15ff280ac5e62787c93737c4706dead4e5",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/latin-language-algebra": "29d2ca54435534116feed194835ecc530704a06a490b6b4bce8d745dd191c6f1",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/mandarin-language-algebra": "3d9e7c2be19cb5b3e0556cb83557275354c47a92f029cc1dc7a10cda0dea9205",
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/mandarin-language-algebra": "79c247709dda646b7dbe90945709ea26499ec3df702c5f0b75fc671058ae4cac",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/apps/computer-deployment-engine": "0455cdf662ee6c63062f3039231dc482b478871442d905894bcfeb1701e6d4bc",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/services/linux-services-section/services/systemd-services-section/services/systemd-unit-inventory-observation-service": "22023833f1d98a266892b4551705be3024c1a2f78b207f1c5573d8695933fa3d",
     "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-proofing-system-services-section/services/lean-system-services-section": "e872fa5dde78ba71bb3c9e659dda2b42199bd885c9622cb2d40f103a550d8464",
@@ -238,8 +238,8 @@
     "lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news-services-section/services/koios-intelligence-briefing": "ad72c056f3b6af247c1c9cf8d0ef119691e14892401b2932b6351693e421eba2",
     "lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-personality-services-section/services/yanagi-services-section/blockchain-trashpanda-services-section": "9d87c7d122065f03ccb1834aaec19ab7fd7ab9ca001c070a4d08cfa6e08199fd"
   },
-  "recordedAt": "2026-10-14T05:20:17.504Z",
-  "artifact": "/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/selections/573924b5b38f20ffefb0a31bcb6ec2a4c17b99c7aa1ea28fccc31c074343324b",
+  "recordedAt": "2026-10-14T06:26:06.340Z",
+  "artifact": "/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/selections/0b4a4a5934865110a0c8eb58673b7a9ca2b5412658558dbc5b40acd8ae0396a6",
   "tooling": "/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/tooling/ffb0b0cc31d7b5df6d9b3e5a46d3de9521e58c60634f2566eba556608b6cf1d6",
   "importerIds": [
     ".",
@@ -479,7 +479,7 @@
     },
     {
       "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section",
-      "revision": "7e71fbf307cf51cd742d7df1402dd6b238738858",
+      "revision": "bd5b856db66f85de694cbebc2d94af4b25870e61",
       "attributes": [
         {
           "path": "services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/.gitattributes",
@@ -505,7 +505,7 @@
     },
     {
       "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section",
-      "revision": "17028fb2f75f574c54de117059b0a6abb68c9ff5"
+      "revision": "5eb6775b7583df9166177d9a3348f72a01c64d99"
     },
     {
       "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/computer-code-development-services-section/services/version-control-services-section/services/git-services-section",
@@ -545,22 +545,22 @@
     },
     {
       "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat",
-      "revision": "ebf32f78b2b2c89480f99655a513e09ce201e318"
+      "revision": "dc39edc66164ab06a4338fb1d97f7fe3fd41203d"
     },
     {
       "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-engineering-services-section",
-      "revision": "985a1e4c354313c3bfaea06480027bcaf818040f"
+      "revision": "fedbfa1de6cec2150516891122b14c7e38fc73e8"
     }
   ],
-  "selectionElapsedMilliseconds": 85189,
+  "selectionElapsedMilliseconds": 83143,
   "sourceImporterCount": 221,
   "selectedPackageSnapshots": 754,
   "sourcePackageSnapshots": 754,
-  "scopedLockSha256": "e0cead5923244dacb3b26a53c0a6d56f69d89885a5ef747b4388131e043b6499",
+  "scopedLockSha256": "7635c46d52fc64238c4bbec7e318a0260a68895471d0e74a8a204a03d5b7a8a3",
   "toolchainLockSha256": "3ec495ad8632cd1a4cc0b309621393d25003aeaea2f7cccaa4c16896c1337c53",
   "executable": "/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/tooling/ffb0b0cc31d7b5df6d9b3e5a46d3de9521e58c60634f2566eba556608b6cf1d6/node_modules/.pnpm/pnpm@11.28.5/node_modules/pnpm/bin/pnpm.mjs",
   "command": [
-    "--lockfile-dir=/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/selections/573924b5b38f20ffefb0a31bcb6ec2a4c17b99c7aa1ea28fccc31c074343324b",
+    "--lockfile-dir=/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/selections/0b4a4a5934865110a0c8eb58673b7a9ca2b5412658558dbc5b40acd8ae0396a6",
     "--workspace-packages=.",
     "--workspace-packages=lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-engineering-services-section",
     "--workspace-packages=lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/structural-claims-register-services-section",
@@ -1023,7 +1023,7 @@
   },
   "status": "installed",
   "scriptsIgnored": true,
-  "elapsedMilliseconds": 25762,
+  "elapsedMilliseconds": 29876,
   "sourceConfigurationUnchanged": true,
-  "receiptPath": "/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/selections/573924b5b38f20ffefb0a31bcb6ec2a4c17b99c7aa1ea28fccc31c074343324b/install-receipt.json"
+  "receiptPath": "/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/selections/0b4a4a5934865110a0c8eb58673b7a9ca2b5412658558dbc5b40acd8ae0396a6/install-receipt.json"
 }
