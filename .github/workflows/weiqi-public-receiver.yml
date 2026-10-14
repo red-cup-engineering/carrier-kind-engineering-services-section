@@ -3,6 +3,12 @@ on:
   push:
     paths:
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/wrangler.jsonc'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/glossary.html'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/js/glossary-app.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/js/hover-card.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/css/theme.css'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/data/glossary.json'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/glossary-search.test.mjs'
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/public-release-contract.mjs'
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/verify-public-release.mjs'
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/router-wiring.test.mjs'
@@ -11,6 +17,12 @@ on:
   pull_request:
     paths:
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/wrangler.jsonc'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/glossary.html'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/js/glossary-app.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/js/hover-card.mjs'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/css/theme.css'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/public/data/glossary.json'
+      - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/glossary-search.test.mjs'
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/public-release-contract.mjs'
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/scripts/verify-public-release.mjs'
       - 'services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/router-wiring.test.mjs'
@@ -35,3 +47,5 @@ jobs:
           node --check services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/public-release-contract.test.mjs
       - name: Verify both public receivers and no implicit online-play deployment
         run: node --test services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/router-wiring.test.mjs
+      - name: Test the source-derived glossary and accessible reader
+        run: node --test services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web/test/glossary-search.test.mjs
