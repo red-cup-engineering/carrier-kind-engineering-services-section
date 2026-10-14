@@ -334,7 +334,10 @@ export function createMarket({
     try {
       const url = new URL(nodeOrigin);
       return url.protocol === "https:" && !url.username && !url.password &&
-        !url.search && !url.hash;
+        url.pathname === "/" && !url.search && !url.hash &&
+        // An accidentally self-referential proxy origin can feed signed
+        // requests back into the Worker indefinitely. Fail before forwarding.
+        proxyOffers.every((offer) => offer.declaration.origin !== url.origin);
     } catch {
       return false;
     }
