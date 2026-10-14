@@ -82,8 +82,12 @@ const homeRegions = Array.isArray(subscriptions)
 if (homeRegions.length !== 1 || !configuredRegion || configuredRegion !== homeRegions[0]) {
   throw new Error("Always Free OCI work requires proven tenancy home-region configuration");
 }
+// Oracle documents that ANY + subtree enumerates the whole hierarchy,
+// whereas ACCESSIBLE can omit compartments, overstating free headroom.
+// Every listed compartment's compute/storage inventory must then succeed.
 const compartments = (await ociJson("iam", "compartment", "list",
-  "--compartment-id", tenancy, "--compartment-id-in-subtree", "true", "--all")).data;
+  "--compartment-id", tenancy, "--compartment-id-in-subtree", "true",
+  "--access-level", "ANY", "--all")).data;
 if (!Array.isArray(compartments)) throw new Error("OCI compartment inventory is incomplete");
 const ids = [tenancy, ...compartments.filter((row) => row["lifecycle-state"] === "ACTIVE").map((row) => row.id)];
 if (ids.some((id) => typeof id !== "string" || !id) || new Set(ids).size !== ids.length)
