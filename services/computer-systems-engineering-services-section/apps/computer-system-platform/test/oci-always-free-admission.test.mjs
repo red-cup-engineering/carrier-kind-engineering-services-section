@@ -198,6 +198,15 @@ test('OCI provider inventory is both dimensioned and explicitly not a bill, sale
   assert.equal(report.unknowns.actualBilling,null);
   assert.equal(report.unknowns.physicalHostCapacity,null);
   assert.throws(()=>projectOciAlwaysFreeCapacity(a1,headroom,{homeRegion:'us-ashburn-1',observedAt:'2026-10-14T04:00:00Z',qualifiedDomains:3,domainsObserved:2}),/complete source-qualified/);
+  assert.throws(()=>projectOciAlwaysFreeCapacity({...a1,ocpus:1,memoryGBs:6},{
+    ...headroom,requested:{...headroom.requested,ocpus:'2'}
+  },{homeRegion:'us-ashburn-1',observedAt:'2026-10-14T04:00:00Z',qualifiedDomains:1,domainsObserved:2}),/quantities disagree/);
+  assert.throws(()=>projectOciAlwaysFreeCapacity({...a1,ocpus:1,memoryGBs:6},{
+    ...headroom,observedUsage:{...headroom.observedUsage,a1ContainerOcpus:'100'}
+  },{homeRegion:'us-ashburn-1',observedAt:'2026-10-14T04:00:00Z',qualifiedDomains:1,domainsObserved:2}),/breakdown exceeds/);
+  assert.throws(()=>projectOciAlwaysFreeCapacity({...a1,ocpus:1,memoryGBs:6},headroom,{
+    homeRegion:'us-ashburn-1',observedAt:'2026-02-30T04:00:00Z',qualifiedDomains:1,domainsObserved:2
+  }),/complete source-qualified/);
 });
 
 test('duplicate native container instances refuse even when not A1',()=>{
