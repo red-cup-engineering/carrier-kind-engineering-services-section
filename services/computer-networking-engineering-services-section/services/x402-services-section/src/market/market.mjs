@@ -552,8 +552,9 @@ export function createMarket({
           body: forwardedBody,
           redirect: "error",
         });
+        const signedRequest = context.request.headers.has("payment-signature");
         let expectedTerms;
-        if (upstream.status === 402) {
+        if (upstream.status === 402 || (upstream.ok && signedRequest)) {
           try {
             const pricedBody = offer.declaration.requestPricing === undefined ? undefined :
               JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(forwardedBody));
@@ -563,13 +564,14 @@ export function createMarket({
             };
           } catch {
             await upstream.body?.cancel();
-            return Response.json({ error: "Node market quote could not be reconciled to the seller pricing and payout" },
+            return Response.json({ error: "Node market quote or paid result could not be reconciled to the seller pricing and payout" },
               { status: 503, headers: { "cache-control": "no-store" } });
           }
         }
         return projectProxyResponse(upstream, {
           publicUrl: new URL(`${context.url.pathname}${context.url.search}`, offer.declaration.origin).href,
           resourceUrl: offer.url,
+          signedRequest,
           ...(expectedTerms === undefined ? {} : { expectedTerms }),
         });
       },
