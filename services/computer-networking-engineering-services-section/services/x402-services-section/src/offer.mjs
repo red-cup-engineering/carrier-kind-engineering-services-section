@@ -59,6 +59,21 @@ function requirePriceRails(price, network, asset) {
   }
 }
 
+/** An authored source-rights claim must be temporally current before an offer
+ * is challenged, granted or proxied. This checks only timestamps, NEVER legal
+ * permission, source authenticity, custody or independent rights verification.
+ * An absent claim preserves legacy offers while receiving reports that gap. */
+export function sourceRightsClaimCurrent(declaration, nowMillis) {
+  if (!Number.isFinite(nowMillis)) throw new TypeError("rights time must be a finite instant in milliseconds");
+  const rights = declaration?.sourceRightsClaim;
+  if (rights === undefined) return true;
+  const observed = Date.parse(rights.observedAt);
+  if (!Number.isFinite(observed) || observed > nowMillis) return false;
+  if (rights.expiresAt === undefined) return true;
+  const expires = Date.parse(rights.expiresAt);
+  return Number.isFinite(expires) && expires > nowMillis;
+}
+
 /** Human discovery keeps the owner's denomination; atomic prices imply no dollar rate. */
 export function offerPriceText(declaration) {
   const price = declaration.price;
