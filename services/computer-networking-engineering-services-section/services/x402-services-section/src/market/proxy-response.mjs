@@ -27,7 +27,12 @@ function containsSameDeclaredFields(actual, expected) {
 export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = publicUrl }) {
   if (upstream.status !== 402) return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: upstream.headers });
   const encoded = upstream.headers.get("PAYMENT-REQUIRED");
-  if (encoded === null) return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: upstream.headers });
+  // A native payment boundary must never relay an unusable or unbounded quote.
+  // Otherwise buyers could receive an apparently legitimate 402 from the market
+  // with no verifiable terms (or force huge base64 decode allocations).
+  if (encoded === null || encoded.length === 0 || encoded.length > 65_536) {
+    return Response.json({ error: "upstream payment challenge is missing or oversized" }, { status: 502 });
+  }
 
   const challenge = decodePaymentRequired(encoded);
   if (!isPaymentRequiredV2(challenge)) return Response.json({ error: "upstream payment challenge is invalid" }, { status: 502 });
