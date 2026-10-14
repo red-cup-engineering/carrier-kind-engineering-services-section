@@ -158,3 +158,35 @@ test("cost evidence cannot silently cross unit, identity, freshness or provenanc
     ...scenario, resourceCostReceipts: [valid, valid]
   }), /duplicate/u);
 });
+
+
+test("facilitator and resource observations reject nonexistent UTC dates", () => {
+  const simple = [offer("codec", "1200")];
+  // Date.parse silently normalizes Feb 30 to Mar 2; commercial evidence must not.
+  assert.throws(() => analyzeMarketUnitEconomics(simple, {
+    ...scenario,
+    feeObservedAt: "2026-02-30T12:00:00Z",
+    now: new Date("2026-03-03T00:00:00Z"),
+  }), /UTC instant/u);
+  assert.throws(() => analyzeMarketUnitEconomics(simple, {
+    ...scenario,
+    feeObservedAt: "2026-04-31T12:00:00Z",
+    now: new Date("2026-05-02T00:00:00Z"),
+  }), /UTC instant/u);
+
+  const sku = "ni:///sha-256;" + "A".repeat(43);
+  const receipt = {
+    sku, source: "https://example.org/observed-costs",
+    evidenceNi: "ni:///sha-256;" + "B".repeat(43),
+    observedAt: "2026-04-31T12:00:00Z",
+    asset: "eip155:8453/erc20:" + ASSET.toLowerCase(),
+    marginalCostAtomic: "100",
+    resourceReadings: [{ commodity: "CPU:nanosecond", quantity: "1000" }],
+  };
+  assert.throws(() => analyzeMarketUnitEconomics([{ ...simple[0], sku }], {
+    ...scenario,
+    feeObservedAt: "2026-05-01T12:00:00Z",
+    now: new Date("2026-05-02T00:00:00Z"),
+    resourceCostReceipts: [receipt],
+  }), /UTC instant/u);
+});

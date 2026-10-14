@@ -63,11 +63,16 @@ function atomic(value, name) {
 }
 
 function observedInstant(value) {
-  if (typeof value !== "string" || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z$/u.test(value) ||
-      !Number.isFinite(Date.parse(value))) {
+  if (typeof value !== "string" || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d+)?Z$/u.test(value)) {
     throw new TypeError("facilitator fee observation must carry an ISO-8601 UTC instant");
   }
-  return Date.parse(value);
+  const timestamp = Date.parse(value);
+  // Date.parse normalizes impossible days (e.g. Feb 30 -> Mar 2). The original
+  // UTC calendar second must survive a round trip or it is not an observation.
+  if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString().slice(0, 19) !== value.slice(0, 19)) {
+    throw new TypeError("facilitator fee observation must carry an ISO-8601 UTC instant");
+  }
+  return timestamp;
 }
 
 function priceEligible(declaration, price) {
