@@ -21,7 +21,7 @@ export function workCenterApp({ runAs, navigation, navigationTitle = 'Group' }) 
     { title: 'Work views', span: 12, links: [
       { href: '/work', label: 'My agenda' }, { href: '/work?view=board', label: 'Work board' },
       { href: '/work?view=refine', label: 'Contracts to refine' },
-      { href: '/work/new', label: 'Open a work request' },
+      { href: '/work/new', label: 'Open work' },
       { href: '/tasks/view', label: 'Allocation and execution' },
       { href: '/conversations', label: 'Private agent conversations and returned operations' },
     ] }, ...tiles,
@@ -71,7 +71,7 @@ export function workCenterApp({ runAs, navigation, navigationTitle = 'Group' }) 
         const relations = ['serves', 'after', 'relates', 'supersedes'].flatMap(kind => (thread.opening[kind] ?? []).map(id => [kind, threadLink(id)]));
         return page(summary.gist || summary.id, [
           summaryTable('Current thread standing', [summary]),
-          workMoveTile(thread),
+          workMoveTile(thread, params),
           ...['holders', 'promisers', 'adopters', 'answerers'].filter(role => summary[role]?.length).map(role => ({ title: role[0].toUpperCase() + role.slice(1), span: 12, table: { caption: role, columns: [{ label: 'Player', rowHeader: true }], rows: summary[role].map(player => [player]) } })),
           ...(thread.operative ? [
             { title: 'Operative requirements', span: 12, table: { caption: 'The current request contract', columns: [{ label: 'Requirement', rowHeader: true }, 'Statement', 'Priority'], rows: thread.operative.requirements.map(requirement => [requirement.id, requirement.says, requirement.priority ?? 'Not supplied']) } },
