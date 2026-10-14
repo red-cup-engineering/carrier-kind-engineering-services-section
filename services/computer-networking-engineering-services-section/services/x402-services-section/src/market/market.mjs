@@ -1,4 +1,4 @@
-import { marketCatalogReadout, requestContract, DEFAULT_MAX_BODY_BYTES } from "./catalog.mjs";
+import { marketCatalogReadout, publicMarketCatalogReadout, requestContract, DEFAULT_MAX_BODY_BYTES } from "./catalog.mjs";
 export { marketCatalogReadout } from "./catalog.mjs";
 import { createWebApplication } from "@red-cup-engineering/computer-web-platform/application";
 import { admitCanonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
@@ -11,7 +11,7 @@ import { escapeHtml } from "@red-cup-engineering/web-page-tiling-engine/browser"
 import { resolveBinding } from "../compute-binding.mjs";
 import { createExactEvmFetchPaymentBoundary } from "../fetch-server.mjs";
 import { recoverPaidResponse } from "../paid-response-recovery.mjs";
-import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, sourceRightsClaimCurrent, settlementWitness, x402RoutesForOffers } from "../offer.mjs";
+import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, sourceRightsClaimCurrent, settlementWitness, x402RoutesForOffers, publiclySaleableOffer } from "../offer.mjs";
 import { decodeSignInHeader, SIGN_IN_WITH_X, SIGN_IN_WITH_X_HEADER, signInChallenge, verifySignIn } from "../sign-in-with-x.mjs";
 import { projectProxyResponse } from "./proxy-response.mjs";
 
@@ -107,7 +107,7 @@ export function marketRails(env = {}) {
  */
 export function marketAgentCard(offers, { name = DEFAULT_MARKET_NAME, origin, version = "1.0.0" } = {}) {
   const catalog = declareCatalog(offers);
-  const listed = catalog.filter((offer) => offer.declaration.listed !== false);
+  const listed = catalog.filter((offer) => publiclySaleableOffer(offer));
   const base = origin ?? catalog[0].declaration.origin;
   return Object.freeze({
     protocolVersion: "0.3.0",
@@ -152,7 +152,7 @@ export function marketAgentCard(offers, { name = DEFAULT_MARKET_NAME, origin, ve
  */
 export function marketPageModel(offers, rails = {}, { name = DEFAULT_MARKET_NAME } = {}) {
   const catalog = declareCatalog(offers);
-  const listed = catalog.filter((offer) => offer.declaration.listed !== false);
+  const listed = catalog.filter((offer) => publiclySaleableOffer(offer));
   return {
     title: name,
     subtitle: "Buy a publication, a sourced briefing, or an API result. Pay per request with x402; each offer below includes its price, inputs, and response format.",
@@ -220,7 +220,7 @@ const CAPABILITY_ACTOR_IDENTIFIER = "market";
  * it discovers any actor (WebFinger, then the actor, then its outbox), with nothing to sign.
  */
 function capabilityActorResources(servedOffers, capabilityOutbox, { name }) {
-  const served = new Set(servedOffers.filter((offer) => offer.declaration.listed !== false).map((offer) => offer.routeKey));
+  const served = new Set(servedOffers.filter((offer) => publiclySaleableOffer(offer)).map((offer) => offer.routeKey));
   const activities = capabilityOutbox.filter((entry) => served.has(entry.routeKey)).map((entry) => entry.activity);
   if (activities.length === 0) return [];
   const actor = activities[0].actor;
@@ -334,7 +334,10 @@ export function createMarket({
     try {
       const url = new URL(nodeOrigin);
       return url.protocol === "https:" && !url.username && !url.password &&
-        !url.search && !url.hash;
+        url.pathname === "/" && !url.search && !url.hash &&
+        // An accidentally self-referential proxy origin can feed signed
+        // requests back into the Worker indefinitely. Fail before forwarding.
+        proxyOffers.every((offer) => offer.declaration.origin !== url.origin);
     } catch {
       return false;
     }
@@ -343,7 +346,7 @@ export function createMarket({
   // offer this face actually answers, proxied or not; only the priced-route
   // handler distinguishes the two.
   const servedOffers = [...offers, ...proxyOffers];
-  const listedOffers = servedOffers.filter((offer) => offer.declaration.listed !== false);
+  const listedOffers = servedOffers.filter((offer) => publiclySaleableOffer(offer));
   const modules = new Map();
   const importOnce = load ?? ((specifier) => import(specifier));
   const loader = {
@@ -431,9 +434,14 @@ export function createMarket({
 
   function pricedResource(offer) {
     const route = offer.declaration.route;
-    const computeOffer = computeFor(offer);
-    const admit = validateFor(offer);
-    const purchaseStore = offer.declaration.recoverable ? purchaseStoreForOffer?.(offer) : undefined;
+    const held = offer.declaration.saleStatus === "held";
+    // A withheld proposal is evidence in the seller source, not an executable
+    // product. Do not even resolve its uninstalled producer/admission module,
+    // or open a recovery store, until an independently received release enables
+    // the offer. For enabled offers retain eager binding conformance checks.
+    const computeOffer = held ? null : computeFor(offer);
+    const admit = held ? undefined : validateFor(offer);
+    const purchaseStore = !held && offer.declaration.recoverable ? purchaseStoreForOffer?.(offer) : undefined;
     return {
       match: route.replace(/\{([A-Za-z0-9_-]+)\}/gu, ":$1"),
       methods: [offer.declaration.method],
@@ -452,6 +460,13 @@ export function createMarket({
         }
         : {}),
       async handler(context) {
+        // A staged producer may be present for compilation and source tests
+        // without authorization to take money or perform customer work.
+        // Visibility (listed:false) and sale permission (held) are distinct.
+        if (offer.declaration.saleStatus === "held") {
+          return Response.json({ error: "This operation is not admitted for sale" },
+            { status: 404, headers: { "cache-control": "no-store" } });
+        }
         const rightsRefusal = sourceRightsGate(offer);
         if (rightsRefusal) return rightsRefusal;
         // An already purchased edition remains recoverable if today's edition
@@ -534,6 +549,13 @@ export function createMarket({
       name: offer.declaration.name,
       route,
       async handler(context) {
+        // A staged producer may be present for compilation and source tests
+        // without authorization to take money or perform customer work.
+        // Visibility (listed:false) and sale permission (held) are distinct.
+        if (offer.declaration.saleStatus === "held") {
+          return Response.json({ error: "This operation is not admitted for sale" },
+            { status: 404, headers: { "cache-control": "no-store" } });
+        }
         const rightsRefusal = sourceRightsGate(offer);
         if (rightsRefusal) return rightsRefusal;
         // This is the same exact admission predicate exposed on /v1/status.
@@ -552,8 +574,9 @@ export function createMarket({
           body: forwardedBody,
           redirect: "error",
         });
+        const signedRequest = context.request.headers.has("payment-signature");
         let expectedTerms;
-        if (upstream.status === 402) {
+        if (upstream.status === 402 || (upstream.ok && signedRequest)) {
           try {
             const pricedBody = offer.declaration.requestPricing === undefined ? undefined :
               JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(forwardedBody));
@@ -563,13 +586,14 @@ export function createMarket({
             };
           } catch {
             await upstream.body?.cancel();
-            return Response.json({ error: "Node market quote could not be reconciled to the seller pricing and payout" },
+            return Response.json({ error: "Node market quote or paid result could not be reconciled to the seller pricing and payout" },
               { status: 503, headers: { "cache-control": "no-store" } });
           }
         }
         return projectProxyResponse(upstream, {
           publicUrl: new URL(`${context.url.pathname}${context.url.search}`, offer.declaration.origin).href,
           resourceUrl: offer.url,
+          signedRequest,
           ...(expectedTerms === undefined ? {} : { expectedTerms }),
         });
       },
@@ -591,9 +615,9 @@ export function createMarket({
           offers: servedOffers.length,
           listedOffers: listedOffers.length,
           directOffers: offers.length,
-          directListedOffers: offers.filter((offer) => offer.declaration.listed !== false).length,
+          directListedOffers: offers.filter((offer) => publiclySaleableOffer(offer)).length,
           proxyOffers: proxyOffers.length,
-          proxyListedOffers: proxyOffers.filter((offer) => offer.declaration.listed !== false).length,
+          proxyListedOffers: proxyOffers.filter((offer) => publiclySaleableOffer(offer)).length,
           runtime: env.MARKET_RUNTIME ?? null,
           nodeProxyConfigured: nodeOrigin !== undefined,
           nodeProxyTransport: proxyOriginHttpsQualified === null ? "not-used" :
@@ -641,7 +665,7 @@ export function createMarket({
         handler: (context) => Response.json(marketX402Service(servedOffers, rails ?? {}, { name, origin: context.url.origin }),
           { headers: { "access-control-allow-origin": "*" } }),
       },
-      ...servedOffers.filter(offer => offer.declaration.listed !== false).map(offer => ({
+      ...servedOffers.filter(offer => publiclySaleableOffer(offer)).map(offer => ({
         match: offer.declaration.route.replace(/\{([A-Za-z0-9_-]+)\}/gu, ":$1") + X402_SERVICE_ROUTE,
         methods: ["GET"],
         handler: context => Response.json(marketX402Service([offer], rails ?? {}, { name, origin: context.url.origin }),
@@ -657,7 +681,11 @@ export function createMarket({
       {
         match: CATALOG_ROUTE,
         methods: ["GET"],
-        handler: () => Response.json(marketCatalogReadout(servedOffers, rails ?? {})),
+        // The internal readout retains every typed source declaration for
+        // receiving. The public HTTP catalogue advertises only current
+        // sellable operations; held and private candidates stay out of this
+        // buyer-facing discovery route.
+        handler: () => Response.json(publicMarketCatalogReadout(servedOffers, rails ?? {})),
       },
       {
         match: "/",
@@ -694,7 +722,7 @@ const offerSummary = (declaration) => {
 /** OpenAPI is another projection of the served offer contracts, not another registry. */
 export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin } = {}) {
   const base = offerOrigin(offers, origin);
-  const routes = offers.filter(({ declaration }) => declaration.listed !== false).map(offer => {
+  const routes = offers.filter((offer) => publiclySaleableOffer(offer)).map(offer => {
     const declaration = offer.declaration;
     const parameters = [];
     for (const [location, schema, examples] of [["query", declaration.querySchema, declaration.queryExample], ["path", declaration.pathParamsSchema, undefined]]) {
@@ -753,7 +781,7 @@ export function marketLlmsText(offers, { name = "market", origin } = {}) {
     `# ${name}`, "",
     `> Machine-buyable operations, each paid per call over x402 (HTTP 402) in USDC. Request an offer's route without payment to receive its payment challenge; the catalog at ${base}${CATALOG_ROUTE} lists every offer's input contract, price and example.`, "",
     "## Offers", "",
-    ...offers.map(({ declaration }) => `- [${declaration.name ?? declaration.operation}](${base}${declaration.route}): ${declaration.method} ${declaration.route}${declaration.price ? `, ${declaration.requestPricing ? "from " : ""}${offerPriceText(declaration)} per call` : ""}. ${offerSummary(declaration)}`),
+    ...offers.filter(publiclySaleableOffer).map(({ declaration }) => `- [${declaration.name ?? declaration.operation}](${base}${declaration.route}): ${declaration.method} ${declaration.route}${declaration.price ? `, ${declaration.requestPricing ? "from " : ""}${offerPriceText(declaration)} per call` : ""}. ${offerSummary(declaration)}`),
     "", "## Discovery", "",
     `- [Catalog](${base}${CATALOG_ROUTE}): every offer's contract, price, evidence and compute owner`,
     `- [OpenAPI](${base}${OPENAPI_ROUTE}): HTTP methods, inputs and declared response schemas`,
@@ -779,7 +807,7 @@ export function marketX402Discovery(offers, rails = {}, { name = DEFAULT_MARKET_
     kind: "resource-server",
     name,
     description: "The 561 Group's x402 market: typed operations and publications, priced in their declared settlement assets.",
-    resources: offers.filter(({ declaration }) => declaration.price && declaration.listed !== false).map(({ declaration }) => ({
+    resources: offers.filter((offer) => offer.declaration.price && publiclySaleableOffer(offer)).map(({ declaration }) => ({
       url: `${base}${declaration.route}`, method: declaration.method, name: declaration.name, description: offerSummary(declaration),
       price: declaration.price, ...(declaration.requestPricing === undefined ? {} : { pricing: offerPricingReadout(declaration) }), asset: discoveryAsset(declaration, rails), ...(rails.network ? { network: rails.network } : {}),
       ...(declaration.bodySchema ? { inputSchema: { type: "object", ...declaration.bodySchema, ...(declaration.bodyExample ? { example: declaration.bodyExample } : {}) } } : declaration.querySchema ? { inputSchema: { type: "object", ...declaration.querySchema } } : {}),
@@ -802,7 +830,7 @@ function boundedOfferSummary(text, maximum) {
 
 export function marketX402Service(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin } = {}) {
   const base = offerOrigin(offers, origin);
-  const priced = offers.filter(({ declaration }) => declaration.price && declaration.listed !== false);
+  const priced = offers.filter((offer) => offer.declaration.price && publiclySaleableOffer(offer));
   // true402 caps the origin summary at twenty capabilities. All per-offer
   // capabilities remain below, so a growing market does not become invalid.
   const counts = new Map();

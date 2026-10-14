@@ -47,7 +47,11 @@ const input = {
     { maxFeeAgeDays: Number(values["max-fee-age-days"]) })
 };
 
-const report = analyzeMarketUnitEconomics(catalog({ admit: false }), input);
+// The CLI is the effectful clock boundary. The reusable economics computation
+// receives this observation explicitly and cannot depend on ambient time.
+const report = analyzeMarketUnitEconomics(catalog({ admit: false }), {
+  ...input, now: new Date(),
+});
 const { exposedOffers, ...summary } = report;
 process.stdout.write(JSON.stringify(values.detailed ? report : {
   ...summary,

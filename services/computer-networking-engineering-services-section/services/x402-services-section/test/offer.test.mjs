@@ -373,6 +373,20 @@ test("seller projections carry the declared enterprise and book independently of
   assert.equal(capability.provider, row.servingProvider);
 });
 
+test("held sale status blocks direct x402, directory, and ActivityPub publication independently of visibility", () => {
+  const held = declareOffer(getDeclaration({ listed: false, saleStatus: "held" }));
+  assert.equal(held.declaration.listed, false);
+  assert.throws(() => held.x402Route(RAILS), /held offer/u);
+  assert.throws(() => held.index402Registration({ provider: "561 Group" }), /held offer/u);
+  assert.throws(() => held.capabilityOffer({
+    ...RAILS, agentCard: "https://pacing.example.test/.well-known/agent-card.json",
+    expiresAt: "2027-10-13T20:00:00Z",
+  }), /held offer/u);
+  const privateOffer = declareOffer(getDeclaration({ listed: false }));
+  assert.ok(Object.keys(privateOffer.x402Route(RAILS)).length === 1,
+    "unlisted does not mean held: owner-directed private sales remain possible");
+});
+
 test("the catalog row's expected amount equals the amount in the derived challenge", () => {
   const offer = declareOffer(postDeclaration());
   assert.equal(
@@ -560,7 +574,7 @@ test("one source-rights claim survives native catalog, actor offer and seller pr
   const seller = offered.sellerCatalogRow(RAILS);
   assert.equal(seller.sourceRightsVerification, "unassayed");
   assert.deepEqual(seller.sourceRightsClaim, rights);
-  assert.ok(!("sourceRightsVerification" in marketCatalogReadout([declareOffer(getDeclaration())]).offers[0]));
+  assert.equal(marketCatalogReadout([declareOffer(getDeclaration())]).offers[0].sourceRightsVerification, "not-declared");
   for(const mutation of [
     {permissions:["execute","transform"]},
     {sourceUrl:"https://user:pass@noaa.gov/private"},
@@ -571,6 +585,45 @@ test("one source-rights claim survives native catalog, actor offer and seller pr
     /commercial|HTTPS|source rights|admissible|expiry/u);
 });
 
+
+test("community-governed data carries actor, purpose, authority and benefit claims without claiming authorization", () => {
+  const governance = {
+    authorityActor: "https://nation.example/actors/data-office",
+    protocolUri: "https://nation.example/protocols/2026/reuse",
+    permittedPurposes: ["approved research aggregation", "community-funded summaries"],
+    authorityEvidenceNis: ["ni:///sha-256;" + "B".repeat(43)],
+    benefitAgreementNis: ["ni:///sha-256;" + "C".repeat(43)],
+    observedAt: "2026-10-13T20:00:00Z",
+    expiresAt: "2026-10-14T20:00:00Z",
+  };
+  const rights = {
+    basis: "licensed-third-party",
+    sourceUrl: "https://nation.example/data",
+    licenseUrl: governance.protocolUri,
+    permissions: ["execute", "transform", "commercialize"],
+    evidenceNis: ["ni:///sha-256;" + "D".repeat(43)],
+    observedAt: "2026-10-13T19:00:00Z",
+    expiresAt: "2026-10-15T20:00:00Z",
+    communityGovernance: governance,
+  };
+  const offered = declareOffer(getDeclaration({ sourceRightsClaim: rights }));
+  const readout = marketCatalogReadout([offered]).offers[0];
+  assert.deepEqual(readout.sourceRightsClaim.communityGovernance, governance);
+  assert.equal(readout.sourceRightsVerification, "unassayed");
+  const at = instant => sourceRightsClaimCurrent(offered.declaration, Date.parse(instant));
+  assert.equal(at("2026-10-13T19:59:59Z"), false, "future community authority is not current");
+  assert.equal(at("2026-10-13T20:00:00Z"), true, "current seller claim is not independent legal proof");
+  assert.equal(at("2026-10-14T20:00:00Z"), false, "community mandate ends before source licence");
+  for (const changed of [
+    { ...governance, benefitAgreementNis: [] },
+    { ...governance, authorityEvidenceNis: ["not-ni"] },
+    { ...governance, authorityActor: "https://user:pass@nation.example/secret" },
+    { ...governance, expiresAt: "2026-10-12T00:00:00Z" },
+    { ...governance, protocolUri: "http://nation.example/terms" },
+  ]) assert.throws(() => declareOffer(getDeclaration({
+    sourceRightsClaim: { ...rights, communityGovernance: changed },
+  })), /admissible|HTTPS|expiry/u);
+});
 
 test("source-rights time admission is a pure temporal check and never a legal verification", () => {
   const rights = { observedAt:"2026-10-13T12:00:00Z", expiresAt:"2026-10-14T00:00:00Z" };

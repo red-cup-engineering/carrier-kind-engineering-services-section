@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ExactEvmScheme as ExactEvmClient } from "@x402/evm/exact/client";
 
-import { declareOffer } from "@red-cup-engineering/x402-services-section/offer";
+import { declareOffer, x402RoutesForOffers } from "@red-cup-engineering/x402-services-section/offer";
 
 import { createMarket, createMarketWorker, marketAgentCard, marketApiCatalog, marketCatalogReadout, marketLlmsText, marketPageModel, marketX402Discovery, marketX402Service, marketRails } from "../../src/market/market.mjs";
 import { startMarket } from "../../src/market/node.mjs";
@@ -145,6 +145,85 @@ test("a standard x402 client can sign the quoted token domain and receive its pu
   }
 });
 
+test("a held, unlisted source candidate cannot execute, spend a grant, or receive an x402 payment", async () => {
+  let executed = 0, facilitatorCalled = 0;
+  const facilitator = {
+    async getSupported() { facilitatorCalled++; return { kinds: [], extensions: [], signers: {} }; },
+    async verify() { throw Error("held offer must not verify"); },
+    async settle() { throw Error("held offer must not settle"); },
+  };
+  const market = demoMarket({
+    catalog: [
+      postDeclaration({ listed: false, saleStatus: "held" }),
+      getDeclaration(),
+    ],
+    facilitatorClient: facilitator,
+    compute: {
+      "/v1/demo": () => { executed++; return { wrong: "charged before admission" }; },
+      "/v1/lookup": () => ({ value: 2 }),
+    },
+  });
+  const routes = x402RoutesForOffers(market.offers, marketRails(ENV));
+  assert.ok(!Object.hasOwn(routes, "POST /v1/demo"));
+  assert.ok(Object.hasOwn(routes, "GET /v1/lookup"));
+  for(const paid of [false,true]) {
+    const response = await market.fetch(new Request("https://market.test/v1/demo", {
+      method: "POST",
+      headers: { "content-type": "application/json",
+        ...(paid ? { "payment-signature": "bad-signature-is-not-a-grant" } : {}) },
+      body: JSON.stringify({ seed: 1 }),
+    }));
+    assert.equal(response.status, 404);
+    assert.equal(response.headers.get("payment-required"), null);
+    assert.match(JSON.stringify(await response.json()), /not admitted for sale/u);
+  }
+  assert.equal(executed, 0);
+  assert.equal(facilitatorCalled, 0);
+  const ordinary = await market.fetch(new Request("https://market.test/v1/lookup"));
+  assert.equal(ordinary.status, 402, "other already-enabled offers remain payable");
+});
+
+test("holding a publicly named offer prevents every buyer-facing projection from advertising it", async () => {
+  const market = demoMarket({
+    catalog: [postDeclaration({ listed: true, saleStatus: "held" }), getDeclaration()],
+  });
+  const card = marketAgentCard(market.offers);
+  assert.equal(card.skills.length, 1);
+  assert.equal(card.skills[0].id, "other-gateway/look-up-other");
+  const readout = marketCatalogReadout(market.offers);
+  assert.equal(readout.offers[0].listed, false,
+    "an explicitly held seller cannot be advertised as a current payable operation");
+  assert.equal(readout.offers[1].listed, true);
+  const discovery = marketX402Discovery(market.offers, market.rails());
+  assert.equal(discovery.resources.length, 1);
+  assert.match(marketLlmsText(market.offers), /Other Lookup/u);
+  assert.doesNotMatch(marketLlmsText(market.offers), /Demo Reading/u);
+  const withheld = await market.fetch(new Request("https://market.test/v1/demo", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed: 2 }),
+  }));
+  assert.equal(withheld.status, 404);
+  assert.equal(withheld.headers.get("payment-required"), null);
+});
+
+test("public catalog and llms.txt never disclose held/private names while internal source remains complete",async()=>{
+  const market=demoMarket({ catalog: [
+    postDeclaration({listed:true,saleStatus:"held"}),
+    getDeclaration({listed:false}),
+  ] });
+  const publicCatalog=await (await market.fetch(new Request("https://market.test/v1/catalog"))).json();
+  assert.equal(publicCatalog.offers.length,0,"all nonpublic source entries are not public inventory");
+  assert.equal(market.catalog().offers.length,2,"internal receiving retains immutable source witnesses");
+  const machineText=await (await market.fetch(new Request("https://market.test/llms.txt"))).text();
+  assert.doesNotMatch(machineText,/Demo Reading|Other Lookup/u);
+  const publicCard=await (await market.fetch(new Request("https://market.test/.well-known/agent-card.json"))).json();
+  assert.equal(publicCard.skills.length,0);
+  const held=await market.fetch(new Request("https://market.test/v1/demo",{
+    method:"POST",headers:{"content-type":"application/json"},body:'{"seed":1}'
+  }));
+  assert.equal(held.status,404);
+  assert.equal(held.headers.get("payment-required"),null);
+});
 test("marketRails reads the deployment and never invents a payout address", () => {
   assert.deepEqual(marketRails(ENV), { network: NETWORK, payTo: PAY_TO, asset: USDC, facilitatorUrl: "https://facilitator.invalid" });
   assert.throws(() => marketRails({ X402_NETWORK: NETWORK, X402_FACILITATOR: "https://f.invalid" }), /X402_PAY_TO/u);
@@ -158,6 +237,31 @@ test("one market serves offers from many gateways and refuses an empty or collid
   assert.deepEqual(market.offers.map((offer) => offer.declaration.gateway), ["demo-gateway", "other-gateway"]);
   assert.throws(() => createMarket({ catalog: [] }), /nonempty/u);
   assert.throws(() => createMarket({ catalog: [postDeclaration(), getDeclaration({ route: "/v1/demo", method: "POST", bodyExample: {} })], env: ENV, compute: { "/v1/demo": () => ({}) } }), /declared by both/u);
+});
+
+test("source-qualified held proposals construct without installing compute bindings or customer stores", async () => {
+  let store = 0, imported = 0;
+  const market = createMarket({
+    catalog: [postDeclaration({ saleStatus: "held", listed: false,
+      compute: { package: "@red-cup-engineering/not-yet-installed", export: "futureProvider" },
+      validate: { package: "@red-cup-engineering/not-yet-installed", export: "futureAdmission" },
+      recoverable: true })],
+    env: ENV,
+    facilitatorClient: unpaidFacilitator(),
+    compute: {},
+    load: async () => { imported++; throw new Error("unreceived producer must not be loaded"); },
+    purchaseStoreForOffer: () => { store++; throw new Error("held proposal must not open customer storage"); },
+  });
+  const refused = await market.fetch(new Request("https://market.test/v1/demo", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed: 2 }),
+  }));
+  assert.equal(refused.status, 404);
+  assert.equal(refused.headers.get("payment-required"), null);
+  assert.equal(imported, 0);
+  assert.equal(store, 0);
+  assert.equal(market.catalog().offers.length, 1, "source identity survives without a live seller claim");
+  assert.equal(market.catalog().offers[0].listed, false);
 });
 
 test("an offer without a compute binding and without a supplied compute is refused at construction", () => {
@@ -330,6 +434,9 @@ test("invalid, credential-bearing or query-bearing proxy origins refuse without 
     "https://user:pass@node-market.561.group",
     "https://node-market.561.group/?unsafe=true",
     "https://node-market.561.group/#unreceived",
+    "https://node-market.561.group/internal-prefix",
+    "https://market.test",
+    "https://market.test:443",
   ]) {
     const market = demoMarket({
       catalog: [postDeclaration()], nodeOrigin, proxyCatalog: [getDeclaration()],
@@ -470,6 +577,14 @@ test("the public catalog readout lists every offer with its contract, price, evi
   assert.equal(readout.offers[1].evidence.status, "deterministic derivation");
   assert.deepEqual(readout.offers[1].compute, { package: "@lenticule-science/demo-astronomy", export: "computePositions" });
   assert.equal(readout.offers[0].amountAtomic, "20000");
+  for(const [index,offer] of market.offers.entries()){
+    assert.equal(readout.offers[index].sku,offer.sku);
+    assert.equal(readout.offers[index].cell,offer.cell);
+    assert.equal(readout.offers[index].law,offer.law);
+    for(const key of ["sku","cell","law"])assert.match(readout.offers[index][key],/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
+    assert.equal(readout.offers[index].sourceRightsVerification,"not-declared");
+  }
+
   assert.deepEqual(readout, marketCatalogReadout(market.offers, market.rails()));
   assert.equal(readout.settlement.network, NETWORK);
   assert.equal(readout.settlement.asset, USDC);

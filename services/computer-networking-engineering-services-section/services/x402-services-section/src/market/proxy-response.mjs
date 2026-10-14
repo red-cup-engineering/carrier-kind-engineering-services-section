@@ -1,4 +1,5 @@
 import { isPaymentRequiredV2 } from "@x402/core/schemas";
+import { decodePaymentResponseHeader } from "@x402/core/http";
 import { exactMerchantTermsMatch } from "../offer.mjs";
 
 function decodePaymentRequired(value) {
@@ -25,8 +26,35 @@ function containsSameDeclaredFields(actual, expected) {
 /** Receive the merchant's native public challenge and preserve its header and body bytes.
  * The transport address is not the priced resource. The selected offer may name
  * its canonical endpoint while the actual HTTP request carries query inputs. */
-export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = publicUrl, expectedTerms } = {}) {
-  if (upstream.status !== 402) return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: upstream.headers });
+export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = publicUrl, expectedTerms, signedRequest = false } = {}) {
+  if (upstream.status !== 402) {
+    // The backend is trusted to execute its own x402 facilitator, but the
+    // public merchant must not blindly relay a successful *paid* response
+    // whose settlement evidence contradicts the accepted merchant rails.
+    // Access-granted or ordinary unpriced 2xx responses remain unchanged.
+    if (signedRequest && upstream.ok) {
+      const encoded = upstream.headers.get("PAYMENT-RESPONSE");
+      let settlement;
+      if (encoded && encoded.length <= 65_536) {
+        try { settlement = decodePaymentResponseHeader(encoded); } catch { /* refuse below */ }
+      }
+      const termsValid = typeof expectedTerms?.network === "string" &&
+        /^eip155:[1-9][0-9]*$/u.test(expectedTerms.network) &&
+        typeof expectedTerms?.amount === "string" &&
+        /^(0|[1-9][0-9]*)$/u.test(expectedTerms.amount);
+      const matched = termsValid &&
+        settlement?.success === true &&
+        settlement.network === expectedTerms.network &&
+        /^0x[0-9a-fA-F]{64}$/u.test(settlement.transaction ?? "") &&
+        (settlement.amount === undefined || settlement.amount === expectedTerms.amount);
+      if (!matched) {
+        await upstream.body?.cancel();
+        return Response.json({ error: "upstream paid response has no matching successful merchant settlement" },
+          { status: 502, headers: { "cache-control": "no-store" } });
+      }
+    }
+    return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: upstream.headers });
+  }
   const encoded = upstream.headers.get("PAYMENT-REQUIRED");
   // A native payment boundary must never relay an unusable or unbounded quote.
   // Otherwise buyers could receive an apparently legitimate 402 from the market
@@ -99,13 +127,23 @@ export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = 
   }
   const contentType = upstream.headers.get("content-type") ?? "";
   if (contentType.toLowerCase().includes("json")) {
+    let inline;
     try {
-      const inline = JSON.parse(new TextDecoder().decode(body));
-      if (isPaymentRequiredV2(inline) && !containsSameDeclaredFields(inline, challenge)) {
-        return Response.json({ error: "inline payment challenge contradicts PAYMENT-REQUIRED" }, { status: 502 });
-      }
-    } catch (error) {
-      if (!(error instanceof SyntaxError)) throw error;
+      inline = JSON.parse(new TextDecoder().decode(body));
+    } catch {
+      // A JSON-labeled 402 with unreadable JSON is not a trustworthy
+      // merchant representation, even when its header parses correctly.
+      return Response.json({ error: "upstream JSON payment challenge is malformed" }, { status: 502 });
+    }
+    // A malformed body that *purports* to be PaymentRequired must not be
+    // passed along merely because it fails the official schema predicate.
+    // Ordinary JSON error documents without these x402 fields remain valid.
+    const advertisesTerms = inline !== null && typeof inline === "object" &&
+      !Array.isArray(inline) && ["x402Version", "resource", "accepts"]
+        .some((key) => Object.hasOwn(inline, key));
+    if (advertisesTerms &&
+        (!isPaymentRequiredV2(inline) || !containsSameDeclaredFields(inline, challenge))) {
+      return Response.json({ error: "inline payment challenge is invalid or contradicts PAYMENT-REQUIRED" }, { status: 502 });
     }
   }
 
