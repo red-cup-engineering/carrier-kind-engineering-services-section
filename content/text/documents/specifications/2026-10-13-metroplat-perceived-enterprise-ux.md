@@ -55,6 +55,17 @@ https://help.asana.com/s/article/task-dependencies. Other named platforms identi
 the comparison families; detailed parity still requires their authoritative
 capability and workflow research.
 
+The 2026-10-13 correction rejects repeated partial compilation as the means of
+choosing dependency repairs. The authored development rule and existing intake
+now require source assessment of the complete selected consumer/supplier
+composition before construction. The source-only harness index places methods
+first, links complete office/duty records, and includes recursively referenced
+local method sources in freshness custody. The actual primary projection received
+108 source digests, including development intake; a second projection was already
+current. This receives source context only: native `rules` remains unavailable to
+the authenticated account, and neither context nor partial compilation qualifies
+the public UX. Original enterprise workflows remain the delivery boundary.
+
 ## Requirements and recovered sources
 
 Agent discovery must reach a conversation without requiring a person to memorize
