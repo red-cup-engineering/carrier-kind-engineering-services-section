@@ -110,13 +110,10 @@ if (existing) {
   process.exit(75);
 }
 
-const vcn = (await ociJson("network", "vcn", "list", "--compartment-id", tenancy, "--display-name", `${NETWORK}-vcn`, "--all")).data[0];
-const subnet = (await ociJson("network", "subnet", "list", "--compartment-id", tenancy, "--vcn-id", vcn.id, "--display-name", `${NETWORK}-subnet`, "--all")).data[0];
-const image = (await ociJson(
-  "compute", "image", "list", "--compartment-id", tenancy, "--shape", SHAPE,
-  "--operating-system", "Canonical Ubuntu", "--operating-system-version", "24.04", "--sort-by", "TIMECREATED", "--all",
-)).data[0];
-const sshKey = (await readFile(sshPublicKeyFile, "utf8")).trim();
+// Observation must not depend on an already provisioned VCN, subnet, image,
+// or local SSH key. These are execution resources, not quota telemetry.
+// Admit them only after the complete inventory and limit check, and only for
+// an explicit launch rather than a read-only preflight.
 const domainRows = (await ociJson("iam", "availability-domain", "list", "--compartment-id", tenancy)).data;
 if (!Array.isArray(domainRows) || domainRows.length === 0) throw new Error("OCI availability domain inventory is incomplete");
 const domains = domainRows.map((domain) => domain.name);
@@ -154,6 +151,26 @@ async function limitsHaveRoom(detail, domain) {
   return true;
 }
 
+async function requireLaunchResources() {
+  const networks = (await ociJson("network", "vcn", "list", "--compartment-id", tenancy,
+    "--display-name", `${NETWORK}-vcn`, "--all")).data;
+  if (!Array.isArray(networks) || networks.length !== 1 || !networks[0]?.id)
+    throw new TypeError("OCI launch VCN is absent or ambiguous");
+  const subnets = (await ociJson("network", "subnet", "list", "--compartment-id", tenancy,
+    "--vcn-id", networks[0].id, "--display-name", `${NETWORK}-subnet`, "--all")).data;
+  if (!Array.isArray(subnets) || subnets.length !== 1 || !subnets[0]?.id)
+    throw new TypeError("OCI launch subnet is absent or ambiguous");
+  const images = (await ociJson("compute", "image", "list", "--compartment-id", tenancy,
+    "--shape", SHAPE, "--operating-system", "Canonical Ubuntu",
+    "--operating-system-version", "24.04", "--sort-by", "TIMECREATED", "--all")).data;
+  if (!Array.isArray(images) || !images[0]?.id)
+    throw new TypeError("OCI launch image is absent");
+  const sshKey = (await readFile(sshPublicKeyFile, "utf8")).trim();
+  if (!/^ssh-(?:ed25519|rsa) [A-Za-z0-9+/]+=*(?:\s[^\r\n]*)?$/u.test(sshKey))
+    throw new TypeError("OCI launch requires one valid SSH public key");
+  return { subnet: subnets[0], image: images[0], sshKey };
+}
+let launchResources = null;
 let quotaQualifiedDomains = 0;
 const launchRefusals = [];
 for (const domain of domains) {
@@ -180,6 +197,10 @@ for (const domain of domains) {
   // Qualify all domains without creating any resource in observe-only mode.
   if (OBSERVE_ONLY) continue;
   try {
+    // Resolve launch-only resources lazily. A quota probe neither demands nor
+    // creates networking, machine images or any SSH identity carrier.
+    if (launchResources === null) launchResources = await requireLaunchResources();
+    const { subnet, image, sshKey } = launchResources;
     const launched = await ociJson(
       "compute", "instance", "launch", "--no-retry",
       "--compartment-id", tenancy, "--availability-domain", domain, "--subnet-id", subnet.id,
