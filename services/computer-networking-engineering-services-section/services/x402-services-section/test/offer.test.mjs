@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { validateBazaarRouteExtensions, validateDiscoveryExtension, validateDiscoveryExtensionSpec, isValidRouteTemplate, isValidServiceName } from "@x402/extensions/bazaar";
 import { createExactEvmFetchPaymentBoundary } from "../src/fetch-server.mjs";
+import { marketCatalogReadout } from "../src/market/catalog.mjs";
 
 import {
   CAPABILITY_OFFER_KIND,
@@ -533,4 +534,38 @@ test("single kernel law matches the same exact merchant terms in proxy and indep
     amount: "1e5" }), /canonical atomic amount/u);
   assert.throws(() => exactMerchantTermsMatch({ accepts: [allowed] }, { ...expected,
     network: "Base" }), /CAIP-2/u);
+});
+
+
+test("one source-rights claim survives native catalog, actor offer and seller projections without becoming a license verification", () => {
+  const rights = {
+    basis: "public-domain",
+    sourceUrl: "https://nauticalcharts.noaa.gov/data/data-licensing.html",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    permissions: ["execute","transform","redistribute","commercialize","resell"],
+    evidenceNis: ["ni:///sha-256;"+"A".repeat(43)],
+    observedAt: "2026-10-13T20:00:00Z"
+  };
+  const offered = declareOffer(getDeclaration({sourceRightsClaim:rights}));
+  assert.deepEqual(offered.declaration.sourceRightsClaim, rights);
+  const catalog = marketCatalogReadout([offered]);
+  assert.deepEqual(catalog.offers[0].sourceRightsClaim, rights);
+  assert.equal(catalog.offers[0].sourceRightsVerification, "unassayed");
+  const actor = offered.capabilityOffer({network:NETWORK,asset:USDC,
+    agentCard:"https://pacing.example.test/.well-known/agent-card.json",
+    expiresAt:"2027-10-13T20:00:00Z"});
+  assert.deepEqual(actor.sourceRightsClaim, rights);
+  assert.equal(actor.sourceRightsVerification, "unassayed");
+  const seller = offered.sellerCatalogRow(RAILS);
+  assert.equal(seller.sourceRightsVerification, "unassayed");
+  assert.deepEqual(seller.sourceRightsClaim, rights);
+  assert.ok(!("sourceRightsVerification" in marketCatalogReadout([declareOffer(getDeclaration())]).offers[0]));
+  for(const mutation of [
+    {permissions:["execute","transform"]},
+    {sourceUrl:"https://user:pass@noaa.gov/private"},
+    {licenseUrl:"http://licenses.example.test/legal"},
+    {evidenceNis:["not-a-ni"]},
+    {expiresAt:"2026-10-12T00:00:00Z"},
+  ]) assert.throws(() => declareOffer(getDeclaration({sourceRightsClaim:{...rights,...mutation}})),
+    /commercial|HTTPS|source rights|admissible|expiry/u);
 });
