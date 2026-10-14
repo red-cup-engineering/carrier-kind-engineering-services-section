@@ -470,6 +470,14 @@ test("the public catalog readout lists every offer with its contract, price, evi
   assert.equal(readout.offers[1].evidence.status, "deterministic derivation");
   assert.deepEqual(readout.offers[1].compute, { package: "@lenticule-science/demo-astronomy", export: "computePositions" });
   assert.equal(readout.offers[0].amountAtomic, "20000");
+  for(const [index,offer] of market.offers.entries()){
+    assert.equal(readout.offers[index].sku,offer.sku);
+    assert.equal(readout.offers[index].cell,offer.cell);
+    assert.equal(readout.offers[index].law,offer.law);
+    for(const key of ["sku","cell","law"])assert.match(readout.offers[index][key],/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
+    assert.equal(readout.offers[index].sourceRightsVerification,"not-declared");
+  }
+
   assert.deepEqual(readout, marketCatalogReadout(market.offers, market.rails()));
   assert.equal(readout.settlement.network, NETWORK);
   assert.equal(readout.settlement.asset, USDC);
