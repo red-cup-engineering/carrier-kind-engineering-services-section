@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { encodePaymentRequiredHeader, decodePaymentRequiredHeader } from "@x402/core/http";
+import { encodePaymentRequiredHeader, decodePaymentRequiredHeader, encodePaymentResponseHeader } from "@x402/core/http";
 import { projectProxyResponse } from "../../src/market/proxy-response.mjs";
 
 const endpoint="https://market.561.group/v1/four/reading-convert";
@@ -99,4 +99,47 @@ test("the proxy bounds optional 402 bodies by bytes, not a trusted content-lengt
   }), {status: 402, headers: {"payment-required": paymentHeader}}), { publicUrl: endpoint });
   assert.equal(streamedTooLarge.status, 502);
   assert.equal(streamedTooLarge.headers.get("payment-required"), null);
+});
+
+test("signed Node-proxied delivery requires a valid receipt matching the public merchant's network and quoted amount",async()=>{
+  const terms=native().accepts[0];
+  const expectedTerms={network:terms.network,asset:terms.asset,payTo:terms.payTo,amount:terms.amount};
+  const transaction="0x"+"ab".repeat(32);
+  const good={success:true,transaction,network:terms.network,amount:terms.amount,payer:"0x"+"11".repeat(20)};
+  const paidBody=Uint8Array.of(0,255,42);
+  const upstream=(settlement,header)=>
+    new Response(paidBody,{status:200,headers:header===undefined?
+      {"payment-response":encodePaymentResponseHeader(settlement)}:header});
+  const accepted=await projectProxyResponse(upstream(good),{publicUrl:endpoint,expectedTerms,signedRequest:true});
+  assert.equal(accepted.status,200);
+  assert.deepEqual(new Uint8Array(await accepted.arrayBuffer()),paidBody);
+  for(const [label,corrupt] of [
+    ["missing header",new Response(paidBody,{status:200})],
+    ["bad header",new Response(paidBody,{status:200,headers:{"payment-response":"???"}})],
+    ["wrong network",upstream({...good,network:"eip155:1"})],
+    ["wrong amount",upstream({...good,amount:"2"})],
+    ["false success",upstream({...good,success:false})],
+    ["missing transaction",upstream({...good,transaction:""})],
+    ["bad transaction",upstream({...good,transaction:"0xbeef"})],
+    ["no expected terms",upstream(good)],
+  ]) {
+    const result=await projectProxyResponse(corrupt,{publicUrl:endpoint,signedRequest:true,
+      ...(label==="no expected terms"?{}:{expectedTerms})});
+    assert.equal(result.status,502,label);
+    assert.equal(result.headers.get("payment-response"),null,label);
+    assert.match((await result.json()).error,/matching successful merchant settlement/u,label);
+  }
+  const oversized=new Response(paidBody,{status:200,headers:{"payment-response":"A".repeat(65537)}});
+  assert.equal((await projectProxyResponse(oversized,{publicUrl:endpoint,signedRequest:true,expectedTerms})).status,502);
+});
+
+test("grant/public success is unchanged without a signed payment and paid failures retain native failure status",async()=>{
+  const publicBody=JSON.stringify({hello:"public"});
+  const granted=await projectProxyResponse(new Response(publicBody,{status:200,headers:{"content-type":"application/json"}}),{publicUrl:endpoint});
+  assert.equal(granted.status,200);
+  assert.equal(await granted.text(),publicBody);
+  const failed=await projectProxyResponse(new Response("not ready",{status:503}),{
+    publicUrl:endpoint,signedRequest:true,expectedTerms:{network:"eip155:8453",amount:"1000"}});
+  assert.equal(failed.status,503);
+  assert.equal(await failed.text(),"not ready");
 });
