@@ -68,6 +68,35 @@ export function offerPriceText(declaration) {
 }
 
 
+
+/**
+ * Does every offered x402 exact-EVM payment alternative match the merchant's
+ * authorized contract? This is a pure comparison, *not* a payment validation:
+ * the official x402 schema and signatures are checked at their own boundary.
+ * Accepts may contain several choices, so one unauthorized choice poisons the
+ * entire quote instead of being silently hidden from the buyer.
+ *
+ * Shared by the direct market receiver and the Node proxy; never duplicate the
+ * merchant payment-law comparisons in the site or a transport adapter.
+ */
+export function exactMerchantTermsMatch(paymentRequired, { network, asset, amount, payTo } = {}) {
+  requireNetwork(network);
+  requireAddress(asset, "asset");
+  if (payTo !== undefined) requireAddress(payTo, "payTo");
+  if (typeof amount !== "string" || !/^(0|[1-9][0-9]{0,77})$/u.test(amount) ||
+      BigInt(amount) > MAX_ATOMIC_AMOUNT) {
+    throw new TypeError("merchant comparison requires canonical atomic amount");
+  }
+  const accepts = paymentRequired?.accepts;
+  return Array.isArray(accepts) && accepts.length > 0 && accepts.length <= 32 &&
+    accepts.every(entry =>
+      entry?.scheme === "exact" &&
+      entry.network === network &&
+      entry.asset?.toLowerCase() === asset.toLowerCase() &&
+      entry.amount === amount &&
+      (payTo === undefined || entry.payTo?.toLowerCase() === payTo.toLowerCase()));
+}
+
 // An explicit AssetAmount bypasses the SDK's money conversion, including its
 // signing metadata. Recover that metadata from the SDK's token registry while
 // retaining our exact integer price and the deployment's chosen asset.
