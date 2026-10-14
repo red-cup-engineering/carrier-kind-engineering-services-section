@@ -16,7 +16,8 @@
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-system-engine": "workspace:*"
+    "@red-cup-engineering/computer-system-engine": "workspace:*",
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
   },
   "files": [
     "src",
@@ -69,7 +70,9 @@
     "./content-digest": "./src/content-digest.mjs",
     "./json-api-query": "./src/json-api-query.mjs",
     "./public-json-observation": "./src/public-json-observation.mjs",
-    "./operations": "./src/operations.mjs"
+    "./operations": "./src/operations.mjs",
+    "./retry-after": "./src/retry-after.mjs",
+    "./acquire-response": "./src/acquire-response.mjs"
   },
   "engines": {
     "node": ">=22.18"

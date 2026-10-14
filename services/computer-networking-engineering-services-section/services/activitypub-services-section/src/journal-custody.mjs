@@ -4,6 +4,9 @@ import { Activity } from "@fedify/vocab";
 import { semanticAddress } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { each, get, put, readHead, threadName, writeHead } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import path from "node:path";
+import { makeNiUri, verifyNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
+import { immutableContentKey } from "@red-cup-engineering/immutable-content-custody-service";
+import { createFileStoreSync } from "@red-cup-engineering/immutable-content-custody-service/file-store";
 import { FlatfileKvStore } from "./flatfile-kv.mjs";
 import { extractSenActivity } from "./sen-activity.mjs";
 import { admitNormalizedSemanticContent } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
@@ -35,6 +38,26 @@ export const INBOX_TYPE = "activitypub-inbox";
 export const FOLLOWER_TYPE = "activitypub-follower";
 export const OUTBOX_TYPE = "activitypub-outbox";
 const PAGE = 100;
+
+// Bodies can exceed the record bound. Records name verified immutable custody;
+// collection paging opens only the bodies returned to its caller.
+function keepActivity(root, activity) {
+  const body = Buffer.from(canonicalJson(activity), "utf8");
+  const activityNi = makeNiUri(body);
+  const store = createFileStoreSync(path.join(root, "custody"));
+  const key = immutableContentKey(activityNi);
+  store.putIfAbsent(key, { body, mediaType: "application/json" });
+  const held = store.get(key);
+  if (held === null || !Buffer.from(held.body).equals(body)) throw new Error("ActivityPub body failed immutable custody readback");
+  return { activityNi, activityBytes: body.length };
+}
+
+function activityOf(root, record) {
+  if (typeof record.activityNi !== "string" || !Number.isSafeInteger(record.activityBytes)) throw new TypeError("ActivityPub body requires custody conversion before receiving");
+  const held = createFileStoreSync(path.join(root, "custody")).get(immutableContentKey(record.activityNi));
+  if (held === null || held.mediaType !== "application/json" || held.body.length !== record.activityBytes || !verifyNiUri(held.body, record.activityNi)) throw new Error("ActivityPub body differs from immutable custody");
+  return JSON.parse(Buffer.from(held.body).toString("utf8"));
+}
 
 /** Recording instants that strictly increase within the process, so record order is append order. */
 function instants() {
@@ -95,30 +118,34 @@ function inboxOf(root, now) {
       const key = keyOf(receipt);
       const held = kept(root, INBOX_TYPE, key);
       if (held !== undefined) {
-        if (canonicalJson(held.activity) !== activityJson || canonicalJson(held.receipt) !== canonicalJson(receipt)) throw new Error("immutable ActivityPub custody record differs from the verified arrival");
+        if (canonicalJson(activityOf(root, held)) !== activityJson || canonicalJson(held.receipt) !== canonicalJson(receipt)) throw new Error("immutable ActivityPub custody record differs from the verified arrival");
         return receipt;
       }
-      keep(root, INBOX_TYPE, key, { key, receipt, recipient: receipt.recipient, activity, at: now() });
+      const reply = correlate(activity);
+      keep(root, INBOX_TYPE, key, { key, receipt, recipient: receipt.recipient, ...keepActivity(root, activity), ...(reply === null ? {} : { reply }), at: now() });
       return receipt;
     },
     async replyFor({ identifier, request, sender }) {
       if ([identifier, request, sender].some(value => typeof value !== "string" || !value)) throw new TypeError("reply lookup requires its actor, request and expected sender");
-      const held = arrivals().findLast(row => row.recipient === identifier && correlate(row.activity)?.request === request && correlate(row.activity)?.sender === sender);
+      const held = arrivals().findLast(row => row.recipient === identifier && row.reply?.request === request && row.reply?.sender === sender);
       if (held === undefined) return null;
-      if (!validReceipt(held.receipt) || held.receipt.recipient !== identifier || sha256Hex(canonicalJson(held.activity)) !== held.receipt.bodySha256 || keyOf(held.receipt) !== held.key) throw new Error("correlated reply differs from verified custody");
-      return Object.freeze(held.activity);
+      const activity = activityOf(root, held);
+      const reply = correlate(activity);
+      if (!validReceipt(held.receipt) || held.receipt.recipient !== identifier || sha256Hex(canonicalJson(activity)) !== held.receipt.bodySha256 || keyOf(held.receipt) !== held.key || reply?.request !== request || reply?.sender !== sender) throw new Error("correlated reply differs from verified custody");
+      return Object.freeze(activity);
     },
     async get(receipt) {
       if (!validReceipt(receipt)) throw new TypeError("ActivityPub verified-arrival receipt is invalid");
       const held = kept(root, INBOX_TYPE, keyOf(receipt));
       if (held === undefined) return null;
-      if (canonicalJson(held.receipt) !== canonicalJson(receipt) || sha256Hex(canonicalJson(held.activity)) !== receipt.bodySha256) throw new Error("immutable ActivityPub custody record does not match its receipt");
-      return Object.freeze({ activity: held.activity, receipt });
+      const activity = activityOf(root, held);
+      if (canonicalJson(held.receipt) !== canonicalJson(receipt) || sha256Hex(canonicalJson(activity)) !== receipt.bodySha256) throw new Error("immutable ActivityPub custody record does not match its receipt");
+      return Object.freeze({ activity, receipt });
     },
     async list({ identifier, cursor, limit } = {}) {
       const rows = arrivals().filter((row) => identifier === undefined || row.recipient === identifier);
       const page = pageOf(rows, { cursor, limit, invalid: "ActivityPub inbox cursor is invalid" });
-      return Object.freeze({ items: Object.freeze(page.items.map((row) => row.activity)), totalItems: rows.length, ...(page.nextCursor === undefined ? {} : { nextCursor: page.nextCursor }) });
+      return Object.freeze({ items: Object.freeze(page.items.map((row) => activityOf(root, row))), totalItems: rows.length, ...(page.nextCursor === undefined ? {} : { nextCursor: page.nextCursor }) });
     },
   });
 }
@@ -164,11 +191,12 @@ export function createActivityPubJournalOutbox({ root, now = instants() } = {}) 
     for (const record of recordedIn(root, OUTBOX_TYPE)) if (!byId.has(record.activityId)) byId.set(record.activityId, record);
     return [...byId.values()];
   };
-  const keepOutgoing = (record) => keep(root, OUTBOX_TYPE, record.activityId, { ...record, at: now() });
+  const keepOutgoing = ({ activity, ...record }) => keep(root, OUTBOX_TYPE, record.activityId, { ...record, ...keepActivity(root, activity), at: now() });
   const select = ({ actorId, publicOnly = false } = {}) => outgoing().filter((row) => (actorId === undefined || row.actorId === actorId) && (!publicOnly || row.isPublic));
   const open = async (row) => {
-    if (semanticAddress(row.activity).id !== row.contentNi) throw new Error("ActivityPub outgoing custody differs from its SignCell identity");
-    return Activity.fromJsonLd(row.activity);
+    const activity = activityOf(root, row);
+    if (semanticAddress(activity).id !== row.contentNi) throw new Error("ActivityPub outgoing custody differs from its SignCell identity");
+    return Activity.fromJsonLd(activity);
   };
   return Object.freeze({
     count: (selection) => select(selection).length,
@@ -201,7 +229,7 @@ export function createActivityPubJournalOutbox({ root, now = instants() } = {}) 
       const held = outgoing().find(row => row.requestNi === requestNi);
       if (held !== undefined) {
         await open(held);
-        return Object.freeze({ appended: false, contentNi: held.contentNi, held: Object.freeze(held.activity) });
+        return Object.freeze({ appended: false, contentNi: held.contentNi, held: Object.freeze(activityOf(root, held)) });
       }
       if (outgoing().some(row => row.activityId === wire.id)) throw new TypeError("reusable request collides with another outgoing event");
       const identity = semanticAddress(wire);
@@ -230,10 +258,10 @@ export function createActivityPubJournalOutbox({ root, now = instants() } = {}) 
 }
 
 /** The whole custody of one ActivityPub state directory: store records and the flat-file KV. */
-export function createActivityPubJournalCustody({ stateDirectory } = {}) {
+export function createActivityPubJournalCustody({ stateDirectory, now = instants() } = {}) {
   if (typeof stateDirectory !== "string" || stateDirectory === "") throw new TypeError("ActivityPub journal custody requires a state directory");
+  if (typeof now !== "function") throw new TypeError("ActivityPub custody requires a recording clock");
   const root = path.resolve(stateDirectory, "journal");
-  const now = instants();
   const inbox = inboxOf(root, now);
   return Object.freeze({
     kv: new FlatfileKvStore({ directory: path.resolve(stateDirectory, "kv") }),
