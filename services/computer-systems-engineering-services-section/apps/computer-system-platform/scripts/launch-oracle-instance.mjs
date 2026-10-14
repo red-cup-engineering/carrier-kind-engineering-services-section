@@ -50,12 +50,35 @@ const configFile = process.env.OCI_CONFIG_FILE ?? join(homedir(), ".oci/config")
 const profile = selectOciProfile(await readFile(configFile, "utf8"), process.env);
 const sshPublicKeyFile = process.env.SSH_PUBLIC_KEY_FILE ?? join(homedir(), ".ssh/id_ed25519.pub");
 
+// Provider stderr is private tenancy/credential-adjacent evidence. Only this
+// closure retains it for the narrow native LimitExceeded rationing assay.
+const privateOciErrors = new WeakMap();
 async function ociJson(...args) {
-  const { stdout } = await run(oci, [...args, "--profile", profile, "--config-file", configFile, "--output", "json"], {
-    env: { ...process.env, OCI_CLI_AUTH: "api_key", SUPPRESS_LABEL_WARNING: "True" },
-    maxBuffer: 64 * 1024 * 1024,
-  });
-  return stdout.trim() === "" ? { data: [] } : JSON.parse(stdout);
+  let stdout;
+  try {
+    ({ stdout } = await run(oci,
+      [...args, "--profile", profile, "--config-file", configFile, "--output", "json"], {
+        env: { ...process.env, OCI_CLI_AUTH: "api_key", SUPPRESS_LABEL_WARNING: "True" },
+        maxBuffer: 64 * 1024 * 1024,
+      }));
+  } catch (error) {
+    const detail = String(error?.stderr ?? "") + "\n" + String(error?.message ?? "");
+    const kind = classifyOciLaunchRefusal(detail);
+    const refusal = new Error("OCI native operation refused: " + kind);
+    refusal.providerRefusalKind = kind;
+    privateOciErrors.set(refusal, detail);
+    throw refusal;
+  }
+  // Empty stdout and partial/invalid JSON can never evidence zero consumption.
+  if (typeof stdout !== "string" || !stdout.trim())
+    throw new TypeError("OCI native response is empty; capacity remains unknown");
+  let response;
+  try { response = JSON.parse(stdout); }
+  catch { throw new TypeError("OCI native response is invalid JSON; capacity remains unknown"); }
+  if (!response || typeof response !== "object" || Array.isArray(response) ||
+      !Object.hasOwn(response, "data"))
+    throw new TypeError("OCI native response omitted required data");
+  return response;
 }
 
 async function tenancyOf(profileName) {
@@ -238,9 +261,10 @@ for (const domain of domains) {
     process.stdout.write(`${NAME} provider launch accepted in ${domain}; LAGOON/Guix receiving and billing readback remain required\n`);
     process.exit(0);
   } catch (error) {
-    // No raw provider stderr is admitted to CI logs or public receipts.
-    const detail = `${error.stderr ?? ""}\n${error.message ?? ""}`;
-    const kind = classifyOciLaunchRefusal(detail);
+    // The only use of raw stderr is this private limit-rationing check.
+    // User-visible refusals carry only the known provider error class.
+    const detail = privateOciErrors.get(error) ?? "";
+    const kind = error?.providerRefusalKind ?? classifyOciLaunchRefusal(detail);
     launchRefusals.push(kind);
     if (kind === "host-capacity-unavailable" || kind === "provider-rate-limited") continue;
     if (kind === "provider-limit-exceeded") {
