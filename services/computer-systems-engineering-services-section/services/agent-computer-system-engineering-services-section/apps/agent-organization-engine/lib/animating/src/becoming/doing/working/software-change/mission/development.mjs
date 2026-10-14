@@ -17,6 +17,7 @@ import { createHistory, restoreHistory, observeHistory, materializeHistory } fro
 import { canonicalCarrier, semanticId } from '@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address';
 import { dispatchInferenceAsConfiguredCustomer, INFERENCE_WORK_CUSTOMER } from '@red-cup-engineering/computer-inference-engine/dispatch/inference-dispatch';
 import { fabricationOperations } from '@red-cup-engineering/computer-code-development-engine/fabrication/operations';
+import { prepareSourceDeliverySync } from '@red-cup-engineering/computer-code-development-engine/git/source-delivery';
 import { captureSoftwareChangeSource, projectFabricatedSoftwareChanges, induceVerifiedSoftwareMissionProposal } from './agent-tools.mjs';
 import { validateAcceptanceCapsule, materializeAcceptanceCapsule, loadAcceptanceCapsule } from './acceptance-capsule.mjs';
 import { constructionReviewRequest, admitConstructionReview } from './construction-admission.mjs';
@@ -619,6 +620,69 @@ export { captureSoftwareChangeSource, projectFabricatedSoftwareChanges, induceVe
  * A remote request supplies intent. The receiving host supplies its territory,
  * checks, reading/writing lanes and authority from the operative work contract.
  */
+/** Bind a human's source requirement to authenticated repository rights. This
+ * caller-owned source entrance makes no office appointment or deployment claim.
+ * It uses the same addressed products, fabrication, receiving and delivery as
+ * the organizational host. Requirement/source inputs belong to the host, never
+ * to the actor's request; GitHub credentials remain in their protocol owner.
+ */
+export function sourceAuthorizedDevelopmentOperations(binding, {requirement,source,github=githubApi(),...execution}={}) {
+ const held=structuredClone({requirement,source});
+ const demand=held.requirement,authoritySource=held.source;
+ for(const key of ['work','revision','objective','verifyCommand','acceptanceCommand'])nonempty(demand?.[key],key);
+ for(const key of ['principal','repository','repositoryRoot','sourceBase','instruction'])nonempty(authoritySource?.[key],key);
+ if(!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(authoritySource.repository)
+   ||!/^[a-f0-9]{40}$/u.test(authoritySource.sourceBase))throw new TypeError('source development needs exact repository and commit identities');
+ const repository=realpathSync(authoritySource.repositoryRoot);
+ const territory=realpathSync(resolve(repository,nonempty(demand.territory,'territory')));
+ if(territory!==repository&&!territory.startsWith(repository+sep))throw new TypeError('source development territory leaves its repository');
+ for(const key of ['readablePaths','writablePaths']){
+  if(!Array.isArray(demand[key])||demand[key].length>128||new Set(demand[key]).size!==demand[key].length)
+   throw new TypeError('source development needs bounded unique '+key);
+  for(const path of demand[key])if(relative(territory,admittedPath(territory,path)).split(sep).join('/')!==path)
+   throw new TypeError('source development lanes must be canonical');
+ }
+ if(demand.workType!==undefined&&!['inquiry','software-change'].includes(demand.workType))throw new TypeError('unknown source development closure');
+ const grant=stamp('software-development.source-requirement',held);
+ const authority=[demand.work,demand.revision,grant.id];
+ const authorize=async subject=>{
+  if(subject!==authoritySource.principal)throw new TypeError('source development principal differs from its human authorization');
+  const git=args=>execFileSync('git',args,{cwd:repository,encoding:'utf8',timeout:10000,maxBuffer:1024*1024}).trim();
+  if(realpathSync(git(['rev-parse','--show-toplevel']))!==repository
+    ||git(['rev-parse','--verify',authoritySource.sourceBase+'^{commit}'])!==authoritySource.sourceBase)
+   throw new TypeError('source development repository custody changed');
+  const owns=url=>['https://github.com/'+authoritySource.repository,'git@github.com:'+authoritySource.repository,
+   'ssh://git@github.com/'+authoritySource.repository].some(base=>url===base||url===base+'.git');
+  if(!owns(git(['remote','get-url','origin']))||!owns(git(['remote','get-url','--push','origin'])))
+   throw new TypeError('source development transport differs from its authorized repository');
+  const [user,owner,commit]=await Promise.all([github.getAuthUser(),github.getRepo(authoritySource.repository),github.getCommit(authoritySource.repository,authoritySource.sourceBase)]);
+  if(user.login!==authoritySource.principal||owner.full_name!==authoritySource.repository||owner.permissions?.push!==true
+    ||commit.sha!==authoritySource.sourceBase)throw new TypeError('authenticated source permission is absent or changed');
+ };
+ return developmentOperations(binding,{softwareDevelopment:{...execution,
+  receiveDemand:async({request,subject})=>{
+   if(request.work!==demand.work||request.revision!==demand.revision||request.objective!==demand.objective
+     ||(request.workType!==undefined&&request.workType!==(demand.workType??'software-change'))
+     ||(request.constraints!==undefined&&JSON.stringify(request.constraints)!==JSON.stringify(demand.constraints??[])))
+    throw new TypeError('source request differs from the human-authorized requirement');
+   await authorize(subject);
+   const directory=join(binding.dataRoot,'software-development','products');mkdirSync(directory,{recursive:true});
+   publishMaterial(join(directory,contentName(grant.id)),grant);
+   const receiver={...execution.receiver,root:territory,writablePaths:demand.writablePaths,
+    verifyCommand:demand.verifyCommand,acceptanceCommand:demand.acceptanceCommand,
+    prepareDelivery:({proposal,proposalId})=>prepareSourceDeliverySync({repository,territory,
+     sourceBase:authoritySource.sourceBase,proposal,proposalId})};
+   return {demand:{...demand,territory,...(request.artifacts===undefined?{}:{artifacts:request.artifacts})},authority,
+    execution:{receiver,authorizeEffect:async effect=>{await authorize(subject);await execution.authorizeEffect?.(effect);}}};
+  },
+  receiveProduct:async({question,history,subject})=>{
+   const need=history.find(product=>product.id===question&&product.kind==='software-development.need');
+   if(!need||JSON.stringify(need.value.authority)!==JSON.stringify(authority))throw new TypeError('source product belongs to another requirement');
+   await authorize(subject);
+  },
+ }});
+}
+
 export function developmentOperations(binding, options={}) {
  const admitted=options.softwareDevelopment;
  const receiveDemand=admitted?.receiveDemand;
