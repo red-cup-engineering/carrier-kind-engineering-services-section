@@ -221,7 +221,10 @@ else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]
   data={items:process.env.SIMULATE_A1_CONTAINER?[{id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE'}]:[]};
 else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]==='get')
   data={id:'ci-a1',shape:'CI.Standard.A1.Flex','shape-config':{ocpus:1,'memory-in-gbs':6}};
-else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='list')data=[];
+else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='list')
+  data=process.env.SIMULATE_EXISTING_VM?[{id:'i-a1',shape:'VM.Standard.A1.Flex','lifecycle-state':'RUNNING','display-name':'probe'}]:[];
+else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='get')
+  data={id:'i-a1',shape:'VM.Standard.A1.Flex','shape-config':{ocpus:1,'memory-in-gbs':6}};
 else if(args[0]==='iam'&&args[1]==='availability-domain'&&args[2]==='list')data=[{name:'AD-1'}];
 else if(args[0]==='bv'&&['volume','boot-volume'].includes(args[1]))data=[];
 else if(args[0]==='limits'&&args[1]==='resource-availability'){
@@ -236,7 +239,7 @@ process.stdout.write(JSON.stringify({data}));
   await chmod(fakeCli,0o755);
   const child=spawnSync(process.execPath,[
     new URL('../scripts/launch-oracle-instance.mjs',import.meta.url).pathname,
-    '--observe-only','--name','probe-only','--shape','VM.Standard.A1.Flex',
+    '--observe-only','--shape','VM.Standard.A1.Flex',
     '--ocpus','2','--memory-gb','12','--boot-gb','50',
   ],{
     env:{...process.env,OCI_CLI:fakeCli,OCI_CONFIG_FILE:config,OCI_PROFILE:'TEST_API_KEY',
@@ -250,6 +253,7 @@ process.stdout.write(JSON.stringify({data}));
   assert.equal(received.billingVerified,false);
   assert.equal(received.physicalHostCapacityVerified,false);
   assert.equal(received.quotaQualifiedDomains,1);
+  assert.equal(received.capacity.observedAt.endsWith('Z'),true);
   assert.equal(received.capacity.type,'OciAlwaysFreeCapacityObservation');
   assert.equal(received.capacity.readings[0].proposedReservation,'2');
   assert.equal(received.capacity.readings[0].remainingAfterProposal,'0');
@@ -273,4 +277,19 @@ process.stdout.write(JSON.stringify({data}));
   assert.equal(mixture.capacity.readings[0].observedConsumption,'1');
   assert.equal(mixture.capacity.readings[0].remainingAfterProposal,'0');
   assert.equal(mixture.capacity.readings[1].remainingAfterProposal,'0');
+  const existing=spawnSync(process.execPath,[
+    new URL('../scripts/launch-oracle-instance.mjs',import.meta.url).pathname,
+    '--observe-only','--name','probe','--shape','VM.Standard.A1.Flex',
+    '--ocpus','1','--memory-gb','6','--boot-gb','50',
+  ],{
+    env:{...process.env,OCI_CLI:fakeCli,OCI_CONFIG_FILE:config,OCI_PROFILE:'TEST_API_KEY',
+      SSH_PUBLIC_KEY_FILE:join(directory,'nonexistent-ssh-key'),SIMULATE_EXISTING_VM:'1'},
+    encoding:'utf8',timeout:20000,
+  });
+  assert.equal(existing.status,0,existing.stderr);
+  const existingCapacity=JSON.parse(existing.stdout);
+  assert.equal(existingCapacity.kind,'oci.always-free-native-preflight');
+  assert.equal(existingCapacity.launched,false);
+  assert.equal(existingCapacity.capacity.readings[0].observedConsumption,'1');
+  assert.equal(existingCapacity.capacity.readings[0].remainingAfterProposal,'0');
 });
