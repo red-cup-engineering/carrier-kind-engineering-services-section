@@ -33,10 +33,22 @@
         <div class="controls-row">
           <button id="previous-move-btn" type="button">Previous</button>
           <button id="next-move-btn" type="button">Next</button>
+          <button id="review-import-btn" type="button">Import another game</button>
           <button id="share-link-btn" type="button">Copy share link</button>
           <button id="download-sgf-btn" type="button">Download SGF</button>
         </div>
         <p id="share-status" class="status-line" aria-live="polite"></p>
+        <section class="card variation-panel" aria-labelledby="variation-title">
+          <h2 id="variation-title">What if you played differently?</h2>
+          <p>Select any move in the timeline, explore new moves on the real board, and compare what follows. The recorded game stays intact.</p>
+          <div class="controls-row">
+            <button id="variation-explore" class="primary" type="button">Explore from here</button>
+            <button id="variation-pass" type="button" disabled>Pass</button>
+            <button id="variation-undo" type="button" disabled>Undo variation</button>
+            <button id="variation-return" type="button" hidden>Return to recording</button>
+          </div>
+          <p id="variation-status" class="variation-status" role="status" aria-live="polite">Choose a move to explore a new line.</p>
+        </section>
         <div id="study-notes" class="card" hidden></div>
         <label for="move-scrubber">Move <output id="move-number">0</output></label>
         <input id="move-scrubber" type="range" min="0" value="0" step="1" />

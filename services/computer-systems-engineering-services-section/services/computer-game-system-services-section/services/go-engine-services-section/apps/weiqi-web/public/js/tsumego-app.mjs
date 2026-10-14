@@ -52,6 +52,7 @@ const problemSourceEl = document.getElementById("problem-source");
 const feedbackPanel = document.getElementById("feedback-panel");
 const gradePanel = document.getElementById("grade-panel");
 const resetBtn = document.getElementById("reset-problem-btn");
+const passProblemBtn = document.getElementById("pass-problem-btn");
 const skipBtn = document.getElementById("skip-problem-btn");
 
 async function loadProblems() {
@@ -206,6 +207,7 @@ function loadProblemAt(index) {
   if (index >= queue.length) {
     currentProblem = null;
     board.setLegalityChecker(() => false);
+    passProblemBtn.disabled = true;
     problemTitleEl.textContent = "Deck complete";
     problemMetaEl.textContent = "";
     problemPromptEl.textContent = queue.length === 0 ? "No problems match the current filter." : "You've been through every problem in this deck for now -- nice work. Adjust the filter above, or come back once more are due.";
@@ -222,6 +224,7 @@ function loadProblemAt(index) {
   awaitingRetry = false;
   resetBtn.disabled = Boolean(rush);
   skipBtn.disabled = false;
+  passProblemBtn.disabled = false;
 
   board.setSize(problem.size);
   board.setLastMove(null);
@@ -291,7 +294,7 @@ async function onCorrect(acceptMove) {
   transitionBusy = true;
   solved = true;
   board.setLegalityChecker(() => false);
-  skipBtn.disabled = true; resetBtn.disabled = true;
+  skipBtn.disabled = true; resetBtn.disabled = true; passProblemBtn.disabled = true;
   const admitted = await playMoveOnBoard(acceptMove);
   if (ticket !== problemEpoch) return;
   if (!admitted.ok) throw new Error(`Accepted answer ${acceptMove} is illegal: ${admitted.reason}`);
@@ -320,6 +323,7 @@ async function onCorrect(acceptMove) {
   gradePanel.hidden = false;
   transitionBusy = false;
   skipBtn.disabled = false; resetBtn.disabled = false;
+  passProblemBtn.disabled = true; // the solution is complete; grade to advance
 }
 
 async function onWrong(triedCoord) {
@@ -329,7 +333,7 @@ async function onWrong(triedCoord) {
   transitionBusy = true;
   awaitingRetry = true;
   board.setLegalityChecker(() => false);
-  skipBtn.disabled = true; resetBtn.disabled = true;
+  skipBtn.disabled = true; resetBtn.disabled = true; passProblemBtn.disabled = true;
   const admitted = await playMoveOnBoard(triedCoord);
   if (ticket !== problemEpoch) return;
   if (!admitted.ok) throw new Error(`Submitted move ${triedCoord} is illegal: ${admitted.reason}`);
@@ -338,9 +342,18 @@ async function onWrong(triedCoord) {
     rush = rushResult(rush, false);
     showRush();
     if (!rush) return;
-    rushMessage(`Not ${triedCoord} · −1 life · the solution starts ${problem.accept[0]}.`, "wrong");
+    rushMessage(`Not ${triedCoord} · −1 life · watch the solution at ${problem.accept[0]}.`, "wrong");
     board.announce(`Wrong move. Correct move starts at ${problem.accept[0]}.`);
-    await wait(550);
+    await wait(190);
+    if (ticket !== problemEpoch || !rush) return;
+    // Show the first actual kernel-accepted solution move on the board.
+    // We do not charge the player for several seconds of scripted replay.
+    currentGame = new kernel.Game(problem.size, RULESET, startingPositionFor(problem));
+    board.setLastMove(null); board.setAnnotations([]); board.setKoPoint(null);
+    board.setPosition(currentGame.current.board, { toMove: currentGame.current.toMove });
+    const suggested = await playMoveOnBoard(problem.accept[0]);
+    if (!suggested.ok) throw new Error(`Authored solution ${problem.accept[0]} is invalid`);
+    await wait(340);
     if (ticket !== problemEpoch || !rush) return;
     if (rush.lives === 0) { finishRush("lives"); return; }
     queueIndex++;
@@ -366,18 +379,33 @@ async function onWrong(triedCoord) {
   gradePanel.hidden = false;
   transitionBusy = false; awaitingRetry = false;
   skipBtn.disabled = false; resetBtn.disabled = false;
+  passProblemBtn.disabled = true; // grade the displayed solution before another move
 }
 
-board.addEventListener("weiqi-move", async (evt) => {
+/** Both board placements and a deliberate Pass are real Weiqi commands.
+ * The authored foundation curriculum includes a Pass-to-finish problem,
+ * so refusing Pass here made a published challenge unsolvable. */
+function submitPuzzleMove(coord) {
   if (!currentProblem || solved || awaitingRetry || transitionBusy) return;
-  const coord = evt.detail.coord;
-  if (coord === "pass") return; // no tsumego problem here is solved by passing
-  if (currentProblem.accept.includes(coord)) {
-    await onCorrect(coord);
-  } else {
-    await onWrong(coord);
-  }
-});
+  if (coord !== "pass" && !currentGame.isLegal(coord)) return;
+  const ticket = problemEpoch;
+  const operation = currentProblem.accept.includes(coord) ? onCorrect(coord) : onWrong(coord);
+  operation.catch((error) => {
+    if (ticket !== problemEpoch) return;
+    transitionBusy = false;
+    awaitingRetry = false;
+    solved = false;
+    resetBtn.disabled = Boolean(rush);
+    skipBtn.disabled = false;
+    passProblemBtn.disabled = false;
+    board.setLegalityChecker(() => false);
+    showFeedback("wrong", `This puzzle couldn't finish: ${error.message}. Reset the problem or skip it.`);
+    board.announce("The problem could not finish. Reset or skip.");
+  });
+}
+
+board.addEventListener("weiqi-move", (evt) => submitPuzzleMove(evt.detail.coord));
+passProblemBtn.addEventListener("click", () => submitPuzzleMove("pass"));
 
 // --- Grading (Again/Hard/Good/Easy -> srs.mjs) ------------------------------
 
