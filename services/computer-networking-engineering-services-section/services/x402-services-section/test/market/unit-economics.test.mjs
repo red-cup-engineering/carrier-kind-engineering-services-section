@@ -84,3 +84,68 @@ test("without an explicit reserve there is no invented floor on compute", () => 
   assert.deepEqual(r.exposedOffers, []);
   assert.equal(r.gateways.data.belowTargetHeadroom, 0);
 });
+
+
+test("graded resource receipts contribute to scenario economics without falsifying observed cash", () => {
+  const SKU = "ni:///sha-256;" + "A".repeat(43);
+  const receipt = {
+    sku: SKU,
+    source: "https://evidence.example.test/compute-costs",
+    evidenceNi: "ni:///sha-256;" + "B".repeat(43),
+    observedAt: "2026-10-13T17:59:00Z",
+    asset: "eip155:8453/erc20:" + ASSET.toLowerCase(),
+    marginalCostAtomic: "2500",
+    resourceReadings: [
+      { commodity: "CPU:nanosecond", quantity: "1000000" },
+      { commodity: "Inference:token", quantity: "12" },
+      { commodity: "Network:byte", quantity: "4096" },
+      { commodity: "RAM:byte-second", quantity: "4096" },
+    ]
+  };
+  const offers = [{ ...offer("compute", "3000"), sku: SKU }];
+  const r = analyzeMarketUnitEconomics(offers, { ...scenario, resourceCostReceipts: [receipt] });
+  assert.equal(r.costReceiptsMatched, 1);
+  assert.equal(r.modeledLossMakingCount, 1);
+  assert.equal(r.modeledMarginsWithoutCostEvidence, 0);
+  const model = r.exposedOffers.length > 0 ? r.exposedOffers[0] : null;
+  assert.equal(model, null, "fee/headroom alert is independent from sourced resource costs");
+  const row = analyzeMarketUnitEconomics(offers, { ...scenario, resourceCostReceipts: [receipt],
+    minimumPrecomputeHeadroomAtomic: "3000" }).exposedOffers[0];
+  assert.equal(row.preComputeHeadroomAtomic, "2000");
+  assert.equal(row.modeledContributionAtomic, "-500");
+  assert.equal(row.modeledContributionBelowZero, true);
+  assert.deepEqual(row.resourceCostEvidence.resourceReadings, receipt.resourceReadings);
+  assert.equal(row.finalContributionMarginAtomic, null);
+  assert.equal(row.realizedRevenueAtomic, null);
+  const unknown = analyzeMarketUnitEconomics(offers, scenario);
+  assert.equal(unknown.costReceiptsMatched, 0);
+  assert.equal(unknown.modeledMarginsWithoutCostEvidence, 1);
+  assert.equal(unknown.modeledLossMakingCount, 0);
+});
+
+test("cost evidence cannot silently cross unit, identity, freshness or provenance boundaries", () => {
+  const SKU = "ni:///sha-256;" + "A".repeat(43);
+  const valid = {
+    sku: SKU, source: "https://costs.example.test/witness",
+    evidenceNi: "ni:///sha-256;" + "B".repeat(43),
+    observedAt: "2026-10-13T17:59:00Z",
+    asset: "eip155:8453/erc20:" + ASSET.toLowerCase(),
+    marginalCostAtomic: "500", resourceReadings: [{ commodity: "CPU:nanosecond", quantity: "100" }]
+  };
+  const offers = [{ ...offer("cpu", "3000"), sku: SKU }];
+  for (const bad of [
+    { sku: "ni:///sha-256;" + "C".repeat(43) },
+    { asset: "eip155:5615611/erc20:" + ASSET.toLowerCase() },
+    { observedAt: "2026-01-01T00:00:00Z" },
+    { marginalCostAtomic: "0.0001" },
+    { resourceReadings: [] },
+    { resourceReadings: [{commodity:"CPU:nanosecond",quantity:"100"}, {commodity:"CPU:nanosecond",quantity:"101"}] },
+    { resourceReadings: [{commodity:"CPU:nanosecond",quantity:"100.5"}] },
+    { evidenceNi: "an unaddressed assertion" },
+  ]) assert.throws(() => analyzeMarketUnitEconomics(offers, {
+    ...scenario, resourceCostReceipts: [{ ...valid, ...bad }]
+  }), /resource|cost|SKU|atomic|stale|observation/u);
+  assert.throws(() => analyzeMarketUnitEconomics(offers, {
+    ...scenario, resourceCostReceipts: [valid, valid]
+  }), /duplicate/u);
+});
