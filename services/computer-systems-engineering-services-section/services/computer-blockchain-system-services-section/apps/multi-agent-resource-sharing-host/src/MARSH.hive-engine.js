@@ -48,6 +48,18 @@ actions.admitResource = async (payload) => {
   if (!api.assert(typeof content === 'string' && content.length > 0, 'content is required')) return;
   if (!api.assert(typeof evidence === 'string' && evidence.length > 0, 'evidence is required')) return;
 
+  // The textual identity is not an authority claim supplied by the caller:
+  // the Hive account that signed the operation is its resource controller.
+  // Parse exactly the four fixed separator fields; the subject is opaque and
+  // may itself contain ":" (e.g. a content-addressed ni:/// mark).
+  const fields = resource.split(':');
+  if (!api.assert(resource.length <= 512 && fields.length >= 5 &&
+      fields[0].length > 0 && fields[1].length > 0 &&
+      fields[2].length > 0 && fields[3].length > 0 &&
+      fields.slice(4).join(':').length > 0, 'resource identity malformed')) return;
+  if (!api.assert(fields[2] === api.sender, 'resource controller identity mismatch')) return;
+  if (!api.assert(fields[3] === kind, 'resource kind identity mismatch')) return;
+
   const existing = await api.db.findOne('resources', { resource });
   if (!api.assert(existing === null, 'resource already exists')) return;
 
