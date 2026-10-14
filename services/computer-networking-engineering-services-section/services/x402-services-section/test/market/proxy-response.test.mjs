@@ -20,6 +20,24 @@ test("other resources and contradictory inline terms are refused rather than ren
  const inline={...challenge,accepts:[{...challenge.accepts[0],amount:"999999"}]};assert.equal((await projectProxyResponse(response(challenge,JSON.stringify(inline)),{publicUrl:endpoint})).status,502);
 });
 
+test("proxy refuses JSON-labeled malformed and partial x402 quotes instead of passing deceptive bodies to buyers",async()=>{
+ const challenge=native();
+ const cases=[
+   "not valid json",
+   JSON.stringify({x402Version:2,accepts:challenge.accepts}),
+   JSON.stringify({x402Version:2,resource:challenge.resource,accepts:"different-payment"}),
+   JSON.stringify({accepts:[{...challenge.accepts[0],amount:"9000000"}]}),
+ ];
+ for(const body of cases){
+   const received=await projectProxyResponse(response(challenge,body),{publicUrl:endpoint});
+   assert.equal(received.status,502,body);
+   assert.equal(received.headers.get("payment-required"),null);
+ }
+ const ordinaryError=await projectProxyResponse(response(challenge,JSON.stringify({error:"Payment required"})),{publicUrl:endpoint});
+ assert.equal(ordinaryError.status,402);
+ assert.equal(decodePaymentRequiredHeader(ordinaryError.headers.get("payment-required")).accepts[0].amount,"1000");
+});
+
 test("missing and oversized upstream payment-required headers fail closed",async()=>{
  const missing=new Response("payment needed",{status:402,headers:{"content-type":"text/plain"}});
  const absent=await projectProxyResponse(missing,{publicUrl:endpoint});
