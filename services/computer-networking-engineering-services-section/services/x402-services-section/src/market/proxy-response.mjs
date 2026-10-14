@@ -1,4 +1,5 @@
 import { isPaymentRequiredV2 } from "@x402/core/schemas";
+import { exactMerchantTermsMatch } from "../offer.mjs";
 
 function decodePaymentRequired(value) {
   try {
@@ -52,17 +53,50 @@ export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = 
         !/^(0|[1-9][0-9]*)$/u.test(amount ?? "")) {
       throw new TypeError("trusted proxy expectedTerms must supply network, asset, recipient and atomic quote");
     }
-    if (!Array.isArray(challenge.accepts) || challenge.accepts.length === 0 ||
-        challenge.accepts.some((entry) =>
-          entry.scheme !== "exact" || entry.network !== network ||
-          entry.asset?.toLowerCase() !== asset.toLowerCase() ||
-          entry.payTo?.toLowerCase() !== payTo.toLowerCase() ||
-          entry.amount !== amount)) {
+    if (!exactMerchantTermsMatch(challenge, expectedTerms)) {
       return Response.json({ error: "upstream payment challenge contradicts the merchant's admitted offer or payout terms" }, { status: 502 });
     }
   }
 
-  const body = await upstream.arrayBuffer();
+  // x402 v2 places payment requirements in the bounded header. The optional
+  // response body is transport material, not a license for unbounded memory
+  // consumption by a public Worker (or a malicious upstream origin).
+  const MAX_CHALLENGE_BODY_BYTES = 262_144;
+  const indicated = upstream.headers.get("content-length");
+  if (indicated !== null && /^[0-9]+$/u.test(indicated) &&
+      BigInt(indicated) > BigInt(MAX_CHALLENGE_BODY_BYTES)) {
+    await upstream.body?.cancel();
+    return Response.json({ error: "upstream payment challenge body exceeds the admitted bound" }, { status: 502 });
+  }
+  const reader = upstream.body?.getReader();
+  let body;
+  if (!reader) {
+    body = new Uint8Array(0);
+  } else {
+    const chunks = [];
+    let total = 0, exceeded = false;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > MAX_CHALLENGE_BODY_BYTES) {
+          exceeded = true;
+          await reader.cancel();
+          break;
+        }
+        chunks.push(value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    if (exceeded) return Response.json({
+      error: "upstream payment challenge body exceeds the admitted bound",
+    }, { status: 502 });
+    body = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.byteLength; }
+  }
   const contentType = upstream.headers.get("content-type") ?? "";
   if (contentType.toLowerCase().includes("json")) {
     try {

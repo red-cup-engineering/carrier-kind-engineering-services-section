@@ -578,3 +578,81 @@ test("settlementWitness is installed as afterSettle and attributes the settled r
   assert.equal(record.operation, "read-demo");
   assert.equal(record.recordedAt, "2026-09-11T06:00:00.000Z");
 });
+
+
+test("expired source rights reject direct and proxied sale before payment, grant or private transfer", async () => {
+  const rights = {
+    basis:"licensed-third-party",
+    sourceUrl:"https://example.test/source",
+    licenseUrl:"https://example.test/license",
+    permissions:["execute","commercialize"],
+    evidenceNis:["ni:///sha-256;"+"A".repeat(43)],
+    observedAt:"2026-10-12T12:00:00Z",
+    expiresAt:"2026-10-13T00:00:00Z",
+  };
+  const now = () => "2026-10-13T01:00:00.000Z";
+  let computations = 0;
+  const direct = demoMarket({
+    catalog:[postDeclaration({sourceRightsClaim:rights})],
+    now,
+    compute:{"/v1/demo":()=>{computations++;return {ok:true};}},
+  });
+  const refusal = await direct.fetch(new Request("https://market.test/v1/demo", {
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({seed:1}),
+  }));
+  assert.equal(refusal.status,451);
+  assert.equal(refusal.headers.get("payment-required"),null);
+  assert.equal(refusal.headers.get("cache-control"),"no-store");
+  assert.equal((await refusal.json()).sourceRightsVerification,"unassayed");
+  assert.equal(computations,0);
+
+  // No remote fetch is possible here: the temporal admission gate runs before
+  // a proxy origin is opened, even when an HTTPS Node endpoint is configured.
+  const proxy = demoMarket({
+    catalog:[postDeclaration()],
+    proxyCatalog:[getDeclaration({sourceRightsClaim:rights})],
+    nodeOrigin:"https://node-market.561.group",
+    now,
+  });
+  const proxied = await proxy.fetch(new Request("https://market.test/v1/lookup", {
+    headers:{"payment-signature":"do-not-forward","x-payment-recovery":"do-not-forward"},
+  }));
+  assert.equal(proxied.status,451);
+  assert.equal(proxied.headers.get("payment-required"),null);
+
+  const valid=demoMarket({
+    catalog:[postDeclaration({sourceRightsClaim:{...rights,expiresAt:"2026-10-14T00:00:00Z"}})],
+    now,
+  });
+  const unsigned=await valid.fetch(new Request("https://market.test/v1/demo", {
+    method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({seed:1}),
+  }));
+  assert.equal(unsigned.status,402);
+});
+
+
+test("process usage windows are observed but never attributed as paid per-request CPU or cost", async () => {
+  let settlement;
+  const market = demoMarket({
+    facilitatorClient: paidFacilitator(),
+    afterSettle: async context => { settlement = context; }
+  });
+  const delivered = await pay(market, "https://market.test/v1/lookup?n=7");
+  assert.equal(delivered.status,200);
+  const prepared = settlement?.transportContext?.responsePreparation;
+  assert.equal(prepared?.basis,"server-response-preparation");
+  assert.equal(prepared.measuredCpu,false);
+  assert.equal(prepared.measuredMonetaryCost,false);
+  assert.equal(prepared.measuredPhysicalEnergy,false);
+  assert.ok(prepared.elapsedMs >= 0);
+  if (typeof process.cpuUsage === "function" && typeof process.memoryUsage === "function") {
+    const usage=prepared.processUsageWindow;
+    assert.equal(usage?.scope,"whole-process-during-response-preparation");
+    assert.equal(usage.requestAttributable,false);
+    assert.equal(usage.peakRssMeasured,false);
+    for (const key of ["userCpuMicroseconds","systemCpuMicroseconds","rssBeforeBytes","rssAfterBytes"]) {
+      assert.match(usage[key],/^[0-9]+$/u);
+    }
+  }
+});

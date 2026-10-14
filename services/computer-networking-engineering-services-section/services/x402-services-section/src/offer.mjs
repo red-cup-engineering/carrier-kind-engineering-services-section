@@ -59,6 +59,21 @@ function requirePriceRails(price, network, asset) {
   }
 }
 
+/** An authored source-rights claim must be temporally current before an offer
+ * is challenged, granted or proxied. This checks only timestamps, NEVER legal
+ * permission, source authenticity, custody or independent rights verification.
+ * An absent claim preserves legacy offers while receiving reports that gap. */
+export function sourceRightsClaimCurrent(declaration, nowMillis) {
+  if (!Number.isFinite(nowMillis)) throw new TypeError("rights time must be a finite instant in milliseconds");
+  const rights = declaration?.sourceRightsClaim;
+  if (rights === undefined) return true;
+  const observed = Date.parse(rights.observedAt);
+  if (!Number.isFinite(observed) || observed > nowMillis) return false;
+  if (rights.expiresAt === undefined) return true;
+  const expires = Date.parse(rights.expiresAt);
+  return Number.isFinite(expires) && expires > nowMillis;
+}
+
 /** Human discovery keeps the owner's denomination; atomic prices imply no dollar rate. */
 export function offerPriceText(declaration) {
   const price = declaration.price;
@@ -67,6 +82,35 @@ export function offerPriceText(declaration) {
   return `${price.amountAtomic} atomic units of ${price.asset}`;
 }
 
+
+
+/**
+ * Does every offered x402 exact-EVM payment alternative match the merchant's
+ * authorized contract? This is a pure comparison, *not* a payment validation:
+ * the official x402 schema and signatures are checked at their own boundary.
+ * Accepts may contain several choices, so one unauthorized choice poisons the
+ * entire quote instead of being silently hidden from the buyer.
+ *
+ * Shared by the direct market receiver and the Node proxy; never duplicate the
+ * merchant payment-law comparisons in the site or a transport adapter.
+ */
+export function exactMerchantTermsMatch(paymentRequired, { network, asset, amount, payTo } = {}) {
+  requireNetwork(network);
+  requireAddress(asset, "asset");
+  if (payTo !== undefined) requireAddress(payTo, "payTo");
+  if (typeof amount !== "string" || !/^(0|[1-9][0-9]{0,77})$/u.test(amount) ||
+      BigInt(amount) > MAX_ATOMIC_AMOUNT) {
+    throw new TypeError("merchant comparison requires canonical atomic amount");
+  }
+  const accepts = paymentRequired?.accepts;
+  return Array.isArray(accepts) && accepts.length > 0 && accepts.length <= 32 &&
+    accepts.every(entry =>
+      entry?.scheme === "exact" &&
+      entry.network === network &&
+      entry.asset?.toLowerCase() === asset.toLowerCase() &&
+      entry.amount === amount &&
+      (payTo === undefined || entry.payTo?.toLowerCase() === payTo.toLowerCase()));
+}
 
 // An explicit AssetAmount bypasses the SDK's money conversion, including its
 // signing metadata. Recover that metadata from the SDK's token registry while
@@ -211,6 +255,26 @@ function admitDeclaration(input, { admit = true } = {}) {
       !/^lib\/[^\\]+\/lib\/agency\/enterprises\/[a-z0-9-]+\.json$/u.test(input.seller?.record?.path ?? "") ||
       input.seller.record.path.split("/").includes("..") || !/^[a-f0-9]{64}$/u.test(input.seller?.record?.sha256 ?? ""))) {
     throw new TypeError("offer seller must name an enterprise, legal entity and exact repository constitution record");
+  }
+  // This is a seller-authored claim, not automatic legal clearance. But an
+  // admitted paid offer must not *declare* that it lacks commercial use rights.
+  // Later independent receiving checks the referenced evidence and permissions.
+  if (input.sourceRightsClaim !== undefined) {
+    const rights = input.sourceRightsClaim;
+    if (!rights.permissions?.includes("commercialize")) {
+      throw new TypeError("a paid source-backed offer must claim explicit commercial use authority");
+    }
+    if (rights.expiresAt !== undefined &&
+        Date.parse(rights.expiresAt) <= Date.parse(rights.observedAt)) {
+      throw new TypeError("source rights expiry must follow the recorded rights observation");
+    }
+    for (const [label, value] of [["sourceUrl", rights.sourceUrl], ["licenseUrl", rights.licenseUrl]]) {
+      let url;
+      try { url = new URL(value); } catch { throw new TypeError("source rights " + label + " must be an HTTPS URL"); }
+      if (url.protocol !== "https:" || url.username || url.password || url.hash) {
+        throw new TypeError("source rights " + label + " must not embed private authority or fragments");
+      }
+    }
   }
   // An admitted declaration is copied before it is frozen; one taken on trust (a
   // compiled catalog on a small CPU budget) is frozen where it lies, since
@@ -361,6 +425,10 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       book: declaration.seller ? { enterprise: declaration.seller.enterprise, account: declaration.ledgerAccount } : null,
       operation: declaration.operation,
       law,
+      ...(declaration.sourceRightsClaim === undefined ? {} : {
+        sourceRightsClaim: declaration.sourceRightsClaim,
+        sourceRightsVerification: "unassayed",
+      }),
       agentCard,
       authorization: { profile: "x402", grantRequired: false },
       price: { protocol: "x402", asset: requireAddress(asset, "the settlement asset"),
@@ -393,6 +461,10 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       sellerRecord: declaration.seller?.record ?? null,
       book: declaration.seller ? { enterprise: declaration.seller.enterprise, account: declaration.ledgerAccount } : null,
       gatewayPackageName: declaration.gatewayPackageName,
+      ...(declaration.sourceRightsClaim === undefined ? {} : {
+        sourceRightsClaim: declaration.sourceRightsClaim,
+        sourceRightsVerification: "unassayed",
+      }),
       url: probeUrl,
       method: declaration.method,
       ...(declaration.method === "POST" ? { body: structuredClone(declaration.bodyExample) } : {}),

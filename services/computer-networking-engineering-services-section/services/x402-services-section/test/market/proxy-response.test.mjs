@@ -56,3 +56,29 @@ test("merchant-authorized expectedTerms bind Node quotes to owner contract, asse
  const mixed=response({...nativeQuote,accepts:[base,{...base,payTo:"0x"+"22".repeat(20)}]});
  assert.equal((await projectProxyResponse(mixed,{publicUrl:endpoint,expectedTerms})).status,502);
 });
+
+
+test("the proxy bounds optional 402 bodies by bytes, not a trusted content-length", async () => {
+  const challenge = native();
+  const paymentHeader = encodePaymentRequiredHeader(challenge);
+  const body = new Uint8Array(262_144);
+  body.fill(97);
+  const admitted = await projectProxyResponse(new Response(body, {
+    status: 402, headers: { "payment-required": paymentHeader, "content-type": "application/octet-stream" },
+  }), { publicUrl: endpoint });
+  assert.equal(admitted.status, 402);
+  assert.deepEqual(new Uint8Array(await admitted.arrayBuffer()), body);
+  const declaredTooLarge = await projectProxyResponse(new Response("small", {
+    status: 402, headers: { "payment-required": paymentHeader, "content-length": "999999999" },
+  }), { publicUrl: endpoint });
+  assert.equal(declaredTooLarge.status, 502);
+  const streamedTooLarge = await projectProxyResponse(new Response(new ReadableStream({
+    start(controller) {
+      controller.enqueue(new Uint8Array(200_000));
+      controller.enqueue(new Uint8Array(70_000));
+      controller.close();
+    },
+  }), {status: 402, headers: {"payment-required": paymentHeader}}), { publicUrl: endpoint });
+  assert.equal(streamedTooLarge.status, 502);
+  assert.equal(streamedTooLarge.headers.get("payment-required"), null);
+});

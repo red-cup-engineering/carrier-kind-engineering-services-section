@@ -11,7 +11,7 @@ import { escapeHtml } from "@red-cup-engineering/web-page-tiling-engine/browser"
 import { resolveBinding } from "../compute-binding.mjs";
 import { createExactEvmFetchPaymentBoundary } from "../fetch-server.mjs";
 import { recoverPaidResponse } from "../paid-response-recovery.mjs";
-import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, settlementWitness, x402RoutesForOffers } from "../offer.mjs";
+import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, sourceRightsClaimCurrent, settlementWitness, x402RoutesForOffers } from "../offer.mjs";
 import { decodeSignInHeader, SIGN_IN_WITH_X, SIGN_IN_WITH_X_HEADER, signInChallenge, verifySignIn } from "../sign-in-with-x.mjs";
 import { projectProxyResponse } from "./proxy-response.mjs";
 
@@ -71,7 +71,8 @@ function offerHtml(offer) {
     <p>Use an x402 client to approve those terms and repeat the request. Save the response body as the purchased result.</p></details>
     <details><summary>Input contract</summary>${code(JSON.stringify(request, null, 2))}</details>
     <details><summary>Response contract and example</summary>${code(JSON.stringify(offer.declaration.output, null, 2))}</details>
-    ${offer.declaration.evidence ? `<details><summary>Evidence and limitations</summary>${code(JSON.stringify(offer.declaration.evidence, null, 2))}</details>` : ""}`;
+    ${offer.declaration.evidence ? `<details><summary>Evidence and limitations</summary>${code(JSON.stringify(offer.declaration.evidence, null, 2))}</details>` : ""}
+    ${offer.declaration.sourceRightsClaim ? `<details><summary>Source rights (seller claim; independent verification not performed)</summary>${code(JSON.stringify(offer.declaration.sourceRightsClaim, null, 2))}</details>` : ""}`;
 }
 
 /**
@@ -373,6 +374,18 @@ export function createMarket({
   // The market's clock (`now` returns an ISO string) in milliseconds, for sign-in windows and grant terms.
   const clock = now === undefined ? Date.now : () => Date.parse(now());
 
+
+  // A source-rights declaration is seller testimony, not independent licence
+  // verification. When its explicit observation expires, however, we can
+  // refuse new use before receiving authorization or taking a payment.
+  function sourceRightsGate(offer) {
+    if (sourceRightsClaimCurrent(offer.declaration, clock())) return null;
+    return Response.json({
+      error: "This offer's source-rights claim is not currently admissible; no new payment or execution is accepted.",
+      sourceRightsVerification: "unassayed",
+    }, { status: 451, headers: { "cache-control": "no-store" } });
+  }
+
   // The account a request's sign-in proves, when that account holds a grant
   // for this offer; null otherwise, and the request goes on to pay.
   async function grantedAccount(request, offer) {
@@ -439,6 +452,8 @@ export function createMarket({
         }
         : {}),
       async handler(context) {
+        const rightsRefusal = sourceRightsGate(offer);
+        if (rightsRefusal) return rightsRefusal;
         // An already purchased edition remains recoverable if today's edition
         // is unavailable, or a newer edition has replaced it.
         if (purchaseStore) {
@@ -519,6 +534,8 @@ export function createMarket({
       name: offer.declaration.name,
       route,
       async handler(context) {
+        const rightsRefusal = sourceRightsGate(offer);
+        if (rightsRefusal) return rightsRefusal;
         // This is the same exact admission predicate exposed on /v1/status.
         // A malformed origin fails closed before parsing its target, let alone
         // consuming or forwarding the customer payment and request body.
