@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ExactEvmScheme as ExactEvmClient } from "@x402/evm/exact/client";
 
-import { declareOffer } from "@red-cup-engineering/x402-services-section/offer";
+import { declareOffer, x402RoutesForOffers } from "@red-cup-engineering/x402-services-section/offer";
 
 import { createMarket, createMarketWorker, marketAgentCard, marketApiCatalog, marketCatalogReadout, marketLlmsText, marketPageModel, marketX402Discovery, marketX402Service, marketRails } from "../../src/market/market.mjs";
 import { startMarket } from "../../src/market/node.mjs";
@@ -143,6 +143,44 @@ test("a standard x402 client can sign the quoted token domain and receive its pu
     assert.deepEqual(await result.json(), { value: 8 });
     assert.ok(result.headers.has("payment-response"));
   }
+});
+
+test("a held, unlisted source candidate cannot execute, spend a grant, or receive an x402 payment", async () => {
+  let executed = 0, facilitatorCalled = 0;
+  const facilitator = {
+    async getSupported() { facilitatorCalled++; return { kinds: [], extensions: [], signers: {} }; },
+    async verify() { throw Error("held offer must not verify"); },
+    async settle() { throw Error("held offer must not settle"); },
+  };
+  const market = demoMarket({
+    catalog: [
+      postDeclaration({ listed: false, saleStatus: "held" }),
+      getDeclaration(),
+    ],
+    facilitatorClient: facilitator,
+    compute: {
+      "/v1/demo": () => { executed++; return { wrong: "charged before admission" }; },
+      "/v1/lookup": () => ({ value: 2 }),
+    },
+  });
+  const routes = x402RoutesForOffers(market.offers, marketRails(ENV));
+  assert.ok(!Object.hasOwn(routes, "POST /v1/demo"));
+  assert.ok(Object.hasOwn(routes, "GET /v1/lookup"));
+  for(const paid of [false,true]) {
+    const response = await market.fetch(new Request("https://market.test/v1/demo", {
+      method: "POST",
+      headers: { "content-type": "application/json",
+        ...(paid ? { "payment-signature": "bad-signature-is-not-a-grant" } : {}) },
+      body: JSON.stringify({ seed: 1 }),
+    }));
+    assert.equal(response.status, 404);
+    assert.equal(response.headers.get("payment-required"), null);
+    assert.match(JSON.stringify(await response.json()), /not admitted for sale/u);
+  }
+  assert.equal(executed, 0);
+  assert.equal(facilitatorCalled, 0);
+  const ordinary = await market.fetch(new Request("https://market.test/v1/lookup"));
+  assert.equal(ordinary.status, 402, "other already-enabled offers remain payable");
 });
 
 test("marketRails reads the deployment and never invents a payout address", () => {
