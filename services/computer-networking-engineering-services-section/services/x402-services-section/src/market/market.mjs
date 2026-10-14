@@ -442,6 +442,8 @@ export function createMarket({
     const computeOffer = held ? null : computeFor(offer);
     const admit = held ? undefined : validateFor(offer);
     const purchaseStore = !held && offer.declaration.recoverable ? purchaseStoreForOffer?.(offer) : undefined;
+    const recoveryStore = purchaseStore ?? (held && offer.declaration.recoverable && purchaseStoreForOffer
+      ? () => purchaseStoreForOffer(offer) : undefined);
     return {
       match: route.replace(/\{([A-Za-z0-9_-]+)\}/gu, ":$1"),
       methods: [offer.declaration.method],
@@ -460,21 +462,21 @@ export function createMarket({
         }
         : {}),
       async handler(context) {
-        // A staged producer may be present for compilation and source tests
-        // without authorization to take money or perform customer work.
-        // Visibility (listed:false) and sale permission (held) are distinct.
-        if (offer.declaration.saleStatus === "held") {
+        // An already purchased edition remains recoverable if today's edition
+        // is unavailable, a newer edition has replaced it, or the current
+        // rights claim no longer authorizes a new purchase.
+        if (recoveryStore) {
+          const recovered = await recoverPaidResponse(context.request, recoveryStore);
+          if (recovered) return recovered;
+        }
+        // Withholding new sales does not revoke an exact completed purchase.
+        // The recovery supplier is opened only after signed-request inspection.
+        if (held) {
           return Response.json({ error: "This operation is not admitted for sale" },
             { status: 404, headers: { "cache-control": "no-store" } });
         }
         const rightsRefusal = sourceRightsGate(offer);
         if (rightsRefusal) return rightsRefusal;
-        // An already purchased edition remains recoverable if today's edition
-        // is unavailable, or a newer edition has replaced it.
-        if (purchaseStore) {
-          const recovered = await recoverPaidResponse(context.request, purchaseStore);
-          if (recovered) return recovered;
-        }
         if (offer.declaration.recoverable && !purchaseStore) {
           return Response.json({ error: "Publication delivery storage is unavailable" }, { status: 503, headers: { "retry-after": "30" } });
         }

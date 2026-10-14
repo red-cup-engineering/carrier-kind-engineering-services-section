@@ -31,19 +31,30 @@ export function requireAlwaysFreeRequest({shape,ocpus,memoryGBs,bootGB}){
  */
 export function requireAlwaysFreeHeadroom(request,{instances,bootVolumes,blockVolumes,containerInstances}){
   const r=requireAlwaysFreeRequest(request);
-  const seenInstances=new Set(),seenVolumes=new Set();
-  // OCI A1 Container Instances share the Compute A1 quota. This VM launcher
-  // cannot promise a zero-bill mixed resource pool while an A1 container
-  // instance also consumes that allowance. Refuse rather than ignore it.
+  const seenInstances=new Set(),seenVolumes=new Set(),seenContainers=new Set();
+  // A1 Container Instances consume the same OCI A1 OCPU and memory limits.
+  // Count the exact active container allocation before admitting another VM;
+  // never call a Container Instance "Always Free" merely because its shape
+  // shares the Compute quota.
+  let usedOcpus=0,usedMemoryGBs=0,usedMicro=0,usedStorageGB=0;
+  let containerA1Ocpus=0,containerA1MemoryGBs=0;
   for(const container of array(containerInstances,'container instances')){
     const id=getId(container,'container instance');
+    if(seenContainers.has(id))throw new TypeError('duplicate OCI container instance in provider reading');
+    seenContainers.add(id);
     if(!active(container))continue;
     if(typeof container.shape!=='string'||!container.shape)
       throw new TypeError('OCI container shape consumption is unavailable');
-    if(container.shape==='CI.Standard.A1.Flex')
-      throw new RangeError('A1 container usage requires a shared-pool capacity receiver');
+    if(container.shape==='CI.Standard.A1.Flex'){
+      const config=container['shape-config'];
+      const cpu=config?.ocpus, memory=config?.['memory-in-gbs'];
+      if(typeof cpu!=='number'||!Number.isFinite(cpu)||cpu<=0
+          ||typeof memory!=='number'||!Number.isFinite(memory)||memory<=0)
+        throw new TypeError('A1 container shape consumption is unavailable');
+      usedOcpus+=cpu; usedMemoryGBs+=memory;
+      containerA1Ocpus+=cpu; containerA1MemoryGBs+=memory;
+    }
   }
-  let usedOcpus=0,usedMemoryGBs=0,usedMicro=0,usedStorageGB=0;
   for(const instance of array(instances,'instances')){
     const id=getId(instance,'instance');
     if(seenInstances.has(id))throw new TypeError('duplicate OCI instance in provider reading');
@@ -74,6 +85,19 @@ export function requireAlwaysFreeHeadroom(request,{instances,bootVolumes,blockVo
       || usedMicro+(r.shape===MICRO?1:0)>2 || usedStorageGB+r.bootGB>200)
     throw new RangeError('tenancy-wide Always Free allocation would be exceeded');
   return Object.freeze({qualified:'conservative-always-free-envelope',
+    // Source-only snapshot; an OCI list result neither proves billing status nor
+    // creates a reservation against another actor's future allocation.
+    observedUsage:Object.freeze({
+      ocpus:String(usedOcpus),memoryGBs:String(usedMemoryGBs),
+      microInstances:String(usedMicro),bootAndBlockGB:String(usedStorageGB),
+      // These are contained in total A1 quantities, never additional quota.
+      a1ContainerOcpus:String(containerA1Ocpus),
+      a1ContainerMemoryGBs:String(containerA1MemoryGBs),
+    }),
+    requested:Object.freeze({
+      ocpus:String(r.ocpus??0),memoryGBs:String(r.memoryGBs??0),
+      microInstances:String(r.shape===MICRO?1:0),bootAndBlockGB:String(r.bootGB),
+    }),
     remainingOcpus:2-usedOcpus-(r.ocpus??0),
     remainingMemoryGBs:12-usedMemoryGBs-(r.memoryGBs??0),
     remainingMicroInstances:2-usedMicro-(r.shape===MICRO?1:0),
@@ -152,4 +176,78 @@ export function classifyOciLaunchRefusal(detail) {
   if (/InternalError|ServiceUnavailable|InternalServerError|ServiceError.*5[0-9][0-9]/iu.test(detail))
     return "provider-service-unavailable";
   return "unclassified";
+}
+
+/**
+ * Interpret a qualified provider-native inventory in dimensioned, actor-safe
+ * observations. Never create a tradable lot or assign an intrinsic price:
+ * source attestation, recipient authority and billing remain separate.
+ */
+export function projectOciAlwaysFreeCapacity(request, headroom, {homeRegion, observedAt, qualifiedDomains, domainsObserved}={}){
+  const r=requireAlwaysFreeRequest(request);
+  const instantValid=typeof observedAt==='string' &&
+    /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,9})?Z$/u.test(observedAt) &&
+    Number.isFinite(Date.parse(observedAt)) &&
+    new Date(observedAt).toISOString().slice(0,19)===observedAt.slice(0,19);
+  if(typeof homeRegion!=='string'||!homeRegion||!instantValid||
+     !Number.isSafeInteger(qualifiedDomains)||qualifiedDomains<0||
+     !Number.isSafeInteger(domainsObserved)||domainsObserved<1||qualifiedDomains>domainsObserved||
+     !headroom||headroom.qualified!=='conservative-always-free-envelope'||headroom.billingVerified!==false)
+    throw new TypeError('complete source-qualified Oracle capacity observation required');
+  // Projection cannot change the admitted shape or manufacture a different
+  // quantity from an otherwise valid provider reading. The original native
+  // source has still not been independently attested or economically booked.
+  const expected={
+    ocpus:String(r.ocpus??0),memoryGBs:String(r.memoryGBs??0),
+    microInstances:String(r.shape===MICRO?1:0),bootAndBlockGB:String(r.bootGB),
+  };
+  const capacity={ocpus:2,memoryGBs:12,microInstances:2,bootAndBlockGB:200};
+  const residual={
+    ocpus:headroom.remainingOcpus,memoryGBs:headroom.remainingMemoryGBs,
+    microInstances:headroom.remainingMicroInstances,
+    bootAndBlockGB:headroom.remainingBootAndBlockGB,
+  };
+  for(const [key,maximum] of Object.entries(capacity)){
+    const raw=headroom.observedUsage?.[key],proposed=headroom.requested?.[key];
+    if(typeof raw!=='string'||!/^(?:0|[1-9]\d*)(?:\.\d+)?$/u.test(raw)||
+       proposed!==expected[key]||!Number.isFinite(residual[key])||residual[key]<0||
+       Math.abs(maximum-Number(raw)-Number(proposed)-residual[key])>1e-9)
+      throw new TypeError('Oracle capacity quantities disagree with admitted headroom');
+  }
+  const a1Container=Number(headroom.observedUsage?.a1ContainerOcpus);
+  const a1ContainerMemory=Number(headroom.observedUsage?.a1ContainerMemoryGBs);
+  if(!Number.isFinite(a1Container)||a1Container<0||
+     !Number.isFinite(a1ContainerMemory)||a1ContainerMemory<0||
+     a1Container>Number(headroom.observedUsage.ocpus)||
+     a1ContainerMemory>Number(headroom.observedUsage.memoryGBs))
+    throw new TypeError('A1 container breakdown exceeds the shared resource pool');
+  const dimensions=[
+    ['compute.oracle.a1','OCPU','ocpus',String(headroom.remainingOcpus)],
+    ['compute.oracle.a1-memory','GB','memoryGBs',String(headroom.remainingMemoryGBs)],
+    ['compute.oracle.e2-micro','instance','microInstances',String(headroom.remainingMicroInstances)],
+    ['storage.oracle.boot-block','GB','bootAndBlockGB',String(headroom.remainingBootAndBlockGB)],
+  ];
+  return Object.freeze({
+    type:'OciAlwaysFreeCapacityObservation',
+    provider:'oracle-cloud-infrastructure',
+    source:'OCI-CLI-enumerated-home-region-inventory-and-service-limits',
+    observedAt,homeRegion,shape:r.shape,qualifiedDomains,domainsObserved,
+    containedUsage:Object.freeze({
+      a1ContainerOcpus:headroom.observedUsage?.a1ContainerOcpus??null,
+      a1ContainerMemoryGBs:headroom.observedUsage?.a1ContainerMemoryGBs??null,
+      additiveToA1Totals:false,
+    }),
+    readings:Object.freeze(dimensions.map(([resourceClass,unit,key,remaining])=>Object.freeze({
+      type:'ResourceCapacityReading',resourceClass,unit,
+      observedConsumption:headroom.observedUsage?.[key]??null,
+      proposedReservation:headroom.requested?.[key]??null,
+      remainingAfterProposal:remaining,
+      quantitySource:'provider-inventory-plus-conservative-local-envelope',
+      pricedCost:null,availableForSale:false,independentlyReceived:false,
+    }))),
+    unknowns:Object.freeze({
+      actualBilling:null,entitlementLegalOwner:null,physicalHostCapacity:null,
+      rateLimitReset:null,competingAllocations:null,
+    }),
+  });
 }

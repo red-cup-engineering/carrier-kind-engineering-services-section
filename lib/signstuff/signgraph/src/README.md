@@ -37,6 +37,14 @@ what networking is. Pure.
   to the harmonic section), CoordinationCohomology (Ȟ⁰ = |V| − ρ, Ȟ¹ = |E| − ρ; the constant sheaf agrees with
   `cohomologyOfCells`) and ClosureFlowDynamics (firing versus smooth steps). `rigiditySheaf` is the bar-framework
   rigidity matrix as such a sheaf: H⁰ is the infinitesimal motions (rigid iff d(d+1)/2), H¹ the self-stresses.
+  `weightedSheafLaplacian(sheaf, metrics)` supplies L = δᵀWδ with one full symmetric positive definite
+  edge-stalk metric per edge, in sheaf order. `weightedSheafDirichlet(sheaf, metrics, x)` returns Σ rᵀWr
+  and each edge's unweighted residual and energy (no factor of 1/2). Both use the same Cholesky
+  whitening Cᵀ where W = CCᵀ and the existing coboundary, so non-identity restrictions and self-edges
+  retain their meaning and ker L = H⁰. Metrics are validated without adding a ridge; only relative
+  floating-point symmetry round-off is averaged. Exact cohomology remains the separate rational
+  operation. For inverse-covariance metrics these describe calibrated disagreement; they do not
+  establish a probabilistic forecast or trading edge.
 - `relation-adapters` — projections from already-parsed Markdown, JavaScript,
   and EAVT evidence into relation observations.
 - `pam` — graph-backed predicate-algebra modeling over EAVT's relation web

@@ -8,6 +8,26 @@
 import { mark, utterance } from "@red-cup-engineering/signcell/utterance";
 import { settleJudgments } from "@red-cup-engineering/signchain/bilattice";
 let reqCounter = 0;
+const credentialHeader = /authorization|cookie|token|secret|password|credential|api[-_]?key|csrf|jwt|signature/iu;
+const urlHeaders = new Set(["referer", "referrer", "location", "x-original-url", "x-original-uri", "x-rewrite-url", "x-forwarded-uri"]);
+
+// A trace is diagnostic evidence, not credential custody. Keep the route and
+// query names, but never query values or URL userinfo. Routing/admission retain
+// the original request separately; this projection cannot authenticate anyone.
+function traceUrl(value) {
+    const raw = String(value);
+    try {
+        const url = new URL(raw, "https://request-trace.invalid/");
+        if (!url.username && !url.password && !url.search && !url.hash) return raw;
+        url.username = "";
+        url.password = "";
+        url.hash = "";
+        for (const name of new Set(url.searchParams.keys())) url.searchParams.set(name, "[redacted]");
+        return /^[a-z][a-z0-9+.-]*:\/\//iu.test(raw) ? url.href : `${url.pathname}${url.search}`;
+    } catch {
+        return "[unparseable URL redacted]";
+    }
+}
 export function traceRequest(req, now) {
     if (typeof now !== "function") throw new TypeError("traceRequest: now (a clock function) is required");
     const id = `req-${++reqCounter}`;
@@ -22,7 +42,7 @@ export function traceRequest(req, now) {
         {
             e: id,
             a: "url",
-            v: String(req.url ?? "/"),
+            v: traceUrl(req.url ?? "/"),
             t
         },
         {
@@ -40,10 +60,12 @@ export function traceRequest(req, now) {
     ];
     for (const [key, value] of Object.entries(req.headers)){
         if (value == null) continue;
+        const name = key.toLowerCase();
+        const text = Array.isArray(value) ? value.join(", ") : String(value);
         entries.push({
             e: id,
-            a: `header.${key.toLowerCase()}`,
-            v: Array.isArray(value) ? value.join(", ") : String(value),
+            a: `header.${name}`,
+            v: credentialHeader.test(name) ? "[redacted]" : urlHeaders.has(name) ? traceUrl(text) : text,
             t
         });
     }

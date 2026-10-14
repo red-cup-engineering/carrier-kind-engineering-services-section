@@ -48,7 +48,6 @@
     "./market-561-group/listing-reconciliation-operation": "./apps/market-561-group/src/listing-reconciliation-operation.mjs",
     "./market-561-group/catalog": "./data/market-561-group/records/catalog.json",
     "./market-561-group/access-grants": "./data/market-561-group/records/access-grants.json",
-    "./receipt-record": "./src/market/receipt-record.mjs",
     "./purchase-publication": "./src/purchase-publication.mjs",
     "./seller-settlements": "./src/settlement-derivation/book-market-seller-settlements.mjs",
     "./route-configuration": "./src/route-configuration.mjs",
@@ -165,5 +164,14 @@
   },
   "engines": {
     "node": ">=22.18"
+  },
+  "nodeRuntimeGeneration": {
+    "module": "apps/market-561-group/scripts/compile-catalog.mjs",
+    "export": "generateCatalogProducts",
+    "outputs": [
+      "apps/market-561-group/src/edge-bindings.mjs",
+      "apps/market-561-group/src/compiled-offers.mjs",
+      "apps/market-561-group/src/compiled-capability-outbox.mjs"
+    ]
   }
 }

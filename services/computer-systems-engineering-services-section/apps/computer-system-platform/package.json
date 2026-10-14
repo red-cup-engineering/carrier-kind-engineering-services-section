@@ -16,7 +16,9 @@
     "scripts"
   ],
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "oci:observe": "node scripts/launch-oracle-instance.mjs --observe-only",
+    "test:oci": "node --test test/oci-always-free-admission.test.mjs"
   },
   "engines": {
     "node": ">=22.18"
