@@ -11,7 +11,7 @@ import { escapeHtml } from "@red-cup-engineering/web-page-tiling-engine/browser"
 import { resolveBinding } from "../compute-binding.mjs";
 import { createExactEvmFetchPaymentBoundary } from "../fetch-server.mjs";
 import { recoverPaidResponse } from "../paid-response-recovery.mjs";
-import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, sourceRightsClaimCurrent, settlementWitness, x402RoutesForOffers } from "../offer.mjs";
+import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, sourceRightsClaimCurrent, settlementWitness, x402RoutesForOffers, publiclySaleableOffer } from "../offer.mjs";
 import { decodeSignInHeader, SIGN_IN_WITH_X, SIGN_IN_WITH_X_HEADER, signInChallenge, verifySignIn } from "../sign-in-with-x.mjs";
 import { projectProxyResponse } from "./proxy-response.mjs";
 
@@ -107,7 +107,7 @@ export function marketRails(env = {}) {
  */
 export function marketAgentCard(offers, { name = DEFAULT_MARKET_NAME, origin, version = "1.0.0" } = {}) {
   const catalog = declareCatalog(offers);
-  const listed = catalog.filter((offer) => offer.declaration.listed !== false);
+  const listed = catalog.filter((offer) => publiclySaleableOffer(offer));
   const base = origin ?? catalog[0].declaration.origin;
   return Object.freeze({
     protocolVersion: "0.3.0",
@@ -152,7 +152,7 @@ export function marketAgentCard(offers, { name = DEFAULT_MARKET_NAME, origin, ve
  */
 export function marketPageModel(offers, rails = {}, { name = DEFAULT_MARKET_NAME } = {}) {
   const catalog = declareCatalog(offers);
-  const listed = catalog.filter((offer) => offer.declaration.listed !== false);
+  const listed = catalog.filter((offer) => publiclySaleableOffer(offer));
   return {
     title: name,
     subtitle: "Buy a publication, a sourced briefing, or an API result. Pay per request with x402; each offer below includes its price, inputs, and response format.",
@@ -220,7 +220,7 @@ const CAPABILITY_ACTOR_IDENTIFIER = "market";
  * it discovers any actor (WebFinger, then the actor, then its outbox), with nothing to sign.
  */
 function capabilityActorResources(servedOffers, capabilityOutbox, { name }) {
-  const served = new Set(servedOffers.filter((offer) => offer.declaration.listed !== false).map((offer) => offer.routeKey));
+  const served = new Set(servedOffers.filter((offer) => publiclySaleableOffer(offer)).map((offer) => offer.routeKey));
   const activities = capabilityOutbox.filter((entry) => served.has(entry.routeKey)).map((entry) => entry.activity);
   if (activities.length === 0) return [];
   const actor = activities[0].actor;
@@ -343,7 +343,7 @@ export function createMarket({
   // offer this face actually answers, proxied or not; only the priced-route
   // handler distinguishes the two.
   const servedOffers = [...offers, ...proxyOffers];
-  const listedOffers = servedOffers.filter((offer) => offer.declaration.listed !== false);
+  const listedOffers = servedOffers.filter((offer) => publiclySaleableOffer(offer));
   const modules = new Map();
   const importOnce = load ?? ((specifier) => import(specifier));
   const loader = {
@@ -607,9 +607,9 @@ export function createMarket({
           offers: servedOffers.length,
           listedOffers: listedOffers.length,
           directOffers: offers.length,
-          directListedOffers: offers.filter((offer) => offer.declaration.listed !== false).length,
+          directListedOffers: offers.filter((offer) => publiclySaleableOffer(offer)).length,
           proxyOffers: proxyOffers.length,
-          proxyListedOffers: proxyOffers.filter((offer) => offer.declaration.listed !== false).length,
+          proxyListedOffers: proxyOffers.filter((offer) => publiclySaleableOffer(offer)).length,
           runtime: env.MARKET_RUNTIME ?? null,
           nodeProxyConfigured: nodeOrigin !== undefined,
           nodeProxyTransport: proxyOriginHttpsQualified === null ? "not-used" :
@@ -657,7 +657,7 @@ export function createMarket({
         handler: (context) => Response.json(marketX402Service(servedOffers, rails ?? {}, { name, origin: context.url.origin }),
           { headers: { "access-control-allow-origin": "*" } }),
       },
-      ...servedOffers.filter(offer => offer.declaration.listed !== false).map(offer => ({
+      ...servedOffers.filter(offer => publiclySaleableOffer(offer)).map(offer => ({
         match: offer.declaration.route.replace(/\{([A-Za-z0-9_-]+)\}/gu, ":$1") + X402_SERVICE_ROUTE,
         methods: ["GET"],
         handler: context => Response.json(marketX402Service([offer], rails ?? {}, { name, origin: context.url.origin }),
@@ -710,7 +710,7 @@ const offerSummary = (declaration) => {
 /** OpenAPI is another projection of the served offer contracts, not another registry. */
 export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin } = {}) {
   const base = offerOrigin(offers, origin);
-  const routes = offers.filter(({ declaration }) => declaration.listed !== false).map(offer => {
+  const routes = offers.filter((offer) => publiclySaleableOffer(offer)).map(offer => {
     const declaration = offer.declaration;
     const parameters = [];
     for (const [location, schema, examples] of [["query", declaration.querySchema, declaration.queryExample], ["path", declaration.pathParamsSchema, undefined]]) {
@@ -795,7 +795,7 @@ export function marketX402Discovery(offers, rails = {}, { name = DEFAULT_MARKET_
     kind: "resource-server",
     name,
     description: "The 561 Group's x402 market: typed operations and publications, priced in their declared settlement assets.",
-    resources: offers.filter(({ declaration }) => declaration.price && declaration.listed !== false).map(({ declaration }) => ({
+    resources: offers.filter((offer) => offer.declaration.price && publiclySaleableOffer(offer)).map(({ declaration }) => ({
       url: `${base}${declaration.route}`, method: declaration.method, name: declaration.name, description: offerSummary(declaration),
       price: declaration.price, ...(declaration.requestPricing === undefined ? {} : { pricing: offerPricingReadout(declaration) }), asset: discoveryAsset(declaration, rails), ...(rails.network ? { network: rails.network } : {}),
       ...(declaration.bodySchema ? { inputSchema: { type: "object", ...declaration.bodySchema, ...(declaration.bodyExample ? { example: declaration.bodyExample } : {}) } } : declaration.querySchema ? { inputSchema: { type: "object", ...declaration.querySchema } } : {}),
@@ -818,7 +818,7 @@ function boundedOfferSummary(text, maximum) {
 
 export function marketX402Service(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin } = {}) {
   const base = offerOrigin(offers, origin);
-  const priced = offers.filter(({ declaration }) => declaration.price && declaration.listed !== false);
+  const priced = offers.filter((offer) => offer.declaration.price && publiclySaleableOffer(offer));
   // true402 caps the origin summary at twenty capabilities. All per-offer
   // capabilities remain below, so a growing market does not become invalid.
   const counts = new Map();
