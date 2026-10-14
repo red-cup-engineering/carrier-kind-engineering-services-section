@@ -17,7 +17,6 @@
     "./facilitator": "./src/facilitator.mjs",
     "./cdp-facilitator": "./src/cdp-facilitator.mjs",
     "./facilitator-assay": "./src/facilitator-assay.mjs",
-    "./src/priced-capability-boundary.mjs": "./src/priced-capability-boundary.mjs",
     "./offer": "./src/offer.mjs",
     "./capability-outbox": "./src/capability-outbox.mjs",
     "./compute-binding": "./src/compute-binding.mjs",
