@@ -30,6 +30,7 @@ function option(name, fallback) {
 const NAME = option("name");
 const SHAPE = option("shape");
 const NETWORK = option("network", NAME);
+const OBSERVE_ONLY = process.argv.includes("--observe-only");
 const REQUEST = requireAlwaysFreeRequest({
   shape: SHAPE,
   ocpus: SHAPE.endsWith(".Flex") ? Number(option("ocpus")) : undefined,
@@ -136,7 +137,7 @@ for (const id of ids) {
 }
 // Do not count capacity from a partial CLI enumeration or an unknown billing
 // plan. This envelope is conservative, not an invoice or permission to spend.
-requireAlwaysFreeHeadroom(REQUEST, { instances, bootVolumes, blockVolumes, containerInstances });
+const headroom = requireAlwaysFreeHeadroom(REQUEST, { instances, bootVolumes, blockVolumes, containerInstances });
 
 // The limits a LimitExceeded refusal names, each with the request's share of it; a refusal is
 // rationing, not a spent limit, when every named limit still has that much available.
@@ -155,12 +156,13 @@ async function limitsHaveRoom(detail, domain) {
   return true;
 }
 
+let quotaQualifiedDomains = 0;
 for (const domain of domains) {
   // Every attempted AD must attest the resource-specific provider limit.
   // Oracle can refuse a VM despite positive entitlement (host stock).
   const names = REQUEST.shape === "VM.Standard.A1.Flex"
     ? ["standard-a1-core-count", "standard-a1-memory-count"]
-    : ["vm-standard-e2-1-micro-count"];
+    : ["standard-e2-micro-core-count"];
   const availability = {};
   try {
     for (const limitName of names) {
@@ -174,6 +176,10 @@ for (const domain of domains) {
     continue;
   }
   if (!providerAvailabilityAllows(REQUEST, availability)) continue;
+  quotaQualifiedDomains += 1;
+  // A current quota reading does not establish actual free physical host stock.
+  // Qualify all domains without creating any resource in observe-only mode.
+  if (OBSERVE_ONLY) continue;
   try {
     const launched = await ociJson(
       "compute", "instance", "launch", "--no-retry",
@@ -195,5 +201,29 @@ for (const domain of domains) {
   }
 }
 
+if (OBSERVE_ONLY) {
+  process.stdout.write(JSON.stringify({
+    kind: "oci.always-free-native-preflight",
+    mode: "read-only",
+    region: configuredRegion,
+    shape: REQUEST.shape,
+    requestedOcpus: REQUEST.ocpus ?? null,
+    requestedMemoryGBs: REQUEST.memoryGBs ?? null,
+    requestedBootGB: REQUEST.bootGB,
+    quotaQualifiedDomains,
+    availabilityDomainsObserved: domains.length,
+    freeEnvelope: headroom.qualified,
+    remainingAfterRequest: {
+      ocpus: headroom.remainingOcpus,
+      memoryGBs: headroom.remainingMemoryGBs,
+      microInstances: headroom.remainingMicroInstances,
+      bootAndBlockGB: headroom.remainingBootAndBlockGB,
+    },
+    billingVerified: false,
+    physicalHostCapacityVerified: false,
+    launched: false,
+  }) + "\n");
+  process.exit(quotaQualifiedDomains > 0 ? 0 : 75);
+}
 process.stderr.write(`All ${domains.length} availability domains refused ${SHAPE} capacity.\n`);
 process.exit(75);

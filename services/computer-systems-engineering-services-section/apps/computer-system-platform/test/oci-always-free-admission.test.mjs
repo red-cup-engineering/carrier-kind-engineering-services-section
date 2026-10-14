@@ -11,7 +11,7 @@ const read=(x={})=>({...unused,...x});
 const boot=(id,gb=50,state='AVAILABLE')=>({id,'size-in-gbs':gb,'lifecycle-state':state});
 const instance=(id,ocpus,memoryGBs,state='RUNNING')=>({id,
   shape:'VM.Standard.A1.Flex','shape-config':{ocpus,'memory-in-gbs':memoryGBs},'lifecycle-state':state});
-const available={'standard-a1-core-count':2,'standard-a1-memory-count':12,'vm-standard-e2-1-micro-count':2};
+const available={'standard-a1-core-count':2,'standard-a1-memory-count':12,'standard-e2-micro-core-count':2};
 
 test('only conservative eligible shapes and complete integer resources are admitted',()=>{
   assert.equal(requireAlwaysFreeRequest(a1).ocpus,2);
@@ -92,7 +92,7 @@ test('native per-AD OCI limit readings are a necessary second admission gate',()
     {...available,'standard-a1-core-count':1}, {...available,'standard-a1-memory-count':11},
     {...available,'standard-a1-memory-count':'12'}])
     assert.equal(providerAvailabilityAllows(a1,bad),false);
-  assert.equal(providerAvailabilityAllows(micro,{...available,'vm-standard-e2-1-micro-count':0}),false);
+  assert.equal(providerAvailabilityAllows(micro,{...available,'standard-e2-micro-core-count':0}),false);
 });
 
 test('the provisioning launcher enforces native region, limits, complete tenancy and no free-cost declaration',async()=>{
@@ -106,4 +106,11 @@ test('the provisioning launcher enforces native region, limits, complete tenancy
     '"boot-volume", "list"', '"resource-availability", "get"'])
     assert.ok(code.includes(required),'missing deployed admission: '+required);
   assert.ok(code.indexOf('requireAlwaysFreeHeadroom(')<code.indexOf('"compute", "instance", "launch"'));
+  assert.ok(code.includes('const OBSERVE_ONLY = process.argv.includes("--observe-only")'));
+  assert.ok(code.includes('if (OBSERVE_ONLY) continue;'));
+  assert.ok(code.includes('kind: "oci.always-free-native-preflight"'));
+  assert.ok(code.includes('billingVerified: false'));
+  assert.ok(code.includes('physicalHostCapacityVerified: false'));
+  assert.ok(code.includes('launched: false'));
+  assert.ok(code.indexOf('if (OBSERVE_ONLY) continue;') < code.indexOf('"compute", "instance", "launch"'));
 });

@@ -88,7 +88,7 @@ export function providerAvailabilityAllows(request,values){
   const r=requireAlwaysFreeRequest(request);
   const need=r.shape===A1
     ? {'standard-a1-core-count':r.ocpus,'standard-a1-memory-count':r.memoryGBs}
-    : {'vm-standard-e2-1-micro-count':1};
+    : {'standard-e2-micro-core-count':1};
   return Object.entries(need).every(([key,demand])=>{
     const available=values?.[key];
     return typeof available==='number'&&Number.isFinite(available)&&available>=demand;
