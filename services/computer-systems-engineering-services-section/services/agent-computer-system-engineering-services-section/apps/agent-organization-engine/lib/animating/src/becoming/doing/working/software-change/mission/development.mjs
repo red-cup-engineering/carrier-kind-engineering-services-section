@@ -490,8 +490,8 @@ export async function runProgram(input, options={}) {
  const receiver=options.receiver;
  if(compilation.plan){
   const actual=proposal.changes.map(change=>change.path).sort();
-  const planned=compilation.plan.outputPaths?.slice().sort();
-  if(planned&&JSON.stringify(actual)!==JSON.stringify(planned))throw new TypeError('fabrication output differs from its admitted realization plan');
+  const planned=compilation.plan.paths.slice().sort();
+  if(JSON.stringify(actual)!==JSON.stringify(planned))throw new TypeError('fabrication output differs from its admitted realization plan');
  }
  const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
  const product=stamp('software-development.proposal',{design:design.stages.at(-1).artifactId,proposal});

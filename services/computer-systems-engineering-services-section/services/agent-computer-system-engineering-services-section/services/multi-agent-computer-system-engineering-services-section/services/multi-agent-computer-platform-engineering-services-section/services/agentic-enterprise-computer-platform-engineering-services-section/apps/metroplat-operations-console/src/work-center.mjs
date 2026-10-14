@@ -1,4 +1,5 @@
 import { workBoardDomain, workBoardCodomain } from "@red-cup-engineering/feltos/work/work-board-contracts";
+import { QUESTS, journalRequestDomain } from "@red-cup-engineering/metroplat/world-quests";
 import { decodeSchemaFormEntries } from "@red-cup-engineering/web-page-tiling-engine/schema-form";
 import { htmlRepr, jsonRepr } from '@red-cup-engineering/http-services-section/representation';
 import { subjectOf } from '@red-cup-engineering/computer-networking-engineering-services-section/identity/subject';
@@ -19,6 +20,7 @@ export function workCenterApp({ runAs, navigation, navigationTitle = 'Group' }) 
   const page = (title, tiles, status = 200) => htmlRepr(workspaceDocument({ title, navigation, navigationTitle, tiles: [
     { title: 'Work views', span: 12, links: [
       { href: '/work', label: 'My agenda' }, { href: '/work?view=board', label: 'Work board' },
+      { href: '/work?view=refine', label: 'Contracts to refine' },
       { href: '/work/new', label: 'Open a work request' },
       { href: '/tasks/view', label: 'Allocation and execution' },
       { href: '/conversations', label: 'Private agent conversations and returned operations' },
@@ -49,12 +51,15 @@ export function workCenterApp({ runAs, navigation, navigationTitle = 'Group' }) 
     let input, admittedInput = false;
 
     try {
-      input = decodeSchemaFormEntries(workBoardDomain.schema, params);
-      if (!params.has('thread')) {
+      const boardView = params.has('thread') || params.get('view') === 'board' || ctx.url.pathname === '/work/data';
+      const domain = boardView ? workBoardDomain : journalRequestDomain;
+      input = decodeSchemaFormEntries(domain.schema, params);
+      if (boardView && !params.has('thread')) {
         if (params.get('extent') !== 'all' && input.open === undefined) input.open = true;
         input.limit ??= 50;
       }
-      workBoardDomain.assert(input, 'work filters');
+      if (!boardView && params.get('view') === 'refine') input.focus = 'refine';
+      domain.assert(input, 'work filters');
       if (params.has('thread') && !input.thread) throw new TypeError('A thread identifier is required.');
       admittedInput = true;
       if (params.has('thread')) {
@@ -90,10 +95,19 @@ export function workCenterApp({ runAs, navigation, navigationTitle = 'Group' }) 
           summaryTable('Work threads', board.threads),
         ]);
       }
-      const journal = await runAs(subject, 'world-journal', {});
+      const journal = await runAs(subject, 'world-journal', input);
       if (!Array.isArray(journal.own) || !Array.isArray(journal.house)) throw new TypeError('The native journal is unavailable.');
-      return page('My work', [
-        { title: 'Awaiting your move', span: 12, content: `${journal.total} threads await your account, character or offices; ${journal.houseTotal} await the houses you serve. This is journal page ${journal.page}.` },
+      const refining = input.focus === 'refine';
+      const journalLinks = [
+        ...(journal.page > 1 ? [{ href: href({ ...Object.fromEntries(params), page: journal.page - 1 }), label: 'Previous page' }] : []),
+        ...(Math.max(journal.total, input.includeHouses ? journal.houseTotal : 0) > journal.page * QUESTS ? [{ href: href({ ...Object.fromEntries(params), page: journal.page + 1 }), label: 'Next page' }] : []),
+      ];
+      return page(refining ? 'Contracts to refine' : 'My work', [
+        { title: refining ? 'Contracts awaiting your refinement' : 'Awaiting your move', span: 12,
+          content: `${journal.total} threads await your account, character or offices; ${journal.houseTotal} await the houses you serve. This is journal page ${journal.page}.${refining ? ' These requests await requirements and receiving conditions before execution.' : ''}`, links: journalLinks },
+        { title: 'Whose work to include', span: 12, links: [
+          { href: href({ ...Object.fromEntries(params), includeHouses: !input.includeHouses, page: 1 }), label: input.includeHouses ? 'Show my own moves' : 'Include the houses I serve' },
+        ] },
         ...journal.own.map(entry => ({ title: entry.gist, span: 12, content: `${journal.names?.[entry.as] ?? entry.as}: ${entry.standing}; horizon ${entry.horizon ?? 'not supplied'}.`, links: [
           { href: href({ thread: entry.id }), label: 'Read the thread and its evidence' }, ...entry.moves.map(move => prepare(`${move} ${entry.id}`)),
         ] })),

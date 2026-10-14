@@ -73,11 +73,23 @@ export function operationResultTiles(result, request) {
 export function correlatedReplyTiles(receipt) {
   return [{ title: receipt.stage === 'reply-received' ? 'Addressed reply received' : 'Awaiting an addressed reply', span: 12,
     content: `Request ${receipt.request}. Expected responder ${receipt.recipient}. ${receipt.stage === 'awaiting-reply' ? 'No matching reply is held in this reading.' : `Original reply ${receipt.reply}.`}` },
-    ...(receipt.stage === 'reply-received' ? [...operationResultTiles(receipt.result, receipt.request), { title: 'Continue the work', span: 12, links: [
+    ...(receipt.stage === 'reply-received' ? [...workEffectTiles(receipt), ...operationResultTiles(receipt.result, receipt.request), { title: 'Continue the work', span: 12, links: [
+      { href: '/work', label: 'Inspect work and its current standing' },
       { href: `/resources?${new URLSearchParams({ request: receipt.request, responder: receipt.recipient })}`, label: 'Open returned resource' },
       { href: link({ recipient: receipt.recipient }), label: 'Write to the responder' },
     ] }] : []), evidenceTile('Native addressed reply reading', receipt),
   ];
+}
+
+/** Present the native effect reading; transport completion never derives it here. */
+export function workEffectTiles(receipt) {
+  const readings = {
+    'forwarded-peer-unreceived': 'The origin forwarded this move. No decision from the owning peer was observed; inspect the thread on its owning instance.',
+    'origin-processed-no-consumer-receipt': 'The origin processed this request. Its reply does not establish downstream receiving or acceptance.',
+    'origin-refused': 'The origin refused this request. Inspect the returned obstruction before another action.',
+    unobserved: 'No work effect was observed.',
+  };
+  return [{ title: 'Work effect', span: 12, content: Object.hasOwn(readings, receipt.workEffect) ? readings[receipt.workEffect] : 'This reply does not report a native work-effect reading.' }];
 }
 
 export function conversationTiles(entry, cursor) {

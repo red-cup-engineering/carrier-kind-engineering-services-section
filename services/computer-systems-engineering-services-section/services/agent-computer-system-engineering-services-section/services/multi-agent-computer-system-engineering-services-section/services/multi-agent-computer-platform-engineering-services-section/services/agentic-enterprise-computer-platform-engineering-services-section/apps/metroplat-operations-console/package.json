@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "softwareKind": "application",
   "exports": {
     ".": "./src/application.mjs",
     "./books": "./src/books.mjs",
@@ -17,6 +18,7 @@
     "@red-cup-engineering/computer-web-server": "workspace:*",
     "@red-cup-engineering/eavt-services-section": "workspace:*",
     "@red-cup-engineering/feltos": "workspace:*",
+    "@red-cup-engineering/metroplat": "workspace:*",
     "@red-cup-engineering/html-structural-projection-service": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/oauth-services-section": "workspace:*",
@@ -36,7 +38,6 @@
     "test/obligation-source-receiving.test.mjs"
   ],
   "devDependencies": {
-    "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/metroplat": "workspace:*"
+    "@red-cup-engineering/computer-system-engine": "workspace:*"
   }
 }

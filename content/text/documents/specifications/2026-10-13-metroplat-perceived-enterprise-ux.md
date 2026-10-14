@@ -81,6 +81,22 @@ Both hosted callers use that engine's actual deterministic schema operation,
 retiring the absent deployment helper and unused projection-program metadata.
 Host compute composition, requirement admission and source-delivery ports remain.
 
+Receive SignGraph PR378's full metric sheaf operators at their existing owner,
+against original PR101 and the Kalshi06f35d5 adapter and research. That research
+supports a disagreement monitor, not a trading forecast. Native development hires
+Code's existing pure module planner through Engine PR34 and checks its actual
+complete `paths` result before receiving. Current Inference main and PR31 are
+received without restoring the obsolete local repository-tool factories; their
+two identical diagnostics are retired together with distribution declarations.
+
+Receive current World journal refinement/paging and peer-effect classification.
+World, Metroplex and the web work view share one journal request contract. The
+document view exposes contracts awaiting refinement, earlier/later pages and
+house work; conversations and resources display the native work-effect reading.
+Console declares its actually consumed MetroPlat library as a runtime dependency,
+so its portable application includes the World contract it renders. These changes
+remain source-qualified pending complete current construction and human receiving.
+
 The standalone harness installer references its actual source owner through the
 shared hook merger. Isolated configuration receiving preserves mixed unrelated
 handlers, other phases and top-level choices, refuses malformed settings without

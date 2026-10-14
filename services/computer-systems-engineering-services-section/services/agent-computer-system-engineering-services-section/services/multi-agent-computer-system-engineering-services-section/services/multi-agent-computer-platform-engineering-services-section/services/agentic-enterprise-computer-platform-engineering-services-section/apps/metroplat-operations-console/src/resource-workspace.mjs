@@ -2,7 +2,7 @@ import { htmlRepr } from '@red-cup-engineering/http-services-section/representat
 import { readFormBody } from '@red-cup-engineering/http-services-section/body';
 import { subjectOf } from '@red-cup-engineering/computer-networking-engineering-services-section/identity/subject';
 import { workspaceDocument, evidenceTile, contentTile } from './workspace-document.mjs';
-import { readPrivateInbox, readCorrelatedReply, operationResultTiles, sendPrivateMessage, sameOriginRequest, submissionTiles } from './conversations.mjs';
+import { readPrivateInbox, readCorrelatedReply, operationResultTiles, workEffectTiles, sendPrivateMessage, sameOriginRequest, submissionTiles } from './conversations.mjs';
 
 const LENSES = { '/code': 'Code', '/knowledge': 'Knowledge', '/resources': 'Resources' };
 const url = (route, params) => `${route}?${new URLSearchParams(params)}`;
@@ -142,6 +142,7 @@ export function resourceWorkspaceApp({ runAs, navigation, navigationTitle }) {
           tiles.push(evidenceTile('Native addressed resource reply', receipt));
           if (receipt.stage === 'awaiting-reply') tiles.push({ title: 'Awaiting a resource reply', span: 12, content: 'No matching reply is held in this reading.' });
           else {
+            tiles.push(...workEffectTiles(receipt));
             const reading = returnedResourceResult(receipt.result);
             if (!reading) tiles.push(...operationResultTiles(receipt.result, receipt.request), { title: 'No resource projection in this reply', span: 12, content: 'Inspect the returned operation outcome and evidence.' });
             else {
