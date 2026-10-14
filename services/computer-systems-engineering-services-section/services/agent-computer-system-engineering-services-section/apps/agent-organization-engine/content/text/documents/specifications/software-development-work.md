@@ -212,13 +212,14 @@ sender as principal, invokes native authorization and dispatch, and returns a
 correlated agent reply. Immediate inbox execution reads the addressed outcome;
 bulk arrival processing also recognizes it.
 
-The shared schema projector runs on Workers Free from the existing compiler's
-exact source. The code development engine's deployment record is
-`content/fabrication/deployments/shared-schema-projector.json`;
-`scripts/deploy-shared-schema-projector.mjs` reproduces deployment and checks
-provider source readback. The host consumes that admitted deployment through the
-native fabrication port. Development used it to generate and receive its own
-actor and receiving contracts from authoritative schemas. Direct service-office
+The current native fabrication port invokes the shared Code renderer directly.
+The host supplies its admitted compute options, source lanes and receiving ports;
+it does not import a deployment helper absent from the supplying engine. Its
+schema-module contract comes from that actual native operation. The engine's
+separate edge-schema-projector remains a network projection of the same compiler;
+its deployment and receiving are independent of this local native binding.
+Development's earlier generated actor and receiving contracts remain historical
+evidence, rather than qualification of the current composition. Direct service-office
 and closure-bearing duty records replace the absent form compiler and registry;
 the enterprise runtime loads and founding no longer authors the same work twice.
 Deployed actor admission and categorical/Hoare proofs remain unestablished.

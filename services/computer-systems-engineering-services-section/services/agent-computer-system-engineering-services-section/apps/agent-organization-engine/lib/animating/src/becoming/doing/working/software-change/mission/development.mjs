@@ -235,7 +235,6 @@ export async function compileEngineeringDesign(input, options={}) {
    .map(operation=>({verb:operation.verb,description:operation.description,input:operation.domain.schema,output:operation.codomain.schema})),
   schemaModule,
   handoff:'For schema projection, the final contribution product contains schemaModules, an array of schemaModule specifications. Choose javascript for a JavaScript consumer. The native fabricator derives source. An entry may use schemaSource {path,content} from an admitted read_source result; its exact captured JSON schema supplies x-codegen names without inferential retranscription. Otherwise inference supplies schemas. Choose exact output paths. Work orders and Markdown specifications use their named native operations.',
-  ...(options.fabricationOptions?.schemaProjection?.program?{projectionProgram:options.fabricationOptions.schemaProjection.program}:{}),
  });
  const need=stamp('software-development.need',{objective:nonempty(input.objective,'objective'),constraints:input.constraints??[],source,readableSource,receivingFeedback:options.receivingFeedback??null,
   authority:input.authority??[],workType:input.workType??'software-change',submittedArtifacts:semanticId(input.artifacts??null),contributionContract:semanticId(engineeringContributionSchema),fabricationContract:fabricationContract.id,readablePaths:input.readablePaths??input.engineeringReadablePaths??paths,acceptance:input.acceptanceCommand??input.verifyCommand??null});

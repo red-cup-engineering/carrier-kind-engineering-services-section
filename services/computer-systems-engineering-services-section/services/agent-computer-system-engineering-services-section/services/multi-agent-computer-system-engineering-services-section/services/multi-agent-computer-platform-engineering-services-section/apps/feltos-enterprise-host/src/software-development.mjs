@@ -1,5 +1,4 @@
 import {prepareSourceDeliverySync} from '@red-cup-engineering/computer-code-development-engine/git/source-delivery';
-import {sharedSchemaProjection} from '@red-cup-engineering/computer-code-development-engine/fabrication/operations';
 import {realpathSync} from 'node:fs';
 import {isAbsolute,resolve,sep} from 'node:path';
 import {developmentOperations} from '@red-cup-engineering/animating/software-change/mission/development';
@@ -54,7 +53,6 @@ export function hostedDevelopmentRequestAt(options) {
 export function hostedDevelopmentOperations({binding,config,compute={}}) {
  const {scoped,requirementAt,authorize}=developmentAuthority({binding,config});
  return developmentOperations(scoped,{softwareDevelopment:{
-  fabricationOptions:{schemaProjection:sharedSchemaProjection()},
   ...compute,
   receiveDemand:async({request,subject})=>{
    const {record,contract}=requirementAt(request.work);

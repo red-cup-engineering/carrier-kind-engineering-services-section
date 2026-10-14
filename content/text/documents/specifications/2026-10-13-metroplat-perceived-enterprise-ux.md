@@ -68,6 +68,33 @@ Unresolved merge markers now refuse projection before replacing the briefing. Th
 the authenticated account, and neither context nor partial compilation qualifies
 the public UX. Original enterprise workflows remain the delivery boundary.
 
+## Current upstream source receiving
+
+Receive the eleven development carriers from Computer Engineering's authored
+86e13315 projection: current schemas agree byte-for-byte with the native Code
+renderer. The standalone mission command now invokes that same development
+lifecycle, requires explicit caller-owned custody and supplies one receiving port;
+it no longer enters the obsolete edit-and-recheck controller or induces twice.
+Receive Code Development Engine main54cc13a's native grounded finding-demand
+selection and its direct Node syntax consumer, after reading original PRs31–33.
+Both hosted callers use that engine's actual deterministic schema operation,
+retiring the absent deployment helper and unused projection-program metadata.
+Host compute composition, requirement admission and source-delivery ports remain.
+
+The standalone harness installer references its actual source owner through the
+shared hook merger. Isolated configuration receiving preserves mixed unrelated
+handlers, other phases and top-level choices, refuses malformed settings without
+writes, and makes a second projection unchanged. It creates no hook copy or backup.
+The Data grammar names all28 exports of genuine http-structured-fields1.0.0;
+native interface comparison receives the complete vendor boundary without a parser
+fork. The three current receipts are in the existing evidence directory.
+
+These are source and isolated configuration findings. The earlier full compilation
+refusal remains attached to its exact1dcea6 candidate. No later common construction,
+application, inference purchase, HTTP-signature receiving or live guard qualification
+is claimed. Remaining native development compute, weighted measurement, industrial
+and enterprise workflows, machine receiving and public entrances remain owed.
+
 ## Requirements and recovered sources
 
 Agent discovery must reach a conversation without requiring a person to memorize
