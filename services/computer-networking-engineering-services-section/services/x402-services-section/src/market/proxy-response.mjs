@@ -99,13 +99,23 @@ export async function projectProxyResponse(upstream, { publicUrl, resourceUrl = 
   }
   const contentType = upstream.headers.get("content-type") ?? "";
   if (contentType.toLowerCase().includes("json")) {
+    let inline;
     try {
-      const inline = JSON.parse(new TextDecoder().decode(body));
-      if (isPaymentRequiredV2(inline) && !containsSameDeclaredFields(inline, challenge)) {
-        return Response.json({ error: "inline payment challenge contradicts PAYMENT-REQUIRED" }, { status: 502 });
-      }
-    } catch (error) {
-      if (!(error instanceof SyntaxError)) throw error;
+      inline = JSON.parse(new TextDecoder().decode(body));
+    } catch {
+      // A JSON-labeled 402 with unreadable JSON is not a trustworthy
+      // merchant representation, even when its header parses correctly.
+      return Response.json({ error: "upstream JSON payment challenge is malformed" }, { status: 502 });
+    }
+    // A malformed body that *purports* to be PaymentRequired must not be
+    // passed along merely because it fails the official schema predicate.
+    // Ordinary JSON error documents without these x402 fields remain valid.
+    const advertisesTerms = inline !== null && typeof inline === "object" &&
+      !Array.isArray(inline) && ["x402Version", "resource", "accepts"]
+        .some((key) => Object.hasOwn(inline, key));
+    if (advertisesTerms &&
+        (!isPaymentRequiredV2(inline) || !containsSameDeclaredFields(inline, challenge))) {
+      return Response.json({ error: "inline payment challenge is invalid or contradicts PAYMENT-REQUIRED" }, { status: 502 });
     }
   }
 
