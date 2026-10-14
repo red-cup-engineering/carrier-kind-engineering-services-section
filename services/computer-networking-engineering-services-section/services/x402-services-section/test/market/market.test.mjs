@@ -323,6 +323,32 @@ test("Node proxy fails closed on public HTTP origins before forwarding signed pu
   }
 });
 
+test("invalid, credential-bearing or query-bearing proxy origins refuse without leaking a payment", async () => {
+  for (const nodeOrigin of [
+    "not a URL",
+    "http://node-market.561.group:8087",
+    "https://user:pass@node-market.561.group",
+    "https://node-market.561.group/?unsafe=true",
+    "https://node-market.561.group/#unreceived",
+  ]) {
+    const market = demoMarket({
+      catalog: [postDeclaration()], nodeOrigin, proxyCatalog: [getDeclaration()],
+    });
+    const response = await market.fetch(new Request("https://market.test/v1/lookup?private=1", {
+      headers: { "payment-signature": "never-forward", "x-payment-recovery": "private" },
+    }));
+    assert.equal(response.status, 503, nodeOrigin);
+    assert.equal((await market.fetch(new Request("https://market.test/v1/status"))).status, 200);
+    assert.equal((await (await market.fetch(new Request("https://market.test/v1/status"))).json()).nodeProxyTransport, "insecure-refused");
+  }
+  const configured = demoMarket({
+    catalog: [postDeclaration()], nodeOrigin: "https://node-market.561.group", proxyCatalog: [getDeclaration()],
+  });
+  const status = await (await configured.fetch(new Request("https://market.test/v1/status"))).json();
+  assert.equal(status.nodeProxyTransport, "https-configured-not-received");
+  assert.equal(status.nodeProxyConfigured, true);
+});
+
 test("status is served unpriced on both probes and counts the catalog", async () => {
   const market = demoMarket();
   for (const path of ["/v1/status", "/healthz"]) {
