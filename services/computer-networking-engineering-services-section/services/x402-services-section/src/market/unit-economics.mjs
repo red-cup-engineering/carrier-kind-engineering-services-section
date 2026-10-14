@@ -162,7 +162,7 @@ export function analyzeMarketUnitEconomics(offers, {
   }
   const live = rows.filter(r => r.listed);
   const comparable = live.filter(r => r.comparable);
-  const exposed = comparable.filter(r => r.feeOnlyBreakEvenOrWorse || r.belowSuppliedHeadroomTarget);
+  const exposed = comparable.filter(r => r.feeOnlyBreakEvenOrWorse || r.belowSuppliedHeadroomTarget || r.modeledContributionBelowZero);
   const gateways = new Map();
   for (const row of live) {
     const count = gateways.get(row.gateway) ?? {
