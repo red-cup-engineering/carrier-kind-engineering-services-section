@@ -18,7 +18,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection, classifyOciLaunchRefusal } from "./oci-always-free-admission.mjs";
+import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile, receiveOciContainerCollection, classifyOciLaunchRefusal, projectOciAlwaysFreeCapacity } from "./oci-always-free-admission.mjs";
 
 const run = promisify(execFile);
 
@@ -234,8 +234,15 @@ for (const domain of domains) {
 }
 
 if (OBSERVE_ONLY) {
+  const capacity = projectOciAlwaysFreeCapacity(REQUEST, headroom, {
+    homeRegion: configuredRegion,
+    observedAt: new Date().toISOString(),
+    qualifiedDomains: quotaQualifiedDomains,
+    domainsObserved: domains.length,
+  });
   process.stdout.write(JSON.stringify({
     kind: "oci.always-free-native-preflight",
+    capacity,
     mode: "read-only",
     region: configuredRegion,
     shape: REQUEST.shape,
