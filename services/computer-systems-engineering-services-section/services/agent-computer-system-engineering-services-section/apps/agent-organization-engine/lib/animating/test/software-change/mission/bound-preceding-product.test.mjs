@@ -9,7 +9,7 @@ test('each derivation reads its bound preceding product and receiving consumes t
  const check=process.execPath+' '+join(root,'check.cjs'),stages=[],ids=[],observations=[];
  const proposal={type:'SoftwareSourceTransformation',version:1,operations:[{kind:'replace-text',path:'result.txt',text:'derived effect'}]};
  const input={objective:'Use the bound prior product and source law to realize the admitted effect.',territory:root,writablePaths:['result.txt'],readablePaths:['theory.txt'],authority:['human:test-allocation'],artifactProposal:proposal,verifyCommand:check,acceptanceCommand:check};
- const result=await runProgram(input,{dataRoot:join(root,'data'),receiver:{root,writablePaths:['result.txt'],verifyCommand:check,acceptanceCommand:check},authorizeEffect:async e=>{if(e.phase==='product-read')observations.push(e.id)},inquire:async(request,ports)=>{
+ const result=await runProgram(input,{dataRoot:join(root,'data'),producerActor:'actor:fixture-producer',qualifyConstruction:request=>({kind:'software-development.construction-review',request:request.id,actor:'actor:independent-reviewer',office:'engineering#reviewer',decision:'admitted',evidence:request.checks.map(check=>({check,source:request.stages.at(-1).artifact}))}),receiver:{root,writablePaths:['result.txt'],verifyCommand:check,acceptanceCommand:check},authorizeEffect:async e=>{if(e.phase==='product-read')observations.push(e.id)},inquire:async(request,ports)=>{
   let reads=0;const priorTool=ports.tools.find(tool=>tool.function.name==='read_product');
   const platform=createToolPlatform({tools:[priorTool],toolHandlers:{read_product:async args=>{reads++;return ports.handlers.read_product(args)}}});
   const refusal=await platform.execute('read_product',{id:'ni:///sha-256;'+('A'.repeat(43))},{allowedEffects:['read_product']});
@@ -21,7 +21,7 @@ test('each derivation reads its bound preceding product and receiving consumes t
   const explicit=await platform.execute('read_product',{id:request.context.prior.id,limit:16384},{allowedEffects:['read_product']});
   assert.equal(explicit.ok,true);assert.deepEqual(explicit.value,current.value);assert.equal(reads,2);
   stages.push(request.role);ids.push(current.value.id);
-  return{role:request.role,text:'Derive '+request.role+' from the observed preceding product '+current.value.id+' under the admitted source law.',unresolved:['Semantic proof remains outside this carrier demonstration'],...(request.role==='artifact-specifications'?{product:{proposal}}:{})};
+  return{role:request.role,text:'Derive '+request.role+' from the observed preceding product '+current.value.id+' under the admitted source law.',unresolved:[],...(request.role==='artifact-specifications'?{product:{proposal}}:{})};
  }});
  assert.equal(result.status,'applied');assert.equal(result.outcome.verified,true);
  assert.deepEqual(stages,DEVELOPMENT_STAGES);assert.equal(new Set(ids).size,7);
