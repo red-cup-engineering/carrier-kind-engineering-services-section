@@ -1,0 +1,107 @@
+{
+  "type": "NodeRuntimeWorkspaceSelectionInstallReceipt",
+  "version": 1,
+  "status": "installed",
+  "commit": "ff8ec4a69e337126f7eeefd3edb0e5cb8bf5c501",
+  "roots": [
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat",
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat-operations-console",
+    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos",
+    "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-engineering-services-section"
+  ],
+  "sourceConfigurationUnchanged": true,
+  "scopedLockSha256": "7192fe80955fdc2a0c43c3a1b36b1ff6b8ed9a92b3a355ec3ca54a13e5881272",
+  "artifact": "/home/emsenn/.cache/561-group/metroplat-web-ux/selection-state/selections/bfcbbe2a975e009662a62adaba7cfb23ee1223f56acc2d2ab95c76ff03c5050a",
+  "sourceMounts": [
+    {
+      "path": "lib/emsenn/services/561-group/services/public-services-section/services/public-media-services-section/services/public-news-media-services-section/services/koios-news-services-section",
+      "revision": "297721bcdf2c97f604a22c2a91f671d2e30d76c8"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/financial-engineering-services-section",
+      "revision": "548845b1d2f114f757311ba3cefeae375a7c28cc"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/financial-engineering-services-section/services/venue-algebra-services-section/services/prediction-market-engineering-services-section",
+      "revision": "d5f1b555ac374ca3dd02b8cd5fa68fdfc2d3862f"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section",
+      "revision": "68dbc75077184d80ccb9f86ba89e07c6c205c763",
+      "attributes": [
+        {
+          "path": "services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/.gitattributes",
+          "gitBlob": "4b8346b69cd0e471cf03c60c6f609a072a362f3f"
+        }
+      ]
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/feltos",
+      "revision": "76950081a5a771541af61655fecec24d616ebbda"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section",
+      "revision": "c0de94776eeb190b470cfbb23f51321d965e8c23"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-content-address-engineering-services-section",
+      "revision": "2c31f3b06e500a5e5b67986f991855bdfb7d242f"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine",
+      "revision": "58cce4e09f08e70f30f3cb1ff40b959ea7834175"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section",
+      "revision": "73eb9a32d6a3de068637125e5798d6a24290901d"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section/services/computer-code-development-services-section/services/version-control-services-section/services/git-services-section",
+      "revision": "17a625a83204b2489d65bbf504638196b7a7f546"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-inference-system-services-section",
+      "revision": "b0a57e42f48365687284723984cb702b32d028e1"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section",
+      "revision": "f12d997c971580c0aa4b2d060e1dcc6fac0f95eb"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section/services/semantic-content-identify-service",
+      "revision": "3e42a984c7f973201e928a61245c3fca5d255ef7"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section/services/semiotic-model-notation-services-section",
+      "revision": "882bb445d196c9a8d44b54f50db53c6c9f0f260e"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section",
+      "revision": "9b4695d1ecc166e59cb971f0a91c2a619d734fea"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section",
+      "revision": "f7a9eebbe367bb9ffe375686c872e6faed0dd794"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/polymarket-services-section",
+      "revision": "3199b50be42f9bc6dfe6e5e77f030234d45d5b45"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-tufte-gui-services-section",
+      "revision": "c135d318adb6af0bafb4f52663dc6eaaaf519437"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat",
+      "revision": "c3c7aba326fddd5b6c3ea12af217f231d375e0d4"
+    },
+    {
+      "path": "lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-engineering-services-section/services/561-group-computer-engineering-services-section",
+      "revision": "e24b6b62138698c881c64bc49b7aea8968cc5b1b"
+    }
+  ],
+  "executable": "pnpm",
+  "selectedImporterCount": 218,
+  "selectedPackageSnapshots": 653,
+  "qualification": "Completed frozen installation after authoritative host restart terminated the earlier temporary attempt. Operating system and production receiving remain owed."
+}

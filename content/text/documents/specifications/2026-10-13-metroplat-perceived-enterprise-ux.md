@@ -532,3 +532,23 @@ constructor/supplier revision and output digest are recorded in
 `evidence/2026-10-13-metroplat-perceived-enterprise-ux/catalogue-product-receipt.json`.
 The product is adopted into the existing tracked MetroPlat catalogue; this is
 declaration construction, not execution of those operations.
+
+
+The exact Root ff8ec4a frozen installation was rebuilt after a host restart
+terminated its temporary predecessor. Native installation receives all 218
+packages with unchanged source/configuration; both selected producer builds and
+the held catalogue freshness construction pass. Full declared-carrier compilation
+then refuses 14 unresolved source bindings. Its bounded native diagnostic names
+Schema consumers in investment research, cellular-sheaf measurement and the
+Virtuals SDK; the original compiler output also names Kalshi desk ports. These
+require source/consumer assessment at their actual owners. No supplier is
+substituted, declared carrier excluded or missing import externalized.
+
+The current receipts are `current-common-frozen-installation.json`,
+`current-common-selected-build.json`, `current-common-catalogue-construction.json`
+and `current-common-source-compilation-refusal.json` in the existing evidence
+directory. The complete packed runtime and Guix software/target composition
+remain owed. The existing proposed Guix portable receiver correctly requires
+source or derived-output attribution for packed generated files; receive the
+Schema/TOML build products through their existing construction owner before
+sealing, without adding a hand-maintained payload exemption.
