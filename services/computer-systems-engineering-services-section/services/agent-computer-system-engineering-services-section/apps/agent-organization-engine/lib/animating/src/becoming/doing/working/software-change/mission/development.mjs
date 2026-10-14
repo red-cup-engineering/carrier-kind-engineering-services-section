@@ -480,8 +480,8 @@ export async function runProgram(input, options={}) {
   {dependencyProjectRoot:design.territory,...options.fabricationOptions})
   .find(operation=>operation.verb==='fabrication-derive-jsnode-modules').execute({workOrder:compilation.workOrder}));
  if(artifact?.type==='JsnodeModuleDerivationRefusal'){
-  // Missing compute or unavailable installed dependencies cannot be repaired by rewriting the order.
-  if(['NO_DERIVATION_CARRIER','ASSAY_CONTEXT_UNAVAILABLE'].includes(artifact.code))throw new TypeError(artifact.message??artifact.code);
+  // Missing compute, unavailable dependencies or absent host isolation cannot be repaired by rewriting the order.
+  if(['NO_DERIVATION_CARRIER','ASSAY_CONTEXT_UNAVAILABLE','ISOLATED_ASSAY_UNAVAILABLE'].includes(artifact.code))throw new TypeError(artifact.message??artifact.code);
   const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
   const feedback=reviseFabrication(journal,compilation.source,design.stages.at(-1).artifactId,'module-derivation',artifact,compilation.workOrder);
   return runProgram(input,{...options,fabricationFeedback:feedback});

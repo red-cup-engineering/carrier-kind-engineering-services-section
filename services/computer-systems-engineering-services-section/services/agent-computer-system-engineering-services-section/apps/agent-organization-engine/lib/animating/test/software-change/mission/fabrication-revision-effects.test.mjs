@@ -14,6 +14,29 @@ function fixture(t){
   options:{dataRoot:join(root,'custody'),receiver:{root,writablePaths:['shape.mjs'],verifyCommand:command,acceptanceCommand:command}}};
 }
 const valid={schemaModules:[{path:'shape.mjs',format:'javascript',entries:[{exportName:'ItemSchema',typeName:'Item',schema:{type:'object',required:['id'],properties:{id:{type:'string',minLength:1}}}}]}]};
+test('an unavailable host isolation capability preserves the design without revising its specification',async t=>{
+ const f=fixture(t),roles=[];let fabrications=0,question;
+ const message='the host did not compose an isolated code-execution capability';
+ await assert.rejects(runProgram(f.input,{...f.options,
+  inquire:async(request,ports)=>{
+   roles.push(request.role);await ports.handlers.read_product({limit:16384});
+   return {role:request.role,text:'Derived '+request.role,unresolved:[]};
+  },
+  // The supplier's typed pre-inference refusal is a controlled result here.
+  // This checks its actual consumer, not the availability of a live sandbox.
+  fabricate:async({design})=>{
+   fabrications++;question=design.question;
+   return {type:'JsnodeModuleDerivationRefusal',version:1,phase:'derivation',
+    code:'ISOLATED_ASSAY_UNAVAILABLE',message};
+  },
+ }),error=>error instanceof TypeError&&error.message===message);
+ assert.equal(fabrications,1);assert.deepEqual(roles,DEVELOPMENT_STAGES);
+ assert.equal(readFileSync(join(f.root,'shape.mjs'),'utf8'),'export const ItemSchema={type:"object"};');
+ const history=readDevelopmentProducts(f.options.dataRoot,question);
+ assert.equal(history.some(product=>product.kind==='software-development.fabrication-refusal'),false);
+ assert.equal(history.some(product=>product.kind==='software-development.receiving-refusal'),false);
+ assert.equal(history.filter(product=>product.kind==='software-development.artifact').length,DEVELOPMENT_STAGES.length);
+});
 test('a native fabrication refusal executes specification revision and retains preceding derivations',async t=>{
  const f=fixture(t),roles=[];let finals=0,feedbackRead;
  const result=await runProgram(f.input,{...f.options,inquire:async(request,ports)=>{
