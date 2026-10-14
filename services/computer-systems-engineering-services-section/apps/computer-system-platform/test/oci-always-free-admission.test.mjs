@@ -74,10 +74,18 @@ test('terminated capacity does not consume free envelope but unknown lifecycle i
   assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({instances:[instance('unknown',1,6,'UNKNOWN')]})),/allocation would be exceeded/);
 });
 
-test('OCI A1 container instances are shared-quota users, not unseen free OCPUs',()=>{
+test('OCI A1 container instances are included in the shared quota with exact native shape readings',()=>{
+  const activeA1={id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE',
+    'shape-config':{ocpus:1,'memory-in-gbs':6}};
+  assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({containerInstances:[activeA1]})),/allocation would be exceeded/);
+  const fits=requireAlwaysFreeHeadroom({...a1,ocpus:1,memoryGBs:6},read({containerInstances:[activeA1]}));
+  assert.equal(fits.remainingOcpus,0);
+  assert.equal(fits.remainingMemoryGBs,0);
+  assert.equal(fits.observedUsage.a1ContainerOcpus,'1');
+  assert.equal(fits.observedUsage.a1ContainerMemoryGBs,'6');
   assert.throws(()=>requireAlwaysFreeHeadroom(a1,read({containerInstances:[{
-    id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE'
-  }]})),/shared-pool/);
+    ...activeA1,'shape-config':undefined
+  }]})),/A1 container shape consumption is unavailable/);
   assert.equal(requireAlwaysFreeHeadroom(a1,read({containerInstances:[{
     id:'ci-non-arm',shape:'CI.Standard.E4.Flex','lifecycle-state':'ACTIVE'
   }]})).remainingOcpus,0);
@@ -185,6 +193,8 @@ test('OCI provider inventory is both dimensioned and explicitly not a bill, sale
   assert.equal(report.readings[3].observedConsumption,'50');
   assert.equal(report.readings[3].remainingAfterProposal,'100');
   assert.ok(report.readings.every(x=>x.pricedCost===null&&x.availableForSale===false&&x.independentlyReceived===false));
+  assert.equal(report.containedUsage.a1ContainerOcpus,'0');
+  assert.equal(report.containedUsage.additiveToA1Totals,false);
   assert.equal(report.unknowns.actualBilling,null);
   assert.equal(report.unknowns.physicalHostCapacity,null);
   assert.throws(()=>projectOciAlwaysFreeCapacity(a1,headroom,{homeRegion:'us-ashburn-1',observedAt:'2026-10-14T04:00:00Z',qualifiedDomains:3,domainsObserved:2}),/complete source-qualified/);
@@ -207,7 +217,10 @@ let data;
 if(args[0]==='iam'&&args[1]==='region-subscription'&&args[2]==='list')
   data=[{'is-home-region':true,'region-name':'us-ashburn-1'}];
 else if(args[0]==='iam'&&args[1]==='compartment'&&args[2]==='list')data=[];
-else if(args[0]==='container-instances'&&args[1]==='container-instance')data={items:[]};
+else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]==='list')
+  data={items:process.env.SIMULATE_A1_CONTAINER?[{id:'ci-a1',shape:'CI.Standard.A1.Flex','lifecycle-state':'ACTIVE'}]:[]};
+else if(args[0]==='container-instances'&&args[1]==='container-instance'&&args[2]==='get')
+  data={id:'ci-a1',shape:'CI.Standard.A1.Flex','shape-config':{ocpus:1,'memory-in-gbs':6}};
 else if(args[0]==='compute'&&args[1]==='instance'&&args[2]==='list')data=[];
 else if(args[0]==='iam'&&args[1]==='availability-domain'&&args[2]==='list')data=[{name:'AD-1'}];
 else if(args[0]==='bv'&&['volume','boot-volume'].includes(args[1]))data=[];
@@ -243,4 +256,21 @@ process.stdout.write(JSON.stringify({data}));
   assert.equal(received.capacity.readings[2].remainingAfterProposal,'2');
   assert.equal(received.capacity.readings[3].remainingAfterProposal,'150');
   assert.equal(received.capacity.unknowns.competingAllocations,null);
+  const mixed=spawnSync(process.execPath,[
+    new URL('../scripts/launch-oracle-instance.mjs',import.meta.url).pathname,
+    '--observe-only','--name','probe-mixed','--shape','VM.Standard.A1.Flex',
+    '--ocpus','1','--memory-gb','6','--boot-gb','50',
+  ],{
+    env:{...process.env,OCI_CLI:fakeCli,OCI_CONFIG_FILE:config,OCI_PROFILE:'TEST_API_KEY',
+      SSH_PUBLIC_KEY_FILE:join(directory,'nonexistent-ssh-key'),SIMULATE_A1_CONTAINER:'1'},
+    encoding:'utf8',timeout:20000,
+  });
+  assert.equal(mixed.status,0,mixed.stderr);
+  const mixture=JSON.parse(mixed.stdout);
+  assert.equal(mixture.mode,'read-only');
+  assert.equal(mixture.capacity.containedUsage.a1ContainerOcpus,'1');
+  assert.equal(mixture.capacity.containedUsage.a1ContainerMemoryGBs,'6');
+  assert.equal(mixture.capacity.readings[0].observedConsumption,'1');
+  assert.equal(mixture.capacity.readings[0].remainingAfterProposal,'0');
+  assert.equal(mixture.capacity.readings[1].remainingAfterProposal,'0');
 });
