@@ -206,6 +206,24 @@ test("holding a publicly named offer prevents every buyer-facing projection from
   assert.equal(withheld.headers.get("payment-required"), null);
 });
 
+test("public catalog and llms.txt never disclose held/private names while internal source remains complete",async()=>{
+  const market=demoMarket({ catalog: [
+    postDeclaration({listed:true,saleStatus:"held"}),
+    getDeclaration({listed:false}),
+  ] });
+  const publicCatalog=await (await market.fetch(new Request("https://market.test/v1/catalog"))).json();
+  assert.equal(publicCatalog.offers.length,0,"all nonpublic source entries are not public inventory");
+  assert.equal(market.catalog().offers.length,2,"internal receiving retains immutable source witnesses");
+  const machineText=await (await market.fetch(new Request("https://market.test/llms.txt"))).text();
+  assert.doesNotMatch(machineText,/Demo Reading|Other Lookup/u);
+  const publicCard=await (await market.fetch(new Request("https://market.test/.well-known/agent-card.json"))).json();
+  assert.equal(publicCard.skills.length,0);
+  const held=await market.fetch(new Request("https://market.test/v1/demo",{
+    method:"POST",headers:{"content-type":"application/json"},body:'{"seed":1}'
+  }));
+  assert.equal(held.status,404);
+  assert.equal(held.headers.get("payment-required"),null);
+});
 test("marketRails reads the deployment and never invents a payout address", () => {
   assert.deepEqual(marketRails(ENV), { network: NETWORK, payTo: PAY_TO, asset: USDC, facilitatorUrl: "https://facilitator.invalid" });
   assert.throws(() => marketRails({ X402_NETWORK: NETWORK, X402_FACILITATOR: "https://f.invalid" }), /X402_PAY_TO/u);
