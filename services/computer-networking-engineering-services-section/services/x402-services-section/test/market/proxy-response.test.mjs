@@ -32,3 +32,27 @@ test("missing and oversized upstream payment-required headers fail closed",async
  const empty=new Response("empty",{status:402,headers:{"payment-required":""}});
  assert.equal((await projectProxyResponse(empty,{publicUrl:endpoint})).status,502);
 });
+
+test("merchant-authorized expectedTerms bind Node quotes to owner contract, asset, payee and tariff",async()=>{
+ const nativeQuote=native();
+ const base=nativeQuote.accepts[0];
+ const expectedTerms={network:base.network,asset:base.asset,payTo:base.payTo,amount:base.amount};
+ const accepted=await projectProxyResponse(response(nativeQuote),{publicUrl:endpoint,expectedTerms});
+ assert.equal(accepted.status,402);
+ assert.equal(decodePaymentRequiredHeader(accepted.headers.get("payment-required")).accepts[0].amount,base.amount);
+ for(const altered of [
+   {network:"eip155:5615611"},
+   {asset:"0x"+"11".repeat(20)},
+   {payTo:"0x"+"22".repeat(20)},
+   {amount:"2000"},
+   {amount:"1"},
+   {scheme:"batch-settlement"},
+ ]) {
+   const upstream=response({...nativeQuote,accepts:[{...base,...altered}]});
+   const rejected=await projectProxyResponse(upstream,{publicUrl:endpoint,expectedTerms});
+   assert.equal(rejected.status,502,JSON.stringify(altered));
+   assert.equal(rejected.headers.get("payment-required"),null);
+ }
+ const mixed=response({...nativeQuote,accepts:[base,{...base,payTo:"0x"+"22".repeat(20)}]});
+ assert.equal((await projectProxyResponse(mixed,{publicUrl:endpoint,expectedTerms})).status,502);
+});
