@@ -633,7 +633,11 @@ the actual JSON Schema and TOML products; catalogue freshness is then received.
 
 Complete declared-carrier compilation is refused on25 source bindings across
 HTTP structured-field/signature consumers, agent-development/knowledge carriers,
-harness setup, an inference exercise and sheaf forecasting. This is a complete
+harness setup, an inference exercise and sheaf forecasting. The actual installed
+http-structured-fields1.0.0 JavaScript export list contains every named HTTP
+function reported missing. The shared compiler externalizes third-party packages,
+so that refusal alone cannot establish a broken HTTP interface: receive the
+star-reexport/compiler boundary separately from genuine source mismatches. This is a complete
 source-construction refusal, not application health or business receiving. Keep
 that composition's assessment open; recover the whole provider/consumer contracts
 before changing implementations or retiring obsolete declarations. No app, actor,
