@@ -11,6 +11,7 @@ import {
   declareCatalog,
   declareOffer,
   incomeAccountFor,
+  exactMerchantTermsMatch,
   priceAtomicUnits,
   settlementWitness,
   x402RoutesForOffers,
@@ -506,3 +507,30 @@ test("settlementWitness treats a non-success sink response as a refused delivery
   assert.equal(JSON.parse(lines[1]).reason, "sink responded 503");
 });
 
+
+
+test("single kernel law matches the same exact merchant terms in proxy and independent receivers", () => {
+  const expected = { network: NETWORK, asset: USDC, payTo: PAY_TO, amount: "10000" };
+  const allowed = { scheme: "exact", network: NETWORK, asset: USDC,
+    payTo: PAY_TO, amount: "10000", maxTimeoutSeconds: 300 };
+  assert.equal(exactMerchantTermsMatch({ accepts: [allowed] }, expected), true);
+  assert.equal(exactMerchantTermsMatch({ accepts: [allowed, { ...allowed }] }, expected), true);
+  assert.equal(exactMerchantTermsMatch({ accepts: [allowed] },
+    { network: NETWORK, asset: USDC, amount: "10000" }), true);
+  for (const altered of [
+    { scheme: "upto" }, { scheme: "batch-settlement" },
+    { network: "eip155:5615611" }, { asset: "0x" + "11".repeat(20) },
+    { payTo: "0x" + "22".repeat(20) }, { amount: "10001" },
+  ]) {
+    const unsafe = { ...allowed, ...altered };
+    assert.equal(exactMerchantTermsMatch({ accepts: [unsafe] }, expected), false);
+    assert.equal(exactMerchantTermsMatch({ accepts: [allowed, unsafe] }, expected), false);
+  }
+  assert.equal(exactMerchantTermsMatch({ accepts: [] }, expected), false);
+  assert.equal(exactMerchantTermsMatch({ accepts: [null] }, expected), false);
+  assert.equal(exactMerchantTermsMatch({}, expected), false);
+  assert.throws(() => exactMerchantTermsMatch({ accepts: [allowed] }, { ...expected,
+    amount: "1e5" }), /canonical atomic amount/u);
+  assert.throws(() => exactMerchantTermsMatch({ accepts: [allowed] }, { ...expected,
+    network: "Base" }), /CAIP-2/u);
+});
