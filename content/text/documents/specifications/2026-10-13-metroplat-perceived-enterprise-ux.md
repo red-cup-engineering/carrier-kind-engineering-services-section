@@ -70,6 +70,21 @@ the public UX. Original enterprise workflows remain the delivery boundary.
 
 ## Current upstream source receiving
 
+The Ethereum projection's four compiler products are now an explicit native module
+recipe. Code's Solidity owner pins solc0.8.28 and compiles a closed literal source
+set without import callbacks or chain effects. The authored settings retain the
+four0.8.28 contracts, optimizer200 and viaIR, with Cancun explicit. Code alone
+writes their four declared dist/articulating products; the projection consumes
+that artifact boundary instead of transient Forge state. Complete producer,
+publication and immutable packed-byte receiving remain required.
+
+Receive canonical Code110/111/112/114 source admission and native module generation.
+Group fabricates all declared module and TypeScript products before compilation
+and packing. SignChain's runtime sources and five tests are byte-identical to its
+qualified distinct repository; its complete source-receiving record is retained
+there with corrected ownership. Retire the redundant Computer copy and select
+the actual Code/apps/signchain owner, preserving package API identity.
+
 Receive the eleven development carriers from Computer Engineering's authored
 86e13315 projection: current schemas agree byte-for-byte with the native Code
 renderer. The standalone mission command now invokes that same development
