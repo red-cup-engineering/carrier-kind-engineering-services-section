@@ -434,6 +434,9 @@ test("invalid, credential-bearing or query-bearing proxy origins refuse without 
     "https://user:pass@node-market.561.group",
     "https://node-market.561.group/?unsafe=true",
     "https://node-market.561.group/#unreceived",
+    "https://node-market.561.group/internal-prefix",
+    "https://market.test",
+    "https://market.test:443",
   ]) {
     const market = demoMarket({
       catalog: [postDeclaration()], nodeOrigin, proxyCatalog: [getDeclaration()],
