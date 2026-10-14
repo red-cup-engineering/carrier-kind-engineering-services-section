@@ -560,7 +560,7 @@ test("one source-rights claim survives native catalog, actor offer and seller pr
   const seller = offered.sellerCatalogRow(RAILS);
   assert.equal(seller.sourceRightsVerification, "unassayed");
   assert.deepEqual(seller.sourceRightsClaim, rights);
-  assert.ok(!("sourceRightsVerification" in marketCatalogReadout([declareOffer(getDeclaration())]).offers[0]));
+  assert.equal(marketCatalogReadout([declareOffer(getDeclaration())]).offers[0].sourceRightsVerification, "not-declared");
   for(const mutation of [
     {permissions:["execute","transform"]},
     {sourceUrl:"https://user:pass@noaa.gov/private"},
