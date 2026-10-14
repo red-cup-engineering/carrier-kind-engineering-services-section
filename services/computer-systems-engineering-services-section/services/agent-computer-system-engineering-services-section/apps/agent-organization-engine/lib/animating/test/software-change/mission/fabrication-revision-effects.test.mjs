@@ -7,7 +7,7 @@ import {runProgram,DEVELOPMENT_STAGES,readDevelopmentProducts,developmentOperati
 
 const qualifiedReview=request=>({kind:'software-development.construction-review',request:request.id,
  actor:'actor:independent-reviewer',office:'engineering#reviewer',decision:'admitted',
- evidence:request.checks.map(check=>({check,source:request.stages.at(-1).artifact}))});
+ evidence:request.checks.map(check=>({check,source:request.stages.find(stage=>stage.role===request.evidenceRoles[check]).artifact}))});
 
 function fixture(t){
  const root=mkdtempSync(join(tmpdir(),'native-fabrication-revision-'));t.after(()=>rmSync(root,{recursive:true,force:true}));
