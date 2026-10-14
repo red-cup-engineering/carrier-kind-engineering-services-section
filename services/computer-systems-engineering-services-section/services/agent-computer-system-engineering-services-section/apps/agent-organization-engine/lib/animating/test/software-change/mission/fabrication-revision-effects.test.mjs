@@ -5,13 +5,17 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {runProgram,DEVELOPMENT_STAGES,readDevelopmentProducts} from '@red-cup-engineering/animating/software-change/mission';
 
+const qualifiedReview=request=>({kind:'software-development.construction-review',request:request.id,
+ actor:'actor:independent-reviewer',office:'engineering#reviewer',decision:'admitted',
+ evidence:request.checks.map(check=>({check,source:request.stages.at(-1).artifact}))});
+
 function fixture(t){
  const root=mkdtempSync(join(tmpdir(),'native-fabrication-revision-'));t.after(()=>rmSync(root,{recursive:true,force:true}));
  writeFileSync(join(root,'shape.mjs'),'export const ItemSchema={type:"object"};');
  writeFileSync(join(root,'consumer.mjs'),'import assert from "node:assert/strict";import {ItemSchema} from "./shape.mjs";assert.equal(ItemSchema.properties.id.minLength,1);');
  const command=process.execPath+' consumer.mjs';
  return {root,input:{objective:'Require a nonempty identifier',territory:root,writablePaths:['shape.mjs'],readablePaths:['shape.mjs','consumer.mjs'],verifyCommand:command,acceptanceCommand:command},
-  options:{dataRoot:join(root,'custody'),receiver:{root,writablePaths:['shape.mjs'],verifyCommand:command,acceptanceCommand:command}}};
+  options:{dataRoot:join(root,'custody'),producerActor:'actor:fixture-producer',qualifyConstruction:qualifiedReview,receiver:{root,writablePaths:['shape.mjs'],verifyCommand:command,acceptanceCommand:command}}};
 }
 const valid={schemaModules:[{path:'shape.mjs',format:'javascript',entries:[{exportName:'ItemSchema',typeName:'Item',schema:{type:'object',required:['id'],properties:{id:{type:'string',minLength:1}}}}]}]};
 test('invalid native handoff stops once and requires an independently authored new specification',async t=>{
