@@ -241,6 +241,26 @@ function admitDeclaration(input, { admit = true } = {}) {
       input.seller.record.path.split("/").includes("..") || !/^[a-f0-9]{64}$/u.test(input.seller?.record?.sha256 ?? ""))) {
     throw new TypeError("offer seller must name an enterprise, legal entity and exact repository constitution record");
   }
+  // This is a seller-authored claim, not automatic legal clearance. But an
+  // admitted paid offer must not *declare* that it lacks commercial use rights.
+  // Later independent receiving checks the referenced evidence and permissions.
+  if (input.sourceRightsClaim !== undefined) {
+    const rights = input.sourceRightsClaim;
+    if (!rights.permissions?.includes("commercialize")) {
+      throw new TypeError("a paid source-backed offer must claim explicit commercial use authority");
+    }
+    if (rights.expiresAt !== undefined &&
+        Date.parse(rights.expiresAt) <= Date.parse(rights.observedAt)) {
+      throw new TypeError("source rights expiry must follow the recorded rights observation");
+    }
+    for (const [label, value] of [["sourceUrl", rights.sourceUrl], ["licenseUrl", rights.licenseUrl]]) {
+      let url;
+      try { url = new URL(value); } catch { throw new TypeError("source rights " + label + " must be an HTTPS URL"); }
+      if (url.protocol !== "https:" || url.username || url.password || url.hash) {
+        throw new TypeError("source rights " + label + " must not embed private authority or fragments");
+      }
+    }
+  }
   // An admitted declaration is copied before it is frozen; one taken on trust (a
   // compiled catalog on a small CPU budget) is frozen where it lies, since
   // cloning every example again is the cost the trusted path avoids.
