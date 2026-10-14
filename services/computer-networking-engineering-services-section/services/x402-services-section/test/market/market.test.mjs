@@ -349,6 +349,47 @@ test("invalid, credential-bearing or query-bearing proxy origins refuse without 
   assert.equal(status.nodeProxyConfigured, true);
 });
 
+test("HTTPS Node proxy refuses a mismatched native quote using its actual payout bindings", async () => {
+  const originalFetch = globalThis.fetch;
+  const upstreamUrl = "https://node-market.561.group/v1/lookup";
+  const endpoint = "https://market.test/v1/lookup";
+  const base = { scheme: "exact", network: NETWORK, asset: USDC, payTo: PAY_TO,
+    amount: "10000", maxTimeoutSeconds: 300 };
+  let offer = base, count = 0;
+  const market = demoMarket({ catalog: [postDeclaration()],
+    nodeOrigin: "https://node-market.561.group", proxyCatalog: [getDeclaration()] });
+  try {
+    globalThis.fetch = async (url, options) => {
+      assert.equal(String(url), upstreamUrl);
+      assert.equal(options.redirect, "error");
+      count++;
+      const quoted = { x402Version: 2, resource: { url: endpoint },
+        accepts: [offer] };
+      return new Response(JSON.stringify(quoted), { status: 402, headers: {
+        "payment-required": Buffer.from(JSON.stringify(quoted)).toString("base64"),
+        "content-type": "application/json",
+      } });
+    };
+    const accepted = await market.fetch(new Request(endpoint));
+    assert.equal(accepted.status, 402);
+    assert.equal(challengeOf(accepted).accepts[0].payTo, PAY_TO);
+    for (const different of [
+      { payTo: "0x" + "22".repeat(20) },
+      { network: "eip155:5615611" },
+      { asset: "0x" + "22".repeat(20) },
+      { amount: "10001" },
+    ]) {
+      offer = { ...base, ...different };
+      const refused = await market.fetch(new Request(endpoint));
+      assert.equal(refused.status, 502, JSON.stringify(different));
+      assert.equal(refused.headers.get("payment-required"), null);
+    }
+    assert.equal(count, 5);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("status is served unpriced on both probes and counts the catalog", async () => {
   const market = demoMarket();
   for (const path of ["/v1/status", "/healthz"]) {
