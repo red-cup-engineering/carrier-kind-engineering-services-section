@@ -390,6 +390,10 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       book: declaration.seller ? { enterprise: declaration.seller.enterprise, account: declaration.ledgerAccount } : null,
       operation: declaration.operation,
       law,
+      ...(declaration.sourceRightsClaim === undefined ? {} : {
+        sourceRightsClaim: declaration.sourceRightsClaim,
+        sourceRightsVerification: "unassayed",
+      }),
       agentCard,
       authorization: { profile: "x402", grantRequired: false },
       price: { protocol: "x402", asset: requireAddress(asset, "the settlement asset"),
@@ -422,6 +426,10 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       sellerRecord: declaration.seller?.record ?? null,
       book: declaration.seller ? { enterprise: declaration.seller.enterprise, account: declaration.ledgerAccount } : null,
       gatewayPackageName: declaration.gatewayPackageName,
+      ...(declaration.sourceRightsClaim === undefined ? {} : {
+        sourceRightsClaim: declaration.sourceRightsClaim,
+        sourceRightsVerification: "unassayed",
+      }),
       url: probeUrl,
       method: declaration.method,
       ...(declaration.method === "POST" ? { body: structuredClone(declaration.bodyExample) } : {}),
