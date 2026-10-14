@@ -63,7 +63,9 @@ export function constructionReviewRequest(design,products) {
  }
  const core={kind:'software-development.construction-review-request',version:1,
   question:design.question,source:design.source.id,stages,checks:[...CHECKS]};
- return Object.freeze({...core,id:semanticId(core)});
+ // Same NI law as every held SignCraft product, so the review request can
+ // be re-read by another authorized office in another session.
+ return Object.freeze({...core,id:semanticId({kind:core.kind,value:core})});
 }
 
 /**
@@ -72,8 +74,8 @@ export function constructionReviewRequest(design,products) {
  * never by strings supplied by a development request or inference output.
  */
 export function admitConstructionReview(request,review,{producerActor}={}) {
- if(!ni(request?.id)||semanticId(Object.fromEntries(Object.entries(request)
-  .filter(([key])=>key!=='id')))!==request.id)
+ if(!ni(request?.id)||semanticId({kind:request.kind,value:Object.fromEntries(Object.entries(request)
+  .filter(([key])=>key!=='id'))})!==request.id)
   throw new TypeError('construction review request identity differs from held source');
  if(!own(review)||review.kind!=='software-development.construction-review'
    ||review.request!==request.id||review.decision!=='admitted'
@@ -90,8 +92,8 @@ export function admitConstructionReview(request,review,{producerActor}={}) {
   received.set(item.check,item.source);
  }
  if(CHECKS.some(check=>!received.has(check)))throw new TypeError('review does not cover every admitted verification obligation');
- return Object.freeze({kind:review.kind,request:request.id,reviewer:review.actor,
-  office:review.office,evidence:Object.freeze(CHECKS.map(check=>Object.freeze({check,source:received.get(check)})))});
+ return Object.freeze({kind:review.kind,request:request.id,actor:review.actor,office:review.office,
+  decision:'admitted',evidence:Object.freeze(CHECKS.map(check=>Object.freeze({check,source:received.get(check)})))});
 }
 
 export const CONSTRUCTION_ROLES=ROLES;
