@@ -92,7 +92,7 @@ export function analyzeMarketUnitEconomics(offers, {
   asset = BASE_USDC,
   minimumPrecomputeHeadroomAtomic,
   resourceCostReceipts = [],
-  now = new Date(),
+  now, // a clock observation belongs to the effectful caller, not the pure calculation
   maxFeeAgeDays = 30
 } = {}) {
   if (!Array.isArray(offers)) throw new TypeError("admitted offers array is required");
