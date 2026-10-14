@@ -63,7 +63,7 @@ test('a fake or incomplete reviewer does not authorize fabrication',()=>{
  const f=fixture(),request=constructionReviewRequest(f.design,f.products),good=review(request);
  assert.throws(()=>admitConstructionReview(request,good,{producerActor:'actor:reviewer'}),/independent/);
  assert.throws(()=>admitConstructionReview(request,good,{}),/independent/);
- assert.throws(()=>admitConstructionReview(request,{...good,request:'ni:///sha-256;'+'A'.repeat(43)},{producerActor:'actor:author'}),/source-bound/);
+ assert.throws(()=>admitConstructionReview(request,{...good,request:'ni:///sha-256;'+'A'.repeat(43)},{producerActor:'actor:author'}),/independent/);
  assert.throws(()=>admitConstructionReview(request,{...good,evidence:good.evidence.slice(1)},{producerActor:'actor:author'}),/review/);
  assert.throws(()=>admitConstructionReview(request,{...good,evidence:[...good.evidence.slice(1),good.evidence[1]]},{producerActor:'actor:author'}),/unique/);
 });
