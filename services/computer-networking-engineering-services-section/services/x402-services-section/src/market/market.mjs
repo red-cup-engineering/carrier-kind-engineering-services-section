@@ -11,7 +11,7 @@ import { escapeHtml } from "@red-cup-engineering/web-page-tiling-engine/browser"
 import { resolveBinding } from "../compute-binding.mjs";
 import { createExactEvmFetchPaymentBoundary } from "../fetch-server.mjs";
 import { recoverPaidResponse } from "../paid-response-recovery.mjs";
-import { declareCatalog, offerPriceText, offerPricingReadout, settlementWitness, x402RoutesForOffers } from "../offer.mjs";
+import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, settlementWitness, x402RoutesForOffers } from "../offer.mjs";
 import { decodeSignInHeader, SIGN_IN_WITH_X, SIGN_IN_WITH_X_HEADER, signInChallenge, verifySignIn } from "../sign-in-with-x.mjs";
 import { projectProxyResponse } from "./proxy-response.mjs";
 
@@ -527,15 +527,33 @@ export function createMarket({
             { status: 503, headers: { "cache-control": "no-store", "retry-after": "120" } });
         }
         const target = new URL(`${context.url.pathname}${context.url.search}`, nodeOrigin);
+        const forwardedBody = ["GET", "HEAD"].includes(context.request.method)
+          ? undefined : await context.request.arrayBuffer();
         const upstream = await fetch(target, {
           method: context.request.method,
           headers: context.request.headers,
-          body: ["GET", "HEAD"].includes(context.request.method) ? undefined : await context.request.arrayBuffer(),
+          body: forwardedBody,
           redirect: "error",
         });
+        let expectedTerms;
+        if (upstream.status === 402) {
+          try {
+            const pricedBody = offer.declaration.requestPricing === undefined ? undefined :
+              JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(forwardedBody));
+            expectedTerms = {
+              ...marketRails(env),
+              amount: offerRequestPricing(offer.declaration, pricedBody).amountAtomic,
+            };
+          } catch {
+            await upstream.body?.cancel();
+            return Response.json({ error: "Node market quote could not be reconciled to the seller pricing and payout" },
+              { status: 503, headers: { "cache-control": "no-store" } });
+          }
+        }
         return projectProxyResponse(upstream, {
           publicUrl: new URL(`${context.url.pathname}${context.url.search}`, offer.declaration.origin).href,
           resourceUrl: offer.url,
+          ...(expectedTerms === undefined ? {} : { expectedTerms }),
         });
       },
     };
