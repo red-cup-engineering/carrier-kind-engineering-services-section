@@ -18,7 +18,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows } from "./oci-always-free-admission.mjs";
+import { requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile } from "./oci-always-free-admission.mjs";
 
 const run = promisify(execFile);
 
@@ -43,8 +43,8 @@ const BOOT_VOLUME_GB = String(REQUEST.bootGB);
 const CAPACITY_REFUSAL = /out of host capacity|capacity|TooManyRequests|too many requests/iu;
 
 const oci = process.env.OCI_CLI ?? join(homedir(), ".local/bin/oci");
-const profile = process.env.OCI_PROFILE ?? "BLUE_CORN_CREEK_API_KEY";
 const configFile = process.env.OCI_CONFIG_FILE ?? join(homedir(), ".oci/config");
+const profile = selectOciProfile(await readFile(configFile, "utf8"), process.env);
 const sshPublicKeyFile = process.env.SSH_PUBLIC_KEY_FILE ?? join(homedir(), ".ssh/id_ed25519.pub");
 
 async function ociJson(...args) {

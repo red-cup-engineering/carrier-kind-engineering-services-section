@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows,
+  requireAlwaysFreeRequest, requireAlwaysFreeHeadroom, providerAvailabilityAllows, selectOciProfile,
 } from '../scripts/oci-always-free-admission.mjs';
 
 const a1={shape:'VM.Standard.A1.Flex',ocpus:2,memoryGBs:12,bootGB:50};
@@ -83,6 +83,17 @@ test('OCI A1 container instances are shared-quota users, not unseen free OCPUs',
   assert.equal(requireAlwaysFreeHeadroom(a1,read({containerInstances:[{
     id:'ci-deleted',shape:'CI.Standard.A1.Flex','lifecycle-state':'DELETED'
   }]})).remainingOcpus,0);
+});
+
+test('OCI profile follows current native configured authority rather than stale default names',()=>{
+  const config='[DEFAULT]\ntenancy = test-default\n[OWNED_API_KEY]\ntenancy = test-current\n';
+  assert.equal(selectOciProfile(config),'OWNED_API_KEY');
+  assert.equal(selectOciProfile(config,{OCI_PROFILE:'DEFAULT'}),'DEFAULT');
+  assert.equal(selectOciProfile(config,{OCI_CLI_PROFILE:'OWNED_API_KEY'}),'OWNED_API_KEY');
+  assert.throws(()=>selectOciProfile(config,{OCI_PROFILE:'BLUE_CORN_CREEK_API_KEY'}),/does not exist/);
+  assert.throws(()=>selectOciProfile(config+'[OTHER_API_KEY]\ntenancy = test-other\n'),/more than one/);
+  assert.throws(()=>selectOciProfile(''),/unavailable/);
+  assert.throws(()=>selectOciProfile('[DEFAULT]\n[DEFAULT]\n'),/ambiguous/);
 });
 
 test('native per-AD OCI limit readings are a necessary second admission gate',()=>{

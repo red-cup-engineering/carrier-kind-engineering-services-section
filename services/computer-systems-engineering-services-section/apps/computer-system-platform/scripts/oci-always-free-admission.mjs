@@ -94,3 +94,26 @@ export function providerAvailabilityAllows(request,values){
     return typeof available==='number'&&Number.isFinite(available)&&available>=demand;
   });
 }
+
+/** Bind the native OCI credential *profile name*, never credential values.
+ * An explicit principal wins, but it must actually exist on this author host.
+ * Without one, exactly one machine-owned API_KEY profile may be selected;
+ * conflicting principals refuse instead of falling back to stale host names.
+ */
+export function selectOciProfile(configSource, environment = {}) {
+  if (typeof configSource !== 'string' || !configSource.trim())
+    throw new TypeError('OCI configured principals are unavailable');
+  const names = [...configSource.matchAll(/^\[([^\]]+)\]\s*$/gmu)].map(m=>m[1]);
+  if (!names.length || new Set(names).size !== names.length)
+    throw new TypeError('OCI profile declaration is absent or ambiguous');
+  const selected = environment.OCI_PROFILE ?? environment.OCI_CLI_PROFILE;
+  if (selected !== undefined) {
+    if (typeof selected !== 'string' || !names.includes(selected))
+      throw new TypeError('selected OCI profile does not exist in native credential custody');
+    return selected;
+  }
+  const keys = names.filter(name=>name.endsWith('_API_KEY'));
+  if (keys.length === 1) return keys[0];
+  if (keys.length === 0 && names.length === 1) return names[0];
+  throw new TypeError('more than one potential OCI principal; specify OCI_PROFILE');
+}
