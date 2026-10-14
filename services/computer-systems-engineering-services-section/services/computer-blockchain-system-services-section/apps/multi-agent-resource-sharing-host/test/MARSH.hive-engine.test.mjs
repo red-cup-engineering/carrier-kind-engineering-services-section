@@ -143,3 +143,52 @@ test("transitionResource refuses a resource that does not exist", async () => {
   assert.deepEqual(contract.failures, ["resource not found"]);
   assert.equal(contract.tables.get("resources").length, 0);
 });
+
+test("one Hive account cannot occupy another controller's resource identifier or kind", async () => {
+  const contract = loadContract({ sender: "mallory" });
+  await contract.actions.createSSC();
+  const claimed = "marsh:mainnet:alice:sensor:room-1";
+  await contract.actions.admitResource({
+    resource: claimed, kind: "sensor", content: "c1", evidence: "e1",
+  });
+  assert.deepEqual(contract.failures, ["resource controller identity mismatch"]);
+  assert.equal(contract.tables.get("resources").length, 0,
+    "a forged sender must not lock out the actual controller");
+  contract.failures.length = 0;
+  contract.api.sender = "alice";
+  await contract.actions.admitResource({
+    resource: claimed, kind: "different-kind", content: "c1", evidence: "e1",
+  });
+  assert.deepEqual(contract.failures, ["resource kind identity mismatch"]);
+  assert.equal(contract.tables.get("resources").length, 0);
+  contract.failures.length = 0;
+  await contract.actions.admitResource({
+    resource: claimed, kind: "sensor", content: "c1", evidence: "e1",
+  });
+  assert.equal(contract.failures.length, 0);
+  assert.equal(contract.tables.get("resources")[0].controller, "alice");
+});
+
+test("opaque content-addressed NI subjects survive while malformed or enormous identity tuples refuse", async () => {
+  const contract = loadContract({ sender: "alice" });
+  await contract.actions.createSSC();
+  for (const resource of [
+    "not-a-typed-resource",
+    "marsh::alice:sensor:subject",
+    "marsh:mainnet:alice::subject",
+    "marsh:mainnet:alice:sensor:",
+    "marsh:mainnet:alice:sensor:" + "a".repeat(600),
+  ]) {
+    await contract.actions.admitResource({
+      resource, kind: "sensor", content: "c1", evidence: "e1",
+    });
+    assert.ok(contract.failures.at(-1)?.includes("resource identity malformed"),resource);
+  }
+  assert.equal(contract.tables.get("resources").length, 0);
+  contract.failures.length = 0;
+  const resource = "marsh:mainnet:alice:sensor:ni:///sha-256;" + "A".repeat(43);
+  await contract.actions.admitResource({resource,kind:"sensor",content:"c1",evidence:"e1"});
+  assert.equal(contract.failures.length,0);
+  assert.equal(contract.tables.get("resources")[0].resource,resource);
+  assert.equal(contract.tables.get("resources")[0].sequence,1);
+});
