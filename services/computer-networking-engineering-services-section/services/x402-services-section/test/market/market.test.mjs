@@ -771,3 +771,42 @@ test("process usage windows are observed but never attributed as paid per-reques
     }
   }
 });
+
+
+test("Node proxy transport interruption preserves settlement uncertainty for unsigned and signed requests", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const market = demoMarket({
+    catalog: [postDeclaration()],
+    nodeOrigin: "https://node-market.561.group",
+    proxyCatalog: [getDeclaration()],
+  });
+  try {
+    globalThis.fetch = async (url, options) => {
+      assert.equal(String(url), "https://node-market.561.group/v1/lookup?q=1");
+      assert.equal(options.redirect, "error");
+      calls.push(options.headers.get("payment-signature"));
+      throw new TypeError("private origin transport details");
+    };
+    for (const signed of [false, true]) {
+      const response = await market.fetch(new Request("https://market.test/v1/lookup?q=1", {
+        headers: signed ? {
+          "payment-signature": "same-original-signature",
+          "x-payment-recovery": "same-original-recovery-token",
+        } : {},
+      }));
+      assert.equal(response.status, 503);
+      assert.equal(response.headers.get("cache-control"), "no-store");
+      assert.equal(response.headers.get("retry-after"), "120");
+      assert.equal(response.headers.get("payment-response"), null);
+      assert.equal(response.headers.get("payment-required"), null);
+      const result = await response.json();
+      assert.match(result.error, /outcome is unknown/u);
+      assert.match(result.recovery, /original payment signature and recovery token/u);
+      assert.ok(!JSON.stringify(result).includes("private origin transport details"));
+    }
+    assert.deepEqual(calls, [null, "same-original-signature"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

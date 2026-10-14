@@ -570,12 +570,24 @@ export function createMarket({
         const target = new URL(`${context.url.pathname}${context.url.search}`, nodeOrigin);
         const forwardedBody = ["GET", "HEAD"].includes(context.request.method)
           ? undefined : await context.request.arrayBuffer();
-        const upstream = await fetch(target, {
-          method: context.request.method,
-          headers: context.request.headers,
-          body: forwardedBody,
-          redirect: "error",
-        });
+        let upstream;
+        try {
+          upstream = await fetch(target, {
+            method: context.request.method,
+            headers: context.request.headers,
+            body: forwardedBody,
+            redirect: "error",
+          });
+        } catch {
+          // The request may have reached a settlement facilitator before the
+          // origin connection was interrupted. Never call it unpaid, retry a
+          // signed request with a new signature, or expose transport internals.
+          // Buyers must recover using their original authorization and token.
+          return Response.json({
+            error: "Node market origin is unavailable; payment outcome is unknown",
+            recovery: "Retry the identical request with the original payment signature and recovery token",
+          }, { status: 503, headers: { "cache-control": "no-store", "retry-after": "120" } });
+        }
         const signedRequest = context.request.headers.has("payment-signature");
         let expectedTerms;
         if (upstream.status === 402 || (upstream.ok && signedRequest)) {
