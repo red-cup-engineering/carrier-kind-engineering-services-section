@@ -69,6 +69,16 @@ export function sourceRightsClaimCurrent(declaration, nowMillis) {
   if (rights === undefined) return true;
   const observed = Date.parse(rights.observedAt);
   if (!Number.isFinite(observed) || observed > nowMillis) return false;
+  const governance = rights.communityGovernance;
+  if (governance !== undefined) {
+    // An expired community-authority reading cannot keep authorizing a paid
+    // resource merely because the broader source licence is still current.
+    // Revocation and validity of the claim itself require independent receiving.
+    const observedAuthority = Date.parse(governance.observedAt);
+    const expiresAuthority = Date.parse(governance.expiresAt);
+    if (!Number.isFinite(observedAuthority) || observedAuthority > nowMillis ||
+        !Number.isFinite(expiresAuthority) || expiresAuthority <= nowMillis) return false;
+  }
   if (rights.expiresAt === undefined) return true;
   const expires = Date.parse(rights.expiresAt);
   return Number.isFinite(expires) && expires > nowMillis;
@@ -268,7 +278,20 @@ function admitDeclaration(input, { admit = true } = {}) {
         Date.parse(rights.expiresAt) <= Date.parse(rights.observedAt)) {
       throw new TypeError("source rights expiry must follow the recorded rights observation");
     }
-    for (const [label, value] of [["sourceUrl", rights.sourceUrl], ["licenseUrl", rights.licenseUrl]]) {
+    const governance = rights.communityGovernance;
+    if (governance !== undefined &&
+        (!Number.isFinite(Date.parse(governance.observedAt)) ||
+         !Number.isFinite(Date.parse(governance.expiresAt)) ||
+         Date.parse(governance.expiresAt) <= Date.parse(governance.observedAt))) {
+      throw new TypeError("community-governed source rights require a later, valid authority expiry");
+    }
+    for (const [label, value] of [
+      ["sourceUrl", rights.sourceUrl], ["licenseUrl", rights.licenseUrl],
+      ...(governance === undefined ? [] : [
+        ["communityGovernance.authorityActor", governance.authorityActor],
+        ["communityGovernance.protocolUri", governance.protocolUri],
+      ]),
+    ]) {
       let url;
       try { url = new URL(value); } catch { throw new TypeError("source rights " + label + " must be an HTTPS URL"); }
       if (url.protocol !== "https:" || url.username || url.password || url.hash) {
