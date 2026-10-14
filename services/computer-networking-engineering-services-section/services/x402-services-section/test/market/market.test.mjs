@@ -630,3 +630,29 @@ test("expired source rights reject direct and proxied sale before payment, grant
   }));
   assert.equal(unsigned.status,402);
 });
+
+
+test("process usage windows are observed but never attributed as paid per-request CPU or cost", async () => {
+  let settlement;
+  const market = demoMarket({
+    facilitatorClient: paidFacilitator(),
+    afterSettle: async context => { settlement = context; }
+  });
+  const delivered = await pay(market, "https://market.test/v1/lookup?n=7");
+  assert.equal(delivered.status,200);
+  const prepared = settlement?.transportContext?.responsePreparation;
+  assert.equal(prepared?.basis,"server-response-preparation");
+  assert.equal(prepared.measuredCpu,false);
+  assert.equal(prepared.measuredMonetaryCost,false);
+  assert.equal(prepared.measuredPhysicalEnergy,false);
+  assert.ok(prepared.elapsedMs >= 0);
+  if (typeof process.cpuUsage === "function" && typeof process.memoryUsage === "function") {
+    const usage=prepared.processUsageWindow;
+    assert.equal(usage?.scope,"whole-process-during-response-preparation");
+    assert.equal(usage.requestAttributable,false);
+    assert.equal(usage.peakRssMeasured,false);
+    for (const key of ["userCpuMicroseconds","systemCpuMicroseconds","rssBeforeBytes","rssAfterBytes"]) {
+      assert.match(usage[key],/^[0-9]+$/u);
+    }
+  }
+});
