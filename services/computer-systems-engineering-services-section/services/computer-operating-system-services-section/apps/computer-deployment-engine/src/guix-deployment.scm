@@ -13,6 +13,11 @@
   #:use-module (srfi srfi-1)
   #:export (enterprise-deployment))
 
+(define portable-runtime-check
+  (local-file (string-append (dirname (current-filename))
+                            "/../scripts/portable-runtime.mjs")
+              "lagoon-portable-runtime.mjs"))
+
 ;; Units and launchers are built with their actual store paths. The host's
 ;; systemd remains responsible for sockets, cgroups and process supervision.
 (define* (enterprise-deployment machine-name directory entry
@@ -39,10 +44,10 @@
       (build-system trivial-build-system)
       (arguments
        (list
-        #:modules '((guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1))
+        #:modules '((guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1) (srfi srfi-13))
         #:builder
         #~(begin
-            (use-modules (guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1))
+            (use-modules (guix build utils) (ice-9 format) (ice-9 regex) (ice-9 ftw) (srfi srfi-1) (srfi srfi-13))
             (let* ((out #$output)
                    (runtime #$(file-append node "/bin/node"))
                    (bin (string-append out "/bin"))
@@ -61,6 +66,7 @@
               ;; in the output's closure without copying the entire tree twice.
               (mkdir-p out) (mkdir-p bin) (mkdir-p units)
               (let ((tree #$(local-file admitted-source "registry-runtime" #:recursive? #t)))
+                (invoke runtime #$portable-runtime-check tree #$entry)
                 (when (file-exists? (string-append tree "/.guix-systemd"))
                   (error "application contains reserved deployment directory"))
                 (for-each (lambda (file)
@@ -151,6 +157,28 @@
                                 #$(file-append bash-minimal "/bin/sh") runtime program)))
                     (chmod path #o555)))
                 '#$commands)
+              ;; Receive declared carriers before writing runnable units. These
+              ;; are structural checks only; never execute a precheck here.
+              (for-each
+                (lambda (path)
+                  (unless (and (string? path) (not (absolute-file-name? path))
+                               (every (lambda (part) (and (not (string-null? part))
+                                                         (not (member part '("." "..")))))
+                                      (string-split path #\/)))
+                    (error "deployment carrier must be a relative file path" path))
+                  (unless (eq? 'regular (stat:type (stat (string-append out "/" path))))
+                    (error "declared deployment carrier is absent or nonregular" path)))
+                (append
+                  (list #$entry)
+                  (map (lambda (command) (assoc-ref command 'program)) '#$commands)
+                  (map (lambda (spec) (assoc-ref spec "source")) '#$configuration-files)
+                  (if #$state-check (list #$state-check) '())
+                  (append-map (lambda (service)
+                    (let ((checks (assoc-ref service 'precheck))
+                          (poststop (assoc-ref service 'poststop)))
+                      (append (list (assoc-ref service 'program))
+                        (cond ((not checks) '()) ((string? checks) (list checks)) (else checks))
+                        (if poststop (list poststop) '())))) '#$auxiliary-units)))
               (call-with-output-file unit
                 (lambda (port)
                   ;; Units the service cannot start without (its rendered credentials, say)
@@ -234,4 +262,5 @@
        "A published application closure, its Guix interpreter, launcher and service.
 Persistent state and credentials remain in the host's existing custody.")
       (license #f))))
+
 

@@ -15,7 +15,7 @@
     "@red-cup-engineering/systemd-unit-inventory-observation-service": "workspace:*"
   },
   "scripts": {
-    "test": "which guile >/dev/null 2>&1 || { echo 'computer-deployment-engine test: guile not found on PATH — the SRFI-64 suite cannot run' >&2; exit 1; }; guile scripts/run-node-worker-tests.scm"
+    "test": "which guile >/dev/null 2>&1 || { echo 'computer-deployment-engine test: guile not found on PATH — the SRFI-64 suite cannot run' >&2; exit 1; }; guile scripts/run-node-worker-tests.scm && node --test test/portable-runtime.test.mjs"
   },
   "files": [
     "scripts",
@@ -25,3 +25,4 @@
     "package.json"
   ]
 }
+
