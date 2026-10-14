@@ -582,3 +582,22 @@ against its original provider source, including the policy-bound signFn port.
 No SDK agent is started and the existing one-job scope is not broadened.
 The common lock and full installed graph still need construction after these
 source changes. The original compilation refusal remains an exact prior input.
+
+
+The Kalshi desk now has one package scope with the collection that ships it.
+Retire the nested manifest, declare its existing venue-neutral allocator at
+Kalshi, and retain liquidity/fill/book primitives through the collection's public
+exports. Original active-source reading found no external named stake-package
+consumer. Preserve all desk source, policy, state layout and existing order path;
+this source work executes no account or order effect.
+
+After six actual entrances compile against genuine suppliers, native Node
+resolution receives ten client/layout/primitive bindings from the actual desk
+callers. PR97's exact original climateDate helper retains standard-time climate
+intervals; summer and winter boundaries are received without provider requests.
+Other transport, outcome and strategy changes in that proposal remain separate.
+The receipts are `kalshi-boundaries-compilation.json`,
+`kalshi-boundaries-receiving.json` and `kalshi-climate-helper-source.json` in the
+existing evidence directory. This is bounded source/consumer receiving; complete
+installed/packed common software, catalogue regeneration, Guix realization and
+sustained enterprise/peer operations remain owed.
