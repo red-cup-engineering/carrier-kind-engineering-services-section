@@ -71,7 +71,8 @@ function offerHtml(offer) {
     <p>Use an x402 client to approve those terms and repeat the request. Save the response body as the purchased result.</p></details>
     <details><summary>Input contract</summary>${code(JSON.stringify(request, null, 2))}</details>
     <details><summary>Response contract and example</summary>${code(JSON.stringify(offer.declaration.output, null, 2))}</details>
-    ${offer.declaration.evidence ? `<details><summary>Evidence and limitations</summary>${code(JSON.stringify(offer.declaration.evidence, null, 2))}</details>` : ""}`;
+    ${offer.declaration.evidence ? `<details><summary>Evidence and limitations</summary>${code(JSON.stringify(offer.declaration.evidence, null, 2))}</details>` : ""}
+    ${offer.declaration.sourceRightsClaim ? `<details><summary>Source rights (seller claim; independent verification not performed)</summary>${code(JSON.stringify(offer.declaration.sourceRightsClaim, null, 2))}</details>` : ""}`;
 }
 
 /**
