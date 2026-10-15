@@ -62,3 +62,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/computer-mud-engineering-services-section/apps/racket-mud
 	url = https://github.com/red-cup-engineering/racket-mud.git
 	branch = main
+[submodule "fizzos"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/fizzos
+	url = https://github.com/red-cup-engineering/fizzos.git
+	branch = main
