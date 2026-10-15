@@ -31,7 +31,7 @@ import {
   CLOUDEVENTS_DATA_CONTENT_TYPE,
   CLOUDEVENTS_SPECVERSION,
 
-} from "@red-cup-engineering/json-services-section/cloudevent-identity";
+} from "./cloudevent-identity.mjs";
 
 /** The store type of an admitted arrival: a record per arrival, a head per day, a log line per arrival. */
 export const ARRIVAL_FEED = "arrival";

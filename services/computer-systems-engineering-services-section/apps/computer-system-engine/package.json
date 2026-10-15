@@ -26,6 +26,8 @@
     "./addressing/codec-legibility": "./src/addressing/codec-legibility.mjs",
     "./wire-eavt-tuple": "./src/wire-eavt-tuple.mjs",
     "./rpc/arrival": "./src/rpc/arrival.mjs",
+    "./rpc/cloudevent-identity": "./src/rpc/cloudevent-identity.mjs",
+    "./rpc/cloudevent-schema": "./src/rpc/cloudevent-schema.mjs",
     "./rpc/contract-evidence": "./src/rpc/contract-evidence.mjs",
     "./rpc/contract": "./src/rpc/contract.mjs",
     "./rpc/convergence-key": "./src/rpc/convergence-key.mjs",
