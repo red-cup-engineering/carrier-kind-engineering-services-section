@@ -110,3 +110,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-accounting-systems-engineering-services-section/services/computer-ledger-system-services-section/apps/farolfi
 	url = https://github.com/red-cup-engineering/farolfi.git
 	branch = main
+[submodule "graphical-knowledge-system-server"]
+	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/graphical-knowledge-system-server
+	url = https://github.com/red-cup-engineering/graphical-knowledge-system-server.git
+	branch = main
