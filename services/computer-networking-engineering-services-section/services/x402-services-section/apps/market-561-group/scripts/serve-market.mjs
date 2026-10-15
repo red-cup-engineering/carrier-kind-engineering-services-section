@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import { runMain } from "@red-cup-engineering/javascript-file-services-section/javascript-file-main-guard";
 import { resolve } from "node:path";
+import { readInstanceAccessGrants } from "../../../src/market/instance-access-grants-node.mjs";
 import { put } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { startFilesystemWitnessJournalProviderProcess } from "@red-cup-engineering/witness-journal-document-service/filesystem-provider";
 import { startMarket } from "../../../src/market/node.mjs";
 
-import { MARKET_NAME, catalog, createMarket561Group } from "../src/market.mjs";
+import { MARKET_NAME, catalog, createMarket561Group, marketAccess } from "../src/market.mjs";
 
 /**
  * The one runner. Starts the filesystem witness-journal provider beside the
@@ -19,12 +20,14 @@ import { MARKET_NAME, catalog, createMarket561Group } from "../src/market.mjs";
 export async function main(env = process.env) {
   const dataRoot = env.MARKET_DATA_ROOT;
   if (!dataRoot) throw new Error("MARKET_DATA_ROOT must name the durable market data plate");
+  // Validate explicit authority before starting any provider or listener.
+  const access = marketAccess(env, { grants: readInstanceAccessGrants(env) });
   const witnessJournal = await startFilesystemWitnessJournalProviderProcess({
     root: env.WITNESS_JOURNAL_ROOT ?? resolve(dataRoot, "witness-journal"),
     port: Number(env.WITNESS_JOURNAL_LOCAL_PORT ?? 19763),
   });
   const bound = { ...env, WITNESS_JOURNAL_DOCUMENT_AGENT: witnessJournal.agentCardUrl };
-  const market = createMarket561Group(bound);
+  const market = createMarket561Group(bound, { access });
   const port = Number(env.PORT) || 4021;
   const server = await startMarket(market, { port, host: env.HOST ?? "0.0.0.0", trustProxy: 1, base: env.MARKET_ORIGIN ?? `https://${MARKET_NAME}` });
   const journalRoot = resolve(dataRoot);

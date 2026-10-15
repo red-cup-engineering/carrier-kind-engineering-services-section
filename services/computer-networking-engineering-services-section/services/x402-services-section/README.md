@@ -17,6 +17,38 @@ A customer such as `market.561.group` settlement may hire the admission circuit 
 Payout addresses are never inferred from environment files; using the Ephemeris payee means supplying the same public `payTo`, network, and asset policy to both boundaries.
 The Union Alpha deployment uses its own facilitator and EIP-3009 asset; no hosted facilitator owns settlement.
 
+## Unreleased instance-authority and source-carrier boundary
+
+This is an unreleased compatibility change. Do not republish altered bytes under
+an existing registry version. The legacy `./market-561-group/access-grants` JSON
+export is removed. Consumers must supply their instance-owned `MarketAccessGrants`
+record to `marketAccess(env, { grants })` or
+`createMarket561Group(env, { accessGrants })`; `./market/instance-access-grants`
+provides the explicit-input parser and shared `instanceMarketAccess` construction.
+`./market/instance-access-grants/node` provides the shared explicit-path Node reader.
+Merchant adapters supply their own catalog, identity and verifier to these
+Engineering APIs. Existing `admitAccessGrants` semantics remain
+the authority admission rule. Enabling sign-in without explicit grants refuses
+construction; disabling it does not read or require a grant record.
+
+The legacy Node receiver requires `MARKET_ACCESS_GRANTS_PATH` when sign-in is
+enabled and reads, parses and admits it before starting a witness provider or
+listener. The Worker receives `MARKET_ACCESS_GRANTS` as a structured record or JSON
+binding. The rightful instance custodian must bind the existing authority and run
+the original receiving tests before either seat is received or deployed. No
+existing grants, account records, deployment bindings or credentials are changed.
+
+The npm carrier contains reusable runtime source, schemas, scripts, legacy app
+source, source design/requirements documentation, the retained catalog selector
+and deployment recipes. Dated observations, settlement/log/custody records and
+account records remain at their existing repository paths and are not library
+assets. The legacy catalog and its three authored generated modules remain
+required migration carriers; this package policy does not retire the legacy
+merchant or establish Causeway cutover. Catalog generation still requires its
+explicit source evidence reader/root and publication time, independently of any
+instance access authority. Original tests and historical records remain in source
+custody; no test assertion is waived by excluding instance records from npm.
+
 ## One x402 collection
 
 There is one package, `@red-cup-engineering/x402-services-section`, and one payment-boundary implementation. Its distinct operations are modules, not separately published services:

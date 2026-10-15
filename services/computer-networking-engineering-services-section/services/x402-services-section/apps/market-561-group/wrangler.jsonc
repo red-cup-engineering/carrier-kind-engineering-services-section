@@ -19,6 +19,8 @@
   // payto decision, 2026-08-31). The facilitator is Coinbase's CDP, so every
   // settlement indexes the offer in the x402 Bazaar; CDP_API_KEY_ID and
   // CDP_API_KEY_SECRET are `wrangler secret put` values.
+  // Enabled sign-in also requires the instance custodian to supply MARKET_ACCESS_GRANTS.
+  // This source change does not install authority; receiving must verify the actual binding.
   "vars": {
     "MARKET_RUNTIME": "edge",
     "X402_NETWORK": "eip155:8453",

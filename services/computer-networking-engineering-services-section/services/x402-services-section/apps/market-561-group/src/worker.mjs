@@ -1,3 +1,4 @@
+import { boundInstanceAccessGrants } from "../../../src/market/instance-access-grants.mjs";
 import { createMarketWorker } from "../../../src/market/market.mjs";
 
 import { loadEdgeBinding } from "./edge-bindings.mjs";
@@ -11,4 +12,4 @@ import { createMarket561Group } from "./market.mjs";
  * `runtime: "node"` in the catalog and are not served from this face; the
  * Node runner (scripts/serve-market.mjs) serves the whole catalog.
  */
-export default createMarketWorker((env) => createMarket561Group({ ...env, MARKET_RUNTIME: "edge" }, { load: loadEdgeBinding }));
+export default createMarketWorker((env) => createMarket561Group({ ...env, MARKET_RUNTIME: "edge" }, { load: loadEdgeBinding, accessGrants: boundInstanceAccessGrants(env) }));
