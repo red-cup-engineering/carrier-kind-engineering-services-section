@@ -242,3 +242,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/be-not-so-fearful
 	url = https://github.com/red-cup-engineering/be-not-so-fearful.git
 	branch = main
+[submodule "flickering"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/flickering
+	url = https://github.com/red-cup-engineering/flickering.git
+	branch = main
