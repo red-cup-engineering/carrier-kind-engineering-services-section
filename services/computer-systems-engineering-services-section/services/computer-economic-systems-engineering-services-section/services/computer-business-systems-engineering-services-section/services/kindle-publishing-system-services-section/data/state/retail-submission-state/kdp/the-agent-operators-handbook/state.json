@@ -1,0 +1,312 @@
+{
+  "type": "RetailSubmissionState",
+  "version": 2,
+  "channel": "kdp",
+  "book": "the-agent-operators-handbook",
+  "status": "submitted",
+  "completed": [
+    "create-title",
+    "metadata",
+    "series",
+    "upload-epub",
+    "upload-cover",
+    "declarations",
+    "pricing",
+    "save-draft",
+    "publish"
+  ],
+  "stepInputs": {
+    "create-title": "67fb27028d907bce5c89c764b68129558eb8ad0c4ae4c88ce89241a57f9c6d10",
+    "metadata": "219f9c5aef3fb51a6805f3ab970e65c380cdbb323cf3f71aef4858ea702f4780",
+    "series": "6364011a112b0cf207e37d2e5085643e99252f9747b6db5583f719b695a8c263",
+    "upload-epub": "2416bd9811353605cbb7fa9a067cfc0c75b5a0c5fc8be5fa384f48ff1e1a60aa",
+    "upload-cover": "f703ac7d5dbc37358a04ccb0d66531d36341cdc580db35b6ad26b7ade338dcbd",
+    "declarations": "14ab1d47fdb1affc91484d13364ec394c3b5baa12893c25faa52646879b24146",
+    "pricing": "95118b6ff7aa3ba1fed67d6e813298bc9b779790eb39ec2c51c079c1b23877a8",
+    "save-draft": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "publish": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  "evidence": [
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;43ND8vPkpsBcalIe9eWn2jXwBDGXGIomV_QfsaVODxA",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "create-title",
+        "at": "2026-09-30T02:21:05.223Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/create-title.png",
+        "bytes": 395809,
+        "sha256": "d09884810241e51fcafda8d93744a9c6da881c8b98a158636a13815f37af6cd6"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;AiyNJuibUKAjuRdiXX3xseFDxHSCGDqJw3_eHxRL8zk",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "metadata",
+        "at": "2026-09-30T02:37:12.552Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/metadata.png",
+        "bytes": 321464,
+        "sha256": "cfe5269e2b618cc313d36fde4e10157d05060ad5c4262bd9972c205e0d3e8710"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;RZWYXXObG_9PEJnzJp55yoiSFAjTxwL9kuA0RBR5Fns",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "series",
+        "at": "2026-09-30T02:37:12.728Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/series.png",
+        "bytes": 322071,
+        "sha256": "75f1affd080cec49eee2a5556929874df72b928cb5eb6d7a40eb3d1450ea0b77"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;XmMPVT6YOJxMBXwuudmD4T0ME-2OZIl5HXcso7cylJI",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "upload-epub",
+        "at": "2026-09-30T02:37:22.409Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/upload-epub.png",
+        "bytes": 350275,
+        "sha256": "53555d9260d8a25e8d4a561a3e1e99d86846b650f4dbce17001c7cecff0f1c29"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;RoRbz3nmdT8GLtaEC-txs4F5RyNlB_w9qv9QaWV-4pk",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "upload-cover",
+        "at": "2026-09-30T02:37:29.602Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/upload-cover.png",
+        "bytes": 360235,
+        "sha256": "3d4697cdfe65e859295b15b5ce264fce5b03714023300eddfb040ad744ec9f58"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;9ZfY5FSWYAl8KL7XuHvbPUxJ2RcSjgSLtzKV3v1pPC4",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "upload-epub",
+        "at": "2026-09-30T02:39:46.571Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/upload-epub.png",
+        "bytes": 371069,
+        "sha256": "5418b4b064fc18c33bb7073035f00c68229c4c695ced89c395b3a3495142c8c5"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;Fb2trJdeyzqWSjnBZidYNy-QGqY-tKr5G1sUIj18UBQ",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "upload-cover",
+        "at": "2026-09-30T02:39:48.154Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/upload-cover.png",
+        "bytes": 366122,
+        "sha256": "4a432d70c0d4de1a25a35658c91447a0cc3b3de798c5d2a0c9018f0c17435c26"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;oKjbYcacfNkN-RRLd-FXA8uKt9_zLsHLF7zFNKy6DLc",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "upload-epub",
+        "at": "2026-09-30T02:43:07.188Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/upload-epub.png",
+        "bytes": 369723,
+        "sha256": "9f94b8c4e9a96c768f97e530e23161ce1b715b2d09a46c59ddb73ad442a01013"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;2wW-iX_lNKRUkZzvPQcGMarhG8hbpHFMv0qrWQn9KuI",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "upload-cover",
+        "at": "2026-09-30T02:43:14.404Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/upload-cover.png",
+        "bytes": 371439,
+        "sha256": "1fa1c277917816677129aaab0b788ca3ffdc6111ffeb4768c245caf45196fe32"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;1mT3Lg7fq1lckuy_6JQ13XqSaNrPzPmO009rwNHqcy4",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "declarations",
+        "at": "2026-09-30T02:43:53.135Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/declarations.png",
+        "bytes": 340836,
+        "sha256": "9f62aaa4eca5771cd1633f81f69200495f563b0914ea82f9fe77185beea3f3cd"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;GxG1M328kF3TbvOu5Y3Dcg3ueOONJv_gpwG9x8pyT5Y",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "pricing",
+        "at": "2026-09-30T02:43:57.744Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/pricing.png",
+        "bytes": 409277,
+        "sha256": "582f589af8ccf6d4c07cbdbe5867bd381f48a09709afab9dfb6f20af22f31321"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;kBoBhQOmAZpxuXURe6BkxWDM-Ml_C-vmc4rT0lFUw_Q",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "pricing",
+        "at": "2026-09-30T02:46:42.473Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/pricing.png",
+        "bytes": 409898,
+        "sha256": "3b07c6bac355429f6896b72e0e7551a5ddd23a2d66d64fbb59f629a169633386"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;noYU9pASwXcx3ED6TblkwCGUFd3VxUy4WeAYhvmLM8s",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "save-draft",
+        "at": "2026-09-30T02:46:46.679Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/save-draft.png",
+        "bytes": 409084,
+        "sha256": "b56e1e88ce202cc8bed130777765c1377fbb0cfdccf14043c4267a604aaa13ba"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;Tn4oDlm-JPjvK709EteFJKNwB0dS1ZbReAJvcj7vpxk",
+      "type": "org.561-group.retail.screenshot-evidence.v1",
+      "content": {
+        "type": "RetailScreenshotEvidence",
+        "version": 1,
+        "channel": "kdp",
+        "book": "the-agent-operators-handbook",
+        "step": "publish",
+        "at": "2026-09-30T02:48:01.909Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/the-agent-operators-handbook/evidence/publish.png",
+        "bytes": 519174,
+        "sha256": "ecb17216c3174fc3b7e2bcbe42a7034df2eb00b17938a3e5c050cd8ec0a4b0ba"
+      }
+    }
+  ],
+  "blocker": null,
+  "intent": "5a57f8ffdac8036269bb532ce1c532af67ca19d2b501444a0bd53ca354210ef4",
+  "updatedAt": "2026-09-30T02:48:01.911Z",
+  "repairRequest": {
+    "type": "RepairRequest",
+    "version": 1,
+    "workItem": "kdp:the-agent-operators-handbook:1:save-draft:KDP_FORM_REFUSED",
+    "service": "kindle-publishing",
+    "book": "the-agent-operators-handbook",
+    "failureClass": "UNKNOWN_FAILURE_CLASS",
+    "requestedAt": "2026-09-30T02:46:04.926Z",
+    "requestedAction": "diagnose-repair-assay-and-retry",
+    "status": "open"
+  },
+  "remoteIdentifier": "A22K2NZB4BLBAE",
+  "adoptedDraft": {
+    "remoteIdentifier": "A22K2NZB4BLBAE",
+    "source": "founder read the draft id from the KDP Bookshelf after the first live run closed with the draft saved but unrecorded",
+    "at": "2026-09-30"
+  },
+  "receipt": {
+    "kind": "sign.cell",
+    "id": "ni:///sha-256;1O1Ok37aV578_Gds-aW5L0Q90uvjLq3Ltxe-O0pwn6I",
+    "type": "org.561-group.retailer-submission-receipt.v1",
+    "content": {
+      "type": "RetailerSubmissionReceipt",
+      "version": 1,
+      "retailer": "kdp",
+      "book": "the-agent-operators-handbook",
+      "rendition": "EPUB",
+      "artifactSha256": "bf04217cc5ab2906f2eb00a6938bddc6285f3695cfc2794f607fa20911069283",
+      "metadataProjectionSha256": "582131dd1e4760613e5ea689034147888470369510eb7a9d75ea254df3e1d3e3",
+      "coverSha256": "66549b7329ec08584d35180330c6c6055105ff6a359a110e5bf6c5189e6ec31f",
+      "priceTermsDigest": "95118b6ff7aa3ba1fed67d6e813298bc9b779790eb39ec2c51c079c1b23877a8",
+      "submittedAt": "2026-09-30T02:48:01.911Z",
+      "method": "playwright-browser-receiver",
+      "remoteIdentifier": "A22K2NZB4BLBAE",
+      "remoteState": "submitted",
+      "lastObservedAt": "2026-09-30T02:48:01.911Z",
+      "evidence": [
+        "ni:///sha-256;43ND8vPkpsBcalIe9eWn2jXwBDGXGIomV_QfsaVODxA",
+        "ni:///sha-256;AiyNJuibUKAjuRdiXX3xseFDxHSCGDqJw3_eHxRL8zk",
+        "ni:///sha-256;RZWYXXObG_9PEJnzJp55yoiSFAjTxwL9kuA0RBR5Fns",
+        "ni:///sha-256;XmMPVT6YOJxMBXwuudmD4T0ME-2OZIl5HXcso7cylJI",
+        "ni:///sha-256;RoRbz3nmdT8GLtaEC-txs4F5RyNlB_w9qv9QaWV-4pk",
+        "ni:///sha-256;9ZfY5FSWYAl8KL7XuHvbPUxJ2RcSjgSLtzKV3v1pPC4",
+        "ni:///sha-256;Fb2trJdeyzqWSjnBZidYNy-QGqY-tKr5G1sUIj18UBQ",
+        "ni:///sha-256;oKjbYcacfNkN-RRLd-FXA8uKt9_zLsHLF7zFNKy6DLc",
+        "ni:///sha-256;2wW-iX_lNKRUkZzvPQcGMarhG8hbpHFMv0qrWQn9KuI",
+        "ni:///sha-256;1mT3Lg7fq1lckuy_6JQ13XqSaNrPzPmO009rwNHqcy4",
+        "ni:///sha-256;GxG1M328kF3TbvOu5Y3Dcg3ueOONJv_gpwG9x8pyT5Y",
+        "ni:///sha-256;kBoBhQOmAZpxuXURe6BkxWDM-Ml_C-vmc4rT0lFUw_Q",
+        "ni:///sha-256;noYU9pASwXcx3ED6TblkwCGUFd3VxUy4WeAYhvmLM8s",
+        "ni:///sha-256;Tn4oDlm-JPjvK709EteFJKNwB0dS1ZbReAJvcj7vpxk"
+      ]
+    }
+  }
+}
