@@ -4,6 +4,7 @@ import { createWebApplication } from "@red-cup-engineering/computer-web-platform
 import { admitCanonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
 import { mediaType } from "@red-cup-engineering/http-services-section/body/web";
 import { forwardRequestHeaders } from "@red-cup-engineering/http-services-section/forward-request-headers";
+import { fetchWithoutRedirects } from "@red-cup-engineering/http-services-section/fetch-without-redirects";
 import { createWorkerFetch } from "@red-cup-engineering/computer-web-server/workers";
 import { openApiDocument, openApiResource } from "@red-cup-engineering/computer-web-server/openapi";
 import { bindingsProviders } from "@red-cup-engineering/computer-system-platform";
@@ -579,11 +580,10 @@ export function createMarket({
           ? undefined : await context.request.arrayBuffer();
         let upstream;
         try {
-          upstream = await fetch(target, {
+          upstream = await fetchWithoutRedirects(target, {
             method: context.request.method,
             headers: forwardRequestHeaders(context.request.headers),
             body: forwardedBody,
-            redirect: "error",
           });
         } catch {
           // The request may have reached a settlement facilitator before the
