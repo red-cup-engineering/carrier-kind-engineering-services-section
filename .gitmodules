@@ -226,3 +226,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/durante
 	url = https://github.com/red-cup-engineering/durante.git
 	branch = main
+[submodule "aletheon"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/aletheon
+	url = https://github.com/red-cup-engineering/aletheon.git
+	branch = main
