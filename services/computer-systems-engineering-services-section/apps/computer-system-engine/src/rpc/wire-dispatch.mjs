@@ -30,18 +30,18 @@ export async function dispatchWire(
   try {
     verb = parseArgv(argv, new Set()).positionals[0];
   } catch (error) {
-    return { code: 2, stdout: "", stderr: `${program}: ${error instanceof Error ? error.message : String(error)}\n` };
+    return { preExecutionRefusal: Object.freeze({phase:"resolution"}), code: 2, stdout: "", stderr: `${program}: ${error instanceof Error ? error.message : String(error)}\n` };
   }
-  if (verb === undefined) return { code: 2, stdout: "", stderr: `${program}: a verb is required; known: ${verbs}\n` };
+  if (verb === undefined) return { preExecutionRefusal: Object.freeze({phase:"resolution"}), code: 2, stdout: "", stderr: `${program}: a verb is required; known: ${verbs}\n` };
   const operation = options.operation===undefined ? catalog.byVerb.get(verb) : catalog.byReference.get(options.operation);
-  if(options.operation!==undefined && (operation===undefined || operation.verb!==verb))return {code:2,stdout:"",stderr:`${program}: the addressed operation ${options.operation} does not offer ${verb}\n`};
-  if (operation === undefined) return { code: 2, stdout: "", stderr: `${program}: unknown verb ${JSON.stringify(verb)}; known: ${verbs}\n` };
+  if(options.operation!==undefined && (operation===undefined || operation.verb!==verb))return {preExecutionRefusal:Object.freeze({phase:"resolution"}),code:2,stdout:"",stderr:`${program}: the addressed operation ${options.operation} does not offer ${verb}\n`};
+  if (operation === undefined) return { preExecutionRefusal: Object.freeze({phase:"resolution"}), code: 2, stdout: "", stderr: `${program}: unknown verb ${JSON.stringify(verb)}; known: ${verbs}\n` };
 
   let values;
   try {
     values = parseArgv(argv, new Set(["input-format", "output-format", ...operation.options])).values;
   } catch (error) {
-    return { code: 2, stdout: "", stderr: `${program} ${verb}: ${error instanceof Error ? error.message : String(error)}\n` };
+    return { preExecutionRefusal: Object.freeze({phase:"resolution"}), code: 2, stdout: "", stderr: `${program} ${verb}: ${error instanceof Error ? error.message : String(error)}\n` };
   }
   const inputFormat = typeof values["input-format"] === "string" ? values["input-format"] : operation.inputFormat;
   const outputFormat = typeof values["output-format"] === "string" ? values["output-format"] : operation.outputFormat;
@@ -51,7 +51,7 @@ export async function dispatchWire(
   } catch {
     // Decoder diagnostics may quote the unaccepted source bytes. No invocation or raw witness
     // exists yet, so return a fixed boundary refusal rather than forwarding that parser text.
-    return { code: 1, stdout: "", stderr: `${program} ${verb}: input could not be decoded using the selected wire format\n` };
+    return { preExecutionRefusal: Object.freeze({phase:"admission"}), code: 1, stdout: "", stderr: `${program} ${verb}: input could not be decoded using the selected wire format\n` };
   }
 
   const caller = options.caller ?? Object.freeze({ transport: "unknown" });

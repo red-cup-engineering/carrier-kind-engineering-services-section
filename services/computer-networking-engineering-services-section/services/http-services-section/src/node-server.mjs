@@ -27,7 +27,7 @@ function pickServer(app) {
     }
     return createNodeHttpServer();
 }
-function upgradeMatches(match, req) {
+export function upgradeMatches(match, req) {
     if (match === undefined) return true;
     const path = new URL(req.url ?? "/", "http://x").pathname;
     if (typeof match === "string") return path === match;

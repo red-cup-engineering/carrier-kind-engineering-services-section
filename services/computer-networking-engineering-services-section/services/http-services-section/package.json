@@ -21,7 +21,8 @@
   "files": [
     "src",
     "README.md",
-    "scripts"
+    "scripts",
+    "test/node-upgrade-match.test.mjs"
   ],
   "exports": {
     "./semantic-content-identity": "./src/semantic-content-identity.mjs",
@@ -83,5 +84,8 @@
     "type": "git",
     "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
     "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section"
-  }
+  },
+  "receivingTests": [
+    "test/node-upgrade-match.test.mjs"
+  ]
 }

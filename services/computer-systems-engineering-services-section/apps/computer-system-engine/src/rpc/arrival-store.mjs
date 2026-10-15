@@ -5,7 +5,7 @@ import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engi
 import { admitCloudEventArrival, arrivalDispatchClaimFromCloudEvent, arrivalReceiptWithAdmission, ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
 import { arrivalUtteranceFromCloudEvent, cloudEventContract } from "@red-cup-engineering/json-services-section/cloudevent-identity";
 
-import { extend, append, readHead, walk } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { extend, append, readHead, walk, get } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { immutableContentKey } from "@red-cup-engineering/immutable-content-custody-service";
 import { createFileStoreSync } from "@red-cup-engineering/immutable-content-custody-service/file-store";
 import { makeNiUri, verifyNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
@@ -248,6 +248,19 @@ export function appendArrivalAtRoot(root, event, options = {}) {
   }
   const admission = Object.freeze({ type: ARRIVAL_FEED, thread: day, address: arrived });
   return Object.freeze({ ...arrivalReceiptWithAdmission(receipt, admission), ...(options.rootName === undefined ? {} : { rootName: options.rootName }) });
+}
+
+/** Exact owner-custody read, without enumerating the day's arrivals. */
+export function readArrivalAtRoot(root,address,options={}) {
+ const record=get(root,ARRIVAL_FEED,address);
+ if(record===undefined)throw new TypeError('addressed arrival record is missing');
+ const entry=projectArrivalRecord(root,record,options);
+ if(record.ok!==true||entry.obstructions.length!==0||entry.packet===undefined)
+  throw new TypeError('addressed arrival has invalid causality custody');
+ const receipt=admitCloudEventArrival(entry.packet.presentation);
+ if(receipt.ok!==true||receipt.cloudEventIdentity!==record.cloudEventIdentity||receipt.packetDigest!==record.packetDigest)
+  throw new TypeError('addressed arrival differs from its admitted packet');
+ return Object.freeze({record,receipt,event:entry.packet.presentation});
 }
 
 /** The most arrivals one day's reading follows. */
