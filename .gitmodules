@@ -274,3 +274,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/you-are-conscious
 	url = https://github.com/red-cup-engineering/you-are-conscious.git
 	branch = main
+[submodule "farstone"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/farstone
+	url = https://github.com/red-cup-engineering/farstone.561.group.git
+	branch = main
