@@ -178,3 +178,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam
 	url = https://github.com/red-cup-engineering/holofoam.git
 	branch = main
+[submodule "news-property"]
+	path = services/computer-systems-engineering-services-section/services/computer-systems-publishing-engineering-services-section/apps/news-property
+	url = https://github.com/red-cup-engineering/news-property.git
+	branch = main
