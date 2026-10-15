@@ -86,3 +86,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/graphical-knowledge-game-server
 	url = https://github.com/red-cup-engineering/graphical-knowledge-game-server.git
 	branch = main
+[submodule "muse-assist"]
+	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/muse-assist
+	url = https://github.com/red-cup-engineering/muse-assist.git
+	branch = main
