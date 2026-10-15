@@ -1,13 +1,12 @@
 import { readContractSignatureValidity } from "@red-cup-engineering/base-chain-data-gateway/base-reads";
 
-import { admitAccessGrants } from "../../../src/market/access-grants.mjs";
 import { createMarket } from "../../../src/market/market.mjs";
 import { selectFacilitatorClient } from "../../../src/cdp-facilitator.mjs";
 import { declareCatalog, sellerCatalogRows } from "../../../src/offer.mjs";
 import { edgeSettlementJournal } from "./edge-settlement.mjs";
 import { createPaidPublicationStore } from "./paid-publication-store.mjs";
 
-import accessGrants from "../../../data/market-561-group/records/access-grants.json" with { type: "json" };
+import { instanceMarketAccess } from "../../../src/market/instance-access-grants.mjs";
 import { COMPILED_DECLARATIONS as declarations, COMPILED_OFFERS } from "./compiled-offers.mjs";
 import { CAPABILITY_OUTBOX } from "./compiled-capability-outbox.mjs";
 
@@ -52,27 +51,20 @@ export function catalogForRuntime(runtime = "node") {
 
 /**
  * The wallets that use this market's offers without paying
- * (data/market-561-group/records/access-grants.json), proven by x402's
+ * supplied by this instance as an explicit grants record, proven by x402's
  * sign-in-with-x. Off until the deployment binds X402_SIGN_IN_SECRET, the
  * key its sign-in challenges are issued under; a contract wallet on Base is
  * checked with an ERC-1271 read.
  * @param {Record<string, string|undefined>} env
  */
-export function marketAccess(env) {
-  if (!env.X402_SIGN_IN_SECRET) return undefined;
-  return {
-    secret: env.X402_SIGN_IN_SECRET,
-    origin: env.MARKET_ORIGIN ?? `https://${MARKET_NAME}`,
-    statement: `Sign in to use what this wallet has been granted at ${MARKET_NAME}.`,
-    grants: admitAccessGrants(accessGrants, { operations: catalog({ admit: false }).map((offer) => offer.declaration.operation) }),
+export function marketAccess(env, { grants } = {}) {
+  return instanceMarketAccess(env, {
+    grants, marketName: MARKET_NAME,
+    operations: () => catalog({ admit: false }).map((offer) => offer.declaration.operation),
     verifyContractSignature: ({ chainId, address, digest, signature }) => (chainId === "eip155:8453"
       ? readContractSignatureValidity({ address, digest, signature })
       : Promise.resolve(false)),
-    // A granted use is kept beside the settlements, in the market's private bucket.
-    onGrantUse: env.MARKET_SETTLEMENTS
-      ? (use) => env.MARKET_SETTLEMENTS.put(`grant-uses/${use.operation}/${use.recordedAt}-${use.account}.json`, JSON.stringify(use), { httpMetadata: { contentType: "application/json" } })
-      : undefined,
-  };
+  });
 }
 
 /** The market's settlement rails as this deployment binds them; Base mainnet unless the deployment says otherwise. */
@@ -102,6 +94,7 @@ function settlementJournalWhenBound(env, dependencies) {
  */
 export function createMarket561Group(env = process.env, dependencies = {}) {
   const bound = marketEnvironment(env);
+  const access = dependencies.access ?? marketAccess(bound, { grants: dependencies.accessGrants });
   const afterSettle = dependencies.afterSettle ?? (bound.MARKET_RUNTIME === "edge"
     ? edgeSettlementJournal(catalogForRuntime("edge"), bound, { now: dependencies.now })
     : bound.WITNESS_JOURNAL_DOCUMENT_AGENT ? settlementJournalWhenBound(bound, dependencies) : undefined);
@@ -128,7 +121,7 @@ export function createMarket561Group(env = process.env, dependencies = {}) {
     purchaseStoreForOffer: () => publicationStore,
     nodeOrigin,
     proxyCatalog,
-    access: dependencies.access ?? marketAccess(bound),
+    access,
     capabilityOutbox: CAPABILITY_OUTBOX,
   });
 }
