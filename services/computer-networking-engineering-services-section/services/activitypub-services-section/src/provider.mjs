@@ -611,6 +611,7 @@ export function createActivityPubProvider(options) {
     // function.
     ...(appendToOutbox === undefined ? {} : { publish, retainOutbound: appendToOutbox }),
     ...(typeof outbox?.retainRequest === "function" ? { retainRequest: outbox.retainRequest } : {}),
+    ...(typeof outbox?.requestFor === "function" ? { requestFor: outbox.requestFor } : {}),
   });
 }
 
