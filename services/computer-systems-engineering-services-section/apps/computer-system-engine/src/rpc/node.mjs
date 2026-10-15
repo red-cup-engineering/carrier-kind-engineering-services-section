@@ -11,7 +11,7 @@ import { wellKnown } from "@red-cup-engineering/http-services-section/well-known
 
 import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { parse } from "@red-cup-engineering/json-services-section";
-import { cloudEventContract, cloudEventIdentity } from "@red-cup-engineering/json-services-section/cloudevent-identity";
+import { cloudEventContract, cloudEventIdentity } from "./cloudevent-identity.mjs";
 
 export const SYSTEM_NODE_WELL_KNOWN_NAME = "system-node";
 export const SYSTEM_NODE_CONTRACT_VERSION = 1;

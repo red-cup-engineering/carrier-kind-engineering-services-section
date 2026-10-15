@@ -3,7 +3,7 @@ import { canonicalJson } from "@red-cup-engineering/json-services-section";
 import { sha256Hex } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 import { admitCloudEventArrival, arrivalDispatchClaimFromCloudEvent, arrivalReceiptWithAdmission, ARRIVAL_FEED } from "@red-cup-engineering/computer-system-engine/rpc/arrival";
-import { arrivalUtteranceFromCloudEvent, cloudEventContract } from "@red-cup-engineering/json-services-section/cloudevent-identity";
+import { arrivalUtteranceFromCloudEvent, cloudEventContract } from "./cloudevent-identity.mjs";
 
 import { extend, append, readHead, walk, get } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import { immutableContentKey } from "@red-cup-engineering/immutable-content-custody-service";
