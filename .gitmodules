@@ -78,3 +78,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/kindle-publishing-system-services-section
 	url = https://github.com/red-cup-engineering/kindle-publishing-system-services-section.git
 	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/apps/computer-deployment-engine"]
+	path = services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/apps/computer-deployment-engine
+	url = https://github.com/red-cup-engineering/computer-deployment-engine.git
+	branch = main
