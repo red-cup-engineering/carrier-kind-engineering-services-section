@@ -1,3 +1,5 @@
+import { fetchWithoutRedirects } from "@red-cup-engineering/http-services-section/fetch-without-redirects";
+
 const REPOSITORY = "https://github.com/561-group/x402-boundary-reference";
 const MANIFEST = "https://raw.githubusercontent.com/561-group/x402-boundary-reference/main/package.json";
 const SOURCE = "https://raw.githubusercontent.com/561-group/x402-boundary-reference/main/src/index.mjs";
@@ -5,7 +7,7 @@ const RELEASE = "https://api.github.com/repos/561-group/x402-boundary-reference/
 const EXPECTED_COMMIT = "ad64d74c3cee7248f089fc5679161e15cb99c6f8";
 
 async function readText(fetchImpl, url) {
-  const response = await fetchImpl(url, { headers: { accept: "application/json" }, redirect: "error" });
+  const response = await fetchWithoutRedirects(url, { headers: { accept: "application/json" } }, fetchImpl);
   if (!response.ok) throw new Error(`public carrier probe returned HTTP ${response.status} for ${url}`);
   return response.text();
 }
