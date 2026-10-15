@@ -74,3 +74,7 @@
 	path = services/computer-systems-engineering-services-section/services/personal-computer-systems-services-section/services/personal-intelligence-systems-services-section/services/personal-intelligence-runtime-service
 	url = https://github.com/red-cup-engineering/personal-intelligence-systems-services-section.git
 	branch = main
+[submodule "kindle-publishing-system-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/kindle-publishing-system-services-section
+	url = https://github.com/red-cup-engineering/kindle-publishing-system-services-section.git
+	branch = main
