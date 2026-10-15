@@ -3,6 +3,7 @@ export { marketCatalogReadout } from "./catalog.mjs";
 import { createWebApplication } from "@red-cup-engineering/computer-web-platform/application";
 import { admitCanonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
 import { mediaType } from "@red-cup-engineering/http-services-section/body/web";
+import { forwardRequestHeaders } from "@red-cup-engineering/http-services-section/forward-request-headers";
 import { createWorkerFetch } from "@red-cup-engineering/computer-web-server/workers";
 import { openApiDocument, openApiResource } from "@red-cup-engineering/computer-web-server/openapi";
 import { bindingsProviders } from "@red-cup-engineering/computer-system-platform";
@@ -542,8 +543,9 @@ export function createMarket({
 
   /**
    * Forward one request to the live origin that actually serves this offer,
-   * verbatim: method, headers and body on the way in, status, headers and
-   * body on the way back. The origin runs its own complete market (its own
+   * with its method, end-to-end fields and body. The target owns Host and
+   * transport framing; connection-only fields stop at this boundary.
+   * The origin runs its own complete market (its own
    * payment challenge and settlement), so this face never touches money for
    * a proxied offer; it is a boundary, not a second seller.
    */
@@ -579,7 +581,7 @@ export function createMarket({
         try {
           upstream = await fetch(target, {
             method: context.request.method,
-            headers: context.request.headers,
+            headers: forwardRequestHeaders(context.request.headers),
             body: forwardedBody,
             redirect: "error",
           });
