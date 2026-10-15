@@ -23,26 +23,23 @@ function fixture(activity,{admitSender=()=>{}}={}){
  return {client,queries};
 }
 
-test('receipt mode returns the original admitted envelope address and complete result while ordinary callers retain their shape',async()=>{
+test('reply reading returns one complete original addressed receipt',async()=>{
  const result={code:0,state:'processed',stdout:JSON.stringify({opaque:'x'.repeat(7000)})+'\n',stderr:'',obstructions:[]};
  const activity=reply(result),before=JSON.stringify(activity),{client,queries}=fixture(activity);
- const ordinary=await client.result({identifier,submission});
- assert.deepEqual(ordinary,result);
- assert.equal(Object.hasOwn(ordinary,'reply'),false);
- const receipt=await client.result({identifier,submission,includeReceipt:true});
+ const receipt=await client.result({identifier,submission});
  assert.equal(receipt.request,request);assert.equal(receipt.recipient,responder);
  assert.equal(receipt.reply,readActorMessage(activity,responder,recipient).id);
  assert.deepEqual(receipt.result,result);assert.equal(receipt.result.stdout.length,result.stdout.length);
  assert.equal(Object.isFrozen(receipt),true);
  assert.equal(JSON.stringify(activity),before,'the native activity presentation is neither re-addressed nor mutated');
- assert.deepEqual(queries,[{identifier,request,sender:responder},{identifier,request,sender:responder}]);
+ assert.deepEqual(queries,[{identifier,request,sender:responder}]);
 });
 
 test('an absent reply stays absent and an admitted failed result remains explicit evidence',async()=>{
  const absent=fixture(null);
- assert.equal(await absent.client.result({identifier,submission,includeReceipt:true}),undefined);
+ assert.equal(await absent.client.result({identifier,submission}),undefined);
  const failed={code:1,state:'obstructed',stdout:'',stderr:'qualified refusal',obstructions:['qualified refusal']};
- const received=await fixture(reply(failed)).client.result({identifier,submission,includeReceipt:true});
+ const received=await fixture(reply(failed)).client.result({identifier,submission});
  assert.deepEqual(received.result,failed);
  assert.equal(received.result.code,1);
 });
@@ -53,7 +50,7 @@ test('receipt lookup refuses a wrong request, responder or addressed recipient i
   reply(result,{requestId:otherRequest}),
   reply(result,{actorOrigin:'https://foreign.example'}),
   reply(result,{addressed:'https://foreign.example/actors/c'}),
- ])await assert.rejects(fixture(activity).client.result({identifier,submission,includeReceipt:true}),TypeError);
+ ])await assert.rejects(fixture(activity).client.result({identifier,submission}),TypeError);
 });
 
 test('current sender admission precedes private lookup and is checked again before exposing the receipt',async()=>{
@@ -63,9 +60,9 @@ test('current sender admission precedes private lookup and is checked again befo
   assert.equal(current,identifier);admissions++;
   if(admissions===2)throw new TypeError('caller actor was withdrawn');
  }});
- await assert.rejects(owned.client.result({identifier,submission,includeReceipt:true}),/withdrawn/u);
+ await assert.rejects(owned.client.result({identifier,submission}),/withdrawn/u);
  assert.equal(owned.queries.length,1);assert.equal(admissions,2);
  const invalid=fixture(activity);
- await assert.rejects(invalid.client.result({identifier,submission,includeReceipt:'true'}),/boolean/u);
+ await assert.rejects(invalid.client.result({identifier,submission:{...submission,request:'invalid'}}),TypeError);
  assert.equal(invalid.queries.length,0);
 });

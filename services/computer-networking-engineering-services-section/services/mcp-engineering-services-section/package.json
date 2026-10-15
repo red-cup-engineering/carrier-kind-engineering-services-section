@@ -14,7 +14,8 @@
     "./articulating-tools": "./src/articulating-tools.mjs",
     "./federation": "./src/federation.mjs",
     "./scripts/bridge-mcp-server": "./scripts/bridge-mcp-server.mjs",
-    "./scripts/call-tool": "./scripts/call-tool.mjs"
+    "./scripts/call-tool": "./scripts/call-tool.mjs",
+    "./scripts/serve-sparql-ontology-mcp": "./scripts/serve-sparql-ontology-mcp.mjs"
   },
   "files": [
     "README.md",
@@ -32,10 +33,12 @@
     "@red-cup-engineering/computer-serialized-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/oauth-services-section": "workspace:*",
-    "@red-cup-engineering/signcell": "workspace:*"
+    "@red-cup-engineering/signcell": "workspace:*",
+    "@red-cup-engineering/computer-triplet-serialized-content-engineering-services-section": "workspace:*"
   },
   "bin": {
     "bridge-mcp-server": "scripts/bridge-mcp-server.mjs",
-    "call-mcp-tool": "scripts/call-tool.mjs"
+    "call-mcp-tool": "scripts/call-tool.mjs",
+    "serve-sparql-ontology-mcp": "scripts/serve-sparql-ontology-mcp.mjs"
   }
 }

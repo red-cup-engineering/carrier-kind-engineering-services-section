@@ -113,7 +113,8 @@
     "./enterprise/work-arena": "./src/enterprise/work-arena.mjs",
     "./enterprise/work-arena-law": "./src/enterprise/work-arena-law.mjs",
     "./enterprise/work-arena-realization": "./src/enterprise/work-arena-realization.mjs",
-    "./agency/professional-repertoire": "./src/agency/professional-repertoire.mjs"
+    "./agency/professional-repertoire": "./src/agency/professional-repertoire.mjs",
+    "./enterprise/work-input": "./src/enterprise/work-input.mjs"
   },
   "devDependencies": {
     "@red-cup-engineering/computer-code-development-engine": "workspace:*"

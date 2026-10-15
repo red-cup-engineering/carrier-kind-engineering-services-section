@@ -6,7 +6,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { playerOfAct, subjectOf } from "../../src/agency/cast.mjs";
+import { playerOfAct } from "../../src/agency/cast.mjs";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 
 const parent = "emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/561-group-board-of-directors#executive-assistant-to-the-board-of-directors";
 const child = "emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/561-group-board-of-directors/services/561-group-board-of-directors-leader-movement-team#trusted-assistant-to-the-leader";

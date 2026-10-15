@@ -11,7 +11,8 @@
     "./task-list": "./src/task-list.mjs",
     "./scripts/check-live-ledger": "./scripts/check-live-ledger.mjs",
     "./obligations": "./src/obligations.mjs",
-    "./declared-obligations": "./src/declared-obligations.mjs"
+    "./declared-obligations": "./src/declared-obligations.mjs",
+    "./compute-observation": "./src/compute-observation.mjs"
   },
   "dependencies": {
     "@red-cup-engineering/computer-web-server": "workspace:*",
@@ -23,7 +24,11 @@
     "@red-cup-engineering/organizing": "workspace:*",
     "@red-cup-engineering/qwzspace": "workspace:*",
     "@red-cup-engineering/web-page-tiling-engine": "workspace:*",
-    "@red-cup-engineering/github-semioverse-settler-service": "workspace:*"
+    "@red-cup-engineering/github-semioverse-settler-service": "workspace:*",
+    "@red-cup-engineering/computer-system-platform": "workspace:*",
+    "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
+    "@red-cup-engineering/metroplat": "workspace:*",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*"
   },
   "bin": {
     "metroplat-check-live-ledger": "scripts/check-live-ledger.mjs"
@@ -32,10 +37,17 @@
     "test/github-issues.test.mjs",
     "test/github-native-intake.test.mjs",
     "test/github-resolver-application.test.mjs",
-    "test/obligation-source-receiving.test.mjs"
+    "test/obligation-source-receiving.test.mjs",
+    "test/compute-observation.test.mjs"
   ],
   "devDependencies": {
     "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/metroplat": "workspace:*"
-  }
+    "@red-cup-engineering/metroplat": "workspace:*",
+    "@red-cup-engineering/activitypub-services-section": "workspace:*"
+  },
+  "receivingFixtures": [
+    "test/fixtures/compute-instance.json",
+    "test/support/deny-external-ports.mjs"
+  ],
+  "softwareKind": "application"
 }

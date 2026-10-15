@@ -1,3 +1,4 @@
+import { commandDraft } from "./command-draft.mjs";
 /**
  * The metroplex drawn: the city as a game, over the page that plays it without a script.
  *
@@ -87,10 +88,7 @@ const centreOf = (body) => {
   return [(x0 + x1) / 2, (y0 + y1) / 2];
 };
 
-const linesOf = (turn) => [
-  ...(turn.messages ?? []),
-  ...(turn.results ?? []).map((result) => `${result.ok ? "✓" : "✗"} ${result.verb}: ${JSON.stringify(result.ok ? result.value : result.error, null, 2)}`),
-];
+import { turnLines as linesOf } from "./turn-lines.mjs";
 
 async function start(mount) {
   const street = mount.dataset.mode === "street";
@@ -412,6 +410,8 @@ async function start(mount) {
   client.write(transcript.split("\n").filter(Boolean).slice(-60));
   if (mount.dataset.journal) followJournal();
   await speak("look");
+  const draft = commandDraft(location.search);
+  if (draft) client.draft(draft);
 }
 
 const mount = document.getElementById("metroplex-view");
