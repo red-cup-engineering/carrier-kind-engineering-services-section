@@ -20,7 +20,7 @@
 	branch = main
 [submodule "services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine"]
 	path = services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine
-	url = https://github.com/red-cup-engineering/computer-code-development-engine.git
+	url = https://github.com/red-cup-engineering/computer-systems-fabrication-engineering-services-section.git
 	branch = main
 [submodule "services/computer-code-engineering-services-section"]
 	path = services/computer-code-engineering-services-section
