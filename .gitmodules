@@ -222,3 +222,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/games-host
 	url = https://github.com/red-cup-engineering/games-host.git
 	branch = main
+[submodule "signgraph-networking"]
+	path = services/computer-networking-engineering-services-section/apps/signgraph
+	url = https://github.com/red-cup-engineering/signgraph.git
+	branch = main
