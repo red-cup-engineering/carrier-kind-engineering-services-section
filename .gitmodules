@@ -218,3 +218,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-proofing-system-services-section/apps/obsmetrologia-change-bundle-qualification
 	url = https://github.com/red-cup-engineering/obsmetrologia-change-bundle-qualification.git
 	branch = main
+[submodule "games-host"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/games-host
+	url = https://github.com/red-cup-engineering/games-host.git
+	branch = main
