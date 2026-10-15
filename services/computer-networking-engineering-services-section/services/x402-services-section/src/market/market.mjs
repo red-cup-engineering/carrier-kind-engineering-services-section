@@ -625,7 +625,7 @@ export function createMarket({
     platform: { providers: bindingsProviders(env) },
     resources: [
       ...resources,
-      openApiResource(() => marketOpenApi(servedOffers, rails ?? {}, { name }), OPENAPI_ROUTE),
+      openApiResource(() => marketOpenApi(servedOffers, rails ?? {}, { name, resources }), OPENAPI_ROUTE),
       ...STATUS_ROUTES.map((match) => ({
         match,
         methods: ["GET"],
@@ -694,7 +694,7 @@ export function createMarket({
       {
         match: LLMS_ROUTE,
         methods: ["GET"],
-        handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin }),
+        handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin, resources }),
           { status: 200, headers: { "content-type": "text/markdown; charset=utf-8" } }),
       },
       ...capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }),
@@ -740,7 +740,7 @@ const offerSummary = (declaration) => {
 };
 
 /** OpenAPI is another projection of the served offer contracts, not another registry. */
-export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin } = {}) {
+export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin, resources = [] } = {}) {
   const base = offerOrigin(offers, origin);
   const routes = offers.filter((offer) => publiclySaleableOffer(offer)).map(offer => {
     const declaration = offer.declaration;
@@ -777,7 +777,9 @@ export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, 
       },
     };
   });
-  return openApiDocument(routes, { title: name, version: "2", servers: [{ url: base }],
+  const siteRoutes = resources.filter(resource => typeof resource.match === "string" && resource.operation)
+    .map(resource => ({ path: resource.match, methods: (resource.methods ?? ["GET"]).filter(method => method !== "HEAD"), operation: resource.operation }));
+  return openApiDocument([...routes, ...siteRoutes], { title: name, version: "2", servers: [{ url: base }],
     description: "The 561 Group's served offers. Inputs, examples, prices and response schemas are derived from the same catalogue used for execution. Inspect each live 402 quote before payment; declared contracts do not prove delivery or settlement." });
 }
 
@@ -795,7 +797,7 @@ export function marketApiCatalog(offers, { origin } = {}) {
 }
 
 /** The market as an llms.txt (llmstxt.org): what each offer does, what it costs, and how it is called. */
-export function marketLlmsText(offers, { name = "market", origin } = {}) {
+export function marketLlmsText(offers, { name = "market", origin, resources = [] } = {}) {
   const base = offerOrigin(offers, origin);
   const lines = [
     `# ${name}`, "",
@@ -807,6 +809,8 @@ export function marketLlmsText(offers, { name = "market", origin } = {}) {
     `- [OpenAPI](${base}${OPENAPI_ROUTE}): HTTP methods, inputs and declared response schemas`,
     `- [Agent card](${base}${AGENT_CARD_ROUTE}): one A2A skill per offer`,
     `- [API catalog](${base}${API_CATALOG_ROUTE}): RFC 9727 linkset`, "",
+    ...resources.filter(resource => typeof resource.match === "string" && resource.operation)
+      .map(resource => `- [${resource.operation.summary ?? resource.operation.operationId}](${base}${resource.match}): ${resource.operation.description ?? ""}`),
   ];
   return `${lines.join("\n")}`;
 }
