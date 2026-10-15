@@ -134,7 +134,6 @@
     "@red-cup-engineering/hive-fleet-operations-service": "workspace:*",
     "@red-cup-engineering/http-services-section": "workspace:*",
     "@red-cup-engineering/javascript-file-services-section": "workspace:*",
-    "@red-cup-engineering/javascript-node-services-section": "workspace:*",
     "@red-cup-engineering/jsnode-package-vulnerability-triage-services-section": "workspace:*",
     "@red-cup-engineering/json-schema-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
@@ -162,7 +161,8 @@
     "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
     "@red-cup-engineering/multiformats-services-section": "workspace:*",
     "@red-cup-engineering/html-structural-projection-service": "workspace:*",
-    "@red-cup-engineering/exact-number-data-service": "workspace:*"
+    "@red-cup-engineering/exact-number-data-service": "workspace:*",
+    "@red-cup-engineering/javascript-node-operation-engineering-services-section": "workspace:*"
   },
   "engines": {
     "node": ">=22.18"

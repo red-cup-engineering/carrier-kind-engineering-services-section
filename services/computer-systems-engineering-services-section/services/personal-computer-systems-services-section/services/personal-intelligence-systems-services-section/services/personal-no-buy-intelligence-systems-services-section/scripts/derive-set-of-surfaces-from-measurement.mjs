@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-engineering-services-section/operation";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 
 const AI_PRODUCT_NAMES = new Set([
