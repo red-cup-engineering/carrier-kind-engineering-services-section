@@ -98,7 +98,13 @@ KDP is one channel of a retailer-neutral submission machine
 
 The machine keeps resumable state at `<dataRoot>/<channel>/<book>/state.json`.
 It records human boundaries and repair requests. It issues one
-`RetailerSubmissionReceipt` type for every retailer.
+`RetailerSubmissionReceipt` type for every retailer. The data root is this
+section's `data/state/retail-submission-state` unless `--data-root` names
+another. It holds the publisher's whole retail account, Ice Out and The Agent
+Operator's Handbook (2026-09-29/30) included, because the weekly title
+allowance is counted over every book under it. Each `state.json` is committed;
+the screenshots under `evidence/` stay on the host (their digests are in the
+state), and dry runs are never committed.
 
 KDP lets an account create 2 new titles per format a week, and a saved draft
 counts (`KDP_TITLE_ALLOWANCE` in `src/kdp-submit.mjs`). A live run on either KDP
