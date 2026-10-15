@@ -258,3 +258,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/parlor
 	url = https://github.com/red-cup-engineering/parlor.git
 	branch = main
+[submodule "ruinfold"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/ruinfold
+	url = https://github.com/red-cup-engineering/ruinfold.git
+	branch = main
