@@ -98,3 +98,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-interface-system-services-section/services/terminal-computer-interface-system-engineering-services-section/apps/openai-agent-tui
 	url = https://github.com/red-cup-engineering/openai-agent-tui.git
 	branch = main
+[submodule "wheatstone"]
+	path = services/computer-systems-engineering-services-section/services/computer-interface-system-services-section/services/terminal-computer-interface-system-engineering-services-section/apps/wheatstone
+	url = https://github.com/red-cup-engineering/wheatstone.git
+	branch = main
