@@ -230,3 +230,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/aletheon
 	url = https://github.com/red-cup-engineering/aletheon.git
 	branch = main
+[submodule "cowrie-casino"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/cowrie-casino
+	url = https://github.com/red-cup-engineering/cowrie-casino.git
+	branch = main
