@@ -9,6 +9,7 @@ import { createCausalResourceHead } from '@red-cup-engineering/semiotic-eavt-ser
 import { semanticId } from '@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address';
 import { projectCloudResourceClaims } from './cloud-resource-claims.mjs';
 import { observeComputeResources } from './observe-compute-resources.mjs';
+import { observeGoogleCloudComputeResources } from '@red-cup-engineering/gcloud-compute-observation-service';
 
 export function validateComputeObservationPolicy(policy) {
   for (const key of ['recordKind', 'resourceRecordType', 'witnessType', 'event',
@@ -66,7 +67,7 @@ export async function refreshComputeResourceObservation({
   const refreshed = initial?.kind !== policy.recordKind || initial?.observationScope !== observationScope
     || !Number.isFinite(age) || age < 0 || age >= policy.freshnessMs;
   const record = refreshed
-    ? { ...await observe(observation, { environment, clock: now }), kind: policy.recordKind, observationScope }
+    ? { ...await observe(observation, { environment, clock: now, observeGoogleCloud: observeGoogleCloudComputeResources }), kind: policy.recordKind, observationScope }
     : initial;
   // Provider collection is complete before taking the existing store lock.
   // This callback is deliberately synchronous and non-reentrant. Its distinct
