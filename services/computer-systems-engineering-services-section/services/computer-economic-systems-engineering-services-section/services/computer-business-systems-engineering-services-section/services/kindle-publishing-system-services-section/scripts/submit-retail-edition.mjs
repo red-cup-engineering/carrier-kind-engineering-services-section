@@ -14,15 +14,20 @@
  * --rehearse shows a guided channel's panels over a blank page, headless, and
  * --fixtures drives KDP's saved pages; neither touches a portal, and both keep
  * their state apart from the live run's.
+ *
+ * The state lives in this section's data/state/retail-submission-state unless
+ * --data-root names another: one root per retail account, since a channel's
+ * weekly title allowance is counted over every book under it.
  */
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { retailChannel } from "../src/retail-channels.mjs";
 import { runRetailSubmission } from "../src/retail-submission.mjs";
 
 const usage = [
-  "usage: submit-retail-edition.mjs --channel <id> --book <slug> --listings <book-retail-listings.json> --declarations <json> --data-root <dir> (--live | --rehearse | --fixtures <dir>)",
+  "usage: submit-retail-edition.mjs --channel <id> --book <slug> --listings <book-retail-listings.json> --declarations <json> [--data-root <dir>] (--live | --rehearse | --fixtures <dir>)",
   "  ebook channels:    --validation <signed.json> --release-acceptance <json> --epub <file> --cover <file> [--launch-plan <json>]",
   "  kdp-paperback:     --print-acceptance <json> --interior <pdf> --print-cover <pdf>",
 ].join("\n");
@@ -33,7 +38,7 @@ const { values } = parseArgs({
   ]),
 });
 const print = values.channel === "kdp-paperback";
-const required = ["channel", "book", "listings", "declarations", "data-root", ...(print ? ["print-acceptance", "interior", "print-cover"] : ["validation", "release-acceptance", "epub", "cover"])];
+const required = ["channel", "book", "listings", "declarations", ...(print ? ["print-acceptance", "interior", "print-cover"] : ["validation", "release-acceptance", "epub", "cover"])];
 for (const name of required) if (!values[name]) throw new Error(`missing --${name}\n${usage}`);
 if ([values.live, values.rehearse, Boolean(values.fixtures)].filter(Boolean).length !== 1) throw new Error(`choose exactly one of --live, --rehearse and --fixtures\n${usage}`);
 const channel = retailChannel(values.channel);
@@ -51,7 +56,7 @@ const state = await runRetailSubmission(channel, {
   book: values.book, listing, ...edition,
   declarationsReceipt: await json(values.declarations),
   ...(values["launch-plan"] ? { launchPlan: await json(values["launch-plan"]) } : {}),
-  dataRoot: resolve(values["data-root"]),
+  dataRoot: values["data-root"] ? resolve(values["data-root"]) : fileURLToPath(new URL("../data/state/retail-submission-state", import.meta.url)),
   dryRun: !values.live,
   ...(values.fixtures ? { fixtureRoot: resolve(values.fixtures) } : {}),
 }, { allowLive: values.live });

@@ -1,0 +1,244 @@
+{
+  "type": "KdpSubmissionState",
+  "version": 2,
+  "book": "ice-out",
+  "status": "submitted",
+  "completed": [
+    "create-title",
+    "metadata",
+    "upload-epub",
+    "upload-cover",
+    "declarations",
+    "series",
+    "pricing",
+    "save-draft",
+    "publish"
+  ],
+  "evidence": [
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;CAavxEwF5NwalDoQ_P61AbO4bTDTA2OWAyTAtzsC0MM",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "create-title",
+        "at": "2026-09-29T21:42:15.435Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/create-title.png",
+        "bytes": 393865,
+        "sha256": "2ed4524ea7eaf44bc2342b0192f8579dc36c4e94987d3cf3b7b6ed2b794e768e"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;h6JRrGSx7NI91zNkYuRoPWNslxomhzhveGG-GsXjgqU",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "metadata",
+        "at": "2026-09-29T21:44:21.072Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/metadata.png",
+        "bytes": 316524,
+        "sha256": "920eb1ea380e11d343099c584aafb516f9363f3a2ee789df2fddbf06c2e4f2c3"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;ouGlpHqFhmZswqDCq_a72VL0wZNWZ07LNWlh38NgZl0",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "upload-epub",
+        "at": "2026-09-29T23:32:21.808Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/upload-epub.png",
+        "bytes": 418108,
+        "sha256": "fd5be2e8b477655e038030e3e53a7f7ab80f027bfec825afb9537b83064dcf53"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;nuchtHA50LooH1ZQ6ApBT5HvfTClNnvrWYHhB96R4aI",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "upload-cover",
+        "at": "2026-09-29T23:32:30.578Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/upload-cover.png",
+        "bytes": 402459,
+        "sha256": "15432d7ed2f3a17fbab14a4580bdb54b86f9a207483ead67902b00af4ef33587"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;Wbe9b5rkNcCylQzZIcImebJ7R22lv6mdWpWNb7uekX4",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "declarations",
+        "at": "2026-09-29T23:33:04.135Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/declarations.png",
+        "bytes": 336319,
+        "sha256": "d85bcd5a92f680289ea366f193435e942f6e6f03405c187ca7f64c9810c4a080"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;6fZfqrg3FP0pZsqqrI2bJo15-omQygl95KOfVg4Nztg",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "pricing",
+        "at": "2026-09-29T23:33:07.744Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/pricing.png",
+        "bytes": 339262,
+        "sha256": "9a18758f84ae51e93350178807be36d9be961e3834bb3df3c3f793df1fbc32da"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;s_UGcHfWIr_ugmIyH17gLO2DNe5-ywvz8OvCqOfLuAE",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "save-draft",
+        "at": "2026-09-29T23:33:08.038Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/save-draft.png",
+        "bytes": 335257,
+        "sha256": "515cbeaac29329464dccc3b02722a0f3060fd8cecfc4adce9f4baf9f24d57122"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;hOIzM_y21Hyg8WcsMW0IbBtJNheCo2vsJSACHh94GdU",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "series",
+        "at": "2026-09-29T23:53:43.815Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/series.png",
+        "bytes": 428695,
+        "sha256": "8ec88f91017939092d8b0fde3d12b3f6eb407abdee3a06e238fd4de8f60eff95"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;4nFSDL6Hvdqz6mGxP7-2gfzuxEKZWV86y1LFPlGTEYE",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "pricing",
+        "at": "2026-09-29T23:53:49.906Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/pricing.png",
+        "bytes": 402208,
+        "sha256": "623c254b4d3215cb1b2f986204917cc4d09599a0cefdbb67bad950efcb9c66d1"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;4DM1uv5q4A4kloPe6k07d_-TgQXKQUQlsNOMjll3vDc",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "save-draft",
+        "at": "2026-09-29T23:53:55.054Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/save-draft.png",
+        "bytes": 401412,
+        "sha256": "41d5e3c3da4a6540dad5f3cc2a54a253c1b29834415426a914222b48863783cf"
+      }
+    },
+    {
+      "kind": "sign.cell",
+      "id": "ni:///sha-256;QkHJ5IHJWpKc31AUZnmOPey1RqTMN3RlGwoRSKC7aBU",
+      "type": "org.561-group.kdp.screenshot-evidence.v1",
+      "content": {
+        "type": "KdpScreenshotEvidence",
+        "version": 1,
+        "book": "ice-out",
+        "step": "publish",
+        "at": "2026-09-29T23:54:49.330Z",
+        "path": "/home/emsenn/.local/state/561-group/kdp-submissions/kdp/ice-out/evidence/publish.png",
+        "bytes": 483604,
+        "sha256": "2bd9e8603852c348d1ae9afa340df9ae2db035f53730b5b8b8b7eedbfa8a2a04"
+      }
+    }
+  ],
+  "updatedAt": "2026-09-29T23:54:49.332Z",
+  "remoteIdentifier": "A3RXK0JGCKV3ZD",
+  "intent": "6baa2a6ec7f38147ba079968712abe031ba3cc2939870e566dfed9be5d328015",
+  "blocker": null,
+  "repairRequest": {
+    "type": "RepairRequest",
+    "version": 1,
+    "workItem": "kdp:ice-out:1:series:kdp-driver-failed",
+    "service": "kindle-publishing",
+    "book": "ice-out",
+    "failureClass": "AUTOMATION_DRIFT",
+    "requestedAt": "2026-09-29T23:51:44.891Z",
+    "requestedAction": "diagnose-repair-assay-and-retry",
+    "status": "open"
+  },
+  "stepInputs": {
+    "create-title": "3e9fe5817231fc5d6077b9bbe018b34d52f4bcbbe17447b8c31d4f55a932a7e8",
+    "metadata": "11aab4918bf9a5108fe813359b9ca4adfc8c444467efdd8f3f84a41854732474",
+    "upload-epub": "79ce5d076c6093064ae83627c92afdc4e5f7ed5a9e879353453cc8b12a8a6573",
+    "upload-cover": "68f4b08d1742be2ca0ccad3e3c105f37118564005b595982342eb4bd8ed946cc",
+    "declarations": "ad1a60c247c30ff9a3ea7868094e4e187c8f2bee418e71bf722c69fa9ae50f9a",
+    "series": "6943e3d738e518af5d21b4f76b9829146ec47cc81d5a60017b94f4dca64994cc",
+    "pricing": "0e1bbc761dd31373453234ee67bdf64b4b69cc862b1b6d86239ffc780d04ea0d",
+    "save-draft": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "publish": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  },
+  "receipt": {
+    "kind": "sign.cell",
+    "id": "ni:///sha-256;JTCuPkRmwBaAtblrPFyU0e6an8RcrD-P-6CGaDNQKnU",
+    "type": "org.561-group.retailer-submission-receipt.v1",
+    "content": {
+      "type": "RetailerSubmissionReceipt",
+      "version": 1,
+      "retailer": "kdp",
+      "book": "ice-out",
+      "rendition": "EPUB",
+      "artifactSha256": "1accbb94676eb5a25009d9c59913716e3f600f225fe12b34b6ea1cbf2b0774c7",
+      "metadataProjectionSha256": "86fedb51afa05e7bfb12e1eeeafaebea0da854da69b4a0f8b0d1fce516416881",
+      "coverSha256": "dc66fd23dbc7d8ee5ea0d9aa7f776341892ea4167b781c57de9222a276405744",
+      "priceTermsDigest": "0e1bbc761dd31373453234ee67bdf64b4b69cc862b1b6d86239ffc780d04ea0d",
+      "submittedAt": "2026-09-29T23:54:49.332Z",
+      "method": "playwright-browser-receiver",
+      "remoteIdentifier": "A3RXK0JGCKV3ZD",
+      "remoteState": "submitted",
+      "lastObservedAt": "2026-09-29T23:54:49.332Z",
+      "evidence": [
+        "ni:///sha-256;CAavxEwF5NwalDoQ_P61AbO4bTDTA2OWAyTAtzsC0MM",
+        "ni:///sha-256;h6JRrGSx7NI91zNkYuRoPWNslxomhzhveGG-GsXjgqU",
+        "ni:///sha-256;ouGlpHqFhmZswqDCq_a72VL0wZNWZ07LNWlh38NgZl0",
+        "ni:///sha-256;nuchtHA50LooH1ZQ6ApBT5HvfTClNnvrWYHhB96R4aI",
+        "ni:///sha-256;Wbe9b5rkNcCylQzZIcImebJ7R22lv6mdWpWNb7uekX4",
+        "ni:///sha-256;6fZfqrg3FP0pZsqqrI2bJo15-omQygl95KOfVg4Nztg",
+        "ni:///sha-256;s_UGcHfWIr_ugmIyH17gLO2DNe5-ywvz8OvCqOfLuAE",
+        "ni:///sha-256;hOIzM_y21Hyg8WcsMW0IbBtJNheCo2vsJSACHh94GdU",
+        "ni:///sha-256;4nFSDL6Hvdqz6mGxP7-2gfzuxEKZWV86y1LFPlGTEYE",
+        "ni:///sha-256;4DM1uv5q4A4kloPe6k07d_-TgQXKQUQlsNOMjll3vDc",
+        "ni:///sha-256;QkHJ5IHJWpKc31AUZnmOPey1RqTMN3RlGwoRSKC7aBU"
+      ]
+    }
+  }
+}
