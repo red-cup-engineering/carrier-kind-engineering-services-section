@@ -20,6 +20,6 @@
   },
   "dependencies": {
     "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
+    "@red-cup-engineering/javascript-node-operation-engineering-services-section": "workspace:*"
   }
 }

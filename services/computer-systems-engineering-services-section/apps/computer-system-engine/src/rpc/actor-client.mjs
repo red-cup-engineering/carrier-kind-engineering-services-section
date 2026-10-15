@@ -114,8 +114,7 @@ export function createActorClient({provider,inbox,outcomes,origin,admitSender,tr
    }
    return submission;
   },
-  async result({identifier,submission,includeReceipt=false,subjectBinding}){
-   if(typeof includeReceipt!=='boolean')throw new TypeError('includeReceipt must be a boolean');
+  async result({identifier,submission,subjectBinding}){
    await admitSender(identifier);
    parseNiUri({uri:submission.request});
    if(typeof submission.recipient!=='string'||!/^https?:\/\//u.test(submission.recipient))throw new TypeError('actor result needs its exact HTTP(S) responder');
@@ -128,7 +127,7 @@ export function createActorClient({provider,inbox,outcomes,origin,admitSender,tr
     if(original===null)throw new TypeError('bound outcome original request is not held');
     if(readActorMessage(original,recipient,submission.recipient).projection.a2aMessage.metadata?.['metroplat.subject-binding']?.id!==subjectBinding)throw new TypeError('bound outcome observation names another admitted statement');
     const held=outcomes.read({request:submission.request,sender:submission.recipient,recipient,original});
-    return includeReceipt?held:held?.result;
+    return held;
    }
    const reply=await inbox.replyFor({identifier,request:submission.request,sender:submission.recipient});
    await admitSender(identifier);
@@ -136,12 +135,10 @@ export function createActorClient({provider,inbox,outcomes,origin,admitSender,tr
    const outcome=readActorMessage(reply,submission.recipient,recipient);
    if(outcome.kind!=='metroplat.dispatch.result'||outcome.value.request!==submission.request)
     throw new TypeError('actor result does not match its addressed request');
-   // Enterprise request loops consume the established processing-result shape.
-   // A receiving client may also need the original admitted reply envelope's
-   // content address. Retain that address, not a new hash of decoded stdout;
-   // the private native inbox continues to hold the original native wire bytes.
-   return includeReceipt?Object.freeze({request:submission.request,recipient:submission.recipient,
-    reply:outcome.id,result:outcome.value.result}):outcome.value.result;
+   // The reply read has one addressed receipt shape. Business consumers project
+   // its processing result; the original admitted envelope remains in custody.
+   return Object.freeze({request:submission.request,recipient:submission.recipient,
+    reply:outcome.id,result:outcome.value.result});
   },
   async read({identifier,cursor}){
    await admitSender(identifier);
@@ -157,4 +154,3 @@ export function createActorClient({provider,inbox,outcomes,origin,admitSender,tr
   },
  });
 }
-

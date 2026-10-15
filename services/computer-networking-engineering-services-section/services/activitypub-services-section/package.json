@@ -14,7 +14,16 @@
     "scripts/seat-activitypub-face.sh",
     "scripts/materialize-sen-outbox-activity.mjs",
     "src",
-    "scripts/serve-activitypub-network.mjs"
+    "scripts/serve-activitypub-network.mjs",
+    "test/activitypub-correlation.runtime.test.mjs",
+    "test/activitypub-media-contract.test.mjs",
+    "test/activitypub-correlation.fixture.mjs",
+    "test/activitypub-correlation.fault-child.mjs",
+    "test/delivery-queue-responsiveness.test.mjs",
+    "test/journal-custody.test.mjs",
+    "test/flatfile-queue-recovery-custody.test.mjs",
+    "test/follower-source-order.test.mjs",
+    "scripts"
   ],
   "exports": {
     ".": "./src/provider.mjs",

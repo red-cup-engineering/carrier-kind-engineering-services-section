@@ -19,6 +19,7 @@
  * reading clears is constrained by settling-monotonicity (settled cells are never
  * retracted) and needs its own ruling before it is built.
  */
+import { validateDeterministicExecution } from "./schema.mjs";
 import { slugify } from "@red-cup-engineering/computer-text-content-engineering-services-section/slugify-text";
 
 import { claimSessionObservation } from "@red-cup-engineering/relating/running/session";
@@ -105,6 +106,7 @@ function obstructionEvidence(info, settlementToken) {
  * here from arbitrary reading data. */
 
 function deterministicExecutionBoundary(value) {
+  if (value.kind === "typed-operation") return validateDeterministicExecution(value);
   const request = Object.freeze({
     type: value.request.type,
     version: value.request.version,

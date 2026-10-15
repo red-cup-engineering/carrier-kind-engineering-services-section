@@ -20,7 +20,7 @@
 	branch = main
 [submodule "services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine"]
 	path = services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/apps/computer-code-development-engine
-	url = https://github.com/red-cup-engineering/computer-code-development-engine.git
+	url = https://github.com/red-cup-engineering/computer-systems-fabrication-engineering-services-section.git
 	branch = main
 [submodule "services/computer-code-engineering-services-section"]
 	path = services/computer-code-engineering-services-section
@@ -53,4 +53,16 @@
 [submodule "content-mill-newsroom-services-section"]
 	path = services/computer-systems-engineering-services-section/services/content-mill-newsroom-services-section
 	url = https://github.com/red-cup-engineering/content-mill-newsroom-services-section.git
+	branch = main
+[submodule "qwzspace"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/qwzspace
+	url = https://github.com/red-cup-engineering/qwzspace.git
+	branch = main
+[submodule "racket-mud"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/computer-mud-engineering-services-section/apps/racket-mud
+	url = https://github.com/red-cup-engineering/racket-mud.git
+	branch = main
+[submodule "fizzos"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/fizzos
+	url = https://github.com/red-cup-engineering/fizzos.git
 	branch = main

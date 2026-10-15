@@ -26,7 +26,8 @@ import { CONTROL_DISPOSITIONS, CONTROL_EVENT_TYPES, currentControls } from "./co
 import { enterpriseBoard } from "./board.mjs";
 import { bidderOf, doersOf, enterpriseRecord, foundingOf, governingRight, incumbentsOf, lineOfficeOf, openSeatsOf, qiangdan } from "../agency/governing.mjs";
 import { enactAgencyRecords } from "../agency/records.mjs";
-import { playerOfAct, subjectOf } from "../agency/cast.mjs";
+import { playerOfAct } from "../agency/cast.mjs";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 
 const object = (id, properties, required = []) => schemaFrom({ $id: `enterprise/${id}`, type: "object", properties, required, additionalProperties: false });
 const text = { type: "string" };

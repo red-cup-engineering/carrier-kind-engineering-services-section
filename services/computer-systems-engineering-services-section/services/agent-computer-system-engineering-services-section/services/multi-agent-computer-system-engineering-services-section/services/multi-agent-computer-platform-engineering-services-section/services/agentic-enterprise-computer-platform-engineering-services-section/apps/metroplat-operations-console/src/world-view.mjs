@@ -1,3 +1,4 @@
+import { commandDraft } from "./command-draft.mjs";
 /**
  * The world drawn: the city as a game, over the page that plays it without a script.
  *
@@ -87,10 +88,7 @@ const centreOf = (body) => {
   return [(x0 + x1) / 2, (y0 + y1) / 2];
 };
 
-const linesOf = (turn) => [
-  ...(turn.messages ?? []),
-  ...(turn.results ?? []).map((result) => `${result.ok ? "✓" : "✗"} ${result.verb}: ${JSON.stringify(result.ok ? result.value : result.error, null, 2)}`),
-];
+import { turnLines as linesOf } from "./turn-lines.mjs";
 
 async function start(mount) {
   const street = mount.dataset.mode === "street";
@@ -116,6 +114,7 @@ async function start(mount) {
   // The house at work. `base` is the city as projected; what is drawn is it with the halls aglow
   // and the figures standing where the jianghu has them.
   const jianghu = createJianghu({
+    motion: () => client.motion,
     spotOf: (room, who) => {
       const body = atlas.places[room]?.region.body;
       return body && spotOn(body, who, { open: room === atlas.start });
@@ -357,7 +356,7 @@ async function start(mount) {
         ...held(room), room.seated?.length ? `${room.seated.length} seated` : null,
       ].filter(Boolean).join(" · ")) : null,
     );
-    client.exits(scene.entries.filter((entry) => entry.kind === "exit").map((exit) => ({
+    client.exits(scene.entries.filter((entry) => entry.kind === "exit" && entry.destination !== null).map((exit) => ({
       label: exit.label === "up" ? `↑ ${nameOf(exit.destination) || "up"}` : nameOf(exit.destination) || exit.label,
       title: `go ${exit.label}`,
       act: () => speak(`go ${exit.label}`),
@@ -412,6 +411,8 @@ async function start(mount) {
   client.write(transcript.split("\n").filter(Boolean).slice(-60));
   if (mount.dataset.journal) followJournal();
   await speak("look");
+  const draft = commandDraft(location.search);
+  if (draft) client.draft(draft);
 }
 
 const mount = document.getElementById("world-view");

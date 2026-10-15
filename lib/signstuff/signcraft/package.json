@@ -46,7 +46,7 @@
     "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
   },
   "devDependencies": {
-    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
+    "@red-cup-engineering/javascript-node-operation-engineering-services-section": "workspace:*"
   },
   "scripts": {
     "test": "node --test \"test/**/*.test.mjs\""

@@ -350,4 +350,3 @@ export function bridgeMcpStdio(transport, { input = process.stdin, output = proc
   });
   return Object.freeze({ done: () => chain });
 }
-

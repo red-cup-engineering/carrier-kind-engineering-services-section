@@ -25,6 +25,7 @@
     "test/node-upgrade-match.test.mjs"
   ],
   "exports": {
+    "./forward-request-headers": "./src/forward-request-headers.mjs",
     "./semantic-content-identity": "./src/semantic-content-identity.mjs",
     "./package.json": "./package.json",
     "./cookies": "./src/cookies.mjs",
@@ -84,6 +85,9 @@
     "type": "git",
     "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
     "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
   },
   "receivingTests": [
     "test/node-upgrade-match.test.mjs"

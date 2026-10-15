@@ -58,6 +58,7 @@
     "./rpc/actor-client": "./src/rpc/actor-client.mjs",
     "./rpc/http-observation-operations": "./src/rpc/http-observation-operations.mjs",
     "./rpc/node-job-operations": "./src/rpc/node-job-operations.mjs",
+    "./rpc/operation-declaration": "./src/rpc/operation-declaration.mjs",
     "./rpc/actor-outcomes": "./src/rpc/actor-outcomes.mjs"
   },
   "files": [
@@ -65,6 +66,7 @@
     "specifications",
     "scripts",
     "test/actor-result-projection.test.mjs",
+    "test/actor-client-receipt.test.mjs",
     "test/actor-subject-state.test.mjs",
     "test/actor-outcomes.test.mjs",
     "test/actor-outcomes.fixture.mjs",
@@ -118,6 +120,7 @@
   },
   "receivingTests": [
     "test/actor-result-projection.test.mjs",
+    "test/actor-client-receipt.test.mjs",
     "test/actor-subject-state.test.mjs",
     "test/actor-outcomes.test.mjs",
     "test/rpc-input-retention.test.mjs",

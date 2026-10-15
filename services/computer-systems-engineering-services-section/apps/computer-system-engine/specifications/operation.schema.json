@@ -2,34 +2,76 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.561.group/computer/operation.schema.json",
   "title": "Operation",
-  "description": "A typed transformation expressed either as a portable RMN term or as one declared capability effect at the imperative boundary. Effect names identify effect declarations held in the relational field; neither host-language semantics nor an ambient effect is an operation format.",
+  "description": "Structural JSON projection of a core Computer Code admitted operation, not an RPC operation descriptor. Data type objects and SEN boundary descriptors retain their owner admission. Passing this schema does not establish type provenance, check the SEN arrow, or authorize effects; Computer Code admitOperation and the relevant execution admission remain required.",
   "type": "object",
-  "required": ["specification", "version", "id", "domain", "codomain", "body", "effects"],
+  "required": [
+    "specification",
+    "version",
+    "id",
+    "domain",
+    "codomain",
+    "body",
+    "effects"
+  ],
   "additionalProperties": false,
   "properties": {
-    "specification": {"const": "https://schemas.561.group/computer/computer-engineering.schema.json"},
-    "version": {"const": 1},
-    "id": {"type": "string", "minLength": 1},
-    "domain": {"type": "string", "minLength": 1},
-    "codomain": {"type": "string", "minLength": 1},
+    "specification": {
+      "const": "https://schemas.561.group/computer/computer-engineering.schema.json"
+    },
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain": {
+      "type": "object"
+    },
+    "codomain": {
+      "type": "object"
+    },
     "body": {
       "oneOf": [
         {
           "type": "object",
-          "required": ["kind", "term"],
-          "additionalProperties": false,
+          "required": [
+            "kind",
+            "term",
+            "inputDescriptor",
+            "outputDescriptor"
+          ],
           "properties": {
-            "kind": {"const": "rmn"},
-            "term": {"$ref": "rmn-term.schema.json"}
+            "kind": {
+              "const": "sen"
+            },
+            "term": {
+              "$ref": "https://schemas.561.group/computer/sen-term.schema.json"
+            },
+            "inputDescriptor": {
+              "description": "Opaque boundary descriptor admitted by the Computer Data descriptorTy/encodeDescriptor contract.",
+              "type": "object"
+            },
+            "outputDescriptor": {
+              "description": "Opaque boundary descriptor admitted by the Computer Data descriptorTy/decodeDescriptor contract.",
+              "type": "object"
+            }
           }
         },
         {
           "type": "object",
-          "required": ["kind", "capability"],
-          "additionalProperties": false,
+          "required": [
+            "kind",
+            "capability"
+          ],
           "properties": {
-            "kind": {"const": "capability-effect"},
-            "capability": {"type": "string", "minLength": 1}
+            "kind": {
+              "const": "capability-effect"
+            },
+            "capability": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       ]
@@ -37,7 +79,13 @@
     "effects": {
       "type": "array",
       "uniqueItems": true,
-      "items": {"type": "string", "minLength": 1}
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "description": {
+      "type": "string"
     }
   }
 }

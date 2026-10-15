@@ -81,7 +81,9 @@
     "ethers": "6.17.0",
     "viem": "2.55.4",
     "@red-cup-engineering/signcell": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/solidity-services-section": "workspace:*",
+    "@red-cup-engineering/javascript-node-operation-engineering-services-section": "workspace:*"
   },
   "scripts": {
     "validate:glass-sponge-deployment-plan": "node scripts/validate-glass-sponge-deployment-plan.mjs",
@@ -104,7 +106,8 @@
     "induce:semiotic-exchange-chain-evm-face": "node scripts/induce-semiotic-exchange-chain-evm-face.mjs",
     "deploy:integration-settlement-token": "node scripts/deploy-integration-settlement-token.mjs",
     "deploy:eas": "node scripts/deploy-eas-protocol.mjs",
-    "test:vertical": "forge test --ffi --match-contract TypedCommitmentProjectionTest -vvv"
+    "test:vertical": "forge test --ffi --match-contract TypedCommitmentProjectionTest -vvv",
+    "build:production": "node scripts/generate-articulating-artifacts.mjs"
   },
   "keywords": [
     "ethereum",

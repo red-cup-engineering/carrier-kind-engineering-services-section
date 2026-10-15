@@ -3,6 +3,7 @@
 (define-module (guix-deployment)
   #:use-module (guix packages)
   #:use-module (guix gexp)
+  #:use-module ((guix store) #:select (direct-store-path?))
   #:use-module (guix build-system trivial)
   #:use-module (gnu packages node)
   #:use-module (gnu packages bash)
@@ -68,7 +69,9 @@
               ;; The admitted tree is already an immutable Guix input. Retain it
               ;; in the output's closure without copying the entire tree twice.
               (mkdir-p out) (mkdir-p bin) (mkdir-p units)
-              (let ((tree #$(local-file admitted-source "registry-runtime" #:recursive? #t)))
+              (let ((tree #$(if (direct-store-path? admitted-source)
+                               admitted-source
+                               (local-file admitted-source "registry-runtime" #:recursive? #t))))
                 (invoke runtime #$portable-runtime-check tree #$entry)
                 (when (file-exists? (string-append tree "/.guix-systemd"))
                   (error "application contains reserved deployment directory"))
@@ -99,7 +102,11 @@
                 (let ((pointer (assoc-ref '#$node-job-instance 'deployment-records-pointer)))
                   (unless (and (string? pointer) (not (string-null? pointer)))
                     (error "native node jobs require their authored deployment-records-pointer"))
-                  (invoke runtime #$node-job-instance-realizer out
+                  ;; Node resolves a tool's imports from its installed location.
+                  ;; Keep this consumer beside the runtime's node_modules.
+                  (copy-file #$node-job-instance-realizer
+                             (string-append units "/realize-node-job-instance.mjs"))
+                  (invoke runtime (string-append units "/realize-node-job-instance.mjs") out
                     (assoc-ref '#$node-job-instance 'path)
                     (assoc-ref '#$node-job-instance 'module)
                     (assoc-ref '#$node-job-instance 'export)
