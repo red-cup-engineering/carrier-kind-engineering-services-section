@@ -55,7 +55,14 @@ The individual is settled below and open above: it re-seeds the next-scale spira
 ## Carriers
 
 Carriers are single-source TypeBox declarations registered through Relating's category kernel.
-Animating's own schemas have no generation step.
+The software-change JSON schemas generate their declared runtime carriers through
+the shared Code renderer; the received carrier must agree with every current
+`x-codegen` specification.
+
+`aoe-code-mission` reads `{mission, execution, receiver?}` from standard input.
+`execution.dataRoot` names caller-owned persistent custody. It invokes the same
+native development lifecycle as the public mission exports. Name one receiving
+port, in `execution.receiver` or `receiver`; the lifecycle performs receiving once.
 
 `aoe-codegen --specifications <directory> --out <file> --actor <id> --journal
 <new-file.jsonl>` plans generation from schemas with `x-codegen`. Repeat

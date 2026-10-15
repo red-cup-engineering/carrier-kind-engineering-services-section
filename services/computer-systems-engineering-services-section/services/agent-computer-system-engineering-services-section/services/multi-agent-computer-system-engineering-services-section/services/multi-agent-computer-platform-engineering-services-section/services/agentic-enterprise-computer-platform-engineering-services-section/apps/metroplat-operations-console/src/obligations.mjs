@@ -23,7 +23,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { htmlRepr } from "@red-cup-engineering/http-services-section/representation";
 import { readFormBody } from "@red-cup-engineering/http-services-section/body";
-import { subjectOf } from "@red-cup-engineering/organizing/agency/cast";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { renderTufteDocument } from "@red-cup-engineering/web-page-tiling-engine/rendering";
 
 const BODY_LIMIT = 16 * 1024;

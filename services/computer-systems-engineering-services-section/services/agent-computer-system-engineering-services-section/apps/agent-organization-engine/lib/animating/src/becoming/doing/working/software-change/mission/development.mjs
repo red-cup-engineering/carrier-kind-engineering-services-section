@@ -251,7 +251,6 @@ export async function compileEngineeringDesign(input, options={}) {
    .map(operation=>({verb:operation.verb,description:operation.description,input:operation.domain.schema,output:operation.codomain.schema})),
   schemaModule,
   handoff:'For schema projection, the final contribution product contains schemaModules, an array of schemaModule specifications. Choose javascript for a JavaScript consumer. The native fabricator derives source. An entry may use schemaSource {path,content} from an admitted read_source result; its exact captured JSON schema supplies x-codegen names without inferential retranscription. Otherwise inference supplies schemas. Choose exact output paths. Work orders and Markdown specifications use their named native operations.',
-  ...(options.fabricationOptions?.schemaProjection?.program?{projectionProgram:options.fabricationOptions.schemaProjection.program}:{}),
  });
  const need=stamp('software-development.need',{objective:nonempty(input.objective,'objective'),constraints:input.constraints??[],source,readableSource,receivingFeedback:options.receivingFeedback??null,
   authority:input.authority??[],producerActor:options.producerActor??null,workType:input.workType??'software-change',submittedArtifacts:semanticId(input.artifacts??null),contributionContract:semanticId(engineeringContributionSchema),fabricationContract:fabricationContract.id,readablePaths:input.readablePaths??input.engineeringReadablePaths??paths,acceptance:input.acceptanceCommand??input.verifyCommand??null});
@@ -512,8 +511,8 @@ export async function runProgram(input, options={}) {
   {dependencyProjectRoot:design.territory,...options.fabricationOptions})
   .find(operation=>operation.verb==='fabrication-derive-jsnode-modules').execute({workOrder:compilation.workOrder}));
  if(artifact?.type==='JsnodeModuleDerivationRefusal'){
-  // Missing compute or unavailable installed dependencies cannot be repaired by rewriting the order.
-  if(['NO_DERIVATION_CARRIER','ASSAY_CONTEXT_UNAVAILABLE'].includes(artifact.code))throw new TypeError(artifact.message??artifact.code);
+  // Missing compute, unavailable dependencies or absent host isolation cannot be repaired by rewriting the order.
+  if(['NO_DERIVATION_CARRIER','ASSAY_CONTEXT_UNAVAILABLE','ISOLATED_ASSAY_UNAVAILABLE'].includes(artifact.code))throw new TypeError(artifact.message??artifact.code);
   const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
   throw requireDesignRevision(journal,compilation.source,design.stages.at(-1).artifactId,'module-derivation',artifact,compilation.workOrder);
  }
@@ -521,8 +520,8 @@ export async function runProgram(input, options={}) {
  const receiver=options.receiver;
  if(compilation.plan){
   const actual=proposal.changes.map(change=>change.path).sort();
-  const planned=compilation.plan.outputPaths?.slice().sort();
-  if(planned&&JSON.stringify(actual)!==JSON.stringify(planned))throw new TypeError('fabrication output differs from its admitted realization plan');
+  const planned=compilation.plan.paths.slice().sort();
+  if(JSON.stringify(actual)!==JSON.stringify(planned))throw new TypeError('fabrication output differs from its admitted realization plan');
  }
  const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
  const product=stamp('software-development.proposal',{design:design.stages.at(-1).artifactId,proposal});

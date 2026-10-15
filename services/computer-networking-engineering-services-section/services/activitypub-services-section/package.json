@@ -22,7 +22,8 @@
     "test/delivery-queue-responsiveness.test.mjs",
     "test/journal-custody.test.mjs",
     "test/flatfile-queue-recovery-custody.test.mjs",
-    "test/follower-source-order.test.mjs"
+    "test/follower-source-order.test.mjs",
+    "scripts"
   ],
   "exports": {
     ".": "./src/provider.mjs",
