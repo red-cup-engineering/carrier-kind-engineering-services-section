@@ -280,6 +280,8 @@ function refusal(error) {
  * @param {object} input
  * @param {readonly object[]} input.catalog Offer declarations or admitted offers.
  * @param {Record<string, string|undefined>} [input.env] Deployment bindings.
+ * @param {readonly object[]} [input.resources] Site-owned web resources,
+ *   compiled with the seller resources for every transport.
  * @param {Record<string, Function>} [input.compute] Explicit computes by
  *   offer route, `(input, context) => result | Response` where `input` is
  *   `{ body, query, params, env }`; an offer without one is resolved from
@@ -319,6 +321,7 @@ export function createMarket({
   proxyCatalog = [],
   access,
   capabilityOutbox = [],
+  resources = [],
 } = {}) {
   const offers = declareCatalog(catalog);
   // A host this face cannot serve directly (today: runtime:"node" offers on
@@ -621,6 +624,7 @@ export function createMarket({
     onError: (error) => refusal(error),
     platform: { providers: bindingsProviders(env) },
     resources: [
+      ...resources,
       openApiResource(() => marketOpenApi(servedOffers, rails ?? {}, { name }), OPENAPI_ROUTE),
       ...STATUS_ROUTES.map((match) => ({
         match,
