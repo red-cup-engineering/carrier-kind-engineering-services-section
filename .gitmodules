@@ -186,3 +186,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-ecological-systems-engineering-services-section/apps/watershed-simulation-engine
 	url = https://github.com/red-cup-engineering/watershed-simulation-engine.git
 	branch = main
+[submodule "computer-deployment-engine"]
+	path = services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/apps/computer-deployment-engine
+	url = https://github.com/red-cup-engineering/computer-deployment-engine.git
+	branch = main
