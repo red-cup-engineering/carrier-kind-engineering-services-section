@@ -58,3 +58,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/qwzspace
 	url = https://github.com/red-cup-engineering/qwzspace.git
 	branch = main
+[submodule "racket-mud"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/computer-mud-engineering-services-section/apps/racket-mud
+	url = https://github.com/red-cup-engineering/racket-mud.git
+	branch = main
