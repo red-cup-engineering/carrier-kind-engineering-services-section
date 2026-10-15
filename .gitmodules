@@ -94,3 +94,7 @@
 	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat-holofoam
 	url = https://github.com/red-cup-engineering/metroplat-holofoam.git
 	branch = main
+[submodule "openai-agent-tui"]
+	path = services/computer-systems-engineering-services-section/services/computer-interface-system-services-section/services/terminal-computer-interface-system-engineering-services-section/apps/openai-agent-tui
+	url = https://github.com/red-cup-engineering/openai-agent-tui.git
+	branch = main
