@@ -238,3 +238,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/crucible
 	url = https://github.com/red-cup-engineering/crucible.git
 	branch = main
+[submodule "be-not-so-fearful"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/be-not-so-fearful
+	url = https://github.com/red-cup-engineering/be-not-so-fearful.git
+	branch = main
