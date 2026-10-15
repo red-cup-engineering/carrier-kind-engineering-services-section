@@ -162,3 +162,7 @@
 	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/apps/agent-organization-engine
 	url = https://github.com/red-cup-engineering/agent-organization-engine.git
 	branch = main
+[submodule "natural-computer-simulation-engine"]
+	path = services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/services/biology-simulation-services-section/apps/natural-computer-simulation-engine
+	url = https://github.com/red-cup-engineering/natural-computer-simulation-engine.git
+	branch = main
