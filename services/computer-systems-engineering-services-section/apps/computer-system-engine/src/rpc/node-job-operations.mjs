@@ -1,67 +1,45 @@
-import { readFileSync } from "node:fs";
-import { isAbsolute, resolve } from "node:path";
 import { operation } from "./operation.mjs";
 import { openingOf } from "@red-cup-engineering/organizing/enterprise";
 import { nodeJobReadings, nodeJobSchedulesOf, nodeJobsAt, runNodeJob } from "@red-cup-engineering/node-job-service";
 
-const MODULE = "@red-cup-engineering/computer-system-engine/rpc/node-job-operations";
 const DEPLOYMENT = /^[a-z0-9][a-z0-9-]*$/;
-export const NODE_JOB_LAW = "A node runs each job its deployment declares from its released bytes, and each run ends in success.";
+const record = value => value !== null && typeof value === "object" && !Array.isArray(value);
 
-/** Read host-selected declarations through the admitted factory context. RPC input
- * cannot supply an instance, runtime, state root, command or credential path. */
-export function nodeJobConfigurationsOf({ environment = {}, processConfig = {}, instanceIdentity } = {}) {
-  const instancePath = environment.METROPLAT_INSTANCE ?? processConfig.instance;
-  if (typeof instancePath !== "string" || !isAbsolute(instancePath)
-      || typeof instanceIdentity?.id !== "string" || !instanceIdentity.id
-      || typeof instanceIdentity.title !== "string" || !instanceIdentity.title.trim()) {
-    throw new TypeError("node-job: an installed instance and its admitted identity are required");
+/** Bind the admitted Operations parameter data to the existing Code job owner.
+ * The instance declaration is resolved before this factory is called; this Systems
+ * adapter never rereads instance files or discovers deployments from a directory.
+ */
+export function nodeJobConfigurationsOf({ law, deploymentRecords } = {}) {
+  if (typeof law !== "string" || law.trim() === "" || !Array.isArray(deploymentRecords) || deploymentRecords.length === 0) {
+    throw new TypeError("node-job: admitted law and deployment records are required");
   }
-  if (processConfig.instance !== undefined && (typeof processConfig.instance !== "string" || !isAbsolute(processConfig.instance))) {
-    throw new TypeError("node-job: the installed instance path must be absolute");
-  }
-  if (environment.METROPLAT_INSTANCE !== undefined && processConfig.instance !== undefined
-      && resolve(environment.METROPLAT_INSTANCE) !== resolve(processConfig.instance)) {
-    throw new TypeError("node-job: the installed instance differs from process options");
-  }
-  const instance = JSON.parse(readFileSync(instancePath, "utf8"));
-  if (instance?.version !== 1 || typeof instance.instanceOf !== "string"
-      || ["id", "title", "origin"].some(key => instance.identity?.[key] !== instanceIdentity[key])
-      || !Array.isArray(instance.scheduleSources)) {
-    throw new TypeError("node-job: the installed declaration differs from the admitted instance");
-  }
-  const selected = new Set(), configurations = [];
-  for (const source of instance.scheduleSources) {
-    if (source?.module !== MODULE || source.export !== "nodeJobSchedules") continue;
-    const deployment = source.configuration?.deployment;
-    if (typeof deployment !== "string" || !DEPLOYMENT.test(deployment) || selected.has(deployment)) {
-      throw new TypeError("node-job: each installed deployment selection must be distinct and valid");
+  const selected = new Set();
+  const records = deploymentRecords.map((entry) => {
+    if (!record(entry)
+      || Object.keys(entry).some(key => !["deployment", "host", "scope", "jobConfiguration"].includes(key))
+      || typeof entry.deployment !== "string" || !DEPLOYMENT.test(entry.deployment) || selected.has(entry.deployment)
+      || typeof entry.host !== "string" || entry.host.trim() === ""
+      || !Array.isArray(entry.scope) || entry.scope.length > 64
+      || entry.scope.some(term => typeof term !== "string" || term.trim() === "" || term.length > 2048)
+      || new Set(entry.scope).size !== entry.scope.length
+      || !record(entry.jobConfiguration)) {
+      throw new TypeError("node-job: each admitted deployment needs a unique identity, host, authored scope terms, and job configuration");
     }
-    const configuration = source.configuration.jobConfiguration;
-    nodeJobsAt(configuration);
-    selected.add(deployment);
-    configurations.push(Object.freeze({ deployment, configuration: Object.freeze({ ...configuration }), home: "/" }));
-  }
-  if (!configurations.length) throw new TypeError("node-job: this instance declares no native job configurations");
-  return Object.freeze(configurations);
+    const jobConfiguration = Object.freeze({ ...entry.jobConfiguration });
+    nodeJobsAt(jobConfiguration);
+    selected.add(entry.deployment);
+    return Object.freeze({ deployment: entry.deployment, host: entry.host,
+      scope: Object.freeze([...entry.scope]), jobConfiguration });
+  });
+  return Object.freeze({ law, deploymentRecords: Object.freeze(records) });
 }
 
 /** The existing Code provider owns trigger derivation and execution. Systems
  * composes that provider with the installed instance and its operation protocol. */
-export function nodeJobSchedules({ deployment, jobConfiguration } = {}, { account } = {}) {
-  if (typeof deployment !== "string" || !DEPLOYMENT.test(deployment)) {
-    throw new TypeError("node-job: a valid deployment selection is required");
-  }
-  nodeJobsAt(jobConfiguration);
-  return nodeJobSchedulesOf({ configuration: jobConfiguration, deployment, account, home: "/" });
-}
-
-function sectionOf(directory) {
-  const parts = directory.split("/"), group = parts.indexOf("561-group");
-  if (group === -1) return [];
-  let end = group + 1;
-  while (parts[end] === "services" && parts[end + 1] !== undefined) end += 2;
-  return end === group + 1 ? [] : [`section:${parts.slice(group + 1, end).join("/")}`];
+export function nodeJobSchedules(parameterData, { account } = {}) {
+  const { deploymentRecords } = nodeJobConfigurationsOf(parameterData);
+  return Object.freeze(deploymentRecords.flatMap(({ deployment, jobConfiguration }) =>
+    nodeJobSchedulesOf({ configuration: jobConfiguration, deployment, account, home: "/" })));
 }
 
 const jobTag = (deployment, job) => `node-job-${deployment}-${job}`;
@@ -72,33 +50,34 @@ function endingOf(run, job) {
   return `ended ${run.result}`;
 }
 
-/** Findings retain the original law, scope, receipt evidence and bounded text.
- * An unrun job remains unmeasured; it does not acquire a failure or success. */
-export function nodeJobFindingsOf({ poster, configurations }) {
-  if (typeof poster !== "string" || !poster || !Array.isArray(configurations)) {
-    throw new TypeError("node-job-findings: poster and installed configurations are required");
+/** Findings retain the data-owned law, authored scope, host provenance and bounded text.
+ * An unrun job remains unmeasured. */
+export function nodeJobFindingsOf({ poster, law, deploymentRecords } = {}) {
+  if (typeof poster !== "string" || !poster) {
+    throw new TypeError("node-job-findings: poster is required");
   }
-  const readings = configurations.flatMap(({ deployment, ...selection }) =>
-    nodeJobReadings(selection).map(reading => ({ deployment, ...reading })));
+  const admitted = nodeJobConfigurationsOf({ law, deploymentRecords });
+  const readings = admitted.deploymentRecords.flatMap(({ deployment, host, scope, jobConfiguration }) =>
+    nodeJobReadings({ configuration: jobConfiguration, home: "/" }).map(reading => ({ deployment, host, scope, ...reading })));
   const read = readings.filter(({ last }) => last !== undefined);
   return Object.freeze({
     kind: "node-job-findings.v1", poster,
     domain: Object.freeze({ tags: Object.freeze(read.map(({ deployment, job }) => jobTag(deployment, job.id))) }),
-    evidence: readings.map(({ deployment, job, last }) => `node-job:${deployment}:${job.id}=${last === undefined ? "unrun" : `${last.result}@${last.endedAt}`}`).join("; "),
-    openings: Object.freeze(read.filter(({ last }) => last.ok !== true).map(({ deployment, job, receipt, last }) => {
-      const said = `The ${job.id} job on ${deployment} ${endingOf(last, job)} at ${last.endedAt}, running release ${last.release ?? "unknown"}`;
+    evidence: readings.map(({ deployment, host, job, last }) => "node-job:" + deployment + ":" + job.id + "@" + host + "=" + (last === undefined ? "unrun" : last.result + "@" + last.endedAt)).join("; "),
+    openings: Object.freeze(read.filter(({ last }) => last.ok !== true).map(({ deployment, host, scope, job, receipt, last }) => {
+      const said = `The ${job.id} job on ${deployment} (${host}) ${endingOf(last, job)} at ${last.endedAt}, running release ${last.release ?? "unknown"}`;
       const tail = (last.tail ?? []).slice(-6).join(" | ");
-      return { deployment, job: job.id, opening: openingOf({
-        move: "report", by: poster, law: NODE_JOB_LAW, subject: `node-job:${deployment}:${job.id}`,
+      return { deployment, host, job: job.id, opening: openingOf({
+        move: "report", by: poster, law: admitted.law, subject: `node-job:${deployment}:${job.id}`,
         observation: `${said}${tail === "" ? "." : `: ${tail}`}`.slice(0, 800), evidence: [receipt],
-        scope: sectionOf(job.directory), tags: [jobTag(deployment, job.id)], at: last.endedAt,
+        scope, tags: [jobTag(deployment, job.id)], at: last.endedAt,
       }) };
     })),
   });
 }
 
-export function nodeJobOperations(binding, context = {}) {
-  const ownSources = () => nodeJobConfigurationsOf(context);
+export function nodeJobOperations(binding, installedOperationOptions = {}) {
+  const ownSources = () => nodeJobConfigurationsOf(installedOperationOptions.configuration);
   return Object.freeze([
     operation({
       verb: "node-job-run", inputFormat: "json", outputFormat: "json",
@@ -107,13 +86,13 @@ export function nodeJobOperations(binding, context = {}) {
       reads: ["node-job"], writes: ["node-job"],
       effects: { class: "external", replay: "coordinated", coordination: "coordination-required", deterministic: "unmeasured", totality: "partial" },
       run: input => {
-        const selected = ownSources().find(source => source.deployment === input?.deployment);
+        const selected = ownSources().deploymentRecords.find(source => source.deployment === input?.deployment);
         if (!selected) throw new TypeError("node-job: the requested deployment is not selected by this instance");
-        const workingTree = context.environment?.METROPLAT_CODEX_WORKSPACE ?? binding?.repositoryRoot;
-        return runNodeJob({ ...selected, job: input?.job,
+        const workingTree = installedOperationOptions.environment?.METROPLAT_CODEX_WORKSPACE ?? binding?.repositoryRoot;
+        return runNodeJob({ configuration: selected.jobConfiguration, job: input?.job, home: "/",
           ...(workingTree === undefined ? {} : { workingTree }),
-          ...(context.node === undefined ? {} : { node: context.node }),
-          ...(context.credentialsDirectory === undefined ? {} : { credentialsDirectory: context.credentialsDirectory }),
+          ...(installedOperationOptions.node === undefined ? {} : { node: installedOperationOptions.node }),
+          ...(installedOperationOptions.credentialsDirectory === undefined ? {} : { credentialsDirectory: installedOperationOptions.credentialsDirectory }),
           ...(binding?.now === undefined ? {} : { now: () => new Date(binding.now()) }),
         });
       },
@@ -121,10 +100,10 @@ export function nodeJobOperations(binding, context = {}) {
     operation({
       verb: "node-job-findings", inputFormat: "json", outputFormat: "json",
       summary: "Derive the job law's reports from the installed instance's receipts.",
-      description: "Domain: { poster }. Read installed job declarations and their last receipts. Report unsuccessful measured runs with their original law, owning section and receipt evidence; leave missing receipts unmeasured.",
+      description: "Domain: { poster }. Read installed job declarations and their last receipts. Report unsuccessful measured runs with their original law, authored scope terms and receipt evidence; leave missing receipts unmeasured.",
       reads: ["node-job"],
       effects: { class: "host-read", replay: "safe", coordination: "coordination-free", deterministic: "unmeasured", totality: "partial" },
-      run: input => nodeJobFindingsOf({ poster: input?.poster, configurations: ownSources() }),
+      run: input => nodeJobFindingsOf({ poster: input?.poster, ...ownSources() }),
     }),
   ]);
 }
