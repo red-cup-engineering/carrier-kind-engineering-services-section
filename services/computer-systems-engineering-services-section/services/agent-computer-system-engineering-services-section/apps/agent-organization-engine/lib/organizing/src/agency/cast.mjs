@@ -15,6 +15,7 @@
  * mask a design over them, and two masks committing opposite readings on one claim are the
  * character's identity drift — held as ⊤ (paraconsistent), named, never exploded.
  */
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { characterAgent, identity, performedSelf } from "@red-cup-engineering/playing/character-agent";
 import { design } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/design";
 import { locus, locusKey } from "@red-cup-engineering/playing/structuring/concurrent-game/with-symmetry/ludicizing/locus";
@@ -199,18 +200,6 @@ export function castCensus(agency) {
   });
 }
 
-/**
- * The subject of a call, read the one way: the authenticated name an act is told under. `source` is an
- * invocation context (`{ invocation }`, what an operation's `run` receives), an invocation, or an HTTP
- * principal (`{ provider, subjectHash }`: a bearer token's subject is its hash, any other provider's is
- * `<provider>:<hash>`, the string the node will name the same caller by once it is invoked). `otherwise`
- * is what an unauthenticated call is told as (`"anonymous"` where a record must name someone; nothing
- * where an absent subject is itself the answer).
- */
-export function subjectOf(source, otherwise) {
-  if (typeof source?.subjectHash === "string") return source.provider === "bearer" ? source.subjectHash : `${source.provider}:${source.subjectHash}`;
-  return (source?.invocation ?? source)?.subject ?? otherwise;
-}
 
 /** An office key's section, as the house spells it (`<section>#<office>`). */
 const sectionOfOffice = (office) => houseSectionOf(office.split("#")[0]) ?? office.split("#")[0];

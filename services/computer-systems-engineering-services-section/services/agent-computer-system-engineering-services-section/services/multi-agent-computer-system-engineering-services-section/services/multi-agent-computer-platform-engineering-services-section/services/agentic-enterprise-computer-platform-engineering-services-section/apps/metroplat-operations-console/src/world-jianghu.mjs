@@ -73,7 +73,7 @@ const glowOf = (heat, flash) => Math.min(1, 0.7 * (1 - Math.exp(-heat / 3)) + fl
  * The jianghu over one city. `spotOf(room, who)` is where `who` stands in `room` (or nothing for a
  * room the city does not hold); `clock()` the browser's instant.
  */
-export function createJianghu({ spotOf, clock = () => Date.now() }) {
+export function createJianghu({ spotOf, clock = () => Date.now(), motion = () => true }) {
   const people = new Map(); // id -> { walker, track, goal, from, to, start, ms }
   let skew = 0, seen = 0, heat = [], halfLife = 120_000;
   let pending = []; // acts not yet played, oldest first
@@ -81,7 +81,7 @@ export function createJianghu({ spotOf, clock = () => Date.now() }) {
 
   function where(person, local) {
     if (!person.to) return undefined;
-    const p = person.ms > 0 ? Math.min(1, Math.max(0, (local - person.start) / person.ms)) : 1;
+    const p = motion() && person.ms > 0 ? Math.min(1, Math.max(0, (local - person.start) / person.ms)) : 1;
     if (p >= 1) return { at: person.to, moving: false, heading: person.heading };
     const [a, b] = [person.from, person.to];
     const length = Math.hypot(b[0] - a[0], b[1] - a[1]);

@@ -1,3 +1,4 @@
+import { commandDraft } from "./command-draft.mjs";
 /**
  * The metroplex in the browser: a person plays the 561 Group's MUD as their own character. Each
  * line goes to MetroPlat's `metroplex-command` with the person's subject, so the world answers
@@ -23,7 +24,7 @@ import { readFormBody, readJsonBody } from "@red-cup-engineering/http-services-s
 import { renderTufteDocument } from "@red-cup-engineering/web-page-tiling-engine/rendering";
 import { readBrowserModuleClosure, servedBrowserModules } from "@red-cup-engineering/web-page-tiling-engine/modules";
 import { GAME_STYLES } from "@red-cup-engineering/qwzspace/game-styles";
-import { subjectOf } from "@red-cup-engineering/organizing/agency/cast";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { streetAliases, streetAtlas, streetPulse } from "./metroplex-street.mjs";
 
 const KEEP = 400;
@@ -37,12 +38,8 @@ const VIEW = servedBrowserModules("/_metroplex", await readBrowserModuleClosure(
 }));
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
-function turnLines(turn) {
-  return [
-    ...(turn?.messages ?? []),
-    ...(turn?.results ?? []).map((result) => `${result.ok ? "✓" : "✗"} ${result.verb}: ${JSON.stringify(result.ok ? result.value : result.error, null, 2)}`),
-  ];
-}
+import { turnLines } from "./turn-lines.mjs";
+import { perceivedOperationsHtml, perceivedCommand } from "./perceived-operations.mjs";
 
 /** The front door: the city drawn from the street under the instance's title card. Without a
  *  script the card stands alone, which is the whole of the door's text tier. */
@@ -64,6 +61,7 @@ function doorPage(title) {
 export function metroplexClientApp({ title = "MetroPlat", navigation: links, navigationTitle = "Group", run, runAs, landing = async () => "/metroplex" }) {
   const navigation = Object.assign([...links], { title: navigationTitle });
   const transcripts = new Map();
+  const perceptions = new Map();
   const append = (subject, lines) => {
     const next = [...(transcripts.get(subject) ?? []), ...lines].slice(-KEEP);
     transcripts.set(subject, next);
@@ -71,17 +69,22 @@ export function metroplexClientApp({ title = "MetroPlat", navigation: links, nav
   };
   // A document, not an SHP packet: a packet is inert by construction, and this page holds no
   // settled cells for one to carry; its content is the play itself.
-  const page = (lines) => htmlRepr(renderTufteDocument({
+  const page = (lines, subject, draft = "") => htmlRepr(renderTufteDocument({
     title: "Metroplex",
     tiles: [
       { title: navigation.title ?? "Group", links: navigation, span: 12 },
       { title: "The city", span: 12, html: `<div id="metroplex-view" data-mode="play" data-turn="/metroplex/turn" data-atlas="/metroplex/atlas" data-pulse="/metroplex/pulse" data-tellings="/metroplex/tellings" data-journal="/metroplex/journal" data-title="${escapeHtml(title)}" data-navigation="${escapeHtml(JSON.stringify(navigation.map(({ href, label }) => ({ href, label }))))}"><noscript>The city is drawn with JavaScript; the world below plays without it.</noscript></div>` },
       { title: "The world", span: 12, html: `<pre class="metroplex-transcript">${lines.join("\n").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c])}</pre>` },
-      { title: "Speak", span: 12, form: { action: "/metroplex", method: "post", fields: [{ name: "line", label: "command", value: "", placeholder: "look, go <exit>, powers, <power> {json}" }], submitters: [{ label: "Send" }] } },
+      ...(perceptions.get(subject)?.situation?.actions?.length ? [{ title: "Operations here", span: 12, html: perceivedOperationsHtml(perceptions.get(subject), "/metroplex") }] : []),
+      { title: "Speak", span: 12, form: { action: "/metroplex", method: "post", fields: [{ name: "line", label: "command", value: draft, placeholder: "look, go <exit>, powers, <power> {json}" }], submitters: [{ label: "Send" }] } },
     ],
   }, { importMap: VIEW.importMap, scripts: [{ src: `${VIEW.path}/${VIEW_ENTRY}` }], styles: GAME_STYLES }), { cacheControl: { noStore: true } });
   const turn = async (subject, verb, input) => {
-    try { return turnLines(await runAs(subject, verb, input)); }
+    try {
+      const result = await runAs(subject, verb, { ...input, frame: true });
+      if (result.frame) perceptions.set(subject, result.frame);
+      return turnLines(result);
+    }
     catch (error) { return [`✗ ${error?.message ?? String(error)}`]; }
   };
   // A browser's cookie is sent cross-site too; only this origin's pages may speak as the person.
@@ -207,6 +210,7 @@ export function metroplexClientApp({ title = "MetroPlat", navigation: links, nav
         return jsonRepr({ error: error?.message ?? String(error) }, { status: 502, cacheControl: { noStore: true } });
       }
       // The page's transcript is the text tier of the same play: a reload shows what was drawn.
+      if (turn.frame) perceptions.set(subject, turn.frame);
       append(subject, [`> ${line}`, ...turnLines(turn)]);
       return jsonRepr(turn, { cacheControl: { noStore: true } });
     },
@@ -221,13 +225,16 @@ export function metroplexClientApp({ title = "MetroPlat", navigation: links, nav
       const subject = subjectOf(principal);
       if (ctx.req.method === "GET") {
         const lines = transcripts.get(subject) ?? append(subject, await turn(subject, "metroplex-connect", {}));
-        return page(lines);
+        return page(lines, subject, commandDraft(ctx.url.search));
       }
       if (!sameOrigin(ctx.req.headers)) return { status: 403 };
-      const line = String((await readFormBody(ctx.req, { maxBytes: 64 * 1024 })).get("line") ?? "").trim();
-      if (line === "") return page(transcripts.get(subject) ?? []);
+      const params = await readFormBody(ctx.req, { maxBytes: 64 * 1024 });
+      let line;
+      try { line = perceivedCommand(perceptions.get(subject), params); }
+      catch (error) { return page(append(subject, [`✗ ${error.message}`]), subject); }
+      if (line === "") return page(transcripts.get(subject) ?? [], subject);
       if (!transcripts.has(subject)) append(subject, await turn(subject, "metroplex-connect", {}));
-      return page(append(subject, [`> ${line}`, ...(await turn(subject, "metroplex-command", { line }))]));
+      return page(append(subject, [`> ${line}`, ...(await turn(subject, "metroplex-command", { line }))]), subject);
     },
   }] };
 }

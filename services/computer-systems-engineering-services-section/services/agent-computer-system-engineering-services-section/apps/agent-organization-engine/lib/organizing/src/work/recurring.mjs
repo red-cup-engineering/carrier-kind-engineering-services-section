@@ -51,7 +51,7 @@ import { append, extend, get, heads, readHead } from "@red-cup-engineering/semio
 import { dispatchWire } from "@red-cup-engineering/computer-system-engine/rpc/wire-dispatch";
 import { journalRpcWitness } from "@red-cup-engineering/computer-system-engine/rpc/journal-witness";
 import { processLeaseCoordinator } from "@red-cup-engineering/computer-system-engine/rpc/coordination";
-import { subjectOf } from "../agency/cast.mjs";
+import { subjectOf } from "@red-cup-engineering/computer-networking-engineering-services-section/identity/subject";
 import { assertTimeZone, cronRuleOf, latestScheduledAtOrBefore, nextScheduledAfter } from "@red-cup-engineering/cron-services-section/schedule";
 
 const MAX_PER_TICK = 32;
