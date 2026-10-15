@@ -82,3 +82,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-interface-system-services-section/services/graphical-computer-interface-system-services-sections/apps/abrash
 	url = https://github.com/red-cup-engineering/abrash.git
 	branch = main
+[submodule "graphical-knowledge-game-server"]
+	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/graphical-knowledge-game-server
+	url = https://github.com/red-cup-engineering/graphical-knowledge-game-server.git
+	branch = main
