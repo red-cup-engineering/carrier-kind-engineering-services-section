@@ -166,3 +166,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/services/biology-simulation-services-section/apps/natural-computer-simulation-engine
 	url = https://github.com/red-cup-engineering/natural-computer-simulation-engine.git
 	branch = main
+[submodule "tokipona-language-corpus"]
+	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/tokipona-language-corpus
+	url = https://github.com/red-cup-engineering/tokipona-language-corpus.git
+	branch = main
