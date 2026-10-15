@@ -130,3 +130,7 @@
 	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat-operations-console
 	url = https://github.com/red-cup-engineering/metroplat-operations-console.git
 	branch = main
+[submodule "latin-language-corpus"]
+	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/latin-language-corpus
+	url = https://github.com/red-cup-engineering/latin-language-corpus.git
+	branch = main
