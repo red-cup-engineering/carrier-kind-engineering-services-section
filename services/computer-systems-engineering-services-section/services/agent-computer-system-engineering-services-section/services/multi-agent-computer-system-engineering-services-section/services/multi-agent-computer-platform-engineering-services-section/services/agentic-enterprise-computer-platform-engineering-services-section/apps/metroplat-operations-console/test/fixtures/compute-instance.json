@@ -1,0 +1,111 @@
+{
+  "id": "urn:561-group:computer:compute-instance:v1",
+  "sourceProcedure": {
+    "module": "@coesite-operations/computer-operations-services-section/data/compute-resource-observation",
+    "record": "urn:coesite-operations:computer-operations:compute-resource-observation:v1",
+    "sha256": "319a27a3b32ac3f9d7225bb706457451bf901a8238e559b400e27305b7a2a3b5"
+  },
+  "application": {
+    "label": "Group",
+    "computeAuthorActor": "https://bare-cedar-fog.561.group/actors/metroplat",
+    "navigationLinks": [
+      {
+        "href": "/play",
+        "label": "Play"
+      },
+      {
+        "href": "/tasks/view",
+        "label": "Work"
+      },
+      {
+        "href": "/books/group-readout",
+        "label": "Daily readout"
+      },
+      {
+        "href": "/businesses/summary",
+        "label": "Businesses"
+      },
+      {
+        "href": "/compute",
+        "label": "Compute"
+      }
+    ]
+  },
+  "configuration": {
+    "policy": {
+      "recordKind": "compute-resource-observation",
+      "resourceRecordType": "cloud-resource",
+      "witnessType": "cloud-observation",
+      "event": "cloud-resource-observed",
+      "predicationsKind": "561-group.cloud-resource-predications",
+      "currentKind": "561-group.cloud-resource-current",
+      "witnessKind": "cloud-compute-native-observation",
+      "objectKind": "561-group.compute-resource-observation.v1",
+      "valueType": "GroupComputeResourceObservation",
+      "recordFile": "records/compute-resources.json",
+      "freshnessMs": 86400000
+    },
+    "observation": {
+      "googleCloud": {
+        "cloudRunRegion": "us-central1"
+      },
+      "oracleCloud": {},
+      "cloudflare": {
+        "accountIdEnvironmentVariable": "CLOUDFLARE_ACCOUNT_ID",
+        "inventoryTokenEnvironmentVariable": "CLOUDFLARE_API_TOKEN",
+        "buildTokenEnvironmentVariable": "CLOUDFLARE_WORKERS_CI_USER_TOKEN",
+        "r2TokenEnvironmentVariable": "CLOUDFLARE_R2_READ_TOKEN"
+      },
+      "ssh": {
+        "alias": "cold-red-gate",
+        "machine": {
+          "name": "cold-red-gate",
+          "evidence": "SSH configuration",
+          "role": "VPS; operator reports it is overloaded",
+          "newPlacement": "excluded by operator direction"
+        }
+      },
+      "machines": [
+        {
+          "name": "bare-cedar-fog",
+          "evidence": "repository README",
+          "role": "personal laptop",
+          "newPlacement": "excluded by operator direction"
+        }
+      ],
+      "coverage": "Provider APIs and configured CLI identities observed from bare-cedar-fog. Cloud Run is queried in us-central1; other regions and account principals may hold more resources. DNS is routing evidence, not host liveness. Billing disabled is not a free-capacity guarantee.",
+      "placementRule": "For new workloads, assess cloud accounts against the workload, quotas, billing, and service health. The personal laptop and cold-red-gate are excluded from new placement by the operator's direction.",
+      "credentials": {
+        "googleCloud": {
+          "locator": "~/.config/gcloud"
+        },
+        "oracleCloud": {
+          "locator": "~/.oci/config"
+        },
+        "cloudflare": {
+          "locator": "process environment"
+        },
+        "ssh": {
+          "locator": "~/.ssh/config: cold-red-gate"
+        }
+      }
+    },
+    "operation": {
+      "verb": "group-compute-resource-observation-produce",
+      "summary": "Observe the Group's compute resources and deliver the dated reading to its MetroPlat peer.",
+      "reads": [
+        "provider-accounts",
+        "METROPLAT_WEB_DATA_DIR",
+        "GROUP_PEER_ACTOR"
+      ],
+      "writes": [
+        "group-compute-resource-observation"
+      ],
+      "dataRootEnvironmentVariable": "METROPLAT_WEB_DATA_DIR"
+    },
+    "delivery": {
+      "peerActorEnvironmentVariable": "GROUP_PEER_ACTOR",
+      "peerInboxEnvironmentVariable": "GROUP_PEER_INBOX"
+    }
+  }
+}
