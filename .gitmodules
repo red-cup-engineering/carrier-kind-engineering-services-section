@@ -134,3 +134,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/latin-language-corpus
 	url = https://github.com/red-cup-engineering/latin-language-corpus.git
 	branch = main
+[submodule "panini"]
+	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/panini
+	url = https://github.com/red-cup-engineering/panini.git
+	branch = main
