@@ -222,3 +222,7 @@
 	path = services/computer-systems-engineering-services-section/apps/signcraft
 	url = https://github.com/red-cup-engineering/signcraft.git
 	branch = main
+[submodule "durante"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/durante
+	url = https://github.com/red-cup-engineering/durante.git
+	branch = main
