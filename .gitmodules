@@ -222,3 +222,7 @@
 	path = services/computer-networking-engineering-services-section/apps/signgraph
 	url = https://github.com/red-cup-engineering/signgraph.git
 	branch = main
+[submodule "signcraft-systems"]
+	path = services/computer-systems-engineering-services-section/apps/signcraft
+	url = https://github.com/red-cup-engineering/signcraft.git
+	branch = main
