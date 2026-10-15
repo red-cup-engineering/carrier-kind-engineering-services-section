@@ -150,3 +150,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/english-language-corpus
 	url = https://github.com/red-cup-engineering/english-language-corpus.git
 	branch = main
+[submodule "horsetail"]
+	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/horsetail
+	url = https://github.com/red-cup-engineering/horsetail.git
+	branch = main
