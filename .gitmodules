@@ -78,3 +78,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/corpus-normalizer
 	url = https://github.com/red-cup-engineering/corpus-normalizer.git
 	branch = main
+[submodule "abrash"]
+	path = services/computer-systems-engineering-services-section/services/computer-interface-system-services-section/services/graphical-computer-interface-system-services-sections/apps/abrash
+	url = https://github.com/red-cup-engineering/abrash.git
+	branch = main
