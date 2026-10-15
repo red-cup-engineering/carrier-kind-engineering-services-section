@@ -246,3 +246,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/flickering
 	url = https://github.com/red-cup-engineering/flickering.git
 	branch = main
+[submodule "kellys-wager"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/kellys-wager
+	url = https://github.com/red-cup-engineering/kellys-wager.git
+	branch = main
