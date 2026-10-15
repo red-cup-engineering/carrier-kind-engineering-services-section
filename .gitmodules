@@ -74,3 +74,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web
 	url = https://github.com/red-cup-engineering/weiqi-web.git
 	branch = main
+[submodule "corpus-normalizer"]
+	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/corpus-normalizer
+	url = https://github.com/red-cup-engineering/corpus-normalizer.git
+	branch = main
