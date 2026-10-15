@@ -62,3 +62,7 @@
 	path = services/computer-systems-engineering-services-section/services/personal-computer-systems-services-section/apps/assist
 	url = https://github.com/red-cup-engineering/assist.git
 	branch = main
+[submodule "obsmetrologia-theorem-audit"]
+	path = services/computer-systems-engineering-services-section/services/computer-proofing-system-services-section/apps/obsmetrologia-theorem-audit
+	url = https://github.com/red-cup-engineering/obsmetrologia-theorem-audit.git
+	branch = main
