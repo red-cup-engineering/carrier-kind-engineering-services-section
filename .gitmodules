@@ -250,3 +250,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/kellys-wager
 	url = https://github.com/red-cup-engineering/kellys-wager.git
 	branch = main
+[submodule "onestone"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/onestone
+	url = https://github.com/red-cup-engineering/onestone.git
+	branch = main
