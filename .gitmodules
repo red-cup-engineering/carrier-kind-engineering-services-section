@@ -66,3 +66,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-proofing-system-services-section/apps/obsmetrologia-theorem-audit
 	url = https://github.com/red-cup-engineering/obsmetrologia-theorem-audit.git
 	branch = main
+[submodule "weiqi-content-checker"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-content-checker
+	url = https://github.com/red-cup-engineering/weiqi-content-checker.git
+	branch = main
