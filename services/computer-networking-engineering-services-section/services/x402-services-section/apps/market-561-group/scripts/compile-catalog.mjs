@@ -116,13 +116,13 @@ export async function generateCatalogProducts({ sourceRoot, read, now, previousD
 }
 
 await runMain(async () => {
-  const { values } = parseArgs({ options: { "previous-catalog": { type: "string" }, "previous-outbox": { type: "string" }, "source-root": { type: "string" } } });
+  const { values } = parseArgs({ options: { "previous-catalog": { type: "string" }, "previous-outbox": { type: "string" }, "source-root": { type: "string" }, "build-only": { type: "boolean", default: false } } });
   const sourceRoot = values["source-root"];
   const result = await generateCatalogProducts({ sourceRoot, now: new Date().toISOString(),
     previousDeclarations: values["previous-catalog"] ? JSON.parse(await readFileText(resolve(values["previous-catalog"]))) : [],
     previousOutbox: values["previous-outbox"] ? JSON.parse(await readFileText(resolve(values["previous-outbox"]))) : [] });
   // Examples are an explicit receiver assay, not source generation.
-  await admitOfferExamples(result.declarations);
+  if (!values["build-only"]) await admitOfferExamples(result.declarations);
   for (const file of result.files) await writeFileText(new URL(`../../../${file.path}`, import.meta.url).pathname, file.text);
   const { files, declarations, ...summary } = result;
   return summary;
