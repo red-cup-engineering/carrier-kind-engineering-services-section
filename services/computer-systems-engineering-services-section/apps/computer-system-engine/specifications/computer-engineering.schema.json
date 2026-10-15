@@ -2,11 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.561.group/computer/computer-engineering.schema.json",
   "title": "561 Group Universal Computer Engineering Specification",
-  "description": "The sole semantic contract for computer data, code, networking, and systems. A representation, executable, protocol, service, UI, MCP tool, or federation adapter may specialize this contract but may not introduce another meaning for one of its terms.",
+  "description": "The index of computer data, code, networking, and systems terms. Semantic definitions retain their owning schemas and admission procedures; index validation alone does not establish complete schema-graph availability or semantic admission.",
   "type": "object",
   "required": ["version", "dataFormats", "codeMethods", "networkingProtocols", "systemArchitecture", "terms"],
   "additionalProperties": false,
   "properties": {
+    "$schema": {"const": "computer-engineering.schema.json"},
     "version": {"const": 1},
     "dataFormats": {"const": ["canonical-cbor", "ni", "thing", "relational-field", "eavt"]},
     "codeMethods": {"const": ["sen", "typed-functional-composition", "capability-effects"]},
