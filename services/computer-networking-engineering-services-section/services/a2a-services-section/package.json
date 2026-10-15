@@ -34,5 +34,8 @@
     "@red-cup-engineering/uri-services-section": "workspace:*",
     "@red-cup-engineering/signgraph": "workspace:*"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+  }
 }
