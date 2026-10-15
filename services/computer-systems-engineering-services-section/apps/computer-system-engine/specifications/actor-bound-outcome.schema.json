@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:red-cup-engineering:cse:bound-outcome",
+  "title": "Unpaid subject-bound native result body",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "request",
+    "requestNi",
+    "result"
+  ],
+  "properties": {
+    "request": {
+      "type": "string",
+      "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"
+    },
+    "requestNi": {
+      "type": "string",
+      "pattern": "^ni:///sha-256;[A-Za-z0-9_-]{43}$"
+    },
+    "result": {
+      "type": "object",
+      "required": [
+        "kind",
+        "state",
+        "cloudEventIdentity",
+        "packetDigest",
+        "requestMaterial",
+        "subjectBinding",
+        "requester",
+        "executor",
+        "hand",
+        "service",
+        "verb",
+        "obstructions"
+      ],
+      "properties": {
+        "kind": {
+          "const": "metroplat.arrival.processing-entry"
+        },
+        "state": {
+          "enum": [
+            "executing",
+            "processed",
+            "obstructed",
+            "indeterminate"
+          ]
+        },
+        "sequence": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "payment": false,
+        "service": {
+          "type": "object",
+          "required": [
+            "kind",
+            "binding",
+            "world",
+            "state",
+            "session",
+            "bearer"
+          ],
+          "properties": {
+            "kind": {
+              "const": "world-gateway"
+            }
+          }
+        },
+        "obstructions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

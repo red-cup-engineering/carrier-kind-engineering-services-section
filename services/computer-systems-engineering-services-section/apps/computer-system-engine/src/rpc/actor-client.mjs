@@ -1,3 +1,4 @@
+import {activityPubRequestIdentity} from '@red-cup-engineering/activitypub-services-section/journal-custody';
 import {extractSenActivity,projectSenActivity,senActivityObjectBytes} from '@red-cup-engineering/activitypub-services-section/sen-activity';
 import {userSenMessage} from '@red-cup-engineering/a2a-services-section/sen-part';
 import {admitNormalizedSemanticContent} from '@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime';
@@ -13,15 +14,7 @@ export function readActorMessage(activity,actor,recipient){
 export const actorMessageText=entry=>entry.kind==='feltos.actor.message'?entry.value.text:
  entry.kind==='metroplat.dispatch.result'?JSON.stringify(entry.value.result):JSON.stringify(entry.value);
 
-/** The native signed transport and inbox carrier serve human and organizational actors alike.
- * The host supplies current sender admission; neither a method address nor a UI grants a key. */
-export function createActorClient({provider,inbox,origin,admitSender}){
- if(!provider||typeof admitSender!=='function')throw new TypeError('actor client needs a provider and current sender admission');
- const publicOrigin=new URL(origin).origin;
- return Object.freeze({
-  async send({identifier,address,text,admit,requestKey,taskId,paymentPayload,reuse=false}){
-   await admitSender(identifier);
-   const {deliverActivity,resolveActivityPubRecipient}=await import('@red-cup-engineering/activitypub-services-section');
+const prepareMessage=({text,taskId,paymentPayload,subjectBinding,requestKey})=>{
    if(typeof text!=='string'||!text.trim()||Buffer.byteLength(text)>16384)throw new TypeError('message must be nonempty and at most 16384 bytes');
    let kind='feltos.actor.message',value={text};
    if(text.trimStart().startsWith('{')){
@@ -37,35 +30,105 @@ export function createActorClient({provider,inbox,origin,admitSender}){
    if(taskId!==undefined&&(typeof taskId!=='string'||!taskId))throw new TypeError('actor work taskId must be nonempty text');
    if(paymentPayload!==undefined && (kind!=='metroplat.dispatch.arrival-material'||typeof taskId!=='string'||!taskId))throw new TypeError('a signed payment needs its original actor operation and taskId');
    if(paymentPayload!==undefined)requireJsonValue(paymentPayload,'actor signed payment');
+   // Only the trusted host port supplies a subject-binding statement. The text
+   // request cannot smuggle one in beside its operation/input. Its receiver
+   // must explicitly recognize it before selecting a different principal.
+   if(subjectBinding!==undefined){
+    requireJsonValue(subjectBinding,'actor subject binding');
+    if(kind!=='metroplat.dispatch.arrival-material'||Buffer.byteLength(JSON.stringify(subjectBinding))>4096)
+     throw new TypeError('actor subject binding needs a bounded operation request');
+    if(paymentPayload!==undefined)throw new TypeError('a subject-bound world request does not carry payment');
+   }
    if(requestKey!==undefined&&(typeof requestKey!=='string'||!requestKey||Buffer.byteLength(requestKey)>4096))throw new TypeError('actor request reuse needs a bounded request key');
+   const bytes=senActivityObjectBytes({objectKind:kind,value});
+   return {bytes,taskId,paymentPayload,subjectBinding,requestKey};
+};
+const requestActivity=(origin,identifier,recipient,{bytes,taskId,paymentPayload,subjectBinding,requestKey})=>projectSenActivity({type:'Create',origin,identifier,recipient,
+ objectBytes:bytes,a2aMessage:{...userSenMessage(bytes),...(taskId===undefined?{}:{taskId}),
+ ...((paymentPayload===undefined&&requestKey===undefined&&subjectBinding===undefined)?{}:{metadata:{...(requestKey===undefined?{}:{'feltos.request.key':requestKey}),...(subjectBinding===undefined?{}:{'metroplat.subject-binding':subjectBinding}),...(paymentPayload===undefined?{}:{'x402.payment.status':'payment-submitted','x402.payment.payload':paymentPayload})}})},a2aRole:'ROLE_USER',
+ agentCard:new URL('/actors/'+encodeURIComponent(identifier)+'/agent-card.json',origin).href,eventTime:new Date().toISOString()});
+
+/** The native signed transport and inbox carrier serve human and organizational actors alike.
+ * The host supplies current sender admission; neither a method address nor a UI grants a key. */
+export function createActorClient({provider,inbox,outcomes,origin,admitSender,transport}){
+ if(!provider||typeof admitSender!=='function')throw new TypeError('actor client needs a provider and current sender admission');
+ const publicOrigin=new URL(origin).origin;
+ return Object.freeze({
+  prepare({identifier,address,...options}){
+   const activity=requestActivity(publicOrigin,identifier,address,prepareMessage(options));
+   return Object.freeze({requestNi:activityPubRequestIdentity(activity),recipient:address});
+  },
+  async recover({identifier,retention,subjectBinding}){
+   await admitSender(identifier);
+   if(typeof provider.requestFor!=='function')throw new TypeError('actor request recovery requires exact retained request custody');
+   const actor=new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href;
+   const wire=await provider.requestFor({requestNi:retention.requestNi,actor,recipient:retention.recipient});
+   await admitSender(identifier);
+   if(wire===null)return undefined;
+   const original=readActorMessage(wire,actor,retention.recipient);
+   if(original.projection.a2aMessage.metadata?.['metroplat.subject-binding']?.id!==subjectBinding)
+    throw new TypeError('retained request belongs to another admitted act');
+   return Object.freeze({id:wire.id,request:original.id,recipient:retention.recipient,requestNi:retention.requestNi});
+  },
+  async send({identifier,address,text,admit,requestKey,taskId,paymentPayload,subjectBinding,reuse=false,onRetained,retention}){
+   await admitSender(identifier);
+   const {deliverActivity,resolveActivityPubRecipient}=transport??await import('@red-cup-engineering/activitypub-services-section');
+   const material=prepareMessage({text,taskId,paymentPayload,subjectBinding,requestKey});
+   if(subjectBinding!==undefined&&(!reuse||typeof outcomes?.read!=='function'||typeof provider.requestFor!=='function'))throw new TypeError('bound requests require durable outcome observation');
    const recipient=await resolveActivityPubRecipient(provider,address);
+   const activity=requestActivity(publicOrigin,identifier,recipient.actorId,material);
+   if(retention!==undefined&&(!reuse||retention?.recipient!==address||recipient.actorId!==retention.recipient
+     ||activityPubRequestIdentity(activity)!==retention.requestNi))
+    throw new TypeError('actor request discovery or material differs from its prepared retention identity');
    await admit?.();
    await admitSender(identifier);
-   const bytes=senActivityObjectBytes({objectKind:kind,value});
-   const activity=projectSenActivity({type:'Create',origin:publicOrigin,identifier,recipient:recipient.actorId,
-    objectBytes:bytes,a2aMessage:{...userSenMessage(bytes),...(taskId===undefined?{}:{taskId}),
-      ...((paymentPayload===undefined&&requestKey===undefined)?{}:{metadata:{...(requestKey===undefined?{}:{'feltos.request.key':requestKey}),...(paymentPayload===undefined?{}:{'x402.payment.status':'payment-submitted','x402.payment.payload':paymentPayload})}})},a2aRole:'ROLE_USER',
-    agentCard:new URL('/actors/'+encodeURIComponent(identifier)+'/agent-card.json',publicOrigin).href,eventTime:new Date().toISOString()});
    if(reuse && typeof provider.retainRequest !== 'function')throw new TypeError('reusable actor work requires durable request custody');
    if(reuse && typeof inbox?.replyFor !== 'function')throw new TypeError('reusable actor work requires correlated reply custody');
-   const sent=reuse?(await provider.retainRequest(activity)).held:activity;
+   const sent=reuse?(await provider.retainRequest(activity,retention===undefined?undefined:{expectedRequestNi:retention.requestNi})).held:activity;
    const requestId=readActorMessage(sent,new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href,recipient.actorId).id;
-   const reply=reuse?await inbox.replyFor({identifier,request:requestId,sender:recipient.actorId}):null;
-   await admit?.();await admitSender(identifier);
+   const submission=Object.freeze({id:sent.id,request:requestId,recipient:recipient.actorId,...(subjectBinding===undefined?{}:{requestNi:activityPubRequestIdentity(sent)})});
+   if(onRetained!==undefined){
+    if(!reuse||typeof onRetained!=='function')throw new TypeError('retained request observation needs durable request custody');
+    const observed=onRetained(submission);if(observed?.then!==undefined)throw new TypeError('retained request observation must be synchronous');
+   }
+   // Publish custody before any further asynchronous read/admission. A delayed
+   // reply lookup or sender check cannot hide a retained request from its owner.
+   const received=subjectBinding===undefined?undefined:outcomes?.read({request:requestId,sender:recipient.actorId,recipient:new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href,original:sent});
+   const reply=reuse&&subjectBinding===undefined?await inbox.replyFor({identifier,request:requestId,sender:recipient.actorId}):null;
+   try{
+    await admitSender(identifier);
+    await admit?.();
+   }catch(error){if(reuse)throw Object.assign(error,{submission});throw error;}
+   if(received!==undefined)return {...submission,result:received.result};
    if(reply){
     const outcome=readActorMessage(reply,recipient.actorId,new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href);
-    if(outcome.kind==='metroplat.dispatch.result' && outcome.value.request===requestId && outcome.value.result?.code===0)
-     return {id:sent.id,request:requestId,recipient:recipient.actorId,result:outcome.value.result};
+    if(outcome.kind==='metroplat.dispatch.result' && outcome.value.request===requestId && (outcome.value.result?.code===0||subjectBinding!==undefined))
+     return {...submission,result:outcome.value.result};
    }
-   await deliverActivity(provider,{identifier,recipient:recipient.actorId,inbox:recipient.inboxId,activity:sent});
-   return {id:sent.id,request:readActorMessage(sent,new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href,recipient.actorId).id,recipient:recipient.actorId};
+   try{await deliverActivity(provider,{identifier,recipient:recipient.actorId,inbox:recipient.inboxId,activity:sent});}
+   catch(error){
+    // Retained custody exists before transport. A timeout must not hide its
+    // exact observation handle or imply permission to repeat an uncertain act.
+    if(reuse)throw Object.assign(new Error('actor request retained; delivery outcome is uncertain',{cause:error}),{code:'ACTOR_DELIVERY_UNCERTAIN',submission});
+    throw error;
+   }
+   return submission;
   },
-  async result({identifier,submission}){
+  async result({identifier,submission,subjectBinding}){
    await admitSender(identifier);
    parseNiUri({uri:submission.request});
    if(typeof submission.recipient!=='string'||!/^https?:\/\//u.test(submission.recipient))throw new TypeError('actor result needs its exact HTTP(S) responder');
    if(typeof inbox?.replyFor!=='function')throw new TypeError('actor results need correlated private custody');
    const recipient=new URL('/actors/'+encodeURIComponent(identifier),publicOrigin).href;
+   if(subjectBinding!==undefined){
+    if(typeof outcomes?.read!=='function'||typeof provider.requestFor!=='function'||typeof submission.requestNi!=='string')throw new TypeError('bound outcome observation requires durable native request and outcome custody');
+    const original=await provider.requestFor({requestNi:submission.requestNi,actor:recipient,recipient:submission.recipient});
+    await admitSender(identifier);
+    if(original===null)throw new TypeError('bound outcome original request is not held');
+    if(readActorMessage(original,recipient,submission.recipient).projection.a2aMessage.metadata?.['metroplat.subject-binding']?.id!==subjectBinding)throw new TypeError('bound outcome observation names another admitted statement');
+    const held=outcomes.read({request:submission.request,sender:submission.recipient,recipient,original});
+    return held;
+   }
    const reply=await inbox.replyFor({identifier,request:submission.request,sender:submission.recipient});
    await admitSender(identifier);
    if(!reply)return undefined;

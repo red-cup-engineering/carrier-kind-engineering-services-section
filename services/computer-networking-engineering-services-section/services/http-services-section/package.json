@@ -21,7 +21,8 @@
   "files": [
     "src",
     "README.md",
-    "scripts"
+    "scripts",
+    "test/node-upgrade-match.test.mjs"
   ],
   "exports": {
     "./fetch-without-redirects": "./src/fetch-without-redirects.mjs",
@@ -88,5 +89,8 @@
   },
   "devDependencies": {
     "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
-  }
+  },
+  "receivingTests": [
+    "test/node-upgrade-match.test.mjs"
+  ]
 }

@@ -24,7 +24,9 @@
     "test/compute-observation.test.mjs",
     "test/fixtures/compute-policy.json",
     "test/support/deny-external-ports.mjs",
-    "test/compute-observation-concurrency.test.mjs"
+    "test/compute-observation-concurrency.test.mjs",
+    "test/capability-lifecycle.test.mjs",
+    "specifications/conditional-capability-lifecycle.md"
   ],
   "scripts": {
     "test": "node --test test/*.test.mjs",
@@ -56,7 +58,8 @@
     "test/cloud-resource-claims.test.mjs",
     "test/cloud-resource-receiving.test.mjs",
     "test/compute-observation.test.mjs",
-    "test/compute-observation-concurrency.test.mjs"
+    "test/compute-observation-concurrency.test.mjs",
+    "test/capability-lifecycle.test.mjs"
   ],
   "receivingFixtures": [
     "scripts/oci-always-free-admission.mjs",

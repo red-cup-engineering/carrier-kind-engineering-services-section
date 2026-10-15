@@ -2,6 +2,66 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createCapabilityPlatform } from "../src/capability-lifecycle.mjs";
 
+test("disabled providers are absent, do not run or close, and do not degrade readiness", async () => {
+  let checked = 0, started = 0, closed = 0;
+  const platform = createCapabilityPlatform({ providers: [
+    { name: "runtime", start: () => ({ clock: false }) },
+    { name: "clock", optional: true, enabled: caps => { checked++; assert.ok(Object.isFrozen(caps)); return caps.runtime.clock; }, start: () => { started++; }, close: () => { closed++; } },
+    { name: "dependent", enabled: caps => Object.hasOwn(caps, "clock"), start: () => { started++; }, close: () => { closed++; } },
+  ] });
+  const caps = await platform.start();
+  assert.deepEqual(Object.keys(caps), ["runtime"]); assert.equal(platform.state(), "ready");
+  for (const name of ["clock", "dependent"]) { assert.equal(platform.providerStates()[name].state, "disabled"); assert.equal(platform.providerStates()[name].attempts, 0); }
+  await platform.start(); await platform.close(); await platform.close();
+  assert.equal(checked, 1); assert.equal(started, 0); assert.equal(closed, 0);
+});
+
+test("enabled providers retain established dependency ordering and reverse cleanup", async () => {
+  const events = [];
+  const platform = createCapabilityPlatform({ providers: [
+    { name: "runtime", start: () => { events.push("runtime:start"); return { clock: true }; }, close: () => events.push("runtime:close") },
+    { name: "clock", enabled: caps => { events.push("clock:enabled"); return caps.runtime.clock; }, start: () => { events.push("clock:start"); return { tick: true }; }, close: () => events.push("clock:close") },
+  ] });
+  assert.equal((await platform.start()).clock.tick, true); await platform.close();
+  assert.deepEqual(events, ["runtime:start", "clock:enabled", "clock:start", "clock:close", "runtime:close"]);
+});
+
+test("invalid or throwing predicates fail startup and roll back existing capabilities", async () => {
+  for (const enabled of [false, () => undefined, () => 1, () => Promise.resolve(false),
+    async () => { throw new Error("rejected async predicate"); },
+    () => new Promise((resolve, reject) => setTimeout(() => reject(new Error("delayed rejection")), 5)),
+    () => { throw new Error("predicate refused"); }]) {
+    let closed = 0, started = 0;
+    const platform = createCapabilityPlatform({ providers: [
+      { name: "existing", start: () => ({}), close: async () => { await new Promise(resolve => setTimeout(resolve, 10)); closed++; } },
+      { name: "conditional", optional: true, enabled, start: () => { started++; } },
+    ] });
+    await assert.rejects(platform.start(), /enabled must|predicate refused/);
+    assert.equal(platform.state(), "failed"); assert.deepEqual(platform.capabilities(), {}); assert.equal(closed, 1); assert.equal(started, 0);
+    await platform.close(); assert.equal(closed, 1);
+  }
+});
+
+test("a required dependent may refuse an absent disabled capability and roll back", async () => {
+  let closed = 0, disabledClosed = 0;
+  const platform = createCapabilityPlatform({ providers: [
+    { name: "existing", start: () => ({}), close: () => { closed++; } },
+    { name: "disabled", enabled: () => false, start: () => assert.fail("disabled start"), close: () => { disabledClosed++; } },
+    { name: "dependent", start: caps => { assert.equal(Object.hasOwn(caps, "disabled"), false); throw new Error("dependency absent"); } },
+  ] });
+  await assert.rejects(platform.start(), /dependency absent/); assert.equal(closed, 1); assert.equal(disabledClosed, 0);
+  await platform.close(); assert.equal(closed, 1);
+});
+
+test("an enabled optional retry does not reevaluate its predicate", async () => {
+  let checks = 0, attempts = 0, closed = 0;
+  const platform = createCapabilityPlatform({ providers: [{ name: "retry", optional: true, retryMs: 1,
+    enabled: () => { checks++; return true; }, start: () => { if (++attempts === 1) throw new Error("retry once"); return {}; }, close: () => { closed++; },
+  }] });
+  await platform.start(); await until(() => platform.state() === "ready");
+  assert.equal(checks, 1); assert.equal(attempts, 2); await platform.close(); assert.equal(closed, 1);
+});
+
 const until = async (predicate, milliseconds = 1_000) => {
   const expires = Date.now() + milliseconds;
   while (!predicate()) {

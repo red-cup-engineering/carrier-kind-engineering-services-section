@@ -29,7 +29,9 @@ function deadline(promise, milliseconds, message) {
 /**
  * Start resolves once every required provider has started. Optional providers
  * continue under supervision in the background and keep the platform degraded
- * until they have started.
+ * until they have started. An enabled(capabilities) predicate is evaluated once,
+ * synchronously, in startup order. False leaves the provider disabled and absent;
+ * a thrown error or non-boolean result fails startup and releases prior providers.
  */
 export function createCapabilityPlatform(specification = {}) {
   const providers = Object.freeze([...(specification.providers ?? [])]);
@@ -89,7 +91,7 @@ export function createCapabilityPlatform(specification = {}) {
     }
   };
   const settledState = () => providers.some((provider) => provider.optional === true
-    && records.get(provider.name).state !== "started") ? "degraded" : "ready";
+    && !["started", "disabled"].includes(records.get(provider.name).state)) ? "degraded" : "ready";
 
   async function stopProvider(provider, { cleanup = false } = {}) {
     const record = records.get(provider.name);
@@ -199,6 +201,20 @@ export function createCapabilityPlatform(specification = {}) {
       try {
         for (const provider of providers) {
           if (closed) return snapshot();
+          if (provider.enabled !== undefined) {
+            if (typeof provider.enabled !== "function") throw new TypeError(`${provider.name} enabled must be a predicate`);
+            const enabled = provider.enabled(snapshot());
+            if (typeof enabled !== "boolean") {
+              // Refuse asynchronous predicates without leaving a rejected promise
+              // able to interrupt the already-started providers' cleanup.
+              void Promise.resolve(enabled).catch(() => undefined);
+              throw new TypeError(`${provider.name} enabled must return a boolean synchronously`);
+            }
+            if (!enabled) {
+              records.get(provider.name).state = "disabled";
+              continue;
+            }
+          }
           if (provider.optional === true) {
             supervise(provider);
             continue;

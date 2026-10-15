@@ -58,12 +58,22 @@
     "./rpc/actor-client": "./src/rpc/actor-client.mjs",
     "./rpc/http-observation-operations": "./src/rpc/http-observation-operations.mjs",
     "./rpc/node-job-operations": "./src/rpc/node-job-operations.mjs",
-    "./rpc/operation-declaration": "./src/rpc/operation-declaration.mjs"
+    "./rpc/operation-declaration": "./src/rpc/operation-declaration.mjs",
+    "./rpc/actor-outcomes": "./src/rpc/actor-outcomes.mjs"
   },
   "files": [
     "src",
     "specifications",
-    "scripts"
+    "scripts",
+    "test/actor-result-projection.test.mjs",
+    "test/actor-client-receipt.test.mjs",
+    "test/actor-subject-state.test.mjs",
+    "test/actor-outcomes.test.mjs",
+    "test/actor-outcomes.fixture.mjs",
+    "test/actor-outcomes.concurrent-child.mjs",
+    "test/rpc-input-retention.test.mjs",
+    "test/rpc-locus-attenuation.test.mjs",
+    "test/rpc/coordination-lifetime.test.mjs"
   ],
   "bin": {
     "serve-verbs-over-stdio": "./scripts/serve-verbs-over-stdio.mjs",
@@ -107,5 +117,18 @@
     "@red-cup-engineering/a2a-services-section": "workspace:*",
     "@red-cup-engineering/activitypub-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
-  }
+  },
+  "receivingTests": [
+    "test/actor-result-projection.test.mjs",
+    "test/actor-client-receipt.test.mjs",
+    "test/actor-subject-state.test.mjs",
+    "test/actor-outcomes.test.mjs",
+    "test/rpc-input-retention.test.mjs",
+    "test/rpc-locus-attenuation.test.mjs",
+    "test/rpc/coordination-lifetime.test.mjs"
+  ],
+  "receivingFixtures": [
+    "test/actor-outcomes.fixture.mjs",
+    "test/actor-outcomes.concurrent-child.mjs"
+  ]
 }
