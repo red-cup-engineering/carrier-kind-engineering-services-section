@@ -170,3 +170,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/tokipona-language-corpus
 	url = https://github.com/red-cup-engineering/tokipona-language-corpus.git
 	branch = main
+[submodule "agentic-orchestration-platform"]
+	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/agentic-orchestration-platform
+	url = https://github.com/red-cup-engineering/agentic-orchestration-platform.git
+	branch = main
