@@ -214,3 +214,7 @@
 	path = services/computer-systems-engineering-services-section/services/personal-computer-systems-services-section/services/personal-intelligence-systems-services-section/services/personal-intelligence-runtime-service
 	url = https://github.com/red-cup-engineering/personal-intelligence-systems-services-section.git
 	branch = main
+[submodule "obsmetrologia-change-bundle-qualification"]
+	path = services/computer-systems-engineering-services-section/services/computer-proofing-system-services-section/apps/obsmetrologia-change-bundle-qualification
+	url = https://github.com/red-cup-engineering/obsmetrologia-change-bundle-qualification.git
+	branch = main
