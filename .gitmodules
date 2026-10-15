@@ -234,3 +234,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/cowrie-casino
 	url = https://github.com/red-cup-engineering/cowrie-casino.git
 	branch = main
+[submodule "crucible"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/crucible
+	url = https://github.com/red-cup-engineering/crucible.git
+	branch = main
