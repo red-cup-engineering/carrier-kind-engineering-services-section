@@ -190,3 +190,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-operating-system-services-section/apps/computer-deployment-engine
 	url = https://github.com/red-cup-engineering/computer-deployment-engine.git
 	branch = main
+[submodule "computer-system-engine"]
+	path = services/computer-systems-engineering-services-section/apps/computer-system-engine
+	url = https://github.com/red-cup-engineering/computer-system-engine.git
+	branch = main

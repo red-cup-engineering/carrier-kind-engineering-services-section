@@ -1,8 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.561.group/computer/ni.schema.json",
-  "title": "RFC 6920 NI Identity",
-  "description": "The sole content identity representation: an RFC 6920 ni URI over canonical CBOR bytes. Entity addresses, content equality, claims, and evidence remain separate relations.",
-  "type": "string",
-  "pattern": "^ni:///sha-256;[A-Za-z0-9_-]+$"
-}
