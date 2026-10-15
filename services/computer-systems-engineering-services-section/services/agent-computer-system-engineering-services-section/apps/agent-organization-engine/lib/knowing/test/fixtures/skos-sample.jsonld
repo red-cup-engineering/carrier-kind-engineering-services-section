@@ -1,0 +1,54 @@
+{
+ "schema": "computer-glossary-skos.v2",
+ "audience": "public",
+ "@context": [
+  "https://schema.org",
+  {
+   "skos": "http://www.w3.org/2004/02/skos/core#",
+   "dct": "http://purl.org/dc/terms/",
+   "term": "https://561.group/ns/predicate/"
+  }
+ ],
+ "@graph": [
+  {
+   "@id": "https://561.group/knowledge/public-services-section/personal-services-section/emsenn-services-section",
+   "@type": [
+    "DefinedTermSet",
+    "skos:ConceptScheme"
+   ],
+   "name": "Emsenn glossary",
+   "skos:prefLabel": "Emsenn glossary",
+   "skos:notation": "services/public-services-section/services/personal-services-section/services/emsenn-services-section"
+  },
+  {
+   "@id": "https://561.group/knowledge/science-services-section/social-science-services-section/17th-century-ce",
+   "@type": [
+    "DefinedTerm",
+    "skos:Concept"
+   ],
+   "name": "17th Century CE",
+   "skos:prefLabel": "17th Century CE",
+   "skos:altLabel": "17th century",
+   "description": "The ***17th Century CE*** is the [century](../../../../../information-science-services-section/services/knowledge-services-section/content/text/glossary/terms/century.md) between [1600ce](1600ce.md) and [1699ce](1699ce.md).",
+   "skos:definition": "The ***17th Century CE*** is the [century](../../../../../information-science-services-section/services/knowledge-services-section/content/text/glossary/terms/century.md) between [1600ce](1600ce.md) and [1699ce](1699ce.md).",
+   "termCode": "17th-century-ce",
+   "skos:notation": "17th-century-ce",
+   "inDefinedTermSet": {
+    "@id": "https://561.group/knowledge/science-services-section/social-science-services-section"
+   },
+   "skos:inScheme": {
+    "@id": "https://561.group/knowledge/science-services-section/social-science-services-section"
+   }
+  },
+  {
+   "@id": "https://561.group/knowledge/science-services-section/social-science-services-section",
+   "@type": [
+    "DefinedTermSet",
+    "skos:ConceptScheme"
+   ],
+   "name": "Social science glossary",
+   "skos:prefLabel": "Social science glossary",
+   "skos:notation": "services/science-services-section/services/social-science-services-section"
+  }
+ ]
+}

@@ -47,6 +47,8 @@
     "./learning/consolidate": "./src/learning/consolidate.mjs",
     "./learning/fiber": "./src/learning/fiber.mjs",
     "./learning/vocabulary": "./src/learning/vocabulary.mjs",
-    "./claims": "./src/claims.mjs"
+    "./claims": "./src/claims.mjs",
+    "./sparql/ontology": "./src/writing/sparql/ontology.mjs",
+    "./sparql/endpoint": "./src/writing/sparql/endpoint.mjs"
   }
 }
