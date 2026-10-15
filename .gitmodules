@@ -202,3 +202,7 @@
 	path = services/computer-systems-engineering-services-section/services/personal-computer-systems-services-section/services/domestic-computer-systems-services-section/services/feng-shui-computer-systems-services-section/apps/feng-shui-app
 	url = https://github.com/red-cup-engineering/feng-shui-app.git
 	branch = main
+[submodule "signgraph"]
+	path = lib/signstuff/signgraph
+	url = https://github.com/red-cup-engineering/signgraph.git
+	branch = main
