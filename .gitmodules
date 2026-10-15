@@ -142,3 +142,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/relation-language-corpus
 	url = https://github.com/red-cup-engineering/relation-language-corpus.git
 	branch = main
+[submodule "arabic-language-corpus"]
+	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/arabic-language-corpus
+	url = https://github.com/red-cup-engineering/arabic-language-corpus.git
+	branch = main
