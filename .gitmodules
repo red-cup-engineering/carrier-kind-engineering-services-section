@@ -194,3 +194,7 @@
 	path = services/computer-systems-engineering-services-section/apps/computer-system-engine
 	url = https://github.com/red-cup-engineering/computer-system-engine.git
 	branch = main
+[submodule "computer-system-platform"]
+	path = services/computer-systems-engineering-services-section/apps/computer-system-platform
+	url = https://github.com/red-cup-engineering/computer-system-platform.git
+	branch = main
