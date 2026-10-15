@@ -254,3 +254,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/onestone
 	url = https://github.com/red-cup-engineering/onestone.git
 	branch = main
+[submodule "parlor"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/parlor
+	url = https://github.com/red-cup-engineering/parlor.git
+	branch = main
