@@ -57,7 +57,8 @@
     "./rpc/actor-processing": "./src/rpc/actor-processing.mjs",
     "./rpc/actor-client": "./src/rpc/actor-client.mjs",
     "./rpc/http-observation-operations": "./src/rpc/http-observation-operations.mjs",
-    "./rpc/node-job-operations": "./src/rpc/node-job-operations.mjs"
+    "./rpc/node-job-operations": "./src/rpc/node-job-operations.mjs",
+    "./rpc/operation-declaration": "./src/rpc/operation-declaration.mjs"
   },
   "files": [
     "src",
