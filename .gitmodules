@@ -118,3 +118,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/apps/static-site-publisher
 	url = https://github.com/red-cup-engineering/static-site-publisher.git
 	branch = main
+[submodule "lakotaean-organization-application"]
+	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/lakotaean-computer-application-engineering-services-section/apps/lakotaean-organization-application
+	url = https://github.com/red-cup-engineering/lakotaean-organization-application.git
+	branch = main
