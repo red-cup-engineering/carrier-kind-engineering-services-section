@@ -126,3 +126,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/apps/multi-agent-resource-sharing-host
 	url = https://github.com/red-cup-engineering/multi-agent-resource-sharing-host.git
 	branch = main
+[submodule "metroplat-operations-console"]
+	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat-operations-console
+	url = https://github.com/red-cup-engineering/metroplat-operations-console.git
+	branch = main
