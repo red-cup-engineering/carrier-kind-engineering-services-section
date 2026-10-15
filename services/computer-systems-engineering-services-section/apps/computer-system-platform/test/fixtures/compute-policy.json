@@ -1,0 +1,13 @@
+{
+  "recordKind": "compute-resource-observation",
+  "resourceRecordType": "cloud-resource",
+  "witnessType": "cloud-observation",
+  "event": "cloud-resource-observed",
+  "predicationsKind": "561-group.cloud-resource-predications",
+  "currentKind": "561-group.cloud-resource-current",
+  "witnessKind": "cloud-compute-native-observation",
+  "objectKind": "561-group.compute-resource-observation.v1",
+  "valueType": "GroupComputeResourceObservation",
+  "recordFile": "records/compute-resources.json",
+  "freshnessMs": 86400000
+}
