@@ -6,7 +6,9 @@
     "test/delivery-queue-responsiveness.test.mjs",
     "test/journal-custody.test.mjs",
     "test/flatfile-queue-recovery-custody.test.mjs",
-    "test/follower-source-order.test.mjs"
+    "test/follower-source-order.test.mjs",
+    "test/activitypub-correlation.runtime.test.mjs",
+    "test/activitypub-media-contract.test.mjs"
   ],
   "description": "The Union's public transport: ActivityPub federation carrying CloudEvents whose data is an A2A message with one RMN part.",
   "files": [
@@ -14,7 +16,15 @@
     "scripts/seat-activitypub-face.sh",
     "scripts/materialize-sen-outbox-activity.mjs",
     "src",
-    "scripts/serve-activitypub-network.mjs"
+    "scripts/serve-activitypub-network.mjs",
+    "test/activitypub-correlation.runtime.test.mjs",
+    "test/activitypub-media-contract.test.mjs",
+    "test/activitypub-correlation.fixture.mjs",
+    "test/activitypub-correlation.fault-child.mjs",
+    "test/delivery-queue-responsiveness.test.mjs",
+    "test/journal-custody.test.mjs",
+    "test/flatfile-queue-recovery-custody.test.mjs",
+    "test/follower-source-order.test.mjs"
   ],
   "exports": {
     ".": "./src/provider.mjs",
@@ -76,5 +86,9 @@
   },
   "devDependencies": {
     "@red-cup-engineering/signgraph": "workspace:*"
-  }
+  },
+  "receivingFixtures": [
+    "test/activitypub-correlation.fixture.mjs",
+    "test/activitypub-correlation.fault-child.mjs"
+  ]
 }
