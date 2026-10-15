@@ -1,9 +1,10 @@
+import { operationDescriptor } from "@red-cup-engineering/computer-system-engine/rpc/operation";
 import { skillResultCarrier } from "@red-cup-engineering/animating/becoming/doing/working/governing/carriers";
 import { skillError } from "@red-cup-engineering/animating/becoming/doing/working/governing/skill";
 import { skillResultRouting } from "../work.mjs";
 import { gitSourceClosureSchema, gitSourceResultSchema } from "@red-cup-engineering/git-services-section/git-command-codec";
 
-import { schemaFrom } from "@red-cup-engineering/json-schema-services-section/contracts";
+import { schemaFrom, schemaFromGraph } from "@red-cup-engineering/json-schema-services-section/contracts";
 import { validateJsonSchemaDocument } from "@red-cup-engineering/json-schema-services-section/validation";
 import { canonicalJson, canonicalizeJson, JSON_RESOURCE_ENVELOPE, parseJsonValue, requireJsonValue, isJsonRecord, jsonValuesOfText } from "@red-cup-engineering/json-services-section";
 import { canonicalCarrier, semanticId } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
@@ -207,6 +208,8 @@ export const structuredWorkIntentSchema = {
             description: "An obligation-scoped model and reasoning effort requirement. It selects any currently admitted qualified session matching the pair; it never pins a session.",
           },
           deterministicExecution: {
+            oneOf: [
+              {
             description: "An admitted exact operation binding. Its request is validated by the public JavascriptNodeCommandExecutionRequest@1 admission contract and its acceptance is validated by the shared agent-work executor.",
             type: "object",
             required: ["operation", "request", "acceptance"],
@@ -225,6 +228,21 @@ export const structuredWorkIntentSchema = {
               },
             },
             additionalProperties: false,
+          },
+              {
+                type: "object", additionalProperties: false,
+                required: ["kind", "operation", "signature", "procedure", "request", "acceptance"],
+                properties: {
+                  kind: { const: "typed-operation" },
+                  operation: { type: "string", pattern: "^ni:///sha-256;[A-Za-z0-9_-]{43}$" },
+                  signature: { type: "string", pattern: "^ni:///sha-256;[A-Za-z0-9_-]{43}$" },
+                  procedure: { type: "string", pattern: "^ni:///sha-256;[A-Za-z0-9_-]{43}$" },
+                  request: {},
+                  acceptance: { type: "object", additionalProperties: false, required: ["kind", "schema"],
+                    properties: { kind: { const: "result-schema" }, schema: { type: "object" } } },
+                },
+              },
+            ],
           },
           returns: {
             type: "object",
@@ -751,9 +769,74 @@ export const agencyWorkAssignmentAdmissionContract = schemaFrom({
   },
 });
 
+/** The canonical method content is a version, not a new procedure registry. */
+export function workProcedureIdentity(allocation) {
+  if (typeof allocation?.skill !== "string" || !allocation.skill || typeof allocation.method !== "string" || !allocation.method
+    || allocation.closureKind !== "procedure" || !Array.isArray(allocation.requiresCapabilities)
+    || !allocation.requiresCapabilities.every(value => typeof value === "string" && value.length > 0))
+    throw new TypeError("typed procedure requires its complete canonical allocation method");
+  return semanticId({ skill: allocation.skill, closureKind: allocation.closureKind,
+    method: allocation.method, requiresCapabilities: allocation.requiresCapabilities });
+}
+
+/** Preserve the owning RPC schema graph and addressed implementation in one signature. */
+export function typedWorkOperationSignature(operation) {
+  const descriptor = operationDescriptor(operation);
+  if (canonicalJson(descriptor) !== canonicalJson(canonicalCarrier(descriptor)))
+    throw new TypeError("typed operation signature is not stable through SCA transport");
+  return semanticId(descriptor);
+}
+
+/** A reusable deterministic leaf is an admitted pure addressed operation. Authority is still
+ * checked by the existing provider/dispatch path; this function grants no capabilities. */
+export function admitTypedWorkOperation(binding, operation, allocation) {
+  validateDeterministicExecution(binding);
+  if (binding.kind !== "typed-operation") throw new TypeError("typed operation binding required");
+  if (operation?.ref !== binding.operation || typedWorkOperationSignature(operation) !== binding.signature)
+    throw new TypeError("typed operation signature changed");
+  if (!["jsnode", "sen"].includes(operation.body?.kind)) throw new TypeError("typed operation requires an addressed implementation");
+  const effects = operation.effects;
+  if (effects?.class !== "pure" || effects.replay !== "safe" || effects.coordination !== "coordination-free" || effects.deterministic !== true)
+    throw new TypeError("typed operation requires a deterministic pure safe operation");
+  if (allocation.closureKind !== "procedure" || workProcedureIdentity(allocation) !== binding.procedure)
+    throw new TypeError("typed operation procedure changed");
+  if (operation.domain === undefined || operation.codomain === undefined) throw new TypeError("typed operation requires domain and codomain");
+  const domain = operationDescriptor(operation).domain;
+  schemaFromGraph({ root: domain.id, schemas: [domain, ...domain.references].map(({ id, schema }) => ({ id, schema })) })
+    .assert(binding.request, "typed work operation input");
+  return operation;
+}
+
+/** Output type and work-specific acceptance are separate obligations. Neither discharges work. */
+export function acceptTypedWorkOperationResult(binding, operation, value) {
+  const codomain = operationDescriptor(operation).codomain;
+  schemaFromGraph({ root: codomain.id, schemas: [codomain, ...codomain.references].map(({ id, schema }) => ({ id, schema })) })
+    .assert(value, "typed work operation output");
+  const schema = binding.acceptance.schema;
+  const id = semanticId(schema);
+  return schemaFromGraph({ root: id, schemas: [{ id, schema: { ...schema, $id: id } }] }).validate(value);
+}
+
 /** Validates an admitted command binding before an effect can occur. */
 export function validateDeterministicExecution(value) {
   if (typeof value?.operation !== "string" || value.operation.length === 0) throw new TypeError("deterministic execution requires an operation");
+  if (value.kind === "typed-operation") {
+    const keys = Object.keys(value).sort().join(",");
+    if (keys !== "acceptance,kind,operation,procedure,request,signature"
+      || ![value.operation, value.procedure, value.signature].every(id => typeof id === "string" && /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/.test(id)))
+      throw new TypeError("typed operation requires exact operation, procedure and signature identities");
+    requireJsonValue(value.request);
+    if (value.acceptance?.kind !== "result-schema" || Object.keys(value.acceptance).sort().join(",") !== "kind,schema")
+      throw new TypeError("typed operation requires a result schema");
+    const schema = admitNativeResultCodomain(value.acceptance.schema), id = semanticId(schema);
+    schemaFromGraph({ root: id, schemas: [{ id, schema: { ...schema, $id: id } }] });
+    const freeze = item => {
+      if (item !== null && typeof item === "object") { Object.values(item).forEach(freeze); Object.freeze(item); }
+      return item;
+    };
+    return freeze(canonicalizeJson(value, JSON_RESOURCE_ENVELOPE).value);
+  }
+  if (value.kind !== undefined) throw new TypeError("unsupported deterministic execution kind");
   admitJavascriptNodeCommandExecutionRequest(value.request);
   const gate = value.acceptance;
   const keys = gate && typeof gate === "object" ? Object.keys(gate).sort().join(",") : "";
