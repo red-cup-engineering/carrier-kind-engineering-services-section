@@ -182,3 +182,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-systems-publishing-engineering-services-section/apps/news-property
 	url = https://github.com/red-cup-engineering/news-property.git
 	branch = main
+[submodule "watershed-simulation-engine"]
+	path = services/computer-systems-engineering-services-section/services/computer-ecological-systems-engineering-services-section/apps/watershed-simulation-engine
+	url = https://github.com/red-cup-engineering/watershed-simulation-engine.git
+	branch = main
