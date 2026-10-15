@@ -21,7 +21,10 @@ The Union Alpha deployment uses its own facilitator and EIP-3009 asset; no hoste
 
 There is one package, `@red-cup-engineering/x402-services-section`, and one payment-boundary implementation. Its distinct operations are modules, not separately published services:
 
-- `./market` serves declared offers; `./market-561-group` is the sole deployment configuration and catalog.
+- `./market` is the reusable seller boundary, not a merchant deployment. The
+  canonical 561 Group seller and `data/catalog.json` source now belong to
+  `causeway-services/market.561.group`; the old `./market-561-group`
+  configuration is a legacy carrier awaiting independently received retirement.
 - `./market-observation/*` reads settlement facts; `./settlement-derivation/*` corroborates seller settlements.
 - `./hbd/*` realizes the HBD scheme; `./hive/exit-tightness` exposes the one Hive product adapter.
 - `./x402-settlement-evidence` retains facilitator observations bound to the signed payment; `./boundary-reference/*` observes a public boundary.
@@ -47,8 +50,17 @@ This boundary does not claim crash-exactly-once production.
 Founder, 2026-09-11: "accepting payment for a compute" is one upstream capability, so it is realized once.
 An offer declaration (`./offer`, `schemas/offer.schema.json`) MUST name the typed operation it sells by its `compute` binding (package, export, argument projection) and MAY name its admission by a `validate` binding and its scientific standing by `evidence`; `declareCatalog` admits the set one market serves and refuses a route or gateway/operation declared twice.
 `./compute-binding` resolves a binding by import.
-The market engine, `./market`, serves a whole catalog from one origin; `apps/market-561-group` is the one deployment, market.
-561.group, and `data/market-561-group/records/catalog.json` is the one place an offer of the 561 Group is declared.
+The market engine, `./market`, serves one admitted catalog from its customer's origin.
+Causeway's `market.561.group` repository owns the current declarations at
+`data/catalog.json`, compiled offer identities and public release. Engineering's
+`apps/market-561-group` and the older
+`data/market-561-group/records/catalog.json` are historical Node carrier/migration
+sources, **not** a second writable merchant, publication registry or independent
+seller. Preserve them only until actual source-identity parity, verified TLS Node
+routing, paid receiving, settlement, customer acceptance and rollback are received.
+Do not promote a source edit or an unsigned 402 challenge into a cutover claim.
+The canonical seller's current procedure and receiving commands are maintained
+in [Causeway's market repository](https://github.com/causeway-services/market.561.group).
 
 A seller MUST NOT carry a transport, a settlement witness, or a facilitator selection of its own: `x402SettlementEvidence` and `x402PaymentIdentity` (the root export) and `selectFacilitatorClient` (`./cdp-facilitator`) are the one owner of each.
 The per-gateway copies in paid-ephemeris-gateway, paid-pacing-intelligence-gateway, paid-value-chain-gateway, and paid-orphan-patch-triage-gateway, the second seller engine paid-measure-endpoint-service, and the one-gateway engine x402-offer-seller-service were deleted on 2026-09-11; the canonical capability registry records each supersession.

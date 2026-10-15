@@ -17,8 +17,10 @@ import { createHistory, restoreHistory, observeHistory, materializeHistory } fro
 import { canonicalCarrier, semanticId } from '@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address';
 import { dispatchInferenceAsConfiguredCustomer, INFERENCE_WORK_CUSTOMER } from '@red-cup-engineering/computer-inference-engine/dispatch/inference-dispatch';
 import { fabricationOperations } from '@red-cup-engineering/computer-code-development-engine/fabrication/operations';
+import { prepareSourceDeliverySync } from '@red-cup-engineering/computer-code-development-engine/git/source-delivery';
 import { captureSoftwareChangeSource, projectFabricatedSoftwareChanges, induceVerifiedSoftwareMissionProposal } from './agent-tools.mjs';
 import { validateAcceptanceCapsule, materializeAcceptanceCapsule, loadAcceptanceCapsule } from './acceptance-capsule.mjs';
+import { constructionReviewRequest, admitConstructionReview } from './construction-admission.mjs';
 
 export const ACTOR = 'urn:aoe:software-mission';
 export const DEVELOPMENT_STAGES = Object.freeze(engineeringArtifactSchema.properties.role.enum);
@@ -40,6 +42,20 @@ function reviseFabrication(journal, source, specification, phase, cause, product
  return journal.tell(stamp('software-development.fabrication-refusal',value),[specification]);
 }
 
+
+/** Correctness by Construction is a contract transition, never an automatic
+ * model/build retry. Record the refuted design in the same SignCraft work
+ * history, then return it to an independently authorized specification owner.
+ * A subsequent request must carry a different admitted requirement/specification
+ * identity. No fabricated candidate or acceptance command runs on this path. */
+function requireDesignRevision(journal, source, specification, phase, cause, product) {
+ const refusal=reviseFabrication(journal,source,specification,phase,cause,product);
+ const error=new Error('fabrication contradicts the admitted design; independent specification revision required',{cause});
+ error.code='AOE_DESIGN_REVISION_REQUIRED';
+ error.developmentObligation=refusal.id;
+ error.specification=specification;
+ return error;
+}
 
 function admittedPath(root, requested) {
  nonempty(requested, 'source path');
@@ -237,7 +253,7 @@ export async function compileEngineeringDesign(input, options={}) {
   handoff:'For schema projection, the final contribution product contains schemaModules, an array of schemaModule specifications. Choose javascript for a JavaScript consumer. The native fabricator derives source. An entry may use schemaSource {path,content} from an admitted read_source result; its exact captured JSON schema supplies x-codegen names without inferential retranscription. Otherwise inference supplies schemas. Choose exact output paths. Work orders and Markdown specifications use their named native operations.',
  });
  const need=stamp('software-development.need',{objective:nonempty(input.objective,'objective'),constraints:input.constraints??[],source,readableSource,receivingFeedback:options.receivingFeedback??null,
-  authority:input.authority??[],workType:input.workType??'software-change',submittedArtifacts:semanticId(input.artifacts??null),contributionContract:semanticId(engineeringContributionSchema),fabricationContract:fabricationContract.id,readablePaths:input.readablePaths??input.engineeringReadablePaths??paths,acceptance:input.acceptanceCommand??input.verifyCommand??null});
+  authority:input.authority??[],producerActor:options.producerActor??null,workType:input.workType??'software-change',submittedArtifacts:semanticId(input.artifacts??null),contributionContract:semanticId(engineeringContributionSchema),fabricationContract:fabricationContract.id,readablePaths:input.readablePaths??input.engineeringReadablePaths??paths,acceptance:input.acceptanceCommand??input.verifyCommand??null});
  const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,need.id);
  if (!journal.products().some(product=>product.id===fabricationContract.id)) journal.tell(fabricationContract,[]);
  if (!journal.products().some(product=>product.id===need.id)) journal.tell(need,source===null?[]:[source.id]);
@@ -311,7 +327,6 @@ export async function compileEngineeringDesign(input, options={}) {
  };
  const inquiry=options.inquire??options.hireInquiry??defaultInquiry;
  for (const role of input.workType==='inquiry' ? DEVELOPMENT_STAGES.slice(0,1) : DEVELOPMENT_STAGES) {
-  for (;;) {
   options.signal?.throwIfAborted();
   await options.authorizeEffect?.({phase:"derive",role});
   const basis=[need.id,prior.id,...(role==='artifact-specifications'&&fabricationFeedback?[fabricationFeedback.id]:[])];
@@ -362,10 +377,10 @@ export async function compileEngineeringDesign(input, options={}) {
      }
      if(raw.product?.proposal)projectFabricatedSoftwareChanges(source,raw.product.proposal);
     }catch(error){
-     if(supplied!==undefined)throw error;
      const contribution=journal.tell(stamp('software-development.contribution',raw),basis);
-     fabricationFeedback=reviseFabrication(journal,source,contribution.id,'native-handoff',error,raw.product??raw.text);
-     observations.set(fabricationFeedback.id,fabricationFeedback);continue;
+     // Returning to an automatic inference loop would treat failing execution
+     // as the specification. The author must qualify a distinct new request.
+     throw requireDesignRevision(journal,source,contribution.id,'native-handoff',error,raw.product??raw.text);
     }
    }
 
@@ -386,17 +401,32 @@ export async function compileEngineeringDesign(input, options={}) {
   }
   observations.set(stage.id,stage);
   stages.push({role,artifact:stage.value.text,artifactId:stage.id,unresolved:stage.value.unresolved,...(stage.value.product===undefined?{}:{product:stage.value.product})});prior=stage;
-  break;
-  }
  }
  return {type:'StandardsDrivenEngineeringDesign',question:need.id,source,stages,history:journal.history,territory:root,inferenceAttempts};
 }
 
 /** The source-free order is the actual input to the existing module compiler. */
 export async function compileProgram(input, options={}) {
- for (;;) {
  const design=await compileEngineeringDesign(input,options);
  if(input.workType==='inquiry')return {engineeringDesign:design,source:design.source};
+ // The construction design is qualified from real immutable SignCraft
+ // products BEFORE invoking any native fabrication, compiler or test.
+ const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
+ const reviewRequest=constructionReviewRequest(design,journal.products());
+ // The request is an actual SignCraft product, so another office can read,
+ // review and admit the exact design in a later session. No shadow queue.
+ if(!journal.products().some(item=>item.id===reviewRequest.id)){
+  const {id,...value}=reviewRequest;
+  journal.tell(Object.freeze({kind:reviewRequest.kind,value,id}),reviewRequest.stages.map(stage=>stage.artifact));
+ }
+ const historicalReview=journal.products().findLast(item=>
+  item.kind==='software-development.construction-review'&&item.value.request===reviewRequest.id);
+ if(typeof options.qualifyConstruction!=='function'&&!historicalReview)
+  return {engineeringDesign:design,source:design.source,status:'awaiting-design-review',reviewRequest};
+ await options.authorizeEffect?.({phase:'design-review',question:design.question,review:reviewRequest.id});
+ const reviewed=admitConstructionReview(reviewRequest,
+  typeof options.qualifyConstruction==='function'?await options.qualifyConstruction(reviewRequest):historicalReview.value,
+  {producerActor:options.producerActor});
  await options.authorizeEffect?.({phase:"compile"});
  const root=design.territory;
  const operations=fabricationOperations({repositoryRoot:root},{dependencyProjectRoot:root,...options.fabricationOptions});
@@ -415,12 +445,10 @@ export async function compileProgram(input, options={}) {
   plan=await invoke('fabrication-plan-jsnode-modules',{workOrder});
   if(plan.type!=='JsnodeModuleFabricationPlan'){
    const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
-   const feedback=reviseFabrication(journal,design.source,design.stages.at(-1).artifactId,'module-plan',plan,workOrder);
-   options={...options,fabricationFeedback:feedback};continue;
+   throw requireDesignRevision(journal,design.source,design.stages.at(-1).artifactId,'module-plan',plan,workOrder);
   }
  }
- return {engineeringDesign:design,source:design.source,workOrder,plan};
- }
+ return {engineeringDesign:design,source:design.source,workOrder,plan,reviewRequest,reviewed};
 }
 
 /** Receiving is a host-granted effect port. Success requires the consumer condition to hold. */
@@ -450,6 +478,9 @@ export async function runProgram(input, options={}) {
  const design=compilation.engineeringDesign;
  if(input.workType==='inquiry')return {id:input.id??design.question,engineeringDesign:design,
   outcome:{answered:true,verified:false,inquiryResult:design.stages.at(-1).artifact},status:'answered'};
+ if(compilation.status==='awaiting-design-review')return {id:input.id??design.question,engineeringDesign:design,
+  reviewRequest:compilation.reviewRequest,status:'awaiting-design-review',
+  outcome:{verified:false,candidateVerified:false}};
  options.signal?.throwIfAborted();
  await options.authorizeEffect?.({phase:"fabricate"});
  const finalProduct=design.stages.at(-1).product;
@@ -483,8 +514,7 @@ export async function runProgram(input, options={}) {
   // Missing compute, unavailable dependencies or absent host isolation cannot be repaired by rewriting the order.
   if(['NO_DERIVATION_CARRIER','ASSAY_CONTEXT_UNAVAILABLE','ISOLATED_ASSAY_UNAVAILABLE'].includes(artifact.code))throw new TypeError(artifact.message??artifact.code);
   const journal=historyAt(options.dataRoot??input.missionExecutionDataRoot,design.question);
-  const feedback=reviseFabrication(journal,compilation.source,design.stages.at(-1).artifactId,'module-derivation',artifact,compilation.workOrder);
-  return runProgram(input,{...options,fabricationFeedback:feedback});
+  throw requireDesignRevision(journal,compilation.source,design.stages.at(-1).artifactId,'module-derivation',artifact,compilation.workOrder);
  }
  const proposal=projectFabricatedSoftwareChanges(compilation.source,artifact);
  const receiver=options.receiver;
@@ -506,12 +536,18 @@ export async function runProgram(input, options={}) {
   validateAcceptanceCapsule(capsule,{territory:receiver.root});
   materializeAcceptanceCapsule(receiver.root,capsule);
  }
- const refuted=options.refutedTransitions??new Map();
- const transition=semanticId({source:compilation.source.id,changes:proposal.changes});
- if(refuted.has(transition)){
-  const refusal=refuted.get(transition);
-  const error=new Error('development repeated a source transition already refuted by its consumer');
-  error.receiving=refusal.value.receiving;error.developmentObligation=refusal.id;throw error;
+ // Cross-session refusal uses durable SignCraft custody, not an ephemeral Map.
+ // Repeating the same previously rejected proposal would run the test as a
+ // speculative design search. Only a newly reviewed design identity proceeds.
+ const previousRefusal=journal.products().findLast(value=>
+  value.kind==='software-development.receiving-refusal'
+  &&value.value.proposal===product.id&&value.value.source===compilation.source.id);
+ if(previousRefusal){
+  const error=new Error('development proposal already refuted; independent specification revision required');
+  error.code='AOE_RECEIVING_DESIGN_REVIEW_REQUIRED';
+  error.receiving=previousRefusal.value.receiving;
+  error.developmentObligation=previousRefusal.id;
+  throw error;
  }
  let receiving,delivery;
  try{
@@ -520,12 +556,15 @@ export async function runProgram(input, options={}) {
  }
  catch(error){
   const refusal=journal.tell(stamp('software-development.receiving-refusal',{proposal:product.id,
-   source:compilation.source.id,reason:error.message,receiving:error.receiving??null,activates:'artifact-specification-revision'}),[product.id]);
-  error.developmentObligation=refusal.id;
-  refuted.set(transition,refusal);
+   source:compilation.source.id,reason:error.message,receiving:error.receiving??null,activates:'independently-reviewed-specification-revision'}),[product.id]);
   options.signal?.throwIfAborted();
-  // The receiver counterexample is an input to renewed derivation under the same grant.
-  return runProgram(input,{...options,refutedTransitions:refuted,fabricationFeedback:refusal});
+  // Failed V&V contradicts the specification; it is not authority to ask
+  // inference for another patch or to rerun the same received source.
+  const review=new Error('consumer verification contradicted the design; independent specification review required',{cause:error});
+  review.code='AOE_RECEIVING_DESIGN_REVIEW_REQUIRED';
+  review.developmentObligation=refusal.id;
+  review.receiving=error.receiving??null;
+  throw review;
  }
  if(!receiving.verification?.passed||!receiving.acceptance?.passed)throw new TypeError('receiver did not establish the admitted consumer effect');
  const effect=journal.tell(stamp('software-development.effect',{proposal:product.id,receiving,
@@ -580,6 +619,69 @@ export { captureSoftwareChangeSource, projectFabricatedSoftwareChanges, induceVe
  * A remote request supplies intent. The receiving host supplies its territory,
  * checks, reading/writing lanes and authority from the operative work contract.
  */
+/** Bind a human's source requirement to authenticated repository rights. This
+ * caller-owned source entrance makes no office appointment or deployment claim.
+ * It uses the same addressed products, fabrication, receiving and delivery as
+ * the organizational host. Requirement/source inputs belong to the host, never
+ * to the actor's request; GitHub credentials remain in their protocol owner.
+ */
+export function sourceAuthorizedDevelopmentOperations(binding, {requirement,source,github=githubApi(),...execution}={}) {
+ const held=structuredClone({requirement,source});
+ const demand=held.requirement,authoritySource=held.source;
+ for(const key of ['work','revision','objective','verifyCommand','acceptanceCommand'])nonempty(demand?.[key],key);
+ for(const key of ['principal','repository','repositoryRoot','sourceBase','instruction'])nonempty(authoritySource?.[key],key);
+ if(!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u.test(authoritySource.repository)
+   ||!/^[a-f0-9]{40}$/u.test(authoritySource.sourceBase))throw new TypeError('source development needs exact repository and commit identities');
+ const repository=realpathSync(authoritySource.repositoryRoot);
+ const territory=realpathSync(resolve(repository,nonempty(demand.territory,'territory')));
+ if(territory!==repository&&!territory.startsWith(repository+sep))throw new TypeError('source development territory leaves its repository');
+ for(const key of ['readablePaths','writablePaths']){
+  if(!Array.isArray(demand[key])||demand[key].length>128||new Set(demand[key]).size!==demand[key].length)
+   throw new TypeError('source development needs bounded unique '+key);
+  for(const path of demand[key])if(relative(territory,admittedPath(territory,path)).split(sep).join('/')!==path)
+   throw new TypeError('source development lanes must be canonical');
+ }
+ if(demand.workType!==undefined&&!['inquiry','software-change'].includes(demand.workType))throw new TypeError('unknown source development closure');
+ const grant=stamp('software-development.source-requirement',held);
+ const authority=[demand.work,demand.revision,grant.id];
+ const authorize=async subject=>{
+  if(subject!==authoritySource.principal)throw new TypeError('source development principal differs from its human authorization');
+  const git=args=>execFileSync('git',args,{cwd:repository,encoding:'utf8',timeout:10000,maxBuffer:1024*1024}).trim();
+  if(realpathSync(git(['rev-parse','--show-toplevel']))!==repository
+    ||git(['rev-parse','--verify',authoritySource.sourceBase+'^{commit}'])!==authoritySource.sourceBase)
+   throw new TypeError('source development repository custody changed');
+  const owns=url=>['https://github.com/'+authoritySource.repository,'git@github.com:'+authoritySource.repository,
+   'ssh://git@github.com/'+authoritySource.repository].some(base=>url===base||url===base+'.git');
+  if(!owns(git(['remote','get-url','origin']))||!owns(git(['remote','get-url','--push','origin'])))
+   throw new TypeError('source development transport differs from its authorized repository');
+  const [user,owner,commit]=await Promise.all([github.getAuthUser(),github.getRepo(authoritySource.repository),github.getCommit(authoritySource.repository,authoritySource.sourceBase)]);
+  if(user.login!==authoritySource.principal||owner.full_name!==authoritySource.repository||owner.permissions?.push!==true
+    ||commit.sha!==authoritySource.sourceBase)throw new TypeError('authenticated source permission is absent or changed');
+ };
+ return developmentOperations(binding,{softwareDevelopment:{...execution,
+  receiveDemand:async({request,subject})=>{
+   if(request.work!==demand.work||request.revision!==demand.revision||request.objective!==demand.objective
+     ||(request.workType!==undefined&&request.workType!==(demand.workType??'software-change'))
+     ||(request.constraints!==undefined&&JSON.stringify(request.constraints)!==JSON.stringify(demand.constraints??[])))
+    throw new TypeError('source request differs from the human-authorized requirement');
+   await authorize(subject);
+   const directory=join(binding.dataRoot,'software-development','products');mkdirSync(directory,{recursive:true});
+   publishMaterial(join(directory,contentName(grant.id)),grant);
+   const receiver={...execution.receiver,root:territory,writablePaths:demand.writablePaths,
+    verifyCommand:demand.verifyCommand,acceptanceCommand:demand.acceptanceCommand,
+    prepareDelivery:({proposal,proposalId})=>prepareSourceDeliverySync({repository,territory,
+     sourceBase:authoritySource.sourceBase,proposal,proposalId})};
+   return {demand:{...demand,territory,...(request.artifacts===undefined?{}:{artifacts:request.artifacts})},authority,
+    execution:{receiver,authorizeEffect:async effect=>{await authorize(subject);await execution.authorizeEffect?.(effect);}}};
+  },
+  receiveProduct:async({question,history,subject})=>{
+   const need=history.find(product=>product.id===question&&product.kind==='software-development.need');
+   if(!need||JSON.stringify(need.value.authority)!==JSON.stringify(authority))throw new TypeError('source product belongs to another requirement');
+   await authorize(subject);
+  },
+ }});
+}
+
 export function developmentOperations(binding, options={}) {
  const admitted=options.softwareDevelopment;
  const receiveDemand=admitted?.receiveDemand;
@@ -600,16 +702,60 @@ export function developmentOperations(binding, options={}) {
    if(!granted?.demand||!granted?.authority?.length)throw new TypeError('development work lacks receiver-owned authority');
    const demand={...granted.demand,authority:granted.authority};
    if(demand.objective!==request.objective)throw new TypeError('development request differs from the admitted operative contract');
-   const execution={...admitted,...granted.execution,dataRoot};
+   const execution={...admitted,...granted.execution,dataRoot,producerActor:subject};
    if(request.resume)await admitted?.receiveProduct?.({question:request.resume.question,history:historyAt(dataRoot,request.resume.question).products(),subject});
    const result=request.resume?await resumeDevelopmentDelivery(request.resume,demand,execution):await runProgram(demand,execution);
    // The mesh exchanges references. Large source and history remain in native custody.
    return {id:result.id,status:result.status,question:result.engineeringDesign.question,
     artifacts:result.engineeringDesign.stages.map(stage=>({role:stage.role,id:stage.artifactId})),
+    ...(result.reviewRequest===undefined?{}:{reviewRequest:result.reviewRequest}),
     ...(result.effect===undefined?{}:{effect:result.effect}),
     ...(result.delivery===undefined?{}:{delivery:result.delivery}),
     outcome:{verified:result.outcome.verified,answered:result.outcome.answered===true},
     ...(result.obstruction===undefined?{}:{obstruction:result.obstruction})};
+  },
+ }),operation({
+  verb:'aoe-review-development-design',relation:'boundary',locus:'question',inputFormat:'json',outputFormat:'json',
+  summary:'Admit a separately authorized office review of an exact completed software design',
+  description:'Review evidence is admitted by the receiver host against its independently responsible office. A review is an NI-addressed SignCraft product. It qualifies construction for subsequent human, agent or API invocations, not ownership of another office or semantic proof by itself.',
+  domain:schemaFrom({$id:'aoe/software/development/review-input',type:'object',additionalProperties:false,
+   required:['question','request','evidence'],properties:{
+    question:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}$'},
+    request:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}$'},
+    evidence:{type:'array',minItems:6,maxItems:6,items:{type:'object',
+     required:['check','source'],additionalProperties:false,
+     properties:{check:{type:'string',minLength:1},source:{type:'string',pattern:'^ni:///sha-256;[A-Za-z0-9_-]{43}$'}}
+    }}
+   }}),
+  codomain:schemaFrom({$id:'aoe/software/development/review-receipt',type:'object'}),
+  // Review admission includes external host authority and persistent SignCraft
+  // witness effects. The inner predicate is deterministic; the operation as a
+  // whole is not a pure/replay-safe computation.
+  effects:{class:'external',replay:'coordinated',coordination:'coordination-required',deterministic:'unmeasured',totality:'partial'},
+  run:async({question,request:requestedId,evidence},_args,context)=>{
+   const subject=context?.invocation?.subject;
+   nonempty(subject,'review invoking subject');
+   if(typeof admitted?.receiveConstructionReview!=='function')
+    throw new TypeError('the receiving host has no independent software design review office');
+   const journal=historyAt(dataRoot,question),products=journal.products();
+   const need=products.find(item=>item.kind==='software-development.need'&&item.id===question);
+   const source=need?.value.source;
+   const held=products.find(item=>item.kind==='software-development.construction-review-request'&&item.id===requestedId);
+   if(!need||!source||!held)throw new TypeError('review request is not held by this exact development question');
+   const stages=held.value.stages.map(({role,artifact})=>{
+    const item=products.find(p=>p.id===artifact&&p.kind==='software-development.artifact');
+    if(!item)throw new TypeError('review is missing an exact source-owned design stage');
+    return {role,artifactId:artifact,artifact:item.value.text,unresolved:item.value.unresolved};
+   });
+   const reconstructed=constructionReviewRequest({type:'StandardsDrivenEngineeringDesign',question,source,stages},products);
+   if(reconstructed.id!==requestedId)throw new TypeError('review request is not the current qualified design');
+   const received=await admitted.receiveConstructionReview({question,request:reconstructed,
+    need,subject,evidence});
+   const reviewed=admitConstructionReview(reconstructed,received,{producerActor:need.value.producerActor});
+   const product=stamp('software-development.construction-review',reviewed);
+   if(!journal.products().some(item=>item.id===product.id))journal.tell(product,[requestedId]);
+   return {kind:product.kind,id:product.id,request:requestedId,
+    reviewingOffice:reviewed.office,reviewer:reviewed.actor};
   },
  }),operation({
   verb:'aoe-development-product',relation:'boundary',locus:'question',inputFormat:'json',outputFormat:'json',

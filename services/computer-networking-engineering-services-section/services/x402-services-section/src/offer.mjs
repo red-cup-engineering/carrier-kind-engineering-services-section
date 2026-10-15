@@ -23,6 +23,15 @@ import { sha256Bytes } from '@red-cup-engineering/cryptographic-computer-data-en
  * six-decimal quote. Neither form invents a dollar exchange rate for an asset.
  */
 
+/** Visibility and sale authority are different predicates. A public x402
+ * projection may advertise only a non-held, publicly listed offer; neither
+ * predicate establishes a settled payment, source rights or buyer acceptance. */
+export function publiclySaleableOffer(offer) {
+  return offer?.declaration !== undefined &&
+    offer.declaration.listed !== false &&
+    offer.declaration.saleStatus !== "held";
+}
+
 export const OFFER_DECLARATION_KIND = "org.emsenn.x402.offer-declaration.v1";
 export const CAPABILITY_OFFER_KIND = "org.emsenn.capability-offer.v3";
 export const COORDINATE_RESIDUAL_KIND = "org.emsenn.capability-offer.coordinate-residual.v1";
@@ -52,11 +61,47 @@ function atomicPrice(price) {
 }
 
 function requirePriceRails(price, network, asset) {
-  if (typeof price === "string") return;
+  if (typeof price === "string") {
+    // A dollar-denominated quote is only a valid six-decimal asset amount
+    // when the official network registry confirms its default settlement
+    // asset. A house Besu token or unknown ERC-20 has no inferred USD peg.
+    let known;
+    try { known = getDefaultAsset(network); } catch { /* native rail */ }
+    if (known?.decimals !== USDC_DECIMALS ||
+        known.address?.toLowerCase() !== asset?.toLowerCase()) {
+      throw new TypeError("nondefault settlement assets require exact CAIP-19 atomic offer prices, not dollar-string conversion");
+    }
+    return;
+  }
   const owned = atomicPrice(price);
   if (owned.network !== network || owned.asset !== asset?.toLowerCase()) {
     throw new TypeError("native offer price does not match the deployment's network and asset");
   }
+}
+
+/** An authored source-rights claim must be temporally current before an offer
+ * is challenged, granted or proxied. This checks only timestamps, NEVER legal
+ * permission, source authenticity, custody or independent rights verification.
+ * An absent claim preserves legacy offers while receiving reports that gap. */
+export function sourceRightsClaimCurrent(declaration, nowMillis) {
+  if (!Number.isFinite(nowMillis)) throw new TypeError("rights time must be a finite instant in milliseconds");
+  const rights = declaration?.sourceRightsClaim;
+  if (rights === undefined) return true;
+  const observed = Date.parse(rights.observedAt);
+  if (!Number.isFinite(observed) || observed > nowMillis) return false;
+  const governance = rights.communityGovernance;
+  if (governance !== undefined) {
+    // An expired community-authority reading cannot keep authorizing a paid
+    // resource merely because the broader source licence is still current.
+    // Revocation and validity of the claim itself require independent receiving.
+    const observedAuthority = Date.parse(governance.observedAt);
+    const expiresAuthority = Date.parse(governance.expiresAt);
+    if (!Number.isFinite(observedAuthority) || observedAuthority > nowMillis ||
+        !Number.isFinite(expiresAuthority) || expiresAuthority <= nowMillis) return false;
+  }
+  if (rights.expiresAt === undefined) return true;
+  const expires = Date.parse(rights.expiresAt);
+  return Number.isFinite(expires) && expires > nowMillis;
 }
 
 /** Human discovery keeps the owner's denomination; atomic prices imply no dollar rate. */
@@ -68,6 +113,35 @@ export function offerPriceText(declaration) {
 }
 
 
+
+/**
+ * Does every offered x402 exact-EVM payment alternative match the merchant's
+ * authorized contract? This is a pure comparison, *not* a payment validation:
+ * the official x402 schema and signatures are checked at their own boundary.
+ * Accepts may contain several choices, so one unauthorized choice poisons the
+ * entire quote instead of being silently hidden from the buyer.
+ *
+ * Shared by the direct market receiver and the Node proxy; never duplicate the
+ * merchant payment-law comparisons in the site or a transport adapter.
+ */
+export function exactMerchantTermsMatch(paymentRequired, { network, asset, amount, payTo } = {}) {
+  requireNetwork(network);
+  requireAddress(asset, "asset");
+  if (payTo !== undefined) requireAddress(payTo, "payTo");
+  if (typeof amount !== "string" || !/^(0|[1-9][0-9]{0,77})$/u.test(amount) ||
+      BigInt(amount) > MAX_ATOMIC_AMOUNT) {
+    throw new TypeError("merchant comparison requires canonical atomic amount");
+  }
+  const accepts = paymentRequired?.accepts;
+  return Array.isArray(accepts) && accepts.length > 0 && accepts.length <= 32 &&
+    accepts.every(entry =>
+      entry?.scheme === "exact" &&
+      entry.network === network &&
+      entry.asset?.toLowerCase() === asset.toLowerCase() &&
+      entry.amount === amount &&
+      (payTo === undefined || entry.payTo?.toLowerCase() === payTo.toLowerCase()));
+}
+
 // An explicit AssetAmount bypasses the SDK's money conversion, including its
 // signing metadata. Recover that metadata from the SDK's token registry while
 // retaining our exact integer price and the deployment's chosen asset.
@@ -76,7 +150,6 @@ function paymentAssetAmount(amount, asset, network, assetExtra, price) {
   let known;
   try { known = getDefaultAsset(network); } catch { /* custom network */ }
   if (known?.address.toLowerCase() === asset.toLowerCase()) {
-    if (typeof price === "string" && known.decimals !== USDC_DECIMALS) throw new TypeError("offer prices require a six-decimal settlement asset");
     return {
       amount, asset,
       extra: {
@@ -212,6 +285,39 @@ function admitDeclaration(input, { admit = true } = {}) {
       input.seller.record.path.split("/").includes("..") || !/^[a-f0-9]{64}$/u.test(input.seller?.record?.sha256 ?? ""))) {
     throw new TypeError("offer seller must name an enterprise, legal entity and exact repository constitution record");
   }
+  // This is a seller-authored claim, not automatic legal clearance. But an
+  // admitted paid offer must not *declare* that it lacks commercial use rights.
+  // Later independent receiving checks the referenced evidence and permissions.
+  if (input.sourceRightsClaim !== undefined) {
+    const rights = input.sourceRightsClaim;
+    if (!rights.permissions?.includes("commercialize")) {
+      throw new TypeError("a paid source-backed offer must claim explicit commercial use authority");
+    }
+    if (rights.expiresAt !== undefined &&
+        Date.parse(rights.expiresAt) <= Date.parse(rights.observedAt)) {
+      throw new TypeError("source rights expiry must follow the recorded rights observation");
+    }
+    const governance = rights.communityGovernance;
+    if (governance !== undefined &&
+        (!Number.isFinite(Date.parse(governance.observedAt)) ||
+         !Number.isFinite(Date.parse(governance.expiresAt)) ||
+         Date.parse(governance.expiresAt) <= Date.parse(governance.observedAt))) {
+      throw new TypeError("community-governed source rights require a later, valid authority expiry");
+    }
+    for (const [label, value] of [
+      ["sourceUrl", rights.sourceUrl], ["licenseUrl", rights.licenseUrl],
+      ...(governance === undefined ? [] : [
+        ["communityGovernance.authorityActor", governance.authorityActor],
+        ["communityGovernance.protocolUri", governance.protocolUri],
+      ]),
+    ]) {
+      let url;
+      try { url = new URL(value); } catch { throw new TypeError("source rights " + label + " must be an HTTPS URL"); }
+      if (url.protocol !== "https:" || url.username || url.password || url.hash) {
+        throw new TypeError("source rights " + label + " must not embed private authority or fragments");
+      }
+    }
+  }
   // An admitted declaration is copied before it is frozen; one taken on trust (a
   // compiled catalog on a small CPU budget) is frozen where it lies, since
   // cloning every example again is the cost the trusted path avoids.
@@ -298,6 +404,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
    * discovery extension carrying `input.method` and `routeTemplate`.
    */
   function x402Route({ framing, payTo, network, asset, assetExtra } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot issue x402 payment requirements");
     const selected = selectFraming(declaration, framing);
     const routeTemplate = declaration.route.replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/gu, ":$1");
     const parameterized = routeTemplate !== declaration.route;
@@ -329,6 +436,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
    * no rails.
    */
   function index402Registration({ framing, provider, paymentAsset, paymentNetwork, contactEmail } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot be registered as a payable API");
     if (typeof declaration.price !== "string") throw new TypeError("402index requires a declared dollar price; a native asset price has no implicit USD rate");
     const selected = selectFraming(declaration, framing);
     return Object.freeze({
@@ -349,6 +457,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
 
   /** Derive this offer's `org.emsenn.capability-offer.v3` object. */
   function capabilityOffer({ network, asset, agentCard, expiresAt, coordinates = {} } = {}) {
+    if (declaration.saleStatus === "held") throw new TypeError("a held offer cannot publish an ActivityPub capability Offer");
     requirePriceRails(declaration.price, network, asset);
     if (typeof agentCard !== "string" || agentCard === "") throw new TypeError("capability offer requires the provider's A2A agent card URL");
     if (!ISO_INSTANT.test(expiresAt ?? "")) throw new TypeError("capability offer requires expiresAt as one ISO-8601 UTC instant");
@@ -361,6 +470,10 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       book: declaration.seller ? { enterprise: declaration.seller.enterprise, account: declaration.ledgerAccount } : null,
       operation: declaration.operation,
       law,
+      ...(declaration.sourceRightsClaim === undefined ? {} : {
+        sourceRightsClaim: declaration.sourceRightsClaim,
+        sourceRightsVerification: "unassayed",
+      }),
       agentCard,
       authorization: { profile: "x402", grantRequired: false },
       price: { protocol: "x402", asset: requireAddress(asset, "the settlement asset"),
@@ -393,6 +506,10 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       sellerRecord: declaration.seller?.record ?? null,
       book: declaration.seller ? { enterprise: declaration.seller.enterprise, account: declaration.ledgerAccount } : null,
       gatewayPackageName: declaration.gatewayPackageName,
+      ...(declaration.sourceRightsClaim === undefined ? {} : {
+        sourceRightsClaim: declaration.sourceRightsClaim,
+        sourceRightsVerification: "unassayed",
+      }),
       url: probeUrl,
       method: declaration.method,
       ...(declaration.method === "POST" ? { body: structuredClone(declaration.bodyExample) } : {}),
@@ -400,7 +517,7 @@ export function declareOffer(input, { admit = true, identities } = {}) {
       network: requireNetwork(network),
       asset: requireAddress(asset, "the settlement asset"),
       payTo: requireAddress(payTo, "the payout address"),
-      listed: declaration.listed ?? true,
+      listed: publiclySaleableOffer({ declaration }),
     });
   }
 
@@ -442,7 +559,11 @@ export function declareOffer(input, { admit = true, identities } = {}) {
  */
 export function x402RoutesForOffers(offers, rails = {}) {
   if (!Array.isArray(offers) || offers.length === 0) throw new TypeError("x402RoutesForOffers requires one nonempty set of admitted offers");
-  const routes = Object.assign({}, ...offers.map((offer) => offer.x402Route({
+  // Operationally held offers remain typed catalog evidence but have no
+  // payable challenge, even when the caller knows the route URI. This is
+  // independent of listed:false, which only controls publication visibility.
+  const routes = Object.assign({}, ...offers.filter((offer) =>
+    offer.declaration.saleStatus !== "held").map((offer) => offer.x402Route({
     ...rails,
     framing: rails.framings?.[offer.declaration.route],
   })));

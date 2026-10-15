@@ -45,7 +45,8 @@
     "@red-cup-engineering/signcraft": "workspace:*",
     "@red-cup-engineering/signgraph": "workspace:*",
     "@red-cup-engineering/git-services-section": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
   },
   "exports": {
     ".": "./src/index.mjs",
@@ -112,6 +113,7 @@
     "./enterprise/work-arena": "./src/enterprise/work-arena.mjs",
     "./enterprise/work-arena-law": "./src/enterprise/work-arena-law.mjs",
     "./enterprise/work-arena-realization": "./src/enterprise/work-arena-realization.mjs",
+    "./agency/professional-repertoire": "./src/agency/professional-repertoire.mjs",
     "./enterprise/work-input": "./src/enterprise/work-input.mjs"
   },
   "devDependencies": {

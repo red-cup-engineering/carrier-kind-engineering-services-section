@@ -118,6 +118,17 @@ Without a `followers` adapter, none of the above wires up: the actor's
 `followers` field stays absent (as before), and a `Follow` is retained as a
 plain unanswered arrival, same as any other unhandled activity type. The `./local-server` journal custody supplies this adapter.
 
+Native follower histories use the original query's timestamp comparison (`localeCompare`),
+which agrees with canonical native ISO instants and preserves accepted original timestamp
+spellings without rewriting them. A one-time conversion can carry
+`sourceOrder`, an exact nonnegative safe-integer ordinal from the original admitted history,
+to preserve append order at equal instants. It only breaks ties within follower history;
+it grants no authority and does not alter timestamps. Subsequent native writes omit this
+field and follow the received history at an equal instant. Unsequenced native-to-native
+ordering is unchanged. Malformed ordinals or conflicting records with the same recipient,
+instant and ordinal refuse the reading. The conversion writer and this receiving rule must
+be selected together before the migrated state is activated.
+
 Follower storage only remembers each follower's own actor ID; the inbox used
 to send the `Accept` is resolved live from the verified actor document at
 `Follow` time, not read back from storage — so the collection endpoint can

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { ExactEvmScheme as ExactEvmClient } from "@x402/evm/exact/client";
 
-import { declareOffer } from "@red-cup-engineering/x402-services-section/offer";
+import { declareOffer, x402RoutesForOffers } from "@red-cup-engineering/x402-services-section/offer";
 
 import { createMarket, createMarketWorker, marketAgentCard, marketApiCatalog, marketCatalogReadout, marketLlmsText, marketPageModel, marketX402Discovery, marketX402Service, marketRails } from "../../src/market/market.mjs";
 import { startMarket } from "../../src/market/node.mjs";
@@ -123,7 +123,18 @@ test("a standard x402 client can sign the quoted token domain and receive its pu
     ["eip155:8453", `0x${"22".repeat(20)}`, "Custom USD", "1"],
   ]) {
     const facilitator = paidFacilitator({}, network);
-    const market = demoMarket({ env: { ...ENV, X402_NETWORK: network, X402_ASSET: asset, X402_ASSET_NAME: name, X402_ASSET_VERSION: version }, facilitatorClient: facilitator });
+    const isCustom = asset.toLowerCase() === ("0x" + "22".repeat(20));
+    const atomic = value => ({ amountAtomic: value,
+      asset: network + "/erc20:" + asset.toLowerCase() });
+    const market = demoMarket({
+      ...(isCustom ? { catalog: [
+        postDeclaration({ price: atomic("20000") }),
+        getDeclaration({ price: atomic("10000") }),
+      ] } : {}),
+      env: { ...ENV, X402_NETWORK: network, X402_ASSET: asset,
+        X402_ASSET_NAME: name, X402_ASSET_VERSION: version },
+      facilitatorClient: facilitator,
+    });
     const url = "https://market.test/v1/lookup?n=7";
     const unsigned = await market.fetch(new Request(url));
     assert.equal(unsigned.status, 402);
@@ -145,6 +156,110 @@ test("a standard x402 client can sign the quoted token domain and receive its pu
   }
 });
 
+test("a held, unlisted source candidate cannot execute, spend a grant, or receive an x402 payment", async () => {
+  let executed = 0, facilitatorCalled = 0;
+  const facilitator = {
+    async getSupported() { facilitatorCalled++; return { kinds: [], extensions: [], signers: {} }; },
+    async verify() { throw Error("held offer must not verify"); },
+    async settle() { throw Error("held offer must not settle"); },
+  };
+  const market = demoMarket({
+    catalog: [
+      postDeclaration({ listed: false, saleStatus: "held" }),
+      getDeclaration(),
+    ],
+    facilitatorClient: facilitator,
+    compute: {
+      "/v1/demo": () => { executed++; return { wrong: "charged before admission" }; },
+      "/v1/lookup": () => ({ value: 2 }),
+    },
+  });
+  const routes = x402RoutesForOffers(market.offers, marketRails(ENV));
+  assert.ok(!Object.hasOwn(routes, "POST /v1/demo"));
+  assert.ok(Object.hasOwn(routes, "GET /v1/lookup"));
+  for(const paid of [false,true]) {
+    const response = await market.fetch(new Request("https://market.test/v1/demo", {
+      method: "POST",
+      headers: { "content-type": "application/json",
+        ...(paid ? { "payment-signature": "bad-signature-is-not-a-grant" } : {}) },
+      body: JSON.stringify({ seed: 1 }),
+    }));
+    assert.equal(response.status, 404);
+    assert.equal(response.headers.get("payment-required"), null);
+    assert.match(JSON.stringify(await response.json()), /not admitted for sale/u);
+  }
+  assert.equal(executed, 0);
+  assert.equal(facilitatorCalled, 0);
+  const ordinary = await market.fetch(new Request("https://market.test/v1/lookup"));
+  assert.equal(ordinary.status, 402, "other already-enabled offers remain payable");
+});
+
+test("holding a publicly named offer prevents every buyer-facing projection from advertising it", async () => {
+  const market = demoMarket({
+    catalog: [postDeclaration({ listed: true, saleStatus: "held" }), getDeclaration()],
+  });
+  const card = marketAgentCard(market.offers);
+  assert.equal(card.skills.length, 1);
+  assert.equal(card.skills[0].id, "other-gateway/look-up-other");
+  const readout = marketCatalogReadout(market.offers);
+  assert.equal(readout.offers[0].listed, false,
+    "an explicitly held seller cannot be advertised as a current payable operation");
+  assert.equal(readout.offers[1].listed, true);
+  const discovery = marketX402Discovery(market.offers, market.rails());
+  assert.equal(discovery.resources.length, 1);
+  const apiCatalog = marketApiCatalog(market.offers);
+  assert.deepEqual(apiCatalog.linkset[0].item, [
+    { href: "https://market.test/v1/lookup", title: "Other Lookup" },
+  ]);
+  const apiResponse = await market.fetch(new Request("https://market.test/.well-known/api-catalog"));
+  assert.equal(apiResponse.status, 200);
+  assert.deepEqual(await apiResponse.json(), apiCatalog);
+  assert.match(marketLlmsText(market.offers), /Other Lookup/u);
+  assert.doesNotMatch(marketLlmsText(market.offers), /Demo Reading/u);
+  const withheld = await market.fetch(new Request("https://market.test/v1/demo", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed: 2 }),
+  }));
+  assert.equal(withheld.status, 404);
+  assert.equal(withheld.headers.get("payment-required"), null);
+});
+
+test("public catalog and llms.txt never disclose held/private names while internal source remains complete",async()=>{
+  const market=demoMarket({ catalog: [
+    postDeclaration({listed:true,saleStatus:"held"}),
+    getDeclaration({listed:false}),
+  ] });
+  const publicCatalog=await (await market.fetch(new Request("https://market.test/v1/catalog"))).json();
+  assert.equal(publicCatalog.offers.length,0,"all nonpublic source entries are not public inventory");
+  assert.equal(market.catalog().offers.length,2,"internal receiving retains immutable source witnesses");
+  const machineText=await (await market.fetch(new Request("https://market.test/llms.txt"))).text();
+  assert.doesNotMatch(machineText,/Demo Reading|Other Lookup/u);
+  const publicCard=await (await market.fetch(new Request("https://market.test/.well-known/agent-card.json"))).json();
+  assert.equal(publicCard.skills.length,0);
+  const apiResponse = await market.fetch(new Request("https://market.test/.well-known/api-catalog"));
+  assert.equal(apiResponse.status, 200);
+  const apiCatalog = await apiResponse.json();
+  assert.deepEqual(apiCatalog, marketApiCatalog(market.offers));
+  assert.deepEqual(apiCatalog.linkset[0].item, []);
+  assert.equal(apiCatalog.linkset[0].anchor, "https://market.test/.well-known/api-catalog");
+  assert.deepEqual(apiCatalog.linkset[0]["service-desc"].map(link => link.href), [
+    "https://market.test/openapi.json", "https://market.test/v1/catalog",
+  ]);
+  assert.deepEqual(apiCatalog.linkset[0]["service-doc"].map(link => link.href), [
+    "https://market.test/llms.txt", "https://market.test/",
+  ]);
+  assert.doesNotMatch(JSON.stringify(apiCatalog), /Demo Reading|Other Lookup|\/v1\/demo|\/v1\/lookup/u);
+  const apiHead = await market.fetch(new Request("https://market.test/.well-known/api-catalog", { method: "HEAD" }));
+  assert.equal(apiHead.status, 200);
+  assert.equal(apiHead.headers.get("link"), '<https://market.test/.well-known/api-catalog>; rel="api-catalog"');
+  assert.equal(await apiHead.text(), "");
+  assert.equal(market.catalog().offers.length, 2, "public discovery does not discard internal source");
+  const held=await market.fetch(new Request("https://market.test/v1/demo",{
+    method:"POST",headers:{"content-type":"application/json"},body:'{"seed":1}'
+  }));
+  assert.equal(held.status,404);
+  assert.equal(held.headers.get("payment-required"),null);
+});
 test("marketRails reads the deployment and never invents a payout address", () => {
   assert.deepEqual(marketRails(ENV), { network: NETWORK, payTo: PAY_TO, asset: USDC, facilitatorUrl: "https://facilitator.invalid" });
   assert.throws(() => marketRails({ X402_NETWORK: NETWORK, X402_FACILITATOR: "https://f.invalid" }), /X402_PAY_TO/u);
@@ -158,6 +273,31 @@ test("one market serves offers from many gateways and refuses an empty or collid
   assert.deepEqual(market.offers.map((offer) => offer.declaration.gateway), ["demo-gateway", "other-gateway"]);
   assert.throws(() => createMarket({ catalog: [] }), /nonempty/u);
   assert.throws(() => createMarket({ catalog: [postDeclaration(), getDeclaration({ route: "/v1/demo", method: "POST", bodyExample: {} })], env: ENV, compute: { "/v1/demo": () => ({}) } }), /declared by both/u);
+});
+
+test("source-qualified held proposals construct without installing compute bindings or customer stores", async () => {
+  let store = 0, imported = 0;
+  const market = createMarket({
+    catalog: [postDeclaration({ saleStatus: "held", listed: false,
+      compute: { package: "@red-cup-engineering/not-yet-installed", export: "futureProvider" },
+      validate: { package: "@red-cup-engineering/not-yet-installed", export: "futureAdmission" },
+      recoverable: true })],
+    env: ENV,
+    facilitatorClient: unpaidFacilitator(),
+    compute: {},
+    load: async () => { imported++; throw new Error("unreceived producer must not be loaded"); },
+    purchaseStoreForOffer: () => { store++; throw new Error("held proposal must not open customer storage"); },
+  });
+  const refused = await market.fetch(new Request("https://market.test/v1/demo", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed: 2 }),
+  }));
+  assert.equal(refused.status, 404);
+  assert.equal(refused.headers.get("payment-required"), null);
+  assert.equal(imported, 0);
+  assert.equal(store, 0);
+  assert.equal(market.catalog().offers.length, 1, "source identity survives without a live seller claim");
+  assert.equal(market.catalog().offers[0].listed, false);
 });
 
 test("an offer without a compute binding and without a supplied compute is refused at construction", () => {
@@ -294,12 +434,111 @@ test("a compute failure carrying an HTTP status is reported with that status", a
   assert.deepEqual(await paid.json(), { error: "upstream chain unavailable" });
 });
 
+test("Node proxy fails closed on public HTTP origins before forwarding signed purchase credentials or bodies", async () => {
+  const market = demoMarket({
+    catalog: [postDeclaration()],
+    nodeOrigin: "http://node-market.561.group:8087",
+    proxyCatalog: [getDeclaration(), getDeclaration({
+      route: "/v1/private-compute", method: "POST", operation: "private-compute",
+      bodyExample: { input: "confidential" }, bodySchema: { type: "object" },
+    })],
+  });
+  const health = await market.fetch(new Request("https://market.test/v1/status"));
+  assert.equal(health.status, 200);
+  const healthBody = await health.json();
+  assert.equal(healthBody.nodeProxyConfigured, true);
+  assert.equal(healthBody.nodeProxyTransport, "insecure-refused");
+  for (const [path, init] of [
+    ["/v1/lookup?q=private", { headers: { "PAYMENT-SIGNATURE": "signed-secret", "X-Payment-Recovery": "recovery-secret" } }],
+    ["/v1/private-compute", {
+      method: "POST", headers: { "content-type": "application/json", "PAYMENT-SIGNATURE": "signed-secret" },
+      body: JSON.stringify({ input: "confidential" }),
+    }],
+  ]) {
+    const response = await market.fetch(new Request(`https://market.test${path}`, init));
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(response.headers.get("retry-after"), "120");
+    assert.match((await response.json()).error, /HTTPS/u);
+  }
+});
+
+test("invalid, credential-bearing or query-bearing proxy origins refuse without leaking a payment", async () => {
+  for (const nodeOrigin of [
+    "not a URL",
+    "http://node-market.561.group:8087",
+    "https://user:pass@node-market.561.group",
+    "https://node-market.561.group/?unsafe=true",
+    "https://node-market.561.group/#unreceived",
+    "https://node-market.561.group/internal-prefix",
+    "https://market.test",
+    "https://market.test:443",
+  ]) {
+    const market = demoMarket({
+      catalog: [postDeclaration()], nodeOrigin, proxyCatalog: [getDeclaration()],
+    });
+    const response = await market.fetch(new Request("https://market.test/v1/lookup?private=1", {
+      headers: { "payment-signature": "never-forward", "x-payment-recovery": "private" },
+    }));
+    assert.equal(response.status, 503, nodeOrigin);
+    assert.equal((await market.fetch(new Request("https://market.test/v1/status"))).status, 200);
+    assert.equal((await (await market.fetch(new Request("https://market.test/v1/status"))).json()).nodeProxyTransport, "insecure-refused");
+  }
+  const configured = demoMarket({
+    catalog: [postDeclaration()], nodeOrigin: "https://node-market.561.group", proxyCatalog: [getDeclaration()],
+  });
+  const status = await (await configured.fetch(new Request("https://market.test/v1/status"))).json();
+  assert.equal(status.nodeProxyTransport, "https-configured-not-received");
+  assert.equal(status.nodeProxyConfigured, true);
+});
+
+test("HTTPS Node proxy refuses a mismatched native quote using its actual payout bindings", async () => {
+  const originalFetch = globalThis.fetch;
+  const upstreamUrl = "https://node-market.561.group/v1/lookup";
+  const endpoint = "https://market.test/v1/lookup";
+  const base = { scheme: "exact", network: NETWORK, asset: USDC, payTo: PAY_TO,
+    amount: "10000", maxTimeoutSeconds: 300 };
+  let offer = base, count = 0;
+  const market = demoMarket({ catalog: [postDeclaration()],
+    nodeOrigin: "https://node-market.561.group", proxyCatalog: [getDeclaration()] });
+  try {
+    globalThis.fetch = async (url, options) => {
+      assert.equal(String(url), upstreamUrl);
+      assert.equal(options.redirect, "error");
+      count++;
+      const quoted = { x402Version: 2, resource: { url: endpoint },
+        accepts: [offer] };
+      return new Response(JSON.stringify(quoted), { status: 402, headers: {
+        "payment-required": Buffer.from(JSON.stringify(quoted)).toString("base64"),
+        "content-type": "application/json",
+      } });
+    };
+    const accepted = await market.fetch(new Request(endpoint));
+    assert.equal(accepted.status, 402);
+    assert.equal(challengeOf(accepted).accepts[0].payTo, PAY_TO);
+    for (const different of [
+      { payTo: "0x" + "22".repeat(20) },
+      { network: "eip155:5615611" },
+      { asset: "0x" + "22".repeat(20) },
+      { amount: "10001" },
+    ]) {
+      offer = { ...base, ...different };
+      const refused = await market.fetch(new Request(endpoint));
+      assert.equal(refused.status, 502, JSON.stringify(different));
+      assert.equal(refused.headers.get("payment-required"), null);
+    }
+    assert.equal(count, 5);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("status is served unpriced on both probes and counts the catalog", async () => {
   const market = demoMarket();
   for (const path of ["/v1/status", "/healthz"]) {
     const response = await market.fetch(new Request(`https://market.test${path}`));
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, build: null, workerVersion: null });
+    assert.deepEqual(await response.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, nodeProxyTransport: "not-used", build: null, workerVersion: null });
   }
 });
 
@@ -331,7 +570,9 @@ test("the RFC 9727 API catalog lists every offer as an item, answers HEAD with i
   const [set] = catalog.linkset;
   assert.equal(set.item.length, market.offers.length);
   assert.ok(set.item.every((item, index) => item.href.endsWith(market.offers[index].declaration.route)));
-  assert.ok(set["service-desc"][0].href.endsWith("/v1/catalog"));
+  assert.deepEqual(set["service-desc"].map(link => link.href), [
+    "https://market.test/openapi.json", "https://market.test/v1/catalog",
+  ]);
   assert.ok(set["service-doc"].some((link) => link.href.endsWith("/llms.txt")));
   const head = await market.fetch(new Request("https://market.test/.well-known/api-catalog", { method: "HEAD" }));
   assert.equal(head.status, 200);
@@ -374,6 +615,14 @@ test("the public catalog readout lists every offer with its contract, price, evi
   assert.equal(readout.offers[1].evidence.status, "deterministic derivation");
   assert.deepEqual(readout.offers[1].compute, { package: "@lenticule-science/demo-astronomy", export: "computePositions" });
   assert.equal(readout.offers[0].amountAtomic, "20000");
+  for(const [index,offer] of market.offers.entries()){
+    assert.equal(readout.offers[index].sku,offer.sku);
+    assert.equal(readout.offers[index].cell,offer.cell);
+    assert.equal(readout.offers[index].law,offer.law);
+    for(const key of ["sku","cell","law"])assert.match(readout.offers[index][key],/^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u);
+    assert.equal(readout.offers[index].sourceRightsVerification,"not-declared");
+  }
+
   assert.deepEqual(readout, marketCatalogReadout(market.offers, market.rails()));
   assert.equal(readout.settlement.network, NETWORK);
   assert.equal(readout.settlement.asset, USDC);
@@ -456,11 +705,11 @@ test("the same engine serves the Workers face and the Node transport identically
     facilitatorClient: unpaidFacilitator(),
   }));
   const viaWorker = await worker.fetch(new Request("https://market.test/v1/status"), ENV);
-  assert.deepEqual(await viaWorker.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, build: null, workerVersion: null });
+  assert.deepEqual(await viaWorker.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, nodeProxyTransport: "not-used", build: null, workerVersion: null });
   const server = await startMarket(demoMarket(), { port: 0, host: "127.0.0.1" });
   t.after(() => server.close());
   const viaNode = await connect(`http://127.0.0.1:${server.port}/v1/status`);
-  assert.deepEqual(await viaNode.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, build: null, workerVersion: null });
+  assert.deepEqual(await viaNode.json(), { status: "ok", service: "market.561.group", offers: 2, listedOffers: 2, directOffers: 2, directListedOffers: 2, proxyOffers: 0, proxyListedOffers: 0, runtime: null, nodeProxyConfigured: false, nodeProxyTransport: "not-used", build: null, workerVersion: null });
   const unpaid = await connect(`http://127.0.0.1:${server.port}/v1/lookup`);
   assert.equal(unpaid.status, 402);
 });
@@ -481,4 +730,121 @@ test("settlementWitness is installed as afterSettle and attributes the settled r
   assert.equal(record.route, "/v1/demo");
   assert.equal(record.operation, "read-demo");
   assert.equal(record.recordedAt, "2026-09-11T06:00:00.000Z");
+});
+
+
+test("expired source rights reject direct and proxied sale before payment, grant or private transfer", async () => {
+  const rights = {
+    basis:"licensed-third-party",
+    sourceUrl:"https://example.test/source",
+    licenseUrl:"https://example.test/license",
+    permissions:["execute","commercialize"],
+    evidenceNis:["ni:///sha-256;"+"A".repeat(43)],
+    observedAt:"2026-10-12T12:00:00Z",
+    expiresAt:"2026-10-13T00:00:00Z",
+  };
+  const now = () => "2026-10-13T01:00:00.000Z";
+  let computations = 0;
+  const direct = demoMarket({
+    catalog:[postDeclaration({sourceRightsClaim:rights})],
+    now,
+    compute:{"/v1/demo":()=>{computations++;return {ok:true};}},
+  });
+  const refusal = await direct.fetch(new Request("https://market.test/v1/demo", {
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({seed:1}),
+  }));
+  assert.equal(refusal.status,451);
+  assert.equal(refusal.headers.get("payment-required"),null);
+  assert.equal(refusal.headers.get("cache-control"),"no-store");
+  assert.equal((await refusal.json()).sourceRightsVerification,"unassayed");
+  assert.equal(computations,0);
+
+  // No remote fetch is possible here: the temporal admission gate runs before
+  // a proxy origin is opened, even when an HTTPS Node endpoint is configured.
+  const proxy = demoMarket({
+    catalog:[postDeclaration()],
+    proxyCatalog:[getDeclaration({sourceRightsClaim:rights})],
+    nodeOrigin:"https://node-market.561.group",
+    now,
+  });
+  const proxied = await proxy.fetch(new Request("https://market.test/v1/lookup", {
+    headers:{"payment-signature":"do-not-forward","x-payment-recovery":"do-not-forward"},
+  }));
+  assert.equal(proxied.status,451);
+  assert.equal(proxied.headers.get("payment-required"),null);
+
+  const valid=demoMarket({
+    catalog:[postDeclaration({sourceRightsClaim:{...rights,expiresAt:"2026-10-14T00:00:00Z"}})],
+    now,
+  });
+  const unsigned=await valid.fetch(new Request("https://market.test/v1/demo", {
+    method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({seed:1}),
+  }));
+  assert.equal(unsigned.status,402);
+});
+
+
+test("process usage windows are observed but never attributed as paid per-request CPU or cost", async () => {
+  let settlement;
+  const market = demoMarket({
+    facilitatorClient: paidFacilitator(),
+    afterSettle: async context => { settlement = context; }
+  });
+  const delivered = await pay(market, "https://market.test/v1/lookup?n=7");
+  assert.equal(delivered.status,200);
+  const prepared = settlement?.transportContext?.responsePreparation;
+  assert.equal(prepared?.basis,"server-response-preparation");
+  assert.equal(prepared.measuredCpu,false);
+  assert.equal(prepared.measuredMonetaryCost,false);
+  assert.equal(prepared.measuredPhysicalEnergy,false);
+  assert.ok(prepared.elapsedMs >= 0);
+  if (typeof process.cpuUsage === "function" && typeof process.memoryUsage === "function") {
+    const usage=prepared.processUsageWindow;
+    assert.equal(usage?.scope,"whole-process-during-response-preparation");
+    assert.equal(usage.requestAttributable,false);
+    assert.equal(usage.peakRssMeasured,false);
+    for (const key of ["userCpuMicroseconds","systemCpuMicroseconds","rssBeforeBytes","rssAfterBytes"]) {
+      assert.match(usage[key],/^[0-9]+$/u);
+    }
+  }
+});
+
+
+test("Node proxy transport interruption preserves settlement uncertainty for unsigned and signed requests", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const market = demoMarket({
+    catalog: [postDeclaration()],
+    nodeOrigin: "https://node-market.561.group",
+    proxyCatalog: [getDeclaration()],
+  });
+  try {
+    globalThis.fetch = async (url, options) => {
+      assert.equal(String(url), "https://node-market.561.group/v1/lookup?q=1");
+      assert.equal(options.redirect, "error");
+      calls.push(options.headers.get("payment-signature"));
+      throw new TypeError("private origin transport details");
+    };
+    for (const signed of [false, true]) {
+      const response = await market.fetch(new Request("https://market.test/v1/lookup?q=1", {
+        headers: signed ? {
+          "payment-signature": "same-original-signature",
+          "x-payment-recovery": "same-original-recovery-token",
+        } : {},
+      }));
+      assert.equal(response.status, 503);
+      assert.equal(response.headers.get("cache-control"), "no-store");
+      assert.equal(response.headers.get("retry-after"), "120");
+      assert.equal(response.headers.get("payment-response"), null);
+      assert.equal(response.headers.get("payment-required"), null);
+      const result = await response.json();
+      assert.match(result.error, /outcome is unknown/u);
+      assert.match(result.recovery, /original payment signature and recovery token/u);
+      assert.ok(!JSON.stringify(result).includes("private origin transport details"));
+    }
+    assert.deepEqual(calls, [null, "same-original-signature"]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });

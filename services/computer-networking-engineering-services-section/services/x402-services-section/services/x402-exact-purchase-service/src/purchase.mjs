@@ -214,7 +214,7 @@ export async function openEnterpriseAccountPayer({
 export async function purchaseHttpResource({
   url, method = "GET", body, headers = {}, payer, network, asset, maximumAmount,
   rpcUrl, fetchImpl = globalThis.fetch, httpClient, signal,
-  maximumResponseBytes = 16 * 1024 * 1024, beforePayment, onSettlement,
+  maximumResponseBytes = 16 * 1024 * 1024, beforePayment, onSettlement, onDelivery,
 } = {}) {
   const resource = new URL(url);
   if (resource.protocol !== "https:" || resource.username || resource.password || resource.hash) {
@@ -305,11 +305,30 @@ export async function purchaseHttpResource({
     request: { ...request, headers: { ...requestHeaders }, ...(serialized === undefined ? {} : { body: serialized }) },
     requirement: structuredClone(requirement), paymentPayload: structuredClone(payload),
   });
-  const paid = await fetchImpl(resource.href, {
-    ...init, headers: { ...requestHeaders, ...protocol.encodePaymentSignatureHeader(payload) },
-    signal: signal ?? AbortSignal.timeout(30_000),
+  // The signed authorization might have reached the merchant even if the
+  // transport or payment-response decoder fails. This content-addressable
+  // request/terms witness contains NO replayable payment signature or body.
+  const pendingAttempt = Object.freeze({
+    type: "X402HttpPaymentAttempt", customer: payer.caip10,
+    request, requirement, settlementStatus: "unconfirmed",
   });
-  const payment = await protocol.processPaymentResult(payload, name => paid.headers.get(name), paid.status);
+  let paid, payment;
+  try {
+    paid = await fetchImpl(resource.href, {
+      ...init, headers: { ...requestHeaders, ...protocol.encodePaymentSignatureHeader(payload) },
+      signal: signal ?? AbortSignal.timeout(30_000),
+    });
+    payment = await protocol.processPaymentResult(payload, name => paid.headers.get(name), paid.status);
+  } catch (cause) {
+    try { await paid?.body?.cancel(); } catch { /* original uncertainty prevails */ }
+    const error = new Error("signed x402 payment outcome unknown; reconcile before retry", { cause });
+    error.code = "X402_PAYMENT_OUTCOME_UNKNOWN";
+    error.receipt = Object.freeze({
+      ...pendingAttempt,
+      ...(paid === undefined ? {} : { status: paid.status }),
+    });
+    throw error;
+  }
   const settlement = payment.settleResponse;
   const settlementMatchesRequirements = settlement?.success === true
     && settlement.network === selectedNetwork
@@ -322,10 +341,26 @@ export async function purchaseHttpResource({
     settlementMatchesRequirements,
     status: paid.status,
   };
-  if (settlement !== undefined) await onSettlement?.(structuredClone(receipt));
+  if (settlement !== undefined) {
+    try {
+      await onSettlement?.(structuredClone(receipt));
+    } catch (cause) {
+      // A provider can have reported a completed charge even if the buyer's
+      // journal fails. Never discard its receipt or silently retry payment.
+      try { await paid.body?.cancel(); } catch { /* retain the charge witness */ }
+      const error = new Error("reported x402 settlement could not be journaled by the buyer", { cause });
+      error.code = "X402_SETTLEMENT_OBSERVER_REFUSED";
+      error.receipt = receipt;
+      throw error;
+    }
+  }
   if (!settlementMatchesRequirements) {
     await paid.body?.cancel();
-    const error = new Error("paid response does not carry a matching successful x402 settlement");
+    const pending = settlement?.errorReason === "settlement_pending";
+    const error = new Error(pending
+      ? "x402 payment transaction is pending; reconcile the reported transaction before retry"
+      : "paid response does not carry a matching successful x402 settlement");
+    error.code = pending ? "X402_SETTLEMENT_PENDING" : "X402_SETTLEMENT_NOT_VERIFIED";
     error.receipt = receipt;
     throw error;
   }
@@ -357,7 +392,7 @@ export async function purchaseHttpResource({
     throw error;
   }
   const bytes = Buffer.concat(chunks);
-  return Object.freeze({
+  const delivered = Object.freeze({
     ...receipt,
     delivery: Object.freeze({
       status: paid.status, ok: paid.ok, contentType: paid.headers.get("content-type"),
@@ -365,6 +400,36 @@ export async function purchaseHttpResource({
       encoding: "base64", body: bytes.toString("base64"),
     }),
   });
+  // Delivery is a separate buyer-observed event, not a facilitator receipt or
+  // customer acceptance. Record only the output's content address and byte
+  // measurement: the potentially private purchased body remains with its buyer.
+  if (onDelivery !== undefined) {
+    const observed = Object.freeze({
+      type: "X402HttpPurchaseDeliveryObservation",
+      customer: delivered.customer,
+      request: delivered.request,
+      requirement: delivered.requirement,
+      settlement: delivered.settlement,
+      settlementMatchesRequirements: delivered.settlementMatchesRequirements,
+      delivery: Object.freeze({
+        status: delivered.delivery.status,
+        contentType: delivered.delivery.contentType,
+        bytes: delivered.delivery.bytes,
+        sha256: delivered.delivery.sha256,
+      }),
+      requesterAccepted: null,
+    });
+    try {
+      await onDelivery(structuredClone(observed));
+    } catch (cause) {
+      // No retry of an already-settled payment, and no lost purchased bytes.
+      const error = new Error("paid x402 delivery could not be journaled by the buyer", { cause });
+      error.code = "X402_DELIVERY_OBSERVER_REFUSED";
+      error.receipt = delivered;
+      throw error;
+    }
+  }
+  return delivered;
 }
 
 export async function purchaseExactResource(options = {}) {
@@ -418,23 +483,43 @@ export async function awaitPurchasedResult({
   if (!Number.isSafeInteger(pollIntervalMs) || pollIntervalMs < 1) {
     throw new TypeError("pollIntervalMs must be a positive safe integer");
   }
-  for (;;) {
-    signal?.throwIfAborted();
-    const response = await fetchImpl(receipt.result, {
-      headers: { accept: "application/json" }, redirect: "error",
-      signal: signal ?? AbortSignal.timeout(30_000),
-    });
-    const body = await exactJsonResponse(response, "purchased result response");
-    await onObservation?.(Object.freeze({ status: response.status, body }));
-    if (!response.ok) throw new Error(`purchased result refused observation: HTTP ${response.status}`);
-    if (body.status === "terminal") {
-      if (body.terminal?.type?.endsWith("Refusal")) {
-        throw new Error(`paid capability refused delivery: ${body.terminal.reason ?? "unknown refusal"}`);
+  try {
+    for (;;) {
+      signal?.throwIfAborted();
+      const response = await fetchImpl(receipt.result, {
+        headers: { accept: "application/json" }, redirect: "error",
+        signal: signal ?? AbortSignal.timeout(30_000),
+      });
+      const body = await exactJsonResponse(response, "purchased result response");
+      await onObservation?.(Object.freeze({ status: response.status, body }));
+      if (!response.ok) throw new Error(`purchased result refused observation: HTTP ${response.status}`);
+      if (body.status === "terminal") {
+        if (body.terminal?.type?.endsWith("Refusal")) {
+          throw new Error(`paid capability refused delivery: ${body.terminal.reason ?? "unknown refusal"}`);
+        }
+        assertTerminalSettlementEvidence(receipt, body.terminal);
+        return Object.freeze({ ...receipt, delivery: body.terminal });
       }
-      assertTerminalSettlementEvidence(receipt, body.terminal);
-      return Object.freeze({ ...receipt, delivery: body.terminal });
+      // The seller's result face admits only these provisional states.
+      // Silently polling arbitrary JSON forever can hide a malformed result
+      // endpoint after the buyer has already been charged.
+      if (!["pending", "settlement-pending", "recovery-pending", "recovery-started"].includes(body?.status)) {
+        throw new X402ResourceResponseError("paid result returned an unknown lifecycle state", {
+          boundary: "purchased result response",
+          status: response.status,
+          contentType: response.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase() ?? null,
+        });
+      }
+      await delay(pollIntervalMs, undefined, { signal });
     }
-    await delay(pollIntervalMs, undefined, { signal });
+  } catch (cause) {
+    // Payment was already submitted before polling. Preserve its immutable
+    // receipt on EVERY failed read, timeout, refusal and evidence mismatch:
+    // the caller must reconcile or recover, not buy the same lot a second time.
+    if (cause instanceof Error && cause.receipt === undefined) {
+      cause.receipt = receipt;
+    }
+    throw cause;
   }
 }
 

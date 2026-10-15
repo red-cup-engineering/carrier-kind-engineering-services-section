@@ -21,12 +21,30 @@ export const agencyActsLog = (environment = process.env) => environment.AGENCY_A
 
 export const revisionOf = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
+/** Receive the carried revision before folding it. This establishes byte
+ * integrity and source confinement, never issuer or governing authority. */
+function actCarrier(act) {
+  const revision = /^[a-f0-9]{64}$/u;
+  if (act === null || typeof act !== "object" || Array.isArray(act)
+    || act.kind !== "organizing.agency-act"
+    || typeof act.source !== "string" || act.source.startsWith("/")
+    || /[\\\0\r\n]/u.test(act.source)
+    || act.source.split("/").some(part => !part || part === "." || part === "..")
+    || !(act.before === null || typeof act.before === "string" && revision.test(act.before))
+    || typeof act.after !== "string" || !revision.test(act.after)
+    || typeof act.text !== "string" || revisionOf(act.text) !== act.after) {
+    throw new TypeError("agency act: source and complete text must match the carried revision");
+  }
+  return Object.freeze({ ...act });
+}
+
+
 /** Every act in a log, in order. An absent log holds no acts. */
 export function readAgencyActs(log) {
   if (log === undefined) return [];
   let text;
   try { text = readFileSync(log, "utf8"); } catch (error) { if (error.code === "ENOENT") return []; throw error; }
-  return text.split("\n").filter((line) => line.trim() !== "").map((line) => JSON.parse(line));
+  return text.split("\n").filter((line) => line.trim() !== "").map((line) => actCarrier(JSON.parse(line)));
 }
 
 /**
@@ -37,7 +55,10 @@ export function readAgencyActs(log) {
  */
 export function foldAgencyActs(acts, authored) {
   const bySource = new Map();
-  for (const act of acts) bySource.set(act.source, [...(bySource.get(act.source) ?? []), act]);
+  for (const input of acts) {
+    const act = actCarrier(input);
+    bySource.set(act.source, [...(bySource.get(act.source) ?? []), act]);
+  }
   const heads = new Map();
   const stale = [];
   for (const [source, chain] of bySource) {
@@ -62,7 +83,8 @@ export function appendAgencyAct(log, enact) {
   mkdirSync(lock);
   try {
     const act = enact();
-    appendFileSync(log, (Array.isArray(act) ? act : [act]).map((each) => `${JSON.stringify(each)}\n`).join(""), { mode: 0o600 });
+    const entries = (Array.isArray(act) ? act : [act]).map(actCarrier);
+    appendFileSync(log, entries.map((each) => `${JSON.stringify(each)}\n`).join(""), { mode: 0o600 });
     const handle = openSync(log, "r");
     try { fsyncSync(handle); } finally { closeSync(handle); }
     return act;

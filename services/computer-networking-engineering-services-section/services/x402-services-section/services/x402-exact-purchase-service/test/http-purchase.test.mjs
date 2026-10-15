@@ -146,7 +146,7 @@ test("a canonical query-free endpoint challenge is payable while preserving the 
         }) },
       });
       assert.equal(init.method, "GET");
-      assert.ok(init.headers["PAYMENT-SIGNATURE"]);
+      assert.ok(new Headers(init.headers).has("payment-signature"));
       return delivered();
     },
   });
@@ -221,6 +221,67 @@ test("a mismatched receipt is retained as reported evidence and refused as payme
   assert.equal(observed.settlement.network, "eip155:1");
 });
 
+test("buyer preserves settlement evidence even when the owner's charge journal fails", async () => {
+  let requests = 0, observed;
+  await assert.rejects(purchaseHttpResource({
+    ...options,
+    onSettlement: receipt => {
+      observed = receipt;
+      throw new Error("owner journal unavailable");
+    },
+    fetchImpl: async () => ++requests === 1 ? challenge() : delivered(),
+  }), error => {
+    assert.equal(error.code, "X402_SETTLEMENT_OBSERVER_REFUSED");
+    assert.match(error.message, /could not be journaled/u);
+    assert.match(error.cause?.message ?? "", /journal unavailable/u);
+    assert.equal(error.receipt?.settlement?.transaction, transaction);
+    assert.equal(error.receipt?.request?.url, url);
+    assert.equal(error.receipt?.delivery, undefined);
+    return true;
+  });
+  assert.equal(requests, 2, "no automatic second payment");
+  assert.equal(observed.settlement.transaction, transaction);
+});
+
+test("delivered bytes become a separately witnessed buyer event, without disclosing purchased content", async () => {
+  const sequence = [];
+  let delivery;
+  let requests = 0;
+  const output = await purchaseHttpResource({
+    ...options,
+    onSettlement: () => sequence.push("settlement"),
+    onDelivery: value => { sequence.push("delivery"); delivery = value; },
+    fetchImpl: async () => ++requests === 1 ? challenge() : delivered(),
+  });
+  assert.deepEqual(sequence, ["settlement", "delivery"]);
+  assert.equal(requests, 2);
+  assert.equal(delivery.type, "X402HttpPurchaseDeliveryObservation");
+  assert.equal(delivery.delivery.sha256, output.delivery.sha256);
+  assert.equal(delivery.delivery.bytes, output.delivery.bytes);
+  assert.equal(delivery.delivery.status, 200);
+  assert.equal(delivery.settlement.transaction, transaction);
+  assert.equal(delivery.requesterAccepted, null);
+  assert.equal("body" in delivery.delivery, false, "do not persist customer's purchased bytes through the recorder");
+  assert.equal("paymentPayload" in delivery, false, "no signed authorization in seller/recipient receipt");
+});
+
+test("delivery journal failure preserves exact paid bytes and transaction; never retries", async () => {
+  let requests = 0;
+  await assert.rejects(purchaseHttpResource({
+    ...options,
+    onDelivery: () => { throw new Error("journal offline"); },
+    fetchImpl: async () => ++requests === 1 ? challenge() : delivered(),
+  }), error => {
+    assert.equal(error.code, "X402_DELIVERY_OBSERVER_REFUSED");
+    assert.match(error.cause?.message ?? "", /journal offline/u);
+    assert.equal(error.receipt?.settlement?.transaction, transaction);
+    assert.equal(error.receipt?.delivery?.sha256, createHash("sha256").update(Buffer.from([0,255,42])).digest("hex"));
+    assert.equal(error.receipt?.delivery?.body, Buffer.from([0,255,42]).toString("base64"));
+    return true;
+  });
+  assert.equal(requests, 2, "a failed ledger write must not trigger another charge");
+});
+
 test("an interrupted paid request leaves the owner's intent and never automatically repays", async () => {
   let calls = 0, intent;
   await assert.rejects(purchaseHttpResource({
@@ -229,7 +290,67 @@ test("an interrupted paid request leaves the owner's intent and never automatica
       if (++calls === 1) return challenge();
       throw new Error("connection interrupted");
     },
-  }), /connection interrupted/);
+  }), error => {
+    assert.equal(error.code, "X402_PAYMENT_OUTCOME_UNKNOWN");
+    assert.match(error.cause?.message ?? "", /connection interrupted/u);
+    assert.equal(error.receipt?.type, "X402HttpPaymentAttempt");
+    assert.equal(error.receipt?.settlementStatus, "unconfirmed");
+    assert.equal(error.receipt?.request?.url, url);
+    assert.equal(error.receipt?.settlement, undefined);
+    return true;
+  });
   assert.equal(calls, 2);
   assert.equal(intent.paymentPayload.accepted.amount, "7");
 });
+
+test("unreadable payment response retains unconfirmed signed attempt, not a failed or paid settlement", async () => {
+  const attempts = [];
+  let calls = 0;
+  const client = {
+    getPaymentRequiredResponse: () => ({ x402Version: 2, resource: { url }, accepts: [terms] }),
+    createPaymentPayload: async () => ({ accepted: terms, payload: { signature: "private-signer-data" } }),
+    encodePaymentSignatureHeader: () => ({ "payment-signature": "private-signer-data" }),
+    processPaymentResult: async () => { throw new Error("settlement response transport lost"); },
+  };
+  await assert.rejects(purchaseHttpResource({
+    ...options, httpClient: client,
+    beforePayment: intent => attempts.push(intent),
+    fetchImpl: async () => ++calls === 1 ? challenge() : delivered(),
+  }), error => {
+    assert.equal(error.code, "X402_PAYMENT_OUTCOME_UNKNOWN");
+    assert.match(error.cause?.message ?? "", /transport lost/u);
+    assert.equal(error.receipt?.type, "X402HttpPaymentAttempt");
+    assert.equal(error.receipt?.settlementStatus, "unconfirmed");
+    assert.equal(error.receipt?.requirement?.amount, "7");
+    assert.equal(error.receipt?.status, 200);
+    assert.equal(JSON.stringify(error.receipt).includes("private-signer-data"), false);
+    assert.equal("settlement" in error.receipt, false);
+    return true;
+  });
+  assert.equal(calls, 2);
+  assert.equal(attempts.length, 1, "owner's pre-payment record remains available for recovery");
+});
+
+test("facilitator settlement_pending is not treated as either a delivered resource or a terminal failure", async () => {
+  let calls = 0;
+  const client = {
+    getPaymentRequiredResponse: () => ({ x402Version: 2, resource: { url }, accepts: [terms] }),
+    createPaymentPayload: async () => ({ accepted: terms }),
+    encodePaymentSignatureHeader: () => ({ "payment-signature": "signed-dev" }),
+    processPaymentResult: async () => ({ settleResponse: {
+      success: false, network, transaction, errorReason: "settlement_pending",
+    } }),
+  };
+  await assert.rejects(purchaseHttpResource({
+    ...options, httpClient: client,
+    fetchImpl: async () => ++calls === 1 ? challenge() : delivered(),
+  }), error => {
+    assert.equal(error.code, "X402_SETTLEMENT_PENDING");
+    assert.equal(error.receipt?.settlement?.transaction, transaction);
+    assert.equal(error.receipt?.settlementMatchesRequirements, false);
+    assert.equal(error.receipt?.delivery, undefined);
+    return true;
+  });
+  assert.equal(calls, 2, "no implicit second signed payment attempt");
+});
+

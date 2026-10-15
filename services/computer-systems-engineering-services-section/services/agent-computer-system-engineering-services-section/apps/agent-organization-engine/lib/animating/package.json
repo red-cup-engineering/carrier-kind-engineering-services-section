@@ -9,7 +9,9 @@
   },
   "scripts": {
     "check:software-change-carriers": "node scripts/aoe-codegen.mjs --specifications specifications/software-change --out src/becoming/doing/working/software-change/carriers.mjs --check",
-    "test": "node --test \"test/**/*.test.mjs\""
+    "test": "node --test \"test/**/*.test.mjs\"",
+    "check:development-rpc": "node --check src/becoming/doing/working/software-change/mission/development.mjs",
+    "verify": "npm run check:development-rpc && npm run check:software-change-carriers && npm test"
   },
   "bin": {
     "aoe-codemod": "./scripts/aoe-codemod.mjs",
@@ -50,9 +52,6 @@
     "./package.json": "./package.json",
     "./software-change": "./src/becoming/doing/working/software-change.mjs",
     "./software-change/mission": "./src/becoming/doing/working/software-change/mission/development.mjs",
-    "./software-change/mission/pipeline": "./src/becoming/doing/working/software-change/mission/development.mjs",
-    "./software-change/mission/runtime": "./src/becoming/doing/working/software-change/mission/development.mjs",
-    "./software-change/mission/program": "./src/becoming/doing/working/software-change/mission/development.mjs",
     "./software-change/mission/execution-circuit": "./src/becoming/doing/working/software-change/mission/execution-circuit.mjs",
     "./semantic-carrier-generation": "./src/becoming/doing/working/software-change/semantic-carrier-generation.mjs",
     "./workspace-relocation": "./src/becoming/doing/working/software-change/workspace-relocation.mjs",

@@ -5,13 +5,25 @@
   "receivingTests": [
     "test/delivery-queue-responsiveness.test.mjs",
     "test/journal-custody.test.mjs",
-    "test/flatfile-queue-recovery-custody.test.mjs"
+    "test/flatfile-queue-recovery-custody.test.mjs",
+    "test/follower-source-order.test.mjs"
   ],
   "description": "The Union's public transport: ActivityPub federation carrying CloudEvents whose data is an A2A message with one RMN part.",
   "files": [
     "README.md",
-    "scripts",
-    "src"
+    "scripts/seat-activitypub-face.sh",
+    "scripts/materialize-sen-outbox-activity.mjs",
+    "src",
+    "scripts/serve-activitypub-network.mjs",
+    "test/activitypub-correlation.runtime.test.mjs",
+    "test/activitypub-media-contract.test.mjs",
+    "test/activitypub-correlation.fixture.mjs",
+    "test/activitypub-correlation.fault-child.mjs",
+    "test/delivery-queue-responsiveness.test.mjs",
+    "test/journal-custody.test.mjs",
+    "test/flatfile-queue-recovery-custody.test.mjs",
+    "test/follower-source-order.test.mjs",
+    "scripts"
   ],
   "exports": {
     ".": "./src/provider.mjs",
@@ -65,7 +77,8 @@
     "@red-cup-engineering/uri-services-section": "workspace:*",
     "ethers": "6.17.0",
     "@red-cup-engineering/semiotic-eavt-services-section": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
+    "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
   },
   "engines": {
     "node": ">=22"

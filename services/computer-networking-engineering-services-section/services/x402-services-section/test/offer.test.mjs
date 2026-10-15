@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { validateBazaarRouteExtensions, validateDiscoveryExtension, validateDiscoveryExtensionSpec, isValidRouteTemplate, isValidServiceName } from "@x402/extensions/bazaar";
 import { createExactEvmFetchPaymentBoundary } from "../src/fetch-server.mjs";
+import { marketCatalogReadout } from "../src/market/catalog.mjs";
 
 import {
   CAPABILITY_OFFER_KIND,
@@ -11,6 +12,8 @@ import {
   declareCatalog,
   declareOffer,
   incomeAccountFor,
+  exactMerchantTermsMatch,
+  sourceRightsClaimCurrent,
   priceAtomicUnits,
   settlementWitness,
   x402RoutesForOffers,
@@ -65,6 +68,26 @@ function getDeclaration(overrides = {}) {
     ...overrides,
   };
 }
+
+test("nondefault and Besu assets use native atomic units rather than invented USD parity", () => {
+  const nondefault = "0x" + "22".repeat(20);
+  const privateChain = "eip155:5615611";
+  const customRails = { network: privateChain, asset: nondefault, payTo: PAY_TO,
+    assetExtra: { name: "Semiotic Settlement Unit", version: "1" } };
+  const dollarOffer = declareOffer(getDeclaration());
+  assert.throws(() => dollarOffer.x402Route(customRails), /exact CAIP-19 atomic/u);
+  assert.throws(() => dollarOffer.x402Route({ ...RAILS, asset: nondefault,
+    assetExtra: customRails.assetExtra }), /exact CAIP-19 atomic/u);
+  const atomicOffer = declareOffer(getDeclaration({
+    price: { amountAtomic: "1200", asset: privateChain + "/erc20:" + nondefault },
+  }));
+  const entry = atomicOffer.x402Route(customRails)["GET /base/gas-oracle"].accepts[0];
+  assert.equal(entry.network, privateChain);
+  assert.equal(entry.payTo, PAY_TO);
+  assert.deepEqual(entry.price, {
+    amount: "1200", asset: nondefault, extra: customRails.assetExtra,
+  });
+});
 
 test("priceAtomicUnits converts dollar strings to six-decimal atomic units", () => {
   assert.equal(priceAtomicUnits("$0.05"), "50000");
@@ -370,6 +393,20 @@ test("seller projections carry the declared enterprise and book independently of
   assert.equal(capability.provider, row.servingProvider);
 });
 
+test("held sale status blocks direct x402, directory, and ActivityPub publication independently of visibility", () => {
+  const held = declareOffer(getDeclaration({ listed: false, saleStatus: "held" }));
+  assert.equal(held.declaration.listed, false);
+  assert.throws(() => held.x402Route(RAILS), /held offer/u);
+  assert.throws(() => held.index402Registration({ provider: "561 Group" }), /held offer/u);
+  assert.throws(() => held.capabilityOffer({
+    ...RAILS, agentCard: "https://pacing.example.test/.well-known/agent-card.json",
+    expiresAt: "2027-10-13T20:00:00Z",
+  }), /held offer/u);
+  const privateOffer = declareOffer(getDeclaration({ listed: false }));
+  assert.ok(Object.keys(privateOffer.x402Route(RAILS)).length === 1,
+    "unlisted does not mean held: owner-directed private sales remain possible");
+});
+
 test("the catalog row's expected amount equals the amount in the derived challenge", () => {
   const offer = declareOffer(postDeclaration());
   assert.equal(
@@ -506,3 +543,116 @@ test("settlementWitness treats a non-success sink response as a refused delivery
   assert.equal(JSON.parse(lines[1]).reason, "sink responded 503");
 });
 
+
+
+test("single kernel law matches the same exact merchant terms in proxy and independent receivers", () => {
+  const expected = { network: NETWORK, asset: USDC, payTo: PAY_TO, amount: "10000" };
+  const allowed = { scheme: "exact", network: NETWORK, asset: USDC,
+    payTo: PAY_TO, amount: "10000", maxTimeoutSeconds: 300 };
+  assert.equal(exactMerchantTermsMatch({ accepts: [allowed] }, expected), true);
+  assert.equal(exactMerchantTermsMatch({ accepts: [allowed, { ...allowed }] }, expected), true);
+  assert.equal(exactMerchantTermsMatch({ accepts: [allowed] },
+    { network: NETWORK, asset: USDC, amount: "10000" }), true);
+  for (const altered of [
+    { scheme: "upto" }, { scheme: "batch-settlement" },
+    { network: "eip155:5615611" }, { asset: "0x" + "11".repeat(20) },
+    { payTo: "0x" + "22".repeat(20) }, { amount: "10001" },
+  ]) {
+    const unsafe = { ...allowed, ...altered };
+    assert.equal(exactMerchantTermsMatch({ accepts: [unsafe] }, expected), false);
+    assert.equal(exactMerchantTermsMatch({ accepts: [allowed, unsafe] }, expected), false);
+  }
+  assert.equal(exactMerchantTermsMatch({ accepts: [] }, expected), false);
+  assert.equal(exactMerchantTermsMatch({ accepts: [null] }, expected), false);
+  assert.equal(exactMerchantTermsMatch({}, expected), false);
+  assert.throws(() => exactMerchantTermsMatch({ accepts: [allowed] }, { ...expected,
+    amount: "1e5" }), /canonical atomic amount/u);
+  assert.throws(() => exactMerchantTermsMatch({ accepts: [allowed] }, { ...expected,
+    network: "Base" }), /CAIP-2/u);
+});
+
+
+test("one source-rights claim survives native catalog, actor offer and seller projections without becoming a license verification", () => {
+  const rights = {
+    basis: "public-domain",
+    sourceUrl: "https://nauticalcharts.noaa.gov/data/data-licensing.html",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    permissions: ["execute","transform","redistribute","commercialize","resell"],
+    evidenceNis: ["ni:///sha-256;"+"A".repeat(43)],
+    observedAt: "2026-10-13T20:00:00Z"
+  };
+  const offered = declareOffer(getDeclaration({sourceRightsClaim:rights}));
+  assert.deepEqual(offered.declaration.sourceRightsClaim, rights);
+  const catalog = marketCatalogReadout([offered]);
+  assert.deepEqual(catalog.offers[0].sourceRightsClaim, rights);
+  assert.equal(catalog.offers[0].sourceRightsVerification, "unassayed");
+  const actor = offered.capabilityOffer({network:NETWORK,asset:USDC,
+    agentCard:"https://pacing.example.test/.well-known/agent-card.json",
+    expiresAt:"2027-10-13T20:00:00Z"});
+  assert.deepEqual(actor.sourceRightsClaim, rights);
+  assert.equal(actor.sourceRightsVerification, "unassayed");
+  const seller = offered.sellerCatalogRow(RAILS);
+  assert.equal(seller.sourceRightsVerification, "unassayed");
+  assert.deepEqual(seller.sourceRightsClaim, rights);
+  assert.equal(marketCatalogReadout([declareOffer(getDeclaration())]).offers[0].sourceRightsVerification, "not-declared");
+  for(const mutation of [
+    {permissions:["execute","transform"]},
+    {sourceUrl:"https://user:pass@noaa.gov/private"},
+    {licenseUrl:"http://licenses.example.test/legal"},
+    {evidenceNis:["not-a-ni"]},
+    {expiresAt:"2026-10-12T00:00:00Z"},
+  ]) assert.throws(() => declareOffer(getDeclaration({sourceRightsClaim:{...rights,...mutation}})),
+    /commercial|HTTPS|source rights|admissible|expiry/u);
+});
+
+
+test("community-governed data carries actor, purpose, authority and benefit claims without claiming authorization", () => {
+  const governance = {
+    authorityActor: "https://nation.example/actors/data-office",
+    protocolUri: "https://nation.example/protocols/2026/reuse",
+    permittedPurposes: ["approved research aggregation", "community-funded summaries"],
+    authorityEvidenceNis: ["ni:///sha-256;" + "B".repeat(43)],
+    benefitAgreementNis: ["ni:///sha-256;" + "C".repeat(43)],
+    observedAt: "2026-10-13T20:00:00Z",
+    expiresAt: "2026-10-14T20:00:00Z",
+  };
+  const rights = {
+    basis: "licensed-third-party",
+    sourceUrl: "https://nation.example/data",
+    licenseUrl: governance.protocolUri,
+    permissions: ["execute", "transform", "commercialize"],
+    evidenceNis: ["ni:///sha-256;" + "D".repeat(43)],
+    observedAt: "2026-10-13T19:00:00Z",
+    expiresAt: "2026-10-15T20:00:00Z",
+    communityGovernance: governance,
+  };
+  const offered = declareOffer(getDeclaration({ sourceRightsClaim: rights }));
+  const readout = marketCatalogReadout([offered]).offers[0];
+  assert.deepEqual(readout.sourceRightsClaim.communityGovernance, governance);
+  assert.equal(readout.sourceRightsVerification, "unassayed");
+  const at = instant => sourceRightsClaimCurrent(offered.declaration, Date.parse(instant));
+  assert.equal(at("2026-10-13T19:59:59Z"), false, "future community authority is not current");
+  assert.equal(at("2026-10-13T20:00:00Z"), true, "current seller claim is not independent legal proof");
+  assert.equal(at("2026-10-14T20:00:00Z"), false, "community mandate ends before source licence");
+  for (const changed of [
+    { ...governance, benefitAgreementNis: [] },
+    { ...governance, authorityEvidenceNis: ["not-ni"] },
+    { ...governance, authorityActor: "https://user:pass@nation.example/secret" },
+    { ...governance, expiresAt: "2026-10-12T00:00:00Z" },
+    { ...governance, protocolUri: "http://nation.example/terms" },
+  ]) assert.throws(() => declareOffer(getDeclaration({
+    sourceRightsClaim: { ...rights, communityGovernance: changed },
+  })), /admissible|HTTPS|expiry/u);
+});
+
+test("source-rights time admission is a pure temporal check and never a legal verification", () => {
+  const rights = { observedAt:"2026-10-13T12:00:00Z", expiresAt:"2026-10-14T00:00:00Z" };
+  const at = (instant) => sourceRightsClaimCurrent({sourceRightsClaim:rights}, Date.parse(instant));
+  assert.equal(at("2026-10-13T11:59:59Z"), false);
+  assert.equal(at("2026-10-13T12:00:00Z"), true);
+  assert.equal(at("2026-10-13T23:59:59Z"), true);
+  assert.equal(at("2026-10-14T00:00:00Z"), false);
+  assert.equal(sourceRightsClaimCurrent({sourceRightsClaim:{observedAt:rights.observedAt}},Date.parse("2026-10-14T00:00:00Z")),true);
+  assert.equal(sourceRightsClaimCurrent({},Date.parse("2026-10-14T00:00:00Z")),true);
+  assert.throws(() => sourceRightsClaimCurrent({},NaN), /finite instant/u);
+});

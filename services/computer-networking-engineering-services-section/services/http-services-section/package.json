@@ -16,7 +16,7 @@
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/signchain": "workspace:*",
     "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-system-engine": "workspace:*"
+    "@red-cup-engineering/javascript-node-services-section": "workspace:*"
   },
   "files": [
     "src",
@@ -69,7 +69,8 @@
     "./content-digest": "./src/content-digest.mjs",
     "./json-api-query": "./src/json-api-query.mjs",
     "./public-json-observation": "./src/public-json-observation.mjs",
-    "./operations": "./src/operations.mjs"
+    "./retry-after": "./src/retry-after.mjs",
+    "./acquire-response": "./src/acquire-response.mjs"
   },
   "engines": {
     "node": ">=22.18"
@@ -82,5 +83,8 @@
     "type": "git",
     "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
     "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section"
+  },
+  "devDependencies": {
+    "@red-cup-engineering/immutable-content-custody-service": "workspace:*"
   }
 }

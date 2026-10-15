@@ -14,7 +14,7 @@ import { syncGitHubIssues } from "./github-issues.mjs";
 
 /** An installed operations console. The instance supplies identity, roots and
  * policy; the platform supplies admission and the operation caller. */
-export function operationsConsole({ config, configuration = {}, run, runAs, resolveGitHubReceivingBinding }) {
+export function operationsConsole({ config, realm, configuration = {}, run, runAs, resolveGitHubReceivingBinding }) {
   const label = configuration.label ?? config.instance.label ?? config.instance.title;
   const githubSource = configuration.githubIssueSources?.[config.instance.name];
   // The house's work is held across many repositories; a source names them as owner/name or owner/*.
@@ -74,8 +74,8 @@ export function operationsConsole({ config, configuration = {}, run, runAs, reso
     applications: [
       guardOperators(controlPlaneApp(config.dataDir, { run, runAs, navigationTitle: label, navigationLinks: configuration.navigationLinks ?? [] }),
         (resource) => /^ops-control-plane\.(books|records?|world|businesses|group-financial-readout)/u.test(resource.id),
-        { stateDir: config.stateDir, allowedEmail: config.allowedEmail, navigation, navigationTitle: label }),
-      peopleApp({ stateDir: config.stateDir, allowedEmail: config.allowedEmail, navigation, navigationTitle: label }),
+        { stateDir: realm.stateDirectory, allowedEmail: realm.allowedEmail, navigation, navigationTitle: label }),
+      peopleApp({ stateDir: realm.stateDirectory, allowedEmail: realm.allowedEmail, navigation, navigationTitle: label }),
       { resources: obligations.resources },
       workCenterApp({ runAs, navigation, navigationTitle: label }),
       workActionsApp({ runAs, navigation, navigationTitle: label }),

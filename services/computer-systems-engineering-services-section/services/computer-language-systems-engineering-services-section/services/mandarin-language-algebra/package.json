@@ -2,7 +2,7 @@
   "name": "@lenticule-science/mandarin-language-algebra",
   "version": "0.1.2",
   "type": "module",
-  "description": "mandarin-language-algebra: \u666e\u901a\u8bdd (Standard Mandarin) as a language fiber \u2014 its lexicon, curated closed-class grammar, classifier morphotactics, reference and dictionary-based segmentation tables \u2014 presented as a live, discoverable, directly contractable micro-enterprise (a die) of linguistics-services-section. This is Mandarin's fiber over @red-cup-engineering/communicating's language-engine algebra, the same role lakota-language-algebra and tokipona-language-algebra play for their languages.",
+  "description": "mandarin-language-algebra: 普通话 (Standard Mandarin) as a language fiber — its lexicon, curated closed-class grammar, classifier morphotactics, reference and dictionary-based segmentation tables — presented as a live, discoverable, directly contractable micro-enterprise (a die) of linguistics-services-section. This is Mandarin's fiber over @red-cup-engineering/communicating's language-engine algebra, the same role lakota-language-algebra and tokipona-language-algebra play for their languages.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lenticule-science/mandarin-language.git"
@@ -37,7 +37,7 @@
   "files": [
     "content",
     "data",
-    "src"
+    "src/"
   ],
   "sideEffects": false,
   "license": "UNLICENSED"

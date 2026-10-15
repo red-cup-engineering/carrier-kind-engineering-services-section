@@ -11,6 +11,13 @@ const scenario = {
   minimumPrecomputeHeadroomAtomic: "500",
   now: NOW
 };
+const ACTORS = Object.freeze({
+  supplierActorRef: "urn:ame:red-cup-compute",
+  consumerActorRef: "urn:ame:causeway-market",
+});
+const reading = (resource, unit, numerator, denominator = "1") =>
+  ({ resource, unit, amount: { numerator, denominator } });
+
 function offer(operation, amount, overrides = {}) {
   return {
     amount,
@@ -44,6 +51,15 @@ test("one canonical catalog produces actionable fee-only warnings, not fake prof
   assert.equal(r.finalContributionMargin, "unknown");
   assert.equal(r.actualTransactions, "not observed");
   assert.equal(r.exposedOffers[0].realizedRevenueAtomic, null);
+});
+
+test("unit-economics engine has no ambient clock; owner must supply exact observation time", () => {
+  const inputs = [offer("one", "1200")];
+  assert.throws(() => analyzeMarketUnitEconomics(inputs, { ...scenario, now: undefined }), /stale|future dated/u);
+  assert.throws(() => analyzeMarketUnitEconomics(inputs, { ...scenario, now: "2026-10-13T18:00:00Z" }), /stale|future dated/u);
+  const one = analyzeMarketUnitEconomics(inputs, scenario);
+  const again = analyzeMarketUnitEconomics(inputs, { ...scenario, now: new Date(NOW.toISOString()) });
+  assert.deepEqual(one, again, "same typed clock and offers produce identical evidence");
 });
 
 test("unclear native settlement asset never becomes a fictitious USD comparison", () => {
@@ -83,4 +99,117 @@ test("without an explicit reserve there is no invented floor on compute", () => 
   assert.equal(r.belowTargetHeadroomCount, null);
   assert.deepEqual(r.exposedOffers, []);
   assert.equal(r.gateways.data.belowTargetHeadroom, 0);
+});
+
+
+test("graded resource receipts contribute to scenario economics without falsifying observed cash", () => {
+  const SKU = "ni:///sha-256;" + "A".repeat(43);
+  const receipt = {
+    sku: SKU,
+    source: "https://evidence.example.test/compute-costs",
+    evidenceNi: "ni:///sha-256;" + "B".repeat(43),
+    observedAt: "2026-10-13T17:59:00Z",
+    asset: "eip155:8453/erc20:" + ASSET.toLowerCase(),
+    marginalCostAtomic: "2500",
+    ...ACTORS,
+    resourceReadings: [
+      reading("cpu-runtime", "millisecond", "1000"),
+      reading("inference-output", "token", "12"),
+      reading("network-egress", "byte", "4096"),
+      reading("ram-residency", "byte-second", "4096"),
+    ]
+  };
+  const offers = [{ ...offer("compute", "3000"), sku: SKU }];
+  const r = analyzeMarketUnitEconomics(offers, { ...scenario, resourceCostReceipts: [receipt] });
+  assert.equal(r.costReceiptsMatched, 1);
+  assert.equal(r.modeledLossMakingCount, 1);
+  assert.equal(r.modeledMarginsWithoutCostEvidence, 0);
+  assert.equal(r.exposedOffers.length, 1);
+  assert.equal(r.exposedOffers[0].modeledContributionAtomic, "-500");
+  const row = analyzeMarketUnitEconomics(offers, { ...scenario, resourceCostReceipts: [receipt],
+    minimumPrecomputeHeadroomAtomic: "3000" }).exposedOffers[0];
+  assert.equal(row.preComputeHeadroomAtomic, "2000");
+  assert.equal(row.modeledContributionAtomic, "-500");
+  assert.equal(row.modeledContributionBelowZero, true);
+  assert.deepEqual(row.resourceCostEvidence.resourceReadings.map(({ resource, unit, amount }) =>
+    ({ resource, unit, amount })), [
+    reading("cpu-runtime", "s", "1"),
+    reading("inference-output", "{token}", "12"),
+    reading("network-egress", "By", "4096"),
+    reading("ram-residency", "By.s", "4096"),
+  ]);
+  assert.equal(row.resourceCostEvidence.supplierActorRef, ACTORS.supplierActorRef);
+  assert.equal(row.resourceCostEvidence.consumerActorRef, ACTORS.consumerActorRef);
+  assert.ok(row.resourceCostEvidence.resourceReadings[0].grade.includes(ACTORS.consumerActorRef));
+  assert.equal(row.finalContributionMarginAtomic, null);
+  assert.equal(row.realizedRevenueAtomic, null);
+  const unknown = analyzeMarketUnitEconomics(offers, scenario);
+  assert.equal(unknown.costReceiptsMatched, 0);
+  assert.equal(unknown.modeledMarginsWithoutCostEvidence, 1);
+  assert.equal(unknown.modeledLossMakingCount, 0);
+});
+
+test("cost evidence cannot silently cross unit, identity, freshness or provenance boundaries", () => {
+  const SKU = "ni:///sha-256;" + "A".repeat(43);
+  const valid = {
+    sku: SKU, source: "https://costs.example.test/witness",
+    evidenceNi: "ni:///sha-256;" + "B".repeat(43),
+    observedAt: "2026-10-13T17:59:00Z",
+    asset: "eip155:8453/erc20:" + ASSET.toLowerCase(),
+    marginalCostAtomic: "500", ...ACTORS,
+    resourceReadings: [reading("cpu-runtime", "millisecond", "100")]
+  };
+  const offers = [{ ...offer("cpu", "3000"), sku: SKU }];
+  for (const bad of [
+    { sku: "ni:///sha-256;" + "C".repeat(43) },
+    { asset: "eip155:5615611/erc20:" + ASSET.toLowerCase() },
+    { observedAt: "2026-01-01T00:00:00Z" },
+    { marginalCostAtomic: "0.0001" },
+    { resourceReadings: [] },
+    { resourceReadings: [reading("cpu-runtime", "millisecond", "100"),
+      reading("cpu-runtime", "s", "1")] },
+    { resourceReadings: [reading("cpu-runtime", "millisecond", "100.5")] },
+    { resourceReadings: [reading("energy", "USD", "1")] },
+    { resourceReadings: [{commodity:"CPU:nanosecond",quantity:"100"}] },
+    { supplierActorRef: undefined },
+    { consumerActorRef: "unscoped-market" },
+    { evidenceNi: "an unaddressed assertion" },
+  ]) assert.throws(() => analyzeMarketUnitEconomics(offers, {
+    ...scenario, resourceCostReceipts: [{ ...valid, ...bad }]
+  }), /resource|cost|SKU|atomic|stale|observation|actor|grade/u);
+  assert.throws(() => analyzeMarketUnitEconomics(offers, {
+    ...scenario, resourceCostReceipts: [valid, valid]
+  }), /duplicate/u);
+});
+
+
+test("facilitator and resource observations reject nonexistent UTC dates", () => {
+  const simple = [offer("codec", "1200")];
+  // Date.parse silently normalizes Feb 30 to Mar 2; commercial evidence must not.
+  assert.throws(() => analyzeMarketUnitEconomics(simple, {
+    ...scenario,
+    feeObservedAt: "2026-02-30T12:00:00Z",
+    now: new Date("2026-03-03T00:00:00Z"),
+  }), /UTC instant/u);
+  assert.throws(() => analyzeMarketUnitEconomics(simple, {
+    ...scenario,
+    feeObservedAt: "2026-04-31T12:00:00Z",
+    now: new Date("2026-05-02T00:00:00Z"),
+  }), /UTC instant/u);
+
+  const sku = "ni:///sha-256;" + "A".repeat(43);
+  const receipt = {
+    sku, source: "https://example.org/observed-costs",
+    evidenceNi: "ni:///sha-256;" + "B".repeat(43),
+    observedAt: "2026-04-31T12:00:00Z",
+    asset: "eip155:8453/erc20:" + ASSET.toLowerCase(),
+    marginalCostAtomic: "100", ...ACTORS,
+    resourceReadings: [reading("cpu-runtime", "millisecond", "1000")],
+  };
+  assert.throws(() => analyzeMarketUnitEconomics([{ ...simple[0], sku }], {
+    ...scenario,
+    feeObservedAt: "2026-05-01T12:00:00Z",
+    now: new Date("2026-05-02T00:00:00Z"),
+    resourceCostReceipts: [receipt],
+  }), /UTC instant/u);
 });

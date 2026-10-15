@@ -26,9 +26,16 @@ gateway is not part of this package.
 ### Exact input meanings
 
 - Bare `YYYY-MM-DD` is **00:00 UTC** on that calendar date.
-- Full datetimes are parsed as UTC instants and canonically returned with
-  `.000Z` precision where appropriate. Validate the published date range
-  *before* making a payment challenge.
+- Full datetimes must carry `Z` or an explicit numeric UTC offset. Hours and
+  minutes are required; seconds and fractional seconds are optional. They
+  are canonically returned at millisecond precision in UTC; finer fractional
+  digits are truncated, as in the existing JavaScript Date-based model.
+  Zone-less datetimes, impossible calendar days, `24:00` and leap seconds are
+  refused rather than reinterpreted. Gregorian leap-year rules apply; the
+  accuracy range is checked on the resulting UTC instant after the offset.
+  Validate the published date range *before* making a payment challenge.
+- Existing unambiguous ISO spellings remain accepted: lowercase `z`, compact
+  numeric offsets such as `+0530`, and signed six-digit years such as `+002026`.
 - A Julian day used internally for the underlying series is in **TT**
   (Terrestrial Time), translated from UTC using the package's stated
   approximate `Delta T` law. Event roots are inverted from TT to UT
@@ -111,6 +118,18 @@ error provenance without promoting decimal formatting to physical accuracy.
 
 ## Provenance, accuracy and authority
 
+The lunar `trend` describes the changing illuminated fraction: waxing from
+new to full Moon (unrounded elongation `[0, 180)` degrees), waning from full to new
+Moon (`[180, 360)`). At a boundary this names the following half-cycle.
+Classification uses the full-precision source, before the returned elongation
+is rounded to four decimals. Just before full/new Moon a displayed value may
+round to 180/360 while the trend still correctly names the preceding half-cycle.
+Relative Moon–Sun angular speed is positive during both halves and cannot
+distinguish them. These conventions follow the [US Naval Observatory's phase
+definitions](https://aa.usno.navy.mil/faq/moon_phases). The returned illuminated
+fraction remains the existing longitude-only approximation; this correction
+does not introduce a new physical-accuracy claim.
+
 The embedded source algorithm is a truncated Meeus lunar/solar series with
 JPL approximate planetary elements. Its published tested interval is
 1800–2050. The existing golden tests and per-body longitude error bounds
@@ -118,6 +137,41 @@ describe the published numerical law; extra decimal places in a vector
 transformation or printed coordinate **do not make the underlying positions
 more accurate**. The separate DE440 provider carries the pin of the actual
 precision binary and rejects unavailable suppliers.
+
+### Precision runtime identity
+
+The Node adapter measures the regular file named by `OXIEPH_DE` with streaming
+SHA-256 on every call and requires the existing classic-binary DE440 pin
+`29915576d0a6555766b99485ac3056ee415e86df4fce282611c31afb329ad062`.
+It resolves `OXIEPH_BIN` (or `oxieph` on the process search path) once, measures
+that executable, and requires its `--version` response to be `oxieph 0.1.1`.
+The version handshake is the existing supplier's
+[published Clap CLI contract](https://static.crates.io/crates/oxiephemeris-cli/oxiephemeris-cli-0.1.1.crate).
+Both resolved files' identity, size and modification/change times must remain
+unchanged through verification and chart execution. Missing files, a different
+kernel, mismatched version, process errors and observed input changes refuse
+the computation; there is no approximate fallback or environment hash override.
+
+Successful native responses retain their coordinates, nodes, cross-checks and
+existing metrology fields. The additional `supplierSha256` identifies measured
+executable bytes, and `runtimeIdentity` is
+`verified-file-and-reported-version`. This verifies the kernel pin and the
+executable's **self-reported** version, not a signed supplier build or a trusted
+executable digest. The configured executable and files must be trusted and
+stable; file-stat checks detect ordinary changes, not a hostile host replacing
+inputs between observations. This is runtime provenance, not a new rights,
+accuracy or commercial-activation claim. The approximate-model cross-check
+retains its separate scientific and source provenance.
+
+`executeOxiEphemeris` continues returning the raw chart. A custom
+`dependencies.execute` result can retain the verified metrology only by
+returning the unchanged chart actually received by this adapter for that exact
+request. Other injected, cloned, changed or replayed charts still support
+numerical projection, but their ephemeris, hash, supplier and software-license
+fields are `null`, with `runtimeIdentity: "unverified-executor"`.
+Tests exercise real temporary files and local synthetic child processes with
+known fixture hashes. They do not assert execution of the actual Oxi/DE440
+numerical supplier or qualification of SPK input.
 
 The `computeAstronomyEventWindow` products make observational promises only
 to the limit of the underlying ephemeris and Earth-rotation model. Do not
@@ -142,3 +196,4 @@ runs these scientific tests and verifies that a packed tarball can be
 installed and imported by a separate clean consumer without registry access.
 An accepted tarball is **not** a published `registry.561.group` release,
 and a published library is not a live x402 paid-delivery witness.
+

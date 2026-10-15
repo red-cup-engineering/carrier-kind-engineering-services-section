@@ -4,12 +4,16 @@ import { Activity } from "@fedify/vocab";
 import { semanticAddress } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { each, get, put, readHead, threadName, writeHead } from "@red-cup-engineering/semiotic-eavt-services-section/store";
 import path from "node:path";
+import { makeNiUri, verifyNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
+import { immutableContentKey } from "@red-cup-engineering/immutable-content-custody-service";
+import { createFileStoreSync } from "@red-cup-engineering/immutable-content-custody-service/file-store";
 import { FlatfileKvStore } from "./flatfile-kv.mjs";
 import { extractSenActivity } from "./sen-activity.mjs";
 import { admitNormalizedSemanticContent } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import { termToJson } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/json-codec";
 
-const correlate=activity=>{
+/** Exact body-derived correlation shared with stopped-writer receiving. */
+export const activityPubReplyCoordinates=activity=>{
     try{
       const actor=typeof activity.actor==='string'?activity.actor:activity.actor?.id;
       const to=Array.isArray(activity.to)?activity.to[0]:activity.to;
@@ -22,6 +26,13 @@ const correlate=activity=>{
       return {request:value.request,sender:projection.cloudEvent.source};
     }catch{return null;}
   };
+
+/** Reusable native work identity; event time and transmission messageId are not work. */
+export function activityPubRequestIdentity(wire,{actor=wire?.actor,recipient=Array.isArray(wire?.to)?wire.to[0]:wire?.to}={}){
+  const projection=extractSenActivity(wire,{expectedActor:actor,expectedRecipient:recipient});
+  const {messageId:_messageId,...message}=projection.a2aMessage;
+  return semanticAddress({actor,recipient,type:wire.type,objectNi:projection.objectNi,agentCard:projection.agentCard,message}).id;
+}
 
 /**
  * ActivityPub custody as records of the store at one root: every verified arrival (`activitypub-inbox`),
@@ -36,6 +47,89 @@ export const FOLLOWER_TYPE = "activitypub-follower";
 export const OUTBOX_TYPE = "activitypub-outbox";
 const PAGE = 100;
 
+/** These name existing request/reply custody, not a derived board or index.
+ * The one-time receiving conversion must write the same heads for retained
+ * history; a runtime reader never scans an old layout to repair them. */
+export const activityPubRequestHead = request => threadName(semanticAddress({type:OUTBOX_TYPE,name:{request}}).id);
+export const activityPubReplyHead = ({identifier,request,sender}) => threadName(semanticAddress({type:INBOX_TYPE,name:{identifier,request,sender}}).id);
+function headRecord(root,type,head){
+  if(head===undefined)return undefined;
+  if(head.closed===true)throw new TypeError('ActivityPub exact custody cannot use a closed head');
+  if(head.frontier.length!==1)throw new TypeError('ActivityPub exact custody requires one head');
+  const record=get(root,type,head.frontier[0]);
+  if(record===undefined)throw new TypeError('ActivityPub custody head names a missing record');
+  return record;
+}
+function atHead(root,type,name){return headRecord(root,type,readHead(root,type,name));}
+function verifiedReplyHead(root,{identifier,request,sender}){
+  const head=readHead(root,INBOX_TYPE,activityPubReplyHead({identifier,request,sender}));
+  const record=headRecord(root,INBOX_TYPE,head);
+  if(record===undefined)return undefined;
+  replyOrder(record);
+  const activity=activityOf(root,record),reply=activityPubReplyCoordinates(activity);
+  if(!validReceipt(record.receipt)||record.receipt.recipient!==identifier||record.recipient!==identifier
+    ||sha256Hex(canonicalJson(activity))!==record.receipt.bodySha256||sha256Hex(canonicalJson(record.receipt))!==record.key
+    ||canonicalJson(record.reply??null)!==canonicalJson(reply)||reply?.request!==request||reply?.sender!==sender)
+    throw new Error('correlated reply differs from verified custody');
+  return {head,address:head.frontier[0],record,activity};
+}
+
+/** Explicit receiving law: original raw lexical timestamps remain primary.
+ * Native ties use the stable receipt's observed ordinal and key, not mutable
+ * bucket positions. Conversion assigns each receipt its last original ordinal. */
+const replyOrder=record=>{
+  if(!Number.isSafeInteger(record.replyOrder)||record.replyOrder<0||typeof record.key!=='string'||!/^[a-f0-9]{64}$/u.test(record.key))
+    throw new TypeError('ActivityPub reply custody requires its received semantic order');
+  return record.replyOrder;
+};
+export function compareActivityPubReplyRows(left,right){
+  const a=replyOrder(left.record),b=replyOrder(right.record);
+  if(left.record.at!==right.record.at)return left.record.at<right.record.at?-1:1;
+  if(a!==b)return a<b?-1:1;
+  return left.record.key<right.record.key?-1:left.record.key>right.record.key?1:0;
+}
+function retainReplyHead(root,row){
+  replyOrder(row.record);
+  const {recipient:identifier,reply}=row.record;
+  const name=activityPubReplyHead({identifier,...reply});
+  for(let attempt=0;attempt<2;attempt++){
+    const prior=verifiedReplyHead(root,{identifier,...reply});
+    const held=prior?.head;
+    if(prior!==undefined&&(prior.address===row.address||compareActivityPubReplyRows(row,prior)<=0))return;
+    try{writeHead(root,INBOX_TYPE,name,{frontier:[row.address]},{expect:held?.frontier??null});return;}
+    catch(error){if(error.code!=='head-conflict'||attempt===1)throw error;}
+  }
+}
+function bindReceipt(root,type,name,row){
+  const headName=threadName(semanticAddress({type,name}).id);
+  try{writeHead(root,type,headName,{frontier:[row.address]},{expect:null});return row;}
+  catch(error){
+    if(error.code!=='head-conflict')throw error;
+    const head=readHead(root,type,headName);
+    return {address:head.frontier[0],record:atHead(root,type,headName)};
+  }
+}
+
+// Bodies can exceed the record bound. Records name verified immutable custody;
+// collection paging opens only the bodies returned to its caller.
+function keepActivity(root, activity) {
+  const body = Buffer.from(canonicalJson(activity), "utf8");
+  const activityNi = makeNiUri(body);
+  const store = createFileStoreSync(path.join(root, "custody"));
+  const key = immutableContentKey(activityNi);
+  store.putIfAbsent(key, { body, mediaType: "application/json" });
+  const held = store.get(key);
+  if (held === null || held.mediaType !== 'application/json' || !Buffer.from(held.body).equals(body)) throw new Error("ActivityPub body failed immutable custody readback");
+  return { activityNi, activityBytes: body.length };
+}
+
+function activityOf(root, record) {
+  if (typeof record.activityNi !== "string" || !Number.isSafeInteger(record.activityBytes)) throw new TypeError("ActivityPub body requires custody conversion before receiving");
+  const held = createFileStoreSync(path.join(root, "custody")).get(immutableContentKey(record.activityNi));
+  if (held === null || held.mediaType !== "application/json" || held.body.length !== record.activityBytes || !verifyNiUri(held.body, record.activityNi)) throw new Error("ActivityPub body differs from immutable custody");
+  return JSON.parse(Buffer.from(held.body).toString("utf8"));
+}
+
 /** Recording instants that strictly increase within the process, so record order is append order. */
 function instants() {
   let last = 0;
@@ -46,20 +140,51 @@ function instants() {
   };
 }
 
-/** Every record of a type in the order it was recorded. */
-const recordedIn = (root, type) => [...each(root, type)].map(({ record }) => record)
-  .sort((left, right) => (left.at < right.at ? -1 : left.at > right.at ? 1 : 0));
+/** Every record of a type in the order it was recorded.
+ * Inbox collection ties retain received sourceOrder; native rows without one
+ * follow received rows at a tie and retain their current bucket traversal order.
+ * Correlated reply selection uses its separate stable replyOrder law above.
+ * Follower timestamps use their original query comparison (localeCompare),
+ * which agrees with native canonical ISO instants and preserves accepted legacy
+ * timestamp spellings unchanged. Received histories can carry an append ordinal. Equal
+ * original instants preserve that order; subsequent unsequenced native events
+ * follow received history at a tie. A malformed or conflicting ordinal refuses
+ * the reading instead of letting address-bucket order decide a relationship.
+ */
+const recordedIn = (root, type) => {
+  const rows = [...each(root, type)].map(({ record }) => record);
+  const order = record => {
+    if (record.sourceOrder === undefined) return Infinity;
+    if (!Number.isSafeInteger(record.sourceOrder) || record.sourceOrder < 0) throw new TypeError("ActivityPub received source order must be an exact nonnegative integer");
+    return record.sourceOrder;
+  };
+  if (type === FOLLOWER_TYPE || type === INBOX_TYPE) {
+    const seen = new Set();
+    for (const row of rows) {
+      order(row);
+      if (row.sourceOrder === undefined) continue;
+      const key = canonicalJson([row.identifier ?? null, row.at, row.sourceOrder]);
+      if (seen.has(key)) throw new TypeError("ActivityPub received source order names conflicting history");
+      seen.add(key);
+    }
+  }
+  rows.sort((left, right) => (type === FOLLOWER_TYPE
+    ? String(left.at).localeCompare(String(right.at))
+    : (left.at < right.at ? -1 : left.at > right.at ? 1 : 0))
+    || (type === FOLLOWER_TYPE || type === INBOX_TYPE ? (order(left) < order(right) ? -1 : order(left) > order(right) ? 1 : 0) : 0));
+  return rows;
+};
 
 /** Keep a record and the head that finds it by `name`; the first record kept under a name stays. */
 function keep(root, type, name, record) {
   const address = put(root, type, record);
   writeHead(root, type, threadName(semanticAddress({ type, name }).id), { frontier: [address] });
+  return address;
 }
 
 /** The record kept under `name`, or undefined. */
 function kept(root, type, name) {
-  const address = readHead(root, type, threadName(semanticAddress({ type, name }).id))?.frontier[0];
-  return address === undefined ? undefined : get(root, type, address);
+  return atHead(root,type,threadName(semanticAddress({type,name}).id));
 }
 
 const validReceipt = (receipt) => receipt !== null && typeof receipt === "object"
@@ -93,32 +218,48 @@ function inboxOf(root, now) {
       const activityJson = canonicalJson(activity);
       const receipt = Object.freeze({ type: "ActivityPubVerifiedArrivalReceipt", version: 1, bodySha256: sha256Hex(activityJson), recipient: arrival.recipient ?? null });
       const key = keyOf(receipt);
-      const held = kept(root, INBOX_TYPE, key);
-      if (held !== undefined) {
-        if (canonicalJson(held.activity) !== activityJson || canonicalJson(held.receipt) !== canonicalJson(receipt)) throw new Error("immutable ActivityPub custody record differs from the verified arrival");
-        return receipt;
+      const validate=held=>{
+        if(canonicalJson(activityOf(root,held))!==activityJson||canonicalJson(held.receipt)!==canonicalJson(receipt)
+          ||held.key!==key||held.recipient!==receipt.recipient||canonicalJson(held.reply??null)!==canonicalJson(activityPubReplyCoordinates(activity)))
+          throw new Error('immutable ActivityPub custody record differs from the verified arrival');
+        return held;
+      };
+      let held=kept(root,INBOX_TYPE,key),row;
+      if(held===undefined){
+        const reply=activityPubReplyCoordinates(activity);
+        const prior=reply===null||receipt.recipient===null?undefined:verifiedReplyHead(root,{identifier:receipt.recipient,...reply});
+        const order=prior===undefined?0:replyOrder(prior.record)+1;
+        if(!Number.isSafeInteger(order))throw new TypeError('ActivityPub reply order exhausted');
+        const record={key,receipt,recipient:receipt.recipient,...keepActivity(root,activity),
+          ...(reply===null?{}:{reply,replyOrder:order}),at:now()};
+        row=bindReceipt(root,INBOX_TYPE,key,{address:put(root,INBOX_TYPE,record),record});
+        held=validate(row.record);
+      }else{
+        validate(held);
+        row={address:readHead(root,INBOX_TYPE,threadName(semanticAddress({type:INBOX_TYPE,name:key}).id)).frontier[0],record:held};
       }
-      keep(root, INBOX_TYPE, key, { key, receipt, recipient: receipt.recipient, activity, at: now() });
+      // Receipt-key CAS fixes the original ordinal once. A retry only joins
+      // that same row, so replay healing cannot promote an older receipt.
+      if(held.reply!==undefined&&held.recipient!==null)retainReplyHead(root,row);
       return receipt;
     },
     async replyFor({ identifier, request, sender }) {
       if ([identifier, request, sender].some(value => typeof value !== "string" || !value)) throw new TypeError("reply lookup requires its actor, request and expected sender");
-      const held = arrivals().findLast(row => row.recipient === identifier && correlate(row.activity)?.request === request && correlate(row.activity)?.sender === sender);
-      if (held === undefined) return null;
-      if (!validReceipt(held.receipt) || held.receipt.recipient !== identifier || sha256Hex(canonicalJson(held.activity)) !== held.receipt.bodySha256 || keyOf(held.receipt) !== held.key) throw new Error("correlated reply differs from verified custody");
-      return Object.freeze(held.activity);
+      const held=verifiedReplyHead(root,{identifier,request,sender});
+      return held===undefined?null:Object.freeze(held.activity);
     },
     async get(receipt) {
       if (!validReceipt(receipt)) throw new TypeError("ActivityPub verified-arrival receipt is invalid");
       const held = kept(root, INBOX_TYPE, keyOf(receipt));
       if (held === undefined) return null;
-      if (canonicalJson(held.receipt) !== canonicalJson(receipt) || sha256Hex(canonicalJson(held.activity)) !== receipt.bodySha256) throw new Error("immutable ActivityPub custody record does not match its receipt");
-      return Object.freeze({ activity: held.activity, receipt });
+      const activity = activityOf(root, held);
+      if (canonicalJson(held.receipt) !== canonicalJson(receipt) || sha256Hex(canonicalJson(activity)) !== receipt.bodySha256) throw new Error("immutable ActivityPub custody record does not match its receipt");
+      return Object.freeze({ activity, receipt });
     },
     async list({ identifier, cursor, limit } = {}) {
       const rows = arrivals().filter((row) => identifier === undefined || row.recipient === identifier);
       const page = pageOf(rows, { cursor, limit, invalid: "ActivityPub inbox cursor is invalid" });
-      return Object.freeze({ items: Object.freeze(page.items.map((row) => row.activity)), totalItems: rows.length, ...(page.nextCursor === undefined ? {} : { nextCursor: page.nextCursor }) });
+      return Object.freeze({ items: Object.freeze(page.items.map((row) => activityOf(root, row))), totalItems: rows.length, ...(page.nextCursor === undefined ? {} : { nextCursor: page.nextCursor }) });
     },
   });
 }
@@ -164,11 +305,12 @@ export function createActivityPubJournalOutbox({ root, now = instants() } = {}) 
     for (const record of recordedIn(root, OUTBOX_TYPE)) if (!byId.has(record.activityId)) byId.set(record.activityId, record);
     return [...byId.values()];
   };
-  const keepOutgoing = (record) => keep(root, OUTBOX_TYPE, record.activityId, { ...record, at: now() });
+  const keepOutgoing = ({ activity, ...record }) => keep(root, OUTBOX_TYPE, record.activityId, { ...record, ...keepActivity(root, activity), at: now() });
   const select = ({ actorId, publicOnly = false } = {}) => outgoing().filter((row) => (actorId === undefined || row.actorId === actorId) && (!publicOnly || row.isPublic));
   const open = async (row) => {
-    if (semanticAddress(row.activity).id !== row.contentNi) throw new Error("ActivityPub outgoing custody differs from its SignCell identity");
-    return Activity.fromJsonLd(row.activity);
+    const activity = activityOf(root, row);
+    if (semanticAddress(activity).id !== row.contentNi) throw new Error("ActivityPub outgoing custody differs from its SignCell identity");
+    return Activity.fromJsonLd(activity);
   };
   return Object.freeze({
     count: (selection) => select(selection).length,
@@ -182,6 +324,17 @@ export function createActivityPubJournalOutbox({ root, now = instants() } = {}) 
       const page = pageOf(rows, { cursor: cursor ?? undefined, limit: PAGE, invalid: "ActivityPub outbox cursor is invalid" });
       return Object.freeze({ items: Object.freeze(await Promise.all(page.items.map(open))), totalItems: rows.length, ...(page.nextCursor === undefined ? {} : { nextCursor: page.nextCursor }) });
     },
+    async requestFor({requestNi,actor,recipient}){
+      if([requestNi,actor,recipient].some(value=>typeof value!=='string'||!value))throw new TypeError('retained request observation needs its exact identity and actors');
+      const held=atHead(root,OUTBOX_TYPE,activityPubRequestHead(requestNi));
+      if(held===undefined)return null;
+      await open(held);
+      const original=activityOf(root,held);
+      if(held.requestNi!==requestNi||activityPubRequestIdentity(original,{actor,recipient})!==requestNi
+        ||held.actorId!==actor||held.isPublic!==false||held.activityId!==original.id)
+        throw new TypeError('retained request observation differs from original custody');
+      return Object.freeze(original);
+    },
     async retainRequest(wire, { expectedRequestNi } = {}) {
       if (!wire || typeof wire !== "object" || Array.isArray(wire) || typeof wire.id !== "string" || wire.id === "") throw new TypeError("ActivityPub request custody requires one activity with a string id");
       const activity = await Activity.fromJsonLd(wire);
@@ -191,21 +344,42 @@ export function createActivityPubJournalOutbox({ root, now = instants() } = {}) 
           || activity.ccIds.length || activity.btoIds.length || activity.bccIds.length || activity.audienceIds.length) throw new TypeError("reusable actor request needs one sender and one private recipient");
       const actor = activity.actorIds[0].href, recipient = activity.toIds[0].href;
       if (recipient === "https://www.w3.org/ns/activitystreams#Public") throw new TypeError("reusable actor work requires a private recipient");
-      const projection = extractSenActivity(wire, { expectedActor: actor, expectedRecipient: recipient });
-      // The observed event and A2A message keep their real identifiers. Only
-      // lookup omits messageId, which names a transmission, not changed work.
-      const { messageId: _messageId, ...message } = projection.a2aMessage;
-      const requestNi = semanticAddress({ actor, recipient, type: wire.type, objectNi: projection.objectNi,
-        agentCard: projection.agentCard, message }).id;
+      const requestNi=activityPubRequestIdentity(wire,{actor,recipient});
       if (expectedRequestNi !== undefined && expectedRequestNi !== requestNi) throw new TypeError("admitted request identity differs from its retained source");
-      const held = outgoing().find(row => row.requestNi === requestNi);
-      if (held !== undefined) {
+      const validateRequest=async held=>{
         await open(held);
-        return Object.freeze({ appended: false, contentNi: held.contentNi, held: Object.freeze(held.activity) });
+        const original=activityOf(root,held);
+        const originalRequest=activityPubRequestIdentity(original,{actor,recipient});
+        if(held.requestNi!==requestNi||originalRequest!==requestNi||held.actorId!==actor||held.isPublic!==false||held.activityId!==original.id)
+          throw new TypeError('retained request head differs from exact original request custody');
+        return original;
+      };
+      const requestHead=activityPubRequestHead(requestNi);
+      const held = atHead(root,OUTBOX_TYPE,requestHead);
+      if (held !== undefined) {
+        if(held.requestNi!==requestNi)throw new Error('retained request head differs from exact custody');
+        await validateRequest(held);
+        const address=readHead(root,OUTBOX_TYPE,requestHead).frontier[0];
+        const named=bindReceipt(root,OUTBOX_TYPE,held.activityId,{address,record:held});
+        if(named.record.contentNi!==held.contentNi)throw new TypeError('retained request event key conflicts');
+        return Object.freeze({ appended: false, contentNi: held.contentNi, held: Object.freeze(activityOf(root, held)) });
       }
-      if (outgoing().some(row => row.activityId === wire.id)) throw new TypeError("reusable request collides with another outgoing event");
+      if (kept(root,OUTBOX_TYPE,wire.id)!==undefined) throw new TypeError("reusable request collides with another outgoing event");
       const identity = semanticAddress(wire);
-      keepOutgoing({ activityId: wire.id, actorId: actor, contentNi: identity.id, isPublic: false, requestNi, activity: JSON.parse(canonicalJson(wire)) });
+      const record={activityId:wire.id,actorId:actor,contentNi:identity.id,isPublic:false,requestNi,...keepActivity(root,wire),at:now()};
+      const address=put(root,OUTBOX_TYPE,record);
+      try{writeHead(root,OUTBOX_TYPE,requestHead,{frontier:[address]},{expect:null});}
+      catch(error){
+        const raced=atHead(root,OUTBOX_TYPE,requestHead);
+        if(raced===undefined||raced.requestNi!==requestNi)throw error;
+        await validateRequest(raced);
+        const winner=readHead(root,OUTBOX_TYPE,requestHead).frontier[0];
+        const named=bindReceipt(root,OUTBOX_TYPE,raced.activityId,{address:winner,record:raced});
+        if(named.record.contentNi!==raced.contentNi)throw new TypeError('retained request event key conflicts');
+        return Object.freeze({appended:false,contentNi:raced.contentNi,held:Object.freeze(activityOf(root,raced))});
+      }
+      const named=bindReceipt(root,OUTBOX_TYPE,wire.id,{address,record});
+      if(named.record.contentNi!==identity.id)throw new TypeError('retained request event key conflicts');
       return Object.freeze({ appended: true, contentNi: identity.id, held: Object.freeze(JSON.parse(canonicalJson(wire))) });
     },
     async append(wire) {
@@ -230,10 +404,10 @@ export function createActivityPubJournalOutbox({ root, now = instants() } = {}) 
 }
 
 /** The whole custody of one ActivityPub state directory: store records and the flat-file KV. */
-export function createActivityPubJournalCustody({ stateDirectory } = {}) {
+export function createActivityPubJournalCustody({ stateDirectory, now = instants() } = {}) {
   if (typeof stateDirectory !== "string" || stateDirectory === "") throw new TypeError("ActivityPub journal custody requires a state directory");
+  if (typeof now !== "function") throw new TypeError("ActivityPub custody requires a recording clock");
   const root = path.resolve(stateDirectory, "journal");
-  const now = instants();
   const inbox = inboxOf(root, now);
   return Object.freeze({
     kv: new FlatfileKvStore({ directory: path.resolve(stateDirectory, "kv") }),

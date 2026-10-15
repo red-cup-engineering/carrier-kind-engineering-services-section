@@ -13,6 +13,17 @@ function requiredNonEmptyString(name, value) {
   return value;
 }
 
+// Fixed identity components must not contain ":"; otherwise two different
+// typed tuples can collapse to one textual key. Opaque subjects may contain
+// ":" (including ni:/// content marks) because they are the final component.
+function boundedIdentityPart(name, value) {
+  requiredNonEmptyString(name, value);
+  if (value.length > 128 || value.includes(":")) {
+    throw new TypeError(`${name} must be at most 128 characters and have no identity separators`);
+  }
+  return value;
+}
+
 /**
  * The domain-separated identity of a resource governed by one controller, on one Hive-Engine
  * network. The Hive-Engine analogue of MARSH.sol's `resourceId(controller, kind, subject)`
@@ -30,12 +41,14 @@ function requiredNonEmptyString(name, value) {
  * @returns {string}
  */
 export function marshHiveEngineResourceId(request) {
-  const contractName = request.contractName ?? "marsh";
-  const network = requiredNonEmptyString("network", request.network);
-  const controller = requiredNonEmptyString("controller", request.controller);
-  const kind = requiredNonEmptyString("kind", request.kind);
+  const contractName = boundedIdentityPart("contractName", request.contractName ?? "marsh");
+  const network = boundedIdentityPart("network", request.network);
+  const controller = boundedIdentityPart("controller", request.controller);
+  const kind = boundedIdentityPart("kind", request.kind);
   const subject = requiredNonEmptyString("subject", request.subject);
-  return `${contractName}:${network}:${controller}:${kind}:${subject}`;
+  const resource = `${contractName}:${network}:${controller}:${kind}:${subject}`;
+  if (resource.length > 512) throw new RangeError("MARSH resource identity exceeds the admitted 512-character bound");
+  return resource;
 }
 
 /**

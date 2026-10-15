@@ -168,8 +168,17 @@ not establish deployment of every enterprise capability or cloud world host.
 Research, operational concept, requirements, architecture, HLD, LLD and artifact
 specifications feed subsequent transformations. The final specification supplies
 a source-free module order or deterministic schema-module projection. Receiving
-checks the actual consumer. Its counterexample activates renewed derivation
-under the same grant; repetition of an already refuted byte transition stops.
+checks the actual consumer. A fabrication or receiver counterexample is retained as a source-bound
+SignCraft refusal, **not** an instruction to auto-generate another candidate.
+The software-development work operation stops at that boundary. A distinct
+authorized requirements/design revision, reviewed against the source-owned SRS,
+architecture, interfaces and their V-model obligations, is the next admissible
+construction input. The same failed proposal is refused across sessions from
+native custody before invoking another receiver. No automatic
+fabrication → failure → infer patch → repeat recursion is permitted; an active
+already-installed outage belongs to the Operations recovery runbook. A
+previously accepted consumer condition remains the independent acceptance
+oracle for the revised design.
 The advisory mission loop, routing pulse, action parser and private trajectory
 store are retired.
 
