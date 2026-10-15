@@ -174,3 +174,7 @@
 	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/apps/agentic-orchestration-platform
 	url = https://github.com/red-cup-engineering/agentic-orchestration-platform.git
 	branch = main
+[submodule "holofoam"]
+	path = services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/apps/holofoam
+	url = https://github.com/red-cup-engineering/holofoam.git
+	branch = main
