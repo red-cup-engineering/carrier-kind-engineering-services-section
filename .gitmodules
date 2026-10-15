@@ -66,3 +66,11 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/fizzos
 	url = https://github.com/red-cup-engineering/fizzos.git
 	branch = main
+[submodule "assist"]
+	path = services/computer-systems-engineering-services-section/services/personal-computer-systems-services-section/apps/assist
+	url = https://github.com/red-cup-engineering/assist.git
+	branch = main
+[submodule "personal-intelligence-runtime-service"]
+	path = services/computer-systems-engineering-services-section/services/personal-computer-systems-services-section/services/personal-intelligence-systems-services-section/services/personal-intelligence-runtime-service
+	url = https://github.com/red-cup-engineering/personal-intelligence-systems-services-section.git
+	branch = main
