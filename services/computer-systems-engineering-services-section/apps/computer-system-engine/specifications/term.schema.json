@@ -2,9 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.561.group/computer/term.schema.json",
   "title": "Computer Engineering Term",
-  "description": "Every engineering word has exactly one token schema at `specifications/<token>.schema.json`. A term record names that schema, its data/code/network/system roles, and its source authority; it is not a prose-only definition.",
+  "description": "A term record names its local schema or an explicitly admitted external owner schema ID, its engineering roles, and source authority. External IDs require an explicitly supplied owner graph; this record performs no network lookup or semantic admission.",
   "type": "object",
   "required": ["token", "schema", "roles", "source"],
   "additionalProperties": false,
-  "properties": {"token": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}, "schema": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.schema\\.json$"}, "roles": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["data", "code", "networking", "system"]}}, "source": {"type": "string", "minLength": 1}}
+  "properties": {"token": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"}, "schema": {"type": "string", "anyOf": [{"pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.schema\\.json$"}, {"enum": ["https://561.group/schema/computer-data/actor", "https://561.group/schema/computer-data/message", "https://schemas.561.group/computer/actor-resource-field.schema.json", "https://schemas.561.group/computer/capability-effects.schema.json", "https://schemas.561.group/computer/capability.schema.json", "https://schemas.561.group/computer/cell.schema.json", "https://schemas.561.group/computer/claim.schema.json", "https://schemas.561.group/computer/concurrent-game-system.schema.json", "https://schemas.561.group/computer/evidence.schema.json", "https://schemas.561.group/computer/game.schema.json", "https://schemas.561.group/computer/statement.schema.json", "https://schemas.561.group/computer/strategy.schema.json"]}]}, "roles": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["data", "code", "networking", "system"]}}, "source": {"type": "string", "minLength": 1}}
 }
