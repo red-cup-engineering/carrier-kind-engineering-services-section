@@ -13,7 +13,8 @@
     "README.md",
     "scripts/seat-activitypub-face.sh",
     "scripts/materialize-sen-outbox-activity.mjs",
-    "src"
+    "src",
+    "scripts/serve-activitypub-network.mjs"
   ],
   "exports": {
     ".": "./src/provider.mjs",

@@ -37,10 +37,7 @@
   "files": [
     "content",
     "data",
-    "src/bundle.mjs",
-    "src/mandarin-die.mjs",
-    "src/semantic-identity.mjs",
-    "src/tag.mjs"
+    "src/"
   ],
   "sideEffects": false,
   "license": "UNLICENSED"
