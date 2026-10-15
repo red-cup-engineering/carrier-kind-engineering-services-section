@@ -11,12 +11,12 @@
 // can see and change the account that will be connected.
 
 import crypto from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
 import { readFormBody, readJsonBody } from "@red-cup-engineering/http-services-section/body";
 import { jsonRepr } from "@red-cup-engineering/http-services-section/representation";
 import { escapeHtml } from "@red-cup-engineering/html-structural-projection-service/string-rendering";
 import { OAuthError } from "./oauth-error.mjs";
+import { createMemoryGrantStore } from "./grant-store.mjs";
+export { createJsonFileGrantStore, createMemoryGrantStore } from "./grant-store.mjs";
 import { sha256Base64Url } from "@red-cup-engineering/cryptographic-computer-data-engineering-services-section/integrity";
 
 const BODY_LIMIT = 16_384;
@@ -50,63 +50,6 @@ export function admissibleRedirectUri(value) {
   return /^[a-z][a-z0-9+.-]*\.[a-z0-9+.-]+:$/u.test(url.protocol);
 }
 
-/**
- * Grant custody in JSON files, one per kind, written by rename so a crash never leaves half a file.
- * Keys of secrets (codes, tokens) are already hashed by the server before they reach a store.
- */
-export function createJsonFileGrantStore(directory) {
-  const kinds = new Map();
-  const seen = new Map();
-  const stamp = async (kind) => { try { const stat = await fs.stat(path.join(directory, `${kind}.json`)); return `${stat.mtimeMs}:${stat.size}`; } catch { return "absent"; } };
-  // Another process (an operator script issuing a machine client) may write the same files: a
-  // kind is read again whenever its file changed since this process last read or wrote it.
-  const load = async (kind) => {
-    const current = await stamp(kind);
-    if (!kinds.has(kind) || seen.get(kind) !== current) {
-      let entries = {};
-      try { entries = JSON.parse(await fs.readFile(path.join(directory, `${kind}.json`), "utf8")); } catch { entries = {}; }
-      kinds.set(kind, new Map(Object.entries(entries)));
-      seen.set(kind, current);
-    }
-    return kinds.get(kind);
-  };
-  // Loading and mutation share custody with publication: concurrent loads must not
-  // replace a map containing a grant whose token has already been returned.
-  let pending = Promise.resolve();
-  const transact = (operation) => {
-    const result = pending.then(operation);
-    pending = result.catch(() => undefined);
-    return result;
-  };
-  const save = async (kind) => {
-    const now = Date.now();
-    const live = Object.fromEntries([...kinds.get(kind)].filter(([, value]) => !(value?.expiresAt <= now)));
-    await fs.mkdir(directory, { recursive: true, mode: 0o700 });
-    const file = path.join(directory, `${kind}.json`);
-    await fs.writeFile(`${file}.tmp`, JSON.stringify(live), { mode: 0o600 });
-    await fs.rename(`${file}.tmp`, file);
-    seen.set(kind, await stamp(kind));
-  };
-  return Object.freeze({
-    get(kind, key) { return transact(async () => (await load(kind)).get(key)); },
-    put(kind, key, value) { return transact(async () => { (await load(kind)).set(key, value); await save(kind); }); },
-    delete(kind, key) { return transact(async () => { const map = await load(kind); if (map.delete(key)) await save(kind); }); },
-    list(kind) { return transact(async () => [...(await load(kind)).values()]); },
-  });
-}
-
-/** The same custody in memory, for tests and single-process demonstrations. */
-export function createMemoryGrantStore() {
-  const kinds = new Map();
-  const map = (kind) => { if (!kinds.has(kind)) kinds.set(kind, new Map()); return kinds.get(kind); };
-  return Object.freeze({
-    async get(kind, key) { return map(kind).get(key); },
-    async put(kind, key, value) { map(kind).set(key, value); },
-    async delete(kind, key) { map(kind).delete(key); },
-    async list(kind) { return [...map(kind).values()]; },
-  });
-}
-
 const oauthProblem = (error) => {
   const e = error instanceof OAuthError ? error : new OAuthError("server_error", error instanceof Error ? error.message : String(error));
   const status = e.code === "invalid_client" ? 401 : e.code === "server_error" ? 500 : 400;
@@ -115,7 +58,7 @@ const oauthProblem = (error) => {
 
 const FRAME_DENIAL = Object.freeze({ "x-frame-options": "DENY", "content-security-policy": "frame-ancestors 'none'; default-src 'none'; style-src 'unsafe-inline'; form-action 'self' https: http://localhost:* http://127.0.0.1:*" });
 
-function consentPage({ issuerName, client, principal, scope, resource, requestId, loginUrl }) {
+function consentPage({ issuerName, client, principal, scope, resource, requestId, canSwitchAccount, loginUrl }) {
   const redirectHost = new URL(client.redirectUri).host;
   const who = principal.name ?? principal.email ?? principal.subject;
   const body = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Allow ${escapeHtml(client.name)}?</title>
@@ -123,7 +66,7 @@ function consentPage({ issuerName, client, principal, scope, resource, requestId
 <body><h1>Allow <strong>${escapeHtml(client.name)}</strong> to use ${escapeHtml(issuerName)} as you?</h1>
 <p>Signed in as <strong>${escapeHtml(who)}</strong>. <a href="${escapeHtml(loginUrl)}">Use a different account</a></p>
 <dl><dt>Client</dt><dd>${escapeHtml(client.name)}</dd><dt>Returns to</dt><dd><code>${escapeHtml(redirectHost)}</code></dd>${resource ? `<dt>Resource</dt><dd><code>${escapeHtml(resource)}</code></dd>` : ""}${scope ? `<dt>Scope</dt><dd><code>${escapeHtml(scope)}</code></dd>` : ""}</dl>
-<form method="post"><input type="hidden" name="request" value="${escapeHtml(requestId)}"><div class="actions"><button name="decision" value="approve" type="submit">Allow</button><button name="decision" value="deny" type="submit">Deny</button></div></form></body></html>`;
+<form method="post"><input type="hidden" name="request" value="${escapeHtml(requestId)}"><div class="actions"><button name="decision" value="approve" type="submit">Allow</button><button name="decision" value="deny" type="submit">Deny</button>${canSwitchAccount ? '<button name="decision" value="switch-account" type="submit">Use another account</button>' : ""}</div></form></body></html>`;
   return { status: 200, type: "text/html; charset=utf-8", cacheControl: { noStore: true }, headers: FRAME_DENIAL, body };
 }
 
@@ -142,6 +85,7 @@ const redirectTo = (uri, values) => {
  *   store?: ReturnType<typeof createMemoryGrantStore>,
  *   authenticate: (ctx: object) => ({subject: string, name?: string, email?: string} | undefined | Promise<object | undefined>),
  *   loginUrl: (returnTo: string) => string,
+ *   switchAccount?: (ctx: object, returnTo: string) => Response | Promise<Response>,
  *   admit?: (principal: object, client: object) => boolean | Promise<boolean>,
  *   resolveUrlClient?: (clientId: string) => Promise<{client_id: string, redirect_uris: string[], client_name?: string}>,
  *   me?: (principal: object) => string,
@@ -260,17 +204,19 @@ export function createAuthorizationServer(options) {
     return client;
   }
 
+  function tokenPair(grant, refreshGrant = grant) {
+    const issuedAt = now(), accessToken = random(32);
+    const access = { key: sha256Base64Url(accessToken), value: { ...grant, expiresAt: issuedAt + accessTtl } };
+    const refreshToken = grant.refreshable ? random(32) : undefined;
+    const refresh = refreshToken === undefined ? undefined : { key: sha256Base64Url(refreshToken), value: { ...refreshGrant, expiresAt: issuedAt + refreshTtl } };
+    return { access, refresh, response: { access_token: accessToken, token_type: "Bearer", expires_in: Math.floor(accessTtl / 1000), ...(grant.scope ? { scope: grant.scope } : {}), ...(refreshToken === undefined ? {} : { refresh_token: refreshToken }), ...profileOf(grant.principal) } };
+  }
+
   async function mintTokens(grant) {
-    const accessToken = random(32);
-    const issuedAt = now();
-    const access = { ...grant, expiresAt: issuedAt + accessTtl };
-    await store.put("access", sha256Base64Url(accessToken), access);
-    let refreshToken;
-    if (grant.refreshable) {
-      refreshToken = random(32);
-      await store.put("refresh", sha256Base64Url(refreshToken), { ...grant, expiresAt: issuedAt + refreshTtl });
-    }
-    return { access_token: accessToken, token_type: "Bearer", expires_in: Math.floor(accessTtl / 1000), ...(grant.scope ? { scope: grant.scope } : {}), ...(refreshToken === undefined ? {} : { refresh_token: refreshToken }), ...profileOf(grant.principal) };
+    const pair = tokenPair(grant);
+    await store.put("access", pair.access.key, pair.access.value);
+    if (pair.refresh !== undefined) await store.put("refresh", pair.refresh.key, pair.refresh.value);
+    return pair.response;
   }
 
   const grantOf = (client, principal, scope, resource, refreshable) => ({ client_id: client.client_id, subject: principal.subject, principal, scope, ...(resource === undefined ? {} : { resource }), refreshable });
@@ -302,16 +248,28 @@ export function createAuthorizationServer(options) {
       return mintTokens(grantOf(client, code.principal, code.scope, resource, true));
     }
     if (grantType === "refresh_token") {
-      const client = await authenticateClient(ctx, form);
+      const client = structuredClone(await authenticateClient(ctx, form));
       const key = sha256Base64Url(form.get("refresh_token") ?? "");
-      const refresh = await store.get("refresh", key);
+      const refresh = structuredClone(await store.get("refresh", key));
       if (refresh === undefined || refresh.expiresAt <= now() || refresh.client_id !== client.client_id) throw new OAuthError("invalid_grant", "refresh token invalid or expired");
-      await store.delete("refresh", key);
       const narrowed = form.get("scope") ? scopeList(form.get("scope")) : scopeList(refresh.scope);
       if (narrowed.some((scope) => !scopeList(refresh.scope).includes(scope))) throw new OAuthError("invalid_scope", "a refresh cannot widen scope");
       const resource = form.get("resource") ? audience([form.get("resource")]) : refresh.resource;
       if (resource !== refresh.resource) throw new OAuthError("invalid_target", "resource differs from the grant");
-      return mintTokens(grantOf(client, refresh.principal, narrowed.join(" "), resource, true));
+      const pair = tokenPair(grantOf(client, refresh.principal, narrowed.join(" "), resource, true),
+        grantOf(client, refresh.principal, refresh.scope, resource, true));
+      let exchanged;
+      try {
+        if (typeof store.exchangeRefresh !== "function") throw new OAuthError("server_error", "grant custody cannot exchange refresh tokens atomically");
+        exchanged = await store.exchangeRefresh({ key, expected: refresh, now,
+          ...(/^https:\/\//u.test(client.client_id) ? {} : { client: { key: client.client_id, expected: client } }),
+          access: pair.access, refresh: pair.refresh });
+      } catch (error) {
+        if (error instanceof OAuthError) throw error;
+        throw new OAuthError("server_error", "grant custody exchange is unavailable");
+      }
+      if (!exchanged) throw new OAuthError("invalid_grant", "refresh token invalid or expired");
+      return pair.response;
     }
     if (grantType === "client_credentials") {
       const client = await authenticateClient(ctx, form);
@@ -366,13 +324,13 @@ export function createAuthorizationServer(options) {
       if (asked !== new URL(options.me(principal)).href) return fail("invalid_request", "me is not the signed-in profile");
     }
 
-    const pending = { client_id: client.client_id, redirect_uri: redirectUri, code_challenge: challenge, scope, resource, state, principal, subject: principal.subject, expiresAt: now() + 600_000 };
+    const pending = { returnTo: `${ctx.url.pathname}${ctx.url.search}`, client_id: client.client_id, redirect_uri: redirectUri, code_challenge: challenge, scope, resource, state, principal, subject: principal.subject, expiresAt: now() + 600_000 };
     // A client returning to this server's own origin is the site's own interface: its code can reach
     // nobody else, so it needs no consent.
     if (new URL(redirectUri).origin === new URL(issuer).origin) return issueCode(pending);
     const requestId = random(24);
     await store.put("pending", requestId, pending);
-    return consentPage({ issuerName, client: { name: client.client_name, redirectUri }, principal, scope, resource, requestId, loginUrl: options.loginUrl(`${ctx.url.pathname}${ctx.url.search}`) });
+    return consentPage({ issuerName, client: { name: client.client_name, redirectUri }, principal, scope, resource, requestId, canSwitchAccount: typeof options.switchAccount === "function", loginUrl: options.loginUrl(`${ctx.url.pathname}${ctx.url.search}`) });
   }
 
   async function issueCode(pending) {
@@ -398,6 +356,13 @@ export function createAuthorizationServer(options) {
     if (pending === undefined || pending.expiresAt <= now()) return oauthProblem(new OAuthError("invalid_request", "authorization request expired; start again from the client"));
     const principal = await options.authenticate(ctx);
     if (principal?.subject !== pending.subject) return oauthProblem(new OAuthError("access_denied", "the signed-in account changed"));
+    if (form.get("decision") === "switch-account" && typeof options.switchAccount === "function") {
+      // A subject-bound, consumed consent request authorizes this browser-session switch.
+      // Preserve the original validated request, never a form-supplied return address.
+      // An older pending record without the return address must be restarted by its client.
+      if (typeof pending.returnTo !== "string") return oauthProblem(new OAuthError("invalid_request", "authorization request expired; start again from the client"));
+      return options.switchAccount(ctx, pending.returnTo);
+    }
     if (form.get("decision") !== "approve") return redirectTo(pending.redirect_uri, { error: "access_denied", state: pending.state, iss: issuer });
     return issueCode({ ...pending, principal });
   }
