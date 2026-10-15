@@ -122,3 +122,7 @@
 	path = services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/lakotaean-computer-application-engineering-services-section/apps/lakotaean-organization-application
 	url = https://github.com/red-cup-engineering/lakotaean-organization-application.git
 	branch = main
+[submodule "multi-agent-resource-sharing-host"]
+	path = services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/apps/multi-agent-resource-sharing-host
+	url = https://github.com/red-cup-engineering/multi-agent-resource-sharing-host.git
+	branch = main
