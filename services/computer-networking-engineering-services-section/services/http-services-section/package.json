@@ -24,6 +24,8 @@
     "scripts"
   ],
   "exports": {
+    "./fetch-without-redirects": "./src/fetch-without-redirects.mjs",
+    "./forward-request-headers": "./src/forward-request-headers.mjs",
     "./semantic-content-identity": "./src/semantic-content-identity.mjs",
     "./package.json": "./package.json",
     "./cookies": "./src/cookies.mjs",
