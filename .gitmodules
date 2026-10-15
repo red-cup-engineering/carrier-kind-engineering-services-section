@@ -70,3 +70,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-content-checker
 	url = https://github.com/red-cup-engineering/weiqi-content-checker.git
 	branch = main
+[submodule "weiqi-web"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/services/go-engine-services-section/apps/weiqi-web
+	url = https://github.com/red-cup-engineering/weiqi-web.git
+	branch = main
