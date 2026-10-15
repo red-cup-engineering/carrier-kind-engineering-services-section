@@ -132,6 +132,43 @@ Each application is picked for a role and named against the external peers it
 meets and then beats; the capabilities under it are in shared packages, while
 the application stays familiar to users of those peers (2026-09-21).
 
+### Named comparison targets and receiving, refined 2026-10-15
+
+This is the product-acceptance refinement of
+[`software-composed-over-one-shared-substrate`, R11](../../../../../../../requirements/software-composed-over-one-shared-substrate.json),
+subject to R1–R10 and R12–R15. The
+[technology peer acceptance specification](../../../../../specifications/2026-10-15-technology-peer-acceptance.md)
+records the primary sources, exact comparison scope, existing capability
+owners, concrete fixtures, meet criteria and proposed beat criteria. It is
+an Engineering requirement/specification, not a new mathematical theory,
+operational work registry, or report of measured superiority.
+
+| Technology | Named software to compare | Classification and required boundary |
+| --- | --- | --- |
+| MetroPlat | Apache OFBiz; Temporal; Open Policy Agent | OFBiz is an enterprise-platform/application comparison; Temporal and OPA are durable-work and policy-decision facet substitutes. Compare the composed enterprise experience without relocating their corresponding capabilities into MetroPlat. |
+| FeltOS | FluffOS; Evennia | Persistent multi-user-world peers. FluffOS is also the explicitly stated predecessor. Pin a mudlib with the driver; compare world/actor/resource behavior, not LPC compatibility unless separately required. |
+| Agent Organization Engine (AOE) | JaCaMo, including Jason, CArtAgO and MOISE | Organizational multi-agent-system peer. Compare agents, shared environment, roles, goals and coordinated work; do not collapse the nine faculties into an LLM chat loop. |
+| SignCraft | Soufflé; Automerge | Finite inference/provenance and merge/replay facet substitutes respectively. Neither is asserted to replace the whole SignCraft system. |
+| SignGraph | LangGraph; Neo4j; PySheaf | LangGraph is the Leader's explicit agent-graph target; Neo4j is a graph-query facet and PySheaf a cellular-sheaf facet. A graph store alone does not meet agent-state transport or Chu obligations. |
+| SignChain | LangChain; Open Policy Agent | LangChain is the Leader's explicit inference-call-composition target; OPA is a typed policy-decision facet. Keep effectful model/tool execution in its actual system owners. |
+| SignCell | RDFLib; `@ipld/dag-cbor` with `multiformats` | Typed relational-data and content-addressed-data facet substitutes. Neither is claimed to be the complete evidence-bearing semiotic cell. Preserve subject/predicate/object roles and independent witness identity. |
+| Metrologic | SymPy; PySheaf | Named mathematical-computation peers on declared overlapping operations: exact linear algebra and cellular-sheaf calculations. Metrologic composes the scientific functions; comparison does not authorize parallel implementations or claim all symbolic-algebra coverage. |
+
+The SignChain and SignGraph targets come from the section's own
+[SignChain](../../../../../../glossary/terms/signchain.md) and
+[SignGraph](../../../../../../glossary/terms/signgraph.md) definitions,
+which preserve the Leader's 2026-10-09 direction. The other comparisons are
+engineering selections with their rationale and limits in the receiving
+specification, including the Leader's current SymPy/PySheaf examples.
+
+A cited feature is a documented comparison input. A source file is evidence
+of implementation. A completed paired benchmark is evidence of behavior
+under its declared conditions. Independent receiving is evidence that the
+capability serves the Group. None of these stages substitutes for another.
+All comparative runs in this refinement remain **unrun**. Required behavioral
+outcomes are explicit; proposed quantitative margins remain proposed until
+accepted and frozen before measurement.
+
 ## 6. Services sections nest by composition
 
 Services sections nest so that, going down the tree, downstream sections'
