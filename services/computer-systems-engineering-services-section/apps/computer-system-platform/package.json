@@ -44,6 +44,7 @@
     "@red-cup-engineering/mcp-engineering-services-section": "workspace:*",
     "@red-cup-engineering/node-process-services-section": "workspace:*",
     "@red-cup-engineering/cloudflare-services-section": "workspace:*",
+    "@red-cup-engineering/gcloud-compute-observation-service": "workspace:*",
     "@red-cup-engineering/execute-javascript-node-command-service": "workspace:*",
     "@red-cup-engineering/signcell": "workspace:*",
     "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",

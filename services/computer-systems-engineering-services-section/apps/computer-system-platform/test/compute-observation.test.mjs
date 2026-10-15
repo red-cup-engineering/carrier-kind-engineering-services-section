@@ -28,6 +28,22 @@ test('fresh cached records receive their native witness and head without recolle
     observe:()=>{throw new Error('cached observation must not recollect');}});
   assert.equal(again.accepted[0].status,'already-received');
 }));
+test('native default observer receives absence and caches without any provider credential',()=>fixture(async dataRoot=>{
+  const requested={googleCloud:{cloudRunRegion:'us-central1'},oracleCloud:{},machines:[],
+    coverage:'source-qualified missing credentials',placementRule:'observation only'};
+  const environment={HOME:dataRoot,PATH:'/no-provider-binaries'};
+  const first=await refreshComputeResourceObservation({dataRoot,policy,observation:requested,environment,now:()=>time});
+  assert.equal(first.refreshed,true);
+  assert.equal(first.record.googleCloud.status,'unavailable');
+  assert.equal(first.record.oracleCloud.status,'credential-unavailable');
+  assert.equal(first.record.cloudflare.status,'credential-unavailable');
+  assert.deepEqual(first.facts.rows,[]);
+  assert.deepEqual(JSON.parse(await readFile(join(dataRoot,policy.recordFile),'utf8')),first.record);
+  const second=await refreshComputeResourceObservation({dataRoot,policy,observation:requested,environment,now:()=>time,
+    observe:()=>{throw Error('cached native provider evidence must not recollect');}});
+  assert.equal(second.refreshed,false);
+}));
+
 test('missing observations use explicit provider configuration, then publish admitted bytes',()=>fixture(async dataRoot=>{
   const observation={fixture:true},environment={FIXTURE_ONLY:'yes'};let calls=0;
   const result=await refreshComputeResourceObservation({dataRoot,policy,observation,environment,now:()=>time,
