@@ -154,3 +154,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/horsetail
 	url = https://github.com/red-cup-engineering/horsetail.git
 	branch = main
+[submodule "lakota-language-corpus"]
+	path = services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/apps/lakota-language-corpus
+	url = https://github.com/red-cup-engineering/lakota-language-corpus.git
+	branch = main
