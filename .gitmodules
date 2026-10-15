@@ -270,3 +270,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/stoke
 	url = https://github.com/red-cup-engineering/stoke.git
 	branch = main
+[submodule "you-are-conscious"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/you-are-conscious
+	url = https://github.com/red-cup-engineering/you-are-conscious.git
+	branch = main
