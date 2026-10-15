@@ -262,3 +262,7 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/ruinfold
 	url = https://github.com/red-cup-engineering/ruinfold.git
 	branch = main
+[submodule "solitaire"]
+	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/solitaire
+	url = https://github.com/red-cup-engineering/solitaire.git
+	branch = main
