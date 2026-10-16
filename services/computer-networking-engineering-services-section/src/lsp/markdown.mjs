@@ -5,13 +5,13 @@
  *
  * @metroplatSubject lsp
  */
-import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
-import { splitMarkdownFrontmatterFence } from "@red-cup-engineering/markdown-engineering-services-section/split-markdown-frontmatter-fence";
+import { readMarkdownFrontmatter } from "@red-cup-engineering/read-markdown-frontmatter-service";
+import { splitMarkdownFrontmatterFence } from "@red-cup-engineering/split-markdown-frontmatter-fence-service";
 import { normalizeLinefeeds } from "@red-cup-engineering/computer-text-content-engineering-services-section/normalize-linefeeds";
-import { readMarkdownStructure } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
+import { readMarkdownStructure } from "@red-cup-engineering/read-markdown-structure-service";
 import { validateMarkdownDocument } from "@red-cup-engineering/markdown-engineering-services-section/validate-markdown-document";
 import { applyMarkdownEdit, markdownEditRequestKind } from "@red-cup-engineering/markdown-engineering-services-section/apply-markdown-edit";
-import { readMarkdownFeatures } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-features";
+import { readMarkdownFeatures } from "@red-cup-engineering/read-markdown-features-service";
 import {
   fullDocumentRange,
   lineRange,

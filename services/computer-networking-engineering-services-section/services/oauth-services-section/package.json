@@ -1,12 +1,23 @@
 {
   "name": "@red-cup-engineering/oauth-services-section",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "type": "module",
-  "receivingTests": ["test/authorization-server.test.mjs","test/client-credentials.test.mjs","test/json-web-token.test.mjs","test/oauth-error.test.mjs"],
+  "receivingTests": [
+    "test/authorization-server.test.mjs",
+    "test/client-credentials.test.mjs",
+    "test/json-web-token.test.mjs",
+    "test/oauth-error.test.mjs"
+  ],
   "description": "The OAuth 2.0/2.1 section: the one authorization server (metadata, dynamic and URL-identified clients, S256 PKCE, resource-bound tokens, refresh rotation, client credentials, revocation, consent, and the IndieAuth profile), its client-credentials client, principal-admission judgment, JSON Web Tokens, and OAuthError; Google and IndieAuth are nested sections.",
   "exports": {
-    ".": { "types": "./src/oauth-error.d.mts", "import": "./src/oauth-error.mjs" },
-    "./oauth-error": { "types": "./src/oauth-error.d.mts", "import": "./src/oauth-error.mjs" },
+    ".": {
+      "types": "./src/oauth-error.d.mts",
+      "import": "./src/oauth-error.mjs"
+    },
+    "./oauth-error": {
+      "types": "./src/oauth-error.d.mts",
+      "import": "./src/oauth-error.mjs"
+    },
     "./judge-principal-admission-service": "./scripts/judge-principal-admission-service.mjs",
     "./json-web-token": "./src/json-web-token.mjs",
     "./authorization-server": "./src/authorization-server.mjs",
@@ -21,8 +32,16 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/html-structural-projection-service": "workspace:*",
-    "@red-cup-engineering/http-services-section": "workspace:*"
-  }
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "0.3.1",
+    "@red-cup-engineering/html-structural-projection-service": "0.3.2",
+    "@red-cup-engineering/http-services-section": "0.6.2"
+  },
+  "private": false,
+  "files": [
+    "package.json",
+    "README*",
+    "LICENSE*",
+    "scripts",
+    "src"
+  ]
 }

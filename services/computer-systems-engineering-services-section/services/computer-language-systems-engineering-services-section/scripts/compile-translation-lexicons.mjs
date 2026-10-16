@@ -10,7 +10,7 @@
  */
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { relative } from "node:path";
-import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
+import { readMarkdownFrontmatter } from "@red-cup-engineering/read-markdown-frontmatter-service";
 
 const SECTION = new URL("..", import.meta.url).pathname;
 const SERVICES = new URL("../../../../../../../../", import.meta.url).pathname;

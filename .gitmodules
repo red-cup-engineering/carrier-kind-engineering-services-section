@@ -278,19 +278,19 @@
 	path = services/computer-systems-engineering-services-section/services/computer-game-system-services-section/apps/farstone
 	url = https://github.com/red-cup-engineering/farstone.561.group.git
 	branch = main
-[submodule "services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/hive-account-provisioning-service"]
-	path = services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/hive-account-provisioning-service
-	url = https://github.com/red-cup-engineering/hive-account-provisioning-service.git
-	branch = main
-[submodule "services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/digital-garden-systems-services-section"]
-	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/digital-garden-systems-services-section
-	url = https://github.com/red-cup-engineering/digital-garden-systems-services-section.git
+[submodule "services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/kindle-publishing-system-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/kindle-publishing-system-services-section
+	url = https://github.com/red-cup-engineering/kindle-publishing-system-services-section.git
 	branch = main
 [submodule "services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/business-research-system-services-section"]
 	path = services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/business-research-system-services-section
 	url = https://github.com/red-cup-engineering/business-research-system-services-section.git
 	branch = main
-[submodule "services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/kindle-publishing-system-services-section"]
-	path = services/computer-systems-engineering-services-section/services/computer-economic-systems-engineering-services-section/services/computer-business-systems-engineering-services-section/services/kindle-publishing-system-services-section
-	url = https://github.com/red-cup-engineering/kindle-publishing-system-services-section.git
+[submodule "services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/digital-garden-systems-services-section"]
+	path = services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/digital-garden-systems-services-section
+	url = https://github.com/red-cup-engineering/digital-garden-systems-services-section.git
+	branch = main
+[submodule "services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/hive-account-provisioning-service"]
+	path = services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/hive-engineering-services-section/services/hive-account-provisioning-service
+	url = https://github.com/red-cup-engineering/hive-account-provisioning-service.git
 	branch = main

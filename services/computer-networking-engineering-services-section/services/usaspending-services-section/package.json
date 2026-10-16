@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/usaspending-services-section",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "USAspending.gov's award-search API: federal grants and cooperative agreements by agency, keyword and time period.",
   "engines": {
@@ -18,5 +18,6 @@
     "package.json",
     "src"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "private": false
 }

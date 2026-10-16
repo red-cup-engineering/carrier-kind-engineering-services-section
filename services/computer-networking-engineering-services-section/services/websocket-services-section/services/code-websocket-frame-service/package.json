@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/code-websocket-frame-service",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "type": "module",
   "description": "Accept WebSocket handshakes and parse and form WebSocket frames.",
   "engines": {
@@ -19,5 +19,6 @@
   "scripts": {
     "test": "node --test test/*.test.mjs"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "private": false
 }

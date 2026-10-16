@@ -20,11 +20,12 @@
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/computer-serialized-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/eavt-services-section": "workspace:*",
-    "@red-cup-engineering/http-services-section": "workspace:*",
-    "@red-cup-engineering/oauth-services-section": "workspace:*"
+    "@red-cup-engineering/computer-serialized-content-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/eavt-services-section": "0.11.0",
+    "@red-cup-engineering/http-services-section": "0.6.2",
+    "@red-cup-engineering/oauth-services-section": "0.1.2",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.2"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "private": false
 }

@@ -6,7 +6,7 @@ import {
 } from "@red-cup-engineering/computer-code-engineering-services-section/semiotic-expression-notation/runtime";
 import {
   EMPTY_WITNESS_ROOT,
-} from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+} from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 
 const DOCUMENT_KIND = "activitypub.sen-json-document";
 

@@ -1,7 +1,7 @@
 import { parseSubtitles, serializeSubtitles, measureSubtitleCue } from "@red-cup-engineering/computer-text-content-engineering-services-section/subtitles";
 import { MANDARIN_TRANSLATION_MODULES, translateNumberedBatch, wrapSubtitleText } from "@red-cup-engineering/computer-language-systems-engineering-services-section/translation";
 import { segmentEvidence } from "@red-cup-engineering/computer-language-systems-engineering-services-section/translation-evidence";
-import { admitJsonSemanticContent, EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+import { admitJsonSemanticContent, EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 
 const MAX_SOURCE_CHARACTERS = 4000;
 const MAX_CONTEXT_CHARACTERS = 1000;
