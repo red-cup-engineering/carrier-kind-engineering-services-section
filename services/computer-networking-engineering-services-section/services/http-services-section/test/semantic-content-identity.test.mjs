@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { EMPTY_WITNESS_ROOT } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 import { createSemanticContentIdentityHandler } from "../src/semantic-content-identity.mjs";
 
 const manifest = "ni:///sha-256;sJ25jrJSd7X1PHrS4ca6gIhKDb-ZkwUT14S5f1Ap-cA";
