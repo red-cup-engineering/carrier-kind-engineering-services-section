@@ -1,5 +1,6 @@
 # Declarative consumer of Engineering's single GitHub reconciliation implementation.
-# Event-driven only: no scheduled task, no unattended PR merges or issue closure.
+# Event-driven only: no scheduled task or generic PR merge. Exact-content
+# historical receipts may merge and auto-delete, with complete source equality.
 name: Receive and retire contained branches
 on:
   push:
@@ -43,10 +44,13 @@ jobs:
           set -euo pipefail
           # --apply only prunes contained, unprotected branches. The owning
           # service rechecks each SHA, protection and newly opened PR.
-          # --max-merges 0 and no --merge-green-pulls: zero PR merges.
+          # --max-merges 0 and no --merge-green-pulls: zero arbitrary PR merges.
+          # --receive-equivalent receives ONLY fully identical current blobs
+          # through a real merge, then independently confirms branch retirement.
           # No --close-issues: zero issue mutations.
           node 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/bin/github-reconcile.mjs' \
             --repo "$GITHUB_REPOSITORY" --apply --max-merges 0 \
+            --receive-equivalent --max-equivalents 3 \
             --register "$RUNNER_TEMP/github-reconciliation-debt" \
             | tee "$RUNNER_TEMP/github-reconciliation-result.json"
           # Log a usable, bounded receipt; do not publish token or source.
@@ -56,9 +60,11 @@ jobs:
             const msg=[
               "# Source-owned GitHub branch receiving",
               "Repository: "+process.env.GITHUB_REPOSITORY,
-              "Contained branches deleted: "+r.branchesDeleted,
+              "Contained/history branches deleted: "+r.branchesDeleted,
+              "Equivalent histories received: "+(r.equivalentHistoryReceived??0),
+              "Equivalent histories retired: "+(r.equivalentHistoryRetired??0),
               "Debt records retained: "+r.debtRecords,
-              "Pull requests merged: "+r.pullRequestsMerged,
+              "Qualified ordinary PRs merged: "+r.pullRequestsMerged,
               "Issues closed: "+r.issuesClosed,
               "Errors: "+(r.errors?.length??0),
             ];
