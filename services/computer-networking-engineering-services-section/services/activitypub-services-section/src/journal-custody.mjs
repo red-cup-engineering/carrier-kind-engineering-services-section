@@ -3,6 +3,7 @@ import { canonicalJson } from "@red-cup-engineering/json-services-section/canoni
 import { Activity } from "@fedify/vocab";
 import { semanticAddress } from "@red-cup-engineering/computer-content-address-engineering-services-section/semiotic-content-address";
 import { each, get, put, readHead, threadName, writeHead } from "@red-cup-engineering/semiotic-eavt-services-section/store";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { makeNiUri, verifyNiUri } from "@red-cup-engineering/uri-services-section/ni-uri";
 import { immutableContentKey } from "@red-cup-engineering/immutable-content-custody-service";
@@ -117,8 +118,16 @@ function keepActivity(root, activity) {
   const activityNi = makeNiUri(body);
   const store = createFileStoreSync(path.join(root, "custody"));
   const key = immutableContentKey(activityNi);
-  store.putIfAbsent(key, { body, mediaType: "application/json" });
-  const held = store.get(key);
+  const placed = store.putIfAbsent(key, { body, mediaType: "application/json" });
+  let held = store.get(key);
+  // A writer stopped between publishing the body and its media-type sidecar leaves the same
+  // content-addressed bytes with no declared type. Complete that missing sidecar from the
+  // identical bytes; a body already declared as another type stays an incompatible refusal.
+  if (placed.conflict && held !== null && Buffer.from(held.body).equals(body) &&
+      !existsSync(path.join(root, "custody", "objects", ...key.split("/")) + ".media-type")) {
+    store.putCurrent(key, { body, mediaType: "application/json" });
+    held = store.get(key);
+  }
   if (held === null || held.mediaType !== 'application/json' || !Buffer.from(held.body).equals(body)) throw new Error("ActivityPub body failed immutable custody readback");
   return { activityNi, activityBytes: body.length };
 }
