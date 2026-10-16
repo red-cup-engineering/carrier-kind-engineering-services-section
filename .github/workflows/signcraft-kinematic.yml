@@ -4,39 +4,39 @@ on:
   push:
     branches: ['**']
     paths:
-      - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
-      - 'lib/signstuff/signcraft/src/inference/generate.mjs'
-      - 'lib/signstuff/signcraft/scripts/inference/generate-continuation.mjs'
-      - 'lib/signstuff/signcraft/test/inference/generate-continuation.test.mjs'
-      - 'lib/signstuff/signcraft/test/inference/energy.test.mjs'
-      - 'lib/signstuff/signcraft/src/settle.mjs'
-      - 'lib/signstuff/signcraft/src/proof-motion-carrier.mjs'
-      - 'lib/signstuff/signcraft/test/settle.test.mjs'
-      - 'lib/signstuff/signcraft/test/proof-motion-carrier.test.mjs'
-      - 'lib/signstuff/signcraft/test/proof-motion-standalone.test.mjs'
-      - 'lib/signstuff/signcraft/src/inference/infer.mjs'
-      - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
-      - 'lib/signstuff/signcraft/package.json'
-      - 'lib/signstuff/signgraph/src/cell-graph.mjs'
-      - 'lib/signstuff/signgraph/test/cell-graph.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/kinematic.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/generate.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/scripts/inference/generate-continuation.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/inference/generate-continuation.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/inference/energy.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/settle.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/proof-motion-carrier.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/settle.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/proof-motion-carrier.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/proof-motion-standalone.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/infer.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/kinematic.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/package.json'
+      - 'services/computer-networking-engineering-services-section/apps/signgraph/src/cell-graph.mjs'
+      - 'services/computer-networking-engineering-services-section/apps/signgraph/test/cell-graph.test.mjs'
       - '.github/workflows/signcraft-kinematic.yml'
   pull_request:
     paths:
-      - 'lib/signstuff/signcraft/src/inference/kinematic.mjs'
-      - 'lib/signstuff/signcraft/src/inference/generate.mjs'
-      - 'lib/signstuff/signcraft/scripts/inference/generate-continuation.mjs'
-      - 'lib/signstuff/signcraft/test/inference/generate-continuation.test.mjs'
-      - 'lib/signstuff/signcraft/test/inference/energy.test.mjs'
-      - 'lib/signstuff/signcraft/src/settle.mjs'
-      - 'lib/signstuff/signcraft/src/proof-motion-carrier.mjs'
-      - 'lib/signstuff/signcraft/test/settle.test.mjs'
-      - 'lib/signstuff/signcraft/test/proof-motion-carrier.test.mjs'
-      - 'lib/signstuff/signcraft/test/proof-motion-standalone.test.mjs'
-      - 'lib/signstuff/signcraft/src/inference/infer.mjs'
-      - 'lib/signstuff/signcraft/test/kinematic.test.mjs'
-      - 'lib/signstuff/signcraft/package.json'
-      - 'lib/signstuff/signgraph/src/cell-graph.mjs'
-      - 'lib/signstuff/signgraph/test/cell-graph.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/kinematic.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/generate.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/scripts/inference/generate-continuation.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/inference/generate-continuation.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/inference/energy.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/settle.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/proof-motion-carrier.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/settle.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/proof-motion-carrier.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/proof-motion-standalone.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/infer.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/test/kinematic.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft/package.json'
+      - 'services/computer-networking-engineering-services-section/apps/signgraph/src/cell-graph.mjs'
+      - 'services/computer-networking-engineering-services-section/apps/signgraph/test/cell-graph.test.mjs'
       - '.github/workflows/signcraft-kinematic.yml'
   workflow_dispatch:
 
@@ -56,14 +56,14 @@ jobs:
           node-version: '24'
       - name: Execute actual inference-motion regressions without runtime service dependencies
         run: |
-          node --check lib/signstuff/signcraft/src/inference/infer.mjs
-          node --check lib/signstuff/signcraft/src/inference/generate.mjs
-          node --check lib/signstuff/signcraft/scripts/inference/generate-continuation.mjs
-          node --check lib/signstuff/signcraft/test/inference/energy.test.mjs
-          node --check lib/signstuff/signcraft/test/inference/generate-continuation.test.mjs
-          node --check lib/signstuff/signgraph/src/cell-graph.mjs
-          node --check lib/signstuff/signcraft/src/inference/kinematic.mjs
-          node --test lib/signstuff/signcraft/test/kinematic.test.mjs
-          node --check lib/signstuff/signcraft/src/settle.mjs
-          node --check lib/signstuff/signcraft/src/proof-motion-carrier.mjs
-          node --test lib/signstuff/signcraft/test/proof-motion-standalone.test.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/src/inference/infer.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/src/inference/generate.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/scripts/inference/generate-continuation.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/test/inference/energy.test.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/test/inference/generate-continuation.test.mjs
+          node --check services/computer-networking-engineering-services-section/apps/signgraph/src/cell-graph.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/src/inference/kinematic.mjs
+          node --test services/computer-systems-engineering-services-section/apps/signcraft/test/kinematic.test.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/src/settle.mjs
+          node --check services/computer-systems-engineering-services-section/apps/signcraft/src/proof-motion-carrier.mjs
+          node --test services/computer-systems-engineering-services-section/apps/signcraft/test/proof-motion-standalone.test.mjs

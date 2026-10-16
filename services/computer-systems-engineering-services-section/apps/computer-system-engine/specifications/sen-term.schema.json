@@ -1,7 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.561.group/computer/sen-term.schema.json",
-  "title": "SEN Term",
-  "description": "Structural reference to the canonical Computer Data SEN term grammar. Resolve this document with the owner TmSchema and TySchema exported by the computer-engineering specification module. Syntax admission does not establish closure, typing, evaluation, or effect authorization.",
-  "$ref": "semiotic-expression-notation/term/tm"
-}

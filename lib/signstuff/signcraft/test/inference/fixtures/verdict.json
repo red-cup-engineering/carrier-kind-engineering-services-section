@@ -1,8 +1,0 @@
-{
-  "rules": [
-    { "name": "law:script-no-app", "if": ["is-script", "imports-app"], "then": ["stratification-violation"] },
-    { "name": "law:violation-filed", "if": ["stratification-violation"], "then": ["needs-finding"] }
-  ],
-  "facts": ["is-script", "imports-app"],
-  "query": "needs-finding"
-}

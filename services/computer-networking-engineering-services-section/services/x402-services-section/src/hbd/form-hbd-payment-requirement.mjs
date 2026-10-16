@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { encodeCanonical } from "@red-cup-engineering/cbor-services-section";
 import { canonicalCborToNiUri } from "@red-cup-engineering/cbor-services-section";
-import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-engineering-services-section/operation";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-service";
 
 const RESOURCE_ID_PATTERN = /^[a-z][a-z0-9-]{2,63}$/u;
 const PRICE_PATTERN = /^(?:0|[1-9][0-9]*)(?:\.[0-9]{1,3})?$/u;

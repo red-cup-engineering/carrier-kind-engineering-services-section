@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/openfda-services-section",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "openFDA's public API: queries over the FDA's published datasets (device registration and listing, recalls, enforcement), paged past the skip limit by the API's own next links.",
   "engines": {
@@ -18,5 +18,6 @@
     "package.json",
     "src"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "private": false
 }
