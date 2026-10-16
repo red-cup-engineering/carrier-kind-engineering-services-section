@@ -16,6 +16,7 @@ import { recoverPaidResponse } from "../paid-response-recovery.mjs";
 import { declareCatalog, offerPriceText, offerPricingReadout, offerRequestPricing, sourceRightsClaimCurrent, settlementWitness, x402RoutesForOffers, publiclySaleableOffer } from "../offer.mjs";
 import { decodeSignInHeader, SIGN_IN_WITH_X, SIGN_IN_WITH_X_HEADER, signInChallenge, verifySignIn } from "../sign-in-with-x.mjs";
 import { projectProxyResponse } from "./proxy-response.mjs";
+import { capabilityActorResources } from "./capability-actor-resources.mjs";
 
 /**
  * The market: one x402 seller serving a whole catalog of typed operations.
@@ -213,53 +214,15 @@ export function marketPageModel(offers, rails = {}, { name = DEFAULT_MARKET_NAME
   };
 }
 
-const ACTIVITY_JSON = "application/activity+json";
-const CAPABILITY_ACTOR_IDENTIFIER = "market";
-
-/**
- * The market's Service actor in the house capability market: its outbox is the compiled public
- * Offers of the offers this face answers, so a peer node discovers what the market sells the way
- * it discovers any actor (WebFinger, then the actor, then its outbox), with nothing to sign.
- */
-function capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }) {
-  const served = new Set(servedOffers.filter((offer) => publiclySaleableOffer(offer)).map((offer) => offer.routeKey));
-  const activities = capabilityOutbox.filter((entry) => served.has(entry.routeKey)).map((entry) => entry.activity);
-  if (activities.length === 0) return [];
-  const actor = activities[0].actor;
-  const { origin, host, pathname } = new URL(actor);
-  const outbox = `${actor}/outbox`;
-  const activityJson = (body) => new Response(JSON.stringify(body), { status: 200, headers: { "content-type": ACTIVITY_JSON } });
-  return [
-    {
-      match: pathname,
-      methods: ["GET"],
-      handler: () => activityJson({
-        "@context": "https://www.w3.org/ns/activitystreams", id: actor, type: "Service",
-        preferredUsername: CAPABILITY_ACTOR_IDENTIFIER, name, url: `${origin}/`,
-        summary: rails?.network && rails?.asset
-          ? `The x402 market of the 561 Group: ${activities.length} capability offers; check each exact x402 quote on ${rails.network} using asset ${rails.asset}.`
-          : `The x402 market of the 561 Group: ${activities.length} capability offers; settlement rails are not yet configured, so inspect each official x402 quote.`,
-        outbox,
-        attachment: { type: "Link", name: "A2A Agent Card", mediaType: "application/json", href: `${origin}${AGENT_CARD_ROUTE}` },
-      }),
-    },
-    {
-      match: new URL(outbox).pathname,
-      methods: ["GET"],
-      handler: () => activityJson({ "@context": "https://www.w3.org/ns/activitystreams", id: outbox, type: "OrderedCollection", totalItems: activities.length, orderedItems: activities }),
-    },
-    {
-      match: "/.well-known/webfinger",
-      methods: ["GET"],
-      handler: (context) => {
-        const subject = `acct:${CAPABILITY_ACTOR_IDENTIFIER}@${host}`;
-        if (context.url.searchParams.get("resource") !== subject && context.url.searchParams.get("resource") !== actor) {
-          return Response.json({ error: "this market answers WebFinger only for its own actor" }, { status: 404 });
-        }
-        return new Response(JSON.stringify({ subject, aliases: [actor], links: [{ rel: "self", type: ACTIVITY_JSON, href: actor }] }), { status: 200, headers: { "content-type": "application/jrd+json" } });
-      },
-    },
-  ];
+/** Serve only the offers this transport can sell; the original SEN x402
+ * compiler remains the sole author of each ActivityPub Offer. The transport
+ * projects those exact activities into finite native ActivityPub resources. */
+function capabilityResourcesForMarket(servedOffers, capabilityOutbox, context) {
+  const served = new Set(servedOffers.filter(offer => publiclySaleableOffer(offer)).map(offer => offer.routeKey));
+  return capabilityActorResources(
+    capabilityOutbox.filter(entry => served.has(entry.routeKey)).map(entry => entry.activity),
+    context,
+  );
 }
 
 function refusalStatus(error) {
@@ -699,7 +662,7 @@ export function createMarket({
         handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin, resources }),
           { status: 200, headers: { "content-type": "text/markdown; charset=utf-8" } }),
       },
-      ...capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }),
+      ...capabilityResourcesForMarket(servedOffers, capabilityOutbox, { name, rails }),
       {
         match: CATALOG_ROUTE,
         methods: ["GET"],
