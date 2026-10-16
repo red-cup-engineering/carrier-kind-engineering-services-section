@@ -3,6 +3,8 @@ export { marketCatalogReadout } from "./catalog.mjs";
 import { createWebApplication } from "@red-cup-engineering/computer-web-platform/application";
 import { admitCanonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
 import { mediaType } from "@red-cup-engineering/http-services-section/body/web";
+import { forwardRequestHeaders } from "@red-cup-engineering/http-services-section/forward-request-headers";
+import { fetchWithoutRedirects } from "@red-cup-engineering/http-services-section/fetch-without-redirects";
 import { createWorkerFetch } from "@red-cup-engineering/computer-web-server/workers";
 import { openApiDocument, openApiResource } from "@red-cup-engineering/computer-web-server/openapi";
 import { bindingsProviders } from "@red-cup-engineering/computer-system-platform";
@@ -219,7 +221,7 @@ const CAPABILITY_ACTOR_IDENTIFIER = "market";
  * Offers of the offers this face answers, so a peer node discovers what the market sells the way
  * it discovers any actor (WebFinger, then the actor, then its outbox), with nothing to sign.
  */
-function capabilityActorResources(servedOffers, capabilityOutbox, { name }) {
+function capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }) {
   const served = new Set(servedOffers.filter((offer) => publiclySaleableOffer(offer)).map((offer) => offer.routeKey));
   const activities = capabilityOutbox.filter((entry) => served.has(entry.routeKey)).map((entry) => entry.activity);
   if (activities.length === 0) return [];
@@ -234,7 +236,9 @@ function capabilityActorResources(servedOffers, capabilityOutbox, { name }) {
       handler: () => activityJson({
         "@context": "https://www.w3.org/ns/activitystreams", id: actor, type: "Service",
         preferredUsername: CAPABILITY_ACTOR_IDENTIFIER, name, url: `${origin}/`,
-        summary: `The x402 market of the 561 Group: ${activities.length} capability offers, each payable per call in USDC on Base.`,
+        summary: rails?.network && rails?.asset
+          ? `The x402 market of the 561 Group: ${activities.length} capability offers; check each exact x402 quote on ${rails.network} using asset ${rails.asset}.`
+          : `The x402 market of the 561 Group: ${activities.length} capability offers; settlement rails are not yet configured, so inspect each official x402 quote.`,
         outbox,
         attachment: { type: "Link", name: "A2A Agent Card", mediaType: "application/json", href: `${origin}${AGENT_CARD_ROUTE}` },
       }),
@@ -278,6 +282,8 @@ function refusal(error) {
  * @param {object} input
  * @param {readonly object[]} input.catalog Offer declarations or admitted offers.
  * @param {Record<string, string|undefined>} [input.env] Deployment bindings.
+ * @param {readonly object[]} [input.resources] Site-owned web resources,
+ *   compiled with the seller resources for every transport.
  * @param {Record<string, Function>} [input.compute] Explicit computes by
  *   offer route, `(input, context) => result | Response` where `input` is
  *   `{ body, query, params, env }`; an offer without one is resolved from
@@ -317,6 +323,7 @@ export function createMarket({
   proxyCatalog = [],
   access,
   capabilityOutbox = [],
+  resources = [],
 } = {}) {
   const offers = declareCatalog(catalog);
   // A host this face cannot serve directly (today: runtime:"node" offers on
@@ -442,6 +449,8 @@ export function createMarket({
     const computeOffer = held ? null : computeFor(offer);
     const admit = held ? undefined : validateFor(offer);
     const purchaseStore = !held && offer.declaration.recoverable ? purchaseStoreForOffer?.(offer) : undefined;
+    const recoveryStore = purchaseStore ?? (held && offer.declaration.recoverable && purchaseStoreForOffer
+      ? () => purchaseStoreForOffer(offer) : undefined);
     return {
       match: route.replace(/\{([A-Za-z0-9_-]+)\}/gu, ":$1"),
       methods: [offer.declaration.method],
@@ -460,21 +469,21 @@ export function createMarket({
         }
         : {}),
       async handler(context) {
-        // A staged producer may be present for compilation and source tests
-        // without authorization to take money or perform customer work.
-        // Visibility (listed:false) and sale permission (held) are distinct.
-        if (offer.declaration.saleStatus === "held") {
+        // An already purchased edition remains recoverable if today's edition
+        // is unavailable, a newer edition has replaced it, or the current
+        // rights claim no longer authorizes a new purchase.
+        if (recoveryStore) {
+          const recovered = await recoverPaidResponse(context.request, recoveryStore);
+          if (recovered) return recovered;
+        }
+        // Withholding new sales does not revoke an exact completed purchase.
+        // The recovery supplier is opened only after signed-request inspection.
+        if (held) {
           return Response.json({ error: "This operation is not admitted for sale" },
             { status: 404, headers: { "cache-control": "no-store" } });
         }
         const rightsRefusal = sourceRightsGate(offer);
         if (rightsRefusal) return rightsRefusal;
-        // An already purchased edition remains recoverable if today's edition
-        // is unavailable, or a newer edition has replaced it.
-        if (purchaseStore) {
-          const recovered = await recoverPaidResponse(context.request, purchaseStore);
-          if (recovered) return recovered;
-        }
         if (offer.declaration.recoverable && !purchaseStore) {
           return Response.json({ error: "Publication delivery storage is unavailable" }, { status: 503, headers: { "retry-after": "30" } });
         }
@@ -535,8 +544,9 @@ export function createMarket({
 
   /**
    * Forward one request to the live origin that actually serves this offer,
-   * verbatim: method, headers and body on the way in, status, headers and
-   * body on the way back. The origin runs its own complete market (its own
+   * with its method, end-to-end fields and body. The target owns Host and
+   * transport framing; connection-only fields stop at this boundary.
+   * The origin runs its own complete market (its own
    * payment challenge and settlement), so this face never touches money for
    * a proxied offer; it is a boundary, not a second seller.
    */
@@ -568,12 +578,23 @@ export function createMarket({
         const target = new URL(`${context.url.pathname}${context.url.search}`, nodeOrigin);
         const forwardedBody = ["GET", "HEAD"].includes(context.request.method)
           ? undefined : await context.request.arrayBuffer();
-        const upstream = await fetch(target, {
-          method: context.request.method,
-          headers: context.request.headers,
-          body: forwardedBody,
-          redirect: "error",
-        });
+        let upstream;
+        try {
+          upstream = await fetchWithoutRedirects(target, {
+            method: context.request.method,
+            headers: forwardRequestHeaders(context.request.headers),
+            body: forwardedBody,
+          });
+        } catch {
+          // The request may have reached a settlement facilitator before the
+          // origin connection was interrupted. Never call it unpaid, retry a
+          // signed request with a new signature, or expose transport internals.
+          // Buyers must recover using their original authorization and token.
+          return Response.json({
+            error: "Node market origin is unavailable; payment outcome is unknown",
+            recovery: "Retry the identical request with the original payment signature and recovery token",
+          }, { status: 503, headers: { "cache-control": "no-store", "retry-after": "120" } });
+        }
         const signedRequest = context.request.headers.has("payment-signature");
         let expectedTerms;
         if (upstream.status === 402 || (upstream.ok && signedRequest)) {
@@ -605,7 +626,8 @@ export function createMarket({
     onError: (error) => refusal(error),
     platform: { providers: bindingsProviders(env) },
     resources: [
-      openApiResource(() => marketOpenApi(servedOffers, rails ?? {}, { name }), OPENAPI_ROUTE),
+      ...resources,
+      openApiResource(() => marketOpenApi(servedOffers, rails ?? {}, { name, resources }), OPENAPI_ROUTE),
       ...STATUS_ROUTES.map((match) => ({
         match,
         methods: ["GET"],
@@ -674,10 +696,10 @@ export function createMarket({
       {
         match: LLMS_ROUTE,
         methods: ["GET"],
-        handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin }),
+        handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin, resources }),
           { status: 200, headers: { "content-type": "text/markdown; charset=utf-8" } }),
       },
-      ...capabilityActorResources(servedOffers, capabilityOutbox, { name }),
+      ...capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }),
       {
         match: CATALOG_ROUTE,
         methods: ["GET"],
@@ -720,7 +742,7 @@ const offerSummary = (declaration) => {
 };
 
 /** OpenAPI is another projection of the served offer contracts, not another registry. */
-export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin } = {}) {
+export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin, resources = [] } = {}) {
   const base = offerOrigin(offers, origin);
   const routes = offers.filter((offer) => publiclySaleableOffer(offer)).map(offer => {
     const declaration = offer.declaration;
@@ -757,11 +779,13 @@ export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, 
       },
     };
   });
-  return openApiDocument(routes, { title: name, version: "2", servers: [{ url: base }],
+  const siteRoutes = resources.filter(resource => typeof resource.match === "string" && resource.operation)
+    .map(resource => ({ path: resource.match, methods: (resource.methods ?? ["GET"]).filter(method => method !== "HEAD"), operation: resource.operation }));
+  return openApiDocument([...routes, ...siteRoutes], { title: name, version: "2", servers: [{ url: base }],
     description: "The 561 Group's served offers. Inputs, examples, prices and response schemas are derived from the same catalogue used for execution. Inspect each live 402 quote before payment; declared contracts do not prove delivery or settlement." });
 }
 
-/** The RFC 9727 API catalog advertises only publicly saleable served offers. */
+/** RFC 9727 API catalog: expose only publicly saleable, currently served offers. */
 export function marketApiCatalog(offers, { origin } = {}) {
   const base = offerOrigin(offers, origin);
   return {
@@ -775,7 +799,7 @@ export function marketApiCatalog(offers, { origin } = {}) {
 }
 
 /** The market as an llms.txt (llmstxt.org): what each offer does, what it costs, and how it is called. */
-export function marketLlmsText(offers, { name = "market", origin } = {}) {
+export function marketLlmsText(offers, { name = "market", origin, resources = [] } = {}) {
   const base = offerOrigin(offers, origin);
   const lines = [
     `# ${name}`, "",
@@ -787,6 +811,8 @@ export function marketLlmsText(offers, { name = "market", origin } = {}) {
     `- [OpenAPI](${base}${OPENAPI_ROUTE}): HTTP methods, inputs and declared response schemas`,
     `- [Agent card](${base}${AGENT_CARD_ROUTE}): one A2A skill per offer`,
     `- [API catalog](${base}${API_CATALOG_ROUTE}): RFC 9727 linkset`, "",
+    ...resources.filter(resource => typeof resource.match === "string" && resource.operation)
+      .map(resource => `- [${resource.operation.summary ?? resource.operation.operationId}](${base}${resource.match}): ${resource.operation.description ?? ""}`),
   ];
   return `${lines.join("\n")}`;
 }
