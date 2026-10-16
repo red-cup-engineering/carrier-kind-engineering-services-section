@@ -39,6 +39,7 @@ function fixture(items, size = 12) {
   const fetcher = async (url, init) => {
     requests.push(url);
     assert.equal(init.headers.accept, "application/activity+json");
+    assert.equal(init.redirect, "error", "untrusted ActivityPub responses cannot follow HTTP redirects");
     const value = byUrl.get(url);
     return value ? Response.json(value) : new Response(null, { status: 404 });
   };
@@ -104,4 +105,12 @@ test("invalid budgets and mismatched actor origins refuse before transport", asy
   await assert.rejects(() => read(fetcher, { expectedActor: "https://other.example/actors/seller" }),
     /share one origin/);
   assert.equal(calls, 0);
+});
+
+test("non-HTTP loopback URLs cannot be smuggled into an ActivityPub page chain", async () => {
+  for (const target of ["ftp://localhost/internal", "file:///tmp/forbidden", "http://market.example/unsafe"]) {
+    await assert.rejects(() => read(async () => Response.json({
+      type: "OrderedCollection", totalItems: 1, first: target,
+    })), /without credentials or fragments/);
+  }
 });

@@ -10,7 +10,8 @@ function one(value) { return Array.isArray(value) ? value : [value]; }
 function httpsUrl(value, label) {
   let url;
   try { url = new URL(value); } catch { throw new TypeError(label + " must be an absolute URL"); }
-  if ((url.protocol !== "https:" && !["127.0.0.1", "localhost"].includes(url.hostname)) ||
+  const loopbackHttp = url.protocol === "http:" && ["127.0.0.1", "localhost"].includes(url.hostname);
+  if ((url.protocol !== "https:" && !loopbackHttp) ||
       url.username || url.password || url.hash) {
     throw new TypeError(label + " must use HTTPS outside loopback, without credentials or fragments");
   }
@@ -39,7 +40,9 @@ function pageUrl(value, outboxOrigin) {
  * with a streaming body. A source which exceeds the attention budget is a
  * refusal, never a partial catalog represented as complete. */
 async function jsonFrom(url, fetcher, budget) {
-  const response = await fetcher(url, { headers: { accept: "application/activity+json" } });
+  // Never allow an untrusted peer to redirect the bounded source read
+  // across origins (or onto private metadata or loopback addresses).
+  const response = await fetcher(url, { headers: { accept: "application/activity+json" }, redirect: "error" });
   if (!response?.ok) throw new Error("ActivityPub outbox read failed with HTTP " + (response?.status ?? "unknown"));
   let payload, bytes;
   if (response.body && typeof response.body.getReader === "function") {
