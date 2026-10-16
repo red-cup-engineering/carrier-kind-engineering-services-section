@@ -21,3 +21,11 @@ server owns incoming HTTP policy while the client owns outbound observation.
 - `web-mesh-services-section` — peer-to-peer discovery, transport, and mesh
   topology.
 - `x402-services-section` — HTTP payment protocol services.
+
+- `federated-capability-offer-discovery-cell` — source-owned, bounded
+  ActivityPub++ SEN/x402 seller-discovery consumer. Its exact source is mounted
+  from Red Cup's independent `2026-08-06-federated-capability-offer-discovery-cell`
+  repository; AOE/FeltOS/MetroPlat runtime admission and legitimate Work authority
+  are separate from the presence of the source. The original source and the
+  shared ActivityPub `sen-outbox-client` remain the executable owners; no
+  second provider registry or purchase journal is formed here.
