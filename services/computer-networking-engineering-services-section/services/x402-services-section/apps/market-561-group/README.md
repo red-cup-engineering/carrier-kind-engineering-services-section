@@ -116,8 +116,9 @@ the payment. A custom six-decimal EIP-3009 token must also supply
 `MARKET_RUNTIME=edge` selects the edge catalog; the Node runner serves all.
 ## Wallets that use offers without paying
 
-`data/market-561-group/records/access-grants.json` names the wallets that
-may use offers for free:
+The instance custodian supplies a `MarketAccessGrants` record naming the wallets
+that may use offers for free. The original record remains in its repository
+custody; it is no longer imported from or exported by the library package:
 
 ```json
 { "type": "MarketAccessGrants", "version": 1, "grants": [
@@ -138,8 +139,13 @@ this market answers offers the challenge under
 ERC-1271 contract wallet on Base) and holds a grant for the offer is served
 without paying, with `x402-access: grant`.
 
-Sign-in is on when the deployment binds `X402_SIGN_IN_SECRET` (`wrangler
-secret put`). A changed grants record takes effect on the next deploy.
+Sign-in is on when the deployment binds `X402_SIGN_IN_SECRET`. It also requires
+explicit instance authority: `MARKET_ACCESS_GRANTS_PATH` for the Node runner,
+`MARKET_ACCESS_GRANTS` (record or JSON) for the Worker, or `accessGrants` for
+`createMarket561Group`. Missing authority refuses enabled sign-in; an explicit
+empty grants array admits no free-access grants. Node reads and admits the record
+before starting any provider or listener. Actual instance binding and the original
+receiving tests remain the custodian's migration obligation before deployment.
 
 ## Recovering a paid publication
 

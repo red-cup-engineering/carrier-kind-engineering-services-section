@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-engineering-services-section/operation";
 
 const IDENTITY_ADMITTED_FOR_NO_KYC = new Set(["none", "email"]);
 

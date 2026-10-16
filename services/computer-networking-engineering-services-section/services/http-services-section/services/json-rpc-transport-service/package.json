@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/json-rpc-transport-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Shared bounded Fetch JSON-RPC transport without request media-decoding or host bindings.",
   "exports": {
@@ -20,5 +20,6 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs"
-  }
+  },
+  "private": false
 }

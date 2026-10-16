@@ -3,7 +3,7 @@ import { getDefaultAsset } from "@x402/evm";
 // The validation face alone: the package root evaluates a file URL at module
 // load, which a fetch-handler host (the market's edge face) refuses at startup.
 import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 
 import offerSchema from "../schemas/offer.schema.json" with { type: "json" };
 import { bindingSpecifier } from "./compute-binding.mjs";

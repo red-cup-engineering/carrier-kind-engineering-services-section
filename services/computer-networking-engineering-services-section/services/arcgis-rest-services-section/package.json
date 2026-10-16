@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/arcgis-rest-services-section",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "ArcGIS REST: querying a feature layer (counts, paged attribute reads) from any public ArcGIS Server or Hub.",
   "engines": {
@@ -18,5 +18,6 @@
     "package.json",
     "src"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "private": false
 }

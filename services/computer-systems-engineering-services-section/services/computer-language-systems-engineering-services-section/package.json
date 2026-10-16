@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/computer-language-systems-engineering-services-section",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Computer language systems engineering: grammars, parsers, and language tooling, including Panini.",
   "type": "module",
   "exports": {
@@ -16,22 +16,40 @@
     "engineering"
   ],
   "dependencies": {
-    "@red-cup-engineering/activitypub-services-section": "workspace:*",
-    "@red-cup-engineering/communicating": "workspace:*",
-    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-inference-engine": "workspace:*",
-    "@red-cup-engineering/computer-system-engine": "workspace:*",
-    "@red-cup-engineering/computer-text-content-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-web-server": "workspace:*",
-    "@red-cup-engineering/feltos": "workspace:*",
-    "@red-cup-engineering/markdown-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/relating": "workspace:*",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/uri-services-section": "workspace:*",
-    "@red-cup-engineering/read-markdown-frontmatter-service": "0.2.0"
+    "@red-cup-engineering/read-markdown-frontmatter-service": "0.2.0",
+    "@red-cup-engineering/computer-data-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/computer-text-content-engineering-services-section": "0.1.0",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/uri-services-section": "0.1.1",
+    "@red-cup-engineering/computer-code-engineering-services-section": "0.1.2",
+    "@red-cup-engineering/markdown-engineering-services-section": "0.5.2",
+    "@red-cup-engineering/activitypub-services-section": "0.8.4",
+    "@red-cup-engineering/communicating": "0.1.6",
+    "@red-cup-engineering/computer-inference-engine": "0.1.2",
+    "@red-cup-engineering/computer-system-engine": "0.1.2",
+    "@red-cup-engineering/computer-web-server": "0.6.2",
+    "@red-cup-engineering/feltos": "0.20.2",
+    "@red-cup-engineering/relating": "0.10.4"
   },
   "bin": {
     "compile-translation-lexicons": "./scripts/compile-translation-lexicons.mjs"
-  }
+  },
+  "private": false,
+  "files": [
+    "package.json",
+    "README*",
+    "LICENSE*",
+    "scripts",
+    "src",
+    "apps",
+    "!apps/arabic-language-corpus/**",
+    "!apps/english-language-corpus/**",
+    "!apps/horsetail/**",
+    "!apps/lakota-language-corpus/**",
+    "!apps/latin-language-corpus/**",
+    "!apps/panini/**",
+    "!apps/relation-language-corpus/**",
+    "!apps/tokipona-language-corpus/**",
+    "data/translation-lexicons/cdrama-subtitles.json"
+  ]
 }

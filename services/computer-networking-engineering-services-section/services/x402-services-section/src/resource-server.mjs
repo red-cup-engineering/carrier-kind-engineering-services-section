@@ -1,4 +1,4 @@
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 import { HTTPFacilitatorClient, x402ResourceServer } from "@x402/core/server";
 import { decodePaymentSignatureHeader } from "@x402/core/http";
 import { ExactEvmScheme } from "@x402/evm/exact/server";

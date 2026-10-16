@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-engineering-services-section/operation";
 
 const IDENTITY_RANK = { none: 0, email: 1, phone: 2, card: 3, bank: 4, "government-id": 5, unknown: 6 };
 

@@ -46,6 +46,12 @@ const DEFAULT_SUSPICION_WINDOW_MS = 5 * 60_000;
  * Returns a live tools collection (pass it in `createMcpServer.toolSources`), each upstream's client (for a
  * host's own direct calls), the upstreams that could not be reached with why, and `close()`.
  */
+/** The ingress-derived hand selector. Never read it from tool arguments or forwarded _meta. */
+export function mcpCallerSession(context) {
+  return typeof context?.harnessSession === "string" ? `harness:${context.harnessSession}`
+    : context?.session ?? (typeof context?.bearer === "string" ? `token:${createHash("sha256").update(context.bearer).digest("hex").slice(0, 16)}` : undefined);
+}
+
 export async function federateMcpServers(upstreams, {
   clientInfo = { name: "mcp-federation", version: "0.1.0" },
   fetchImpl,
@@ -158,9 +164,7 @@ export async function federateMcpServers(upstreams, {
     state.published = selected.map((tool) => {
       const call = (args, context) => {
         const subject = upstream.principalMeta === undefined ? undefined : context?.principal?.subject;
-        const session = upstream.sessionMeta === undefined ? undefined
-          : typeof context?.harnessSession === "string" ? `harness:${context.harnessSession}`
-          : context?.session ?? (typeof context?.bearer === "string" ? `token:${createHash("sha256").update(context.bearer).digest("hex").slice(0, 16)}` : undefined);
+        const session = upstream.sessionMeta === undefined ? undefined : mcpCallerSession(context);
         const meta = { ...(typeof subject === "string" ? { [upstream.principalMeta]: subject } : {}), ...(typeof session === "string" ? { [upstream.sessionMeta]: session } : {}) };
         return client.callTool({ name: tool.name, arguments: args, ...(Object.keys(meta).length === 0 ? {} : { _meta: meta }) });
       };

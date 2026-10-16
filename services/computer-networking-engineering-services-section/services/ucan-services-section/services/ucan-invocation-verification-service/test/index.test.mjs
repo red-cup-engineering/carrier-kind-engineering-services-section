@@ -5,7 +5,7 @@ import { ed25519 } from "@ucanto/principal";
 import {
   EMPTY_WITNESS_ROOT,
   identifyJsonSemanticContent,
-} from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+} from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 import { verifyUcanInvocation } from "../src/index.mjs";
 
 const ACCOUNT = "0x1111111111111111111111111111111111111111";

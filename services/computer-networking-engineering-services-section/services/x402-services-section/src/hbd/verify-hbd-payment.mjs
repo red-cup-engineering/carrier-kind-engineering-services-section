@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { RpcClient } from "@red-cup-engineering/hive-blockchain-client-service/rpc.mjs";
 import { stripUnitSuffix } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-service";
 
 const HTTPS_PATTERN = /^https:\/\//u;
 const ISO_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/u;

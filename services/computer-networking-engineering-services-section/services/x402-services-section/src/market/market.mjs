@@ -3,6 +3,8 @@ export { marketCatalogReadout } from "./catalog.mjs";
 import { createWebApplication } from "@red-cup-engineering/computer-web-platform/application";
 import { admitCanonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
 import { mediaType } from "@red-cup-engineering/http-services-section/body/web";
+import { forwardRequestHeaders } from "@red-cup-engineering/http-services-section/forward-request-headers";
+import { fetchWithoutRedirects } from "@red-cup-engineering/http-services-section/fetch-without-redirects";
 import { createWorkerFetch } from "@red-cup-engineering/computer-web-server/workers";
 import { openApiDocument, openApiResource } from "@red-cup-engineering/computer-web-server/openapi";
 import { bindingsProviders } from "@red-cup-engineering/computer-system-platform";
@@ -280,6 +282,8 @@ function refusal(error) {
  * @param {object} input
  * @param {readonly object[]} input.catalog Offer declarations or admitted offers.
  * @param {Record<string, string|undefined>} [input.env] Deployment bindings.
+ * @param {readonly object[]} [input.resources] Site-owned web resources,
+ *   compiled with the seller resources for every transport.
  * @param {Record<string, Function>} [input.compute] Explicit computes by
  *   offer route, `(input, context) => result | Response` where `input` is
  *   `{ body, query, params, env }`; an offer without one is resolved from
@@ -319,6 +323,7 @@ export function createMarket({
   proxyCatalog = [],
   access,
   capabilityOutbox = [],
+  resources = [],
 } = {}) {
   const offers = declareCatalog(catalog);
   // A host this face cannot serve directly (today: runtime:"node" offers on
@@ -539,8 +544,9 @@ export function createMarket({
 
   /**
    * Forward one request to the live origin that actually serves this offer,
-   * verbatim: method, headers and body on the way in, status, headers and
-   * body on the way back. The origin runs its own complete market (its own
+   * with its method, end-to-end fields and body. The target owns Host and
+   * transport framing; connection-only fields stop at this boundary.
+   * The origin runs its own complete market (its own
    * payment challenge and settlement), so this face never touches money for
    * a proxied offer; it is a boundary, not a second seller.
    */
@@ -574,11 +580,10 @@ export function createMarket({
           ? undefined : await context.request.arrayBuffer();
         let upstream;
         try {
-          upstream = await fetch(target, {
+          upstream = await fetchWithoutRedirects(target, {
             method: context.request.method,
-            headers: context.request.headers,
+            headers: forwardRequestHeaders(context.request.headers),
             body: forwardedBody,
-            redirect: "error",
           });
         } catch {
           // The request may have reached a settlement facilitator before the
@@ -621,7 +626,8 @@ export function createMarket({
     onError: (error) => refusal(error),
     platform: { providers: bindingsProviders(env) },
     resources: [
-      openApiResource(() => marketOpenApi(servedOffers, rails ?? {}, { name }), OPENAPI_ROUTE),
+      ...resources,
+      openApiResource(() => marketOpenApi(servedOffers, rails ?? {}, { name, resources }), OPENAPI_ROUTE),
       ...STATUS_ROUTES.map((match) => ({
         match,
         methods: ["GET"],
@@ -690,7 +696,7 @@ export function createMarket({
       {
         match: LLMS_ROUTE,
         methods: ["GET"],
-        handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin }),
+        handler: (context) => new Response(marketLlmsText(servedOffers, { name, origin: context.url.origin, resources }),
           { status: 200, headers: { "content-type": "text/markdown; charset=utf-8" } }),
       },
       ...capabilityActorResources(servedOffers, capabilityOutbox, { name, rails }),
@@ -736,7 +742,7 @@ const offerSummary = (declaration) => {
 };
 
 /** OpenAPI is another projection of the served offer contracts, not another registry. */
-export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin } = {}) {
+export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, origin, resources = [] } = {}) {
   const base = offerOrigin(offers, origin);
   const routes = offers.filter((offer) => publiclySaleableOffer(offer)).map(offer => {
     const declaration = offer.declaration;
@@ -773,7 +779,9 @@ export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, 
       },
     };
   });
-  return openApiDocument(routes, { title: name, version: "2", servers: [{ url: base }],
+  const siteRoutes = resources.filter(resource => typeof resource.match === "string" && resource.operation)
+    .map(resource => ({ path: resource.match, methods: (resource.methods ?? ["GET"]).filter(method => method !== "HEAD"), operation: resource.operation }));
+  return openApiDocument([...routes, ...siteRoutes], { title: name, version: "2", servers: [{ url: base }],
     description: "The 561 Group's served offers. Inputs, examples, prices and response schemas are derived from the same catalogue used for execution. Inspect each live 402 quote before payment; declared contracts do not prove delivery or settlement." });
 }
 
@@ -791,7 +799,7 @@ export function marketApiCatalog(offers, { origin } = {}) {
 }
 
 /** The market as an llms.txt (llmstxt.org): what each offer does, what it costs, and how it is called. */
-export function marketLlmsText(offers, { name = "market", origin } = {}) {
+export function marketLlmsText(offers, { name = "market", origin, resources = [] } = {}) {
   const base = offerOrigin(offers, origin);
   const lines = [
     `# ${name}`, "",
@@ -803,6 +811,8 @@ export function marketLlmsText(offers, { name = "market", origin } = {}) {
     `- [OpenAPI](${base}${OPENAPI_ROUTE}): HTTP methods, inputs and declared response schemas`,
     `- [Agent card](${base}${AGENT_CARD_ROUTE}): one A2A skill per offer`,
     `- [API catalog](${base}${API_CATALOG_ROUTE}): RFC 9727 linkset`, "",
+    ...resources.filter(resource => typeof resource.match === "string" && resource.operation)
+      .map(resource => `- [${resource.operation.summary ?? resource.operation.operationId}](${base}${resource.match}): ${resource.operation.description ?? ""}`),
   ];
   return `${lines.join("\n")}`;
 }

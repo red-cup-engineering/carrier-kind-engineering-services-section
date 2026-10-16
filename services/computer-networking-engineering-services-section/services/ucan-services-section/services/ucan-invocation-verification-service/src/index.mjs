@@ -4,7 +4,7 @@ import { Revoked, access, capability } from "@ucanto/validator";
 import {
   EMPTY_WITNESS_ROOT,
   identifyJsonSemanticContent,
-} from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
+} from "@red-cup-engineering/computer-data-engineering-services-section/semiotic-expression-notation/semantic-content-identity";
 
 const DID_KEY = /^did:key:z[1-9A-HJ-NP-Za-km-z]{16,512}$/u;
 const RESOURCE = /^did:pkh:eip155:[1-9][0-9]*:0x[0-9a-fA-F]{40}$/u;

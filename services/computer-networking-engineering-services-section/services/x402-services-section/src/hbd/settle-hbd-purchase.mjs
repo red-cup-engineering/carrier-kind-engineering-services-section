@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { settlementWitnessGraphId } from "../../scripts/x402-settlement-witness-identity.mjs";
 import { parseDecimal } from "@red-cup-engineering/computer-data-engineering-services-section/number/decimal-string";
-import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-services-section/operation";
+import { runJavascriptNodeOperation } from "@red-cup-engineering/javascript-node-operation-service";
 
 const RESOURCE_ID_PATTERN = /^[a-z][a-z0-9-]{2,63}$/u;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/u;
