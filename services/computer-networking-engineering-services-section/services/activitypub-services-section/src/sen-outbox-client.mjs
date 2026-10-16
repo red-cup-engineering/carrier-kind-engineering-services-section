@@ -39,7 +39,18 @@ function pageUrl(value, outboxOrigin) {
 /** Bound every received page before parsing, including when the peer answers
  * with a streaming body. A source which exceeds the attention budget is a
  * refusal, never a partial catalog represented as complete. */
-async function jsonFrom(url, fetcher, budget) {
+let publicPolicy;
+async function authorizePublicPage(url) {
+  // Share the original Red Cup public-network policy, including resolved DNS
+  // address classification. A mock authorizer is explicit in fixture callers.
+  // Lazily load Node's DNS implementation only on outbound federation reads.
+  publicPolicy ??= import("@red-cup-engineering/http-services-section/fetch-policy");
+  const { authorizePublicHttpUrl } = await publicPolicy;
+  return authorizePublicHttpUrl(new URL(url), { purpose: "activitypub-sen-outbox" });
+}
+
+async function jsonFrom(url, fetcher, budget, authorizeUrl) {
+  await authorizeUrl(url);
   // Never allow an untrusted peer to redirect the bounded source read
   // across origins (or onto private metadata or loopback addresses).
   const response = await fetcher(url, { headers: { accept: "application/activity+json" }, redirect: "error" });
@@ -91,13 +102,14 @@ async function jsonFrom(url, fetcher, budget) {
  * public or addressed to this customer. An Offer from a foreign sovereign
  * settlement is testimony, not commerce, a payment, or an ACK.
  *
- * Pages, encountered activities and source bytes are bounded. Exceeding a
+ * The original HTTP network owner authorizes every peer URL before GET,\n * rejecting private/special-use DNS and literals. Tests inject their\n * otherwise-networkless authorizer explicitly, not through remote JSON.\n * Pages, encountered activities and source bytes are bounded. Exceeding a
  * bound refuses the ENTIRE source without fabricating an empty or complete
  * market from a truncated observation. The same client is consumed by the
  * federated-capability-offer-discovery-cell and its MetroPlat-facing Work.
  */
 export async function listAddressedSenOutbox({
   outboxUrl, expectedActor, expectedAgentCard, recipient, fetcher = fetch,
+  authorizeUrl = authorizePublicPage,
   maxPages = DEFAULT_MAX_PAGES, maxActivities = DEFAULT_MAX_ACTIVITIES,
   maxPageBytes = DEFAULT_MAX_PAGE_BYTES, maxTotalBytes = DEFAULT_MAX_TOTAL_BYTES,
 } = {}) {
@@ -115,9 +127,10 @@ export async function listAddressedSenOutbox({
   bound(maxTotalBytes, "maxTotalBytes", 64 * 1024 * 1024);
   if (maxTotalBytes < maxPageBytes) throw new TypeError("maxTotalBytes cannot be smaller than maxPageBytes");
   if (typeof fetcher !== "function") throw new TypeError("ActivityPub fetcher must be a function");
+  if (typeof authorizeUrl !== "function") throw new TypeError("ActivityPub network authorizer must be a function");
 
   const budget = { bytes: 0, maxPageBytes, maxTotalBytes };
-  const root = await jsonFrom(source.href, fetcher, budget), projections = [];
+  const root = await jsonFrom(source.href, fetcher, budget, authorizeUrl), projections = [];
   if (!["OrderedCollection", "OrderedCollectionPage"].includes(root?.type)) {
     throw new TypeError("ActivityPub outbox must be an OrderedCollection or OrderedCollectionPage");
   }
@@ -132,7 +145,7 @@ export async function listAddressedSenOutbox({
     if (++pages > maxPages) throw new RangeError("ActivityPub outbox exceeded the bounded page budget");
     const external = typeof page === "string";
     const sought = external ? pageUrl(page, source.origin) : undefined;
-    const value = external ? await jsonFrom(sought, fetcher, budget) : page;
+    const value = external ? await jsonFrom(sought, fetcher, budget, authorizeUrl) : page;
     const identity = pageUrl(value?.id ?? sought ?? (page === root ? source.href : undefined), source.origin);
     if (observedPages.has(identity)) throw new Error("ActivityPub outbox pagination cycle repeats " + identity);
     observedPages.add(identity);

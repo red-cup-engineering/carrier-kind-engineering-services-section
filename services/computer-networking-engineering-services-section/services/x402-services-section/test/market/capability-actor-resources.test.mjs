@@ -99,6 +99,7 @@ test("the existing native SEN peer client receives all source-owned x402 Offers 
     expectedAgentCard: origin + "/.well-known/agent-card.json",
     recipient: "https://buyer.example/actors/consumer",
     fetcher,
+    authorizeUrl: async () => {},
   });
   assert.equal(observed.length, offers.length);
   assert.deepEqual(observed.map(x => x.activityId), outbox.map(x => x.activity.id));

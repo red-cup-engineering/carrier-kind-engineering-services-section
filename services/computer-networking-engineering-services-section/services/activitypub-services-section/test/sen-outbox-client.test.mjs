@@ -11,7 +11,7 @@ const fetcherFor = (orderedItems) => async () => ({ ok: true, json: async () => 
 
 test("outbox observation admits public and exact-recipient SEN activities only", async () => {
   const publicEnvelope = envelope(ACTIVITYSTREAMS_PUBLIC), privateEnvelope = envelope(recipient);
-  const result = await listAddressedSenOutbox({ outboxUrl: `${actor}/outbox`, expectedActor: actor, expectedAgentCard: card, recipient, fetcher: fetcherFor([publicEnvelope, privateEnvelope, envelope("https://other.example/actors/supplier")]) });
+  const result = await listAddressedSenOutbox({ outboxUrl: `${actor}/outbox`, expectedActor: actor, expectedAgentCard: card, recipient, authorizeUrl: async () => {}, fetcher: fetcherFor([publicEnvelope, privateEnvelope, envelope("https://other.example/actors/supplier")]) });
   assert.equal(result.length, 2);
   assert(result.every(({ objectBytes }) => Buffer.from(objectBytes).equals(bytes)));
   assert.deepEqual(result.map(({ activityId }) => activityId), [publicEnvelope.id, privateEnvelope.id]);
@@ -21,7 +21,7 @@ test("outbox observation refuses an addressed activity without a durable identit
   const activity = { ...envelope(ACTIVITYSTREAMS_PUBLIC) };
   delete activity.id;
   await assert.rejects(
-    listAddressedSenOutbox({ outboxUrl: `${actor}/outbox`, expectedActor: actor, expectedAgentCard: card, recipient, fetcher: fetcherFor([activity]) }),
+    listAddressedSenOutbox({ outboxUrl: `${actor}/outbox`, expectedActor: actor, expectedAgentCard: card, recipient, authorizeUrl: async () => {}, fetcher: fetcherFor([activity]) }),
     /activity identity must be an absolute URL/
   );
 });

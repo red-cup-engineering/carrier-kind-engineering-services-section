@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/activitypub-services-section",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "type": "module",
   "receivingTests": [
     "test/delivery-queue-responsiveness.test.mjs",

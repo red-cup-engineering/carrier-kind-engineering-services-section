@@ -12,7 +12,7 @@ const card = origin + "/.well-known/agent-card.json";
 const recipient = "https://buyer.example/actors/buyer";
 const read = (fetcher, overrides = {}) => listAddressedSenOutbox({
   outboxUrl: outbox, expectedActor: actor, expectedAgentCard: card,
-  recipient, fetcher, ...overrides,
+  recipient, fetcher, authorizeUrl: async () => {}, ...overrides,
 });
 function offer(i) {
   return projectSenActivity({
@@ -112,5 +112,22 @@ test("non-HTTP loopback URLs cannot be smuggled into an ActivityPub page chain",
     await assert.rejects(() => read(async () => Response.json({
       type: "OrderedCollection", totalItems: 1, first: target,
     })), /without credentials or fragments/);
+  }
+});
+
+test("production default rejects private and loopback peer origins before fetching", async () => {
+  for (const [origin, message] of [
+    ["https://127.0.0.1", /private or special-use/u],
+    ["https://169.254.169.254", /private or special-use/u],
+    ["https://localhost", /local network/u],
+  ]) {
+    let requests = 0;
+    const actor = origin + "/actors/market";
+    await assert.rejects(() => listAddressedSenOutbox({
+      outboxUrl: actor + "/outbox", expectedActor: actor,
+      expectedAgentCard: origin + "/.well-known/agent-card.json",
+      recipient, fetcher: async () => { requests++; throw Error("unexpected unsafe request"); },
+    }), message);
+    assert.equal(requests, 0);
   }
 });
