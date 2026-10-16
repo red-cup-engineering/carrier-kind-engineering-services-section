@@ -1,0 +1,67 @@
+# Declarative consumer of Engineering's single GitHub reconciliation implementation.
+# Event-driven only: no scheduled task, no unattended PR merges or issue closure.
+name: Receive and retire contained branches
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/**'
+      - '.github/workflows/github-reconcile-contained-branches.yml'
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: github-contained-${{ github.repository }}
+  cancel-in-progress: false
+jobs:
+  contained:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.merged == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: read
+      checks: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Qualify the source-owned reconciliation contract
+        run: node --test 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/test/'*.test.mjs
+      - name: Reconcile only this repository's contained branches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # --apply only prunes contained, unprotected branches. The owning
+          # service rechecks each SHA, protection and newly opened PR.
+          # --max-merges 0 and no --merge-green-pulls: zero PR merges.
+          # No --close-issues: zero issue mutations.
+          node 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/bin/github-reconcile.mjs' \
+            --repo "$GITHUB_REPOSITORY" --apply --max-merges 0 \
+            --register "$RUNNER_TEMP/github-reconciliation-debt" \
+            | tee "$RUNNER_TEMP/github-reconciliation-result.json"
+          # Log a usable, bounded receipt; do not publish token or source.
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+            const msg=[
+              "# Source-owned GitHub branch receiving",
+              "Repository: "+process.env.GITHUB_REPOSITORY,
+              "Contained branches deleted: "+r.branchesDeleted,
+              "Debt records retained: "+r.debtRecords,
+              "Pull requests merged: "+r.pullRequestsMerged,
+              "Issues closed: "+r.issuesClosed,
+              "Errors: "+(r.errors?.length??0),
+            ];
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,msg.join("\n")+"\n");
+            if(r.errors?.length)process.exitCode=1;
+          ' "$RUNNER_TEMP/github-reconciliation-result.json"
