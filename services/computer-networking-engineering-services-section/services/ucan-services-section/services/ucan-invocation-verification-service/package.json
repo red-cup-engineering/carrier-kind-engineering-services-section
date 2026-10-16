@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/ucan-invocation-verification-service",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Verifies one official UCAN invocation and emits its typed, versioned authorization receipt.",
   "license": "MIT",
@@ -24,13 +24,15 @@
     "pack:dry-run": "npm pack --dry-run --ignore-scripts"
   },
   "dependencies": {
-    "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/json-schema-services-section": "workspace:*",
-    "@red-cup-engineering/json-services-section": "workspace:*",
     "@ucanto/core": "10.4.6",
     "@ucanto/principal": "9.0.3",
     "@ucanto/validator": "10.0.1",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "workspace:*"
-  }
+    "@red-cup-engineering/json-schema-services-section": "0.5.0",
+    "@red-cup-engineering/json-services-section": "0.4.0",
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/computer-data-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/computer-code-engineering-services-section": "0.1.2",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.2"
+  },
+  "private": false
 }

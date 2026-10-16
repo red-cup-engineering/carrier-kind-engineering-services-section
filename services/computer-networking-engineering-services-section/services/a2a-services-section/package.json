@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/a2a-services-section",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "private": false,
   "type": "module",
   "description": "Plain-Node A2A 1.0: the JSON-RPC client and server, signed Agent Cards, durable task and push-notification stores, and SEN parts. No @a2a-js/sdk, no build step, no runtime npm dependencies.",
@@ -26,13 +26,13 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@red-cup-engineering/computer-networking-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/computer-file-engineering-services-section": "workspace:*",
-    "@red-cup-engineering/http-services-section": "workspace:*",
-    "@red-cup-engineering/json-services-section": "workspace:*",
-    "@red-cup-engineering/uri-services-section": "workspace:*",
-    "@red-cup-engineering/signgraph": "workspace:*"
+    "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "0.3.1",
+    "@red-cup-engineering/computer-file-engineering-services-section": "0.4.0",
+    "@red-cup-engineering/json-services-section": "0.4.0",
+    "@red-cup-engineering/uri-services-section": "0.1.1",
+    "@red-cup-engineering/signgraph": "0.1.0",
+    "@red-cup-engineering/http-services-section": "0.6.2",
+    "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.2"
   },
   "license": "UNLICENSED"
 }

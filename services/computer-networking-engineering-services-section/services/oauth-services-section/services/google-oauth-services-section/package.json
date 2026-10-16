@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/google-oauth-services-section",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "type": "module",
   "description": "The Google-specific vendor protocol nested under oauth-services-section: everything that talks to accounts.google.com or oauth2.googleapis.com directly, so the surrounding OAuth 2.0 authorization-server logic (client registration, PKCE, code redemption, bearer validation, metadata, admission judgment) stays free of any one upstream identity provider's wire format.",
   "exports": {
@@ -8,9 +8,16 @@
     "./relay-to-google-consent-service": "./scripts/relay-to-google-consent-service.mjs"
   },
   "dependencies": {
-    "@red-cup-engineering/oauth-services-section": "workspace:*"
+    "@red-cup-engineering/oauth-services-section": "0.1.2"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs"
-  }
+  },
+  "private": false,
+  "files": [
+    "package.json",
+    "README*",
+    "LICENSE*",
+    "scripts"
+  ]
 }
