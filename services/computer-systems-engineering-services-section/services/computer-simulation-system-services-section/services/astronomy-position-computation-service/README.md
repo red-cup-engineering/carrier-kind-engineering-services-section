@@ -26,9 +26,16 @@ gateway is not part of this package.
 ### Exact input meanings
 
 - Bare `YYYY-MM-DD` is **00:00 UTC** on that calendar date.
-- Full datetimes are parsed as UTC instants and canonically returned with
-  `.000Z` precision where appropriate. Validate the published date range
-  *before* making a payment challenge.
+- Full datetimes must carry `Z` or an explicit numeric UTC offset. Hours and
+  minutes are required; seconds and fractional seconds are optional. They
+  are canonically returned at millisecond precision in UTC; finer fractional
+  digits are truncated, as in the existing JavaScript Date-based model.
+  Zone-less datetimes, impossible calendar days, `24:00` and leap seconds are
+  refused rather than reinterpreted. Gregorian leap-year rules apply; the
+  accuracy range is checked on the resulting UTC instant after the offset.
+  Validate the published date range *before* making a payment challenge.
+- Existing unambiguous ISO spellings remain accepted: lowercase `z`, compact
+  numeric offsets such as `+0530`, and signed six-digit years such as `+002026`.
 - A Julian day used internally for the underlying series is in **TT**
   (Terrestrial Time), translated from UTC using the package's stated
   approximate `Delta T` law. Event roots are inverted from TT to UT
@@ -111,6 +118,18 @@ error provenance without promoting decimal formatting to physical accuracy.
 
 ## Provenance, accuracy and authority
 
+The lunar `trend` describes the changing illuminated fraction: waxing from
+new to full Moon (unrounded elongation `[0, 180)` degrees), waning from full to new
+Moon (`[180, 360)`). At a boundary this names the following half-cycle.
+Classification uses the full-precision source, before the returned elongation
+is rounded to four decimals. Just before full/new Moon a displayed value may
+round to 180/360 while the trend still correctly names the preceding half-cycle.
+Relative Moon–Sun angular speed is positive during both halves and cannot
+distinguish them. These conventions follow the [US Naval Observatory's phase
+definitions](https://aa.usno.navy.mil/faq/moon_phases). The returned illuminated
+fraction remains the existing longitude-only approximation; this correction
+does not introduce a new physical-accuracy claim.
+
 The embedded source algorithm is a truncated Meeus lunar/solar series with
 JPL approximate planetary elements. Its published tested interval is
 1800–2050. The existing golden tests and per-body longitude error bounds
@@ -177,3 +196,4 @@ runs these scientific tests and verifies that a packed tarball can be
 installed and imported by a separate clean consumer without registry access.
 An accepted tarball is **not** a published `registry.561.group` release,
 and a published library is not a live x402 paid-delivery witness.
+
