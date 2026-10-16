@@ -1,4 +1,5 @@
 import { admitResourceMeasurements } from "@red-cup-engineering/exact-number-data-service/resource-measurement";
+import { publiclySaleableOffer } from "../offer.mjs";
 
 /**
  * Read-only, scenario-specific contribution margin exposure for native x402
@@ -17,6 +18,60 @@ const BASE_USDC = "0x833589fcD6eDb6e08f4c7C32D4f71b54bdA02913".toLowerCase();
 const MAX_AMOUNT = (1n << 256n) - 1n;
 const NI = /^ni:\/\/\/sha-256;[A-Za-z0-9_-]{43}$/u;
 const BASE_USDC_ASSET = "eip155:8453/erc20:" + BASE_USDC;
+const USDC_SCALE = 1_000_000n;
+
+/** Preserve the owner's source denomination, without floating-point money. */
+function cataloguePriceFor(declaration, amount) {
+  if (amount < 0n || amount > MAX_AMOUNT) return null;
+  if (typeof declaration.price !== "string") {
+    return Object.freeze({ amountAtomic: amount.toString(), asset: declaration.price.asset });
+  }
+  const digits = (amount % USDC_SCALE).toString().padStart(6, "0")
+    .replace(/0+$/u, "").padEnd(2, "0");
+  return "$" + (amount / USDC_SCALE).toString() + "." + digits;
+}
+
+/**
+ * Fabricate one source-bound catalogue price amendment from explicitly
+ * admitted economics scenarios. This is a candidate input to the existing
+ * catalogue compiler, not a deployment, new income, or permission to reprice.
+ * A fee-only floor never purports to know the marginal compute/support cost.
+ */
+function priceCandidate({ offer, index, fee, headroom, resourceCost, contributionTarget, comparable, listed }) {
+  let floor = headroom === null ? null : fee + headroom;
+  if (resourceCost !== null) {
+    const costFloor = fee + resourceCost + (contributionTarget ?? 0n);
+    floor = floor === null || costFloor > floor ? costFloor : floor;
+  }
+  let state = "no-price-floor-evidence";
+  if (!listed) state = "not-saleable";
+  else if (!comparable) state = "incomparable-asset";
+  else if (!NI.test(offer.sku ?? "")) state = "source-identity-required";
+  else if (contributionTarget !== null && resourceCost === null) state = "resource-cost-evidence-required";
+  else if (floor !== null && floor > MAX_AMOUNT) state = "unrepresentable-atomic-price";
+  else if (floor !== null && floor <= BigInt(offer.amount)) state = "scenario-floor-met";
+  else if (floor !== null && offer.declaration.requestPricing !== undefined &&
+           (typeof offer.declaration.requestPricing.maximumAtomic !== "string" ||
+            !AMOUNT.test(offer.declaration.requestPricing.maximumAtomic) ||
+            BigInt(offer.declaration.requestPricing.maximumAtomic) > MAX_AMOUNT ||
+            BigInt(offer.declaration.requestPricing.maximumAtomic) < floor)) {
+    state = "request-tariff-maximum-blocks-price";
+  } else if (floor !== null) state = "catalogue-amendment-candidate";
+  const delta = floor !== null && floor > BigInt(offer.amount) ? floor - BigInt(offer.amount) : 0n;
+  return Object.freeze({
+    state, sku: offer.sku ?? null, declarationIndex: index,
+    gateway: offer.declaration.gateway, operation: offer.declaration.operation,
+    route: offer.declaration.route ?? null, originalPrice: offer.declaration.price,
+    replacementPrice: state === "catalogue-amendment-candidate"
+      ? cataloguePriceFor(offer.declaration, floor) : null,
+    minimumScenarioPriceAtomic: floor === null || floor > MAX_AMOUNT ? null : floor.toString(),
+    requiredIncreaseAtomic: floor === null || floor > MAX_AMOUNT ? null : delta.toString(),
+    ...(contributionTarget === null ? {} : { targetNetContributionAtomic: contributionTarget.toString() }),
+    resourceCostObserved: resourceCost !== null,
+    limitedToFeeAndHeadroom: resourceCost === null,
+    commercialEffect: false
+  });
+}
 
 function admitResourceCostReceipts(receipts, { now, maxAgeDays } = {}) {
   if (!Array.isArray(receipts) || receipts.length > 10_000) {
@@ -109,6 +164,7 @@ export function analyzeMarketUnitEconomics(offers, {
   network = "eip155:8453",
   asset = BASE_USDC,
   minimumPrecomputeHeadroomAtomic,
+  minimumNetContributionAtomic,
   resourceCostReceipts = [],
   now, // a clock observation belongs to the effectful caller, not the pure calculation
   maxFeeAgeDays = 30
@@ -130,6 +186,8 @@ export function analyzeMarketUnitEconomics(offers, {
   }
   const headroom = minimumPrecomputeHeadroomAtomic === undefined
     ? null : atomic(minimumPrecomputeHeadroomAtomic, "minimumPrecomputeHeadroomAtomic");
+  const contributionTarget = minimumNetContributionAtomic === undefined
+    ? null : atomic(minimumNetContributionAtomic, "minimumNetContributionAtomic");
   const costs = admitResourceCostReceipts(resourceCostReceipts, { now, maxAgeDays: maxFeeAgeDays });
   const seen = new Set();
   const seenSkus = new Set();
@@ -143,7 +201,7 @@ export function analyzeMarketUnitEconomics(offers, {
     if (seen.has(identity)) throw new TypeError("duplicate marketed operation: " + identity);
     seen.add(identity);
     const price = atomic(offer.amount, "offer.amount");
-    const listed = d.listed !== false;
+    const listed = publiclySaleableOffer(offer);
     const comparable = priceEligible(d, price);
     const beforeCompute = comparable ? price - fee : null;
     const receipt = costs.get(offer.sku);
@@ -154,6 +212,9 @@ export function analyzeMarketUnitEconomics(offers, {
     const underFee = listed && beforeCompute !== null && beforeCompute <= 0n;
     const underHeadroom = listed && beforeCompute !== null &&
       headroom !== null && beforeCompute < headroom;
+    const candidate = priceCandidate({
+      offer, index, fee, headroom, resourceCost, contributionTarget, comparable, listed
+    });
     return Object.freeze({
       gateway: d.gateway,
       operation: d.operation,
@@ -169,6 +230,7 @@ export function analyzeMarketUnitEconomics(offers, {
       resourceCostEvidence: receipt === undefined ? null : receipt,
       modeledContributionAtomic: modeledContribution === null ? null : modeledContribution.toString(),
       modeledContributionBelowZero: listed && modeledContribution !== null && modeledContribution < 0n,
+      priceCandidate: candidate,
       feeOnlyBreakEvenOrWorse: underFee,
       belowSuppliedHeadroomTarget: underHeadroom,
       finalContributionMarginAtomic: null,
@@ -180,7 +242,10 @@ export function analyzeMarketUnitEconomics(offers, {
   }
   const live = rows.filter(r => r.listed);
   const comparable = live.filter(r => r.comparable);
-  const exposed = comparable.filter(r => r.feeOnlyBreakEvenOrWorse || r.belowSuppliedHeadroomTarget || r.modeledContributionBelowZero);
+  const exposed = comparable.filter(r => r.feeOnlyBreakEvenOrWorse || r.belowSuppliedHeadroomTarget ||
+    r.modeledContributionBelowZero || r.priceCandidate.state === "catalogue-amendment-candidate");
+  const tariffCandidates = rows.filter(row => row.priceCandidate.state === "catalogue-amendment-candidate")
+    .map(row => row.priceCandidate);
   const gateways = new Map();
   for (const row of live) {
     const count = gateways.get(row.gateway) ?? {
@@ -198,7 +263,8 @@ export function analyzeMarketUnitEconomics(offers, {
     settlement: { network, asset: BASE_USDC, decimals: 6 },
     facilitatorScenario: {
       feeAtomic: fee.toString(), feeSource, feeObservedAt,
-      ...(headroom === null ? {} : { minimumPrecomputeHeadroomAtomic: headroom.toString() })
+      ...(headroom === null ? {} : { minimumPrecomputeHeadroomAtomic: headroom.toString() }),
+      ...(contributionTarget === null ? {} : { minimumNetContributionAtomic: contributionTarget.toString() })
     },
     assumptions: [
       "USDC denominated offer prices compared with a USD facilitator fee at 1:1 for planning only",
@@ -219,6 +285,10 @@ export function analyzeMarketUnitEconomics(offers, {
     costReceiptsMatched: seenSkus.size,
     modeledLossMakingCount: live.filter(r => r.modeledContributionBelowZero).length,
     modeledMarginsWithoutCostEvidence: comparable.filter(r => r.resourceCostEvidence === null).length,
+    tariffCandidateCount: tariffCandidates.length,
+    tariffCandidates: Object.freeze(tariffCandidates),
+    tariffBlockedForUnknownCosts: comparable.filter(r => r.priceCandidate.state === "resource-cost-evidence-required").length,
+    tariffBlockedForMaximum: comparable.filter(r => r.priceCandidate.state === "request-tariff-maximum-blocks-price").length,
     exposedOffers: exposed,
     gateways: Object.fromEntries([...gateways].sort(([a],[b]) => a.localeCompare(b))),
     finalContributionMargin: "unknown",

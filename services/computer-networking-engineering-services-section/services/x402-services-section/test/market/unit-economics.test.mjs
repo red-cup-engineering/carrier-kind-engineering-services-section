@@ -213,3 +213,82 @@ test("facilitator and resource observations reject nonexistent UTC dates", () =>
     resourceCostReceipts: [receipt],
   }), /UTC instant/u);
 });
+
+
+const SKU = "ni:///sha-256;" + "A".repeat(43);
+const EVIDENCE_NI = "ni:///sha-256;" + "B".repeat(43);
+
+test("fee/headroom plans source-bound exact decimal replacement prices without changing sale contracts", () => {
+  const source = { ...offer("codec", "1000"), sku: SKU };
+  const report = analyzeMarketUnitEconomics([source], scenario);
+  assert.equal(report.tariffCandidateCount, 1);
+  assert.deepEqual(report.tariffCandidates[0], {
+    state: "catalogue-amendment-candidate", sku: SKU, declarationIndex: 0,
+    gateway: "data", operation: "codec", route: "/v1/data/codec",
+    originalPrice: "$0.001000", replacementPrice: "$0.0015",
+    minimumScenarioPriceAtomic: "1500", requiredIncreaseAtomic: "500",
+    resourceCostObserved: false, limitedToFeeAndHeadroom: true,
+    commercialEffect: false
+  });
+  assert.equal(source.declaration.price, "$0.001000", "analysis cannot change a marketed offer");
+  assert.equal(report.actualTransactions, "not observed");
+});
+
+test("held, hidden, missing-identity, and cross-asset offers cannot produce payable price amendments", () => {
+  const held = { ...offer("held", "1000"), sku: SKU, declaration: {
+    ...offer("held", "1000").declaration, saleStatus: "held"
+  } };
+  const hidden = { ...offer("hidden", "1000"), sku: EVIDENCE_NI, declaration: {
+    ...offer("hidden", "1000").declaration, listed: false
+  } };
+  const unbound = offer("unbound", "1000");
+  const native = { ...offer("native", "1000"), sku: "ni:///sha-256;" + "C".repeat(43),
+    declaration: { ...offer("native", "1000").declaration,
+      price: { amountAtomic: "1000", asset: "eip155:8453/erc20:0x1111111111111111111111111111111111111111" } } };
+  const result = analyzeMarketUnitEconomics([held, hidden, unbound, native], scenario);
+  assert.equal(result.listedOffers, 2, "one unbound and one incomparable native offer are listed");
+  assert.equal(result.nonComparableCount, 1);
+  assert.equal(result.tariffCandidateCount, 0);
+  assert.deepEqual(result.exposedOffers.map(row => row.operation), ["unbound"]);
+});
+
+test("cost-backed target yields an actual candidate floor, never unknown-cost fiction", () => {
+  const original = { ...offer("measured", "3000"), sku: SKU };
+  const cost = {
+    sku: SKU, source: "https://evidence.example.test/cost", evidenceNi: EVIDENCE_NI,
+    observedAt: "2026-10-13T17:59:00Z", asset: "eip155:8453/erc20:" + ASSET.toLowerCase(),
+    marginalCostAtomic: "2500", ...ACTORS,
+    resourceReadings: [reading("cpu-runtime", "millisecond", "100")]
+  };
+  const candidate = analyzeMarketUnitEconomics([original], {
+    ...scenario, resourceCostReceipts: [cost], minimumNetContributionAtomic: "400"
+  });
+  assert.equal(candidate.tariffCandidateCount, 1);
+  assert.equal(candidate.tariffCandidates[0].replacementPrice, "$0.0039");
+  assert.equal(candidate.tariffCandidates[0].requiredIncreaseAtomic, "900");
+  assert.equal(candidate.tariffCandidates[0].resourceCostObserved, true);
+  const unknown = analyzeMarketUnitEconomics([original], {
+    ...scenario, minimumNetContributionAtomic: "400"
+  });
+  assert.equal(unknown.tariffCandidateCount, 0);
+  assert.equal(unknown.tariffBlockedForUnknownCosts, 1);
+});
+
+test("bounded request tariffs reject a proposed floor above their existing cap", () => {
+  const original = { ...offer("band", "1000"), sku: SKU, declaration: {
+    ...offer("band", "1000").declaration,
+    requestPricing: { maximumAtomic: "1400" }
+  } };
+  const r = analyzeMarketUnitEconomics([original], scenario);
+  assert.equal(r.tariffCandidates.length, 0);
+  assert.equal(r.tariffBlockedForMaximum, 1);
+  assert.equal(r.exposedOffers[0].priceCandidate.state, "request-tariff-maximum-blocks-price");
+  assert.equal(r.exposedOffers[0].priceCandidate.replacementPrice, null);
+});
+
+test("without a priced objective, preserve an unknown instead of inventing a price plan", () => {
+  const { minimumPrecomputeHeadroomAtomic, ...onlyFee } = scenario;
+  const r = analyzeMarketUnitEconomics([{ ...offer("unpriced", "1200"), sku: SKU }], onlyFee);
+  assert.equal(r.tariffCandidateCount, 0);
+  assert.equal(r.exposedOffers.length, 0);
+});
