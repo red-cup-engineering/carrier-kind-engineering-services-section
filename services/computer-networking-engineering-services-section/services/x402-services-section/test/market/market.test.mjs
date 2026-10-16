@@ -123,7 +123,18 @@ test("a standard x402 client can sign the quoted token domain and receive its pu
     ["eip155:8453", `0x${"22".repeat(20)}`, "Custom USD", "1"],
   ]) {
     const facilitator = paidFacilitator({}, network);
-    const market = demoMarket({ env: { ...ENV, X402_NETWORK: network, X402_ASSET: asset, X402_ASSET_NAME: name, X402_ASSET_VERSION: version }, facilitatorClient: facilitator });
+    const isCustom = asset.toLowerCase() === ("0x" + "22".repeat(20));
+    const atomic = value => ({ amountAtomic: value,
+      asset: network + "/erc20:" + asset.toLowerCase() });
+    const market = demoMarket({
+      ...(isCustom ? { catalog: [
+        postDeclaration({ price: atomic("20000") }),
+        getDeclaration({ price: atomic("10000") }),
+      ] } : {}),
+      env: { ...ENV, X402_NETWORK: network, X402_ASSET: asset,
+        X402_ASSET_NAME: name, X402_ASSET_VERSION: version },
+      facilitatorClient: facilitator,
+    });
     const url = "https://market.test/v1/lookup?n=7";
     const unsigned = await market.fetch(new Request(url));
     assert.equal(unsigned.status, 402);
@@ -796,5 +807,44 @@ test("process usage windows are observed but never attributed as paid per-reques
     for (const key of ["userCpuMicroseconds","systemCpuMicroseconds","rssBeforeBytes","rssAfterBytes"]) {
       assert.match(usage[key],/^[0-9]+$/u);
     }
+  }
+});
+
+
+test("Node proxy transport interruption preserves settlement uncertainty for unsigned and signed requests", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const market = demoMarket({
+    catalog: [postDeclaration()],
+    nodeOrigin: "https://node-market.561.group",
+    proxyCatalog: [getDeclaration()],
+  });
+  try {
+    globalThis.fetch = async (url, options) => {
+      assert.equal(String(url), "https://node-market.561.group/v1/lookup?q=1");
+      assert.equal(options.redirect, "error");
+      calls.push(options.headers.get("payment-signature"));
+      throw new TypeError("private origin transport details");
+    };
+    for (const signed of [false, true]) {
+      const response = await market.fetch(new Request("https://market.test/v1/lookup?q=1", {
+        headers: signed ? {
+          "payment-signature": "same-original-signature",
+          "x-payment-recovery": "same-original-recovery-token",
+        } : {},
+      }));
+      assert.equal(response.status, 503);
+      assert.equal(response.headers.get("cache-control"), "no-store");
+      assert.equal(response.headers.get("retry-after"), "120");
+      assert.equal(response.headers.get("payment-response"), null);
+      assert.equal(response.headers.get("payment-required"), null);
+      const result = await response.json();
+      assert.match(result.error, /outcome is unknown/u);
+      assert.match(result.recovery, /original payment signature and recovery token/u);
+      assert.ok(!JSON.stringify(result).includes("private origin transport details"));
+    }
+    assert.deepEqual(calls, [null, "same-original-signature"]);
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });
