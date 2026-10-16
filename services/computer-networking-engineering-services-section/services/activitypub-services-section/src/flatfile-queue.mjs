@@ -23,7 +23,41 @@ export class FlatfileMessageQueue {
   #pollMs;
   #wake = new Set();
   #ordering = new Set();
+  // The ready spool is ordered by due time in its file names. A bounded view of one
+  // directory listing is reused across claims so a large backlog is not re-listed and
+  // re-sorted for every message. It is an ephemeral hint only; rename stays the authority.
+  #readyNames = null;
+  #readyCursor = 0;
+  #readyVisited = 0;
+  #directoryScans = 0;
+  #claimsSucceeded = 0;
+  static READY_SCAN_QUANTUM = 256;
   nativeRetrial = false;
+
+  /** Counts of actual filesystem work, not delivery or peer receiving. */
+  getCapacityDiagnostics() {
+    return Object.freeze({
+      type: "ActivityPubQueueCapacityDiagnostics",
+      readyDirectoryScans: this.#directoryScans,
+      claimedMessages: this.#claimsSucceeded,
+      scanQuantum: FlatfileMessageQueue.READY_SCAN_QUANTUM,
+    });
+  }
+
+  #invalidateReadyView() {
+    this.#readyNames = null;
+    this.#readyCursor = 0;
+    this.#readyVisited = 0;
+  }
+
+  #refreshReadyView() {
+    this.#readyNames = readdirSync(this.#ready)
+      .filter((name) => name.endsWith(".json") && !name.startsWith("."))
+      .sort();
+    this.#readyCursor = 0;
+    this.#readyVisited = 0;
+    this.#directoryScans++;
+  }
 
   constructor({ directory, pollInterval = 1_000 }) {
     if (typeof directory !== "string" || directory === "") throw new TypeError("flatfile message queue requires a directory");
@@ -50,6 +84,7 @@ export class FlatfileMessageQueue {
     const temporary = path.join(this.#ready, `.${name}.tmp`);
     writeFileSync(temporary, JSON.stringify({ message, orderingKey: options?.orderingKey ?? null }), { mode: 0o600 });
     renameSync(temporary, path.join(this.#ready, name));
+    this.#invalidateReadyView();
     return due - now;
   }
 
@@ -78,8 +113,22 @@ export class FlatfileMessageQueue {
   /** The next due message whose ordering key is not being handled, claimed; or undefined. */
   #claim() {
     const now = Date.now();
-    for (const name of readdirSync(this.#ready).filter((entry) => entry.endsWith(".json") && !entry.startsWith(".")).sort()) {
-      if (Number(name.slice(0, 15)) > now) return undefined;
+    if (this.#readyNames === null ||
+        this.#readyCursor >= this.#readyNames.length ||
+        this.#readyVisited >= FlatfileMessageQueue.READY_SCAN_QUANTUM) {
+      this.#refreshReadyView();
+    }
+    // The quantum bounds how many entries one view serves across claims; a single claim
+    // still scans on past entries it must skip, as the unbounded listing did.
+    while (this.#readyCursor < this.#readyNames.length) {
+      const name = this.#readyNames[this.#readyCursor++];
+      this.#readyVisited++;
+      if (Number(name.slice(0, 15)) > now) {
+        // A later enqueue, an external writer or the due clock can all change the next
+        // poll. Do not retain a future-only stale view.
+        this.#invalidateReadyView();
+        return undefined;
+      }
       const claimed = path.join(this.#claimed, name);
       try { renameSync(path.join(this.#ready, name), claimed); }
       catch (error) { if (error.code === "ENOENT") continue; throw error; }
@@ -88,8 +137,10 @@ export class FlatfileMessageQueue {
         renameSync(claimed, path.join(this.#ready, name));
         continue;
       }
+      this.#claimsSucceeded++;
       return { claimed, ...entry };
     }
+    this.#invalidateReadyView();
     return undefined;
   }
 
