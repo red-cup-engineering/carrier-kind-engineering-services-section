@@ -112,3 +112,60 @@ registry package to be published, the exact native frozen release to be
 installed into LAGOON/Guix, a common storage root or independently admitted
 peer-bytes provider, and separately authorized HTTP/agent transport mounts.
 Source merge alone cannot be called a running federated namespace.
+
+
+## Peer receiving into the SAME original NI custody
+
+The package's new `./ni-peer` export, `createNiPeerReceiver`, is the
+outbound counterpart to its **existing** `./ni` `niResource` route. This
+permits independently authorized 561 code hosts to exchange one immutable
+byte object without exporting private filesystem paths or choosing a new
+hash namespace. Both ends use the same canonical RFC 6920 NI producer.
+
+```js
+import { createNiPeerReceiver } from "@red-cup-engineering/http-services-section/ni-peer";
+const receiver = createNiPeerReceiver({
+  peerOrigin: "https://admitted-peer.example",
+  contentSpace: installedOriginalNiContentSpace,
+  canReceive: (context, ni) => installedCurrentReceiverAuthority(context, ni),
+  fetchImpl: installedAuthenticatedFetch,
+});
+const receipt = await receiver.receive(originalContentNi, nativeActorContext);
+```
+
+`installedOriginalNiContentSpace`, `installedCurrentReceiverAuthority`
+and `installedAuthenticatedFetch` are independently installed **host
+capabilities**, not exported symbols or user-supplied request arguments.
+Their implementation and durable-root custody remain with the original
+Operations/Networking/File owners. The caller may select **only** one
+canonical NI after admission, not a peer URL, credentials, headers, arbitrary
+filesystem path, content body or namespace change.
+
+The peer origin is fixed on construction to one credential-free HTTPS
+origin; the original `fetchWithoutRedirects` owns redirect refusal.
+`canReceive` must positively admit the current actor and exact NI before
+network IO. A separate remote `niResource.canRead` must admit the same NI
+on the sender. The response must be HTTP 200 at the original URL, with an
+unencoded raw-byte stream bounded by the receiver's configured memory
+budget (default 8 MiB). Content-Length, if supplied, must equal the actual
+received length. The URI owner's original `makeNiUri` recomputes the
+address over the exact bytes. On mismatch, redirect, oversized body or
+refusal, **nothing is published in local custody**.
+
+The receiver stores matching bytes through the original content space's
+strict first-write publication, demands its `durable: true` receipt, and
+reads the original NI bytes back before reporting
+`ni.peer-receiving.v1`. Original source MIME type is *not* authority for
+the receiving host: new peer-custodied bytes use
+`application/octet-stream`; any specialized linguistic, media, Git,
+Guix or governance reading needs a separately witnessed typed relation.
+Empty raw-byte objects and same-NI repeats are supported. Only an
+authorized local name-binding operation can advance a Plan 9-like
+namespace; receiving never creates an unsolicited name.
+
+This is a reusable, bounded host-to-host **producer**, not a live
+federation by source merge. An actually installed peer, pinned runtime,
+network origin, original GitHub/science source, authorized identity,
+DurableRoot and a distinct successfully receiving host remain necessary.
+The 561 Group's foreign Git OIDs, IPFS CIDs, Guix paths and FluffOS object
+names stay typed external references, not the original NI bytes.
