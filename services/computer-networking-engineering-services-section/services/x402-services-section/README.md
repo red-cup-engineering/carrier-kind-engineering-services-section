@@ -59,7 +59,7 @@ There is one package, `@red-cup-engineering/x402-services-section`, and one paym
   configuration is a legacy carrier awaiting independently received retirement.
 - `./market-observation/*` reads settlement facts; `./settlement-derivation/*` corroborates seller settlements.
 - `./hbd/*` realizes the HBD scheme; `./hive/exit-tightness` exposes the one Hive product adapter.
-- `./x402-settlement-evidence` retains facilitator observations bound to the signed payment; `./boundary-reference/*` observes a public boundary.
+- `./x402-settlement-evidence` retains facilitator observations bound to the signed payment; `./resource-observation` is the single canonical, unpaid public x402 observer.
 
 Product implementations that merely happen to be sold through x402 stay with their own product domain; they are consumers of this boundary, not a second x402 implementation.
 
