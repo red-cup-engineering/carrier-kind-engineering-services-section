@@ -17,9 +17,9 @@
       "says": "MOOSE meets and then beats each named Fediverse peer in its relevant workflows with independently received, version-pinned cross-server results. No source-only results imply satisfaction."
     },
     {
-      "cell": "moose:feltos-dependency",
+      "cell": "moose:feltos-application",
       "target": "held",
-      "says": "A running FeltOS world uses MOOSE as its required, single social-federation server, demonstrated through an authenticated exchanged message and observed restart."
+      "says": "A running MetroPlat-selected FeltOS application exposes a real MOOSE child application, which in turn composes the Living Web Server application, all as independent reusable platforms with actual installed identities and a successful signed social exchange."
     }
   ],
   "tier": "major",
@@ -87,10 +87,10 @@
         },
         {
           "id": "R7",
-          "says": "MOOSE shall mean MUD, Object Oriented, Socially Extended and serve as the Semioverse's single reusable federated social/world server per running machine, not as a new MOOSERP product.",
+          "says": "MOOSE shall be the MUD, Object Oriented, Socially Extended server built as an application of FeltOS, and shall itself provide a reusable social/world platform for multiple applications including Living Web Server; MOOSERP is not a product.",
           "class": "constraint",
           "moscow": "must",
-          "rationale": "Leader direction 2026-10-16 expanding the already recorded MOOSE Semioverse server requirement; incumbent product documentation in comparison.against."
+          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
         },
         {
           "id": "R8",
@@ -101,24 +101,24 @@
         },
         {
           "id": "R9",
-          "says": "MOOSE shall compose the source-owned ActivityPub Services Section's protocol carrier for signed ActivityPub, WebFinger, NodeInfo, inbox/outbox delivery and persistent actor identity; it shall not reproduce a private incompatible HTTP, ActivityPub or MCP server.",
+          "says": "MOOSE, as a FeltOS application, shall compose the existing source-owned ActivityPub Services Section protocol carriers for signed ActivityPub, WebFinger, NodeInfo and delivery, and expose reusable social capabilities to its applications; it shall not implement a duplicate HTTP, ActivityPub or MCP server.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader direction 2026-10-16 expanding the already recorded MOOSE Semioverse server requirement; incumbent product documentation in comparison.against."
+          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
         },
         {
           "id": "R10",
-          "says": "MOOSE shall expose the same persistent actors, conversations, presence, object relations and addressable MUD places over ActivityPub++ and approved clients; a web view, game renderer or agent client shall not forge actor powers or a second state owner.",
+          "says": "MOOSE shall project persistent FeltOS actors, conversations, presence, object relations and addressable places through ActivityPub++ to its applications; a Living Web Server view, game client or agent client shall not mint parallel identities, authority or state.",
           "class": "functional",
           "moscow": "must",
-          "rationale": "Leader direction 2026-10-16 expanding the already recorded MOOSE Semioverse server requirement; incumbent product documentation in comparison.against."
+          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
         },
         {
           "id": "R11",
-          "says": "FeltOS shall require MOOSE as its federated social server for ActivityPub++ delivery, cross-server actor messaging and social continuity, and shall not keep an independently implemented, competing federation server; its MUD world engine and simulation remain separately owned.",
+          "says": "FeltOS shall serve as an application of the MetroPlat platform and a reusable platform for MOOSE and other applications. When a FeltOS-based service needs MOOSE social federation, it shall compose its MOOSE application rather than duplicate that social-server capability inside FeltOS. The app-of direction must not be inverted.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader direction 2026-10-16 expanding the already recorded MOOSE Semioverse server requirement; incumbent product documentation in comparison.against."
+          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
         },
         {
           "id": "R12",
@@ -126,6 +126,27 @@
           "class": "security",
           "moscow": "must",
           "rationale": "Leader direction 2026-10-16 expanding the already recorded MOOSE Semioverse server requirement; incumbent product documentation in comparison.against."
+        },
+        {
+          "id": "R13",
+          "says": "MetroPlat shall be the parent application platform of FeltOS: it shall admit, compose and operate FeltOS as one selectable application rather than infer a platform relation from which process physically hosts which runtime.",
+          "class": "architecture",
+          "moscow": "must",
+          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+        },
+        {
+          "id": "R14",
+          "says": "Living Web Server shall be an application of MOOSE and itself a platform exposing reusable web-serving and interactive publishing capabilities to independent downstream applications, not an alias of the generic Computer Web Server transport.",
+          "class": "architecture",
+          "moscow": "must",
+          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+        },
+        {
+          "id": "R15",
+          "says": "Each of MetroPlat, FeltOS, MOOSE, and Living Web Server shall be a reusable application platform; each shall admit more than the one named descendant without requiring new ancestor implementations, and all app-of edges shall be acyclic, typed and separately versioned from deployment host/instance/transport.",
+          "class": "architecture",
+          "moscow": "must",
+          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
         }
       ],
       "conditions": [
@@ -151,13 +172,17 @@
           ]
         },
         {
-          "id": "moose:feltos-dependency",
-          "says": "A running FeltOS world delivers and receives social actors/messages through a separately installed MOOSE provider, with no second copy of federation dispatch, preserving identity, authority and offline replay.",
+          "id": "moose:feltos-application",
+          "says": "A MetroPlat installation selects FeltOS as an application; FeltOS composes MOOSE as a subordinate application with preserved world identity and authorized federation; MOOSE composes Living Web Server as an application. Each remains reusable for unrelated children and no runtime host is mistaken for the parent platform.",
           "method": "independent installed receiving with real remote nodes and revision-pinned observables",
           "verifies": [
+            "R7",
+            "R9",
             "R10",
             "R11",
-            "R12"
+            "R13",
+            "R14",
+            "R15"
           ]
         },
         {
@@ -168,6 +193,16 @@
             "R7",
             "R10",
             "R11"
+          ]
+        },
+        {
+          "id": "semioverse:application-platform-hierarchy",
+          "says": "Inspect admitted application descriptors and independent receiving: MetroPlat→FeltOS→MOOSE→Living Web Server by application-of, each with a separately installed alternate application and no cycle or duplicate state/protocol server.",
+          "method": "typed descriptor validation and installed receiving",
+          "verifies": [
+            "R13",
+            "R14",
+            "R15"
           ]
         }
       ],
@@ -213,6 +248,11 @@
       "status": "Source-authored amendment, not a running MOOSE package, registry release, benchmark receipt or deployment.",
       "companion-requirement": "red-cup-engineering/feltos/data/records/requirements-records/feltos-requires-moose-social-server.json",
       "recorded-on": "2026-10-16"
+    },
+    "hierarchy-correction-2026-10-16": {
+      "leaderSource": "It is meant to be Living Web Server under MOOSE under FeltOS under MetroPlat. With each being an application of the prior, and itself a platform, not just for the descendant I named.",
+      "supersedes": "Earlier assistant interpretation that placed MOOSE above FeltOS as a provider and treated FeltOS as its dependent application. Those source requirements were corrected; separate operational use of MOOSE social capabilities remains possible without changing app-of direction.",
+      "status": "Authored requirement; runtime migration and receiving still owed."
     }
   },
   "comparison": {
@@ -322,5 +362,70 @@
     ],
     "current-status": "required-not-delivered-no-claimed-parity",
     "scope-note": "Meet and beat is per peer's relevant domain; it does not mean one mock social UI is interchangeable with each heterogeneous application."
+  },
+  "application-platform-hierarchy": {
+    "kind": "semioverse.application-platform-hierarchy/v1",
+    "root": "MetroPlat",
+    "nodes": [
+      {
+        "id": "MetroPlat",
+        "kind": "application-platform",
+        "applicationOf": null,
+        "platformFor": [
+          "FeltOS"
+        ],
+        "otherApplicationsAllowed": true
+      },
+      {
+        "id": "FeltOS",
+        "kind": "application-platform",
+        "applicationOf": "MetroPlat",
+        "platformFor": [
+          "MOOSE"
+        ],
+        "otherApplicationsAllowed": true
+      },
+      {
+        "id": "MOOSE",
+        "kind": "application-platform",
+        "applicationOf": "FeltOS",
+        "platformFor": [
+          "Living Web Server"
+        ],
+        "otherApplicationsAllowed": true,
+        "expansion": "MUD, Object Oriented, Socially Extended"
+      },
+      {
+        "id": "Living Web Server",
+        "kind": "application-platform",
+        "applicationOf": "MOOSE",
+        "platformFor": [],
+        "otherApplicationsAllowed": true
+      }
+    ],
+    "typedRelations": [
+      {
+        "subject": "FeltOS",
+        "predicate": "application-of",
+        "object": "MetroPlat"
+      },
+      {
+        "subject": "MOOSE",
+        "predicate": "application-of",
+        "object": "FeltOS"
+      },
+      {
+        "subject": "Living Web Server",
+        "predicate": "application-of",
+        "object": "MOOSE"
+      }
+    ],
+    "distinctions": [
+      "Application-of is not the inverse of runtime invocation or an npm import edge.",
+      "Deployment host, service instance, HTTP transport, public website and server process are distinct from application-platform composition.",
+      "The generic Computer Web Server and ActivityPub Services Section provide lower-level reusable implementations and are not the Living Web Server product.",
+      "No named level is a one-customer specialization: each independently supports other child applications."
+    ],
+    "stage": "requirements-source-only-not-installed"
   }
 }
