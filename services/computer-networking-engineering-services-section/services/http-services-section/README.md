@@ -52,3 +52,63 @@ runs `npm pack --dry-run --offline --ignore-scripts` and checks every declared
 export target. Workspace dependencies must resolve to their actual owning
 packages. Source restoration and these checks do not establish the complete
 HTTP dependency graph, a published artifact, or a running host.
+
+
+## Authenticated RFC 6920 byte exchange over the original NI custody space
+
+Use the existing `./ni` export, `niResource`, to mount
+`GET|HEAD /.well-known/ni/sha-256/<digest>`. The provider can be the
+original `@red-cup-engineering/immutable-content-custody-service/space`
+instance. That Data/URI package exposes `head(ni)` and `range(ni,interval)`;
+the existing Network service now consumes those methods directly, rather than
+requiring code to copy objects into a second HTTP store.
+
+```js
+import { niResource } from "@red-cup-engineering/http-services-section/ni";
+import { createContentAddressedSpace } from "@red-cup-engineering/immutable-content-custody-service/space";
+
+const contentSpace = createContentAddressedSpace({
+  root: "/srv/561/shared-content", durableRoot: "/srv/561/shared-content",
+  namespaces: ["science/l-space", "engineering/source"],
+});
+const ni = niResource(contentSpace, {
+  maximumResponseBytes: 8 * 1024 * 1024,
+  canRead: (ctx, address) => ctx.installedPrincipalCanReadNI(address),
+});
+```
+
+The example's authorization method is a **host-supplied interface**, not a
+defined feature or a caller-authored grant. An installed host must bind it to
+its own independent, current principal/resource/effect decision, before
+mounting `ni` in its existing HTTP application. A private shared content space
+**refuses to mount** without `canRead`; denied names return 404 before the
+store's `head` runs. Host-authorized responses default to
+`Cache-Control: private, no-store`. Unconditionally public NI stores retain
+their original public-route contract, unchanged. A host cannot opt private
+content into `public` shared caching.
+
+An authorized request can resolve a **raw-byte content name**, a conditional
+ETag request, or a single byte range. Reading an original NI file validates
+the complete held bytes through the already-owned custody service before any
+portion is returned. The Networking adapter refuses a missing or short body
+after `head`, rather than emitting a falsely successful 206 response. A large
+unranged GET receives 413 before materialization and the caller can instead
+request bounded ranges; HEAD can describe a large original object without
+buffering its body. Empty content is represented by the standard SHA-256 NI
+of an empty byte sequence and a zero-length HTTP response.
+
+This is an **actual network entrypoint library** over the same original bytes.
+It is not an installed listener, an IPFS block/CAR exchange service, a 9P
+filesystem, a Git transfer protocol, or a Guix substitute. The future adapters
+for CID, Git object/ref, Guix derivation/path and FluffOS object names must
+preserve those **distinct typed external coordinates** and independently
+record their mapping to the bytes' original NI. L-Space, CAIRN and Semioverse
+readers may consume the same NI through their established rights; semantic
+predication, Chu/FOUR/sheaf interpretation and governance require additional
+admitted relations, never inferred from content coincidence.
+
+Real Group-wide availability still requires the source-owned immutable
+registry package to be published, the exact native frozen release to be
+installed into LAGOON/Guix, a common storage root or independently admitted
+peer-bytes provider, and separately authorized HTTP/agent transport mounts.
+Source merge alone cannot be called a running federated namespace.
