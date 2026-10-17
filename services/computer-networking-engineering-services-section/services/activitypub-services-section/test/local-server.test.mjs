@@ -157,3 +157,56 @@ test("actor identity is minted once into a 0600 file and survives an ordinary re
   assert.equal((await stat(keys)).mode & 0o077, 0);
   assert.equal(next.provider.queueStartup, "manual");
 });
+
+test("stable private inbox token survives restart and rotates only when explicitly commissioned", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "activitypub-token-lifecycle-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const environment = {
+    ACTIVITYPUB_ORIGIN: "https://token-owner.example",
+    ACTIVITYPUB_IDENTIFIER: "owner",
+    ACTIVITYPUB_ACTOR_NAME: "Original Owner",
+    ACTIVITYPUB_ACTOR_SUMMARY: "Durable inbox",
+    ACTIVITYPUB_STATE_DIR: path.join(root, "state"),
+    ACTIVITYPUB_KEYS_PATH: path.join(root, "keys.json"),
+  };
+  const first = await createLocalActivityPubProvider({ environment, manuallyStartQueue: true });
+  const token = first.bearerToken;
+  assert.equal((await stat(first.bearerTokenPath)).mode & 0o077, 0);
+  await first.close();
+  const second = await createLocalActivityPubProvider({ environment, manuallyStartQueue: true });
+  assert.equal(second.bearerToken, token);
+  await second.close();
+  const rotated = await createLocalActivityPubProvider({
+    environment, manuallyStartQueue: true, rotateBearerToken: true,
+  });
+  t.after(() => rotated.close());
+  assert.notEqual(rotated.bearerToken, token);
+  assert.equal((await stat(rotated.bearerTokenPath)).mode & 0o077, 0);
+});
+
+test("inbox bearer tokens cannot follow a linked or publicly exposed private path", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "activitypub-token-refusal-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const outside = path.join(root, "outside-token");
+  await writeFile(outside, "a".repeat(43), { mode: 0o600 });
+  const linked = path.join(root, "linked-token");
+  await symlink(outside, linked);
+  const environment = tokenPath => ({
+    ACTIVITYPUB_ORIGIN: "https://token-refusal.example",
+    ACTIVITYPUB_IDENTIFIER: "refusal",
+    ACTIVITYPUB_ACTOR_NAME: "Refusal",
+    ACTIVITYPUB_ACTOR_SUMMARY: "No credential disclosure",
+    ACTIVITYPUB_STATE_DIR: path.join(root, "state"),
+    ACTIVITYPUB_KEYS_PATH: path.join(root, "keys.json"),
+    ACTIVITYPUB_INBOX_BEARER_TOKEN_FILE: tokenPath,
+  });
+  await assert.rejects(createLocalActivityPubProvider({
+    environment: environment(linked),
+  }), /private regular file/);
+  const exposed = path.join(root, "public-token");
+  await writeFile(exposed, "b".repeat(43), { mode: 0o644 });
+  await assert.rejects(createLocalActivityPubProvider({
+    environment: environment(exposed),
+  }), /private regular file/);
+  assert.equal((await stat(exposed)).mode & 0o077, 0o044);
+});
