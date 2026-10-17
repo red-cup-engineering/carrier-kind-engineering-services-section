@@ -210,3 +210,22 @@ test("queue ownership rejects an ambiguous manual-start setting before construct
     listOutbox: async () => ({ items: [] }),
   }), /manuallyStartQueue must be an explicit boolean/);
 });
+
+test("a manual Fedify worker exposes its source-owned queue startup contract to a host", async () => {
+  const options = {
+    origin: "https://publishing.example",
+    identifier: "publishing",
+    actorName: "Publishing",
+    summary: "Publication actor",
+    keyPairs: await importActorKeyPairs(await generateActorKeyMaterial()),
+    kv: new MemoryKvStore(),
+    onActivity: async () => {},
+    authorizeInbox: async () => false,
+    listOutbox: async () => ({ items: [] }),
+  };
+  const manual = createActivityPubProvider({ ...options, manuallyStartQueue: true });
+  const automatic = createActivityPubProvider({ ...options, manuallyStartQueue: false });
+  assert.equal(manual.queueStartup, "manual");
+  assert.equal(automatic.queueStartup, "automatic");
+  assert.notEqual(manual.federation, automatic.federation);
+});
