@@ -3,6 +3,12 @@
 This package owns HTTP transports, request-body handling, response representations,
 negotiation, and events. Its public entry points are declared in `package.json`.
 
+The shared `./fetch-text` HTTP polling producer admits a caller-selected,
+non-negative safe-integer retry count. Its historical six-retry cap is not a
+protocol rule, and invalid settings now refuse instead of silently becoming
+four. Retry selection and backoff remain host responsibilities; a larger budget
+does not imply an HTTP availability guarantee or a published/installed release.
+
 ## Protocol capabilities
 
 `content-digest` generates and checks RFC 9530 Content-Digest over exact message-content bytes. `makeContentDigest({carrier,algorithms?})` accepts a strict media-typed Base64 carrier and SHA-256/SHA-512 selections; `verifyContentDigest({carrier,contentDigest})` reports supported matches and unsupported algorithms separately. A valid mismatch is an outcome; malformed fields are refused. This is not Repr-Digest, a signature, or authentication. The paid carrier admits 65536 decoded bytes and 16384 field bytes.

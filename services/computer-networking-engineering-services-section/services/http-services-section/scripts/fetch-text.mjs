@@ -12,18 +12,21 @@ function sleep(milliseconds) {
  * @param {string|URL} url
  * @param {object} [options]
  * @param {typeof fetch} [options.fetchImpl] - the fetch to call (the global one by default).
- * @param {number} [options.retries] - how many times a 429 or 5xx is retried (4 by default, at most 6).
+ * @param {number} [options.retries] - caller-selected non-negative safe integer retry count (4 by default).
  * @param {(attempt: number) => Promise<void>} [options.backoff] - waits before a retry (1s doubling, at most 30s, by default).
  * @param {RequestInit} [options.init] - forwarded to fetch (headers such as a user agent).
  * @returns {Promise<string>}
  */
 export async function fetchText(url, { fetchImpl = fetch, retries = 4, backoff, init } = {}) {
-  const bounded = Number.isInteger(retries) && retries >= 0 ? Math.min(retries, 6) : 4;
+  // The caller/host selects the work budget. A source-level six-retry ceiling
+  // is not a networking law; malformed caller selection must not silently reset.
+  if (!Number.isSafeInteger(retries) || retries < 0)
+    throw new TypeError("HTTP text fetch retries must be a non-negative safe integer");
   const wait = backoff ?? ((attempt) => sleep(Math.min(1000 * 2 ** attempt, 30_000)));
   for (let attempt = 0; ; attempt += 1) {
     const response = await fetchImpl(url, init);
     if (response.ok) return response.text();
-    if ((response.status === 429 || response.status >= 500) && attempt < bounded) {
+    if ((response.status === 429 || response.status >= 500) && attempt < retries) {
       await wait(attempt);
       continue;
     }
