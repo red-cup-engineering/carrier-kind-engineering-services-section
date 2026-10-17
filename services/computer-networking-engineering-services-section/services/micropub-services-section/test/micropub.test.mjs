@@ -91,7 +91,8 @@ test("insufficient scope and unsupported media types do not call the writer", as
     });
     const endpoint = app.resources[0];
     const denied = await invoke(endpoint, context("POST", "https://site.example/micropub", new URLSearchParams({ action: "delete", url: "https://site.example/post" }).toString(), "application/x-www-form-urlencoded"));
-    assert.equal(denied.status, 403);
+    assert.equal(denied.status, 401);
+    assert.equal(JSON.parse(String(denied.body)).error, "insufficient_scope");
     const unsupported = await invoke(endpoint, context("POST", "https://site.example/micropub", "text", "text/plain"));
     assert.equal(unsupported.status, 400);
     assert.equal(writes, 0);
