@@ -1,9 +1,0 @@
-{
-  "id": "scheduled-activity-delivery-service",
-  "name": "Scheduled Activity Delivery Service",
-  "kind": "market",
-  "faces": "customer enterprises soliciting clocked, idempotent ActivityStreams delivery",
-  "bundle": "clocked-activity-delivery",
-  "package": "@coesite-operations/scheduled-activity-delivery-service",
-  "contracts": ["clocked-activity-delivery-retirement", "clocked-activity-delivery"]
-}

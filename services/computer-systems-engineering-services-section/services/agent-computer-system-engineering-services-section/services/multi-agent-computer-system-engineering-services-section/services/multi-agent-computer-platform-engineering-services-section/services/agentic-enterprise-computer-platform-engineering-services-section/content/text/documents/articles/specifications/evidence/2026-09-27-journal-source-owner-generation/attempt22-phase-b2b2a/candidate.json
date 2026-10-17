@@ -1,7 +1,0 @@
-{
-  "kind": "source-patchset",
-  "version": 1,
-  "disposition": "refused",
-  "reason": "Cannot safely supply B2b2a from the provided excerpts: they do not identify how the operation exposes the bound absolute journal root or how the scope state stores private receipt evidence. The requiredSourceClosure result contains neither, and guessing either binding would make the existing-source barrier and scope-bound receipt unverifiable.",
-  "changes": []
-}

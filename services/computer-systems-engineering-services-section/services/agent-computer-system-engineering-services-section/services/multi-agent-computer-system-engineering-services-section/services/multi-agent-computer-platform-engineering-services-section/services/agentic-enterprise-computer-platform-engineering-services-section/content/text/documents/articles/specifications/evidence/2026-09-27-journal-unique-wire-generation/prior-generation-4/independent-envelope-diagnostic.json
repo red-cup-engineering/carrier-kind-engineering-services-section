@@ -1,5 +1,0 @@
-{
-  "exitCode": 0,
-  "stdout": "[\n  {\n    \"size\": 260000,\n    \"recordBytes\": 1044823,\n    \"bounded\": true\n  },\n  {\n    \"size\": 261000,\n    \"recordBytes\": 1048823,\n    \"bounded\": {\n      \"code\": \"canonical-limit\",\n      \"message\": \"canonical-limit at $.witness.sources[5].canonicalText: canonical JSON exceeds 1048576 bytes\"\n    }\n  },\n  {\n    \"size\": 262000,\n    \"constructionFailure\": {\n      \"code\": \"string-limit\",\n      \"message\": \"string-limit at $.address[1]: UTF-8 string exceeds 262144 bytes\"\n    }\n  }\n]\n",
-  "stderr": ""
-}

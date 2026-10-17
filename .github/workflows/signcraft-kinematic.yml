@@ -6,6 +6,7 @@ on:
   push:
     branches: ['**']
     paths:
+      - 'services/computer-systems-engineering-services-section'
       - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/kinematic.mjs'
       - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/generate.mjs'
       - 'services/computer-systems-engineering-services-section/apps/signcraft/scripts/inference/generate-continuation.mjs'
@@ -27,6 +28,7 @@ on:
       - '.github/workflows/signcraft-kinematic.yml'
   pull_request:
     paths:
+      - 'services/computer-systems-engineering-services-section'
       - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/kinematic.mjs'
       - 'services/computer-systems-engineering-services-section/apps/signcraft/src/inference/generate.mjs'
       - 'services/computer-systems-engineering-services-section/apps/signcraft/scripts/inference/generate-continuation.mjs'
@@ -59,7 +61,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-          submodules: true
+          submodules: recursive
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'

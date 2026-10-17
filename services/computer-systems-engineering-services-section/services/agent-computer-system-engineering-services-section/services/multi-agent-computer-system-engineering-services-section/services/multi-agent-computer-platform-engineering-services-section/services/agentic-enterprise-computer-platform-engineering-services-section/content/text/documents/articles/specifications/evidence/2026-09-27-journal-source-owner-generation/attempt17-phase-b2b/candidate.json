@@ -1,7 +1,0 @@
-{
-  "kind": "source-patchset",
-  "version": 1,
-  "disposition": "refused",
-  "reason": "I cannot supply a complete B2b implementation that meets the required closure, descriptor and ancestor durability barrier, and F-S13 host and cleanup corrections while preserving the B2c seams. Returning a partial candidate would misrepresent this stage as complete.",
-  "changes": []
-}

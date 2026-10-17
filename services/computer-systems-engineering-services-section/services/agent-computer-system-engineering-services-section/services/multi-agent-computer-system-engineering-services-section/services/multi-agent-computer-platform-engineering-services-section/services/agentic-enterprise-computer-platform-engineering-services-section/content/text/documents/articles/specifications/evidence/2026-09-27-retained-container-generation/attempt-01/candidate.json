@@ -1,7 +1,0 @@
-{
-  "kind": "source-patchset",
-  "version": 1,
-  "disposition": "refused",
-  "reason": "I cannot produce a faithful two-file codemod that meets F-C02\u2013F-C05 from this response: the order requires independent receiving and source review, and the iterative parser and projection need careful validation to preserve the specified diagnostic ordering and semantics. No changes are proposed.",
-  "changes": []
-}

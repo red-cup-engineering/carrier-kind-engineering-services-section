@@ -1,7 +1,0 @@
-{
-  "kind": "source-patchset",
-  "version": 1,
-  "disposition": "refused",
-  "reason": "The supplied dependencies omit the existing journal feed-address constructor and its source/API. Stage B must use that law to derive unique virtual feeds and implement date, territory, and feed selections; guessing it could produce incorrect memberships. I cannot supply the complete owner implementation from these inputs.",
-  "changes": []
-}

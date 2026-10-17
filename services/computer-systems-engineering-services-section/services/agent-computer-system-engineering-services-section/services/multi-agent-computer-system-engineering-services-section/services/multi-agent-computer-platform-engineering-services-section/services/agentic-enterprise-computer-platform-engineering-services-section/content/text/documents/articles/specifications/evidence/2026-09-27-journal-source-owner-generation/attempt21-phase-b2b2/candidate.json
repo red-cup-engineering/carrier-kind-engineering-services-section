@@ -1,7 +1,0 @@
-{
-  "kind": "source-patchset",
-  "version": 1,
-  "disposition": "refused",
-  "reason": "I cannot supply a complete B2b2 transformation that satisfies the requested bound-descriptor barrier, shared initialization barrier, and all F-S13 host, scanner, invalidation, and cleanup corrections as exact transformations against these inputs. Returning a partial candidate would leave required durability and host behavior incomplete.",
-  "changes": []
-}

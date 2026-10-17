@@ -1,4 +1,0 @@
-# Runtime state belongs outside source control.
-
-node_modules/
-

@@ -1,7 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://561.group/spotcomp/library/token/token.schema.json",
-  "title": "Token",
-  "description": "One of articulating's two non-assembling primitives. A token IS a JSON Schema 2020-12 document — a type-stating unit, not an opaque label. The primitives live at the meta-level of the carrier: JSON is the carrier, JSON Schema is JSON's self-description, and articulating constitutes its slots in that self-description rather than below it. The meta-schema self-validates, so the recursion has a principled floor. The token-vs-claim distinction is positional (slot 0 of the utterance pair); both primitives are type-stating units, differing only by the role their slot plays under articulating's two-sided act.",
-  "$ref": "https://json-schema.org/draft/2020-12/schema"
-}

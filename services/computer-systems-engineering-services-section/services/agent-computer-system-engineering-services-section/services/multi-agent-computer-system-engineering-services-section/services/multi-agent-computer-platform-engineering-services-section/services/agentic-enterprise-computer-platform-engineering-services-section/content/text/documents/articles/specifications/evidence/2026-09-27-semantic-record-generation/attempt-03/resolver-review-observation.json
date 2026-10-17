@@ -1,5 +1,0 @@
-{
-  "exitCode": 0,
-  "stdout": "{\"method\":\"source-review diagnostic for unchanged resolver exception contract\",\"caught\":true,\"originalUndefinedPreserved\":false,\"observedType\":\"Error\",\"observedMessage\":\"resolver failure sentinel\"}\n",
-  "stderr": ""
-}

@@ -1,6 +1,0 @@
-{
-  "exitCode": 0,
-  "out": "/tmp/muse-public-candidate-e6fop32a",
-  "stdout": "",
-  "stderr": "3 cells, 3 published, 0 refusals, 0 advisories \u00b7 catalog ni:///sha-256;iY1_v2cfGSlSNidjCUAW1rLoNClZvQTI84Wt-btWdSg\nverified 13 release files against ni:///sha-256;oQCPZQkV0hwqvGIPEIyzKFJF6yk4DFLZJFzGzh4RZEo\nwrote 15 artifacts to /tmp/muse-public-candidate-e6fop32a\n"
-}

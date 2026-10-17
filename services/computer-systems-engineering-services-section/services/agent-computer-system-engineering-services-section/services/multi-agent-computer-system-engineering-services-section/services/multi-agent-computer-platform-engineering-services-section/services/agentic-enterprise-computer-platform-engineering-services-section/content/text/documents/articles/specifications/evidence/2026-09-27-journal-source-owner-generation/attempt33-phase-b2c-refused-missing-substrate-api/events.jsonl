@@ -1,5 +1,0 @@
-{"type":"thread.started","thread_id":"01a0e5e9-4272-7be0-88f0-1af2d30abc0c"}
-{"type":"turn.started"}
-{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’m checking whether the supplied bound excerpts are sufficient to produce a complete B2c patch without guessing at omitted scope and host contracts. The requested output is a staged candidate, so I’ll return it as a patchset and won’t write to the read-only workspace."}}
-{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"{\"kind\":\"source-patchset\",\"version\":1,\"disposition\":\"refused\",\"reason\":\"Cannot supply a complete B2c patch from the bound inputs: they omit the Code causal-substrate implementation and API needed to determine root-wide admitted event IDs before and after publication. Guessing at that API would risk incorrect retention/admission deltas, so no candidate changes are provided.\",\"changes\":[]}"}}
-{"type":"turn.completed","usage":{"input_tokens":50156,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":3897,"reasoning_output_tokens":3744}}

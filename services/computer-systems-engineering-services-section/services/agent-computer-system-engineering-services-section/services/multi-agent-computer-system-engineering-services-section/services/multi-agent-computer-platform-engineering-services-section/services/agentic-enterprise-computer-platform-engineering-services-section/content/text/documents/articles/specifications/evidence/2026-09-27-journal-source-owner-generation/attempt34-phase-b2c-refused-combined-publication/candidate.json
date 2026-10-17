@@ -1,7 +1,0 @@
-{
-  "kind": "source-patchset",
-  "version": 1,
-  "disposition": "refused",
-  "reason": "Cannot supply a complete B2c patch from the bound inputs. The excerpts expose the source scanner's current discovery-work total, but not the exact create-only helper binding behavior needed to verify and resolve unexpected unique-slot occupancy after a helper failure, nor enough surrounding source to confirm the proposed parent-creation and cleanup composition preserves the reviewed uncertainty boundary. Guessing at those protected effects risks overwriting or misreporting custody. No changes are provided.",
-  "changes": []
-}

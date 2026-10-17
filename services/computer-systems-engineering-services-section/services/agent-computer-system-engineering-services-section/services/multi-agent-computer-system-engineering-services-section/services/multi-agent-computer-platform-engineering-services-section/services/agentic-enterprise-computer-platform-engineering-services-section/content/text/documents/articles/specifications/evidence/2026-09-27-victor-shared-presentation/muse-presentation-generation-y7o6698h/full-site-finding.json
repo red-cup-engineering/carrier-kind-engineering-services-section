@@ -1,5 +1,0 @@
-{
-  "scope": "full real site after shared behavioral assessment",
-  "finding": "404 legacy header overflows at320; fixture used file URLs and did not load absolute legacy CSS",
-  "sourceStatus": "Shared changes promoted; full site remains unaccepted. New governing evidence requires further source derivation."
-}

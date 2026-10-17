@@ -1,8 +1,0 @@
-{
-  "id": "keeping-the-clock",
-  "name": "keep the metroplex's clock",
-  "from": "contracted schedules and the host's tick",
-  "to": "each due occurrence run once under its account, with its outcome recorded",
-  "cost": "one tick a minute",
-  "otherwise": "recurring work stops without anyone noticing"
-}
