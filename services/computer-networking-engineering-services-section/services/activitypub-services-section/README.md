@@ -257,3 +257,30 @@ That file and the Internet-Draft beside it (`draft-emsenn-activitypub-plus-plus-
 companion `.specification.json` record; edit the record and render both again with the specification section's
 `render-specification` and `render-specification-rfcxml` scripts. The function names above are now
 `projectSenActivity` and `extractSenActivity`, and the media type is `application/sen+cbor`.
+
+## Authoring, reading and projecting activities
+
+Fedify owns wire parsing, WebFinger, NodeInfo, HTTP signatures and Data Integrity proofs, and
+delivery. These dependency-free modules own the documents a node authors and the meaning it reads
+out of what it admits:
+
+- `./as2` -- ActivityStreams 2.0 builders (`note`, `article`, `actor`/`person`, `activity` for every
+  Vocabulary activity type, `tombstone`, `orderedCollection`, `orderedCollectionPage`, `isAS2`).
+  An actor without `inbox`/`outbox` (ActivityPub 4.1) and a `Block` addressed to Public are refused.
+- `./inbound` -- paraconsistent federation. A verified inbound activity is a witnessed claim:
+  `activityObservation` tells it as relation-web observations with polarity `for` (Create, Update,
+  Follow, Accept, Like, Announce, an Undo of a Delete) or `against` (Delete, Undo of anything else,
+  Reject), evidence the activity id. `settleObservations` folds them by the Belnap knowledge join: a
+  cell told both ways is `contradicted`, with both witnesses, never decided by arrival order. The
+  fold is commutative, associative and idempotent. `receiveInbound` is the inbox decision (202/400).
+- `./outbox-projection` -- the mirror: a subject's settled algebra becomes a `Create`, `_contested`
+  when any cell is contradicted, and the actor's outbox an `OrderedCollection` newest first.
+- `./recipients` -- delivery targets per ActivityPub 7.1.1 and 5.6: `to`/`bto`/`cc`/`bcc`/`audience`,
+  Public never delivered to, the author excluded, own followers expanded, shared inboxes
+  deduplicated, a Block never delivered to its object, and `bto`/`bcc` stripped before delivery.
+- `./microblog` -- a settled note algebra as a federated note: `normalizeNote`, `noteObject`,
+  `createActivity`, `updateActivity`, `deleteActivity` (Delete{Tombstone}).
+
+`provider.publish` (and `POST /actors/{id}/outbox`) accepts the client-to-server activities an actor
+may author -- Create, Update, Delete, Announce, Like and Undo -- and refuses an activity whose actor is
+not the contracted actor.

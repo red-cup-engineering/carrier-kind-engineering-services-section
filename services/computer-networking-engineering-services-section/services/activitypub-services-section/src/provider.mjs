@@ -1,5 +1,8 @@
 import { createFederation, importJwk, MemoryKvStore } from "@fedify/fedify";
-import { Accept, Activity, Create, Endpoints, Follow, Note, Person, PropertyValue, Reject, Service, Undo, isActor } from "@fedify/vocab";
+import { Accept, Activity, Announce, Create, Delete, Endpoints, Follow, Like, Note, Person, PropertyValue, Reject, Service, Undo, Update, isActor } from "@fedify/vocab";
+
+/** The activities an actor may publish to its own outbox (ActivityPub 6: Create, Update, Delete, Like, Announce, Undo). */
+const PUBLISHABLE_ACTIVITIES = Object.freeze([Create, Update, Delete, Announce, Like, Undo]);
 import { ACTIVITYSTREAMS_CONTEXT } from "./activitystreams.mjs";
 
 export const ACTIVITYPUB_MEDIA_TYPE = "application/activity+json";
@@ -425,8 +428,8 @@ export function createActivityPubProvider(options) {
     if (await resolveActor(publishingIdentifier) === null) throw new TypeError(`unknown ActivityPub actor ${publishingIdentifier}`);
     const originValue = requiredText(options.origin, "ActivityPub provider origin");
     const activity = await Activity.fromJsonLd(activityInput);
-    if (!(activity instanceof Create)) {
-      throw new TypeError("ActivityPub publish only accepts a Create activity");
+    if (!PUBLISHABLE_ACTIVITIES.some((type) => activity instanceof type)) {
+      throw new TypeError("ActivityPub publish accepts only Create, Update, Delete, Announce, Like or Undo activities");
     }
     const expectedActor = new URL(`/actors/${publishingIdentifier}`, originValue).href;
     if (activity.actorIds.length !== 1 || activity.actorIds[0]?.href !== expectedActor) {
