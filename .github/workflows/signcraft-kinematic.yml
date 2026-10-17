@@ -1,3 +1,5 @@
+# Gitlinks are the actual input to Computer Engineering: a parent push
+# changes the submodule path, never the nested files listed below.
 name: SignCraft kinematic inference
 
 on:
@@ -19,6 +21,9 @@ on:
       - 'services/computer-systems-engineering-services-section/apps/signcraft/package.json'
       - 'services/computer-networking-engineering-services-section/apps/signgraph/src/cell-graph.mjs'
       - 'services/computer-networking-engineering-services-section/apps/signgraph/test/cell-graph.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft'
+      - 'services/computer-networking-engineering-services-section/apps/signgraph'
+      - 'services/computer-data-engineering-services-section'
       - '.github/workflows/signcraft-kinematic.yml'
   pull_request:
     paths:
@@ -37,6 +42,9 @@ on:
       - 'services/computer-systems-engineering-services-section/apps/signcraft/package.json'
       - 'services/computer-networking-engineering-services-section/apps/signgraph/src/cell-graph.mjs'
       - 'services/computer-networking-engineering-services-section/apps/signgraph/test/cell-graph.test.mjs'
+      - 'services/computer-systems-engineering-services-section/apps/signcraft'
+      - 'services/computer-networking-engineering-services-section/apps/signgraph'
+      - 'services/computer-data-engineering-services-section'
       - '.github/workflows/signcraft-kinematic.yml'
   workflow_dispatch:
 
@@ -51,9 +59,13 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
+          submodules: true
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
         with:
           node-version: '24'
+      - name: Install exact SignCraft declared registry dependencies
+        working-directory: services/computer-systems-engineering-services-section/apps/signcraft
+        run: npm install --ignore-scripts --no-audit --no-fund --package-lock=false
       - name: Execute actual inference-motion regressions without runtime service dependencies
         run: |
           node --check services/computer-systems-engineering-services-section/apps/signcraft/src/inference/infer.mjs
@@ -67,3 +79,12 @@ jobs:
           node --check services/computer-systems-engineering-services-section/apps/signcraft/src/settle.mjs
           node --check services/computer-systems-engineering-services-section/apps/signcraft/src/proof-motion-carrier.mjs
           node --test services/computer-systems-engineering-services-section/apps/signcraft/test/proof-motion-standalone.test.mjs
+      - name: Exercise source-owned SignCraft negation and kinematic settlement
+        working-directory: services/computer-systems-engineering-services-section/apps/signcraft
+        run: |
+          node --check src/membrane.mjs
+          node --check src/proof/utterance-space.mjs
+          node --check test/membrane-duality.test.mjs
+          node --check test/utterance-space.test.mjs
+          node --test test/membrane-duality.test.mjs test/utterance-space.test.mjs
+
