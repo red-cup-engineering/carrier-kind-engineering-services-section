@@ -83,3 +83,76 @@ export function publicMarketCatalogReadout(offers, rails = {}) {
     offers: Object.freeze(admitted.offers.filter((row) => row.listed === true)),
   });
 }
+
+/**
+ * Select the original seller's buyer-visible rows for HTTP, MCP, or another
+ * admitted discovery transport. Search is a literal projection of existing
+ * typed SKU/cell/law/source fields; it is NOT ontology inference, a payment,
+ * or an independent seller authority check. The consuming transport owns
+ * its page/query budget, not a numeric ceiling secretly built into the seller.
+ *
+ * @param {object} readout The original marketCatalogReadout output.
+ * @param {"get"|"list"|"search"} mode One buyer operation.
+ * @param {object} args Caller-supplied selector.
+ * @param {object} policy Transport-supplied page and input budgets.
+ */
+export function selectPublicMarketCatalogRows(readout, mode, args = {}, policy = {}) {
+  if (!readout || !Array.isArray(readout.offers))
+    throw new TypeError("only one admitted seller catalogue readout is accepted");
+  if (!args || typeof args !== "object" || Array.isArray(args))
+    throw new TypeError("tool arguments must be an object");
+  const listed = readout.offers.filter(row => row?.listed === true);
+  if (mode === "get") {
+    if (typeof args.sku !== "string" || args.sku === "")
+      throw new TypeError("exact SKU is required");
+    const found = listed.filter(row => row.sku === args.sku);
+    if (found.length > 1) throw new TypeError("duplicate catalog SKU");
+    return found[0] ?? null;
+  }
+  if (mode !== "list" && mode !== "search")
+    throw new TypeError("unknown read-only discovery operation");
+
+  let selected = listed;
+  if (mode === "search") {
+    const query = args.query;
+    if (typeof query !== "string" ||
+      (policy.maxQueryLength !== undefined && query.length > policy.maxQueryLength))
+      throw new TypeError("query must be one bounded search string");
+    const terms = [...new Set(query.trim().toLowerCase().split(/\s+/u).filter(Boolean))];
+    if (policy.maxTerms !== undefined && terms.length > policy.maxTerms)
+      throw new TypeError("too many query terms");
+    for (const field of ["category", "sellerEnterprise", "producerPackage"]) {
+      const value = args[field];
+      const ceiling = policy.exactMaxLength?.[field];
+      if (value !== undefined && (typeof value !== "string" || value === "" ||
+          (ceiling !== undefined && value.length > ceiling)))
+        throw new TypeError(field + " must be bounded, nonempty exact seller identity text");
+    }
+    selected = listed.filter(row => {
+      if (args.category !== undefined && (row.category ?? "unclassified") !== args.category)
+        return false;
+      if (args.sellerEnterprise !== undefined && row.seller?.enterprise !== args.sellerEnterprise)
+        return false;
+      if (args.producerPackage !== undefined && row.compute?.package !== args.producerPackage)
+        return false;
+      if (!terms.length) return true;
+      const haystack = [
+        row.sku, row.cell, row.law, row.name, row.description, row.gateway, row.operation,
+        row.route, row.category, row.seller?.enterprise, row.compute?.package, row.compute?.export,
+      ].map(item => String(item ?? "").toLowerCase()).join(" ");
+      return terms.every(term => haystack.includes(term));
+    });
+  }
+  const offset = args.offset ?? 0;
+  const limit = args.limit ?? policy.defaultPageSize ?? Math.max(1, selected.length);
+  if (!Number.isSafeInteger(offset) || offset < 0 ||
+    (policy.maxOffset !== undefined && offset > policy.maxOffset) ||
+    !Number.isSafeInteger(limit) || limit < 1 ||
+    (policy.maxPageSize !== undefined && limit > policy.maxPageSize))
+    throw new TypeError("offset or limit is outside the admitted range");
+  return Object.freeze({
+    total: selected.length, offset, limit,
+    offers: Object.freeze(selected.slice(offset, offset + limit)),
+    nextOffset: offset + limit < selected.length ? offset + limit : null,
+  });
+}

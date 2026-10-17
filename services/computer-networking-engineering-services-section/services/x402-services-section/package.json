@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/x402-services-section",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "private": false,
   "type": "module",
   "description": "Independently hireable x402 v2 HTTP payment boundary and optional currency-obligation evidence adapter using the official x402 implementation.",
@@ -76,11 +76,12 @@
     "test/market/market.test.mjs",
     "test/capability-outbox-reuse.test.mjs",
     "test/market/capability-actor-resources.test.mjs",
-    "test/market/request-pricing-authorization.test.mjs"
+    "test/market/request-pricing-authorization.test.mjs",
+    "test/market/catalog-query.test.mjs"
   ],
   "scripts": {
     "check": "node --check src/offer.mjs && node --check src/compute-binding.mjs && node --check src/resource-server.mjs && node --check src/fetch-server.mjs && node --check src/resource-observation.mjs && node --check src/operations.mjs && node --check src/payment-requirement-assay.mjs && node --check src/assay-payment-requirements.mjs && node --check src/public-service-market-listing.mjs && node --check src/facilitator.mjs && node --check src/cdp-facilitator.mjs && node --check src/priced-capability-boundary.mjs && node --check src/facilitator-assay.mjs && node --check scripts/assay-x402-facilitator.mjs && node --check test/offer.test.mjs && node --check test/resource-server.test.mjs && node --check test/fetch-server.test.mjs && node --check test/resource-observation.test.mjs && node --check test/payment-requirement-assay.test.mjs && node --check test/public-service-market-listing.test.mjs && node --check test/facilitator.test.mjs && node --check test/cdp-facilitator.test.mjs && node --check test/priced-capability-boundary.test.mjs && node --check test/facilitator-assay.test.mjs && node --check src/route-configuration.mjs && node --check src/x402-settlement-evidence.mjs && node --check test/compute-binding-runtime.test.mjs && node --check test/route-configuration.test.mjs && node --check test/x402-settlement-evidence.test.mjs && node --check test/fetch-response-preparation.test.mjs && node --check test/upto-boundary.test.mjs && node --check src/market/settlement-demand-evidence.mjs && node --check test/market/settlement-demand-evidence.test.mjs && node --check test/capability-outbox-reuse.test.mjs && node --check src/market/capability-actor-resources.mjs",
-    "test": "node --test test/offer.test.mjs test/compute-binding.test.mjs test/resource-server.test.mjs test/fetch-server.test.mjs test/resource-observation.test.mjs test/operations.test.mjs test/payment-requirement-assay.test.mjs test/public-service-market-listing.test.mjs test/facilitator.test.mjs test/cdp-facilitator.test.mjs test/priced-capability-boundary.test.mjs test/facilitator-assay.test.mjs test/compute-binding-runtime.test.mjs test/route-configuration.test.mjs test/x402-settlement-evidence.test.mjs test/fetch-response-preparation.test.mjs test/upto-boundary.test.mjs test/market/settlement-demand-evidence.test.mjs test/capability-outbox-reuse.test.mjs test/market/capability-actor-resources.test.mjs test/market/request-pricing-authorization.test.mjs",
+    "test": "node --test test/offer.test.mjs test/compute-binding.test.mjs test/resource-server.test.mjs test/fetch-server.test.mjs test/resource-observation.test.mjs test/operations.test.mjs test/payment-requirement-assay.test.mjs test/public-service-market-listing.test.mjs test/facilitator.test.mjs test/cdp-facilitator.test.mjs test/priced-capability-boundary.test.mjs test/facilitator-assay.test.mjs test/compute-binding-runtime.test.mjs test/route-configuration.test.mjs test/x402-settlement-evidence.test.mjs test/fetch-response-preparation.test.mjs test/upto-boundary.test.mjs test/market/settlement-demand-evidence.test.mjs test/capability-outbox-reuse.test.mjs test/market/capability-actor-resources.test.mjs test/market/request-pricing-authorization.test.mjs test/market/catalog-query.test.mjs",
     "assay-facilitator": "node scripts/assay-x402-facilitator.mjs"
   },
   "dependencies": {
