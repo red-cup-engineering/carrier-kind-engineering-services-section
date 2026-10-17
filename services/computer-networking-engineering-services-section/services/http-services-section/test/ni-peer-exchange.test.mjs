@@ -127,3 +127,55 @@ test("empty raw byte objects travel with their own NI and no payload substitutio
   assert.equal(received.byteLength,0);
   assert.equal((await consumer.get(ni)).bytes.byteLength,0);
 });
+
+
+test("one NI can be received across code and science without overwriting an existing local media presentation", async t => {
+  const { producer, consumer } = spaces(t);
+  const bytes = Buffer.from("same exact bytes, different attributed uses");
+  const source = await producer.retain(bytes, { mediaType: "text/javascript" });
+  const existing = await consumer.retain(bytes, { mediaType: "text/plain" });
+  assert.equal(existing.ni, source.ni);
+  assert.equal((await consumer.get(source.ni)).mediaType, "text/plain");
+
+  let transfers = 0;
+  const route = niResource(producer, { canRead: (_ctx, ni) => ni === source.ni });
+  const receiver = createNiPeerReceiver({
+    peerOrigin: "https://code-peer.example",
+    contentSpace: consumer,
+    canReceive: (_ctx, ni) => ni === source.ni,
+    fetchImpl: (url, opts) => {
+      transfers++;
+      return route.handler({ request: new Request(url, opts) });
+    },
+  });
+  const received = await receiver.receive(source.ni, {});
+  assert.equal(received.durable, true,
+    "the original strict writer repeats its actual file-and-ancestry barriers");
+  assert.equal(received.ni, source.ni);
+  assert.equal(transfers, 1);
+  const retained = await consumer.get(source.ni);
+  assert.deepEqual(retained.bytes, bytes);
+  assert.equal(retained.mediaType, "text/plain",
+    "remote code interpretation must not replace the local first-writer's media");
+  assert.equal((await producer.get(source.ni)).mediaType, "text/javascript");
+});
+
+test("the peer does not use a malformed local presentation as authority to publish bytes", async () => {
+  const bytes = Uint8Array.of(0x01);
+  const ni = makeNiUri(bytes);
+  let published = 0;
+  const receiver = createNiPeerReceiver({
+    peerOrigin: "https://peer.example",
+    contentSpace: {
+      kind: "semiotic-content.addressed-space.v1",
+      async head() { return { ni, size: 1, mediaType: "text/plain\\r\\nforged" }; },
+      async get() { return null; },
+      async retain() { published++; throw Error("unadmitted write"); },
+    },
+    canReceive: () => true,
+    fetchImpl: async () => new Response(bytes, { status: 200 }),
+  });
+  await assert.rejects(() => receiver.receive(ni, {}),
+    /retained original presentation is inconsistent/);
+  assert.equal(published, 0);
+});
