@@ -168,7 +168,7 @@ test("the peer does not use a malformed local presentation as authority to publi
     peerOrigin: "https://peer.example",
     contentSpace: {
       kind: "semiotic-content.addressed-space.v1",
-      async head() { return { ni, size: 1, mediaType: "text/plain\\r\\nforged" }; },
+      async head() { return { ni, size: 1, mediaType: "text/plain\r\nforged" }; },
       async get() { return null; },
       async retain() { published++; throw Error("unadmitted write"); },
     },
