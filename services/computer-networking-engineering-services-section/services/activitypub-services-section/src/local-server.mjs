@@ -1,5 +1,6 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
-import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
+import { constants } from "node:fs";
+import { chmod, mkdir, open, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createFlatfileActivityPubRuntime } from "./flatfile-runtime.mjs";
 import { createActivityPubJournalCustody } from "./journal-custody.mjs";
@@ -61,20 +62,50 @@ function bearerMatches(request, expected) {
 async function persistentActorKeyPairs(keyPath) {
   const resolved = path.resolve(keyPath);
   await mkdir(path.dirname(resolved), { recursive: true, mode: 0o700 });
+
+  // Opening a path with readFile() and later chmod(path) can follow a
+  // substituted symlink. Use one O_NOFOLLOW descriptor for both admission
+  // and the actual signing material; never repair an exposed private key by
+  // silently changing permissions after its bytes were already readable.
+  const readExisting = async () => {
+    let file;
+    try {
+      file = await open(resolved, constants.O_RDONLY | constants.O_NOFOLLOW);
+      const metadata = await file.stat();
+      if (!metadata.isFile() || (metadata.mode & 0o077) !== 0) {
+        throw new TypeError("ActivityPub signing keys must be one private regular file");
+      }
+      return JSON.parse(await file.readFile("utf8"));
+    } catch (error) {
+      if (error?.code === "ELOOP") {
+        throw new TypeError("ActivityPub signing keys must be one private regular file", { cause: error });
+      }
+      throw error;
+    } finally {
+      await file?.close();
+    }
+  };
+
   let material;
   try {
-    material = JSON.parse(await readFile(resolved, "utf8"));
+    material = await readExisting();
   } catch (error) {
     if (error.code !== "ENOENT") throw error;
-    material = await generateActorKeyMaterial();
+    const generated = await generateActorKeyMaterial();
+    let created;
     try {
-      await writeFile(resolved, `${JSON.stringify(material, null, 2)}\n`, { encoding: "utf8", flag: "wx", mode: 0o600 });
-    } catch (writeError) {
-      if (writeError.code !== "EEXIST") throw writeError;
-      material = JSON.parse(await readFile(resolved, "utf8"));
+      created = await open(resolved,
+        constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+      await created.writeFile(`${JSON.stringify(generated, null, 2)}\n`, "utf8");
+    } catch (creationError) {
+      if (creationError.code !== "EEXIST") throw creationError;
+    } finally {
+      await created?.close();
     }
+    // Read from the actual existing file again even when this process won the
+    // creation race, so startup never differs by who first seeded a key file.
+    material = await readExisting();
   }
-  await chmod(resolved, 0o600);
   return importActorKeyPairs(material);
 }
 
