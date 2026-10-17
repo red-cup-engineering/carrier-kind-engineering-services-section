@@ -68,6 +68,7 @@
     "./fetch-policy": "./src/fetch-policy.mjs",
     "./s3": "./src/s3.mjs",
     "./ni": "./src/ni.mjs",
+    "./ni-peer": "./src/ni-peer.mjs",
     "./statement-log-stream": "./src/statement-log-stream.mjs",
     "./message-signatures": "./src/message-signatures.mjs",
     "./content-digest": "./src/content-digest.mjs",
