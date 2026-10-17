@@ -85,8 +85,8 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
-    "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section"
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/http-services-section"
   },
   "devDependencies": {
     "@red-cup-engineering/immutable-content-custody-service": "0.4.1"
