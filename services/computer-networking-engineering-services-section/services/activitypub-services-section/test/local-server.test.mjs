@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import path from "node:path";
 import { createServer as createNetServer } from "node:net";
-import { mkdtemp, rm, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { createLocalActivityPubProvider } from "../src/local-server.mjs";
 import { deliverActivity } from "../src/provider.mjs";
@@ -23,7 +23,7 @@ test("local constructor opens no listener and returns an application-compatible 
   const dir = await mkdtemp(path.join(tmpdir(), "activitypub-local-constructor-"));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const keysPath = path.join(dir, "keys.json");
-  await writeFile(keysPath, JSON.stringify(await generateActorKeyMaterial()));
+  await writeFile(keysPath, JSON.stringify(await generateActorKeyMaterial()), { mode: 0o600 });
   const port = await unusedPort();
   const local = await createLocalActivityPubProvider({
     environment: {
@@ -99,4 +99,61 @@ test("manually started Fedify delivery retains an actual outbound Activity witho
   const depth = await local.runtime.queue.getDepth();
   assert.ok(depth.queued >= 1, "Fedify must retain real durable delivery rather than trigger an unmanaged network worker");
   assert.equal(depth.queued, depth.ready + depth.delayed);
+});
+
+test("a persisted actor never loads public-mode or symlinked signing keys", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "activitypub-signer-custody-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const actual = path.join(root, "external.json");
+  const stateDirectory = path.join(root, "state");
+  const env = keyPath => ({
+    ACTIVITYPUB_ORIGIN: "https://signed-owner.example",
+    ACTIVITYPUB_IDENTIFIER: "owner",
+    ACTIVITYPUB_ACTOR_NAME: "Owner",
+    ACTIVITYPUB_ACTOR_SUMMARY: "A durable site identity",
+    ACTIVITYPUB_STATE_DIR: stateDirectory,
+    ACTIVITYPUB_KEYS_PATH: keyPath,
+  });
+  await writeFile(actual, JSON.stringify(await generateActorKeyMaterial()), { mode: 0o600 });
+  const link = path.join(root, "signer.json");
+  await symlink(actual, link);
+  await assert.rejects(createLocalActivityPubProvider({
+    environment: env(link),
+  }), /private regular file/);
+  const unsafe = path.join(root, "unsafe.json");
+  await writeFile(unsafe, JSON.stringify(await generateActorKeyMaterial()), { mode: 0o644 });
+  await assert.rejects(createLocalActivityPubProvider({
+    environment: env(unsafe),
+  }), /private regular file/);
+  assert.equal((await stat(unsafe)).mode & 0o077, 0o044,
+    "refusal must not silently mask prior exposure of signing-key material");
+});
+
+test("actor identity is minted once into a 0600 file and survives an ordinary restart", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "activitypub-one-key-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const keys = path.join(root, "keys.json");
+  const environment = {
+    ACTIVITYPUB_ORIGIN: "https://original-actor.example",
+    ACTIVITYPUB_IDENTIFIER: "original",
+    ACTIVITYPUB_ACTOR_NAME: "Original",
+    ACTIVITYPUB_ACTOR_SUMMARY: "One independently owned identity",
+    ACTIVITYPUB_STATE_DIR: path.join(root, "state"),
+    ACTIVITYPUB_KEYS_PATH: keys,
+  };
+  const initial = await createLocalActivityPubProvider({ environment, manuallyStartQueue: true });
+  const original = await initial.provider.fetch(new Request(environment.ACTIVITYPUB_ORIGIN + "/actors/original", {
+    headers: { accept: "application/activity+json" },
+  }));
+  assert.equal(original.status, 200);
+  const actor = await original.json();
+  await initial.close();
+  const next = await createLocalActivityPubProvider({ environment, manuallyStartQueue: true });
+  t.after(() => next.close());
+  const again = await next.provider.fetch(new Request(environment.ACTIVITYPUB_ORIGIN + "/actors/original", {
+    headers: { accept: "application/activity+json" },
+  }));
+  assert.deepEqual((await again.json()).assertionMethod, actor.assertionMethod);
+  assert.equal((await stat(keys)).mode & 0o077, 0);
+  assert.equal(next.provider.queueStartup, "manual");
 });
