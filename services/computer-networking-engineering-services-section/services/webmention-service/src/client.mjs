@@ -54,7 +54,7 @@ export async function verifyWebmention(source, target, opts = {}) {
   const doFetch = liveFetch("verifyWebmention", opts);
   let res;
   try {
-    res = await doFetch(source, { method: "GET", redirect: "follow", headers: { accept: "text/html, */*;q=0.8" } });
+    res = await doFetch(source, { method: "GET", redirect: "follow", headers: { accept: "text/html, application/json;q=0.9, text/plain;q=0.8, */*;q=0.1" } });
   } catch (error) {
     return {
       verified: false, retract: false, type: null, linkCount: 0, httpStatus: 0, source, target,
@@ -71,6 +71,7 @@ export async function verifyWebmention(source, target, opts = {}) {
   return verifyMentionBody({
     source,
     target,
+    finalUrl: res.url || source,
     httpStatus: res.status,
     ...(contentType === null ? {} : { contentType }),
     ...(body === undefined ? {} : { body }),
