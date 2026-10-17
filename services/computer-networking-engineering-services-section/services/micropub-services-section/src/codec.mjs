@@ -48,7 +48,7 @@ function firstString(values) {
  * against per deleted value (`*` for a whole property) — a deletion records the denial, never erases.
  */
 export function micropubCommandRelations(command, opts = {}) {
-  const subject = opts.subject ?? command.url ?? firstString(command.properties["uid"]) ?? firstString(command.properties["slug"]);
+  const subject = opts.subject ?? command.url ?? firstString(command.properties["uid"]) ?? firstString(command.mp?.["slug"]) ?? firstString(command.properties["slug"]);
   if (subject === undefined) throw new TypeError("micropub: command needs a subject URL, uid, or slug");
   const relations = [];
   const push = (predicate, object, phase, polarity = "for") => relations.push(Object.freeze({ subject, predicate, object, datum: Object.freeze({ phase, action: command.action }), polarity }));
@@ -87,18 +87,25 @@ export function parseMicropubJson(input) {
         throw new TypeError("Micropub JSON body must be an object");
     const body = input;
     const action = actionOf(body["action"]);
+    const { properties, mp } = splitCommands(propertyBag(body["properties"]));
     return validateCommand(Object.freeze({
         action,
         ...(nonempty(body["url"]) ? { url: body["url"] } : {}),
         type: stringArray(body["type"]).length ? stringArray(body["type"]) : DEFAULT_TYPE,
-        properties: propertyBag(body["properties"]),
+        properties,
+        mp,
         replace: propertyBag(body["replace"]),
         add: propertyBag(body["add"]),
         delete: deleteBag(body["delete"]),
     }));
 }
-/** Admit form-encoded Micropub fields (entries) as a command. */
-export function parseMicropubForm(form) {
+/**
+ * Admit form-encoded (x-www-form-urlencoded or multipart/form-data) Micropub fields as a command
+ * (Micropub 3.1.1, 3.2, 3.3): a name ending `[]` is an array and the same property as the bare name,
+ * `h` names the type, `mp-*` are server commands rather than properties, and `access_token` is
+ * never a property (read it with {@link micropubFormAccessToken}). `files` are multipart file parts.
+ */
+export function parseMicropubForm(form, files = []) {
     const properties = {};
     const replace = {};
     const add = {};
@@ -122,17 +129,41 @@ export function parseMicropubForm(form) {
         else if (key === "delete" && value)
             deleted[value] = true;
         else if (key !== "access_token")
-            append(properties, key, value);
+            append(properties, key.endsWith("[]") ? key.slice(0, -2) : key, value);
     }
+    const split = splitCommands(freezeBag(properties));
     return validateCommand(Object.freeze({
         action,
         ...(url ? { url } : {}),
         type: Object.freeze(type.length ? type : [...DEFAULT_TYPE]),
-        properties: freezeBag(properties),
+        properties: split.properties,
+        mp: split.mp,
         replace: freezeBag(replace),
         add: freezeBag(add),
         delete: Object.freeze(deleted),
+        ...(files.length ? { files: Object.freeze(files.map((file) => Object.freeze({ property: file.name.endsWith("[]") ? file.name.slice(0, -2) : file.name, filename: file.filename, contentType: file.contentType, data: file.data }))) } : {}),
     }));
+}
+
+/** The `access_token` form parameter (RFC 6750 2.2), which Micropub servers MUST accept beside the Authorization header. */
+export function micropubFormAccessToken(form) {
+    for (const [key, value] of form)
+        if (key === "access_token" && value)
+            return value;
+    return undefined;
+}
+
+/** Separate `mp-*` server commands (Micropub 3.2: reserved, never stored as properties) from post properties. */
+function splitCommands(bag) {
+    const properties = {};
+    const mp = {};
+    for (const [key, values] of Object.entries(bag)) {
+        if (key.startsWith("mp-"))
+            mp[key.slice(3)] = values;
+        else
+            properties[key] = values;
+    }
+    return { properties: freezeBag(properties), mp: freezeBag(mp) };
 }
 
 function validateCommand(command) {
