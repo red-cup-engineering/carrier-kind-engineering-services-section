@@ -184,22 +184,34 @@ export function createNiPeerReceiver({
     async receiveTree(rootNi, context, selection = {}) {
       if (!isNiUri(rootNi))
         throw new TypeError("NI peer tree: one canonical root NI is required");
-      if (!selection || typeof selection !== "object" || Array.isArray(selection) ||
-          Object.keys(selection).some(key => !["name", "expected"].includes(key)))
+      if (!selection || typeof selection !== "object" || Array.isArray(selection))
         throw new TypeError("NI peer tree: optional binding must be one exact name and expected root");
+      // Admission is over one immutable proposal. Re-reading an accessor or
+      // mutable caller object after an asynchronous grant could publish a
+      // DIFFERENT namespace from the one independently authorized.
+      const keys = Reflect.ownKeys(selection);
+      const binding = keys.length !== 0;
+      if (binding && (keys.length !== 2 || !keys.includes("name") ||
+          !keys.includes("expected")))
+        throw new TypeError("NI peer tree: optional binding must be one exact name and expected root");
+      const nameField = binding ? Object.getOwnPropertyDescriptor(selection, "name") : null;
+      const expectedField = binding ? Object.getOwnPropertyDescriptor(selection, "expected") : null;
+      if (binding && (!nameField?.enumerable || !expectedField?.enumerable ||
+          !Object.hasOwn(nameField, "value") || !Object.hasOwn(expectedField, "value")))
+        throw new TypeError("NI peer tree: publishing needs plain own data fields, not accessor grants");
+      const proposal = binding ? Object.freeze({
+        name: nameField.value, expected: expectedField.value, ni: rootNi,
+      }) : null;
       if (typeof contentSpace.inspectTreeBytes !== "function" ||
           typeof contentSpace.retainTree !== "function" ||
           typeof contentSpace.readTree !== "function" ||
           typeof contentSpace.head !== "function")
         throw new TypeError("NI peer tree: original canonical tree inspector and publisher are required");
-      const binding = Object.hasOwn(selection, "name") || Object.hasOwn(selection, "expected");
-      if (binding && (typeof selection.name !== "string" || !selection.name ||
-          (selection.expected !== null && !isNiUri(selection.expected)) ||
+      if (binding && (typeof proposal.name !== "string" || !proposal.name ||
+          (proposal.expected !== null && !isNiUri(proposal.expected)) ||
           typeof canBind !== "function" || typeof contentSpace.bind !== "function"))
         throw new TypeError("NI peer tree: publishing a root requires independent host name authority and expected NI");
-      if (binding && (await canBind(context, {
-        name: selection.name, expected: selection.expected, ni: rootNi,
-      })) !== true)
+      if (binding && (await canBind(context, proposal)) !== true)
         throw new TypeError("NI peer tree: current principal is not admitted to publish this root");
 
       const completed = new Set(), active = new Set();
@@ -251,18 +263,16 @@ export function createNiPeerReceiver({
       let publication;
       if (binding) {
         // Authorization is current at the actual mutable-name transition.
-        if ((await canBind(context, {
-          name: selection.name, expected: selection.expected, ni: rootNi,
-        })) !== true)
+        if ((await canBind(context, proposal)) !== true)
           throw new TypeError("NI peer tree: root publication authority changed");
         const published = await contentSpace.bind({
-          name: selection.name, expected: selection.expected, ni: rootNi,
+          name: proposal.name, expected: proposal.expected, ni: proposal.ni,
         });
-        if (published?.ni !== rootNi || published?.name !== selection.name ||
+        if (published?.ni !== rootNi || published?.name !== proposal.name ||
             typeof published.published !== "boolean")
           throw new TypeError("NI peer tree: original named-root publication was not received");
         publication = Object.freeze({
-          name: selection.name, before: selection.expected, published: published.published,
+          name: proposal.name, before: proposal.expected, published: published.published,
         });
       }
       return Object.freeze({

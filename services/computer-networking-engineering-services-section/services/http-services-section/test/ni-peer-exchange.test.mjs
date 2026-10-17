@@ -358,3 +358,48 @@ test("a stale local named frontier refuses after transferable immutable bytes, w
   assert.equal((await consumer.readTree(root.ni)).entries.length, 2,
     "immovable authenticated bytes may still be retained independently");
 });
+
+
+test("Merkle name publication uses a single data-only snapshot across asynchronous authority and network", async t => {
+  const { producer, consumer, root, addresses } = await collectionFixture(t);
+  const route = niResource(producer, { canRead: (_ctx, ni) => addresses.has(ni) });
+  const mutable = { name: "science/l-space", expected: null };
+  let grants = 0, fetches = 0, accessorCalls = 0;
+  const receiver = createNiPeerReceiver({
+    peerOrigin: "https://material-peer.example", contentSpace: consumer,
+    canReceive: (_ctx, ni) => addresses.has(ni),
+    canBind: (_ctx, proposal) => {
+      grants++;
+      assert.equal(Object.isFrozen(proposal), true,
+        "every host grant sees the same immutable candidate proposal");
+      assert.equal(proposal.name, "science/l-space");
+      assert.equal(proposal.expected, null);
+      if (grants === 1) mutable.name = "operations/forged";
+      return proposal.ni === root.ni;
+    },
+    fetchImpl: (url, options) => {
+      fetches++;
+      return route.handler({ request: new Request(url, options) });
+    },
+  });
+
+  const getter = { expected: null };
+  Object.defineProperty(getter, "name", {
+    enumerable: true,
+    get() { accessorCalls++; return "science/l-space"; },
+  });
+  await assert.rejects(receiver.receiveTree(root.ni, {}, getter), /plain own data fields/);
+  assert.equal(accessorCalls, 0, "calling code never evaluates attacker-controlled name accessors");
+  assert.equal(grants, 0);
+  assert.equal(fetches, 0, "unadmitted proposal never starts a transfer");
+
+  const receipt = await receiver.receiveTree(root.ni, {}, mutable);
+  assert.equal(receipt.durable, true);
+  assert.deepEqual(receipt.publication, {
+    name: "science/l-space", before: null, published: true,
+  });
+  assert.equal(grants, 2, "both grant decisions received the original immutable proposal");
+  assert.equal(consumer.resolve("science/l-space"), root.ni);
+  assert.equal(mutable.name, "operations/forged",
+    "the caller can mutate its own object but not the committed root identity");
+});
