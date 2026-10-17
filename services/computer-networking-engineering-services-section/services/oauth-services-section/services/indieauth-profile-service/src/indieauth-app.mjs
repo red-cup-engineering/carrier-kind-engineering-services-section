@@ -37,7 +37,7 @@ export function indieAuthApp(options) {
     authenticate: options.authenticate,
     loginUrl: options.loginUrl,
     ...(options.store === undefined ? {} : { store: options.store }),
-    paths: { authorize: "/indieauth/authorize", token: "/indieauth/token", ...(options.paths ?? {}) },
+    paths: { authorize: "/indieauth/authorize", token: "/indieauth/token", introspect: "/indieauth/introspect", ...(options.paths ?? {}) },
     me: () => profile.url,
     resolveUrlClient: async (clientId) => {
       const client = await resolveIndieAuthClient(clientId, clientIo);
