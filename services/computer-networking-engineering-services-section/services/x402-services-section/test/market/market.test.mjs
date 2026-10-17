@@ -116,6 +116,46 @@ async function pay(market, url, init = {}) {
   return market.fetch(new Request(url, { ...init, headers: { ...(init.headers ?? {}), "payment-signature": payment } }));
 }
 
+test("shared market reuses immutable discovery representation bytes, not HTTP responses or paid custody", async () => {
+  const underlying = declareOffer(getDeclaration());
+  let probeReads = 0;
+  const counted = new Proxy(underlying, { get(target, property, receiver) {
+    if (property === "probeUrl") probeReads++;
+    return Reflect.get(target, property, receiver);
+  } });
+  const market = demoMarket({ catalog: [counted] });
+  for (const path of ["/v1/catalog", "/.well-known/agent-card.json", "/"]) {
+    const url = "https://market.test" + path;
+    const first = await market.fetch(new Request(url));
+    assert.equal(first.status, 200, path);
+    const firstText = await first.text();
+    assert.ok(firstText.length > 0, path);
+    const observedReads = probeReads;
+    const second = await market.fetch(new Request(url));
+    assert.equal(second.status, 200, path);
+    assert.equal(second.headers.get("content-type"), first.headers.get("content-type"), path);
+    assert.equal(await second.text(), firstText, path);
+    assert.equal(probeReads, observedReads, "no duplicate admitted-catalog body work after first request");
+  }
+  assert.ok(probeReads > 0, "the first public catalog read actually generated an input contract");
+  // Distinct seller deployments may have different source prices; no process
+  // global catalogue is allowed to leak one merchant's offer into another.
+  const other = demoMarket({ catalog: [getDeclaration({ price: "$0.04" })], name: "Other market" });
+  const firstCatalog = await (await market.fetch(new Request("https://market.test/v1/catalog"))).json();
+  const secondCatalog = await (await other.fetch(new Request("https://market.test/v1/catalog"))).json();
+  assert.equal(firstCatalog.offers[0].price, "$0.01");
+  assert.equal(secondCatalog.offers[0].price, "$0.04");
+
+  // A held offering is never made payable by a previous instance's cached
+  // discovery content or by a request repeating a protected route.
+  const held = demoMarket({ catalog: [getDeclaration({ listed: false, saleStatus: "held" })] });
+  const heldCatalog = await (await held.fetch(new Request("https://market.test/v1/catalog"))).json();
+  assert.deepEqual(heldCatalog.offers, []);
+  const refusal = await held.fetch(new Request("https://market.test/v1/lookup"));
+  assert.equal(refusal.status, 404);
+  assert.equal(refusal.headers.get("payment-required"), null);
+});
+
 test("a standard x402 client can sign the quoted token domain and receive its purchase", async () => {
   for (const [network, asset, name, version = "2"] of [
     [NETWORK, USDC, "USDC"],

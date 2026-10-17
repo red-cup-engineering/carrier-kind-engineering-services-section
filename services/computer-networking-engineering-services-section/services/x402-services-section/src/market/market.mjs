@@ -331,6 +331,21 @@ export function createMarket({
   // Discovery must report configured rails before the first paid request.
   // An incomplete deployment can still expose its catalog for inspection.
   try { rails = marketRails(env); } catch { /* payment() reports configuration errors on purchase */ }
+
+  // Representations of this admitted, immutable offer set are identical for
+  // every discovery reader of this market instance. Cache only their bytes,
+  // never the HTTP Response (which is one-use) or paid/customer state.
+  // createWorkerFetch already retains the owning engine per Worker binding.
+  const lazyRepresentation = (produce) => {
+    let value;
+    return () => (value ??= produce());
+  };
+  const agentCardJson = lazyRepresentation(() => JSON.stringify(marketAgentCard(servedOffers, { name })));
+  const publicCatalogJson = lazyRepresentation(() => JSON.stringify(publicMarketCatalogReadout(servedOffers, rails ?? {})));
+  const homePageHtml = lazyRepresentation(() =>
+    renderTufteDocument(marketPageModel(servedOffers, rails ?? {}, { name }), { documentTitle: name }));
+
+
   function payment() {
     if (boundary !== undefined) return boundary;
     rails = marketRails(env);
@@ -627,7 +642,7 @@ export function createMarket({
       {
         match: AGENT_CARD_ROUTE,
         methods: ["GET"],
-        handler: () => Response.json(marketAgentCard(servedOffers, { name })),
+        handler: () => new Response(agentCardJson(), { headers: { "content-type": "application/json" } }),
       },
       {
         match: API_CATALOG_ROUTE,
@@ -670,13 +685,13 @@ export function createMarket({
         // receiving. The public HTTP catalogue advertises only current
         // sellable operations; held and private candidates stay out of this
         // buyer-facing discovery route.
-        handler: () => Response.json(publicMarketCatalogReadout(servedOffers, rails ?? {})),
+        handler: () => new Response(publicCatalogJson(), { headers: { "content-type": "application/json" } }),
       },
       {
         match: "/",
         methods: ["GET"],
         handler: () => new Response(
-          renderTufteDocument(marketPageModel(servedOffers, rails ?? {}, { name }), { documentTitle: name }),
+          homePageHtml(),
           { status: 200, headers: { "content-type": "text/html; charset=utf-8" } },
         ),
       },
