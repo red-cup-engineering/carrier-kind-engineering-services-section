@@ -190,11 +190,15 @@ export function createActivityPubProvider(options) {
   if (appendToOutbox !== undefined && typeof appendToOutbox !== "function") {
     throw new TypeError("ActivityPub appendToOutbox must be a function");
   }
+  if (options.manuallyStartQueue !== undefined && typeof options.manuallyStartQueue !== "boolean") {
+    throw new TypeError("ActivityPub manuallyStartQueue must be an explicit boolean");
+  }
   const federation = createFederation({
     kv: options.kv ?? new MemoryKvStore(),
     ...(options.origin === undefined ? {} : { origin: options.origin }),
     ...(options.queue === undefined ? {} : { queue: options.queue }),
     ...(options.allowPrivateAddress === undefined ? {} : { allowPrivateAddress: options.allowPrivateAddress }),
+    ...(options.manuallyStartQueue === undefined ? {} : { manuallyStartQueue: options.manuallyStartQueue }),
   });
 
   federation
