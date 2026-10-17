@@ -5,6 +5,7 @@ import { createServer as createNetServer } from "node:net";
 import { mkdtemp, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { createLocalActivityPubProvider } from "../src/local-server.mjs";
+import { deliverActivity } from "../src/provider.mjs";
 import { activityPubApplication } from "../src/app.mjs";
 import { generateActorKeyMaterial } from "../src/keys.mjs";
 
@@ -59,4 +60,43 @@ test('current actor projection removes a boot actor and admits its replacement w
  assert(route.match.test('/actors/second'));assert(route.match.test('/actors/second/inbox'));
  const removed=await local.provider.fetch(new Request('https://current.example/actors/first',{headers:{accept:'application/activity+json'}}));assert.equal(removed.status,404);
  const current=await local.provider.fetch(new Request('https://current.example/actors/second',{headers:{accept:'application/activity+json'}}));assert.equal(current.status,200);
+});
+
+test("manually started Fedify delivery retains an actual outbound Activity without starting network work", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "activitypub-manual-queue-"));
+  const keys = path.join(root, "keys.json");
+  await writeFile(keys, JSON.stringify(await generateActorKeyMaterial()), { mode: 0o600 });
+  const origin = "https://queue-owner.example";
+  const local = await createLocalActivityPubProvider({
+    origin,
+    manuallyStartQueue: true,
+    environment: {
+      ACTIVITYPUB_IDENTIFIER: "publisher",
+      ACTIVITYPUB_ACTOR_NAME: "Publisher",
+      ACTIVITYPUB_ACTOR_SUMMARY: "An independently keyed manual-queue publisher",
+      ACTIVITYPUB_KEYS_PATH: keys,
+      ACTIVITYPUB_STATE_DIR: path.join(root, "state"),
+    },
+  });
+  t.after(async () => { await local.close(); await rm(root, { recursive: true, force: true }); });
+  await deliverActivity(local.provider, {
+    identifier: "publisher",
+    recipient: "https://unreachable-recipient.example/actors/reader",
+    inbox: "https://unreachable-recipient.example/inbox",
+    activity: {
+      "@context": "https://www.w3.org/ns/activitystreams",
+      id: origin + "/activities/published",
+      type: "Create",
+      actor: origin + "/actors/publisher",
+      object: {
+        id: origin + "/notes/source",
+        type: "Note",
+        attributedTo: origin + "/actors/publisher",
+        content: "One original authored activity, retained for later delivery.",
+      },
+    },
+  });
+  const depth = await local.runtime.queue.getDepth();
+  assert.ok(depth.queued >= 1, "Fedify must retain real durable delivery rather than trigger an unmanaged network worker");
+  assert.equal(depth.queued, depth.ready + depth.delayed);
 });
