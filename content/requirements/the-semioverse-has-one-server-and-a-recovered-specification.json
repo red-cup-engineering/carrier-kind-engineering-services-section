@@ -19,7 +19,7 @@
     {
       "cell": "moose:feltos-application",
       "target": "held",
-      "says": "A running MetroPlat-selected FeltOS application exposes a real MOOSE child application, which in turn composes the Living Web Server application, all as independent reusable platforms with actual installed identities and a successful signed social exchange."
+      "says": "The live installed import closure resolves MetroPlat→FeltOS→MOOSE→Living Web Server, every importer uses the imported application's real capabilities and remote ActivityPub++ receiving succeeds."
     }
   ],
   "tier": "major",
@@ -87,10 +87,10 @@
         },
         {
           "id": "R7",
-          "says": "MOOSE shall be the MUD, Object Oriented, Socially Extended server built as an application of FeltOS, and shall itself provide a reusable social/world platform for multiple applications including Living Web Server; MOOSERP is not a product.",
+          "says": "MOOSE shall be MUD, Object Oriented, Socially Extended: a reusable FeltOS child application and platform which imports the Living Web Server application. MOOSERP is not a product.",
           "class": "constraint",
           "moscow": "must",
-          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
         },
         {
           "id": "R8",
@@ -101,24 +101,24 @@
         },
         {
           "id": "R9",
-          "says": "MOOSE, as a FeltOS application, shall compose the existing source-owned ActivityPub Services Section protocol carriers for signed ActivityPub, WebFinger, NodeInfo and delivery, and expose reusable social capabilities to its applications; it shall not implement a duplicate HTTP, ActivityPub or MCP server.",
+          "says": "MOOSE shall import and use the Living Web Server application for its living web-serving surface, and compose the existing source-owned ActivityPub Services Section's protocol implementations instead of recreating independent HTTP/ActivityPub/MCP transports.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
         },
         {
           "id": "R10",
-          "says": "MOOSE shall project persistent FeltOS actors, conversations, presence, object relations and addressable places through ActivityPub++ to its applications; a Living Web Server view, game client or agent client shall not mint parallel identities, authority or state.",
+          "says": "MOOSE shall expose persistent FeltOS actors, conversations, presence, objects and addressable places via ActivityPub++ and its imported Living Web Server, without either renderer or child application minting parallel state or authority.",
           "class": "functional",
           "moscow": "must",
-          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
         },
         {
           "id": "R11",
-          "says": "FeltOS shall serve as an application of the MetroPlat platform and a reusable platform for MOOSE and other applications. When a FeltOS-based service needs MOOSE social federation, it shall compose its MOOSE application rather than duplicate that social-server capability inside FeltOS. The app-of direction must not be inverted.",
+          "says": "FeltOS MUST import MOOSE as an actual source/package dependency when installing and constructing its federated social capability; MOOSE remains a FeltOS application and reusable platform, not an ancestor. There shall be no inverted MOOSE→FeltOS import or independent competing FeltOS social-server implementation.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
         },
         {
           "id": "R12",
@@ -129,24 +129,24 @@
         },
         {
           "id": "R13",
-          "says": "MetroPlat shall be the parent application platform of FeltOS: it shall admit, compose and operate FeltOS as one selectable application rather than infer a platform relation from which process physically hosts which runtime.",
+          "says": "MetroPlat shall import FeltOS as an application and reusable platform; it may import additional independent applications and shall not infer application hierarchy from legacy host-process names.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
         },
         {
           "id": "R14",
-          "says": "Living Web Server shall be an application of MOOSE and itself a platform exposing reusable web-serving and interactive publishing capabilities to independent downstream applications, not an alias of the generic Computer Web Server transport.",
+          "says": "MOOSE MUST import Living Web Server as a source/package dependency, use its installed web-serving platform, and leave Living Web Server independently extensible by further applications.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
         },
         {
           "id": "R15",
-          "says": "Each of MetroPlat, FeltOS, MOOSE, and Living Web Server shall be a reusable application platform; each shall admit more than the one named descendant without requiring new ancestor implementations, and all app-of edges shall be acyclic, typed and separately versioned from deployment host/instance/transport.",
+          "says": "MetroPlat, FeltOS, MOOSE and Living Web Server shall each be an application platform open to independent applications, with the required parent→child import edges MetroPlat→FeltOS→MOOSE→Living Web Server. Actual import declarations shall resolve to real source-owned providers; do not create placeholder packages or invert edges because the children are applications of their parents.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader clarification 2026-10-16: Living Web Server is an application of MOOSE, MOOSE of FeltOS, FeltOS of MetroPlat; each remains a platform for other applications."
+          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
         }
       ],
       "conditions": [
@@ -173,7 +173,7 @@
         },
         {
           "id": "moose:feltos-application",
-          "says": "A MetroPlat installation selects FeltOS as an application; FeltOS composes MOOSE as a subordinate application with preserved world identity and authorized federation; MOOSE composes Living Web Server as an application. Each remains reusable for unrelated children and no runtime host is mistaken for the parent platform.",
+          "says": "Inspect actual installed source imports: MetroPlat imports FeltOS, FeltOS imports MOOSE and MOOSE imports Living Web Server; exercise the resulting fediverse capability with real history, while each imported application remains its own reusable platform and each parent can import other applications.",
           "method": "independent installed receiving with real remote nodes and revision-pinned observables",
           "verifies": [
             "R7",
@@ -197,7 +197,7 @@
         },
         {
           "id": "semioverse:application-platform-hierarchy",
-          "says": "Inspect admitted application descriptors and independent receiving: MetroPlat→FeltOS→MOOSE→Living Web Server by application-of, each with a separately installed alternate application and no cycle or duplicate state/protocol server.",
+          "says": "The source/dependency manifests and executable entrypoints show all three parent→child import edges, not just an application-of declaration. Independent receiving demonstrates correct Fediverse behavior, a resolved installed artifact for each import, and independent additional applications under each platform.",
           "method": "typed descriptor validation and installed receiving",
           "verifies": [
             "R13",
@@ -254,6 +254,12 @@
       "supersedes": "Earlier assistant interpretation that placed MOOSE above FeltOS as a provider and treated FeltOS as its dependent application. Those source requirements were corrected; separate operational use of MOOSE social capabilities remains possible without changing app-of direction.",
       "status": "Authored requirement; runtime migration and receiving still owed.",
       "correctedFeltOS": "https://github.com/red-cup-engineering/feltos/blob/main/data/records/requirements-records/feltos-platform-for-moose.json"
+    },
+    "import-correction-2026-10-16": {
+      "leaderSource": "Uh wait no you misunderstood me. Feltos must import moose. Moose must import living Web server",
+      "interpretation": "Required import edges run from the parent platform to the child application; the child remains an application of its importer and itself a reusable platform. This supersedes the 'not import its child' wording.",
+      "currentEvidence": "MetroPlat manifest includes FeltOS; a source-owned MOOSE package and Living Web Server product package were not found in the repositories examined.",
+      "status": "Source requirement corrected; FeltOS and MOOSE executable imports not yet installed."
     }
   },
   "comparison": {
@@ -423,11 +429,36 @@
       }
     ],
     "distinctions": [
-      "Application-of is not the inverse of runtime invocation or an npm import edge.",
+      "Application-of alone does not impose an import; in this chain the Leader explicitly imposes parent-to-child imports at each edge.",
       "Deployment host, service instance, HTTP transport, public website and server process are distinct from application-platform composition.",
       "The generic Computer Web Server and ActivityPub Services Section provide lower-level reusable implementations and are not the Living Web Server product.",
-      "No named level is a one-customer specialization: each independently supports other child applications."
+      "No named level is a one-customer specialization: each independently supports other child applications.",
+      "A missing source-owned package must be surfaced as a delivery blocker, not satisfied by naming a nonexistent npm dependency or a placeholder implementation."
     ],
-    "stage": "requirements-source-only-not-installed"
+    "stage": "parent-to-child-imports-required; MOOSE and Living Web Server actual imports not yet established",
+    "requiredImports": [
+      {
+        "importer": "MetroPlat",
+        "imported": "FeltOS",
+        "relation": "must-import",
+        "providerStatus": "actual currently declared package dependency",
+        "stage": "implementation exists, other contracts remain unqualified"
+      },
+      {
+        "importer": "FeltOS",
+        "imported": "MOOSE",
+        "relation": "must-import",
+        "providerStatus": "source package not yet located",
+        "stage": "requirement, executable dependency not yet installed"
+      },
+      {
+        "importer": "MOOSE",
+        "imported": "Living Web Server",
+        "relation": "must-import",
+        "providerStatus": "MOOSE source package not yet located; Living Web Server also not located",
+        "stage": "requirement, executable dependency not yet installed"
+      }
+    ],
+    "importDirection": "Parent platform imports the named child application and can import other independent applications. Child application-of-parent and parent-imports-child are compatible, distinct typed relations."
   }
 }
