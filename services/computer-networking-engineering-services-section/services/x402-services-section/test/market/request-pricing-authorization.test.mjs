@@ -4,20 +4,35 @@ import { privateKeyToAccount } from "viem/accounts";
 import { verifyTypedData } from "viem";
 import { ExactEvmScheme as ExactEvmClient } from "@x402/evm/exact/client";
 import { createMarket } from "../../src/market/market.mjs";
-import { resolveBinding } from "../../src/compute-binding.mjs";
-import catalog from "../../data/market-561-group/records/catalog.json" with { type: "json" };
 
 // Isolated protocol fixtures: no deployed house asset, chain transaction or funds.
 const network = "eip155:5615611", asset = "0x" + "22".repeat(20), payTo = "0x" + "33".repeat(20);
 const assetRef = `${network}/erc20:${asset}`, name = "House Compute Test Credit";
 const signer = privateKeyToAccount("0x" + "1".padStart(64, "0"));
-const base = catalog.find(o => o.route === "/v1/data/unicode-normalize");
-assert(base, "use the actual already-offered primitive, not a new endpoint family");
+// Protocol law must not import one seller's 600 KiB catalogue or a product
+// implementation. This is a second authorized x402 merchant under test.
+const base = Object.freeze({
+  name: "Byte Tariff Compute",
+  gateway: "tariff-test",
+  gatewayPackageName: "@red-cup-engineering/tariff-fixture",
+  section: "engineering/computer-networking/x402",
+  operation: "compute-byte-tariff",
+  origin: "https://house.test",
+  route: "/v1/byte-tariff",
+  method: "POST",
+  price: { amountAtomic: "3", asset: assetRef },
+  bodyExample: { text: "é", form: "NFC" },
+  bodySchema: { properties: { text: { type: "string" }, form: { type: "string" } }, required: ["text", "form"] },
+  output: { schema: { type: "object" }, example: { text: "é" } },
+  framings: [{ key: "default", title: "Byte Tariff", description: "One deterministic UTF-8 byte quote.", tags: ["data"], serviceName: "byte-tariff" }],
+  ledgerAccount: "Income:Sales:X402:Tariff-test",
+  markets: ["x402-bazaar"],
+});
 
 test("a payment authorized for a small admitted body cannot buy a larger body's tariff", async () => {
   const d = { ...structuredClone(base), origin: "https://house.test", price: { amountAtomic: "3", asset: assetRef },
     requestPricing: { mode: "canonical-json-byte-bands", includedBytes: 64, additionalUnitBytes: 64, additionalUnitAtomic: "2", maximumAtomic: "9" } };
-  const run = resolveBinding(d.compute, d);
+  const run = ({ body }) => ({ text: body.text.normalize(body.form) });
   const small = { text: "é", form: "NFC" }, large = { text: "é".repeat(200), form: "NFC" };
   let executions = 0, settlements = 0;
   const market = createMarket({ catalog: [d],
