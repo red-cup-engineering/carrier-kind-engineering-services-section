@@ -18,3 +18,8 @@
 	path = services/computer-systems-engineering-services-section
 	url = https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git
 	branch = main
+
+[submodule "mcp-engineering-services-section"]
+	path = services/computer-networking-engineering-services-section/services/mcp-engineering-services-section
+	url = https://github.com/red-cup-engineering/mcp-engineering-services-section.git
+	branch = main
