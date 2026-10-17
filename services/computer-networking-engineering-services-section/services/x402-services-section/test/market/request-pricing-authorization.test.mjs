@@ -15,7 +15,7 @@ const base = Object.freeze({
   name: "Byte Tariff Compute",
   gateway: "tariff-test",
   gatewayPackageName: "@red-cup-engineering/tariff-fixture",
-  section: "engineering/computer-networking/x402",
+  section: "lib/computer-networking-services-section",
   operation: "compute-byte-tariff",
   origin: "https://house.test",
   route: "/v1/byte-tariff",
