@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/indieauth-profile-service",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Discover and validate IndieAuth profiles, client ID metadata, endpoints, redirects, and rel=me claims around the shared OAuth services.",
   "engines": {
@@ -9,7 +9,11 @@
   "exports": {
     ".": {
       "import": "./src/indieauth-profile.mjs"
-    }
+    },
+    "./pkce": "./src/pkce.mjs",
+    "./client": "./src/client.mjs",
+    "./signed-token": "./src/signed-token.mjs",
+    "./package.json": "./package.json"
   },
   "files": [
     "src",
@@ -23,9 +27,14 @@
     "@red-cup-engineering/computer-serialized-content-engineering-services-section": "0.1.0",
     "@red-cup-engineering/eavt-services-section": "0.11.0",
     "@red-cup-engineering/http-services-section": "0.6.2",
-    "@red-cup-engineering/oauth-services-section": "0.1.2",
+    "@red-cup-engineering/oauth-services-section": "0.2.0",
     "@red-cup-engineering/computer-networking-engineering-services-section": "0.1.2"
   },
   "sideEffects": false,
-  "private": false
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/oauth-services-section/services/indieauth-profile-service"
+  }
 }

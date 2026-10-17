@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/oauth-services-section",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "type": "module",
   "receivingTests": [
     "test/authorization-server.test.mjs",
@@ -8,7 +8,8 @@
     "test/grant-custody.test.mjs",
     "test/json-web-token.test.mjs",
     "test/oauth-error.test.mjs",
-    "test/refresh-rotation.test.mjs"
+    "test/refresh-rotation.test.mjs",
+    "test/introspection.test.mjs"
   ],
   "description": "The OAuth 2.0/2.1 section: the one authorization server (metadata, dynamic and URL-identified clients, S256 PKCE, resource-bound tokens, refresh rotation, client credentials, revocation, consent, and the IndieAuth profile), its client-credentials client, principal-admission judgment, JSON Web Tokens, and OAuthError; Google and IndieAuth are nested sections.",
   "exports": {
@@ -45,5 +46,10 @@
     "LICENSE*",
     "scripts",
     "src"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/oauth-services-section"
+  }
 }

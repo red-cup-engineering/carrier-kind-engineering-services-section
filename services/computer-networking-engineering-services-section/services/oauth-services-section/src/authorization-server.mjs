@@ -4,7 +4,7 @@
 // resolves (the Client ID Metadata Document of MCP and IndieAuth), the authorization-code grant
 // with S256 PKCE only, resource indicators binding every token to its audience (RFC 8707),
 // rotating refresh tokens, the client-credentials grant for machine clients, and revocation
-// (RFC 7009). Who the resource owner is stays the host's: `authenticate(ctx)` reads its session
+// (RFC 7009) and token introspection (RFC 7662). Who the resource owner is stays the host's: `authenticate(ctx)` reads its session
 // and `loginUrl(returnTo)` sends a visitor to sign in, so Google, Discord, a password or Hive
 // Keychain sign a person in and this server only grants. Every authorization is confirmed on a
 // consent page when an external client asks, including reconnects, so the person
@@ -89,7 +89,7 @@ const redirectTo = (uri, values) => {
  *   admit?: (principal: object, client: object) => boolean | Promise<boolean>,
  *   resolveUrlClient?: (clientId: string) => Promise<{client_id: string, redirect_uris: string[], client_name?: string}>,
  *   me?: (principal: object) => string,
- *   paths?: {authorize?: string, token?: string, register?: string, revoke?: string},
+ *   paths?: {authorize?: string, token?: string, register?: string, revoke?: string, introspect?: string},
  *   accessTtlSeconds?: number, refreshTtlSeconds?: number,
  *   now?: () => number,
  * }} options
@@ -102,7 +102,7 @@ export function createAuthorizationServer(options) {
   const now = options.now ?? (() => Date.now());
   const accessTtl = (options.accessTtlSeconds ?? 3600) * 1000;
   const refreshTtl = (options.refreshTtlSeconds ?? 30 * 24 * 3600) * 1000;
-  const paths = { authorize: "/oauth/authorize", token: "/oauth/token", register: "/oauth/register", revoke: "/oauth/revoke", ...(options.paths ?? {}) };
+  const paths = { authorize: "/oauth/authorize", token: "/oauth/token", register: "/oauth/register", revoke: "/oauth/revoke", introspect: "/oauth/introspect", ...(options.paths ?? {}) };
   if (typeof options.authenticate !== "function" || typeof options.loginUrl !== "function") throw new TypeError("an authorization server needs authenticate(ctx) and loginUrl(returnTo)");
 
   const metadata = Object.freeze({
@@ -111,6 +111,7 @@ export function createAuthorizationServer(options) {
     token_endpoint: `${issuer}${paths.token}`,
     registration_endpoint: `${issuer}${paths.register}`,
     revocation_endpoint: `${issuer}${paths.revoke}`,
+    introspection_endpoint: `${issuer}${paths.introspect}`,
     response_types_supported: ["code"],
     response_modes_supported: ["query"],
     grant_types_supported: ["authorization_code", "refresh_token", "client_credentials"],
@@ -376,6 +377,38 @@ export function createAuthorizationServer(options) {
     return { status: 200, cacheControl: { noStore: true }, body: "" };
   }
 
+  /**
+   * RFC 7662 introspection, with IndieAuth 6 (Access Token Verification): a resource server POSTs
+   * `token` and learns whether it is active, and for whom (`me`, `client_id`, `scope`, `exp`, `iat`). The
+   * caller must itself present a live access token of this server as a Bearer credential (the token
+   * under verification may serve), or authenticate as a confidential client; otherwise 401. An
+   * unknown, expired or revoked token is `{ "active": false }` with status 200 and nothing more.
+   */
+  async function introspect(ctx) {
+    const bearer = /^Bearer\s+(.+)$/iu.exec(headerOf(ctx, "authorization") ?? "")?.[1];
+    let form;
+    try { form = await formOf(ctx); } catch (error) { return bodyProblem(error, "invalid_request", "expected a form body"); }
+    let authorized = bearer !== undefined && (await verifyToken(bearer)) !== undefined;
+    if (!authorized && bearer === undefined) {
+      try { const client = await authenticateClient(ctx, form); authorized = client.client_secret_hash !== undefined; } catch { authorized = false; }
+    }
+    if (!authorized) return { status: 401, headers: { "www-authenticate": "Bearer", pragma: "no-cache" }, type: "application/json; charset=utf-8", cacheControl: { noStore: true }, body: `${JSON.stringify({ error: "invalid_token", error_description: "introspection requires authorization" })}\n` };
+    const claims = await verifyToken(form.get("token") ?? "");
+    if (claims === undefined) return jsonRepr({ active: false }, { cacheControl: { noStore: true }, headers: { pragma: "no-cache" } });
+    const exp = Math.floor(claims.expiresAt / 1000);
+    return jsonRepr({
+      active: true,
+      ...(claims.scope ? { scope: claims.scope } : {}),
+      client_id: claims.client_id,
+      token_type: "Bearer",
+      sub: claims.subject,
+      exp,
+      iat: exp - Math.floor(accessTtl / 1000),
+      ...(claims.resource === undefined ? {} : { aud: claims.resource }),
+      ...(claims.me === undefined ? {} : { me: claims.me }),
+    }, { cacheControl: { noStore: true }, headers: { pragma: "no-cache" } });
+  }
+
   const resource = (id, match, methods, handler, produces = ["application/json"]) => Object.freeze({ id, match, route: match, methods: Object.freeze(methods), produces: Object.freeze(produces), handler });
   const resourceMetadataPaths = ["/.well-known/oauth-protected-resource", ...resources.map((uri) => `/.well-known/oauth-protected-resource${new URL(uri).pathname === "/" ? "" : new URL(uri).pathname}`)];
   const app = Object.freeze({
@@ -400,6 +433,7 @@ export function createAuthorizationServer(options) {
         catch (error) { return oauthProblem(error); }
       }),
       resource("oauth.revoke", paths.revoke, ["POST"], revoke),
+      resource("oauth.introspect", paths.introspect, ["POST"], introspect),
     ]),
   });
 

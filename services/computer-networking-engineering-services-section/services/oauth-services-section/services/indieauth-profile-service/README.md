@@ -41,3 +41,11 @@ const indieAuth = indieAuthApp({
 indieAuth.app;                  // the resources to mount
 indieAuth.verifyIndieAuthToken; // Micropub's and Microsub's verifyToken: { me, client_id, scope } or null
 ```
+
+## The client flow, PKCE and self-contained tokens
+
+- `./pkce` -- PKCE S256 (RFC 7636; the Appendix B vector is a test): `generateCodeVerifier`, `deriveS256Challenge`, `verifyS256Challenge`.
+- `./client` -- IndieAuth 5 for a client: `createAuthorizationRequest(discovery, { clientId, redirectUri, scope })` builds the URL with a fresh `state` and PKCE pair; `verifyAuthorizationResponse` refuses an error, a foreign `state`, and a missing or foreign `iss` (RFC 9207); `redeemAuthorizationCode` redeems at the authorization endpoint (no scope: `{ me }`) or the token endpoint (scope: a token with `me`) and validates the returned profile.
+- `./signed-token` -- an IndieAuth token with no store: HMAC-SHA-256 over self-contained claims (`mintSignedToken`, `verifySignedToken`, `signedTokenVerifier` for Micropub's `verifyToken`). Valid until expiry; there is no revocation without a store.
+
+The server answers token introspection at `/indieauth/introspect` (IndieAuth 6): `{ active, me, client_id, scope, exp, iat }`, or only `{ active: false }`. Its caller must present a live Bearer token or authenticate as a confidential client.
