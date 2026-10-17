@@ -195,3 +195,18 @@ test("inbox history is absent without an explicitly injected bounded index and n
   assert.equal(admitted.status, 404);
   assert.equal(scans, 0);
 });
+
+test("queue ownership rejects an ambiguous manual-start setting before constructing Fedify", async () => {
+  const keys = await importActorKeyPairs(await generateActorKeyMaterial());
+  assert.throws(() => createActivityPubProvider({
+    identifier: "worker",
+    actorName: "Worker",
+    summary: "Queue custody actor",
+    origin: "https://worker.example",
+    keyPairs: keys,
+    manuallyStartQueue: "yes",
+    onActivity: async () => {},
+    authorizeInbox: async () => false,
+    listOutbox: async () => ({ items: [] }),
+  }), /manuallyStartQueue must be an explicit boolean/);
+});
