@@ -65,7 +65,7 @@ export function niResource(contents, {
     if (method === "GET" && length > maximumResponseBytes)
       return new Response(null, { status: 413, headers: { ...headers,
         "cache-control": "no-store", "content-length": "0" } });
-    const read = content.read ?? content.range;
+    const read = typeof content.read === "function" ? content.read : content.range;
     const body = method === "HEAD" || length === 0 ? null : await read.call(content, ni, slice);
     if (body !== null && (!(body instanceof Uint8Array) || body.byteLength !== length))
       throw new TypeError("NI HTTP: original content returned a missing or truncated byte range");
