@@ -87,4 +87,12 @@ jobs:
           node --check test/membrane-duality.test.mjs
           node --check test/utterance-space.test.mjs
           node --test test/membrane-duality.test.mjs test/utterance-space.test.mjs
+      - name: Run source-owned finite FOUR EDA and utterance operation consumers
+        working-directory: services/computer-systems-engineering-services-section/apps/signcraft
+        run: |
+          node --check src/proof/circuit-equivalence.mjs
+          node --check test/circuit-equivalence.test.mjs
+          node --check scripts/inference/explore-utterances.mjs
+          node --check test/explore-utterances-command.test.mjs
+          node --test test/explore-utterances-command.test.mjs test/circuit-equivalence.test.mjs
 
