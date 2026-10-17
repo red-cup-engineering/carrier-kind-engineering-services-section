@@ -6,6 +6,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createWebServer } from "../src/web-application.mjs";
+import { matchResource } from "../src/web-application-dispatch.mjs";
 test("a compiled web server carries its specification and one fetch handler", async ()=>{
     const server = createWebServer({
         resources: [
@@ -57,4 +58,20 @@ test("completion-hook failure always leaves a terminal response", async ()=>{
             await assert.rejects(terminal === "end" ? response.text() : response.body.cancel(), /completion failed/);
         }
     }
+});
+
+test("sticky HTTP route matching remains request-local and prefix-bound", ()=>{
+  const pattern = /item/gy;
+  pattern.lastIndex = 17;
+  const resource = {match:pattern};
+  for(let i=0;i<3;i++){
+    assert.deepEqual(matchResource(resource,"item-x"),{});
+    assert.equal(matchResource(resource,"x-item"),false,
+      "sticky y must not be erased when resetting g cursor state");
+  }
+  assert.equal(pattern.lastIndex,17,"source regex cursor belongs to no HTTP request");
+  assert.deepEqual(matchResource({match:"/item/:id"},"/item/hello%20world"),
+    {id:"hello world"});
+  assert.deepEqual(matchResource({match:(path,context)=>path===context.path},
+    "/x",{path:"/x"}),{});
 });
