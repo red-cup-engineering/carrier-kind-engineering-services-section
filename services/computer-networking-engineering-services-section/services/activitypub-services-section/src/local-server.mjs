@@ -1,6 +1,6 @@
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { constants } from "node:fs";
-import { chmod, mkdir, open, readFile, writeFile } from "node:fs/promises";
+import { mkdir, open, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { createFlatfileActivityPubRuntime } from "./flatfile-runtime.mjs";
 import { createActivityPubJournalCustody } from "./journal-custody.mjs";
@@ -35,19 +35,75 @@ async function resolveBearerToken({ environment, stateDirectory, rotate }) {
   const tokenPath = typeof explicit === "string" && explicit.trim() !== ""
     ? path.resolve(explicit)
     : (stateDirectory === undefined ? undefined : path.resolve(stateDirectory, "bearer-token"));
-  if (tokenPath === undefined) return { bearerToken: randomBytes(32).toString("base64url"), bearerTokenPath: null };
-  await mkdir(path.dirname(tokenPath), { recursive: true });
-  if (!rotate) {
+  if (tokenPath === undefined) {
+    return { bearerToken: randomBytes(32).toString("base64url"), bearerTokenPath: null };
+  }
+  await mkdir(path.dirname(tokenPath), { recursive: true, mode: 0o700 });
+
+  // Never follow another actor's link or read credentials first and only
+  // *then* chmod their pathname. Admission and consumption share one
+  // no-follow descriptor, just like the persistent actor's signing keys.
+  const readExisting = async () => {
+    let file;
     try {
-      const existing = (await readFile(tokenPath, "utf8")).trim();
-      if (existing.length >= 32) return { bearerToken: existing, bearerTokenPath: tokenPath };
+      file = await open(tokenPath, constants.O_RDONLY | constants.O_NOFOLLOW);
+      const metadata = await file.stat();
+      if (!metadata.isFile() || (metadata.mode & 0o077) !== 0) {
+        throw new TypeError("ActivityPub inbox token must be one private regular file");
+      }
+      return (await file.readFile("utf8")).trim();
     } catch (error) {
-      if (error.code !== "ENOENT") throw error;
+      if (error?.code === "ELOOP") {
+        throw new TypeError("ActivityPub inbox token must be one private regular file", { cause: error });
+      }
+      throw error;
+    } finally {
+      await file?.close();
+    }
+  };
+  let existing;
+  try { existing = await readExisting(); }
+  catch (error) { if (error.code !== "ENOENT") throw error; }
+  if (existing !== undefined && existing.length < 32) {
+    throw new TypeError("Existing ActivityPub inbox token is shorter than 32 characters");
+  }
+  if (!rotate && existing !== undefined) {
+    return { bearerToken: existing, bearerTokenPath: tokenPath };
+  }
+
+  const bearerToken = randomBytes(32).toString("base64url");
+  if (existing === undefined) {
+    let created;
+    try {
+      created = await open(tokenPath, constants.O_WRONLY | constants.O_CREAT |
+        constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+      await created.writeFile(`${bearerToken}\n`, "utf8");
+    } catch (error) {
+      if (error.code !== "EEXIST") throw error;
+      const recorded = await readExisting();
+      if (recorded.length < 32) throw new TypeError("Existing ActivityPub inbox token is too short");
+      return { bearerToken: recorded, bearerTokenPath: tokenPath };
+    } finally {
+      await created?.close();
+    }
+  } else {
+    // Explicit rotation replaces the original private path atomically.
+    // A plain writeFile(path) would follow a swapped symlink and preserve a
+    // previous insecure file mode.
+    const temporary = `${tokenPath}.${randomBytes(8).toString("hex")}.tmp`;
+    let created;
+    try {
+      created = await open(temporary, constants.O_WRONLY | constants.O_CREAT |
+        constants.O_EXCL | constants.O_NOFOLLOW, 0o600);
+      await created.writeFile(`${bearerToken}\n`, "utf8");
+      await created.close();
+      created = undefined;
+      await rename(temporary, tokenPath);
+    } finally {
+      await created?.close();
+      await rm(temporary, { force: true });
     }
   }
-  const bearerToken = randomBytes(32).toString("base64url");
-  await writeFile(tokenPath, `${bearerToken}\n`, { mode: 0o600 });
-  await chmod(tokenPath, 0o600);
   return { bearerToken, bearerTokenPath: tokenPath };
 }
 
