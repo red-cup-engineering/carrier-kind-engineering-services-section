@@ -1,6 +1,0 @@
-node_modules/
-!data/.gitkeep
-*.log
-data/logs/
-data/records/evm/
-

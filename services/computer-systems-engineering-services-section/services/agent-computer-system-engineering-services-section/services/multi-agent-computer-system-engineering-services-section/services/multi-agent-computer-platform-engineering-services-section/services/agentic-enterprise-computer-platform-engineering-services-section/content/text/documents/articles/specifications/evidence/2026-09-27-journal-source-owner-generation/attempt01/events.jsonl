@@ -1,4 +1,0 @@
-{"type":"thread.started","thread_id":"01a0e57f-9e29-74b1-a56e-3da9ac56e441"}
-{"type":"turn.started"}
-{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"kind\":\"source-patchset\",\"version\":1,\"disposition\":\"refused\",\"reason\":\"I cannot supply a complete source-owner implementation that meets F-S01–F-S10 from the provided inputs. Returning partial modules would falsely present an incomplete owner as the requested complete candidate.\",\"changes\":[]}"}}
-{"type":"turn.completed","usage":{"input_tokens":83150,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":1624,"reasoning_output_tokens":1552}}

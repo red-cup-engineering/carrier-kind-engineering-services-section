@@ -1,6 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "relateFilepathInput",
-  "type": "object",
-  "description": "A record with from and to filepath spellings."
-}

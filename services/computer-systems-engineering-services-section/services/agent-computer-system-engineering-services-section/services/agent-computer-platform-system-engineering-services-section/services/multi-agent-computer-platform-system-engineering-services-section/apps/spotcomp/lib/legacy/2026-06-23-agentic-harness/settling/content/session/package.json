@@ -1,1 +1,0 @@
-{ "name": "session", "type": "module", "imports": { "#*": "./*" } }

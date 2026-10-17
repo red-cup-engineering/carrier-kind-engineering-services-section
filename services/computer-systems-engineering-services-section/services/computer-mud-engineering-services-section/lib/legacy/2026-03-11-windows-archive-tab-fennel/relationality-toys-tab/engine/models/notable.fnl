@@ -1,2 +1,0 @@
-{:base :thing
- :notable true}

@@ -1,6 +1,0 @@
-{
-  "run": "/tmp/muse-durable-generation-0pz41n25",
-  "disposition": "rejected",
-  "reason": "Generated source omits F-D02 staging-file synchronization",
-  "privateAssessmentRetainedAt": "/tmp/muse-durable-generation-0pz41n25/assessment.json"
-}

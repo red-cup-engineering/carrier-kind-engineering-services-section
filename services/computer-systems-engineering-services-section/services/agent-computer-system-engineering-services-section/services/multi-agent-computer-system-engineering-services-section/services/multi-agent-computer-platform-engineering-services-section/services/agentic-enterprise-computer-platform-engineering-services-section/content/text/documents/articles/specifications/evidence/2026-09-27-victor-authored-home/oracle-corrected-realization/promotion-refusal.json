@@ -1,6 +1,0 @@
-{
-  "reason": "stale-input:src/build.mjs",
-  "writesPerformed": false,
-  "candidateRetained": true,
-  "method": "whole-batch preflight"
-}

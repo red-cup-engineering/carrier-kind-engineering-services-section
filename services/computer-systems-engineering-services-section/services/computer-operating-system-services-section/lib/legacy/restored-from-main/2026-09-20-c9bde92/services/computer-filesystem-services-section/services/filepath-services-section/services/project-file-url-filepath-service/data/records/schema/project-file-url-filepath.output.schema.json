@@ -1,6 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "projectFileUrlFilepathOutput",
-  "type": "string",
-  "description": "The platform filepath the URL names."
-}

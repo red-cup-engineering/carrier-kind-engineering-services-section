@@ -1,8 +1,0 @@
-{
-  "name": "@red-cup-engineering/multi-agent-computer-platform-system-engineering-services-section",
-  "version": "0.1.0",
-  "type": "module",
-  "description": "Groups engineering services for platforms that host, compose, and coordinate multiple agents.",
-  "license": "UNLICENSED",
-  "dependencies": {}
-}

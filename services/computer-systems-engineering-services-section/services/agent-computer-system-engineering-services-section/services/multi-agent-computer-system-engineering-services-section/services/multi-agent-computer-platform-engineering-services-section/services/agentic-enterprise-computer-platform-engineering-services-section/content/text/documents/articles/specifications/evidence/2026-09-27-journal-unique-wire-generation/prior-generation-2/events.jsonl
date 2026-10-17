@@ -1,4 +1,0 @@
-{"type":"thread.started","thread_id":"01a0e4a6-2aa7-7f83-8c5a-598a3ecef99b"}
-{"type":"turn.started"}
-{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"disposition\":\"refused\",\"reason\":\"I can’t provide a reviewable candidate that meets this order from the supplied packet: F-U06 requires independent private assays against the candidate before acceptance, but their inventory and results are withheld. The commitment digest establishes that an assay manifest exists; it does not establish that the required laws pass. The order says to reject a candidate if a required pure law fails, and no assay evidence is available here.\",\"edits\":[]}"}}
-{"type":"turn.completed","usage":{"input_tokens":23153,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":3211,"reasoning_output_tokens":3106}}

@@ -1,4 +1,0 @@
-{"type":"thread.started","thread_id":"01a0e5b7-665e-7260-b2de-20c72e59daad"}
-{"type":"turn.started"}
-{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"kind\":\"source-patchset\",\"version\":1,\"disposition\":\"refused\",\"reason\":\"I cannot supply a complete B2b implementation that meets the required closure, descriptor and ancestor durability barrier, and F-S13 host and cleanup corrections while preserving the B2c seams. Returning a partial candidate would misrepresent this stage as complete.\",\"changes\":[]}"}}
-{"type":"turn.completed","usage":{"input_tokens":79404,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":1683,"reasoning_output_tokens":1599}}

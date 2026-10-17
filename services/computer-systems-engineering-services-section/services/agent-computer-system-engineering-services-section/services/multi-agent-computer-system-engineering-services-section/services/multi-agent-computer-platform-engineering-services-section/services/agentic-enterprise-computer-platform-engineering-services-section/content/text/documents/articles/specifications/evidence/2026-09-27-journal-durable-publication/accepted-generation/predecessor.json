@@ -1,6 +1,0 @@
-{
-  "run": "/tmp/muse-durable-generation-q4x8mcj8",
-  "disposition": "rejected",
-  "reason": "Generated source references unbound fsyncSync and displaces public API documentation",
-  "privateAssessmentRetainedAt": "/tmp/muse-durable-generation-q4x8mcj8/assessment.json"
-}

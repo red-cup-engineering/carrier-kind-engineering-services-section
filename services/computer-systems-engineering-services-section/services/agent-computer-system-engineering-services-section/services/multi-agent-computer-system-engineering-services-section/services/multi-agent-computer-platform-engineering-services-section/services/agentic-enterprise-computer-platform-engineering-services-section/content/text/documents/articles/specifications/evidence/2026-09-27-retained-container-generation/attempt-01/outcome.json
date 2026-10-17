@@ -1,6 +1,0 @@
-{
-  "disposition": "provider-refused",
-  "sourceChanged": false,
-  "priorOrderSha256": "9c9fb3bdd11d59871d178276688b1739e55b1f07ae1e1321a7ca8a2ed86f9b86",
-  "followup": "Clarify provider versus receiver responsibilities; no private assay feedback exists."
-}

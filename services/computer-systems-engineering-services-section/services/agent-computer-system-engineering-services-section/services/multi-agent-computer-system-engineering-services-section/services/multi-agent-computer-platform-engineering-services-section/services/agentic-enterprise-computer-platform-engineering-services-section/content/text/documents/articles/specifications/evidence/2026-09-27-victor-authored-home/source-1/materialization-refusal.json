@@ -1,8 +1,0 @@
-{
-  "code": "ambiguous-replacement-match",
-  "editIndex": 29,
-  "path": "src/tiles.mjs",
-  "matchCount": 2,
-  "candidateSha256": "76689f5e8ef2ccd1e13f86c550c463589c5aac7349024a65abf63f8722d3c588",
-  "stageCreated": false
-}

@@ -1,8 +1,0 @@
-{
-  "status": "rejected-assessment-attempt",
-  "candidateSha256": "9840e47f6c3834deb977ca88ef10d96040282610aab2813b41ef02fc69c99187",
-  "sourceChangesAfterAssessment": false,
-  "oracleFinding": "Two committed sitemap predicates used whole-string origin counts and path-prefix exclusion, contradicting exact canonical loc requirements and configured neighborhood projections.",
-  "publicReproductionSha256": "e6537dd904677a170e76b67166b5dd0702753eb993cd7a0211bb4ebe97dd5042",
-  "nextEvidence": "Separate corrected predicate commitment pending; no implementation change justified by these false failures."
-}

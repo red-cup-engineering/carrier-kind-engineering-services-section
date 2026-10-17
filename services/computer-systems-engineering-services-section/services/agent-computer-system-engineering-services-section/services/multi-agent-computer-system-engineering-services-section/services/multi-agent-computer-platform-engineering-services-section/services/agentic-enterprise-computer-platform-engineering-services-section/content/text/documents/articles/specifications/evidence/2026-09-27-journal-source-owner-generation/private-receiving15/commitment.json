@@ -1,9 +1,0 @@
-{
-  "assaySha256": "d9f953198d622ec3c31c8b919aa5e5d06b21d0953d82cc5c3d72ae824d606b0f",
-  "loaderSha256": "d033752cc5a15b7848334db0f2ef03a73c4bca40fc17ce95ab5e334b1294fc7e",
-  "dependencyMapSha256": "6ec7941e1fa5bfb78bdf5b7ecf4b3c16d7adf42debb4a0f6fbc2e2841e2be387",
-  "orderSha256": "5e57ec7dd32d7cd2a51f8036e315be23063fbffa79ed9bd53c782e81a5202c84",
-  "committedBeforeGeneration": true,
-  "receivingSyntaxCheckedBeforeCommitment": true,
-  "stage": "B; complete composed receiver"
-}

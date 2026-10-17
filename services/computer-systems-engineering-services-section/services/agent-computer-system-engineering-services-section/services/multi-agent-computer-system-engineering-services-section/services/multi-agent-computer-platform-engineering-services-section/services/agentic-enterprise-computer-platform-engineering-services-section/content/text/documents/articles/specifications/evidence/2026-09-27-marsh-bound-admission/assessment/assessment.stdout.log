@@ -1,5 +1,0 @@
-independent-solidity-assay: 9 passed, 0 failed, 0 skipped
-candidate-current-head: decoded; chain=8453; block=1; provider=private-anvil
-legacy-raw-key-head: decoded; chain=8453; block=1; provider=private-anvil
-absent-resource: null; chain=8453; block=1; provider=private-anvil
-fixture-only: local Anvil chain 8453; not live Base finality
