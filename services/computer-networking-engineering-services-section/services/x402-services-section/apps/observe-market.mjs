@@ -1,43 +1,111 @@
-/** Emit one dated sampled Base-USDC EIP-3009 observation as JSON on stdout. */
-import { catalogAuthorizationProjection, observeSettlement } from "../src/market-observation/settlement.mjs";
+/** Observe global EIP-3009 activity and, only when explicitly scoped, a merchant's Bazaar catalogue. */
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { readSnapshotParameters, takeSnapshot } from "@red-cup-engineering/computer-data-engineering-services-section/x402-discovery-snapshot";
+import { observeSettlement } from "../src/market-observation/settlement.mjs";
 
-const arg = (name, fallback) => {
-  const index = process.argv.indexOf(`--${name}`);
-  return index === -1 ? fallback : process.argv[index + 1];
-};
-const windowBlocks = Number(arg("window", 900));
+const DEFAULT_DISCOVERY_ENDPOINT = "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources";
+const MAX_PAGE_BYTES = 2_000_000;
 
-const settlement = await observeSettlement({ windowBlocks });
-if (!settlement.ok) {
-  console.error(`settlement measurement failed: ${settlement.reason}`);
-  process.exit(1);
+export function observationOptions(argv = []) {
+  const arg = (name) => {
+    const at = argv.indexOf("--" + name);
+    return at < 0 ? undefined : argv[at + 1];
+  };
+  const windowBlocks = arg("window") === undefined ? 900 : Number(arg("window"));
+  if (!Number.isSafeInteger(windowBlocks) || windowBlocks < 1)
+    throw new RangeError("observe-x402-market --window requires a positive integer");
+  const payTo = arg("merchant-pay-to");
+  const suppliedEndpoint = arg("discovery-endpoint");
+  if (suppliedEndpoint !== undefined && payTo === undefined)
+    throw new TypeError("--discovery-endpoint requires --merchant-pay-to");
+  const merchant = payTo === undefined ? null : readSnapshotParameters({
+    endpoint: suppliedEndpoint ?? DEFAULT_DISCOVERY_ENDPOINT, payTo,
+  });
+  return { windowBlocks, merchant };
 }
 
-let catalog = { ok: false, reason: "not attempted" };
-try {
-  const response = await fetch("https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources?limit=1");
-  if (response.ok) {
-    const body = await response.json();
-    catalog = { ok: true, calls: body?.pagination?.total ?? null };
-  } else catalog = { ok: false, reason: `http ${response.status}` };
-} catch (error) { catalog = { ok: false, reason: String(error?.message ?? error) }; }
+/** Networking performs the bounded HTTP read; Data owns pagination and epistemic reduction. */
+async function readBazaarPage(url) {
+  const response = await fetch(url, { headers: { accept: "application/json" } });
+  if (!response.ok) throw new Error("Bazaar discovery HTTP " + response.status);
+  const announced = Number(response.headers.get("content-length"));
+  if (Number.isFinite(announced) && announced > MAX_PAGE_BYTES)
+    throw new RangeError("Bazaar discovery page exceeds the bounded observation size");
+  const body = await response.text();
+  if (body.length > MAX_PAGE_BYTES)
+    throw new RangeError("Bazaar discovery page exceeds the bounded observation size");
+  return JSON.parse(body);
+}
 
-const sampleDerivedAuthorizationProjection = settlement.extrapolated.authorizationsPer30Days;
-const catalogAuthorizationComparison = catalog.ok && Number.isFinite(catalog.calls)
-  ? catalogAuthorizationProjection({ catalogCalls: catalog.calls, sampleDerivedAuthorizationProjection })
-  : null;
-console.log(JSON.stringify({
-  recordType: "561-group.x402-market-observation",
-  observedAt: new Date().toISOString(),
-  chain: { network: "eip155:8453", asset: settlement.asset, rangeObservation: true, provenance: settlement.measured.provenance },
-  settlement: { measured: settlement.measured, extrapolated: settlement.extrapolated },
-  distinctAuthorizersSampled: settlement.measured.distinctAuthorizers,
-  catalog,
-  catalogAuthorizationComparison,
-  caveat: settlement.caveat,
-}, null, 2));
-console.error(
-  `observed ${settlement.measured.authorizations} authorizations from ` +
-  `${settlement.measured.distinctAuthorizers} distinct event-authorizer addresses in ~${settlement.measured.approximateMinutes} min ` +
-  `-> arithmetic sample projection ~${settlement.extrapolated.authorizationsPer30Days.toLocaleString()}/30d`,
-);
+/**
+ * Produces two separate observations, never a global-chain/single-seller ratio.
+ * Caller injects effects for native tests; no payTo means NO catalogue request.
+ */
+export async function observeMarketReport(options, {
+  chainObserver = observeSettlement, snapshotReader = takeSnapshot,
+  fetchJson = readBazaarPage, now = () => new Date(),
+} = {}) {
+  if (!Number.isSafeInteger(options?.windowBlocks) || options.windowBlocks < 1)
+    throw new RangeError("observation needs a positive block window");
+  const merchant = options.merchant == null ? null : readSnapshotParameters(options.merchant);
+  const instant = now();
+  const observedAt = new Date(instant).toISOString();
+
+  // Chain-wide EIP-3009 authorizations are neither merchant-specific nor
+  // proof of paid HTTP delivery. Keep that observation independent.
+  let settlement;
+  try { settlement = await chainObserver({ windowBlocks: options.windowBlocks }); }
+  catch (error) { settlement = { ok: false, reason: String(error?.message ?? error) }; }
+
+  let catalog = { ok: false, reason: "merchant-payTo-not-supplied", scope: "no-seller-selected" };
+  if (merchant !== null) {
+    try {
+      const snapshot = await snapshotReader(merchant, { fetchJson, now: () => new Date(observedAt) });
+      const calls = snapshot.complete === true ? snapshot.totals.calls30d : null;
+      catalog = {
+        ok: true, scope: "one-merchant", endpoint: snapshot.endpoint,
+        payTo: snapshot.payTo, observedAt: snapshot.takenAt,
+        complete: snapshot.complete, problems: snapshot.problems,
+        listedResources: snapshot.totals.resources, calls30d: calls,
+        // Per-resource distinct payer counts are NOT additive across SKUs.
+        uniquePayers30d: null, uniquePayerPopulation: "not-observable-from-per-resource-counts",
+        resourceReadings: snapshot.resources,
+        evidence: "vendor-reported discovery, not independent paid delivery or external demand",
+      };
+    } catch (error) {
+      catalog = { ok: false, scope: "one-merchant", reason: String(error?.message ?? error) };
+    }
+  }
+  return {
+    recordType: "561-group.x402-market-observation",
+    observedAt,
+    chain: settlement?.ok === true
+      ? { network: "eip155:8453", asset: settlement.asset, rangeObservation: true,
+          provenance: settlement.measured.provenance }
+      : { network: "eip155:8453", ok: false, reason: settlement?.reason ?? "unavailable" },
+    settlement: settlement?.ok === true
+      ? { measured: settlement.measured, extrapolated: settlement.extrapolated }
+      : { ok: false, reason: settlement?.reason ?? "unavailable" },
+    distinctAuthorizersSampled: settlement?.ok === true
+      ? settlement.measured.distinctAuthorizers : null,
+    catalog,
+    // Retain the historical field without inventing a dimensionless market ratio.
+    catalogAuthorizationComparison: null,
+    comparisonReason: "seller catalogue calls and Base-wide EIP-3009 authorization projections are different populations",
+    caveat: settlement?.caveat ?? "No current chain sample; no authorization rate can be inferred.",
+  };
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const options = observationOptions(process.argv.slice(2));
+    const report = await observeMarketReport(options);
+    process.stdout.write(JSON.stringify(report, null, 2) + "\n");
+    if (report.settlement.ok === false || (options.merchant !== null && report.catalog.ok !== true))
+      process.exitCode = 1;
+  } catch (error) {
+    process.stderr.write("observe-x402-market: " + String(error?.message ?? error) + "\n");
+    process.exitCode = 1;
+  }
+}
