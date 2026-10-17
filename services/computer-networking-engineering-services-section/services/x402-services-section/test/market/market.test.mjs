@@ -12,6 +12,7 @@ const USDC = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
 const PAY_TO = "0x32886F6F361C1d570255c2762967A2e41D0E9B1a";
 const ENV = Object.freeze({
   X402_NETWORK: NETWORK,
+  X402_ASSET: USDC,
   X402_PAY_TO: PAY_TO,
   X402_FACILITATOR: "https://facilitator.invalid",
 });
@@ -99,6 +100,7 @@ const challengeOf = (response) => JSON.parse(Buffer.from(response.headers.get("p
 function demoMarket(overrides = {}) {
   return createMarket({
     catalog: [postDeclaration(), getDeclaration()],
+    name: "market.561.group",
     env: ENV,
     compute: {
       "/v1/demo": ({ body }) => ({ value: body.seed * 2 }),
@@ -300,12 +302,51 @@ test("public catalog and llms.txt never disclose held/private names while intern
   assert.equal(held.status,404);
   assert.equal(held.headers.get("payment-required"),null);
 });
+test("a second merchant uses the same engine without adopting another seller's brand or chain", async () => {
+  const provider = { organization: "Independent Merchant", url: "https://seller.example" };
+  const network = "eip155:10", asset = "0x" + "ab".repeat(20);
+  const market = demoMarket({
+    name: "independent.example", provider,
+    catalog: [getDeclaration({ origin: "https://independent.example",
+      gateway: "independent", operation: "receipt" })],
+    env: { X402_NETWORK: network, X402_ASSET: asset,
+      X402_PAY_TO: "0x" + "cd".repeat(20),
+      X402_FACILITATOR: "https://facilitator.example", X402_ASSET_SYMBOL: "CREDIT" },
+    facilitatorClient: {
+      async getSupported() { return { kinds: [{ x402Version: 2, scheme: "exact", network }], extensions: [], signers: {} }; },
+      async verify() { throw new Error("unsigned quote must not verify"); },
+      async settle() { throw new Error("unsigned quote must not settle"); },
+    },
+    compute: { "/v1/lookup": () => ({ value: 42 }) },
+  });
+  const origin = "https://independent.example";
+  const card = await (await market.fetch(new Request(origin + "/.well-known/agent-card.json"))).json();
+  assert.equal(card.name, "independent.example");
+  assert.deepEqual(card.provider, provider);
+  assert.ok(!JSON.stringify(card).includes("561 Group"));
+  const discovery = await (await market.fetch(new Request(origin + "/.well-known/x402"))).json();
+  assert.equal(discovery.resources[0].asset, "CREDIT");
+  assert.equal(discovery.resources[0].network, network);
+  const service = await (await market.fetch(new Request(origin + "/.well-known/x402-service.json"))).json();
+  assert.equal(service.payment.chain, network);
+  assert.equal(service.payment.address, "0x" + "cd".repeat(20));
+  assert.equal(service.services[0].pricing.currency, "CREDIT");
+  const docs = await (await market.fetch(new Request(origin + "/openapi.json"))).json();
+  assert.ok(!JSON.stringify(docs).includes("The 561 Group"));
+  assert.ok(JSON.stringify(docs).includes("x-x402-seller"));
+  const quote = await market.fetch(new Request(origin + "/v1/lookup"));
+  assert.equal(quote.status, 402);
+  assert.ok(quote.headers.has("payment-required"));
+});
+
 test("marketRails reads the deployment and never invents a payout address", () => {
   assert.deepEqual(marketRails(ENV), { network: NETWORK, payTo: PAY_TO, asset: USDC, facilitatorUrl: "https://facilitator.invalid" });
   assert.throws(() => marketRails({ X402_NETWORK: NETWORK, X402_FACILITATOR: "https://f.invalid" }), /X402_PAY_TO/u);
-  assert.throws(() => marketRails({ X402_PAY_TO: PAY_TO }), /X402_FACILITATOR/u);
+  assert.throws(() => marketRails({ X402_PAY_TO: PAY_TO }), /CAIP-2/u);
   assert.throws(() => marketRails({ X402_NETWORK: "mainnet", X402_PAY_TO: PAY_TO }), /CAIP-2/u);
   assert.throws(() => marketRails({ X402_NETWORK: "eip155:99999", X402_PAY_TO: PAY_TO, X402_FACILITATOR: "https://f.invalid" }), /X402_ASSET/u);
+  assert.throws(() => marketRails({ X402_NETWORK: NETWORK, X402_ASSET: USDC, X402_PAY_TO: PAY_TO }), /X402_FACILITATOR/u);
+  assert.throws(() => marketRails({ X402_NETWORK: NETWORK, X402_ASSET: "not-an-address", X402_PAY_TO: PAY_TO, X402_FACILITATOR: "https://f.invalid" }), /X402_ASSET/u);
 });
 
 test("one market serves offers from many gateways and refuses an empty or colliding catalog", () => {
@@ -597,7 +638,7 @@ test("the agent card is derived from the whole catalog, one skill per offer, key
   const card = await response.json();
   assert.equal(card.name, "market.561.group");
   assert.deepEqual(card.skills.map((skill) => skill.id), ["demo-gateway/read-demo", "other-gateway/look-up-other"]);
-  assert.deepEqual(card, marketAgentCard(market.offers));
+  assert.deepEqual(card, marketAgentCard(market.offers, { name: "market.561.group" }));
 });
 
 test("the RFC 9727 API catalog lists every offer as an item, answers HEAD with its link relation, and points at the catalog and llms.txt", async () => {
@@ -740,6 +781,7 @@ test("a misconfigured deployment reports itself instead of crashing", async () =
 test("the same engine serves the Workers face and the Node transport identically", async (t) => {
   const worker = createMarketWorker((env) => createMarket({
     catalog: [postDeclaration(), getDeclaration()],
+    name: "market.561.group",
     env,
     compute: { "/v1/demo": ({ body }) => ({ value: body.seed }), "/v1/lookup": () => ({ value: 1 }) },
     facilitatorClient: unpaidFacilitator(),

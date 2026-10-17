@@ -42,12 +42,7 @@ const LLMS_ROUTE = "/llms.txt";
 // Origin-level x402 discovery (x402 v2 resource-server document) and true402's service descriptor.
 const X402_DISCOVERY_ROUTES = Object.freeze(["/.well-known/x402", "/.well-known/x402.json"]);
 const X402_SERVICE_ROUTE = "/.well-known/x402-service.json";
-const DEFAULT_MARKET_NAME = "market.561.group";
-const MAINNET_NETWORK = "eip155:8453";
-const SEPOLIA_NETWORK = "eip155:84532";
-/** Circle-issued USDC, verified against developers.circle.com/stablecoins/usdc-contract-addresses. */
-const USDC_BASE_MAINNET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-const USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+const DEFAULT_MARKET_NAME = "x402 market";
 
 // Buyer instructions are projections of the offer, never a second catalog.
 
@@ -84,13 +79,17 @@ function offerHtml(offer) {
  * @param {Record<string, string|undefined>} env
  */
 export function marketRails(env = {}) {
-  const network = env.X402_NETWORK || MAINNET_NETWORK;
+  const network = env.X402_NETWORK;
   if (!/^eip155:[1-9][0-9]*$/u.test(network)) throw new Error("X402_NETWORK must be an explicit EVM CAIP-2 identifier");
   const payTo = env.X402_PAY_TO;
   if (!payTo) throw new Error("X402_PAY_TO is required (market payout address); no default is provided on purpose");
-  const known = network === MAINNET_NETWORK ? USDC_BASE_MAINNET : network === SEPOLIA_NETWORK ? USDC_BASE_SEPOLIA : undefined;
-  const asset = env.X402_ASSET || known;
-  if (!asset) throw new Error("X402_ASSET is required; no built-in USDC default exists for this network");
+  const asset = env.X402_ASSET;
+  if (typeof asset !== "string" || !/^0x[0-9a-fA-F]{40}$/u.test(asset))
+    throw new Error("X402_ASSET must explicitly name the ERC-20 token contract for this EVM merchant");
+  const assetSymbol = env.X402_ASSET_SYMBOL;
+  if (assetSymbol !== undefined && (typeof assetSymbol !== "string" ||
+      !/^[A-Za-z][A-Za-z0-9._-]*$/u.test(assetSymbol)))
+    throw new Error("X402_ASSET_SYMBOL must be an explicit nonempty asset display label");
   const facilitatorUrl = env.X402_FACILITATOR;
   if (!facilitatorUrl) throw new Error("X402_FACILITATOR is required; no facilitator default is provided on purpose");
   const hasDomain = env.X402_ASSET_NAME !== undefined || env.X402_ASSET_VERSION !== undefined;
@@ -98,6 +97,7 @@ export function marketRails(env = {}) {
     throw new Error("X402_ASSET_NAME and X402_ASSET_VERSION must be supplied together");
   }
   return Object.freeze({ network, payTo, asset, facilitatorUrl,
+    ...(assetSymbol === undefined ? {} : { assetSymbol }),
     ...(hasDomain ? { assetExtra: { name: env.X402_ASSET_NAME, version: env.X402_ASSET_VERSION } } : {}),
   });
 }
@@ -108,17 +108,19 @@ export function marketRails(env = {}) {
  * @param {readonly object[]} offers An admitted catalog.
  * @param {{name?: string, origin?: string, version?: string}} [options]
  */
-export function marketAgentCard(offers, { name = DEFAULT_MARKET_NAME, origin, version = "1.0.0" } = {}) {
+export function marketAgentCard(offers, { name = DEFAULT_MARKET_NAME, origin, version = "1.0.0", provider } = {}) {
   const catalog = declareCatalog(offers);
   const listed = catalog.filter((offer) => publiclySaleableOffer(offer));
   const base = origin ?? catalog[0].declaration.origin;
   return Object.freeze({
     protocolVersion: "0.3.0",
     name,
-    description: `561 Group x402 market: ${listed.map((offer) => offer.declaration.name).join(", ")}.`,
+    description: `${name}: ${listed.map((offer) => offer.declaration.name).join(", ")}.`,
     url: base,
     preferredTransport: "JSONRPC",
-    provider: Object.freeze({ organization: "561 Group", url: "https://561.group" }),
+    ...(provider === undefined ? {} : { provider: Object.freeze({
+      organization: provider.organization, url: provider.url,
+    }) }),
     version,
     capabilities: Object.freeze({ streaming: false, pushNotifications: false, stateTransitionHistory: false }),
     defaultInputModes: Object.freeze(["application/json"]),
@@ -272,6 +274,7 @@ function refusal(error) {
 export function createMarket({
   catalog,
   name = DEFAULT_MARKET_NAME,
+  provider,
   env = {},
   compute = {},
   validate = {},
@@ -340,7 +343,7 @@ export function createMarket({
     let value;
     return () => (value ??= produce());
   };
-  const agentCardJson = lazyRepresentation(() => JSON.stringify(marketAgentCard(servedOffers, { name })));
+  const agentCardJson = lazyRepresentation(() => JSON.stringify(marketAgentCard(servedOffers, { name, provider })));
   const publicCatalogJson = lazyRepresentation(() => JSON.stringify(publicMarketCatalogReadout(servedOffers, rails ?? {})));
   const homePageHtml = lazyRepresentation(() =>
     renderTufteDocument(marketPageModel(servedOffers, rails ?? {}, { name }), { documentTitle: name }));
@@ -707,7 +710,7 @@ export function createMarket({
     engine,
     fetch: engine.fetch,
     routes: Object.freeze(servedOffers.map((offer) => offer.declaration.route)),
-    agentCard: () => marketAgentCard(servedOffers, { name }),
+    agentCard: () => marketAgentCard(servedOffers, { name, provider }),
     catalog: () => marketCatalogReadout(servedOffers, rails ?? {}),
     rails: () => marketRails(env),
   });
@@ -736,7 +739,7 @@ export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, 
         operationId: `${declaration.gateway}/${declaration.operation}`, summary: declaration.name,
         description: offerSummary(declaration), tags: offerCapabilities(declaration), parameters,
         ...(declaration.requestPricing === undefined ? {} : { "x-x402-pricing": offerPricingReadout(declaration) }),
-        "x-561-group-seller": declaration.seller ?? null,
+        "x-x402-seller": declaration.seller ?? null,
         ...(declaration.price ? { "x-price": declaration.price, ...(rails.network ? { "x-x402-network": rails.network } : {}) } : {}),
         ...(declaration.method === "POST" ? { requestBody: {
           required: true, content: { "application/json": {
@@ -760,7 +763,7 @@ export function marketOpenApi(offers, rails = {}, { name = DEFAULT_MARKET_NAME, 
   const siteRoutes = resources.filter(resource => typeof resource.match === "string" && resource.operation)
     .map(resource => ({ path: resource.match, methods: (resource.methods ?? ["GET"]).filter(method => method !== "HEAD"), operation: resource.operation }));
   return openApiDocument([...routes, ...siteRoutes], { title: name, version: "2", servers: [{ url: base }],
-    description: "The 561 Group's served offers. Inputs, examples, prices and response schemas are derived from the same catalogue used for execution. Inspect each live 402 quote before payment; declared contracts do not prove delivery or settlement." });
+    description: "The seller's served offers. Inputs, examples, prices and response schemas derive from its executable catalogue. Inspect the live 402 quote before payment; declared contracts do not prove delivery or settlement." });
 }
 
 /** RFC 9727 API catalog: expose only publicly saleable, currently served offers. */
@@ -781,7 +784,7 @@ export function marketLlmsText(offers, { name = "market", origin, resources = []
   const base = offerOrigin(offers, origin);
   const lines = [
     `# ${name}`, "",
-    `> Machine-buyable operations, each paid per call over x402 (HTTP 402) in USDC. Request an offer's route without payment to receive its payment challenge; the catalog at ${base}${CATALOG_ROUTE} lists every offer's input contract, price and example.`, "",
+    `> Machine-buyable operations paid per call over x402 (HTTP 402) in the merchant's declared settlement asset. Request an offer's route without payment to inspect live payment terms; the catalog at ${base}${CATALOG_ROUTE} lists inputs, price previews and examples.`, "",
     "## Offers", "",
     ...offers.filter(publiclySaleableOffer).map(({ declaration }) => `- [${declaration.name ?? declaration.operation}](${base}${declaration.route}): ${declaration.method} ${declaration.route}${declaration.price ? `, ${declaration.requestPricing ? "from " : ""}${offerPriceText(declaration)} per call` : ""}. ${offerSummary(declaration)}`),
     "", "## Discovery", "",
@@ -796,11 +799,10 @@ export function marketLlmsText(offers, { name = "market", origin, resources = []
 }
 
 const offerCapabilities = (declaration) => [...new Set([declaration.gateway, declaration.category, ...(declaration.framings?.[0]?.tags ?? [])].filter(Boolean))];
-const discoveryAsset = (declaration, rails) => typeof declaration.price !== "string" ? declaration.price.asset
-  : (rails.network === MAINNET_NETWORK && rails.asset?.toLowerCase() === USDC_BASE_MAINNET.toLowerCase()
-    || rails.network === SEPOLIA_NETWORK && rails.asset?.toLowerCase() === USDC_BASE_SEPOLIA.toLowerCase()) ? "USDC" : rails.asset ?? "USD";
+const discoveryAsset = (declaration, rails) => typeof declaration.price !== "string"
+  ? declaration.price.asset : rails.assetSymbol ?? rails.asset ?? "undeclared-asset";
 const discoveryPrice = (declaration, rails) => typeof declaration.price === "string"
-  ? { currency: discoveryAsset(declaration, rails) === "USDC" ? "USDC" : "USD", base: declaration.price.slice(1), unit: "request" }
+  ? { currency: rails.assetSymbol ?? "USD", base: declaration.price.slice(1), unit: "request" }
   : { currency: declaration.price.asset, base: declaration.price.amountAtomic, unit: "atomic-unit/request" };
 
 /** The origin-level x402 discovery document: every served offer as a paid resource on the market's rails. */
@@ -810,7 +812,7 @@ export function marketX402Discovery(offers, rails = {}, { name = DEFAULT_MARKET_
     x402Version: 2,
     kind: "resource-server",
     name,
-    description: "The 561 Group's x402 market: typed operations and publications, priced in their declared settlement assets.",
+    description: "Source-declared x402 operations and publications, priced in the seller's settlement asset.",
     resources: offers.filter((offer) => offer.declaration.price && publiclySaleableOffer(offer)).map(({ declaration }) => ({
       url: `${base}${declaration.route}`, method: declaration.method, name: declaration.name, description: offerSummary(declaration),
       price: declaration.price, ...(declaration.requestPricing === undefined ? {} : { pricing: offerPricingReadout(declaration) }), asset: discoveryAsset(declaration, rails), ...(rails.network ? { network: rails.network } : {}),
@@ -855,7 +857,7 @@ export function marketX402Service(offers, rails = {}, { name = DEFAULT_MARKET_NA
     capabilities: summary,
     endpoint: single ? `${base}${single.declaration.route}` : `${base}${CATALOG_ROUTE}`,
     pricing: single ? discoveryPrice(single.declaration, rails) : { unit: "request", quote: "per-service" },
-    payment: { ...(rails.payTo ? { address: rails.payTo } : {}), chain: rails.network === "eip155:8453" ? "base-mainnet" : rails.network ?? "base-mainnet",
+    payment: { ...(rails.payTo ? { address: rails.payTo } : {}), ...(rails.network ? { chain: rails.network } : {}),
       ...(rails.network ? { networks: [rails.network] } : {}), ...(rails.facilitatorUrl ? { facilitator: rails.facilitatorUrl } : {}) },
     services: priced.map(({ declaration }) => ({
       id: `${declaration.gateway}/${declaration.operation ?? declaration.route}`, name: declaration.name ?? declaration.operation,
