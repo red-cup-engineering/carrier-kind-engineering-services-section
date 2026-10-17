@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/http-services-section",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "type": "module",
   "description": "HTTP transport and protocol capabilities: Node listeners, streaming bridges, request bodies, response representations, negotiation, and events.",
   "license": "UNLICENSED",
@@ -86,8 +86,8 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/bare-cedar-fog.git",
-    "directory": "services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/http-services-section"
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/http-services-section"
   },
   "devDependencies": {
     "@red-cup-engineering/immutable-content-custody-service": "0.4.1"

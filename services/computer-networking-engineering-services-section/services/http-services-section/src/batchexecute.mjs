@@ -52,16 +52,16 @@ export async function openBatchExecuteSession({ home, frontend, label = new URL(
     return decodeBatchExecute(await response.text(), rpcId);
   }
   /**
-   * rpcId's result, signing in again first when the tokens are old and once more on a refusal. A
-   * `mutation` is asked again only after an answer that proves it was not carried out (a refused
-   * frame, or HTTP 400, 401 or 403); after any other failure it may have been, and asking again
-   * could do it twice, so the failure is the caller's to reconcile.
+   * Reads refresh expired sign-in state and may retry once after refusal.
+   * A mutation is submitted once. Even a refused frame can consume a single-use
+   * action token; replaying the same parameters is not a fresh authorized action.
+   * The caller owns reconciliation and any later explicitly admitted attempt.
    */
   async function rpc(rpcId, params, sourcePath = "/", { mutation = false } = {}) {
     if (now() - signedAt > refreshMs) await signIn();
     try { return await call(rpcId, params, sourcePath); } catch (error) {
       if (error.code !== "BATCHEXECUTE_HTTP_ERROR" && error.code !== "BATCHEXECUTE_RPC_REFUSED") throw error;
-      if (mutation && error.code === "BATCHEXECUTE_HTTP_ERROR" && ![400, 401, 403].includes(error.status)) throw error;
+      if (mutation) throw error;
       await signIn();
       return call(rpcId, params, sourcePath);
     }
