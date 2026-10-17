@@ -2,10 +2,12 @@ name: Astronomy package distributability
 on:
   pull_request:
     paths:
+      - 'services/computer-systems-engineering-services-section'
       - 'services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/services/astronomy-position-computation-service/**'
       - '.github/workflows/astronomy-package.yml'
   push:
     paths:
+      - 'services/computer-systems-engineering-services-section'
       - 'services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/services/astronomy-position-computation-service/**'
       - '.github/workflows/astronomy-package.yml'
 permissions:
@@ -19,6 +21,8 @@ jobs:
         working-directory: services/computer-systems-engineering-services-section/services/computer-simulation-system-services-section/services/astronomy-position-computation-service
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
