@@ -18,10 +18,30 @@
 import {
   acceptsTarget,
   classifyMention,
+  jsonMentionHits,
   linksToTarget,
   parseMentionRequest,
-
+  textMentionHits,
 } from "./codec.mjs";
+
+/** The media-type essence of a Content-Type value, lowercased and without parameters. */
+function essence(contentType) {
+  return (contentType ?? "").split(";", 1)[0].trim().toLowerCase();
+}
+
+/** Hits for `target` in a source body, by the source's media type (HTML, JSON and plain text are verifiable). */
+function sourceHits(input) {
+  const type = essence(input.contentType);
+  if (input.body === undefined) return null;
+  if (type === "" || type === "text/html" || type === "application/xhtml+xml" || type.endsWith("/xml") || type.endsWith("+xml")) {
+    return linksToTarget(input.body, input.finalUrl ?? input.source, input.target);
+  }
+  if (type === "application/json" || type.endsWith("+json")) {
+    try { return jsonMentionHits(JSON.parse(input.body), input.target); } catch { return []; }
+  }
+  if (type === "text/plain") return textMentionHits(input.body, input.target);
+  return null;
+}
 
 /** Admit a fetched source page as a Webmention {@link Verdict} — no network access here. */
 export function verifyMentionBody(input) {
@@ -39,9 +59,8 @@ export function verifyMentionBody(input) {
   if (input.httpStatus < 200 || input.httpStatus >= 300) {
     return { ...base, status: "invalid", reason: `source returned HTTP ${input.httpStatus}` };
   }
-  const contentType = (input.contentType ?? "").toLowerCase();
-  const couldBeHtml = contentType.includes("html") || contentType.includes("xml") || contentType === "";
-  const hits = couldBeHtml && input.body !== undefined ? linksToTarget(input.body, input.source, input.target) : [];
+  const hits = sourceHits(input);
+  if (hits === null) return { ...base, status: "invalid", reason: `source media type ${essence(input.contentType) || "unknown"} cannot be verified` };
   if (hits.length === 0) return { ...base, status: "retracted", retract: true, reason: "source no longer links to target" };
   return { ...base, status: "verified", verified: true, type: classifyMention(hits), linkCount: hits.length };
 }

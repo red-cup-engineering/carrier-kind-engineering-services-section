@@ -28,6 +28,9 @@ const TYPE_TABLE = Object.freeze([
   ["u-bookmark-of", "bookmark"],
 ]);
 
+/** Elements and the URL-bearing attribute a receiver inspects while verifying (W3C Webmention 3.2.2). */
+const LINK_ATTRIBUTE = Object.freeze({ a: "href", link: "href", img: "src", video: "src", audio: "src", source: "src" });
+
 const MF2_LINK_PROPS = Object.freeze(["in-reply-to", "like-of", "repost-of", "bookmark-of"]);
 
 /** Reject a source/target pair this codec's material cannot represent: non-URLs, non-http(s), or identical. */
@@ -144,8 +147,9 @@ function linksToTargets(html, baseUrl, targets) {
   if (targetHrefs.size === 0) return Object.freeze([]);
   const hits = [];
   for (const tag of scanHtmlStartTags(html)) {
-    if (tag.name !== "a" && tag.name !== "link") continue;
-    const href = tag.attrs["href"];
+    const attribute = LINK_ATTRIBUTE[tag.name];
+    if (attribute === undefined) continue;
+    const href = tag.attrs[attribute];
     if (href === undefined) continue;
     let resolved;
     try {
@@ -165,6 +169,45 @@ function linksToTargets(html, baseUrl, targets) {
 export function linksToTarget(html, baseUrl, target) {
   const base = htmlDocumentBase(html, baseUrl);
   return linksToTargets(html, baseUrl, [target, ...fragmentionFallbacks(target, base)]);
+}
+
+/**
+ * Whether a parsed JSON source document mentions `target`: any string value exactly equal to it
+ * (W3C Webmention 3.2.2: "if the document is JSON, any value ... exactly matching the target").
+ * Classification reads the microformats2 JSON relation properties (`in-reply-to`, `like-of`, ...)
+ * whose value, or whose nested `value`/`url`, is the target.
+ */
+export function jsonMentionHits(value, target) {
+  const hits = [];
+  const matches = (v) => {
+    if (typeof v === "string") return v === target;
+    if (Array.isArray(v)) return v.some(matches);
+    if (v !== null && typeof v === "object") return matches(v["value"]) || matches(v["url"]) || matches(v["properties"]?.["url"]);
+    return false;
+  };
+  const walk = (node, key) => {
+    if (typeof node === "string") {
+      if (node === target) hits.push(Object.freeze({ tag: "json", mf2Props: Object.freeze(MF2_LINK_PROPS.includes(key) ? [`u-${key}`] : []), index: hits.length }));
+      return;
+    }
+    if (Array.isArray(node)) { for (const item of node) walk(item, key); return; }
+    if (node !== null && typeof node === "object") {
+      for (const [k, v] of Object.entries(node)) {
+        if (MF2_LINK_PROPS.includes(k) && matches(v)) { hits.push(Object.freeze({ tag: "json", mf2Props: Object.freeze([`u-${k}`]), index: hits.length })); continue; }
+        walk(v, k);
+      }
+    }
+  };
+  walk(value, "");
+  return Object.freeze(hits);
+}
+
+/** Occurrences of `target` in a plain-text source (W3C Webmention 3.2.2: a text/plain source is a "contains" check). */
+export function textMentionHits(text, target) {
+  const hits = [];
+  if (target === "") return Object.freeze(hits);
+  for (let at = text.indexOf(target); at !== -1; at = text.indexOf(target, at + target.length)) hits.push(Object.freeze({ tag: "text", mf2Props: Object.freeze([]), index: at }));
+  return Object.freeze(hits);
 }
 
 /** Every http/https link an already-fetched document points outward to. */
