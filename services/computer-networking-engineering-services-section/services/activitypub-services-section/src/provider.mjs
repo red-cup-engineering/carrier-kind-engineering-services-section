@@ -607,6 +607,10 @@ export function createActivityPubProvider(options) {
     identifiers,
     resolveActor,
     routeCapabilities: Object.freeze({ followers: followers !== undefined,dynamicActors:options.dynamicActors===true }),
+    // Source-owned startup contract for hosts that own the same durable queue.
+    // A registry provider which predates this contract must be refused instead
+    // of silently starting a second Fedify delivery consumer.
+    queueStartup: options.manuallyStartQueue === true ? "manual" : "automatic",
     federation,
     fetch,
     // Exposed for direct in-process callers (tests, or any customer code
