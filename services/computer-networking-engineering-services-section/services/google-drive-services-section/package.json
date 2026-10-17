@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/google-drive-services-section",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Publishes the house's content-addressed artifacts into Google Drive through the gdrive rclone remote.",
   "type": "module",
   "keywords": [
@@ -18,5 +18,15 @@
   },
   "files": [
     "src"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/google-drive-services-section"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.561.group/"
+  },
+  "private": false
 }
