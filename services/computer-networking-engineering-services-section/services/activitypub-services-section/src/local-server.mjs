@@ -141,6 +141,9 @@ export async function createLocalActivityPubProvider(options = {}) {
     dynamicActors:options.dynamicActors===true,
     kv: custody.kv,
     ...(options.queue === false ? {} : { queue: runtime.queue }),
+    // The actual hosting process owns whether this durable queue is started.
+    // Opt-in manual mode is passed to Fedify, never implemented a second time.
+    ...(options.manuallyStartQueue === undefined ? {} : { manuallyStartQueue: options.manuallyStartQueue }),
     ...(options.allowPrivateAddress ?? (environment.ACTIVITYPUB_ALLOW_PRIVATE_ADDRESS === "true") ? { allowPrivateAddress: true } : {}),
     onActivity: async (arrival) => {
       const settlement = await custody.inbox.retain(arrival);
