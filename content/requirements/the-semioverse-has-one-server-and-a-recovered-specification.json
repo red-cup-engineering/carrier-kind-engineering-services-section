@@ -246,13 +246,14 @@
       "authority": "Explicit named product requirement and dependency; MOOSERP is a joke, not a target, repo or deployed capability.",
       "existing-basis": "This record already said MOOSE is the one Semioverse ActivityPub++ server and all harnesses/instances its clients.",
       "status": "Source-authored amendment, not a running MOOSE package, registry release, benchmark receipt or deployment.",
-      "companion-requirement": "red-cup-engineering/feltos/data/records/requirements-records/feltos-requires-moose-social-server.json",
+      "companion-requirement": "red-cup-engineering/feltos/data/records/requirements-records/feltos-platform-for-moose.json",
       "recorded-on": "2026-10-16"
     },
     "hierarchy-correction-2026-10-16": {
       "leaderSource": "It is meant to be Living Web Server under MOOSE under FeltOS under MetroPlat. With each being an application of the prior, and itself a platform, not just for the descendant I named.",
       "supersedes": "Earlier assistant interpretation that placed MOOSE above FeltOS as a provider and treated FeltOS as its dependent application. Those source requirements were corrected; separate operational use of MOOSE social capabilities remains possible without changing app-of direction.",
-      "status": "Authored requirement; runtime migration and receiving still owed."
+      "status": "Authored requirement; runtime migration and receiving still owed.",
+      "correctedFeltOS": "https://github.com/red-cup-engineering/feltos/blob/main/data/records/requirements-records/feltos-platform-for-moose.json"
     }
   },
   "comparison": {
@@ -374,7 +375,8 @@
         "platformFor": [
           "FeltOS"
         ],
-        "otherApplicationsAllowed": true
+        "otherApplicationsAllowed": true,
+        "supportsOtherApplications": true
       },
       {
         "id": "FeltOS",
