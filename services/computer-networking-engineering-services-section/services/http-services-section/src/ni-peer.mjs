@@ -115,10 +115,23 @@ export function createNiPeerReceiver({
       const bytes = await boundedBody(response, maximumBytes);
       if (makeNiUri(bytes) !== ni)
         throw new TypeError("NI peer: received bytes do not have the requested original NI identity");
-      // The source gives no authority to mutate the target's local metadata or
-      // to record a Git/Guix/CID equivalence. Durable local custody must be
-      // independently completed and reread under its original NI before receipt.
-      const held = await contentSpace.retain(bytes, { mediaType: "application/octet-stream" });
+      // An NI names raw bytes, not their media presentation. If the local
+      // first-writer has already received these exact bytes with a typed
+      // presentation, preserve its ORIGINAL metadata: attempting to replace
+      // text/javascript with application/octet-stream would falsely refuse
+      // otherwise valid cross-office reuse. The remote Content-Type supplies
+      // no authority to change local metadata. A fresh object is raw octets.
+      const present = typeof contentSpace.head === "function"
+        ? await contentSpace.head(ni) : await contentSpace.get(ni);
+      if (present !== null && (present.ni !== ni ||
+          typeof present.mediaType !== "string" || !present.mediaType ||
+          /[\r\n]/u.test(present.mediaType) ||
+          (present.size !== undefined && present.size !== bytes.byteLength)))
+        throw new TypeError("NI peer: retained original presentation is inconsistent with this NI");
+      const mediaType = present?.mediaType ?? "application/octet-stream";
+      // Only original durable first-write custody may reestablish receipt
+      // barriers, including for preexisting bytes under their retained type.
+      const held = await contentSpace.retain(bytes, { mediaType });
       if (held?.ni !== ni || held.byteLength !== bytes.byteLength || held.durable !== true)
         throw new Error("NI peer: durable first-write custody was not received");
       const actual = await contentSpace.get(ni);
