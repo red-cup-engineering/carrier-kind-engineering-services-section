@@ -179,3 +179,182 @@ test("the peer does not use a malformed local presentation as authority to publi
     /retained original presentation is inconsistent/);
   assert.equal(published, 0);
 });
+
+
+// These are two physically distinct original immutable stores. In-process
+// fetch is only the transport, and delegates to the real host-authorized
+// RFC 6920 route rather than fabricating object bytes or duplicate hashes.
+async function collectionFixture(t) {
+  const { producer, consumer } = spaces(t);
+  const wang = await producer.retain(Buffer.from("wang: north=blue;east=red\n"),
+    { mediaType: "text/plain" });
+  const bead = await producer.retain(Buffer.from([0, 1, 1, 0]),
+    { mediaType: "application/octet-stream" });
+  const inner = await producer.retainTree([
+    { name: "beads", ni: bead.ni }, { name: "wang", ni: wang.ni },
+  ]);
+  const root = await producer.retainTree([
+    { name: "echo", ni: bead.ni }, { name: "materials", ni: inner.ni },
+  ]);
+  const addresses = new Set([root.ni, inner.ni, wang.ni, bead.ni]);
+  return { producer, consumer, wang, bead, inner, root, addresses };
+}
+
+test("a complete nested Wang-and-bead Merkle space crosses TWO hosts and becomes a source-owned named root", async t => {
+  const source = await collectionFixture(t);
+  const { producer, consumer, wang, bead, inner, root, addresses } = source;
+  const sourceCalls = [], receivingCalls = [], bindingCalls = [];
+  const route = niResource(producer, {
+    maximumResponseBytes: 128 * 1024,
+    canRead: (_ctx, ni) => {
+      sourceCalls.push(ni);
+      return addresses.has(ni);
+    },
+  });
+  const receiver = createNiPeerReceiver({
+    peerOrigin: "https://material-peer.example", contentSpace: consumer,
+    canReceive: (_ctx, ni) => { receivingCalls.push(ni); return addresses.has(ni); },
+    canBind: (_ctx, { name, expected, ni }) => {
+      bindingCalls.push({ name, expected, ni });
+      return name === "science/l-space" && expected === null && ni === root.ni;
+    },
+    fetchImpl: (url, options) => {
+      assert.equal(options.redirect, "manual");
+      assert.equal(new URL(url).origin, "https://material-peer.example");
+      return route.handler({ request: new Request(url, options) });
+    },
+  });
+  const result = await receiver.receiveTree(root.ni, { actor: "authorized-reader" },
+    { name: "science/l-space", expected: null });
+  assert.equal(result.kind, "ni.peer-tree-receiving.v1");
+  assert.equal(result.rootNi, root.ni);
+  assert.equal(result.objectCount, 4, "same bead bytes are retained only once");
+  assert.equal(result.treeCount, 2);
+  assert.equal(result.durable, true);
+  assert.deepEqual(result.publication, {
+    name: "science/l-space", before: null, published: true,
+  });
+  assert.equal(consumer.resolve("science/l-space"), root.ni);
+  assert.deepEqual((await consumer.atPath("science/l-space",
+    ["materials", "wang"])).bytes, Buffer.from("wang: north=blue;east=red\n"));
+  assert.deepEqual((await consumer.atPath("science/l-space",
+    ["materials", "beads"])).bytes, Buffer.from([0, 1, 1, 0]));
+  assert.deepEqual((await consumer.atPath("science/l-space",
+    ["echo"])).bytes, Buffer.from([0, 1, 1, 0]));
+  assert.equal((await consumer.readTree(root.ni)).entries.length, 2);
+  assert.equal((await consumer.readTree(inner.ni)).entries.length, 2);
+  assert.equal((await consumer.get(wang.ni)).mediaType, "application/octet-stream",
+    "remote text MIME does not become local first-writer authority");
+  assert.equal((await consumer.get(bead.ni)).mediaType, "application/octet-stream");
+  assert.equal(sourceCalls.length, 4);
+  assert.equal(receivingCalls.length, 4);
+  assert.deepEqual(new Set(sourceCalls), addresses);
+  assert.deepEqual(new Set(receivingCalls), addresses);
+  assert.equal(bindingCalls.length, 2, "the original root's mutable step remains independently authorized");
+  assert.equal(producer.resolve("engineering/source"), null,
+    "receiving a whole tree never invents the sender's named root");
+  const repeat = await receiver.receiveTree(root.ni, { actor: "authorized-reader" },
+    { name: "science/l-space", expected: root.ni })
+    .catch(error => error);
+  assert.ok(repeat instanceof Error,
+    "a different binding claim cannot reuse the original named authorization");
+});
+
+test("immutable Merkle descendants transfer without authorizing any mutable name by default", async t => {
+  const { producer, consumer, root, addresses, wang } = await collectionFixture(t);
+  const route = niResource(producer, { canRead: (_ctx, ni) => addresses.has(ni) });
+  const receiver = createNiPeerReceiver({
+    peerOrigin: "https://original-peer.example", contentSpace: consumer,
+    canReceive: (_ctx, ni) => addresses.has(ni),
+    fetchImpl: (url, options) => route.handler({ request: new Request(url, options) }),
+  });
+  const result = await receiver.receiveTree(root.ni, {});
+  assert.equal(result.objectCount, 4);
+  assert.equal(Object.hasOwn(result, "publication"), false);
+  assert.equal(consumer.resolve("science/l-space"), null);
+  assert.deepEqual((await consumer.get(wang.ni)).bytes, Buffer.from("wang: north=blue;east=red\n"));
+  assert.deepEqual((await consumer.readTree(root.ni)).entries.map(x => x.name),
+    ["echo", "materials"]);
+});
+
+test("denied Merkle child never reaches remote GET, receives no root, and never advances a name", async t => {
+  const { producer, consumer, root, wang, addresses } = await collectionFixture(t);
+  let reads = 0, denied = 0, bindCalls = 0;
+  const route = niResource(producer, { canRead: (_ctx, ni) => addresses.has(ni) });
+  const receiver = createNiPeerReceiver({
+    peerOrigin: "https://original-peer.example", contentSpace: consumer,
+    canReceive: (_ctx, ni) => {
+      if (ni === wang.ni) { denied++; return false; }
+      return addresses.has(ni);
+    },
+    canBind: () => { bindCalls++; return true; },
+    fetchImpl: (url, options) => {
+      assert.equal(new URL(url).pathname.includes(wang.ni.split(";")[1]), false);
+      reads++;
+      return route.handler({ request: new Request(url, options) });
+    },
+  });
+  await assert.rejects(receiver.receiveTree(root.ni, {},
+    { name: "science/l-space", expected: null }), /not admitted to receive/);
+  assert.equal(denied, 1);
+  assert.ok(reads > 0, "admitted siblings can have lawful immutable custody");
+  assert.equal(consumer.resolve("science/l-space"), null);
+  assert.equal(await consumer.get(root.ni), null);
+  assert.equal(await consumer.get(wang.ni), null);
+  assert.equal(bindCalls, 1, "no publication occurs after a descendant is denied");
+
+  let forbiddenReads = 0;
+  const deniedBind = createNiPeerReceiver({
+    peerOrigin: "https://original-peer.example", contentSpace: consumer,
+    canReceive: () => true, canBind: () => false,
+    fetchImpl: async () => { forbiddenReads++; throw Error("no transport without binding authority"); },
+  });
+  await assert.rejects(deniedBind.receiveTree(root.ni, {},
+    { name: "science/l-space", expected: null }), /not admitted to publish/);
+  assert.equal(forbiddenReads, 0);
+});
+
+test("untrusted type/canonical data and bounded transfer refuse before any false root settlement", async t => {
+  const { producer, consumer, root, addresses } = await collectionFixture(t);
+  const malformed = await producer.retain(Buffer.from("{ \"unclosed\" :\n"),
+    { mediaType: "application/vnd.561.content-tree+json" });
+  const route = niResource(producer, { canRead: () => true });
+  const receiver = options => createNiPeerReceiver({
+    peerOrigin: "https://bounded-peer.example", contentSpace: consumer,
+    canReceive: () => true,
+    fetchImpl: (url, input) => route.handler({ request: new Request(url, input) }),
+    ...options,
+  });
+  await assert.rejects(receiver().receiveTree(malformed.ni, {}), /content tree/);
+  assert.equal(await consumer.get(malformed.ni), null);
+  assert.equal(consumer.resolve("science/l-space"), null);
+  await assert.rejects(receiver({ maximumTreeObjects: 2 }).receiveTree(root.ni, {}),
+    /object limit/);
+  await assert.rejects(receiver({ maximumTreeDepth: 1 }).receiveTree(root.ni, {}),
+    /depth limit/);
+  await assert.rejects(receiver({ maximumTransferBytes: 100 }).receiveTree(root.ni, {}),
+    /byte budget/);
+  assert.equal(await consumer.get(root.ni), null,
+    "all failed transfers must leave root publication absent");
+  assert.equal(consumer.resolve("science/l-space"), null);
+  assert.ok(addresses.has(root.ni));
+});
+
+test("a stale local named frontier refuses after transferable immutable bytes, without overwriting the winner", async t => {
+  const { producer, consumer, root, addresses } = await collectionFixture(t);
+  const old = await consumer.retainTree([]);
+  await consumer.bind({ name: "science/l-space", expected: null, ni: old.ni });
+  const route = niResource(producer, { canRead: (_ctx, ni) => addresses.has(ni) });
+  const receiver = createNiPeerReceiver({
+    peerOrigin: "https://original-peer.example", contentSpace: consumer,
+    canReceive: (_ctx, ni) => addresses.has(ni),
+    canBind: (_ctx, { name, ni }) => name === "science/l-space" && ni === root.ni,
+    fetchImpl: (url, options) => route.handler({ request: new Request(url, options) }),
+  });
+  await assert.rejects(receiver.receiveTree(root.ni, {},
+    { name: "science/l-space", expected: null }), /changed before publication/);
+  assert.equal(consumer.resolve("science/l-space"), old.ni,
+    "no false receive receipt and no mutable overwrite of the original name");
+  assert.equal((await consumer.readTree(root.ni)).entries.length, 2,
+    "immovable authenticated bytes may still be retained independently");
+});

@@ -169,3 +169,92 @@ network origin, original GitHub/science source, authorized identity,
 DurableRoot and a distinct successfully receiving host remain necessary.
 The 561 Group's foreign Git OIDs, IPFS CIDs, Guix paths and FluffOS object
 names stay typed external references, not the original NI bytes.
+
+
+## Complete immutable NI collection receiving across hosts
+
+The same **original** `createNiPeerReceiver` now provides
+`receiveTree(rootNi, context, selection?)`, in addition to
+`receive(ni, context)`. Sending only a Merkle root is **not** a shared
+collection: the receiver must independently read and retain its canonical
+child tree nodes and raw leaves before publishing the root.
+
+The installed host supplies one original URI Content Custody `./space`
+instance with `inspectTreeBytes`, `retainTree`, `readTree`, `head`,
+`get`, and `retain`; these methods are supplied by the canonical
+`@red-cup-engineering/immutable-content-custody-service` source starting
+with the 0.5.2 candidate, **not** copied into Networking. As before, the
+host supplies one fixed HTTPS peer origin, a Fetch port, and
+`canReceive(context, ni)` for **each** NI independently.
+
+```js
+import { createNiPeerReceiver } from
+  "@red-cup-engineering/http-services-section/ni-peer";
+
+const receiver = createNiPeerReceiver({
+  peerOrigin: "https://admitted-peer.example",
+  contentSpace: installedOriginalNiContentSpace,
+  canReceive: (actor, ni) => installedReaderGrant(actor, ni),
+  canBind: (actor, {name, expected, ni}) =>
+    installedNamePublishGrant(actor, name, expected, ni),
+  fetchImpl: installedAuthenticatedFetch,
+});
+const receipt = await receiver.receiveTree(existingRootNi, actor, {
+  name: "science/l-space", expected: previousRootNiOrNull,
+});
+```
+
+The names `installedOriginalNiContentSpace`, `installedReaderGrant`,
+`installedNamePublishGrant`, `installedAuthenticatedFetch`,
+`existingRootNi`, and `previousRootNiOrNull` are **installed-host
+inputs**, not package exports or default grants. A caller may omit the
+third argument entirely to receive an immutable DAG **without**
+publishing a mutable name. To bind the received root, the host must
+supply `canBind` separately from read/receive authority; the original
+contentSpace owns `bind({name,expected,ni})`, namespace admission, and
+compare-and-publish. Losing a named-root race does not replace the
+winner. A remote tree link never grants a reader permission to fetch
+that child.
+
+The Networking layer uses its unchanged `fetchWithoutRedirects`,
+per-object bounded raw byte read and original NI checksum. A root
+must carry the canonical Content Custody tree media type
+`application/vnd.561.content-tree+json`. Before following any
+descendant, the receiver calls **the source-owned canonical
+`inspectTreeBytes` decoder**; children are visited one at a time and
+separately authorized. Leaves use original durable
+`contentSpace.retain`, preserving any previously accepted LOCAL
+media-type sidecar and otherwise storing raw octets. Nested typed
+trees use original `retainTree` after all their children are held.
+The receiver rejects any mismatch between the received NI and the
+original custodian's canonical materialization. It neither converts
+Git OIDs, IPFS CIDs, Guix paths nor a foreign tree media label into
+local semantic or disclosure authority.
+
+Defaults are a maximum of **512 distinct objects**, **16 descendant
+levels**, **8 MiB per received object**, and **64 MiB total raw bytes**
+per call, all bounded by host configuration. Reused leaf NI objects
+are fetched once; each traversed path still obeys the depth bound.
+Malformed tree bytes, unavailable children, unauthorized reads, byte
+limits, stale name roots, and changed publication authority refuse
+without claiming that a complete collection was received. Previously
+held immutable child bytes can remain harmlessly unreferenced after
+such a refusal; the named frontier does not move until the complete
+original DAG has been retained.
+
+A reader on the receiving host can then use the **already-existing**
+CAIRN `GET /api/marks/tree` and TUFTE `/tree` projections against
+the installed space, with their independent host grants. The receive
+receipt lists root NI, object count, total transferred bytes, typed
+tree count, and (only if authorized) the original named publication
+outcome. A loaded Wang tile, beadwork thread relation, Heyting fiber,
+Chu dual, or sheaf Laplacian is **not inferred** from coincident tree
+paths. The corresponding theory and its witnessed source remain with
+Lenticule Science and the original Sign libraries.
+
+This is implemented Networking **source**, not evidence that an
+HTTPS peer, package 0.5.2/HTTP 0.6.4, CAIRN site, 9P mount, IPFS
+network, Guix store or public `l-space.561.group` deployment is
+already installed. Remote peer and original Source Custody packages
+must still be published/installed and the distinct reader and
+publisher capabilities independently supplied.

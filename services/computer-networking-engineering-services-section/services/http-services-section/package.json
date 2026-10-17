@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/http-services-section",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "type": "module",
   "description": "HTTP transport and protocol capabilities: Node listeners, streaming bridges, request bodies, response representations, negotiation, and events.",
   "license": "UNLICENSED",
@@ -90,7 +90,7 @@
     "directory": "services/computer-networking-engineering-services-section/services/http-services-section"
   },
   "devDependencies": {
-    "@red-cup-engineering/immutable-content-custody-service": "0.4.1"
+    "@red-cup-engineering/immutable-content-custody-service": "0.5.2"
   },
   "receivingTests": [
     "test/node-upgrade-match.test.mjs"
