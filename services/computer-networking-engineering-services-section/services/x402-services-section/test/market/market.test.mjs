@@ -308,7 +308,8 @@ test("a second merchant uses the same engine without adopting another seller's b
   const market = demoMarket({
     name: "independent.example", provider,
     catalog: [getDeclaration({ origin: "https://independent.example",
-      gateway: "independent", operation: "receipt" })],
+      gateway: "independent", operation: "receipt",
+      price: { amountAtomic: "10000", asset: network + "/erc20:" + asset.toLowerCase() } })],
     env: { X402_NETWORK: network, X402_ASSET: asset,
       X402_PAY_TO: "0x" + "cd".repeat(20),
       X402_FACILITATOR: "https://facilitator.example", X402_ASSET_SYMBOL: "CREDIT" },
@@ -325,12 +326,15 @@ test("a second merchant uses the same engine without adopting another seller's b
   assert.deepEqual(card.provider, provider);
   assert.ok(!JSON.stringify(card).includes("561 Group"));
   const discovery = await (await market.fetch(new Request(origin + "/.well-known/x402"))).json();
-  assert.equal(discovery.resources[0].asset, "CREDIT");
+  assert.equal(discovery.resources[0].asset, asset);
   assert.equal(discovery.resources[0].network, network);
   const service = await (await market.fetch(new Request(origin + "/.well-known/x402-service.json"))).json();
   assert.equal(service.payment.chain, network);
   assert.equal(service.payment.address, "0x" + "cd".repeat(20));
-  assert.equal(service.services[0].pricing.currency, "CREDIT");
+  assert.equal(service.payment.asset, asset);
+  assert.equal(service.payment.assetSymbol, "CREDIT");
+  assert.equal(service.services[0].pricing.currency, network + "/erc20:" + asset.toLowerCase());
+  assert.equal(service.services[0].pricing.unit, "atomic-unit/request");
   const docs = await (await market.fetch(new Request(origin + "/openapi.json"))).json();
   assert.ok(!JSON.stringify(docs).includes("The 561 Group"));
   assert.ok(JSON.stringify(docs).includes("x-x402-seller"));

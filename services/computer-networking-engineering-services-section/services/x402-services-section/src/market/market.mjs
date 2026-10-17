@@ -799,10 +799,12 @@ export function marketLlmsText(offers, { name = "market", origin, resources = []
 }
 
 const offerCapabilities = (declaration) => [...new Set([declaration.gateway, declaration.category, ...(declaration.framings?.[0]?.tags ?? [])].filter(Boolean))];
-const discoveryAsset = (declaration, rails) => typeof declaration.price !== "string"
-  ? declaration.price.asset : rails.assetSymbol ?? rails.asset ?? "undeclared-asset";
+const discoveryAsset = (declaration, rails) => rails.asset ??
+  (typeof declaration.price === "string" ? null : declaration.price.asset.split("/erc20:")[1]);
 const discoveryPrice = (declaration, rails) => typeof declaration.price === "string"
-  ? { currency: rails.assetSymbol ?? "USD", base: declaration.price.slice(1), unit: "request" }
+  ? { currency: "USD", base: declaration.price.slice(1), unit: "request",
+    ...(rails.asset ? { settlementAsset: rails.asset } : {}),
+    ...(rails.assetSymbol ? { settlementAssetSymbol: rails.assetSymbol } : {}) }
   : { currency: declaration.price.asset, base: declaration.price.amountAtomic, unit: "atomic-unit/request" };
 
 /** The origin-level x402 discovery document: every served offer as a paid resource on the market's rails. */
@@ -857,8 +859,10 @@ export function marketX402Service(offers, rails = {}, { name = DEFAULT_MARKET_NA
     capabilities: summary,
     endpoint: single ? `${base}${single.declaration.route}` : `${base}${CATALOG_ROUTE}`,
     pricing: single ? discoveryPrice(single.declaration, rails) : { unit: "request", quote: "per-service" },
-    payment: { ...(rails.payTo ? { address: rails.payTo } : {}), ...(rails.network ? { chain: rails.network } : {}),
-      ...(rails.network ? { networks: [rails.network] } : {}), ...(rails.facilitatorUrl ? { facilitator: rails.facilitatorUrl } : {}) },
+    payment: { ...(rails.payTo ? { address: rails.payTo } : {}), ...(rails.network ? { chain: rails.network, networks: [rails.network] } : {}),
+      ...(rails.asset ? { asset: rails.asset } : {}),
+      ...(rails.assetSymbol ? { assetSymbol: rails.assetSymbol } : {}),
+      ...(rails.facilitatorUrl ? { facilitator: rails.facilitatorUrl } : {}) },
     services: priced.map(({ declaration }) => ({
       id: `${declaration.gateway}/${declaration.operation ?? declaration.route}`, name: declaration.name ?? declaration.operation,
       capabilities: offerCapabilities(declaration), endpoint: `${base}${declaration.route}`,
