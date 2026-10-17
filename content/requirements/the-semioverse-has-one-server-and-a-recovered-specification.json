@@ -217,30 +217,6 @@
         "why": "Leader utterances restating this requirement, found NOT HELD or HELD-THINLY in the coverage passes."
       }
     ],
-    "sign-cell": {
-      "type": "emsenn/schema/requirement",
-      "mark": "ni:///sha-256;g4HE44JRSfQYwUtfYnrxYEeptcrMqRUHljCCodL-zUo"
-    },
-    "attestation": {
-      "claim": {
-        "kind": "computer-content.signed-content-claim",
-        "version": 1,
-        "purpose": "561-group.july-record-attestation.v1",
-        "issuer": "emsenn/services/561-group/services/operations-services-section/services/requirement-management-operation-services-section#requirements-management-team@claude-session-01C1PPvutxergQgomSSaWG9Z",
-        "issuedAt": "2026-10-10T06:53:57.970Z",
-        "content": {
-          "uri": "ni:///sha-256;CG2fwlqTDsIpiFAKQk-8nu5DhqTxzhNAWGyJvL_w3Vw",
-          "bytes": 57,
-          "mediaType": "text/plain"
-        },
-        "signature": {
-          "algorithm": "Ed25519",
-          "keyId": "ni:///sha-256;ckBB1fSoByEfYxnM1aPBrZFg7yfyTfhPEuww8Bk65ow",
-          "value": "sHirT6fCU_spQAyLyB7tKMuI3AUuddy7HaF9E4DWTrIXCAoeBEOLeuq18rjx9y9mf7TCGJNA_pBjT8PqYtStAw"
-        }
-      },
-      "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAuRpAxhrz5bOFIn5GmicNWZtNDSSruqwfTGlBmKH1WOs=\n-----END PUBLIC KEY-----\n"
-    },
     "moose-2026-10-16": {
       "leader-source": "Keep going. MMORPERP. lol MOOSERP. (MOOSE is meant to be our 'MUD, Object Oriented, Socially Extended' server, meet then beat mastodon.) Mooserp is nothing, but go make sure moose is required to meet then beat mastodon and other fediverse apps, and that FeltOS is required to use moose, then, focus on our lane",
       "authority": "Explicit named product requirement and dependency; MOOSERP is a joke, not a target, repo or deployed capability.",
@@ -260,7 +236,41 @@
       "interpretation": "Required import edges run from the parent platform to the child application; the child remains an application of its importer and itself a reusable platform. This supersedes the 'not import its child' wording.",
       "currentEvidence": "MetroPlat manifest includes FeltOS; a source-owned MOOSE package and Living Web Server product package were not found in the repositories examined.",
       "status": "Source requirement corrected; FeltOS and MOOSE executable imports not yet installed."
-    }
+    },
+    "work-arena-intake-2026-10-16": {
+      "law": "ni:///sha-256;FdruYI7i08lzgtkUgSpmaz-C-3YnbP2IESlLIH5GF60",
+      "office": "services/561-group-services-section/services/561-group-operations-services-section/services/561-group-board-of-directors/services/561-group-board-of-directors-leader-movement-team#trusted-assistant-to-the-leader",
+      "parent-import-chain": "ni:///sha-256;tIPveYg7vSaQbfqcEQsIKQ0DZ7EHZ-UFJi_tMWTz7uc",
+      "moose-fediverse-market": "ni:///sha-256;cMcIg4YMUeW3nwPAiXY2nNQzXN8VhMI-sYRteJSkeo8",
+      "feltos-import-child": "ni:///sha-256;iQIVS614xe720UD9MzIOUQCiGZNIpduClBUr9UDvcZg",
+      "moose-import-child": "ni:///sha-256;KQ8uCMziJJz5y_19F61FciJaxmxLQ0gHzHDPEdEL-Io",
+      "status": "Work Arena openings accepted; work, tests, releases and independent receiving remain owed; not equivalent to Coesite July signed requirement pool admission"
+    },
+    "prior-sign-cell-before-semioverse-expansion": {
+      "type": "emsenn/schema/requirement",
+      "mark": "ni:///sha-256;g4HE44JRSfQYwUtfYnrxYEeptcrMqRUHljCCodL-zUo"
+    },
+    "prior-attestation-before-semioverse-expansion": {
+      "claim": {
+        "kind": "computer-content.signed-content-claim",
+        "version": 1,
+        "purpose": "561-group.july-record-attestation.v1",
+        "issuer": "emsenn/services/561-group/services/operations-services-section/services/requirement-management-operation-services-section#requirements-management-team@claude-session-01C1PPvutxergQgomSSaWG9Z",
+        "issuedAt": "2026-10-10T06:53:57.970Z",
+        "content": {
+          "uri": "ni:///sha-256;CG2fwlqTDsIpiFAKQk-8nu5DhqTxzhNAWGyJvL_w3Vw",
+          "bytes": 57,
+          "mediaType": "text/plain"
+        },
+        "signature": {
+          "algorithm": "Ed25519",
+          "keyId": "ni:///sha-256;ckBB1fSoByEfYxnM1aPBrZFg7yfyTfhPEuww8Bk65ow",
+          "value": "sHirT6fCU_spQAyLyB7tKMuI3AUuddy7HaF9E4DWTrIXCAoeBEOLeuq18rjx9y9mf7TCGJNA_pBjT8PqYtStAw"
+        }
+      },
+      "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAuRpAxhrz5bOFIn5GmicNWZtNDSSruqwfTGlBmKH1WOs=\n-----END PUBLIC KEY-----\n"
+    },
+    "current-signature-standing": "This expanded source is NOT re-attested by the July requirement-management seat; retained old typed mark and attestation refer to the earlier record before amendments and must not be presented as a current signature."
   },
   "comparison": {
     "required-of": "561-group",
