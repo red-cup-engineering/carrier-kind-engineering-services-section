@@ -13,7 +13,9 @@ export function matchResource(resource, path, context) {
         return result ? typeof result === "object" ? result : {} : false;
     }
     if (match instanceof RegExp) {
-        const result = new RegExp(match.source, match.flags.replace(/[gy]/g, "")).exec(path);
+        // Reset state without erasing sticky (y) semantics: a fresh matcher starts
+        // at zero, while g's repeat cursor is not a request-local identity.
+        const result = new RegExp(match.source, match.flags.replace(/g/g, "")).exec(path);
         return result ? {
             ...result.groups
         } : false;
