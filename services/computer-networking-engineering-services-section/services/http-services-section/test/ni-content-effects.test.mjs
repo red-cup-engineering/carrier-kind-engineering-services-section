@@ -32,7 +32,13 @@ test('the actual NI HTTP consumer exposes exact held bytes, refuses corrupt HEAD
   for(const options of [{method:'HEAD'},{headers:{range:'bytes=7-63'}},{headers:{'if-none-match':etag}}]){
    const refused=await fetch(url,options);assert.equal(refused.status,500);assert(!String(await refused.text()).includes('Exact resource'));
   }
-  await custody.put({ni,bytes,mediaType:'text/plain; charset=utf-8'});
+  // The original NI custody now correctly prefers a first-writer store.
+  // A corrupt first writer is NOT silently repaired by a mutable overwrite.
+  await assert.rejects(custody.put({ni,bytes,mediaType:'text/plain; charset=utf-8'}),/content bytes do not match|content custody read-back failed/);
+  assert.equal((await fetch(url,{method:'HEAD'})).status,500);
+  // Synthetic fixture-owned disk repair (not a supported custody mutation).
+  // A separately governed repair would be needed on a real production host.
+  writeFileSync(join(root,'objects',reference.key),bytes);
   const restored=await fetch(url,{headers:{range:'bytes=7-63'}});assert.equal(restored.status,206);assert.deepEqual(Buffer.from(await restored.arrayBuffer()),bytes.subarray(7,64));
  }finally{if(server)await server.closeGracefully(0);rmSync(root,{recursive:true,force:true});}
 });
