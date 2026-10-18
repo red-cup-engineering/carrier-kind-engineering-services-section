@@ -137,7 +137,7 @@ export async function admitOfferExamples(declarations, { load } = {}) {
   for (const declaration of declarations) {
     if (!declaration?.validate) continue;
     const paths = declaration.validate.args ?? defaultArguments(declaration);
-    if (paths.some(path => /^(env|params)(\\.|$)/u.test(path))) continue;
+    if (paths.some(path => ["env", "params"].includes(path.split(".")[0]))) continue;
     try {
       await resolveBinding(declaration.validate, declaration, load ? { load } : {})({
         body: declaration.bodyExample,
@@ -149,5 +149,5 @@ export async function admitOfferExamples(declarations, { load } = {}) {
     }
   }
   if (refused.length)
-    throw new TypeError("offer examples refused by their own validation:\\n" + refused.join("\\n"));
+    throw new TypeError(["offer examples refused by their own validation:", ...refused].join(String.fromCharCode(10)));
 }
