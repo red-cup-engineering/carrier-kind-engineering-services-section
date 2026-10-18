@@ -123,3 +123,31 @@ export function resolveBinding(binding, declaration, { load = (specifier) => imp
   };
 }
 
+/**
+ * Admit each offer's sample through its ORIGINAL validation binding before
+ * seller compilation. The declaration's own offer coordinates (including
+ * compute configuration) are available without host effects; only genuine
+ * environment/path arguments must await configured runtime receiving.
+ * This is reusable Networking machinery, not another market-specific law.
+ */
+export async function admitOfferExamples(declarations, { load } = {}) {
+  if (!Array.isArray(declarations))
+    throw new TypeError("offer example admission requires declaration records");
+  const refused = [];
+  for (const declaration of declarations) {
+    if (!declaration?.validate) continue;
+    const paths = declaration.validate.args ?? defaultArguments(declaration);
+    if (paths.some(path => /^(env|params)(\\.|$)/u.test(path))) continue;
+    try {
+      await resolveBinding(declaration.validate, declaration, load ? { load } : {})({
+        body: declaration.bodyExample,
+        query: declaration.queryExample ?? {},
+      });
+    } catch (error) {
+      refused.push(String(declaration.method) + " " + String(declaration.route) + ": " +
+        (error instanceof Error ? error.message : String(error)));
+    }
+  }
+  if (refused.length)
+    throw new TypeError("offer examples refused by their own validation:\\n" + refused.join("\\n"));
+}
