@@ -92,7 +92,7 @@ export function publicMarketCatalogReadout(offers, rails = {}) {
  * its page/query budget, not a numeric ceiling secretly built into the seller.
  *
  * @param {object} readout The original marketCatalogReadout output.
- * @param {"get"|"list"|"search"} mode One buyer operation.
+ * @param {"get"|"list"|"search"|"compare"} mode One buyer operation.
  * @param {object} args Caller-supplied selector.
  * @param {object} policy Transport-supplied page and input budgets.
  */
@@ -114,6 +114,27 @@ export function selectPublicMarketCatalogRows(readout, mode, args = {}, policy =
       throw new TypeError("exact SKU is required");
     const found = listed.filter(row => row.sku === args.sku);
     return found[0] ?? null;
+  }
+  if (mode === "compare") {
+    // This is a single read across several ORIGINAL seller addresses, not a
+    // new ranking/price authority. The transport determines its read budget.
+    // A missing SKU is unknown in this seller, not a zero-valued offer or proof
+    // of nonexistence elsewhere in a federated market.
+    const ids = args.skus;
+    if (!Array.isArray(ids) || ids.length < 2 ||
+        (policy.maxComparedOffers !== undefined && ids.length > policy.maxComparedOffers) ||
+        ids.some(id => typeof id !== "string" || id.length === 0 ||
+          (policy.maxSkuLength !== undefined && id.length > policy.maxSkuLength)) ||
+        new Set(ids).size !== ids.length)
+      throw new TypeError("comparison requires distinct, bounded, exact seller SKUs");
+    const bySku = new Map(listed.map(row => [row.sku, row]));
+    return Object.freeze({
+      kind: "x402.market.offer-comparison.v1",
+      requestedSkus: Object.freeze([...ids]),
+      offers: Object.freeze(ids.flatMap(id => bySku.has(id) ? [bySku.get(id)] : [])),
+      missingSkus: Object.freeze(ids.filter(id => !bySku.has(id))),
+      basis: "one seller's source-authored public offer declarations; no operation equivalence or paid delivery inferred",
+    });
   }
   if (mode !== "list" && mode !== "search")
     throw new TypeError("unknown read-only discovery operation");
