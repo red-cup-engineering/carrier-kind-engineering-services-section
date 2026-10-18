@@ -183,3 +183,119 @@ export function selectPublicMarketCatalogRows(readout, mode, args = {}, policy =
     nextOffset: offset + limit < selected.length ? offset + limit : null,
   });
 }
+
+
+/**
+ * One seller's bounded coordinate fiber and source-offer neighborhood graph.
+ * Reuses the existing selectPublicMarketCatalogRows source/publicity/SKU
+ * admission, never a new registry, graph identity or settlement authority.
+ *
+ * A graph edge means only "these two independently authored public offers
+ * share this explicit seller/category/producer/gateway string". It does NOT
+ * establish contractual substitutability, executable composition, payee
+ * equivalence, independent rights or consumer preference.
+ *
+ * @param {object} readout The SAME marketCatalogReadout as MCP, human listing, etc.
+ * @param {{filters?: object,near?:string,limit?:number,offset?:number}} query
+ * @param {{maxPageSize?:number,maxOffset?:number,maxFacetValues?:number}} policy
+ */
+export function selectMarketCoordinateFiber(readout, query = {}, policy = {}) {
+  if (readout?.recordType !== "561-group.x402-market-catalog")
+    throw new TypeError("coordinate fiber requires the original marketCatalogReadout");
+  if (!query || typeof query !== "object" || Array.isArray(query))
+    throw new TypeError("coordinate fiber query must be an object");
+  const axes = Object.freeze({
+    seller: row => row.seller?.enterprise,
+    category: row => row.category,
+    producer: row => row.compute?.package,
+    gateway: row => row.gateway,
+  });
+  const keys = Object.keys(axes);
+  const filterNames = new Set([...keys, "sku"]);
+  const filters = query.filters ?? {};
+  if (!filters || typeof filters !== "object" || Array.isArray(filters))
+    throw new TypeError("coordinate filters must be an object");
+  for (const [key, value] of Object.entries(filters)) {
+    if (!filterNames.has(key) || typeof value !== "string" || !value.length || value.length > (key === "sku" ? 512 : 256))
+      throw new TypeError("coordinate filter must be an exact bounded original identity");
+  }
+  if (query.near !== undefined &&
+      (typeof query.near !== "string" || !query.near.length || query.near.length > 512))
+    throw new TypeError("near must name one exact original seller SKU");
+  const limit = query.limit ?? 20;
+  const offset = query.offset ?? 0;
+  const maxPageSize = Math.min(20, policy.maxPageSize ?? 20);
+  const maxOffset = Math.min(100000, policy.maxOffset ?? 100000);
+  const maxFacetValues = Math.min(12, policy.maxFacetValues ?? 12);
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > maxPageSize ||
+      !Number.isSafeInteger(offset) || offset < 0 || offset > maxOffset ||
+      !Number.isSafeInteger(maxFacetValues) || maxFacetValues < 1)
+    throw new TypeError("coordinate page or facets budget exceeded");
+
+  // Canonical public eligibility and original SKU uniqueness are checked by
+  // the SAME Networking selector already consumed by MCP; no second policy.
+  const source = selectPublicMarketCatalogRows(readout, "list", {}, {
+    defaultPageSize: Math.max(1, readout.offers.length),
+    maxPageSize: Math.max(1, readout.offers.length),
+  });
+  const originals = source.offers;
+  const valueAt = (row, key) => {
+    const value = key === "sku" ? row.sku : axes[key](row);
+    return typeof value === "string" && value.length ? value : undefined;
+  };
+  const anchor = query.near === undefined ? undefined
+    : originals.find(row => row.sku === query.near);
+  if (query.near !== undefined && anchor === undefined)
+    throw new TypeError("near must identify one currently listed original seller SKU");
+
+  const selected = originals.flatMap(row => {
+    const shares = anchor === undefined ? [] : keys.flatMap(key => {
+      const value = valueAt(anchor, key);
+      return value !== undefined && valueAt(row, key) === value
+        ? [{ axis: key, value }] : [];
+    });
+    if (anchor !== undefined && (row.sku === anchor.sku || shares.length === 0))
+      return [];
+    if (!Object.entries(filters).every(([key, wanted]) => valueAt(row, key) === wanted))
+      return [];
+    return [{ row, shares }];
+  });
+  const page = selected.slice(offset, offset + limit);
+  const facets = {};
+  for (const key of keys) {
+    const values = new Map();
+    let unknownCount = 0;
+    for (const {row} of selected) {
+      const identity = valueAt(row, key);
+      if (identity === undefined) { unknownCount++; continue; }
+      values.set(identity, (values.get(identity) ?? 0) + 1);
+    }
+    const sorted = [...values].sort((a,b) => b[1] - a[1] ||
+      (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+    facets[key] = Object.freeze({
+      distinctValues: sorted.length, unknownCount,
+      truncated: sorted.length > maxFacetValues,
+      values: Object.freeze(sorted.slice(0, maxFacetValues)
+        .map(([value,count]) => Object.freeze({value,count}))),
+    });
+  }
+  return Object.freeze({
+    recordType: "561-group.market-coordinate-fiber.v1",
+    sourceRecordType: readout.recordType,
+    filters: Object.freeze({...filters}),
+    ...(anchor === undefined ? {} : {
+      anchor,
+      edges: Object.freeze(page.map(({row,shares}) => Object.freeze({
+        from: anchor.sku, to: row.sku,
+        relation: "shared-source-coordinate",
+        via: Object.freeze(shares.map(value => Object.freeze(value))),
+        executableComposition: "unassayed",
+        legalSubstitutability: "unassayed",
+      }))),
+    }),
+    total: selected.length, offset, limit,
+    nextOffset: offset + page.length < selected.length ? offset + page.length : null,
+    facets: Object.freeze(facets),
+    offers: Object.freeze(page.map(({row}) => row)),
+  });
+}
