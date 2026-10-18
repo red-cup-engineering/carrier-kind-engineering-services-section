@@ -23,14 +23,6 @@
 	path = services/computer-networking-engineering-services-section/services/mcp-engineering-services-section
 	url = https://github.com/red-cup-engineering/mcp-engineering-services-section.git
 	branch = main
-[submodule "a2a-rmn-part-service"]
-	path = services/computer-networking-engineering-services-section/services/a2a-services-section/services/a2a-rmn-part-service
-	url = https://github.com/red-cup-engineering/a2a-rmn-part-service.git
-	branch = main
-[submodule "a2a-sovereign-operation-boundary-service"]
-	path = services/computer-networking-engineering-services-section/services/a2a-services-section/services/a2a-sovereign-operation-boundary-service
-	url = https://github.com/red-cup-engineering/a2a-sovereign-operation-boundary-service.git
-	branch = main
 [submodule "json-rpc-transport-service"]
 	path = services/computer-networking-engineering-services-section/services/http-services-section/services/json-rpc-transport-service
 	url = https://github.com/red-cup-engineering/json-rpc-transport-service.git
@@ -58,4 +50,8 @@
 [submodule "x402-exact-purchase-service"]
 	path = services/computer-networking-engineering-services-section/services/x402-services-section/services/x402-exact-purchase-service
 	url = https://github.com/red-cup-engineering/x402-exact-purchase-service.git
+	branch = main
+[submodule "a2a-services-section"]
+	path = services/computer-networking-engineering-services-section/services/a2a-services-section
+	url = https://github.com/red-cup-engineering/a2a-services-section.git
 	branch = main

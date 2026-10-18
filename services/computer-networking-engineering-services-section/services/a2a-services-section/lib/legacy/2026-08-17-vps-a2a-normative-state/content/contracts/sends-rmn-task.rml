@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "sends-rmn-task-through-discovered-a2a-agent"
-  (base "Canonical-RMN-CBOR-And-Agent-Card-URL")
-  (base "Canonical-RMN-CBOR-Result-Or-Protocol-Refusal"))

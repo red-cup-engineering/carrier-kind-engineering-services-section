@@ -1,4 +1,0 @@
-#lang rmn/v2
-(predicate "serves-contracted-rmn-agent"
-  (base "A2A-1.0-Message-With-Canonical-RMN-CBOR")
-  (base "A2A-1.0-Message-Or-Task-Or-Protocol-Refusal"))
