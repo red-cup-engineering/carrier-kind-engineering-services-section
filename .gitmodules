@@ -23,14 +23,6 @@
 	path = services/computer-networking-engineering-services-section/services/mcp-engineering-services-section
 	url = https://github.com/red-cup-engineering/mcp-engineering-services-section.git
 	branch = main
-[submodule "google-oauth-services-section"]
-	path = services/computer-networking-engineering-services-section/services/oauth-services-section/services/google-oauth-services-section
-	url = https://github.com/red-cup-engineering/google-oauth-services-section.git
-	branch = main
-[submodule "indieauth-profile-service"]
-	path = services/computer-networking-engineering-services-section/services/oauth-services-section/services/indieauth-profile-service
-	url = https://github.com/red-cup-engineering/indieauth-profile-service.git
-	branch = main
 [submodule "ucan-invocation-verification-service"]
 	path = services/computer-networking-engineering-services-section/services/ucan-services-section/services/ucan-invocation-verification-service
 	url = https://github.com/red-cup-engineering/ucan-invocation-verification-service.git
@@ -54,4 +46,8 @@
 [submodule "http-services-section"]
 	path = services/computer-networking-engineering-services-section/services/http-services-section
 	url = https://github.com/red-cup-engineering/http-services-section.git
+	branch = main
+[submodule "oauth-services-section"]
+	path = services/computer-networking-engineering-services-section/services/oauth-services-section
+	url = https://github.com/red-cup-engineering/oauth-services-section.git
 	branch = main
