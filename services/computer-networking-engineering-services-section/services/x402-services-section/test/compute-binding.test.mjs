@@ -159,3 +159,25 @@ test("external env/params admission waits for actual host; pure declarations do 
   assert.equal(imported, 1);
   await assert.rejects(() => admitOfferExamples(null, { load }), /declaration records/);
 });
+
+
+test("explicit supplier Result refusals are not admitted sample contracts", async () => {
+  const initial = { method: "POST", route: "/v1/attention/allocate",
+    validate: { package: "@a/metrologic", export: "validate", args: ["body"] },
+    bodyExample: { budget: 1, obstructions: [] } };
+  const load = async () => ({ validate: () => ({ ok: false, refusal: {
+    code: "maximum-work-exceeded", message: "payload exceeds admitted host capacity",
+  } }) });
+  await assert.rejects(() => admitOfferExamples([initial], { load }),
+    /offered sample was refused by its original validator/);
+  const boolLoad = async () => ({ validate: () => false });
+  await assert.rejects(() => admitOfferExamples([initial], { load: boolLoad }),
+    /offered sample was refused/);
+  const contractLoad = async () => ({ validate: () => ({ admitted: false, reason: "not sold" }) });
+  await assert.rejects(() => admitOfferExamples([initial], { load: contractLoad }),
+    /offered sample was refused/);
+  const valid = async () => ({ validate: () => ({ ok: true, value: initial.bodyExample }) });
+  await admitOfferExamples([initial], { load: valid });
+  const voidValidator = async () => ({ validate: () => undefined });
+  await admitOfferExamples([initial], { load: voidValidator });
+});
