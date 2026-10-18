@@ -35,3 +35,7 @@
 	path = services/computer-networking-engineering-services-section/services/http-services-section/services/json-rpc-transport-service
 	url = https://github.com/red-cup-engineering/json-rpc-transport-service.git
 	branch = main
+[submodule "google-oauth-services-section"]
+	path = services/computer-networking-engineering-services-section/services/oauth-services-section/services/google-oauth-services-section
+	url = https://github.com/red-cup-engineering/google-oauth-services-section.git
+	branch = main
