@@ -430,10 +430,12 @@ export function createMarket({
     const computeOffer = held ? null : computeFor(offer);
     const admit = held ? undefined : validateFor(offer);
     // A legacy seller may name its billable compute as its input validator.
-    // It must not run that compute on every unsigned 402 probe, nor recompute
-    // the same input after a settled signed attempt. Structural JSON Schema
-    // admission still precedes pricing; genuinely distinct validators retain
-    // their normal prepayment admission path. No result crosses requests.
+    // That is not input admission: it executes the purchased service. Do not
+    // run it on unsigned requests OR unverified payment headers. The existing
+    // x402 exact-EVM resource server owns verify -> execute -> settle, and the
+    // compute callback below executes once only after verification. A failed
+    // handler response cancels settlement before the payee is charged.
+    // Cheap distinct admission and native request JSON Schema stay upstream.
     const sharedAdmissionCompute = !held && typeof validate[route] !== "function"
       && offer.declaration.validate !== undefined && offer.declaration.compute !== undefined
       && canonicalJson(offer.declaration.validate) === canonicalJson(offer.declaration.compute);
@@ -492,31 +494,23 @@ export function createMarket({
         const query = Object.fromEntries(context.url.searchParams);
         const params = context.params ?? {};
         const input = { body, query, params, env };
-        // Payment-signature is an intent to pay, NOT proof of payment. The
-        // facilitator still verifies and settles in paid.handle. Only the
-        // previously duplicated compute-admission is deferred for an unsigned
-        // probe; this cannot itself authenticate the signature or prevent a
-        // malicious client submitting a bogus one.
-        const isSignedAttempt = context.request.headers.has("payment-signature");
-        let admittedComputedResult, hasAdmittedComputedResult = false;
-        if (admit !== undefined && (!sharedAdmissionCompute || isSignedAttempt)) {
+        // Admit cheap input semantics before quoting where they are truly
+        // separate from the purchased operation. A duplicate compute binding
+        // cannot be an unpaid validator, regardless of who set a header.
+        if (admit !== undefined && !sharedAdmissionCompute) {
           try {
-            const result = await admit(input, context);
-            if (sharedAdmissionCompute) {
-              admittedComputedResult = result;
-              hasAdmittedComputedResult = true;
-            }
+            await admit(input, context);
           } catch (error) {
             return refusal(error);
           }
         }
+        // Called by paid.handle ONLY after payment verification (or by an
+        // explicitly granted account). The native fetch payment adapter
+        // cancels settlement on a failed response, without duplicating
+        // this computation or inventing an application-local payment gate.
         const compute = async () => {
           try {
-            // A signed request already ran this exact operation during
-            // admission; reuse it once, after the payment boundary succeeds.
-            // Grants/unsigned probes have no such value and compute normally.
-            const result = hasAdmittedComputedResult
-              ? admittedComputedResult : await computeOffer(input, context);
+            const result = await computeOffer(input, context);
             return result instanceof Response ? result : Response.json(result);
           } catch (error) {
             return refusal(error);

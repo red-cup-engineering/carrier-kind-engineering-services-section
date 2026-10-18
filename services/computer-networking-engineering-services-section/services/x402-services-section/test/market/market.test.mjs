@@ -474,7 +474,7 @@ test("compute never runs for an unpaid request", async () => {
   assert.equal(ran, 0);
 });
 
-test("source-identical compute and validator execute only once per paid purchase, never for an unsigned quote", async () => {
+test("source-identical compute/validate executes only after x402 verification and cancels failed settlement", async () => {
   const binding = { package: "@red-cup-engineering/catalog-test", export: "perform" };
   const declared = postDeclaration({ compute: binding, validate: { ...binding } });
   let evaluations = 0;
@@ -500,12 +500,12 @@ test("source-identical compute and validator execute only once per paid purchase
     const quote = await market.fetch(new Request(url, input(seed)));
     assert.equal(quote.status, 402);
     assert.equal(evaluations, (seed === 3 ? 0 : 1),
-      "every unsigned quote must avoid the duplicated paid compute");
+      "every unsigned quote must avoid executing the purchased compute");
     const paid = await pay(market, url, input(seed));
     assert.equal(paid.status, 200);
     assert.deepEqual(await paid.json(), { value: seed * 3 });
     assert.equal(evaluations, seed === 3 ? 1 : 2,
-      "signed admission computes once; settlement reuses the same value");
+      "verified x402 handler computes once, then settlement records the result");
   }
   assert.equal(counts.settlements, 2);
   const badSchema = await market.fetch(new Request(url, input("not-a-number")));
@@ -525,10 +525,26 @@ test("source-identical compute and validator execute only once per paid purchase
     headers: { "content-type": "application/json", "payment-signature": signature },
   }));
   assert.equal(invalidSigned.status, 422,
-    "the signed attempt's semantic refusal still happens before settlement");
+    "an authorized but invalid computation must fail before settlement");
   assert.match((await invalidSigned.json()).error, /negative seed/u);
   assert.equal(counts.settlements, 2, "invalid signed inputs cannot be charged");
   assert.equal(evaluations, 3);
+
+  // Invalid headers and failed facilitator verification cannot elicit the
+  // computation merely by claiming to be a signed buyer. The existing
+  // protocol parser and verifier, not this merchant, are authoritative.
+  let unauthorizedComputes = 0;
+  const withoutAuthority = createMarket({
+    catalog: [declared], env: ENV, facilitatorClient: unpaidFacilitator(),
+    load: async () => ({ perform: () => { unauthorizedComputes++; return { value: 9 }; } }),
+  });
+  const forged = await withoutAuthority.fetch(new Request(url, {
+    ...input(5),
+    headers: { "content-type": "application/json", "payment-signature": signature },
+  })).catch(() => null);
+  assert.ok(forged === null || forged.status >= 400);
+  assert.equal(unauthorizedComputes, 0,
+    "unverified payment headers cannot run the service's full computation");
 });
 
 test("semantic validation refuses before any payment challenge is issued", async () => {
