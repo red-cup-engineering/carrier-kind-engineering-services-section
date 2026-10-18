@@ -67,3 +67,7 @@
 	path = services/computer-networking-engineering-services-section/services/google-drive-services-section
 	url = https://github.com/red-cup-engineering/google-drive-services-section.git
 	branch = main
+[submodule "microformats-services-section"]
+	path = services/computer-networking-engineering-services-section/services/microformats-services-section
+	url = https://github.com/red-cup-engineering/microformats-services-section.git
+	branch = main
