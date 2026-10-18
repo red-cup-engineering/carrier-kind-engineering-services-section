@@ -4,6 +4,11 @@
   "private": false,
   "type": "module",
   "description": "Independently hireable x402 v2 HTTP payment boundary and optional currency-obligation evidence adapter using the official x402 implementation.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/x402-services-section"
+  },
   "exports": {
     ".": "./src/resource-server.mjs",
     "./server": "./src/resource-server.mjs",
