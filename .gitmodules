@@ -59,3 +59,7 @@
 	path = services/computer-networking-engineering-services-section/services/arcgis-rest-services-section
 	url = https://github.com/red-cup-engineering/arcgis-rest-services-section.git
 	branch = main
+[submodule "consolidated-screening-list-services-section"]
+	path = services/computer-networking-engineering-services-section/services/consolidated-screening-list-services-section
+	url = https://github.com/red-cup-engineering/consolidated-screening-list-services-section.git
+	branch = main
