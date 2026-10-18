@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { observationOptions, observeMarketReport } from "../../apps/observe-market.mjs";
+import { observationOptions, observeMarketReport, readBazaarPage } from "../../apps/observe-market.mjs";
 
 const PAY_TO = "0x" + "ab".repeat(20);
 const MERCHANT = { endpoint: "https://discovery.example.test/merchant", payTo: PAY_TO };
@@ -127,4 +127,68 @@ test("a seller's real call observation survives price-rail uncertainty without i
     "merchant call coverage is distinct from observed asset-price terms");
   assert.equal(r.catalog.calls30d, 4);
   assert.equal(r.catalogAuthorizationComparison, null);
+});
+
+test("Coinbase merchant scope is the original discovery entrance, not the global listing", () => {
+  const options = observationOptions(["--merchant-pay-to", PAY_TO]);
+  assert.equal(new URL(options.merchant.endpoint).pathname,
+    "/platform/v2/x402/discovery/merchant");
+  assert.equal(options.merchant.payTo, PAY_TO);
+});
+
+test("existing CDP JWT owner authenticates merchant discovery without an app-local signer", async () => {
+  const calls = [];
+  const data = { x402Version: 2, payTo: PAY_TO, resources: [entry("a", 3, 2)],
+    pagination: { total: 1, offset: 0, limit: 20 } };
+  const target = "https://api.cdp.coinbase.com/platform/v2/x402/discovery/merchant?payTo=" + PAY_TO;
+  const result = await readBazaarPage(target, {
+    environment: { CDP_API_KEY_ID: "test-id", CDP_API_KEY_SECRET: "test-secret" },
+    tokenFactory: options => {
+      calls.push(options);
+      return "synthetic-jwt-for-testing-only";
+    },
+    fetchImpl: async (url, options) => {
+      assert.equal(url, target);
+      assert.equal(options.method, "GET");
+      assert.equal(options.redirect, "error");
+      assert.equal(options.headers.authorization, "Bearer synthetic-jwt-for-testing-only");
+      return { ok: true, headers: { get: () => null }, text: async () => JSON.stringify(data) };
+    },
+  });
+  assert.deepEqual(result, data);
+  assert.deepEqual(calls.map(({ method, host, path }) => ({ method, host, path })), [{
+    method: "GET", host: "api.cdp.coinbase.com",
+    path: "/platform/v2/x402/discovery/merchant",
+  }]);
+});
+
+test("Coinbase discovery without its original read-only API credentials refuses before fetch", async () => {
+  let fetchCalls = 0;
+  const target = "https://api.cdp.coinbase.com/platform/v2/x402/discovery/merchant?payTo=" + PAY_TO;
+  await assert.rejects(() => readBazaarPage(target, {
+    environment: {},
+    fetchImpl: async () => { fetchCalls++; throw Error("must not fetch"); },
+  }), /CDP_API_KEY_ID and CDP_API_KEY_SECRET/u);
+  assert.equal(fetchCalls, 0);
+  await assert.rejects(() => readBazaarPage("https://api.cdp.coinbase.com/other-service", {
+    environment: { CDP_API_KEY_ID: "test", CDP_API_KEY_SECRET: "test" },
+    fetchImpl: async () => { fetchCalls++; throw Error("must not fetch"); },
+  }), /only address its discovery/u);
+  assert.equal(fetchCalls, 0);
+});
+
+test("an independent approved HTTPS discovery provider receives no Coinbase credentials", async () => {
+  const url = "https://bazaar.example.test/discovery/merchant?payTo=" + PAY_TO;
+  const data = { payTo: PAY_TO, resources: [], pagination: { total: 0 } };
+  const result = await readBazaarPage(url, {
+    environment: { CDP_API_KEY_ID: "seller-key", CDP_API_KEY_SECRET: "not-for-other-host" },
+    tokenFactory: () => { throw Error("CDP signer must not be called"); },
+    fetchImpl: async (got, options) => {
+      assert.equal(got, url);
+      assert.equal(options.headers.authorization, undefined);
+      assert.equal(options.redirect, "error");
+      return { ok: true, headers: { get: () => null }, text: async () => JSON.stringify(data) };
+    },
+  });
+  assert.equal(result.pagination.total, 0);
 });
