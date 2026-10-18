@@ -181,3 +181,29 @@ test("explicit supplier Result refusals are not admitted sample contracts", asyn
   const voidValidator = async () => ({ validate: () => undefined });
   await admitOfferExamples([initial], { load: voidValidator });
 });
+
+
+test("unknown declared host-policy paths are rejected without importing an executable", async () => {
+  let invoked = 0;
+  const request = {
+    method: "POST", route: "/v1/attention/allocate",
+    bodyExample: { budget: 1, obstructions: [] },
+    compute: { configuration: { maxSearchNodes: 100 } },
+    validate: { package: "@a/b", export: "validate",
+      args: ["body", "offer.compute.configuration.maxObstructions"] },
+  };
+  await assert.rejects(() => admitOfferExamples([request], {
+    load: async () => { invoked++; return { validate: () => true }; },
+  }), /declared offer argument is missing: offer.compute.configuration.maxObstructions/);
+  assert.equal(invoked, 0);
+  await assert.rejects(() => admitOfferExamples([{
+    ...request, validate: { ...request.validate, args: ["body", "offer.nonexistent"] },
+  }], { load: async () => { invoked++; return { validate: () => true }; } }),
+    /declared offer argument is missing: offer.nonexistent/);
+  assert.equal(invoked, 0);
+  await admitOfferExamples([{
+    ...request,
+    compute: { configuration: { maxSearchNodes: 100, maxObstructions: 8 } },
+  }], { load: async () => { invoked++; return { validate: () => true }; } });
+  assert.equal(invoked, 1);
+});
