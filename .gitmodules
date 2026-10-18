@@ -75,3 +75,7 @@
 	path = services/computer-networking-engineering-services-section/services/micropub-services-section
 	url = https://github.com/red-cup-engineering/micropub-services-section.git
 	branch = main
+[submodule "microsub-services-section"]
+	path = services/computer-networking-engineering-services-section/services/microsub-services-section
+	url = https://github.com/red-cup-engineering/microsub-services-section.git
+	branch = main
