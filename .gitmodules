@@ -91,3 +91,7 @@
 	path = services/computer-networking-engineering-services-section/services/schema-org-services-section
 	url = https://github.com/red-cup-engineering/schema-org-services-section.git
 	branch = main
+[submodule "ssrs-report-services-section"]
+	path = services/computer-networking-engineering-services-section/services/ssrs-report-services-section
+	url = https://github.com/red-cup-engineering/ssrs-report-services-section.git
+	branch = main
