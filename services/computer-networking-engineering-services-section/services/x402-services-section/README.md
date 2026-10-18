@@ -71,3 +71,24 @@ authority and production receiving. No seller product belongs in the
 Networking package's runtime dependency closure.
 [Causeway market](https://github.com/causeway-services/market.561.group)
 is the sole active source for the 561 Group merchant.
+
+## Merchant-scoped x402 discovery observation
+
+The existing `observe-x402-market` executable now uses **Data's** original
+`x402-discovery-snapshot` source and preserves Networking's EIP-3009
+chain observer as independent evidence. With no explicit merchant, it does not
+fetch an unscoped Bazaar listing or relabel its `pagination.total` as paid
+calls. An owner of a merchant may supply `--merchant-pay-to 0x…` and optionally
+`--discovery-endpoint HTTPS_URL` for a bounded, dated vendor snapshot. It
+reports listed resources, vendor-reported calls only when the pages support
+those numbers, and source coverage. Unique payers across SKUs cannot be summed
+from per-SKU distinct counts. The chain-wide AuthorizationUsed sample may
+include non-x402 activity and is **not** a merchant revenue denominator.
+
+The real Causeway merchant consumes this executable as `npm run
+observe:merchant -- --merchant-pay-to "$X402_MERCHANT_PAY_TO"`. Its incumbent
+operator must supply their actual original payee identity; neither the parser
+nor a seller's unsigned 402 challenge authorizes a buyer wallet. Missing
+merchant identity, bad vendor counts, unreceived native packages and unobserved
+external payments remain distinct unknown/refusal conditions. No scheduled
+job, extra market ledger or price table is installed here.
