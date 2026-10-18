@@ -74,6 +74,16 @@ is the sole active source for the 561 Group merchant.
 
 ## Merchant-scoped x402 discovery observation
 
+The original Coinbase x402 v2 merchant API lives at
+`https://api.cdp.coinbase.com/platform/v2/x402/discovery/merchant`, not
+the separate global `/discovery/resources` listing. For this provider,
+Networking authenticates each read with the EXISTING CDP facilitator JWT
+signer (`createCdpJwt`) and the already recognized operator-held
+`CDP_API_KEY_ID` and `CDP_API_KEY_SECRET`. No wallet-signing grant is
+needed for discovery. Missing API credentials refuse before the HTTP read;
+a non-Coinbase HTTPS discovery source receives no CDP credentials and
+redirects are refused.
+
 The existing `observe-x402-market` executable now uses **Data's** original
 `x402-discovery-snapshot` source and preserves Networking's EIP-3009
 chain observer as independent evidence. With no explicit merchant, it does not
