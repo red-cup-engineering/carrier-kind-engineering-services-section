@@ -36,7 +36,7 @@
       "relationship": "child-link-real"
     }
   ],
-  "scienceProducer": "lenticule-science/science-services-section/services/information-science-services-section/services/language-science-services-section/services/english-science-services-section/services/ptgae-science-services-section",
+  "scienceProducer": "lenticule-science/science-services-section/services/information-science-services-section/services/communication-science-services-section/services/language-science-services-section/services/english-science-services-section/services/ptgae-science-services-section",
   "migrationGate": "Receive the destination's real Gitlink and .gitmodules first; then retire the old Engineering-root Language mount, select the received Computer revision, and independently read back the complete source graph. No installed or institutional receiving is inferred.",
   "rootIssue": "https://github.com/red-cup-engineering/engineering-services-section/issues/58",
   "dedicatedTargetParentRepositoryExists": false,
@@ -52,3 +52,4 @@
     "condition": "Only after the destination is independently received and the Engineering parent selects its Computer revision."
   }
 }
+
