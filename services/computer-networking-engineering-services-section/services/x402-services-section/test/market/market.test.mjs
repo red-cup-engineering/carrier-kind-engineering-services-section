@@ -474,6 +474,63 @@ test("compute never runs for an unpaid request", async () => {
   assert.equal(ran, 0);
 });
 
+test("source-identical compute and validator execute only once per paid purchase, never for an unsigned quote", async () => {
+  const binding = { package: "@red-cup-engineering/catalog-test", export: "perform" };
+  const declared = postDeclaration({ compute: binding, validate: { ...binding } });
+  let evaluations = 0;
+  const counts = {};
+  const market = createMarket({
+    catalog: [declared], env: ENV,
+    facilitatorClient: paidFacilitator(counts),
+    load: async (specifier) => {
+      assert.equal(specifier, binding.package);
+      return { perform: (body) => {
+        evaluations++;
+        if (body.seed < 0) throw new TypeError("negative seed cannot be purchased");
+        return { value: body.seed * 3 };
+      } };
+    },
+  });
+  const url = "https://market.test/v1/demo";
+  const input = (seed) => ({
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed }),
+  });
+  for (const seed of [3, 7]) {
+    const quote = await market.fetch(new Request(url, input(seed)));
+    assert.equal(quote.status, 402);
+    assert.equal(evaluations, (seed === 3 ? 0 : 1),
+      "every unsigned quote must avoid the duplicated paid compute");
+    const paid = await pay(market, url, input(seed));
+    assert.equal(paid.status, 200);
+    assert.deepEqual(await paid.json(), { value: seed * 3 });
+    assert.equal(evaluations, seed === 3 ? 1 : 2,
+      "signed admission computes once; settlement reuses the same value");
+  }
+  assert.equal(counts.settlements, 2);
+  const badSchema = await market.fetch(new Request(url, input("not-a-number")));
+  assert.equal(badSchema.status, 400);
+  assert.equal(evaluations, 2);
+  assert.equal(badSchema.headers.get("payment-required"), null);
+  const unsignedInvalid = await market.fetch(new Request(url, input(-1)));
+  assert.equal(unsignedInvalid.status, 402,
+    "unsigned structural admission does not perform a billable calculation");
+  assert.equal(evaluations, 2);
+  const quoted = challengeOf(unsignedInvalid);
+  const signature = Buffer.from(JSON.stringify({
+    x402Version: 2, accepted: quoted.accepts[0], payload: { signature: "0xexample" },
+  })).toString("base64");
+  const invalidSigned = await market.fetch(new Request(url, {
+    ...input(-1),
+    headers: { "content-type": "application/json", "payment-signature": signature },
+  }));
+  assert.equal(invalidSigned.status, 422,
+    "the signed attempt's semantic refusal still happens before settlement");
+  assert.match((await invalidSigned.json()).error, /negative seed/u);
+  assert.equal(counts.settlements, 2, "invalid signed inputs cannot be charged");
+  assert.equal(evaluations, 3);
+});
+
 test("semantic validation refuses before any payment challenge is issued", async () => {
   const market = demoMarket({
     validate: { "/v1/demo": ({ body }) => { if (body.seed < 0) throw new TypeError("seed must not be negative"); } },

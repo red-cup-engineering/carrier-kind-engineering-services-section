@@ -1,7 +1,7 @@
 import { marketCatalogReadout, publicMarketCatalogReadout, requestContract, DEFAULT_MAX_BODY_BYTES } from "./catalog.mjs";
 export { marketCatalogReadout } from "./catalog.mjs";
 import { createWebApplication } from "@red-cup-engineering/computer-web-platform/application";
-import { admitCanonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
+import { admitCanonicalJson, canonicalJson, JSON_RESOURCE_ENVELOPE } from "@red-cup-engineering/json-services-section/canonical-json";
 import { mediaType } from "@red-cup-engineering/http-services-section/body/web";
 import { forwardRequestHeaders } from "@red-cup-engineering/http-services-section/forward-request-headers";
 import { fetchWithoutRedirects } from "@red-cup-engineering/http-services-section/fetch-without-redirects";
@@ -429,6 +429,14 @@ export function createMarket({
     // the offer. For enabled offers retain eager binding conformance checks.
     const computeOffer = held ? null : computeFor(offer);
     const admit = held ? undefined : validateFor(offer);
+    // A legacy seller may name its billable compute as its input validator.
+    // It must not run that compute on every unsigned 402 probe, nor recompute
+    // the same input after a settled signed attempt. Structural JSON Schema
+    // admission still precedes pricing; genuinely distinct validators retain
+    // their normal prepayment admission path. No result crosses requests.
+    const sharedAdmissionCompute = !held && typeof validate[route] !== "function"
+      && offer.declaration.validate !== undefined && offer.declaration.compute !== undefined
+      && canonicalJson(offer.declaration.validate) === canonicalJson(offer.declaration.compute);
     const purchaseStore = !held && offer.declaration.recoverable ? purchaseStoreForOffer?.(offer) : undefined;
     const recoveryStore = purchaseStore ?? (held && offer.declaration.recoverable && purchaseStoreForOffer
       ? () => purchaseStoreForOffer(offer) : undefined);
@@ -484,16 +492,31 @@ export function createMarket({
         const query = Object.fromEntries(context.url.searchParams);
         const params = context.params ?? {};
         const input = { body, query, params, env };
-        if (admit !== undefined) {
+        // Payment-signature is an intent to pay, NOT proof of payment. The
+        // facilitator still verifies and settles in paid.handle. Only the
+        // previously duplicated compute-admission is deferred for an unsigned
+        // probe; this cannot itself authenticate the signature or prevent a
+        // malicious client submitting a bogus one.
+        const isSignedAttempt = context.request.headers.has("payment-signature");
+        let admittedComputedResult, hasAdmittedComputedResult = false;
+        if (admit !== undefined && (!sharedAdmissionCompute || isSignedAttempt)) {
           try {
-            await admit(input, context);
+            const result = await admit(input, context);
+            if (sharedAdmissionCompute) {
+              admittedComputedResult = result;
+              hasAdmittedComputedResult = true;
+            }
           } catch (error) {
             return refusal(error);
           }
         }
         const compute = async () => {
           try {
-            const result = await computeOffer(input, context);
+            // A signed request already ran this exact operation during
+            // admission; reuse it once, after the payment boundary succeeds.
+            // Grants/unsigned probes have no such value and compute normally.
+            const result = hasAdmittedComputedResult
+              ? admittedComputedResult : await computeOffer(input, context);
             return result instanceof Response ? result : Response.json(result);
           } catch (error) {
             return refusal(error);
