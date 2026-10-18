@@ -27,3 +27,7 @@
 	path = services/computer-networking-engineering-services-section/services/a2a-services-section/services/a2a-rmn-part-service
 	url = https://github.com/red-cup-engineering/a2a-rmn-part-service.git
 	branch = main
+[submodule "a2a-sovereign-operation-boundary-service"]
+	path = services/computer-networking-engineering-services-section/services/a2a-services-section/services/a2a-sovereign-operation-boundary-service
+	url = https://github.com/red-cup-engineering/a2a-sovereign-operation-boundary-service.git
+	branch = main
