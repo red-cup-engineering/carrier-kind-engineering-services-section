@@ -147,10 +147,11 @@ test("existing CDP JWT owner authenticates merchant discovery without an app-loc
       calls.push(options);
       return "synthetic-jwt-for-testing-only";
     },
+    resolveHost: async () => ["93.184.216.34"],
     fetchImpl: async (url, options) => {
       assert.equal(url, target);
       assert.equal(options.method, "GET");
-      assert.equal(options.redirect, "error");
+      assert.equal(options.redirect, "manual");
       assert.equal(options.headers.authorization, "Bearer synthetic-jwt-for-testing-only");
       return { ok: true, headers: { get: () => null }, text: async () => JSON.stringify(data) };
     },
@@ -183,12 +184,40 @@ test("an independent approved HTTPS discovery provider receives no Coinbase cred
   const result = await readBazaarPage(url, {
     environment: { CDP_API_KEY_ID: "seller-key", CDP_API_KEY_SECRET: "not-for-other-host" },
     tokenFactory: () => { throw Error("CDP signer must not be called"); },
+    resolveHost: async () => ["93.184.216.34"],
     fetchImpl: async (got, options) => {
       assert.equal(got, url);
       assert.equal(options.headers.authorization, undefined);
-      assert.equal(options.redirect, "error");
+      assert.equal(options.redirect, "manual");
       return { ok: true, headers: { get: () => null }, text: async () => JSON.stringify(data) };
     },
   });
   assert.equal(result.pagination.total, 0);
+});
+
+test("the shared HTTP provider refuses loopback, private DNS and redirects before forwarding merchant credentials", async () => {
+  let requests = 0;
+  const fetchImpl = async (_url, options) => {
+    requests++;
+    assert.ok(options.headers?.authorization === undefined ||
+      options.headers.authorization.startsWith("Bearer "),
+      "no unqualified authentication scheme");
+    return { status: 302, ok: false, headers: { get: () => "https://different.example.test/redirect" } };
+  };
+  await assert.rejects(() => readBazaarPage("https://127.0.0.1/discovery/merchant", {
+    fetchImpl,
+  }), /private or special-use/u);
+  await assert.rejects(() => readBazaarPage("https://private.example.test/discovery/merchant", {
+    fetchImpl, resolveHost: async () => ["10.0.0.7"],
+  }), /private or special-use/u);
+  assert.equal(requests, 0, "the upstream HTTP policy must refuse before network I/O");
+
+  const merchant = "https://api.cdp.coinbase.com/platform/v2/x402/discovery/merchant?payTo=" + PAY_TO;
+  await assert.rejects(() => readBazaarPage(merchant, {
+    environment: { CDP_API_KEY_ID: "test", CDP_API_KEY_SECRET: "synthetic" },
+    tokenFactory: () => "synthetic-jwt",
+    resolveHost: async () => ["93.184.216.34"],
+    fetchImpl,
+  }), /exceeded 0 redirects/u);
+  assert.equal(requests, 1, "no redirected endpoint receives Coinbase's bearer token");
 });
