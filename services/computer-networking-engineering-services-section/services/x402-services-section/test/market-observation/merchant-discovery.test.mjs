@@ -81,6 +81,8 @@ test("bad merchant identity or inappropriate endpoint is refused before external
     /requires --merchant-pay-to/u);
   assert.throws(() => observationOptions(["--merchant-pay-to", "0x123"]),
     /payTo/u);
+  assert.throws(() => observationOptions(["--merchant-pay-to"]), /requires a value/u);
+  assert.throws(() => observationOptions(["--window"]), /requires a value/u);
   let chainCalls = 0;
   await assert.rejects(() => observeMarketReport({
     windowBlocks: 90, merchant: { ...MERCHANT, payTo: "0x123" },
