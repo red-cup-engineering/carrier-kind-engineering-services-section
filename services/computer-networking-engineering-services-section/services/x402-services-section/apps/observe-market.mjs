@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { readSnapshotParameters, takeSnapshot } from "@red-cup-engineering/computer-data-engineering-services-section/x402-discovery-snapshot";
 import { observeSettlement } from "../src/market-observation/settlement.mjs";
 import { createCdpJwt } from "../src/cdp-facilitator.mjs";
+import { fetchWithPolicy } from "@red-cup-engineering/http-services-section/fetch-policy";
 
 // Coinbase's /merchant route is scoped by payTo; /resources is its global
 // listing (whose pagination.total counts offers, never a merchant's calls).
@@ -35,6 +36,7 @@ export function observationOptions(argv = []) {
 /** Networking performs the bounded HTTP read; Data owns pagination and epistemic reduction. */
 export async function readBazaarPage(url, {
   environment = process.env, fetchImpl = fetch, tokenFactory = createCdpJwt,
+  resolveHost,
 } = {}) {
   const target = new URL(url);
   if (target.protocol !== "https:" || target.username || target.password)
@@ -52,8 +54,13 @@ export async function readBazaarPage(url, {
       method: "GET", host: target.host, path: target.pathname,
     });
   }
-  const response = await fetchImpl(target.href, {
-    method: "GET", redirect: "error", headers,
+  // Reuse Networking's public-address admission and redirect policy, rather
+  // than creating an x402-only network/security implementation. For this
+  // credential-bearing discovery read no redirected origin is admissible.
+  const response = await fetchWithPolicy(target.href, {
+    method: "GET", headers,
+  }, "x402-merchant-discovery", {
+    fetchImpl, resolveHost, maxRedirects: 0,
   });
   if (!response.ok) throw new Error("Bazaar discovery HTTP " + response.status);
   const announced = Number(response.headers.get("content-length"));
