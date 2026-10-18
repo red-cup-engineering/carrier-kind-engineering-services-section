@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { selectPublicMarketCatalogRows as select, compareMarketOfferSamples, requestContract } from "../../src/market/catalog.mjs";
+import { selectPublicMarketCatalogRows as select, compareMarketOfferSamples, requestContract, selectMarketCoordinateFiber } from "../../src/market/catalog.mjs";
 import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
 
 const rows = {
