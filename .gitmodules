@@ -51,3 +51,7 @@
 	path = services/computer-networking-engineering-services-section/services/x402-services-section
 	url = https://github.com/red-cup-engineering/x402-services-section.git
 	branch = main
+[submodule "activitypub-services-section"]
+	path = services/computer-networking-engineering-services-section/services/activitypub-services-section
+	url = https://github.com/red-cup-engineering/activitypub-services-section.git
+	branch = main

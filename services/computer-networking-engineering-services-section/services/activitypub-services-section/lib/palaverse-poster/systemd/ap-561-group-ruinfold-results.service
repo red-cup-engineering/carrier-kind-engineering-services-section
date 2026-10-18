@@ -1,7 +1,0 @@
-[Unit]
-Description=Palaverse evening-results poster: ruinfold leaderboard for the day that just closed
-
-[Service]
-Type=oneshot
-WorkingDirectory=/home/emsenn/ops/palaverse-poster
-ExecStart=/home/emsenn/.local/bin/node poster.mjs ruinfold evening
