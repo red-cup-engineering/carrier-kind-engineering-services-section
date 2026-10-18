@@ -139,6 +139,13 @@ export async function admitOfferExamples(declarations, { load } = {}) {
     const paths = declaration.validate.args ?? defaultArguments(declaration);
     if (paths.some(path => ["env", "params"].includes(path.split(".")[0]))) continue;
     try {
+      // An authored offer coordinate is knowable NOW. Silently projecting
+      // undefined from a mistyped/missing declared host limit can turn a
+      // bounded paid computation back into its unbounded pure default.
+      for (const path of paths) {
+        if (path.startsWith("offer.") && readPath({ offer: declaration }, path) === undefined)
+          throw new TypeError("declared offer argument is missing: " + path);
+      }
       const admission = await resolveBinding(declaration.validate, declaration, load ? { load } : {})({
         body: declaration.bodyExample,
         query: declaration.queryExample ?? {},
