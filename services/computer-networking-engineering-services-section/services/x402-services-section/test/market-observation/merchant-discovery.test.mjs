@@ -99,3 +99,32 @@ test("provider failure cannot fabricate a paid buyer or erase independent chain 
   assert.equal(r.settlement.measured.authorizations, 99);
   assert.equal(r.catalogAuthorizationComparison, null);
 });
+
+
+test("the official x402 v2 items wire shape reaches Networking without a custom adapter", async () => {
+  const r = await observeMarketReport({ windowBlocks: 90, merchant: MERCHANT }, environment(
+    async () => ({
+      x402Version: 2, payTo: PAY_TO,
+      pagination: { limit: 20, offset: 0, total: 2 },
+      items: [entry("a", 3, 2), entry("b", 5, 2)],
+    }),
+  ));
+  assert.equal(r.catalog.ok, true);
+  assert.equal(r.catalog.complete, true);
+  assert.equal(r.catalog.listedResources, 2);
+  assert.equal(r.catalog.calls30d, 8);
+  assert.equal(r.catalog.uniquePayers30d, null);
+});
+
+test("a seller's real call observation survives price-rail uncertainty without invented revenue", async () => {
+  const missingAsset = entry("a", 4, 2);
+  delete missingAsset.accepts[0].asset;
+  const r = await observeMarketReport({ windowBlocks: 90, merchant: MERCHANT }, environment(
+    async () => page([missingAsset]),
+  ));
+  assert.equal(r.catalog.ok, true);
+  assert.equal(r.catalog.complete, true,
+    "merchant call coverage is distinct from observed asset-price terms");
+  assert.equal(r.catalog.calls30d, 4);
+  assert.equal(r.catalogAuthorizationComparison, null);
+});
