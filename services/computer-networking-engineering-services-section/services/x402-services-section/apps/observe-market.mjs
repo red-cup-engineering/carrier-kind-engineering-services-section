@@ -12,6 +12,10 @@ export function observationOptions(argv = []) {
     const at = argv.indexOf("--" + name);
     return at < 0 ? undefined : argv[at + 1];
   };
+  for (const flag of ["window", "merchant-pay-to", "discovery-endpoint"]) {
+    if (argv.includes("--" + flag) && arg(flag) === undefined)
+      throw new TypeError("observe-x402-market --" + flag + " requires a value");
+  }
   const windowBlocks = arg("window") === undefined ? 900 : Number(arg("window"));
   if (!Number.isSafeInteger(windowBlocks) || windowBlocks < 1)
     throw new RangeError("observe-x402-market --window requires a positive integer");
@@ -27,7 +31,7 @@ export function observationOptions(argv = []) {
 
 /** Networking performs the bounded HTTP read; Data owns pagination and epistemic reduction. */
 async function readBazaarPage(url) {
-  const response = await fetch(url, { headers: { accept: "application/json" } });
+  const response = await fetch(url, { redirect: "error", headers: { accept: "application/json" } });
   if (!response.ok) throw new Error("Bazaar discovery HTTP " + response.status);
   const announced = Number(response.headers.get("content-length"));
   if (Number.isFinite(announced) && announced > MAX_PAGE_BYTES)
