@@ -155,7 +155,30 @@ export function selectPublicMarketCatalogRows(readout, mode, args = {}, policy =
           (ceiling !== undefined && value.length > ceiling)))
         throw new TypeError(field + " must be bounded, nonempty exact seller identity text");
     }
+    // A fixed atomic-price budget is meaningful only within an observed
+    // single-seller settlement rail. A variable request tariff's starting
+    // price is not its actual payable quote; never report it as affordable.
+    const maxFixedPriceAtomic = args.maxFixedPriceAtomic;
+    let ceiling;
+    if (maxFixedPriceAtomic !== undefined) {
+      if (typeof maxFixedPriceAtomic !== "string" ||
+          !/^(0|[1-9][0-9]{0,77})$/u.test(maxFixedPriceAtomic) ||
+          BigInt(maxFixedPriceAtomic) > (1n << 256n) - 1n)
+        throw new TypeError("maxFixedPriceAtomic must be one canonical uint256 atomic amount");
+      if (typeof readout.settlement?.network !== "string" ||
+          typeof readout.settlement?.asset !== "string" ||
+          !readout.settlement.network || !readout.settlement.asset)
+        throw new TypeError("atomic price search requires source-qualified network and asset");
+      ceiling = BigInt(maxFixedPriceAtomic);
+    }
     selected = listed.filter(row => {
+      if (ceiling !== undefined) {
+        if (row.pricing !== undefined ||
+            typeof row.amountAtomic !== "string" ||
+            !/^(0|[1-9][0-9]{0,77})$/u.test(row.amountAtomic) ||
+            BigInt(row.amountAtomic) > ceiling)
+          return false;
+      }
       if (args.category !== undefined && (row.category ?? "unclassified") !== args.category)
         return false;
       if (args.sellerEnterprise !== undefined && row.seller?.enterprise !== args.sellerEnterprise)
