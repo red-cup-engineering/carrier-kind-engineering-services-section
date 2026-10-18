@@ -39,3 +39,7 @@
 	path = services/computer-networking-engineering-services-section/services/oauth-services-section/services/google-oauth-services-section
 	url = https://github.com/red-cup-engineering/google-oauth-services-section.git
 	branch = main
+[submodule "indieauth-profile-service"]
+	path = services/computer-networking-engineering-services-section/services/oauth-services-section/services/indieauth-profile-service
+	url = https://github.com/red-cup-engineering/indieauth-profile-service.git
+	branch = main
