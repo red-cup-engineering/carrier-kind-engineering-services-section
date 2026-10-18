@@ -102,11 +102,17 @@ export function selectPublicMarketCatalogRows(readout, mode, args = {}, policy =
   if (!args || typeof args !== "object" || Array.isArray(args))
     throw new TypeError("tool arguments must be an object");
   const listed = readout.offers.filter(row => row?.listed === true);
+  // A public offer must have one unambiguous original SKU across EVERY buyer
+  // channel. Previously list/search admitted duplicates that exact-get refused.
+  const sourceIds = listed.map(row => row.sku);
+  if (sourceIds.some(id => typeof id !== "string" || id.length === 0))
+    throw new TypeError("public seller catalogue requires source SKU identities");
+  if (new Set(sourceIds).size !== sourceIds.length)
+    throw new TypeError("duplicate catalog SKU");
   if (mode === "get") {
     if (typeof args.sku !== "string" || args.sku === "")
       throw new TypeError("exact SKU is required");
     const found = listed.filter(row => row.sku === args.sku);
-    if (found.length > 1) throw new TypeError("duplicate catalog SKU");
     return found[0] ?? null;
   }
   if (mode !== "list" && mode !== "search")

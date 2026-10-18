@@ -102,3 +102,14 @@ nor a seller's unsigned 402 challenge authorizes a buyer wallet. Missing
 merchant identity, bad vendor counts, unreceived native packages and unobserved
 external payments remain distinct unknown/refusal conditions. No scheduled
 job, extra market ledger or price table is installed here.
+
+## One source-qualified public SKU per buyer operation
+
+The existing `./market/catalog` selector now refuses missing or repeated
+**sale-enabled** SKUs in all three original buyer projections: list, search
+and get. A buyer cannot receive a paginated offer whose exact address has
+competing public meanings. Held/unlisted historical testimony remains
+internal. Causeway's MCP and human TUFTE interfaces reuse this single native
+Networking selector, not different locally implemented catalog policies.
+The source version 0.13.3 does not itself claim release, installation,
+external purchases, or independent seller authentication.

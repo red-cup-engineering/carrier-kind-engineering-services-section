@@ -50,3 +50,16 @@ test("transport budgets are parameters, not a fixed global catalogue size",()=>{
   assert.throws(()=>select(rows,"list",null,policy),/tool arguments/);
   assert.equal(select(rows,"list",{}).offers.length,2);
 });
+
+test("all public buyer operations refuse ambiguous or unaddressed saleable SKUs", () => {
+  const duplicated = { ...rows, offers: [rows.offers[0], rows.offers[0], rows.offers[1]] };
+  for (const mode of ["list", "search", "get"]) {
+    const args = mode === "search" ? { query: "" } : mode === "get" ? { sku: "ni:1" } : {};
+    assert.throws(() => select(duplicated, mode, args, policy), /duplicate catalog SKU/);
+  }
+  const anonymous = { ...rows, offers: [{ ...rows.offers[0], sku: null }] };
+  assert.throws(() => select(anonymous, "list", {}, policy), /source SKU identities/);
+  const privateRepeat = { ...rows, offers: [rows.offers[0], { ...rows.offers[0], listed: false }] };
+  assert.equal(select(privateRepeat, "list", {}, policy).total, 1,
+    "hidden historical declarations remain outside the buyer projection");
+});
