@@ -20,7 +20,11 @@ export function requestContract(offer) {
   }
   return {
     ...(declaration.method === "POST" ? { maxBytes: declaration.requestMaxBytes ?? DEFAULT_MAX_BODY_BYTES } : {}),
-    ...(declaration.bodySchema === undefined ? {} : { bodySchema: declaration.bodySchema }),
+    // Match the REAL POST route admission, which applies the original
+    // bodySchema over an object baseline. A schema with only "required"
+    // otherwise admits strings vacuously in standalone JSON Schema evaluation.
+    ...(declaration.bodySchema === undefined ? {} : { bodySchema:
+      declaration.method === "POST" ? { type: "object", ...declaration.bodySchema } : declaration.bodySchema }),
     ...(declaration.querySchema === undefined ? {} : { querySchema: declaration.querySchema }),
     ...(declaration.pathParamsSchema === undefined ? {} : { pathParamsSchema: declaration.pathParamsSchema }),
     example,
@@ -94,6 +98,21 @@ export function publicMarketCatalogReadout(offers, rails = {}) {
  * The buyer's transport supplies the comparison budget; missing or exhausted
  * budget is returned as incomplete work, never silently called incompatible.
  */
+function hasDiscriminatingBodyObligation(schema) {
+  // An object with optional properties only accepts practically any object.
+  // That is a valid JSON Schema but does NOT tell a prospective buyer which
+  // producer can supply the operation's actual required input. Do not turn
+  // such weak schema evidence into hundreds of apparent workflow edges.
+  if (!schema || typeof schema !== "object" || Array.isArray(schema)) return false;
+  if (schema.type === "object" || schema.properties !== undefined ||
+      schema.required !== undefined) {
+    return Array.isArray(schema.required) && schema.required.length > 0;
+  }
+  // Non-object scalar/array shape is itself a discriminating requirement;
+  // this remains ONLY an example-level compatibility check, not execution.
+  return typeof schema.type === "string" && schema.type !== "object";
+}
+
 export function compareMarketOfferSamples(offers, { maxSamplePairs = 0 } = {}) {
   if (!Array.isArray(offers)) throw new TypeError("offer samples require original selected rows");
   if (!Number.isSafeInteger(maxSamplePairs) || maxSamplePairs < 0)
@@ -113,6 +132,9 @@ export function compareMarketOfferSamples(offers, { maxSamplePairs = 0 } = {}) {
     if (!valid) invalidOutputExamples.push(row.sku);
   }
   const links = [], invalidTargetSchemas = new Set();
+  const nonDiscriminatingInputSchemas = new Set(offers.filter(row =>
+    row.method === "POST" && row.request?.bodySchema !== undefined &&
+    !hasDiscriminatingBodyObligation(row.request.bodySchema)).map(row => row.sku));
   let considered = 0, refused = 0, unassayed = 0;
   const total = offers.length * Math.max(0, offers.length - 1);
   outer: for (const from of offers) {
@@ -121,7 +143,8 @@ export function compareMarketOfferSamples(offers, { maxSamplePairs = 0 } = {}) {
       if (considered >= maxSamplePairs) break outer;
       considered++;
       if (outputStates.get(from.sku) !== "admitted-example" ||
-          to.method !== "POST" || to.request?.bodySchema === undefined) {
+          to.method !== "POST" || to.request?.bodySchema === undefined ||
+          nonDiscriminatingInputSchemas.has(to.sku)) {
         unassayed++;
         continue;
       }
@@ -159,6 +182,7 @@ export function compareMarketOfferSamples(offers, { maxSamplePairs = 0 } = {}) {
     sampleUnassayedPairs: unassayed,
     invalidOutputExampleSkus: Object.freeze(invalidOutputExamples),
     invalidTargetSchemaSkus: Object.freeze([...invalidTargetSchemas]),
+    nonDiscriminatingInputSchemaSkus: Object.freeze([...nonDiscriminatingInputSchemas]),
     sampleAdmittedLinks: Object.freeze(links),
     // Neither source-authored example nor schema admission grants third-party
     // rights, wallet authority, conversion code, settlement or delivery.

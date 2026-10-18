@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { selectPublicMarketCatalogRows as select, compareMarketOfferSamples } from "../../src/market/catalog.mjs";
+import { selectPublicMarketCatalogRows as select, compareMarketOfferSamples, requestContract } from "../../src/market/catalog.mjs";
+import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
 
 const rows = {
   recordType:"x402.market-catalog/v1",
@@ -199,4 +200,50 @@ test("original sample evaluation refuses invalid sources and reports unfinished 
   ],{maxSamplePairs:2});
   assert.equal(invalidTarget.sampleAdmittedLinks.length,0);
   assert.deepEqual(invalidTarget.invalidTargetSchemaSkus,["y"]);
+});
+
+test("optional-only POST schemas cannot manufacture apparently useful workflow paths", () => {
+  const source={
+    sku:"source",method:"GET",
+    output:{schema:{type:"object",required:["amount"],properties:{amount:{type:"integer"}}},
+      example:{amount:7}},
+  };
+  const broad={sku:"broad-translate",method:"POST",
+    request:{bodySchema:{properties:{text:{type:"string"}}}}};
+  const result=compareMarketOfferSamples([source,broad],{maxSamplePairs:2});
+  assert.equal(result.complete,true);
+  assert.deepEqual(result.sampleAdmittedLinks,[]);
+  assert.deepEqual(result.nonDiscriminatingInputSchemaSkus,["broad-translate"]);
+  assert.equal(result.sampleUnassayedPairs,2);
+  assert.equal(result.authorizesExecution,false);
+  const actual={...broad,sku:"required-input",
+    request:{bodySchema:{required:["amount"],properties:{amount:{type:"integer"}}}}};
+  const repaired=compareMarketOfferSamples([source,actual],{maxSamplePairs:2});
+  assert.deepEqual(repaired.nonDiscriminatingInputSchemaSkus,[]);
+  assert.deepEqual(repaired.sampleAdmittedLinks.map(edge=>[edge.from,edge.to]),
+    [["source","required-input"]]);
+});
+
+test("one original POST request contract exposes the same object admission as the live market", () => {
+  const declaration = {
+    method:"POST", route:"/v1/consumer",
+    bodySchema:{required:["amount"],properties:{amount:{type:"integer"}}},
+    bodyExample:{amount:5},
+  };
+  const original=JSON.stringify(declaration.bodySchema);
+  const request=requestContract({declaration,probeUrl:"https://market.example/v1/consumer",
+    mimeType:"application/json"});
+  assert.equal(request.bodySchema.type,"object");
+  assert.equal(JSON.stringify(declaration.bodySchema),original,"original declaration is not rewritten");
+  assert.equal(validateJsonSchema({amount:5},request.bodySchema).valid,true);
+  assert.equal(validateJsonSchema("held",request.bodySchema).valid,false,
+    "required applies only to objects in standard JSON Schema; market admission supplies object type");
+  const source={sku:"string-producer",method:"GET",
+    output:{schema:{type:"string"},example:"held"}};
+  const target={sku:"object-consumer",method:"POST",request};
+  const comparison=compareMarketOfferSamples([source,target],{maxSamplePairs:2});
+  assert.deepEqual(comparison.sampleAdmittedLinks,[]);
+  assert.equal(comparison.sampleRefusedPairs,1,
+    "unrelated string output is not admitted as an object request");
+  assert.equal(comparison.authorizesExecution,false);
 });
