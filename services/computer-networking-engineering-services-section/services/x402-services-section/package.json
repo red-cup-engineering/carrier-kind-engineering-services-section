@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/x402-services-section",
-  "version": "0.13.3",
+  "version": "0.13.4",
   "private": false,
   "type": "module",
   "description": "Independently hireable x402 v2 HTTP payment boundary and optional currency-obligation evidence adapter using the official x402 implementation.",

@@ -357,12 +357,16 @@ export function selectMarketCoordinateFiber(readout, query = {}, policy = {}) {
     throw new TypeError("near must name one exact original seller SKU");
   const limit = query.limit ?? 20;
   const offset = query.offset ?? 0;
-  const maxPageSize = Math.min(20, policy.maxPageSize ?? 20);
-  const maxOffset = Math.min(100000, policy.maxOffset ?? 100000);
-  const maxFacetValues = Math.min(12, policy.maxFacetValues ?? 12);
-  if (!Number.isSafeInteger(limit) || limit < 1 || limit > maxPageSize ||
-      !Number.isSafeInteger(offset) || offset < 0 || offset > maxOffset ||
-      !Number.isSafeInteger(maxFacetValues) || maxFacetValues < 1)
+  // The public merchant supplies its own 20/100000/12 resource profile.
+  // This reusable, pure market reader must not enforce that merchant's alpha
+  // capacity as a mathematical ceiling for independent trusted consumers.
+  const maxPageSize = policy.maxPageSize ?? 20;
+  const maxOffset = policy.maxOffset ?? 100000;
+  const maxFacetValues = policy.maxFacetValues ?? 12;
+  if (![maxPageSize, maxOffset, maxFacetValues].every(Number.isSafeInteger) ||
+      maxPageSize < 1 || maxOffset < 0 || maxFacetValues < 1 ||
+      !Number.isSafeInteger(limit) || limit < 1 || limit > maxPageSize ||
+      !Number.isSafeInteger(offset) || offset < 0 || offset > maxOffset)
     throw new TypeError("coordinate page or facets budget exceeded");
 
   // Canonical public eligibility and original SKU uniqueness are checked by

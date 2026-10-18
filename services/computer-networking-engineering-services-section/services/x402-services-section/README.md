@@ -113,3 +113,16 @@ internal. Causeway's MCP and human TUFTE interfaces reuse this single native
 Networking selector, not different locally implemented catalog policies.
 The source version 0.13.3 does not itself claim release, installation,
 external purchases, or independent seller authentication.
+
+## Source-carrier coordinate-fiber capacity selection
+
+The original `./market/catalog` finite coordinate-fiber source no longer
+hard-caps every host to the first Causeway merchant's 20-item page, 100000
+offset or 12-facet preview. That profile remains the default, and Causeway
+continues to pass its exact HTTP resource bounds. A trusted different
+computer/market host can now select larger safe-integer budgets without
+copying a new search index or a second seller inventory. Explicit invalid
+capacity policies refuse; the result is still a source-bound, unsigned
+discovery reading and does not certify provider interchangeability,
+settlement or external purchases. Source edition 0.13.4 awaits registry
+and qualified consuming installation.

@@ -247,3 +247,34 @@ test("one original POST request contract exposes the same object admission as th
     "unrelated string output is not admitted as an object request");
   assert.equal(comparison.authorizesExecution,false);
 });
+
+test("a trusted coordinate host can select real capacity beyond the first market's alpha profile", () => {
+  const readout = {
+    recordType: "561-group.x402-market-catalog",
+    offers: Array.from({length: 25}, (_, i) => ({
+      sku: "ni:source:" + i, listed: true, name: "Source " + i,
+      gateway: "gateway-" + i, seller: { enterprise: "seller-" + i },
+      category: "category-" + i, compute:{package:"@provider/" + i},
+    })),
+  };
+  const output = selectMarketCoordinateFiber(readout, { limit:22 }, {
+    maxPageSize:22, maxOffset:100001, maxFacetValues:22,
+  });
+  assert.equal(output.total,25);
+  assert.equal(output.offers.length,22);
+  assert.equal(output.nextOffset,22);
+  assert.equal(output.facets.seller.values.length,22);
+  assert.equal(output.facets.seller.truncated,true);
+  assert.equal(selectMarketCoordinateFiber(readout, {offset:100001}, {
+    maxOffset:100001,
+  }).offers.length,0);
+  const conservative = selectMarketCoordinateFiber(readout);
+  assert.equal(conservative.offers.length,20);
+  assert.equal(conservative.facets.seller.values.length,12);
+  assert.throws(()=>selectMarketCoordinateFiber(readout,{limit:22},{
+    maxPageSize:20,
+  }),/budget exceeded/);
+  assert.throws(()=>selectMarketCoordinateFiber(readout,{},{
+    maxFacetValues:Infinity,
+  }),/budget exceeded/);
+});
