@@ -87,3 +87,7 @@
 	path = services/computer-networking-engineering-services-section/services/propublica-nonprofit-explorer-services-section
 	url = https://github.com/red-cup-engineering/propublica-nonprofit-explorer-services-section.git
 	branch = main
+[submodule "schema-org-services-section"]
+	path = services/computer-networking-engineering-services-section/services/schema-org-services-section
+	url = https://github.com/red-cup-engineering/schema-org-services-section.git
+	branch = main
