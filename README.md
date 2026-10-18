@@ -25,3 +25,5 @@ engineering disciplines are developed as nested service sections under
   systems (harnesses, platforms, and multi-agent systems) — the section that
   hosts GEODE, Horsetail, tsander, and the Claude/Codex harness-operations
   machinery.
+
+- [Computer Information System Engineering](services/computer-information-system-engineering-services-section/README.md) — computerized natural-language standards and processing, with the existing Language → English → PTGAE source hierarchy. Natural-language science remains with Lenticule.
