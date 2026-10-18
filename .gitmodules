@@ -95,3 +95,7 @@
 	path = services/computer-networking-engineering-services-section/services/ssrs-report-services-section
 	url = https://github.com/red-cup-engineering/ssrs-report-services-section.git
 	branch = main
+[submodule "usaspending-services-section"]
+	path = services/computer-networking-engineering-services-section/services/usaspending-services-section
+	url = https://github.com/red-cup-engineering/usaspending-services-section.git
+	branch = main
