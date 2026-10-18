@@ -1,2 +1,0 @@
-import assert from "node:assert/strict"; import test from "node:test"; import { mcpInitializeResult, mcpOk, mcpRpcError } from "../src/code-model-context-protocol.mts";
-test("forms MCP JSON-RPC values",()=>{assert.deepEqual(mcpOk(1,{ok:true}),{jsonrpc:"2.0",id:1,result:{ok:true}});assert.equal(mcpRpcError(1,-32600,"bad").error.code,-32600);assert.equal(mcpInitializeResult({serverInfo:{name:"test",version:"1"}}).capabilities.tools.listChanged,false);});

@@ -6,108 +6,16 @@
 	path = services/computer-data-engineering-services-section
 	url = https://github.com/red-cup-engineering/computer-data-engineering-services-section.git
 	branch = main
-[submodule "signgraph-networking"]
-	path = services/computer-networking-engineering-services-section/apps/signgraph
-	url = https://github.com/red-cup-engineering/signgraph.git
-	branch = main
-[submodule "services/computer-networking-engineering-services-section/services/federated-capability-offer-discovery-cell"]
-	path = services/computer-networking-engineering-services-section/services/federated-capability-offer-discovery-cell
-	url = https://github.com/red-cup-engineering/2026-08-06-federated-capability-offer-discovery-cell.git
-	branch = main
 [submodule "computer-systems-engineering-services-section"]
 	path = services/computer-systems-engineering-services-section
 	url = https://github.com/red-cup-engineering/computer-systems-engineering-services-section.git
 	branch = main
 
-[submodule "mcp-engineering-services-section"]
-	path = services/computer-networking-engineering-services-section/services/mcp-engineering-services-section
-	url = https://github.com/red-cup-engineering/mcp-engineering-services-section.git
-	branch = main
-[submodule "ucan-invocation-verification-service"]
-	path = services/computer-networking-engineering-services-section/services/ucan-services-section/services/ucan-invocation-verification-service
-	url = https://github.com/red-cup-engineering/ucan-invocation-verification-service.git
-	branch = main
-[submodule "code-websocket-frame-service"]
-	path = services/computer-networking-engineering-services-section/services/websocket-services-section/services/code-websocket-frame-service
-	url = https://github.com/red-cup-engineering/code-websocket-frame-service.git
-	branch = main
-[submodule "ocapn-sturdyref-admission-service"]
-	path = services/computer-networking-engineering-services-section/services/object-capability-services-section/services/ocapn-sturdyref-admission-service
-	url = https://github.com/red-cup-engineering/ocapn-sturdyref-admission-service.git
-	branch = main
-[submodule "a2a-services-section"]
-	path = services/computer-networking-engineering-services-section/services/a2a-services-section
-	url = https://github.com/red-cup-engineering/a2a-services-section.git
-	branch = main
-[submodule "http-services-section"]
-	path = services/computer-networking-engineering-services-section/services/http-services-section
-	url = https://github.com/red-cup-engineering/http-services-section.git
-	branch = main
-[submodule "oauth-services-section"]
-	path = services/computer-networking-engineering-services-section/services/oauth-services-section
-	url = https://github.com/red-cup-engineering/oauth-services-section.git
-	branch = main
-[submodule "x402-services-section"]
-	path = services/computer-networking-engineering-services-section/services/x402-services-section
-	url = https://github.com/red-cup-engineering/x402-services-section.git
-	branch = main
-[submodule "activitypub-services-section"]
-	path = services/computer-networking-engineering-services-section/services/activitypub-services-section
-	url = https://github.com/red-cup-engineering/activitypub-services-section.git
-	branch = main
-[submodule "arcgis-rest-services-section"]
-	path = services/computer-networking-engineering-services-section/services/arcgis-rest-services-section
-	url = https://github.com/red-cup-engineering/arcgis-rest-services-section.git
-	branch = main
-[submodule "consolidated-screening-list-services-section"]
-	path = services/computer-networking-engineering-services-section/services/consolidated-screening-list-services-section
-	url = https://github.com/red-cup-engineering/consolidated-screening-list-services-section.git
-	branch = main
-[submodule "google-drive-services-section"]
-	path = services/computer-networking-engineering-services-section/services/google-drive-services-section
-	url = https://github.com/red-cup-engineering/google-drive-services-section.git
-	branch = main
-[submodule "microformats-services-section"]
-	path = services/computer-networking-engineering-services-section/services/microformats-services-section
-	url = https://github.com/red-cup-engineering/microformats-services-section.git
-	branch = main
-[submodule "micropub-services-section"]
-	path = services/computer-networking-engineering-services-section/services/micropub-services-section
-	url = https://github.com/red-cup-engineering/micropub-services-section.git
-	branch = main
-[submodule "microsub-services-section"]
-	path = services/computer-networking-engineering-services-section/services/microsub-services-section
-	url = https://github.com/red-cup-engineering/microsub-services-section.git
-	branch = main
-[submodule "openfda-services-section"]
-	path = services/computer-networking-engineering-services-section/services/openfda-services-section
-	url = https://github.com/red-cup-engineering/openfda-services-section.git
-	branch = main
-[submodule "propublica-nonprofit-explorer-services-section"]
-	path = services/computer-networking-engineering-services-section/services/propublica-nonprofit-explorer-services-section
-	url = https://github.com/red-cup-engineering/propublica-nonprofit-explorer-services-section.git
-	branch = main
-[submodule "schema-org-services-section"]
-	path = services/computer-networking-engineering-services-section/services/schema-org-services-section
-	url = https://github.com/red-cup-engineering/schema-org-services-section.git
-	branch = main
-[submodule "ssrs-report-services-section"]
-	path = services/computer-networking-engineering-services-section/services/ssrs-report-services-section
-	url = https://github.com/red-cup-engineering/ssrs-report-services-section.git
-	branch = main
-[submodule "usaspending-services-section"]
-	path = services/computer-networking-engineering-services-section/services/usaspending-services-section
-	url = https://github.com/red-cup-engineering/usaspending-services-section.git
-	branch = main
-[submodule "web-syndication-services-section"]
-	path = services/computer-networking-engineering-services-section/services/web-syndication-services-section
-	url = https://github.com/red-cup-engineering/web-syndication-services-section.git
-	branch = main
-[submodule "webmention-service"]
-	path = services/computer-networking-engineering-services-section/services/webmention-service
-	url = https://github.com/red-cup-engineering/webmention-service.git
-	branch = main
 [submodule "signstuff-evm"]
 	path = lib/signstuff/signstuff-evm
 	url = https://github.com/red-cup-engineering/signstuff-evm.git
+	branch = main
+[submodule "computer-networking-engineering-services-section"]
+	path = services/computer-networking-engineering-services-section
+	url = https://github.com/red-cup-engineering/computer-networking-engineering-services-section.git
 	branch = main

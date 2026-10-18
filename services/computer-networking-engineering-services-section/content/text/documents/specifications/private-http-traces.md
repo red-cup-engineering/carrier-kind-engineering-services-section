@@ -1,9 +1,0 @@
-# Private HTTP request traces
-
-Kalshi ASSIST receives private Google sessions, API/MCP credentials and account-connection forms. The native web producer constructs its HTTP trace before a domain handler; its former all-header/raw-URL projection retained Cookie, Authorization and OAuth callback query values. This violated app-private credential custody even though domain handlers did not persist form bodies.
-
-The shared Networking HTTP trace owns the correction. Its semantic trace retains method, route, query names, header names, ordinary negotiation metadata, request identity and clocks. Credential-bearing header values, URL userinfo, fragments and all query values are redacted before any trace entry can be settled or persisted. URL-valued referer/original-URI headers use that same projection; malformed URLs do not fall back to raw values. The original request remains intact for actual routing, provider callback verification and authentication. A redacted trace is not a wire-byte witness or an authentication input.
-
-Source consumer review found the shared dispatcher reads only the trace method; routing uses the separate original context URL. The native web producer and PIS/Google authentication read original request headers/URL. No body is added to the trace, no route or credential capability is removed, and no parallel logging store is introduced.
-
-After complete immutable fabrication, independent receiving must exercise actual native and portable entrances with OAuth code/state, Cookie, Authorization, private API-key headers and a referer carrying callback values; none may occur in their settled traces, response hooks or persisted trace records. Actual callback, authenticated session, ordinary route/query interpretation and negotiation still need useful consumer receiving. Source parsing/publication alone does not establish those effects.
