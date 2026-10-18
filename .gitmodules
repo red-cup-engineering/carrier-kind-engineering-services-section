@@ -99,3 +99,7 @@
 	path = services/computer-networking-engineering-services-section/services/usaspending-services-section
 	url = https://github.com/red-cup-engineering/usaspending-services-section.git
 	branch = main
+[submodule "web-syndication-services-section"]
+	path = services/computer-networking-engineering-services-section/services/web-syndication-services-section
+	url = https://github.com/red-cup-engineering/web-syndication-services-section.git
+	branch = main
