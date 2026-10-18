@@ -221,3 +221,17 @@ test("the shared HTTP provider refuses loopback, private DNS and redirects befor
   }), /exceeded 0 redirects/u);
   assert.equal(requests, 1, "no redirected endpoint receives Coinbase's bearer token");
 });
+
+
+test("source-unattributed merchant rows cannot become demand in the installed Networking observer", async () => {
+  const unscoped = entry("seller-unknown", 9, 4);
+  delete unscoped.accepts[0].payTo;
+  const r = await observeMarketReport({
+    windowBlocks: 90, merchant: MERCHANT,
+  }, environment(async () => page([unscoped])));
+  assert.equal(r.catalog.ok, false);
+  assert.match(r.catalog.reason, /accepts payTo/u);
+  assert.equal(r.catalog.calls30d, undefined);
+  assert.equal(r.settlement.measured.authorizations, 99,
+    "separate Base-chain observation must not be erased by Bazaar's refusal");
+});
