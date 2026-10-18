@@ -96,3 +96,40 @@ test("comparison rejects ambiguous and unbudgeted caller-selected sets", () => {
   assert.throws(() => select(rows, "compare", { skus: "ni:1,ni:2" }, policy), /distinct, bounded, exact seller SKUs/);
   assert.throws(() => select(rows, "compare", null, policy), /tool arguments/);
 });
+
+
+test("exact price filters cannot mistake starting tariffs for a buyer's fixed price", () => {
+  const readout = {
+    ...rows,
+    settlement: { network: "eip155:8453", asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" },
+    offers: [
+      { ...rows.offers[0], sku: "ni:cheap", amountAtomic: "1000", category: "data" },
+      { ...rows.offers[1], sku: "ni:costly", amountAtomic: "20000", category: "data" },
+      { ...rows.offers[0], sku: "ni:variable", amountAtomic: "100",
+        pricing: { minimumAtomic: "100", mode: "canonical-json-byte-bands" } },
+      { ...rows.offers[1], sku: "ni:unknown", amountAtomic: null },
+      { ...rows.offers[0], sku: "ni:held", listed: false, amountAtomic: "1" },
+    ],
+  };
+  assert.deepEqual(select(readout, "search", { query: "", maxFixedPriceAtomic: "1000" }).offers.map(row=>row.sku),
+    ["ni:cheap"]);
+  assert.deepEqual(select(readout, "search", { query: "", maxFixedPriceAtomic: "20000" }).offers.map(row=>row.sku),
+    ["ni:cheap", "ni:costly"]);
+  assert.equal(select(readout, "search", { query: "", maxFixedPriceAtomic: "0" }).total, 0);
+  assert.deepEqual(select(readout, "search", { query: "gas", category: "data", maxFixedPriceAtomic: "1000" })
+    .offers.map(row=>row.sku), ["ni:cheap"], "filter composes with existing literal discovery");
+  assert.equal(readout.offers[2].amountAtomic, "100", "price filters never mutate the seller");
+});
+
+test("atomic budget search refuses missing settlement denomination and misleading price syntax", () => {
+  const priced = { ...rows, settlement: { network: "eip155:8453", asset: "0x" + "ab".repeat(20) } };
+  assert.throws(() => select(rows, "search", { query: "", maxFixedPriceAtomic: "1000" }),
+    /requires source-qualified network and asset/);
+  for (const val of [1, "-1", "01", "1.0", "1e9", "", "a", "0".repeat(2), "9".repeat(90)]) {
+    assert.throws(() => select(priced, "search", { query: "", maxFixedPriceAtomic: val }),
+      /canonical uint256 atomic amount/);
+  }
+  assert.throws(() => select(priced, "search", {
+    query: "", maxFixedPriceAtomic: "9".repeat(78),
+  }), /canonical uint256 atomic amount/, "uint256 overflow must not be silently accepted");
+});
