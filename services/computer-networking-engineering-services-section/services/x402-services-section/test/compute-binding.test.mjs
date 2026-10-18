@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { bindingSpecifier, defaultArguments, projectArguments, resolveBinding } from "../src/compute-binding.mjs";
+import { admitOfferExamples, bindingSpecifier, defaultArguments, projectArguments, resolveBinding } from "../src/compute-binding.mjs";
 import { declareCatalog, declareOffer, sellerCatalogRows } from "../src/offer.mjs";
 
 const RAILS = { network: "eip155:8453", asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", payTo: "0x32886F6F361C1d570255c2762967A2e41D0E9B1a" };
@@ -110,3 +110,52 @@ test("a binding reads facts of its own offer, so one function can sell several o
   assert.deepEqual(args, ["x", { bucket: true }]);
 });
 
+
+test("seller examples must exercise their real offer configuration before an offer is published", async () => {
+  const seen = [];
+  const declaration = {
+    method: "POST", route: "/v1/attention/allocate",
+    bodyExample: { budget: 3, obstructions: [{ id: "a", cost: 1, benefit: 1 }] },
+    compute: { configuration: { maxSearchNodes: 24, maxObstructions: 4 } },
+    validate: { package: "@a/metrologic", export: "validate",
+      args: ["body", "offer.compute.configuration"] },
+  };
+  const load = async name => {
+    assert.equal(name, "@a/metrologic");
+    return { validate(body, policy) {
+      seen.push({ body, policy });
+      if (body.obstructions.length > policy.maxObstructions)
+        throw new RangeError("too many obstructions for this host");
+    } };
+  };
+  await admitOfferExamples([declaration], { load });
+  assert.equal(seen.length, 1, "offer.* paths are original known data, not deferred host effects");
+  assert.equal(seen[0].body, declaration.bodyExample);
+  assert.deepEqual(seen[0].policy, declaration.compute.configuration);
+  const malformed = { ...declaration, bodyExample: {
+    budget: 3, obstructions: Array.from({ length: 5 }, (_, i) => ({ id: String(i), cost: 1, benefit: 1 })),
+  } };
+  await assert.rejects(() => admitOfferExamples([malformed], { load }),
+    /offer examples refused by their own validation:[\s\S]*too many obstructions/);
+  assert.equal(seen.length, 2);
+});
+
+test("external env/params admission waits for actual host; pure declarations do not", async () => {
+  let imported = 0;
+  const load = async () => {
+    imported++;
+    return { validate: () => { throw new TypeError("bad example"); } };
+  };
+  const base = { method: "POST", route: "/v1/x", bodyExample: { data: 1 } };
+  const dynamic = [
+    { ...base, validate: { package: "@a/b", export: "validate", args: ["env.TOKEN"] } },
+    { ...base, validate: { package: "@a/b", export: "validate", args: ["params.id"] } },
+  ];
+  await admitOfferExamples(dynamic, { load });
+  assert.equal(imported, 0, "only genuinely unavailable environment and route arguments defer");
+  await assert.rejects(() => admitOfferExamples([
+    { ...base, validate: { package: "@a/b", export: "validate", args: ["body"] } },
+  ], { load }), /bad example/);
+  assert.equal(imported, 1);
+  await assert.rejects(() => admitOfferExamples(null, { load }), /declaration records/);
+});
