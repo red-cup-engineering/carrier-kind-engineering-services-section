@@ -55,3 +55,7 @@
 	path = services/computer-networking-engineering-services-section/services/activitypub-services-section
 	url = https://github.com/red-cup-engineering/activitypub-services-section.git
 	branch = main
+[submodule "arcgis-rest-services-section"]
+	path = services/computer-networking-engineering-services-section/services/arcgis-rest-services-section
+	url = https://github.com/red-cup-engineering/arcgis-rest-services-section.git
+	branch = main
