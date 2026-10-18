@@ -47,3 +47,7 @@
 	path = services/computer-networking-engineering-services-section/services/ucan-services-section/services/ucan-invocation-verification-service
 	url = https://github.com/red-cup-engineering/ucan-invocation-verification-service.git
 	branch = main
+[submodule "code-websocket-frame-service"]
+	path = services/computer-networking-engineering-services-section/services/websocket-services-section/services/code-websocket-frame-service
+	url = https://github.com/red-cup-engineering/code-websocket-frame-service.git
+	branch = main
