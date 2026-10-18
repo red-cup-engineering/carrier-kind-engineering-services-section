@@ -139,10 +139,15 @@ export async function admitOfferExamples(declarations, { load } = {}) {
     const paths = declaration.validate.args ?? defaultArguments(declaration);
     if (paths.some(path => ["env", "params"].includes(path.split(".")[0]))) continue;
     try {
-      await resolveBinding(declaration.validate, declaration, load ? { load } : {})({
+      const admission = await resolveBinding(declaration.validate, declaration, load ? { load } : {})({
         body: declaration.bodyExample,
         query: declaration.queryExample ?? {},
       });
+      // Validation operations may be ordinary throwing functions, a Boolean
+      // predicate, or a house Result carrier. None of the latter's explicit
+      // refusals may silently become a saleable example.
+      if (admission === false || admission?.ok === false || admission?.admitted === false)
+        throw new TypeError("offered sample was refused by its original validator");
     } catch (error) {
       refused.push(String(declaration.method) + " " + String(declaration.route) + ": " +
         (error instanceof Error ? error.message : String(error)));
