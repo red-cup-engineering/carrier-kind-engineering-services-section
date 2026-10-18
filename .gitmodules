@@ -51,3 +51,7 @@
 	path = services/computer-networking-engineering-services-section/services/websocket-services-section/services/code-websocket-frame-service
 	url = https://github.com/red-cup-engineering/code-websocket-frame-service.git
 	branch = main
+[submodule "ocapn-sturdyref-admission-service"]
+	path = services/computer-networking-engineering-services-section/services/object-capability-services-section/services/ocapn-sturdyref-admission-service
+	url = https://github.com/red-cup-engineering/ocapn-sturdyref-admission-service.git
+	branch = main
