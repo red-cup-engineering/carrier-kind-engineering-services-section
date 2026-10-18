@@ -63,3 +63,7 @@
 	path = services/computer-networking-engineering-services-section/services/consolidated-screening-list-services-section
 	url = https://github.com/red-cup-engineering/consolidated-screening-list-services-section.git
 	branch = main
+[submodule "google-drive-services-section"]
+	path = services/computer-networking-engineering-services-section/services/google-drive-services-section
+	url = https://github.com/red-cup-engineering/google-drive-services-section.git
+	branch = main
