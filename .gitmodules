@@ -107,3 +107,7 @@
 	path = services/computer-networking-engineering-services-section/services/webmention-service
 	url = https://github.com/red-cup-engineering/webmention-service.git
 	branch = main
+[submodule "signstuff-evm"]
+	path = lib/signstuff/signstuff-evm
+	url = https://github.com/red-cup-engineering/signstuff-evm.git
+	branch = main
