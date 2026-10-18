@@ -31,3 +31,7 @@
 	path = services/computer-networking-engineering-services-section/services/a2a-services-section/services/a2a-sovereign-operation-boundary-service
 	url = https://github.com/red-cup-engineering/a2a-sovereign-operation-boundary-service.git
 	branch = main
+[submodule "json-rpc-transport-service"]
+	path = services/computer-networking-engineering-services-section/services/http-services-section/services/json-rpc-transport-service
+	url = https://github.com/red-cup-engineering/json-rpc-transport-service.git
+	branch = main
