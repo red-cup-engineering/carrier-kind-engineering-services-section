@@ -17,9 +17,9 @@
       "says": "MOOSE meets and then beats each named Fediverse peer in its relevant workflows with independently received, version-pinned cross-server results. No source-only results imply satisfaction."
     },
     {
-      "cell": "moose:feltos-application",
+      "cell": "moose:feltos-driver-federation",
       "target": "held",
-      "says": "The live installed import closure resolves MetroPlat→FeltOS→MOOSE→Living Web Server, every importer uses the imported application's real capabilities and remote ActivityPub++ receiving succeeds."
+      "says": "A live FeltOS driver loads a MetroPlat world library; independent signed MOOSE federation works without a false FeltOS application-of MetroPlat edge."
     }
   ],
   "tier": "major",
@@ -87,7 +87,7 @@
         },
         {
           "id": "R7",
-          "says": "MOOSE shall be MUD, Object Oriented, Socially Extended: a reusable FeltOS child application and platform which imports the Living Web Server application. MOOSERP is not a product.",
+          "says": "MOOSE is the separately owned social/federation provider whose actual package FeltOS must use for signed ActivityPub++; MOOSE requires Living Web Server. Neither provider is an enterprise app installed in MetroPlat, and MOOSERP is not a product.",
           "class": "constraint",
           "moscow": "must",
           "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
@@ -115,7 +115,7 @@
         },
         {
           "id": "R11",
-          "says": "FeltOS MUST import MOOSE as an actual source/package dependency when installing and constructing its federated social capability; MOOSE remains a FeltOS application and reusable platform, not an ancestor. There shall be no inverted MOOSE→FeltOS import or independent competing FeltOS social-server implementation.",
+          "says": "FeltOS must import MOOSE as a qualified social/federation provider rather than implement a competing signed ActivityPub++ server. FeltOS remains a MUD driver; its MOOSE dependency does not make it an application installed in MetroPlat.",
           "class": "architecture",
           "moscow": "must",
           "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
@@ -129,10 +129,10 @@
         },
         {
           "id": "R13",
-          "says": "MetroPlat shall import FeltOS as an application and reusable platform; it may import additional independent applications and shall not infer application hierarchy from legacy host-process names.",
+          "says": "MetroPlat is the enterprise world library (mudlib) loaded by the FeltOS MUD driver. FeltOS is not a MetroPlat application. MetroPlat may use the FeltOS driver API and install separately authored enterprise applications within its worlds.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
+          "rationale": "Leader, 2026-10-18: 'FluffOS:Discworld::FeltOS:MetroPlat' and explicit rejection of FeltOS-as-MetroPlat-application. September 28 engineering glossary agrees. Supersedes prior mistaken active hierarchy."
         },
         {
           "id": "R14",
@@ -143,10 +143,10 @@
         },
         {
           "id": "R15",
-          "says": "MetroPlat, FeltOS, MOOSE and Living Web Server shall each be an application platform open to independent applications, with the required parent→child import edges MetroPlat→FeltOS→MOOSE→Living Web Server. Actual import declarations shall resolve to real source-owned providers; do not create placeholder packages or invert edges because the children are applications of their parents.",
+          "says": "The FeltOS driver must load a qualified MetroPlat feltos.world-library descriptor via FELTOS_LIBRARY; MetroPlat composes original application packages, no per-app MetroPlat adapter. This is driver/world-library, NOT application-of in either direction. Separate FeltOS-to-MOOSE and MOOSE-to-Living Web Server imports remain qualified independently.",
           "class": "architecture",
           "moscow": "must",
-          "rationale": "Leader's explicit correction on 2026-10-16: 'Feltos must import moose. Moose must import living Web server.' Earlier interpretation incorrectly prohibited importing a child application."
+          "rationale": "Leader, 2026-10-18: 'FluffOS:Discworld::FeltOS:MetroPlat' and explicit rejection of FeltOS-as-MetroPlat-application. September 28 engineering glossary agrees. Supersedes prior mistaken active hierarchy."
         }
       ],
       "conditions": [
@@ -172,8 +172,8 @@
           ]
         },
         {
-          "id": "moose:feltos-application",
-          "says": "Inspect actual installed source imports: MetroPlat imports FeltOS, FeltOS imports MOOSE and MOOSE imports Living Web Server; exercise the resulting fediverse capability with real history, while each imported application remains its own reusable platform and each parent can import other applications.",
+          "id": "moose:feltos-driver-federation",
+          "says": "Demonstrate the installed driver loading MetroPlat library plus an independently qualified MOOSE federation provider and preserving real source/actor receipts.",
           "method": "independent installed receiving with real remote nodes and revision-pinned observables",
           "verifies": [
             "R7",
@@ -196,8 +196,8 @@
           ]
         },
         {
-          "id": "semioverse:application-platform-hierarchy",
-          "says": "The source/dependency manifests and executable entrypoints show all three parent→child import edges, not just an application-of declaration. Independent receiving demonstrates correct Fediverse behavior, a resolved installed artifact for each import, and independent additional applications under each platform.",
+          "id": "semioverse:driver-library-hierarchy",
+          "says": "Driver/library entrypoints and immutable closure prove FeltOS loads MetroPlat without treating either as an application of the other; MOOSE and Living Web Server imports are separate unreceived obligations.",
           "method": "typed descriptor validation and installed receiving",
           "verifies": [
             "R13",
@@ -270,7 +270,12 @@
       },
       "publicKey": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAuRpAxhrz5bOFIn5GmicNWZtNDSSruqwfTGlBmKH1WOs=\n-----END PUBLIC KEY-----\n"
     },
-    "current-signature-standing": "This expanded source is NOT re-attested by the July requirement-management seat; retained old typed mark and attestation refer to the earlier record before amendments and must not be presented as a current signature."
+    "current-signature-standing": "This expanded source is NOT re-attested by the July requirement-management seat; retained old typed mark and attestation refer to the earlier record before amendments and must not be presented as a current signature.",
+    "driver-library-correction-2026-10-18": {
+      "leaderSource": "FeltOS is not meant to be an application in MetroPlat. MetroPlat is meant to be a library for FeltOS. FluffOS:Discworld::FeltOS:MetroPlat.",
+      "supersedes": "Operative FeltOS/MetroPlat application-of and platform-for assertions authored in October 16 records; prior utterances retained as historical evidence.",
+      "status": "Corrected requirement and typed semantic graph, without claiming a published registry/installed machine."
+    }
   },
   "comparison": {
     "required-of": "561-group",
@@ -381,94 +386,110 @@
     "scope-note": "Meet and beat is per peer's relevant domain; it does not mean one mock social UI is interchangeable with each heterogeneous application."
   },
   "application-platform-hierarchy": {
-    "kind": "semioverse.application-platform-hierarchy/v1",
-    "root": "MetroPlat",
+    "kind": "semioverse.driver-world-library-graph/v1",
+    "root": "FeltOS",
     "nodes": [
       {
-        "id": "MetroPlat",
-        "kind": "application-platform",
-        "applicationOf": null,
-        "platformFor": [
-          "FeltOS"
+        "id": "FeltOS",
+        "kind": "mud-driver",
+        "loadsWorldLibraries": [
+          "MetroPlat"
         ],
-        "otherApplicationsAllowed": true,
-        "supportsOtherApplications": true
+        "otherLibrariesAllowed": true,
+        "owns": [
+          "runtime",
+          "MUD process",
+          "clock",
+          "network host"
+        ]
       },
       {
-        "id": "FeltOS",
-        "kind": "application-platform",
-        "applicationOf": "MetroPlat",
-        "platformFor": [
-          "MOOSE"
-        ],
-        "otherApplicationsAllowed": true
+        "id": "MetroPlat",
+        "kind": "world-library",
+        "worldLibraryFor": "FeltOS",
+        "supportsOtherApplications": true,
+        "owns": [
+          "enterprise world semantics",
+          "institutional authority",
+          "app composition"
+        ]
       },
       {
         "id": "MOOSE",
-        "kind": "application-platform",
-        "applicationOf": "FeltOS",
-        "platformFor": [
-          "Living Web Server"
+        "kind": "social-federation-provider",
+        "providesTo": [
+          "FeltOS"
         ],
-        "otherApplicationsAllowed": true,
-        "expansion": "MUD, Object Oriented, Socially Extended"
+        "providerStatus": "not qualified as installed"
       },
       {
         "id": "Living Web Server",
-        "kind": "application-platform",
-        "applicationOf": "MOOSE",
-        "platformFor": [],
-        "otherApplicationsAllowed": true
+        "kind": "web-provider",
+        "providesTo": [
+          "MOOSE"
+        ],
+        "providerStatus": "not qualified as installed"
       }
     ],
     "typedRelations": [
       {
         "subject": "FeltOS",
-        "predicate": "application-of",
+        "predicate": "loads-world-library",
         "object": "MetroPlat"
       },
       {
-        "subject": "MOOSE",
-        "predicate": "application-of",
+        "subject": "MetroPlat",
+        "predicate": "world-library-for",
         "object": "FeltOS"
       },
       {
-        "subject": "Living Web Server",
-        "predicate": "application-of",
+        "subject": "MetroPlat",
+        "predicate": "uses-driver-API",
+        "object": "FeltOS"
+      },
+      {
+        "subject": "FeltOS",
+        "predicate": "must-import",
         "object": "MOOSE"
+      },
+      {
+        "subject": "MOOSE",
+        "predicate": "must-import",
+        "object": "Living Web Server"
       }
     ],
     "distinctions": [
-      "Application-of alone does not impose an import; in this chain the Leader explicitly imposes parent-to-child imports at each edge.",
-      "Deployment host, service instance, HTTP transport, public website and server process are distinct from application-platform composition.",
-      "The generic Computer Web Server and ActivityPub Services Section provide lower-level reusable implementations and are not the Living Web Server product.",
-      "No named level is a one-customer specialization: each independently supports other child applications.",
-      "A missing source-owned package must be surfaced as a delivery blocker, not satisfied by naming a nonexistent npm dependency or a placeholder implementation."
+      "Driver loads mudlib: not application-of in either direction.",
+      "World instance is configuration and state, never a distinct software executable.",
+      "Driver owns server/network/process; world library composes semantic operations and installs its independent apps.",
+      "Package import of driver API by a mudlib does not reverse runtime loading.",
+      "MOOSE and Living Web Server are separately qualified provider obligations.",
+      "Absent package/installed receiving remains a blocker, not an invented release."
     ],
-    "stage": "parent-to-child-imports-required; MOOSE and Living Web Server actual imports not yet established",
+    "stage": "driver/mudlib source typing corrected; host and registry receiving owed",
     "requiredImports": [
       {
         "importer": "MetroPlat",
         "imported": "FeltOS",
-        "relation": "must-import",
-        "providerStatus": "actual currently declared package dependency",
-        "stage": "implementation exists, other contracts remain unqualified"
+        "relation": "driver-api-consumer",
+        "providerStatus": "MetroPlat declares FeltOS peer API",
+        "stage": "source, installed unresolved"
       },
       {
         "importer": "FeltOS",
         "imported": "MOOSE",
         "relation": "must-import",
-        "providerStatus": "source package not yet located",
-        "stage": "requirement, executable dependency not yet installed"
+        "providerStatus": "missing installed source",
+        "stage": "unreceived"
       },
       {
         "importer": "MOOSE",
         "imported": "Living Web Server",
         "relation": "must-import",
-        "providerStatus": "MOOSE source package not yet located; Living Web Server also not located",
-        "stage": "requirement, executable dependency not yet installed"
+        "providerStatus": "missing installed source",
+        "stage": "unreceived"
       }
     ],
-    "importDirection": "Parent platform imports the named child application and can import other independent applications. Child application-of-parent and parent-imports-child are compatible, distinct typed relations."
+    "importDirection": "MetroPlat may import FeltOS driver APIs while FeltOS loads MetroPlat as a world library; importing does not imply application-of."
   }
 }
