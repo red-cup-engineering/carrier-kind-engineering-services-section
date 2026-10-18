@@ -63,3 +63,36 @@ test("all public buyer operations refuse ambiguous or unaddressed saleable SKUs"
   assert.equal(select(privateRepeat, "list", {}, policy).total, 1,
     "hidden historical declarations remain outside the buyer projection");
 });
+
+
+test("source-owned comparison of exact public SKUs retains requested order and original seller representations", () => {
+  const reading = select(rows, "compare", { skus: ["ni:2", "ni:1"] },
+    { maxComparedOffers: 8, maxSkuLength: 256 });
+  assert.equal(reading.kind, "x402.market.offer-comparison.v1");
+  assert.deepEqual(reading.requestedSkus, ["ni:2", "ni:1"]);
+  assert.equal(reading.offers[0], rows.offers[1], "original addressed offer, not a fabricated clone");
+  assert.equal(reading.offers[1], rows.offers[0]);
+  assert.deepEqual(reading.missingSkus, []);
+  assert.equal(Object.isFrozen(reading.offers), true);
+  assert.match(reading.basis, /no operation equivalence/);
+});
+
+test("comparison cannot expose held/unlisted offers or invent unknown suppliers", () => {
+  const reading = select(rows, "compare", { skus: ["ni:3", "ni:unknown", "ni:1"] },
+    { maxComparedOffers: 8, maxSkuLength: 256 });
+  assert.deepEqual(reading.offers.map(x => x.sku), ["ni:1"]);
+  assert.deepEqual(reading.missingSkus, ["ni:3", "ni:unknown"]);
+  assert.equal(reading.offers.some(x => x.listed === false), false);
+  assert.throws(() => select({ ...rows, offers: [rows.offers[0], rows.offers[0]] },
+    "compare", { skus: ["ni:1", "ni:2"] }), /duplicate catalog SKU/);
+});
+
+test("comparison rejects ambiguous and unbudgeted caller-selected sets", () => {
+  const policy = { maxComparedOffers: 3, maxSkuLength: 20 };
+  for (const skus of [
+    ["ni:1"], ["ni:1", "ni:1"], ["ni:1", ""], ["ni:1", null],
+    ["ni:1", "x".repeat(21)], ["ni:1", "ni:2", "ni:3", "ni:4"],
+  ]) assert.throws(() => select(rows, "compare", { skus }, policy), /distinct, bounded, exact seller SKUs/);
+  assert.throws(() => select(rows, "compare", { skus: "ni:1,ni:2" }, policy), /distinct, bounded, exact seller SKUs/);
+  assert.throws(() => select(rows, "compare", null, policy), /tool arguments/);
+});
