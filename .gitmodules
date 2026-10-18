@@ -23,10 +23,6 @@
 	path = services/computer-networking-engineering-services-section/services/mcp-engineering-services-section
 	url = https://github.com/red-cup-engineering/mcp-engineering-services-section.git
 	branch = main
-[submodule "json-rpc-transport-service"]
-	path = services/computer-networking-engineering-services-section/services/http-services-section/services/json-rpc-transport-service
-	url = https://github.com/red-cup-engineering/json-rpc-transport-service.git
-	branch = main
 [submodule "google-oauth-services-section"]
 	path = services/computer-networking-engineering-services-section/services/oauth-services-section/services/google-oauth-services-section
 	url = https://github.com/red-cup-engineering/google-oauth-services-section.git
@@ -54,4 +50,8 @@
 [submodule "a2a-services-section"]
 	path = services/computer-networking-engineering-services-section/services/a2a-services-section
 	url = https://github.com/red-cup-engineering/a2a-services-section.git
+	branch = main
+[submodule "http-services-section"]
+	path = services/computer-networking-engineering-services-section/services/http-services-section
+	url = https://github.com/red-cup-engineering/http-services-section.git
 	branch = main

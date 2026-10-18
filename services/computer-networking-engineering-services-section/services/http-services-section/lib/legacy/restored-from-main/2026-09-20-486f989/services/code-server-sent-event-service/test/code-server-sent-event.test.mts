@@ -1,2 +1,0 @@
-import assert from "node:assert/strict"; import test from "node:test"; import { parseSseStream, sseFrame, sseHeaders } from "../src/code-server-sent-event.mts";
-test("forms and parses server-sent events",()=>{const wire=sseFrame("update",{ok:true},"7");assert.deepEqual(parseSseStream(wire)[0],{event:"update",data:'{"ok":true}',id:"7"});assert.equal(sseHeaders()["content-type"],"text/event-stream");});
