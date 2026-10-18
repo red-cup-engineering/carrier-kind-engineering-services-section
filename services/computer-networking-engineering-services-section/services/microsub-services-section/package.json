@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Microsub (W3C draft): the channel, timeline, search and follow request grammar, timeline pages, and the Microsub endpoint.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/microsub-services-section"
+  },
   "exports": {
     "./codec": "./src/codec.mjs",
     "./timeline": "./src/timeline.mjs",

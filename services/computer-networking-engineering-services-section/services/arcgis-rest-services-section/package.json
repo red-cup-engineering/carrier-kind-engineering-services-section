@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "type": "module",
   "description": "ArcGIS REST: querying a feature layer (counts, paged attribute reads) from any public ArcGIS Server or Hub.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/arcgis-rest-services-section"
+  },
   "engines": {
     "node": ">=22.18"
   },

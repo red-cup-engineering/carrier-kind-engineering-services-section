@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "type": "module",
   "description": "USAspending.gov's award-search API: federal grants and cooperative agreements by agency, keyword and time period.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/usaspending-services-section"
+  },
   "engines": {
     "node": ">=22.18"
   },

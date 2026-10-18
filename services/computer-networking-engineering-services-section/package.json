@@ -3,6 +3,11 @@
   "version": "0.1.2",
   "type": "module",
   "description": "Groups services for networking between computer systems; its library module is SignGraph, the general graph carrier and relation-web organization.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section"
+  },
   "dependencies": {
     "@red-cup-engineering/read-markdown-structure-service": "0.2.0",
     "@red-cup-engineering/read-markdown-features-service": "0.2.0",

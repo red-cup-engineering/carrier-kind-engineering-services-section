@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "type": "module",
   "description": "SQL Server Reporting Services: exporting a public ReportViewer report as CSV or another data format through its report session.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/ssrs-report-services-section"
+  },
   "engines": {
     "node": ">=22.18"
   },

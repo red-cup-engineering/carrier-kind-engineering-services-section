@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "type": "module",
   "description": "openFDA's public API: queries over the FDA's published datasets (device registration and listing, recalls, enforcement), paged past the skip limit by the API's own next links.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/openfda-services-section"
+  },
   "engines": {
     "node": ">=22.18"
   },

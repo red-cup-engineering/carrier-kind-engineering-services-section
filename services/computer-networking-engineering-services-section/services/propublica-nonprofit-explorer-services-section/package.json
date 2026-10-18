@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "type": "module",
   "description": "ProPublica's Nonprofit Explorer API: searching the IRS exempt-organization list by name/keyword and reading one organization's address and filings by EIN.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/computer-engineering-services-section.git",
+    "directory": "services/computer-networking-engineering-services-section/services/propublica-nonprofit-explorer-services-section"
+  },
   "engines": {
     "node": ">=22.18"
   },
