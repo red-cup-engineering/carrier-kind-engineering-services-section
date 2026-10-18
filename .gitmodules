@@ -79,3 +79,7 @@
 	path = services/computer-networking-engineering-services-section/services/microsub-services-section
 	url = https://github.com/red-cup-engineering/microsub-services-section.git
 	branch = main
+[submodule "openfda-services-section"]
+	path = services/computer-networking-engineering-services-section/services/openfda-services-section
+	url = https://github.com/red-cup-engineering/openfda-services-section.git
+	branch = main
