@@ -23,3 +23,7 @@
 	path = services/computer-networking-engineering-services-section/services/mcp-engineering-services-section
 	url = https://github.com/red-cup-engineering/mcp-engineering-services-section.git
 	branch = main
+[submodule "a2a-rmn-part-service"]
+	path = services/computer-networking-engineering-services-section/services/a2a-services-section/services/a2a-rmn-part-service
+	url = https://github.com/red-cup-engineering/a2a-rmn-part-service.git
+	branch = main
