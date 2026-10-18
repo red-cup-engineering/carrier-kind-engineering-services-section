@@ -103,3 +103,7 @@
 	path = services/computer-networking-engineering-services-section/services/web-syndication-services-section
 	url = https://github.com/red-cup-engineering/web-syndication-services-section.git
 	branch = main
+[submodule "webmention-service"]
+	path = services/computer-networking-engineering-services-section/services/webmention-service
+	url = https://github.com/red-cup-engineering/webmention-service.git
+	branch = main
