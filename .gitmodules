@@ -35,10 +35,6 @@
 	path = services/computer-networking-engineering-services-section/services/object-capability-services-section/services/ocapn-sturdyref-admission-service
 	url = https://github.com/red-cup-engineering/ocapn-sturdyref-admission-service.git
 	branch = main
-[submodule "x402-exact-purchase-service"]
-	path = services/computer-networking-engineering-services-section/services/x402-services-section/services/x402-exact-purchase-service
-	url = https://github.com/red-cup-engineering/x402-exact-purchase-service.git
-	branch = main
 [submodule "a2a-services-section"]
 	path = services/computer-networking-engineering-services-section/services/a2a-services-section
 	url = https://github.com/red-cup-engineering/a2a-services-section.git
@@ -50,4 +46,8 @@
 [submodule "oauth-services-section"]
 	path = services/computer-networking-engineering-services-section/services/oauth-services-section
 	url = https://github.com/red-cup-engineering/oauth-services-section.git
+	branch = main
+[submodule "x402-services-section"]
+	path = services/computer-networking-engineering-services-section/services/x402-services-section
+	url = https://github.com/red-cup-engineering/x402-services-section.git
 	branch = main
