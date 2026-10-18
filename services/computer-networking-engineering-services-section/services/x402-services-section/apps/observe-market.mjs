@@ -3,8 +3,11 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readSnapshotParameters, takeSnapshot } from "@red-cup-engineering/computer-data-engineering-services-section/x402-discovery-snapshot";
 import { observeSettlement } from "../src/market-observation/settlement.mjs";
+import { createCdpJwt } from "../src/cdp-facilitator.mjs";
 
-const DEFAULT_DISCOVERY_ENDPOINT = "https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources";
+// Coinbase's /merchant route is scoped by payTo; /resources is its global
+// listing (whose pagination.total counts offers, never a merchant's calls).
+const DEFAULT_DISCOVERY_ENDPOINT = "https://api.cdp.coinbase.com/platform/v2/x402/discovery/merchant";
 const MAX_PAGE_BYTES = 2_000_000;
 
 export function observationOptions(argv = []) {
@@ -30,8 +33,28 @@ export function observationOptions(argv = []) {
 }
 
 /** Networking performs the bounded HTTP read; Data owns pagination and epistemic reduction. */
-async function readBazaarPage(url) {
-  const response = await fetch(url, { redirect: "error", headers: { accept: "application/json" } });
+export async function readBazaarPage(url, {
+  environment = process.env, fetchImpl = fetch, tokenFactory = createCdpJwt,
+} = {}) {
+  const target = new URL(url);
+  if (target.protocol !== "https:" || target.username || target.password)
+    throw new TypeError("discovery needs a credential-free HTTPS target URI");
+  const headers = { accept: "application/json" };
+  if (target.origin === "https://api.cdp.coinbase.com") {
+    if (!target.pathname.startsWith("/platform/v2/x402/discovery/"))
+      throw new TypeError("CDP token may only address its discovery resources");
+    if (!environment.CDP_API_KEY_ID || !environment.CDP_API_KEY_SECRET)
+      throw new TypeError("CDP discovery requires the existing CDP_API_KEY_ID and CDP_API_KEY_SECRET");
+    // Hire the original signed-JWT provider; never write another signer in an app.
+    headers.authorization = "Bearer " + tokenFactory({
+      apiKeyId: environment.CDP_API_KEY_ID,
+      apiKeySecret: environment.CDP_API_KEY_SECRET,
+      method: "GET", host: target.host, path: target.pathname,
+    });
+  }
+  const response = await fetchImpl(target.href, {
+    method: "GET", redirect: "error", headers,
+  });
   if (!response.ok) throw new Error("Bazaar discovery HTTP " + response.status);
   const announced = Number(response.headers.get("content-length"));
   if (Number.isFinite(announced) && announced > MAX_PAGE_BYTES)
@@ -48,7 +71,7 @@ async function readBazaarPage(url) {
  */
 export async function observeMarketReport(options, {
   chainObserver = observeSettlement, snapshotReader = takeSnapshot,
-  fetchJson = readBazaarPage, now = () => new Date(),
+  fetchJson, fetchImpl = fetch, environment = process.env, now = () => new Date(),
 } = {}) {
   if (!Number.isSafeInteger(options?.windowBlocks) || options.windowBlocks < 1)
     throw new RangeError("observation needs a positive block window");
@@ -65,7 +88,8 @@ export async function observeMarketReport(options, {
   let catalog = { ok: false, reason: "merchant-payTo-not-supplied", scope: "no-seller-selected" };
   if (merchant !== null) {
     try {
-      const snapshot = await snapshotReader(merchant, { fetchJson, now: () => new Date(observedAt) });
+      const reader = fetchJson ?? ((url) => readBazaarPage(url, { environment, fetchImpl }));
+      const snapshot = await snapshotReader(merchant, { fetchJson: reader, now: () => new Date(observedAt) });
       const calls = snapshot.complete === true ? snapshot.totals.calls30d : null;
       catalog = {
         ok: true, scope: "one-merchant", endpoint: snapshot.endpoint,
