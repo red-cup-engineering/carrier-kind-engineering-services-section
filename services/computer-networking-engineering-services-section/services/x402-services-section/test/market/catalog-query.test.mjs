@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { selectPublicMarketCatalogRows as select } from "../../src/market/catalog.mjs";
+import { selectPublicMarketCatalogRows as select, compareMarketOfferSamples } from "../../src/market/catalog.mjs";
 
 const rows = {
   recordType:"x402.market-catalog/v1",
@@ -132,4 +132,71 @@ test("atomic budget search refuses missing settlement denomination and misleadin
   assert.throws(() => select(priced, "search", {
     query: "", maxFixedPriceAtomic: "9".repeat(78),
   }), /canonical uint256 atomic amount/, "uint256 overflow must not be silently accepted");
+});
+
+test("sample composition uses the original JSON Schema evaluator and exact public SKUs", () => {
+  const report = {recordType: "561-group.x402-market-catalog", offers: [
+    {
+      sku: "ni:source", listed: true, method: "GET", name: "Measure metres",
+      output: { schema: {type:"object",required:["amount","unit"],properties:{
+        amount:{type:"integer"},unit:{const:"m"}}}, example: {amount:3,unit:"m"}},
+      request:{}
+    },
+    {
+      sku: "ni:consumer", listed: true, method: "POST", name: "Use metres",
+      request: {bodySchema:{type:"object",required:["amount","unit"],properties:{
+        amount:{type:"integer"},unit:{const:"m"}}}},
+      output:{schema:{type:"object"},example:{accepted:true}},
+    },
+    {
+      sku: "ni:km", listed: true, method: "POST", name: "Use kilometres",
+      request: {bodySchema:{type:"object",required:["amount","unit"],properties:{
+        amount:{type:"integer"},unit:{const:"km"}}}},
+      output:{schema:{type:"object"},example:{accepted:true}},
+    },
+    {
+      sku: "ni:held", listed: false, method:"POST", name:"Internal",
+      request:{bodySchema:{type:"object"}},output:{schema:{type:"object"},example:{amount:3,unit:"m"}},
+    },
+  ]};
+  const selected = select(report,"compare",{skus:["ni:source","ni:consumer","ni:km","ni:held"]},
+    {maxComparedOffers:8,maxSamplePairs:56});
+  assert.deepEqual(selected.offers.map(x=>x.sku), ["ni:source","ni:consumer","ni:km"]);
+  assert.deepEqual(selected.missingSkus, ["ni:held"]);
+  const relation = selected.sampleComposition;
+  assert.equal(relation.kind, "x402.market.sample-composition-reading.v1");
+  assert.equal(relation.totalDirectedPairs,6);
+  assert.equal(relation.consideredPairs,6);
+  assert.equal(relation.complete,true);
+  assert.ok(relation.sampleRefusedPairs > 0, "different measurement units cannot be silently glued");
+  assert.ok(relation.sampleAdmittedLinks.some(edge=>
+    edge.from==="ni:source" && edge.to==="ni:consumer"
+    && edge.evidenceLevel==="one-example-structural-only"
+    && edge.executionAuthorized===false));
+  assert.equal(relation.sampleAdmittedLinks.some(edge=>edge.to==="ni:km" && edge.from==="ni:source"),false);
+  assert.equal(relation.sampleAdmittedLinks.some(edge=>edge.to==="ni:held" || edge.from==="ni:held"),false);
+  assert.equal(relation.authorizesExecution,false);
+});
+
+test("original sample evaluation refuses invalid sources and reports unfinished budgets", () => {
+  const a={sku:"a",method:"GET",output:{schema:{type:"string"},example:{value:4}}};
+  const b={sku:"b",method:"POST",request:{bodySchema:{type:"object"}}};
+  const bad=compareMarketOfferSamples([a,b],{maxSamplePairs:2});
+  assert.deepEqual(bad.invalidOutputExampleSkus,["a"]);
+  assert.deepEqual(bad.sampleAdmittedLinks,[]);
+  assert.equal(bad.sampleUnassayedPairs,2);
+  const partial=compareMarketOfferSamples([a,b],{maxSamplePairs:1});
+  assert.equal(partial.complete,false);
+  assert.equal(partial.consideredPairs,1);
+  assert.equal(partial.unexaminedPairs,1);
+  const none=compareMarketOfferSamples([a,b]);
+  assert.equal(none.complete,false);
+  assert.equal(none.unexaminedPairs,2);
+  assert.throws(()=>compareMarketOfferSamples([a,b],{maxSamplePairs:-1}),/budget/);
+  const invalidTarget=compareMarketOfferSamples([
+    {sku:"x",method:"GET",output:{schema:{type:"object"},example:{good:true}}},
+    {sku:"y",method:"POST",request:{bodySchema:{"$schema":"unsupported",type:"object"}}},
+  ],{maxSamplePairs:2});
+  assert.equal(invalidTarget.sampleAdmittedLinks.length,0);
+  assert.deepEqual(invalidTarget.invalidTargetSchemaSkus,["y"]);
 });

@@ -1,4 +1,5 @@
 import { declareCatalog, offerPricingReadout, publiclySaleableOffer } from "../offer.mjs";
+import { validateJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
 
 export const DEFAULT_MAX_BODY_BYTES = 100 * 1024;
 
@@ -85,6 +86,87 @@ export function publicMarketCatalogReadout(offers, rails = {}) {
 }
 
 /**
+ * A bounded reading of seller-authored OUTPUT EXAMPLES against other sellers'
+ * INPUT SCHEMAS. The schema evaluator is Computer Data's existing authority;
+ * this does not interpret an example as a theorem that arbitrary outputs fit.
+ * A direct value (without adaptation) is the only proposed composition.
+ *
+ * The buyer's transport supplies the comparison budget; missing or exhausted
+ * budget is returned as incomplete work, never silently called incompatible.
+ */
+export function compareMarketOfferSamples(offers, { maxSamplePairs = 0 } = {}) {
+  if (!Array.isArray(offers)) throw new TypeError("offer samples require original selected rows");
+  if (!Number.isSafeInteger(maxSamplePairs) || maxSamplePairs < 0)
+    throw new TypeError("sample comparison budget must be a nonnegative safe integer");
+  const outputStates = new Map();
+  const invalidOutputExamples = [];
+  for (const row of offers) {
+    const output = row.output;
+    if (output?.schema === undefined || !Object.hasOwn(output, "example")) {
+      outputStates.set(row.sku, "unassayed");
+      continue;
+    }
+    let valid;
+    try { valid = validateJsonSchema(output.example, output.schema).valid === true; }
+    catch { valid = false; }
+    outputStates.set(row.sku, valid ? "admitted-example" : "invalid-source-example");
+    if (!valid) invalidOutputExamples.push(row.sku);
+  }
+  const links = [], invalidTargetSchemas = new Set();
+  let considered = 0, refused = 0, unassayed = 0;
+  const total = offers.length * Math.max(0, offers.length - 1);
+  outer: for (const from of offers) {
+    for (const to of offers) {
+      if (from.sku === to.sku) continue;
+      if (considered >= maxSamplePairs) break outer;
+      considered++;
+      if (outputStates.get(from.sku) !== "admitted-example" ||
+          to.method !== "POST" || to.request?.bodySchema === undefined) {
+        unassayed++;
+        continue;
+      }
+      let reading;
+      try {
+        reading = validateJsonSchema(from.output.example, to.request.bodySchema);
+      } catch {
+        invalidTargetSchemas.add(to.sku);
+        unassayed++;
+        continue;
+      }
+      if (reading.issues?.some(issue => issue.kind === "schema")) {
+        invalidTargetSchemas.add(to.sku);
+        unassayed++;
+      } else if (reading.valid === true) {
+        links.push(Object.freeze({
+          from: from.sku, to: to.sku,
+          relation: "seller-output-example-admitted-as-target-POST-body",
+          evidenceLevel: "one-example-structural-only",
+          executionAuthorized: false,
+          contractualCompositionProven: false,
+        }));
+      } else {
+        refused++;
+      }
+    }
+  }
+  return Object.freeze({
+    kind: "x402.market.sample-composition-reading.v1",
+    totalDirectedPairs: total,
+    consideredPairs: considered,
+    complete: considered === total,
+    unexaminedPairs: total - considered,
+    sampleRefusedPairs: refused,
+    sampleUnassayedPairs: unassayed,
+    invalidOutputExampleSkus: Object.freeze(invalidOutputExamples),
+    invalidTargetSchemaSkus: Object.freeze([...invalidTargetSchemas]),
+    sampleAdmittedLinks: Object.freeze(links),
+    // Neither source-authored example nor schema admission grants third-party
+    // rights, wallet authority, conversion code, settlement or delivery.
+    authorizesExecution: false,
+  });
+}
+
+/**
  * Select the original seller's buyer-visible rows for HTTP, MCP, or another
  * admitted discovery transport. Search is a literal projection of existing
  * typed SKU/cell/law/source fields; it is NOT ontology inference, a payment,
@@ -128,12 +210,16 @@ export function selectPublicMarketCatalogRows(readout, mode, args = {}, policy =
         new Set(ids).size !== ids.length)
       throw new TypeError("comparison requires distinct, bounded, exact seller SKUs");
     const bySku = new Map(listed.map(row => [row.sku, row]));
+    const selected = ids.flatMap(id => bySku.has(id) ? [bySku.get(id)] : []);
     return Object.freeze({
       kind: "x402.market.offer-comparison.v1",
       requestedSkus: Object.freeze([...ids]),
-      offers: Object.freeze(ids.flatMap(id => bySku.has(id) ? [bySku.get(id)] : [])),
+      offers: Object.freeze(selected),
       missingSkus: Object.freeze(ids.filter(id => !bySku.has(id))),
-      basis: "one seller's source-authored public offer declarations; no operation equivalence or paid delivery inferred",
+      sampleComposition: compareMarketOfferSamples(selected, {
+        maxSamplePairs: policy.maxSamplePairs ?? 0,
+      }),
+      basis: "one seller's source-authored public offer declarations; source-example admission is not operation equivalence, licensed composition, payment or paid delivery",
     });
   }
   if (mode !== "list" && mode !== "search")
