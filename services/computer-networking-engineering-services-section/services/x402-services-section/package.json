@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/x402-services-section",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "private": false,
   "type": "module",
   "description": "Independently hireable x402 v2 HTTP payment boundary and optional currency-obligation evidence adapter using the official x402 implementation.",
@@ -89,7 +89,7 @@
     "@red-cup-engineering/activitypub-services-section": "0.8.4",
     "@red-cup-engineering/cryptographic-computer-data-engineering-services-section": "0.3.1",
     "@red-cup-engineering/cbor-services-section": "0.1.1",
-    "@red-cup-engineering/computer-data-engineering-services-section": "0.3.0",
+    "@red-cup-engineering/computer-data-engineering-services-section": "0.3.1",
     "@red-cup-engineering/cloudflare-r2-services-section": "0.5.2",
     "@red-cup-engineering/computer-serialized-content-engineering-services-section": "0.1.0",
     "@red-cup-engineering/computer-system-engine": "0.1.2",
