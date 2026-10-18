@@ -83,3 +83,7 @@
 	path = services/computer-networking-engineering-services-section/services/openfda-services-section
 	url = https://github.com/red-cup-engineering/openfda-services-section.git
 	branch = main
+[submodule "propublica-nonprofit-explorer-services-section"]
+	path = services/computer-networking-engineering-services-section/services/propublica-nonprofit-explorer-services-section
+	url = https://github.com/red-cup-engineering/propublica-nonprofit-explorer-services-section.git
+	branch = main
