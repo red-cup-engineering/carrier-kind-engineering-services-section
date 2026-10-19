@@ -3,7 +3,7 @@ name: contextual-software-roles
 identity: contextual-software-roles
 kind: engineering-definition
 date-created: 2026-10-19
-status: typed-schema-admitted; running-instances-independently-evidenced
+status: typed-source-declared; installed-role-receiving-unverified
 relations:
   schema-owner: red-cup-engineering/computer-system-engine/specifications/software-role.schema.json
   representation: cellularization
@@ -12,7 +12,7 @@ relations:
 
 # Contextual software roles — engine, system, server, client, platform, application
 
-The six words name **independently predicable roles of a software entity relative to an interface, task and receiving context**, not mutually exclusive nominal classes, a strict inheritance tree, a one-way build pipeline or claims that a package is already deployed. The single source of their machine-readable declarations is the [versioned software-role JSON Schema](https://github.com/red-cup-engineering/computer-system-engine/blob/feature/architecture-signcell-projection-20261019/specifications/software-role.schema.json). Its six string constants are qualified by descriptive contracts. Other applicable roles, such as database, operating system, workflow or library, may require distinct downstream specialized schemas rather than silently admitting arbitrary aliases into this six-role vocabulary.
+The six words name **independently predicable roles of a software entity relative to an interface, task and receiving context**, not mutually exclusive nominal classes, a strict inheritance tree, a one-way build pipeline or claims that a package is already deployed. The single source of their machine-readable declarations is the [versioned software-role JSON Schema](https://github.com/red-cup-engineering/computer-system-engine/blob/feature/architecture-signcell-projection-20261019/specifications/software-role.schema.json). The schema is a **role binding object** with a required `role` (one of six named values), a required nonempty `interface`, and an optional `receiver` naming the intended consumer. These are distinct type dimensions: a role cannot be admitted without its interface; a receiver name is not proof of deployment or acceptance. The six `role` values are documented by precise capability contracts. Other applicable roles, such as database, operating system, workflow or library, may require distinct downstream specialized schemas rather than silently admitting arbitrary aliases into this six-role vocabulary.
 
 | Role | Exact distinguishing capability | What independently demonstrates the role | Invalid shortcut |
 | --- | --- | --- | --- |
@@ -27,13 +27,13 @@ The six words name **independently predicable roles of a software entity relativ
 
 A deployed browser may be a **client** when requesting a remote API and a **server** when exposing a local debugging endpoint; a rendering or rules **engine** may run inside that browser, a standalone server or an agent. One provider may be simultaneously an **engine**, **system** and **platform** when its actual interfaces satisfy each independent role. An **application** may include a server and client but can have other architectures. No implication of the form 'engine → server', 'system → platform' or 'application → client' holds solely from vocabulary. A specific dependency or operational role implication must be presented as an additional typed relation and supported at its own contract boundary.
 
-The representation is a separate SignCell predication for each role, with a reserved role predicate. For instance, (service-A, computer-architecture/has-role, server) and (service-A, computer-architecture/has-role, client) have distinct identities. The original source's supporting and opposing testimony is recorded per role. In the absence of qualifying testimony, the role cell's reading remains **unobserved**, not silently 'held'. A declared role therefore supplies a typed *question*, not confirmed runtime inventory.
+The representation is one **SignCell per contextual role binding**, under the reserved `computer-architecture/has-role` predicate. For example, `(service-A, has-role, {role: "server", interface: "http/v1", receiver: "browser"})` and `(service-A, has-role, {role: "server", interface: "mcp/v1", receiver: "agent"})` are *different triples* despite sharing the word *server*. A client role is another bound assertion, not a disjoint class. Two source occurrences presenting the same canonical triple may contribute opposing witnesses and join into one extensional cell while preserving both occurrence pointers. An untold role is **unobserved**; no role name establishes a running server, licensed interaction, installed platform or accepted application. The native [roleReadingsOfArchitecture](https://github.com/red-cup-engineering/computer-system-engine/blob/feature/architecture-signcell-projection-20261019/src/architecture-cellularization.mjs) reader consumes these cells and can select one declared interface without erasing the other.
 
 The computational **type of an artifact**, **role in an interaction**, **version of installed code**, **actor legally authorized to invoke it**, and **beneficiary acceptance** are separate predicates. Do not collapse them by package names, README descriptions, manifest fields such as softwareKind, matching JSON Schema IDs or a passing CI job.
 
 ## Context with the computer tiers
 
-**Computer Data / SignCell:** Roles and typed relation source values can be represented as original witnessed cells; bare data identity is not proof of the role.
+**Computer Data / SignCell:** Contextual role bindings and typed relation source values become canonical witnessed cells. Component and interface identity uses the existing canonical content-address comparator: NFC-equivalent text representations cannot silently create two components, while original source spellings and performed occurrences remain retained. Data identity is never proof of a runtime role.
 
 **Computer Code / SignChain:** Actual operation signatures, allowed input→output transitions, ordered compositions and witnessed rule claims are explicit. A chain of possible operations is not automatically a lawful executable transaction.
 
