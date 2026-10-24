@@ -190,7 +190,7 @@ test("bounded job summary retains the true issue denominator instead of silently
   assert.match(markdown, /Original open issue sources awaiting receiving: 14/u);
   assert.match(markdown, /2 more records in the original CLI JSON output/u);
   assert.doesNotMatch(markdown, /Issue #290/u);
-  assert.throws(() => render(report,{repository,limit:1000}),/incomplete/u);
+  assert.throws(() => render(report,{repository,limit:1000}),/bounded source presentation limit/u);
 });
 
 test("the original workflow selects the real consumer and its native tests, not a shadow JSON writer", () => {
