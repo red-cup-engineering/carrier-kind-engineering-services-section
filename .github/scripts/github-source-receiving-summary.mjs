@@ -62,6 +62,7 @@ export function renderGitHubSourceReceivingSummary(report, { repository, limit =
       !report || report.applied !== false ||
       report.repositoriesObserved !== 1 || report.repositoriesFailed !== 0 ||
       report.archiveRefCoverage !== "complete-for-observed-repositories" ||
+      report.sourceCutCoverage !== "matching-open-github-source-cuts" ||
       !Array.isArray(report.errors) || report.errors.length ||
       !Number.isSafeInteger(limit) || limit < 1 || limit > 25)
     throw new TypeError("original GitHub source result is incomplete, effectful or out of scope");
