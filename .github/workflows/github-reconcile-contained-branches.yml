@@ -53,7 +53,7 @@ jobs:
           # The one source-owned CLI remains read-only and source-typed.
           # Keep the original JSON on this job only, with a real receiving reader.
           node 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/bin/github-reconcile.mjs' \
-            --repo "$GITHUB_REPOSITORY" --max-merges 0 \
+            --repo "$GITHUB_REPOSITORY" \
             --receive-equivalent --max-equivalents 3 \
             | tee "$RUNNER_TEMP/github-reconciliation-result.json"
           # A missing/incompatible producer contract, partial census, or any
