@@ -13,7 +13,7 @@ permissions:
   contents: read
 jobs:
   custody:
-    uses: red-cup-engineering/continuous-delivery-services-section/.github/workflows/node-package.yml@0cb82dd6dabe5af4a5e416512cc134f5161d3438
+    uses: red-cup-engineering/continuous-delivery-engineering-services-section/.github/workflows/node-package.yml@0cb82dd6dabe5af4a5e416512cc134f5161d3438
     with:
       paths: '["services/computer-networking-engineering-services-section/services/activitypub-services-section"]'
       install: false
