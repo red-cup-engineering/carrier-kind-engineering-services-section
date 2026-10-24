@@ -31,6 +31,8 @@ jobs:
       contents: read
       pull-requests: read
       checks: read
+      issues: read
+      statuses: read
     steps:
       - uses: actions/checkout@v4
         with:
