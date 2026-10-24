@@ -189,6 +189,13 @@ test("the original workflow selects the real consumer and its native tests, not 
   assert.match(workflow, /node --test test\/github-source-receiving-summary\.test\.mjs/u);
   assert.match(workflow, /node \.github\/scripts\/github-source-receiving-summary\.mjs/u);
   assert.match(workflow, /GITHUB_STEP_SUMMARY/u);
+  // GitHub issues and combined commit statuses require their own read grants:
+  // Pulls/checks/contents alone cannot qualify a private repository census.
+  assert.match(workflow, /^      issues: read$/mu);
+  assert.match(workflow, /^      statuses: read$/mu);
+  assert.match(workflow, /^      checks: read$/mu);
+  assert.match(workflow, /^      pull-requests: read$/mu);
+  assert.doesNotMatch(workflow, /^\s+(?:contents|issues|statuses|pull-requests|checks): write$/mu);
   assert.doesNotMatch(workflow, /--register|--apply|branchesDeletable/u);
 });
 
