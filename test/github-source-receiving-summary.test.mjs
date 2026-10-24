@@ -22,6 +22,7 @@ function originalReport() {
       headCommitId: sha("a"), technicalClassification: "unique-commits",
       sourceLineageRelation: "diverged", aheadCommitCount: 3, behindCommitCount: 2,
       matchingArchiveRefNames: [refName],
+      matchingOpenPullRequestNumbers: [], unresolvedOpenPullRequestNumbers: [],
       automaticRefRetirementAllowed: false,
       originalWorkReceiving: "not-observed", ordinaryConsumerReceiving: "not-observed",
     }],
@@ -29,7 +30,8 @@ function originalReport() {
       recordKind:"github.pull-source-observation/v1",
       repositoryId:id,repositoryFullName:repository,pullRequestId:140519,pullRequestNumber:519,
       sourceHeadCommitId:sha("c"),sourceBaseCommitId:sha("d"),
-      sourceHeadRepositoryFullName:repository,sourceHeadRefName:"refs/heads/fix/receive",
+      sourceHeadRepositoryId:id,sourceHeadRepositoryFullName:repository,
+      sourceHeadRefName:"refs/heads/fix/receive",
       sourceBaseRefName:"refs/heads/main",pullRequestUpdatedAt:revision,
       pullRequestState:"open",technicalClassification:"green-and-mergeable",
       checkEvidenceState:"passing",baseDifferenceCoverage:"complete",
@@ -225,4 +227,81 @@ test("typed PR count and presentation are bounded without claiming merge or sour
   assert.match(out,/Open pull request sources awaiting receiving: 15/u);
   assert.match(out,/3 more records in the original CLI JSON output/u);
   assert.doesNotMatch(out,/PR #533/u);
+});
+
+test("the original branch's exact same-repository PR and immutable head reach the reader",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=branch.headCommitId;
+  branch.matchingOpenPullRequestNumbers=[519];
+  branch.technicalClassification="has-open-pull-request";
+  const markdown=project(report);
+  assert.match(markdown,/exact PR source #519/u);
+  assert.match(markdown,/has-open-pull-request/u);
+  assert.match(markdown,/originating repository ID/u);
+});
+
+test("unknown PR source origin remains unresolved, never links a possibly foreign commit to our local repo",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=branch.headCommitId;
+  pr.sourceHeadRepositoryId=null;
+  pr.sourceHeadRepositoryFullName=null;
+  branch.unresolvedOpenPullRequestNumbers=[519];
+  const markdown=project(report);
+  assert.match(markdown,/unresolved PR source #519/u);
+  assert.match(markdown,/head repository unobserved/u);
+  assert.doesNotMatch(markdown,/\[aaaaaaaaaaaa\]\(https:\/\/github\.com\/red-cup-engineering\/computer-engineering-services-section\/commit\/a{40}\)/u,
+    "unknown PR's head should not receive an invented local repository link");
+  assert.match(markdown,/Automatic PR merge, issue closure, branch\/tag retirement authority: NONE/u);
+});
+
+test("a fork with the same short ref and head OID is not a local branch PR source",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=branch.headCommitId;
+  pr.sourceHeadRepositoryId=999;
+  pr.sourceHeadRepositoryFullName="foreign/project";
+  const markdown=project(report);
+  assert.doesNotMatch(markdown,/exact PR source #519|unresolved PR source #519/u);
+  assert.match(markdown,/https:\/\/github\.com\/foreign\/project\/commit\//u);
+});
+
+test("a same-repo PR whose exact head changed is unresolved, not proved to hold branch work",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=sha("e");
+  branch.unresolvedOpenPullRequestNumbers=[519];
+  const markdown=project(report);
+  assert.match(markdown,/unresolved PR source #519/u);
+  assert.doesNotMatch(markdown,/exact PR source #519/u);
+});
+
+test("forged or omitted typed PR relations refuse instead of silently reading an empty census",()=>{
+  const changes=[
+    report=>{delete report.branchSourceCandidates[0].matchingOpenPullRequestNumbers;},
+    report=>{report.branchSourceCandidates[0].unresolvedOpenPullRequestNumbers="not-a-list";},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[519];},
+    report=>{report.branchSourceCandidates[0].unresolvedOpenPullRequestNumbers=[519];},
+    report=>{report.branchSourceCandidates[0].technicalClassification="has-open-pull-request";},
+    report=>{report.pullSourceCandidates[0].sourceHeadRepositoryId=0;},
+    report=>{report.pullSourceCandidates[0].sourceHeadRepositoryId="not-a-number";},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[519,519];},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[520,519];},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[519];
+      report.branchSourceCandidates[0].unresolvedOpenPullRequestNumbers=[519];},
+    report=>{report.pullSourceCandidates[0].sourceHeadRefName=report.branchSourceCandidates[0].refName;
+      report.pullSourceCandidates[0].sourceHeadCommitId=report.branchSourceCandidates[0].headCommitId;},
+    report=>{report.pullSourceCandidates[0].sourceHeadRefName=report.branchSourceCandidates[0].refName;
+      report.pullSourceCandidates[0].sourceHeadRepositoryId=null;},
+  ];
+  for(const change of changes){
+    const report=originalReport();
+    change(report);
+    assert.throws(()=>project(report));
+  }
 });
