@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@red-cup-engineering/computer-file-engineering-services-section": "0.4.0",
-    "@red-cup-engineering/json-schema-engineering-services-section": "0.5.0",
+    "@red-cup-engineering/json-schema-services-section": "0.5.0",
     "@red-cup-engineering/markdown-engineering-services-section": "0.5.2",
     "@red-cup-engineering/term-engineering-services-section": "0.3.2"
   },
