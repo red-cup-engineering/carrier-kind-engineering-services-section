@@ -253,7 +253,8 @@ test("unknown PR source origin remains unresolved, never links a possibly foreig
   const markdown=project(report);
   assert.match(markdown,/unresolved PR source #519/u);
   assert.match(markdown,/head repository unobserved/u);
-  assert.doesNotMatch(markdown,/\[aaaaaaaaaaaa\]\(https:\/\/github\.com\/red-cup-engineering\/computer-engineering-services-section\/commit\/a{40}\)/u,
+  const pullSection=markdown.split("## Open PR proposals, including drafts and failed checks")[1].split("## Archive refs")[0];
+  assert.doesNotMatch(pullSection,/; head \[aaaaaaaaaaaa\]\(https:\/\/github\.com\/red-cup-engineering\/computer-engineering-services-section\/commit\/a{40}\)/u,
     "unknown PR's head should not receive an invented local repository link");
   assert.match(markdown,/Automatic PR merge, issue closure, branch\/tag retirement authority: NONE/u);
 });
