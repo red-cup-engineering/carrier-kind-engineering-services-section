@@ -11,6 +11,8 @@ on:
       - 'services/computer-systems-engineering-services-section'
       - 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/**'
       - '.github/workflows/github-reconcile-contained-branches.yml'
+      - '.github/scripts/github-source-receiving-summary.mjs'
+      - 'test/github-source-receiving-summary.test.mjs'
   pull_request:
     types: [closed]
     branches: [main]
@@ -39,36 +41,22 @@ jobs:
           node-version: '22'
           package-manager-cache: false
       - name: Qualify the source-owned reconciliation contract
-        run: node --test 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/test/'*.test.mjs
+        run: |
+          node --test 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/test/'*.test.mjs
+          node --test test/github-source-receiving-summary.test.mjs
       - name: Observe original branch and issue sources without effects
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          # Historical byte-equivalence is a SOURCE-ONLY question. No --apply,
-          # --merge-green-pulls or --close-issues and no write-capable token.
-          # The old --register wrote ephemeral debt JSON that no consumer read;
-          # retain the one original machine-readable stdout/report instead.
+          # The one source-owned CLI remains read-only and source-typed.
+          # Keep the original JSON on this job only, with a real receiving reader.
           node 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/bin/github-reconcile.mjs' \
             --repo "$GITHUB_REPOSITORY" --max-merges 0 \
             --receive-equivalent --max-equivalents 3 \
             | tee "$RUNNER_TEMP/github-reconciliation-result.json"
-          # Log a usable, bounded receipt; do not publish token or source.
-          node --input-type=module -e '
-            import fs from "node:fs";
-            const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
-            const msg=[
-              "# Original GitHub source-receiving frontier (read-only)",
-              "Repository: "+process.env.GITHUB_REPOSITORY,
-              "Archive-tagged source objects awaiting receiving: "+(r.archiveTagSourcesAwaitingReceiving??0),
-              "Source-contained branch assessments: "+(r.branchesDeletable??0),
-              "Source-equivalent history assessments: "+(r.equivalentCandidates??0),
-              "Unreceived source/debt records observed: "+r.debtRecords,
-              "Read-only provider errors: "+(r.errors?.length??0),
-              "Original Work/ordinary consumer receiving: NOT ESTABLISHED",
-              "Automatic source-ref retirement authority: NONE",
-            ];
-            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,msg.join("\n")+"\n");
-            if(r.errors?.length)process.exitCode=1;
-          ' "$RUNNER_TEMP/github-reconciliation-result.json"
+          # A missing/incompatible producer contract, partial census, or any
+          # claimed effect fails this consumer rather than printing false zeros.
+          node .github/scripts/github-source-receiving-summary.mjs \
+            "$RUNNER_TEMP/github-reconciliation-result.json" >> "$GITHUB_STEP_SUMMARY"
