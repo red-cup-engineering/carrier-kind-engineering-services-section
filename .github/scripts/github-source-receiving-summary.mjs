@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 const OID = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
 const REPO = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
-const BRANCH_CLASSES = new Set(["contained-in-default", "unique-commits", "protected", "has-open-pull-request"]);
+const BRANCH_CLASSES = new Set(["contained-in-default", "unique-commits", "protected", "has-open-pull-request", "comparison-unavailable"]);
 const LINEAGE = new Set(["diverged", "branch-ahead", "branch-behind", "identical", "not-observed"]);
 const TAG_RELATIONS = new Set(["noncommit-or-unpeeled-ref", "same-base-commit", "source-history-contained-in-base", "source-history-ahead-of-base", "divergent-source-history"]);
 const code = value => String.fromCharCode(96) + clean(value) + String.fromCharCode(96);
