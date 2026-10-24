@@ -70,6 +70,17 @@ test("a second valid observed profile with no candidates does not claim the Work
   assert.match(markdown, /None observed in this source category; this does not discharge Work/u);
 });
 
+test("unread GitHub comparison is a retained Work source, not unique-commits", () => {
+  const report = originalReport();
+  report.branchSourceCandidates[0].technicalClassification = "comparison-unavailable";
+  report.branchSourceCandidates[0].sourceLineageRelation = "not-observed";
+  report.branchSourceCandidates[0].aheadCommitCount = null;
+  report.branchSourceCandidates[0].behindCommitCount = null;
+  const result = project(report);
+  assert.match(result, /comparison-unavailable/u);
+  assert.match(result, /Original Work and ordinary consumer receiving: NOT OBSERVED/u);
+});
+
 test("tag-only noncommit original objects stay unresolved, never converted into accepted code", () => {
   const report = originalReport();
   report.branchSourceCandidates = [];
