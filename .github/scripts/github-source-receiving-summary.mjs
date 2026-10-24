@@ -12,6 +12,16 @@ const REPO = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/u;
 const BRANCH_CLASSES = new Set(["contained-in-default", "unique-commits", "protected", "has-open-pull-request", "comparison-unavailable"]);
 const LINEAGE = new Set(["diverged", "branch-ahead", "branch-behind", "identical", "not-observed"]);
 const TAG_RELATIONS = new Set(["noncommit-or-unpeeled-ref", "same-base-commit", "source-history-contained-in-base", "source-history-ahead-of-base", "divergent-source-history"]);
+const PULL_CLASSES = new Set([
+  "green-and-mergeable","not-against-default","draft","mergeability-unknown",
+  "conflicting","checks-unavailable","checks-failing","checks-pending",
+  "no-checks","checks-inconclusive","same-files-changed-on-default",
+  "base-difference-incomplete"
+]);
+const CHECK_STATES = new Set(["passing","failing","pending","none","inconclusive","unavailable"]);
+const gitBranchRef = value => typeof value === "string" &&
+  /^refs\/heads\/[A-Za-z0-9_][-A-Za-z0-9_./]*$/u.test(value) &&
+  !/\.\.|@\{|\/\/|\/$|\.$|(?:^|\/)\.|\.lock(?:\/|$)/u.test(value);
 const code = value => String.fromCharCode(96) + clean(value) + String.fromCharCode(96);
 const clean = value => String(value ?? "unobserved")
   .replace(/[\x00-\x1f\x7f]/gu, "_")
@@ -67,6 +77,22 @@ export function renderGitHubSourceReceivingSummary(report, { repository, limit =
       x.automaticRefRetirementAllowed === false &&
       x.originalWorkReceiving === "not-observed" && x.ordinaryConsumerReceiving === "not-observed" &&
       Array.isArray(x.matchingArchiveRefNames));
+  const pullSources = rows(report, "pullSourceCandidates", "github.pull-source-observation/v1",
+    x => x.repositoryFullName === repository && Number.isSafeInteger(x.repositoryId) && x.repositoryId > 0 &&
+      Number.isSafeInteger(x.pullRequestId) && x.pullRequestId > 0 &&
+      Number.isSafeInteger(x.pullRequestNumber) && x.pullRequestNumber > 0 &&
+      OID.test(x.sourceHeadCommitId ?? "") && OID.test(x.sourceBaseCommitId ?? "") &&
+      gitBranchRef(x.sourceHeadRefName) && gitBranchRef(x.sourceBaseRefName) &&
+      (x.sourceHeadRepositoryFullName === null || REPO.test(x.sourceHeadRepositoryFullName ?? "")) &&
+      x.pullRequestState === "open" && typeof x.pullRequestUpdatedAt === "string" &&
+      Number.isFinite(Date.parse(x.pullRequestUpdatedAt)) &&
+      (PULL_CLASSES.has(x.technicalClassification) || /^not-clean-[a-z-]{1,32}$/u.test(x.technicalClassification ?? "")) &&
+      CHECK_STATES.has(x.checkEvidenceState) &&
+      ["complete","incomplete"].includes(x.baseDifferenceCoverage) &&
+      Number.isSafeInteger(x.changedFileCount) && x.changedFileCount >= 0 &&
+      x.sourceCoverage === "paged-current-open-github-pulls" &&
+      x.automaticPullMergeAllowed === false &&
+      x.originalWorkReceiving === "not-observed" && x.ordinaryConsumerReceiving === "not-observed");
   const archiveSources = rows(report, "archiveRefSources", "github.archive-ref-source-observation/v1",
     x => x.repository === repository && Number.isSafeInteger(x.repositoryId) && x.repositoryId > 0 &&
       typeof x.refName === "string" && x.refName.startsWith("refs/tags/archive/") &&
@@ -81,10 +107,16 @@ export function renderGitHubSourceReceivingSummary(report, { repository, limit =
       x.issueState === "open" && Number.isFinite(Date.parse(x.issueUpdatedAt)) &&
       x.automaticIssueClosureAllowed === false &&
       x.originalWorkReceiving === "not-observed" && x.ordinaryConsumerReceiving === "not-observed");
-  const identifiers = new Set([...branchSources, ...archiveSources, ...issueSources].map(x => x.repositoryId));
+  const identifiers = new Set([...branchSources, ...pullSources, ...archiveSources, ...issueSources].map(x => x.repositoryId));
   if (identifiers.size > 1 ||
       new Set(branchSources.map(x => x.refName)).size !== branchSources.length ||
       new Set(archiveSources.map(x => x.refName)).size !== archiveSources.length ||
+      new Set(pullSources.map(x => x.pullRequestId)).size !== pullSources.length ||
+      new Set(pullSources.map(x => x.pullRequestNumber)).size !== pullSources.length ||
+      pullSources.some(x => issueSources.some(i => i.issueNumber === x.pullRequestNumber)) ||
+      report.originalPullsObserved !== pullSources.length ||
+      report.pullRequestsMergeable !== pullSources.filter(x => x.technicalClassification === "green-and-mergeable").length ||
+      report.branchSourceCandidates !== branchSources.length ||
       new Set(issueSources.map(x => x.issueId)).size !== issueSources.length ||
       new Set(issueSources.map(x => x.issueNumber)).size !== issueSources.length ||
       branchSources.some(x => x.matchingArchiveRefNames.some(ref =>
@@ -97,6 +129,7 @@ export function renderGitHubSourceReceivingSummary(report, { repository, limit =
     "# Original GitHub source-receiving frontier (read-only)",
     "Repository: " + code(repository),
     "Observed branch source candidates: " + branchSources.length,
+    "Open pull request sources awaiting receiving: " + pullSources.length,
     "Archive-tagged code sources still awaiting receiving: " + archiveSources.length,
     "Original open issue sources awaiting receiving: " + issueSources.length,
     "Source-equivalent history assessments: " + sourceCount(report, "equivalentCandidates"),
@@ -109,6 +142,14 @@ export function renderGitHubSourceReceivingSummary(report, { repository, limit =
       "; ahead " + clean(x.aheadCommitCount) + ", behind " + clean(x.behindCommitCount) +
       "; commit " + commitLink(repository, x.headCommitId) +
       (x.matchingArchiveRefNames.length ? "; matching archive refs: " + x.matchingArchiveRefNames.map(code).join(", ") : "")),
+    "## Open PR proposals, including drafts and failed checks (first " + limit + ")",
+    ...preview(pullSources, limit, x => "- [PR #" + x.pullRequestNumber +
+      "](https://github.com/" + repository + "/pull/" + x.pullRequestNumber + ")" +
+      " — " + code(x.technicalClassification) + "; checks " + code(x.checkEvidenceState) +
+      "; base diff " + code(x.baseDifferenceCoverage) +
+      "; head " + commitLink(x.sourceHeadRepositoryFullName ?? repository, x.sourceHeadCommitId) +
+      "; base " + commitLink(repository, x.sourceBaseCommitId) +
+      (x.sourceHeadRepositoryFullName === null ? "; fork repository not independently observed" : "")),
     "## Archive refs holding possibly unprocessed code (first " + limit + ")",
     ...preview(archiveSources, limit, x => "- " + code(x.refName) +
       " — " + code(x.technicalRelation) + "; Git object " + code(x.gitObjectId) +
