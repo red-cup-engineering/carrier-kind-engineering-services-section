@@ -12,6 +12,7 @@ function originalReport() {
   return {
     applied: false, repositoriesObserved: 1, repositoriesFailed: 0, errors: [],
     archiveRefCoverage: "complete-for-observed-repositories",
+    sourceCutCoverage: "matching-open-github-source-cuts",
     branchesDeleted: 0, branchesDeletable: 0, issuesClosed: 0, pullRequestsMerged: 0,
     equivalentCandidates: 2, pullRequestsMergeable: 1, originalPullsObserved:1, debtRecords: 4,
     branchSourceCandidateCount:1,
@@ -145,6 +146,8 @@ test("source absence, unknown record shape, changed authority, and foreign repo 
     r => { r.issuesClosed = 1; },
     r => { r.repositoriesFailed = 1; },
     r => { r.archiveRefCoverage = "incomplete"; },
+    r => { r.sourceCutCoverage = "incomplete"; },
+    r => { delete r.sourceCutCoverage; },
     r => { r.errors = [{error:"unavailable"}]; },
     r => { r.originalIssuesObserved = 0; },
     r => { r.archiveTagSourcesObserved = 0; },
