@@ -1,7 +1,9 @@
-# Declarative consumer of Engineering's single GitHub reconciliation implementation.
-# Event-driven only: no scheduled task or generic PR merge. Exact-content
-# historical receipts may merge and auto-delete, with complete source equality.
-name: Receive and retire contained branches
+# Original Computer Engineering consumer of the one GitHub reconciliation service.
+# Source classification / byte equivalence are NOT independently accepted Work.
+# This workflow observes original branches/PRs/archive tags read-only and
+# surfaces the receiving frontier. The native GitHub Engineering receiver owns
+# separately authorized, exact-revision source integration / ref retirement.
+name: Observe branches for original source receiving
 on:
   push:
     branches: [main]
@@ -24,7 +26,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
-      contents: write
+      contents: read
       pull-requests: read
       checks: read
     steps:
@@ -38,37 +40,34 @@ jobs:
           package-manager-cache: false
       - name: Qualify the source-owned reconciliation contract
         run: node --test 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/test/'*.test.mjs
-      - name: Reconcile only this repository's contained branches
+      - name: Observe original branch and issue sources without effects
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          # --apply only prunes contained, unprotected branches. The owning
-          # service rechecks each SHA, protection and newly opened PR.
-          # --max-merges 0 and no --merge-green-pulls: zero arbitrary PR merges.
-          # --receive-equivalent receives ONLY fully identical current blobs
-          # through a real merge, then independently confirms branch retirement.
-          # No --close-issues: zero issue mutations.
+          # Historical byte-equivalence is a SOURCE-ONLY question. No --apply,
+          # --merge-green-pulls or --close-issues and no write-capable token.
+          # The old --register wrote ephemeral debt JSON that no consumer read;
+          # retain the one original machine-readable stdout/report instead.
           node 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/bin/github-reconcile.mjs' \
-            --repo "$GITHUB_REPOSITORY" --apply --max-merges 0 \
+            --repo "$GITHUB_REPOSITORY" --max-merges 0 \
             --receive-equivalent --max-equivalents 3 \
-            --register "$RUNNER_TEMP/github-reconciliation-debt" \
             | tee "$RUNNER_TEMP/github-reconciliation-result.json"
           # Log a usable, bounded receipt; do not publish token or source.
           node --input-type=module -e '
             import fs from "node:fs";
             const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
             const msg=[
-              "# Source-owned GitHub branch receiving",
+              "# Original GitHub source-receiving frontier (read-only)",
               "Repository: "+process.env.GITHUB_REPOSITORY,
-              "Contained/history branches deleted: "+r.branchesDeleted,
-              "Equivalent histories received: "+(r.equivalentHistoryReceived??0),
-              "Equivalent histories retired: "+(r.equivalentHistoryRetired??0),
-              "Debt records retained: "+r.debtRecords,
-              "Qualified ordinary PRs merged: "+r.pullRequestsMerged,
-              "Issues closed: "+r.issuesClosed,
-              "Errors: "+(r.errors?.length??0),
+              "Archive-tagged source objects awaiting receiving: "+(r.archiveTagSourcesAwaitingReceiving??0),
+              "Source-contained branch assessments: "+(r.branchesDeletable??0),
+              "Source-equivalent history assessments: "+(r.equivalentCandidates??0),
+              "Unreceived source/debt records observed: "+r.debtRecords,
+              "Read-only provider errors: "+(r.errors?.length??0),
+              "Original Work/ordinary consumer receiving: NOT ESTABLISHED",
+              "Automatic source-ref retirement authority: NONE",
             ];
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,msg.join("\n")+"\n");
             if(r.errors?.length)process.exitCode=1;
