@@ -11,10 +11,11 @@ function originalReport() {
   const refName = "refs/tags/archive/agent/unreceived";
   return {
     applied: false, repositoriesObserved: 1, repositoriesFailed: 0, errors: [],
+    recordKind:"github.reconciliation-source-report/v1",
     archiveRefCoverage: "complete-for-observed-repositories",
     sourceCutCoverage: "matching-open-github-source-cuts",
     branchesDeleted: 0, branchesDeletable: 0, issuesClosed: 0, pullRequestsMerged: 0,
-    equivalentCandidates: 2, pullRequestsMergeable: 1, originalPullsObserved:1, debtRecords: 4,
+    equivalentCandidates: 2, pullRequestsMergeable: 1, originalPullsObserved:1,
     branchSourceCandidateCount:1,
     archiveTagSourcesObserved: 1, originalIssuesObserved: 1,
     branchSourceCandidates: [{
@@ -125,6 +126,9 @@ test("source absence, unknown record shape, changed authority, and foreign repo 
   for (const change of [
     r => { delete r.branchSourceCandidates; },
     r => { delete r.pullSourceCandidates; },
+    r => { r.debtRecords=4; },
+    r => { r.debts=[{kind:"system-debt"}]; },
+    r => { delete r.recordKind; },
     r => { r.pullSourceCandidates[0].automaticPullMergeAllowed = true; },
     r => { r.pullSourceCandidates[0].recordKind = "generic-debt"; },
     r => { r.pullSourceCandidates[0].sourceHeadCommitId = "not-git-oid"; },
@@ -202,6 +206,11 @@ test("the original workflow selects the real consumer and its native tests, not 
   assert.match(workflow, /^      pull-requests: read$/mu);
   assert.doesNotMatch(workflow, /^\s+(?:contents|issues|statuses|pull-requests|checks): write$/mu);
   assert.doesNotMatch(workflow, /--register|--apply|branchesDeletable/u);
+  const source=readFileSync(new URL("../.github/scripts/github-source-receiving-summary.mjs",import.meta.url),"utf8");
+  assert.match(source,/services\/github-reconciliation-service\/src\/source-report\.mjs/u);
+  assert.match(source,/admitGitHubReconciliationSource/u);
+  assert.doesNotMatch(source,/function rows\(|const contradictsPullRelations|const TAG_RELATIONS/u);
+  assert.doesNotMatch(source,/debtRecords|system-debt/u);
 });
 
 test("draft and unobserved-check PR source remains visible, never silently counted as zero",()=>{
