@@ -14,7 +14,7 @@ function originalReport() {
     archiveRefCoverage: "complete-for-observed-repositories",
     branchesDeleted: 0, branchesDeletable: 0, issuesClosed: 0, pullRequestsMerged: 0,
     equivalentCandidates: 2, pullRequestsMergeable: 1, originalPullsObserved:1, debtRecords: 4,
-    branchSourceCandidates:1,
+    branchSourceCandidateCount:1,
     archiveTagSourcesObserved: 1, originalIssuesObserved: 1,
     branchSourceCandidates: [{
       recordKind: "github.branch-source-reconciliation-candidate/v1",
@@ -76,7 +76,7 @@ test("the original branch, archive-tag and issue sources actually reach the job 
 test("a second valid observed profile with no candidates does not claim the Work is complete", () => {
   const report = originalReport();
   report.branchSourceCandidates = [];
-  report.branchSourceCandidates = 0;
+  report.branchSourceCandidateCount = 0;
   report.pullSourceCandidates = [];
   report.originalPullsObserved = 0;
   report.pullRequestsMergeable = 0;
@@ -103,7 +103,7 @@ test("unread GitHub comparison is a retained Work source, not unique-commits", (
 test("tag-only noncommit original objects stay unresolved, never converted into accepted code", () => {
   const report = originalReport();
   report.branchSourceCandidates = [];
-  report.branchSourceCandidates = 0;
+  report.branchSourceCandidateCount = 0;
   report.pullSourceCandidates = [];
   report.originalPullsObserved = 0;
   report.pullRequestsMergeable = 0;
@@ -129,7 +129,7 @@ test("source absence, unknown record shape, changed authority, and foreign repo 
     r => { r.pullSourceCandidates[0].pullRequestUpdatedAt = "not-a-revision"; },
     r => { r.originalPullsObserved = 0; },
     r => { r.pullRequestsMergeable = 0; },
-    r => { r.branchSourceCandidates = 0; },
+    r => { r.branchSourceCandidateCount = 0; },
     r => { r.archiveRefSources = null; },
     r => { r.originalIssueSources[0].recordKind = "untyped"; },
     r => { r.branchSourceCandidates[0].originalWorkReceiving = "accepted"; },
