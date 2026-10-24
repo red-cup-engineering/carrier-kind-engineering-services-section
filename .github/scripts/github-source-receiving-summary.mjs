@@ -116,7 +116,7 @@ export function renderGitHubSourceReceivingSummary(report, { repository, limit =
       pullSources.some(x => issueSources.some(i => i.issueNumber === x.pullRequestNumber)) ||
       report.originalPullsObserved !== pullSources.length ||
       report.pullRequestsMergeable !== pullSources.filter(x => x.technicalClassification === "green-and-mergeable").length ||
-      report.branchSourceCandidates !== branchSources.length ||
+      report.branchSourceCandidateCount !== branchSources.length ||
       new Set(issueSources.map(x => x.issueId)).size !== issueSources.length ||
       new Set(issueSources.map(x => x.issueNumber)).size !== issueSources.length ||
       branchSources.some(x => x.matchingArchiveRefNames.some(ref =>
