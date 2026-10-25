@@ -8,7 +8,7 @@
     {
       "cell": "one-categorical-typed-functional-architecture-across-the-ecosystem:held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/content/requirements/one-categorical-typed-functional-architecture-across-the-ecosystem.json >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/services/computer-engineering-services-section/content/requirements/one-categorical-typed-functional-architecture-across-the-ecosystem.json >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],

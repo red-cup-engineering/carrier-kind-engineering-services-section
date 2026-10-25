@@ -8,7 +8,7 @@
     {
       "cell": "agents-are-configured-spawned-and-arranged-by-the-metroplat-instance:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-agent-configuration-and-dispatch-by-metroplat.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-agent-configuration-and-dispatch-by-metroplat.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],
@@ -218,7 +218,7 @@
           ]
         }
       ],
-      "context": "Held: rules sessions-dispatch-only-office-projected-agents, leader-corrections-persist-into-method, no-work-outside-an-office-duty-and-skill, use-and-improve-the-groups-own-software; the 2026-10-09 note on the Leader's repeated corrections; the given-names note; the two-bodies note (Claude as senior engineer directing junior engineers; the trusted-assistant office and its ChatGPT Web incumbency); the Semioverse term. R17 and R18 are not held beyond the older notes on the modeled union dimension. Spec: lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-agent-configuration-and-dispatch-by-metroplat.md"
+      "context": "Held: rules sessions-dispatch-only-office-projected-agents, leader-corrections-persist-into-method, no-work-outside-an-office-duty-and-skill, use-and-improve-the-groups-own-software; the 2026-10-09 note on the Leader's repeated corrections; the given-names note; the two-bodies note (Claude as senior engineer directing junior engineers; the trusted-assistant office and its ChatGPT Web incumbency); the Semioverse term. R17 and R18 are not held beyond the older notes on the modeled union dimension. Spec: services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-agent-configuration-and-dispatch-by-metroplat.md"
     },
     "sign-cell": {
       "type": "emsenn/schema/requirement",

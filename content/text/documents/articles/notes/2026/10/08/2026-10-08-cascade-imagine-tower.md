@@ -32,7 +32,7 @@ produced-by: imagine stage, regime "tower" (Claude Fable 5.1), reading Obsmetrol
 ## 0. What this note stands on, and how to read its marks
 
 This is the IMAGINE stage for the regime called "tower": the whole loop of the README
-(MAPE-K; `/home/emsenn/info/README.md` lines 10 to 25) across the four libraries SignCell,
+(MAPE-K; `/home/emsenn/bare-cedar-fog/README.md` lines 10 to 25) across the four libraries SignCell,
 SignChain, SignGraph and SignCraft. It builds only on what the adversarial check
 `2026-10-08-cascade-check-tower.md` (beside this note, "the check") confirmed, and it keeps the
 check's corrections. Where the governing cascade note

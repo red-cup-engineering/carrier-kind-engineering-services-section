@@ -3,12 +3,12 @@
   "name": "Software placed by what it does: mathematics in Metrologic, agents in FeltOS, ordinary computing in the computer-system engine",
   "kind": "requirement",
   "raised-by": "emsenn",
-  "asks": "If it is ABOUT DOING MATH / IT GOES IN METROLOGIC / IF IT IS ABOUT DOING AGENT SHIT / IT GOES IN FELTOS / IF IT IS ABOUT ACTUAL JUST NORMAL FUCKING COMPUTING / IT GOES IN / lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/ [...] MOVE THE CODE / FROM WHERE IT IS / TO WHERE IT NEEDS TO GO / SUCH THAT / THIS ONE PACKAGE ENDS UP ENTIRELY FUCKING GONE / AND ITS CODE ENTIRELY FUCKING ELSEWHERE",
+  "asks": "If it is ABOUT DOING MATH / IT GOES IN METROLOGIC / IF IT IS ABOUT DOING AGENT SHIT / IT GOES IN FELTOS / IF IT IS ABOUT ACTUAL JUST NORMAL FUCKING COMPUTING / IT GOES IN / services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/computer-system-engine/ [...] MOVE THE CODE / FROM WHERE IT IS / TO WHERE IT NEEDS TO GO / SUCH THAT / THIS ONE PACKAGE ENDS UP ENTIRELY FUCKING GONE / AND ITS CODE ENTIRELY FUCKING ELSEWHERE",
   "met-when": [
     {
       "cell": "placement:spec-held",
       "target": "held",
-      "command": "sh -c 'test -f lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/articles/notes/2026/10/10/2026-10-10-specification-of-one-implementation-and-placement-by-what-software-does.md'",
+      "command": "sh -c 'test -f services/engineering-services-section/content/text/documents/articles/notes/2026/10/10/2026-10-10-specification-of-one-implementation-and-placement-by-what-software-does.md'",
       "expected-exit": 0
     },
     {
@@ -20,13 +20,13 @@
     {
       "cell": "placement:no-typescript",
       "target": "held",
-      "command": "sh -c '! git ls-files -- \"lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/*.ts\" \"lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/**/*.ts\" | grep -v -E \"\\.d\\.ts$|/legacy/\" | grep -q .'",
+      "command": "sh -c '! git ls-files -- \"services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/*.ts\" \"services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/**/*.ts\" | grep -v -E \"\\.d\\.ts$|/legacy/\" | grep -q .'",
       "expected-exit": 0
     },
     {
       "cell": "placement:phoss-kept",
       "target": "held",
-      "command": "sh -c 'test -f lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/phoss-in-a-box/README.md'",
+      "command": "sh -c 'test -f services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/apps/phoss-in-a-box/README.md'",
       "expected-exit": 0
     }
   ],

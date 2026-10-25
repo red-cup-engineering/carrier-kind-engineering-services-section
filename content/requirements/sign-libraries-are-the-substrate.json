@@ -8,7 +8,7 @@
     {
       "cell": "sign:terms",
       "target": "held",
-      "command": "sh -c 'for t in signcell signchain signgraph signcraft; do test -f lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/content/text/glossary/terms/$t.md || exit 1; done'",
+      "command": "sh -c 'for t in signcell signchain signgraph signcraft; do test -f services/engineering-services-section/services/computer-engineering-services-section/content/text/glossary/terms/$t.md || exit 1; done'",
       "expected-exit": 0
     },
     {
@@ -20,7 +20,7 @@
     {
       "cell": "sign:no-typescript",
       "target": "held",
-      "command": "sh -c '! grep -l -E \"\\\"typescript\\\"\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/*/package.json 2>/dev/null | grep -q .'",
+      "command": "sh -c '! grep -l -E \"\\\"typescript\\\"\" services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/*/package.json 2>/dev/null | grep -q .'",
       "expected-exit": 0
     }
   ],
