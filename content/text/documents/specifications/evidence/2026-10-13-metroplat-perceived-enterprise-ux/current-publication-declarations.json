@@ -5,21 +5,21 @@
   "before": [
     {
       "package": "@red-cup-engineering/activitypub-services-section",
-      "importerId": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section",
+      "importerId": "services/engineering-services-section/services/computer-engineering-services-section/services/computer-networking-engineering-services-section/services/activitypub-services-section",
       "targets": [
         "./scripts/serve-activitypub-network.mjs"
       ]
     },
     {
       "package": "@red-cup-engineering/carrier-kind-engineering-services-section",
-      "importerId": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/carrier-kind-engineering-services-section",
+      "importerId": "services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/carrier-kind-engineering-services-section",
       "targets": [
         "./schemas/carriers/note.schema.json"
       ]
     },
     {
       "package": "@red-cup-engineering/term-engineering-services-section",
-      "importerId": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/computer-glossary-systems-engineering-services-section/services/term-engineering-services-section",
+      "importerId": "services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-knowledge-systems-services-section/services/computer-glossary-systems-engineering-services-section/services/term-engineering-services-section",
       "targets": [
         "./schemas/glossary/term/relation-predicates.json",
         "./schemas/glossary/term/term.schema.json",
@@ -28,7 +28,7 @@
     },
     {
       "package": "@lenticule-science/mandarin-language-algebra",
-      "importerId": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/mandarin-language-algebra",
+      "importerId": "services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-language-systems-engineering-services-section/services/mandarin-language-algebra",
       "targets": [
         "./src/interlinear.mjs",
         "./src/reading.mjs",

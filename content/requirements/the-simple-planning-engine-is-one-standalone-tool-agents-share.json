@@ -8,7 +8,7 @@
     {
       "cell": "the-simple-planning-engine-is-one-standalone-tool-agents-share:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-simple-planning-engine.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-simple-planning-engine.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],
@@ -145,7 +145,7 @@
           ]
         }
       ],
-      "context": "Not held before this record outside the articulation index and two notes (2026-09-20 classification note, 2026-10-03 note on how the node changes itself). The engine is in the engineering category; the theories it realizes are in the science sections for working, planning, doing and governing (the relationality agency/animating notes). Spec: lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-simple-planning-engine.md"
+      "context": "Not held before this record outside the articulation index and two notes (2026-09-20 classification note, 2026-10-03 note on how the node changes itself). The engine is in the engineering category; the theories it realizes are in the science sections for working, planning, doing and governing (the relationality agency/animating notes). Spec: services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-simple-planning-engine.md"
     },
     "sign-cell": {
       "type": "emsenn/schema/requirement",

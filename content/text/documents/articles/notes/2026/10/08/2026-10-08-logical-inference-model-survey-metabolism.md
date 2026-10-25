@@ -14,7 +14,7 @@ produced-by: info-0d logical-inference-model survey workflow (Claude agents; Son
 # Round 2 — Metabolism: budget, fitness, self-improvement, repair, regimes, cognitive EROEI
 
 Area: metabolism (mind-metabolism theory of the house, distilled into an exact operating
-specification for the new predication-algebra AI). All paths relative to `/home/emsenn/info`.
+specification for the new predication-algebra AI). All paths relative to `/home/emsenn/bare-cedar-fog`.
 Reading law applied throughout: what a file COMPUTES is separated from what its prose CLAIMS;
 slop is flagged inline with **[SLOP]**, proved things with **[PROVED]**, executable with
 **[CODE]**, design prose with **[DESIGN]**, external-literature with **[EXT]**.
@@ -55,7 +55,7 @@ relaxation steps / observation window, with De ≫ 1 = frozen-weights jiangshi.
 
 ### 1.1 Distal bypass (operations glossary + source note)
 
-`lib/emsenn/services/561-group/services/561-group-services-section/content/text/glossary/terms/distal-bypass.md`
+`services/561-group-services-section/content/text/glossary/terms/distal-bypass.md`
 (date-created 2026-09-02, updated 2026-10-06, domain: operations). Five-step procedure on "any
 territory that can be presented as local records with overlaps":
 1. Derive the obstruction sheet (re-run checks over overlaps; never read anyone's report).
@@ -67,7 +67,7 @@ territory that can be presented as local records with overlaps":
 5. Emit everything as certificates in a common envelope.
 A territory so operated is a **settlement** with law, ledgers, contracts.
 
-`lib/emsenn/services/561-group/services/561-group-services-section/content/text/documents/articles/notes/2026/07/16/2026-07-16-the-distal-bypass.md`
+`services/561-group-services-section/content/text/documents/articles/notes/2026/07/16/2026-07-16-the-distal-bypass.md`
 (2026-07-16, updated 2026-10-06). Claims, verbatim where load-bearing:
 - Physics: "A body of articulated relation settles to its least fixed point ... The settled
   relation is a causal set, and the causal set is spacetime." "Settled precedence is timelike.
@@ -114,7 +114,7 @@ A territory so operated is a **settlement** with law, ledgers, contracts.
 
 ### 1.2 EROEI glossary (economics science section)
 
-Dir: `lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/economics-science-services-section/content/text/glossary/terms/`
+Dir: `services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/economics-science-services-section/content/text/glossary/terms/`
 - `energy-return-on-investment.md` (2026-09-05). Physical EROEI = usable energy delivered /
   energy invested; "The ratio is a physical-energy account only when its returned-energy and
   invested-energy boundaries are stated." Net fraction `1 − 1/EROEI`. On cognitive EROEI: "This
@@ -137,7 +137,7 @@ Dir: `lib/emsenn/services/561-group/services/science-services-section/services/s
 
 ### 1.3 EROEI–depth-of-reflexivity book (neuroreflexivity research texts)
 
-Dir: `lib/emsenn/services/561-group/services/science-services-section/services/natural-science-services-section/services/biological-science-services-section/services/neuroscience-services-section/services/neuroreflexivity-services-section/lib/agency/skills/neuroreflexivity-research/texts/`
+Dir: `services/science-services-section/services/natural-science-services-section/services/biological-science-services-section/services/neuroscience-services-section/services/neuroreflexivity-services-section/lib/agency/skills/neuroreflexivity-research/texts/`
 Files: `eroei-distance-thought-third-draft-outline.md` (43 KB), `eroei-distance-thought-research-notes-third-draft.md` (29 KB), `absolute-energy-decline-research.md` (13 KB), `deep-history-plan.md` (15 KB). All dated 2025-03-31 in-text (compiled "in conversation"). **[EXT synthesis; the files themselves say "Negative cognitive EROEI is not formalized" and "Nobody has calculated EROEI for digital/informational systems."]**
 
 Claim: "EROEI corresponds with the depth of cognitive reflexivity available to a population. The
@@ -187,7 +187,7 @@ metacognition over time.
 
 ### 1.4 Working paper — Energetics of civilizational cognition
 
-`lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/content/text/documents/articles/notes/2026/07/29/2026-07-29-working-paper-energetics-of-civilizational-cognition.md`
+`services/science-services-section/services/social-science-services-section/content/text/documents/articles/notes/2026/07/29/2026-07-29-working-paper-energetics-of-civilizational-cognition.md`
 (status: speculative; declared-by codex-emergency-authority-curation). The most disciplined
 metabolism text in the corpus. Variables: `N` accessible net energy (explicit EROEI boundary +
 uncertainty), `A` protected attention-time, `C` coordination load (concrete handoffs,
@@ -218,7 +218,7 @@ mind").
 ### 1.5 Lean — what is proved
 
 #### 1.5.1 `ObsmetrologiaEconomics/AttentionAllocation.lean`
-Path: `lib/emsenn/services/561-group/services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/economics-science-services-section/lib/obsmetrologia-economics/ObsmetrologiaEconomics/AttentionAllocation.lean`
+Path: `services/science-services-section/services/social-science-services-section/services/economics-and-business-science-services-section/services/economics-science-services-section/lib/obsmetrologia-economics/ObsmetrologiaEconomics/AttentionAllocation.lean`
 - `structure Obstruction where cost : Nat; benefit : Nat` — docstring: cost = "its certificate
   size / settling flux", benefit = "the held-⊤ mass reconciling it removes".
 - `totalCost`, `totalBenefit` (foldr sums), `Feasible B S := totalCost S ≤ B`,
@@ -247,7 +247,7 @@ Path: `lib/emsenn/services/561-group/services/science-services-section/services/
   allocator.
 
 #### 1.5.3 `Obsmetrologia/Cohomology/LandauerEntropy.lean`
-Path: `lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia/Cohomology/LandauerEntropy.lean`
+Path: `services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia/Cohomology/LandauerEntropy.lean`
 - `def landauerBits (N : CoverNerve) : Nat := N.H1rank`.
 - **[PROVED]** `landauer_zero_iff_reversible : landauerBits N = 0 ↔ N.entities = N.cells + N.components`
   (= `CoverNerve.h1_vanishes_iff_forest`); `landauer_eq_coordination_cost : landauerBits N = N.cells − (N.entities − N.components)`;
@@ -309,7 +309,7 @@ one another but NOT interchangeable — the right discipline for a metabolism's 
 ### 1.6 Code — what runs
 
 #### 1.6.1 SignCraft settle ledger **[CODE]**
-`lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcraft/src/inference/nuclei.mjs`
+`services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcraft/src/inference/nuclei.mjs`
 - `kHeight` = `knowledgeHeight` from `@red-cup-engineering/computer-data-engineering-services-section/four`.
 - `stepLedger(ctx, v, v2)` → `{ flux: commits + mints + 2*jumps, commits, mints, jumps }` via
   metrologic `ledgerCellStep(ha, hb)` (throws if `hb < ha`: "knowledge order violated").
@@ -362,7 +362,7 @@ integer ranks, `cohomologyReceiptOfCells`, `coverNerveOfCohomology`, `pricedCell
 "causal leg (e) and mint/jump legs (c) explicitly not computed."
 
 #### 1.6.5 metrologic carriers **[CODE]**
-`lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/`
+`services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/`
 - `coordination-cohomology.mjs`: `coverNerve(entities, cells, components)`, `h1Rank`,
   `landauerBits = h1Rank`, `landauerZeroIffReversible`, `landauerEqualsCoordinationCost`,
   `coordinationCostReceipt`, `landauerEntropyReceipt`.
@@ -374,7 +374,7 @@ integer ranks, `cohomologyReceiptOfCells`, `coverNerveOfCohomology`, `pricedCell
   `kinetic-obstruction`. **The only executable Deborah number in the house.**
 
 #### 1.6.6 Attention allocation readout service **[CODE]**
-`lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section/services/semiotic-agent-services-section/services/attention-services-section/services/attention-allocation-readout-service/src/contract-attention-allocation.mjs` (189 lines)
+`services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/semiotic-computer-system-services-section/services/semiotic-agent-services-section/services/attention-services-section/services/attention-allocation-readout-service/src/contract-attention-allocation.mjs` (189 lines)
 - Request `{budget > 0, candidates: [{id, cost > 0, benefit > 0}], authority: {controller, basis}}`;
   ActivityStreams Offer/Accept/capability dance; `computeAllocation(request)` (the solver;
   computes choiceBits per the Lean).
@@ -389,7 +389,7 @@ integer ranks, `cohomologyReceiptOfCells`, `coverNerveOfCohomology`, `pricedCell
   denominations and reports a measured vector against a quoted vector.
 
 ### 1.7 Smartgoo abiogenesis ladder
-`lib/emsenn/services/561-group/services/science-services-section/services/natural-science-services-section/services/biological-science-services-section/content/text/documents/articles/notes/2026/10/01/2026-10-01-artificial-abiogenesis-smartgoo-research-program.md`
+`services/science-services-section/services/natural-science-services-section/services/biological-science-services-section/content/text/documents/articles/notes/2026/10/01/2026-10-01-artificial-abiogenesis-smartgoo-research-program.md`
 - Five evidence classes **D / E / P / M / I** ("No claim may be silently promoted").
 - R-ladder: `R0 searchable populations → R1 persistent memory → R2 adaptive response → R3
   self-repair → R4 directed growth → R5 energy-coupled maintenance → R6 compartmentalization →
@@ -416,7 +416,7 @@ integer ranks, `cohomologyReceiptOfCells`, `coverNerveOfCohomology`, `pricedCell
   Gate (93 installed operations, no Holofoam).
 
 ### 1.8 Glass-sponge note (the metabolism sections)
-`lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/articles/notes/2026/08/01/2026-08-01-note-on-the-content-addressed-glass-sponge-semantic-compute-complex.md`
+`services/engineering-services-section/content/text/documents/articles/notes/2026/08/01/2026-08-01-note-on-the-content-addressed-glass-sponge-semantic-compute-complex.md`
 - §14.1 Semiotic foam: three wall regimes (compliant permanent / exchangeable / pinned);
   `De = relaxation time / observation time`; "Too-fast material cannot preserve a record.
   Too-slow material cannot reorganize. The useful system is viscoelastic."
@@ -442,7 +442,7 @@ integer ranks, `cohomologyReceiptOfCells`, `coverNerveOfCohomology`, `pricedCell
   distinguishes damage from protected border." "Not every holonomy or contradiction is a defect."
 
 ### 1.9 The house's own `k` statements (operations notes)
-- `lib/emsenn/services/561-group/services/561-group-services-section/content/text/documents/articles/notes/2026/09/03/2026-09-03-leader-brief-for-the-executive-session.md:247-256`:
+- `services/561-group-services-section/content/text/documents/articles/notes/2026/09/03/2026-09-03-leader-brief-for-the-executive-session.md:247-256`:
   "`k` is the value released by discharging an obstruction over the cost of finding and
   discharging it; `k > 1` is a property of a territory, not the engine. Cognitive EROEI is the
   success criterion for the whole build ... The first `k` datum with both sides receipted landed
@@ -470,7 +470,7 @@ integer ranks, `cohomologyReceiptOfCells`, `coverNerveOfCohomology`, `pricedCell
   cognition.
 
 ### 1.10 Temperature is a Deborah number
-`lib/emsenn/services/561-group/services/science-services-section/content/text/glossary/terms/not-phenomena.md` §3:
+`services/science-services-section/content/text/glossary/terms/not-phenomena.md` §3:
 "A control parameter defined as a ratio of counts — new contradictions opened over total
 commitment flux — is called *temperature* ... Thermodynamic temperature is a conjugate variable,
 1/T = ∂S/∂E, and calling a rate ratio by that name promises a conjugate structure, an energy
@@ -752,7 +752,7 @@ its own carriers leaf-first on the dev channel.
 - `signcraft/src/history.mjs checkpointHistory / observeHistory / mergeHistories` (seams = contested cells): lap checkpoints; the "mutable working phase vs durable record phase" boundary.
 - `signgraph/src/circuit-trace.mjs` defect-class vocabulary (`rotational-protected-border`, `unpriced-irreversible-defect`): naming for the damage/border certificate.
 - `registry.561.group` (Cold Red Gate, immutable publishes): the horizon clock and boundary edge for `k`; first metabolic act = publish signcell → signchain → signgraph → signcraft → metrologic leaf-first on the dev channel.
-- Smartgoo `energy-maintenance-run-v0.1.schema.json` (`lib/emsenn/services/561-group/services/content/schemas/artificial-abiogenesis/`): reuse the R5 ON/OFF/ON run schema for the node's budget-cut assay.
+- Smartgoo `energy-maintenance-run-v0.1.schema.json` (`services/content/schemas/artificial-abiogenesis/`): reuse the R5 ON/OFF/ON run schema for the node's budget-cut assay.
 
 ---
 
@@ -780,4 +780,4 @@ its own carriers leaf-first on the dev channel.
 - `throw new Error(\`H-theorem violation at step ${step}: ${fired} firings discharged no free energy\`)` — `signcraft/src/inference/nuclei.mjs settle()`
 - "ΔF = α·opened − β·closed + T·ΔE ... Sampling is priced, never silent." — `signcraft/src/inference/generate.mjs`
 - "`SOURCE ON → SOURCE OFF → SOURCE RESTART`. A material passes only if a preregistered organized function degrades or loses stability when throughput is interrupted and stabilizes or recovers when throughput returns" / "repair is not metabolism" / "unknown is not zero" — `.../2026/10/01/2026-10-01-artificial-abiogenesis-smartgoo-research-program.md`
-- "what is called temperature is a Deborah number ... De = τ_relax / τ_observe ... the living window becomes De ≈ 1" — `lib/emsenn/services/561-group/services/science-services-section/content/text/glossary/terms/not-phenomena.md` §3
+- "what is called temperature is a Deborah number ... De = τ_relax / τ_observe ... the living window becomes De ≈ 1" — `services/science-services-section/content/text/glossary/terms/not-phenomena.md` §3

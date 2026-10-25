@@ -1,5 +1,5 @@
 ---
-title: "Logical inference model survey: lean-theory (Obsmetrologia Lean 4 library; root = lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia, all module paths below relative to its Obsmetrologia/ subdir)"
+title: "Logical inference model survey: lean-theory (Obsmetrologia Lean 4 library; root = services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia, all module paths below relative to its Obsmetrologia/ subdir)"
 description: "What this area of the tree actually computes, its abstractions with their theoretical readings, capabilities a logical inference model can build on, gaps and slop, and attachment points."
 date-created: 2026-10-08
 kind: engineering-survey-note
@@ -12,7 +12,7 @@ status: survey-read-only-not-adversarially-verified
 produced-by: info-0d logical-inference-model survey workflow (Claude agents; Sonnet readers for code, Fable readers for house theory), read-only over the tree at 773ea6d6df4
 ---
 
-# Logical inference model survey: lean-theory (Obsmetrologia Lean 4 library; root = lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia, all module paths below relative to its Obsmetrologia/ subdir)
+# Logical inference model survey: lean-theory (Obsmetrologia Lean 4 library; root = services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia, all module paths below relative to its Obsmetrologia/ subdir)
 
 ## Summary
 

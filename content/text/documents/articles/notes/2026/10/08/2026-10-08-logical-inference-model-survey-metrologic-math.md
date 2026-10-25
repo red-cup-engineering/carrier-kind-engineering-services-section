@@ -26,145 +26,145 @@ Specific verdicts on the flagged files. proof-foam.mjs (122 lines) is NAMING OVE
 
 ### Formal context + Duquenne-Guigues basis (the FCA kernel)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/closure/formal-context.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/closure/formal-context.mjs`
 - **Computes:** makeContext(objects, attributes, incidencePairs, denialPairs) -> ctx{G,M,A,I}; intent(ctx,Aset), extent(ctx,Bset), closeAttrs (B''), impClosure(implications,X) (least fixpoint via shared 'settlement' node), dgBasis(ctx) (Ganter Next Closure in lectic order, canonical stem base), lawfulBasis(ctx) (drops implications with empty-extent premises). Denial lane doubles attributes to M + not-M so one closure propagates both (penguin -> not-flies). Worst-case exponential in |A| (guard 2^min(|A|,20)).
 - **Theory:** Real FCA: Galois connection (G,M,I), closure operator, canonical implication basis. The denial lane is standard dichotomization (attribute negation). lawfulBasis is a sensible paraconsistent fix (avoid ex falso on empty extent). Genuinely realizes the theory; no concept-lattice enumeration, no stability/iceberg, no attribute exploration with an expert oracle, no incremental update.
 
 ### FCA receipt + Lambek circle
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/fca-lambek-circle.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/fca-lambek-circle.mjs`
 - **Computes:** finiteFcaContext(cells[{subject,predicate}]); intentOfExtent/extentOfIntent/closeExtent/closeIntent (delegating to formal-context); formalConceptAnalysisReceipt: brute-force over all 2^|G| extents and 2^|M| intents checks prime adjunction, antitone, closure extensive/monotone/idempotent, concept meet=intersection, join=close(union), implication characterization; circle(context, residuated): FCA laws + residuated-lattice laws + derived Lambek laws + commutativity collapse.
 - **Theory:** FCA half is real (finite proofs of the Basic Theorem pieces). The 'circle FCA -> Lambek -> residuated lattice -> settling closure' is NOT realized: the residuated table is passed in independently and never derived from the concept lattice; flags like fcaClosureIsSettlingClosure:true are constants. The Wurm/Pentus completeness edge is explicitly a boundary. Names a CHL/Lambek bridge without building it.
 
 ### Lambek calculus finite algebra
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/lambek-calculus.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/lambek-calculus.mjs`
 - **Computes:** finiteLambekAlgebraSystem(latticeSystem,unit,dot,lres,rres) -> table system; laws(system) checks monoid laws and the two bi-residuation adjunctions (a.b<=c iff a<=c/b iff b<=a\c), commutativity and single-implication collapse. Ships trivial and 2-element Boolean algebras.
 - **Theory:** Correct law-checker for residuated (non-commutative) algebras = semantics of the Lambek calculus. There is NO sequent calculus, no proof terms, no parser/type-checker, no cut elimination: so it is the algebraic side of CHL (Lambek) only, with zero lambda/proof side.
 
 ### Residuated lattice
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/residuated-lattice.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/residuated-lattice.mjs`
 - **Computes:** finiteResiduatedLatticeSystem(lattice,top,bot,one,fuse,imp); laws(system) checks commutative monoid, residuation adjunction, integrality, derived laws; twoBooleanResiduatedLattice example.
 - **Theory:** Real finite check of integral commutative residuated lattice (= quantale-like truth-value algebra). Only the 2-element example is shipped; no Lukasiewicz/Goedel/Product t-norms, no quantale-valued FCA (fuzzy concepts).
 
 ### Chu spaces over FOUR
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/chu.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/chu.mjs`
 - **Computes:** chuSpace(points,states,readingAt) -> matrix points x states -> FOUR; row/col/extension/settleRow/settleColumn (knowledge-join fold); transpose; dual = transpose + negate each entry; chuMap(source,target,forward,backward) validated as adjoint pair r_t(f a,x)=r_s(a,g x); id/compose/dualChuMap; checkPointTruthDominance, truthDominanceFrontier; with/plus; chuLawReceipt exhaustive over small carriers; content-address sameness via canonical JSON.
 - **Theory:** Real Chu construction (Barr/Pratt) with FOUR=bilattice as the dualizing object; a Chu space over FOUR is exactly a many-valued formal context, so FCA <-> Chu is natural (a formal context is a Chu space over 2, its Galois connection is the Chu adjunction). The FCA-in-Chu bridge is NOT implemented here (formal-context.mjs does not import chu.mjs). tensor/par/linear-logic connectives only partly present (with/plus; fusion lives in four.mjs). A solid 'networking' primitive.
 
 ### Causal set core (light cones)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/causal.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/causal.mjs`
 - **Computes:** settleCausalSet({events,links}) -> witness {events,directLinks,closure(transitive),apex} or obstruction {duplicate-event|unknown-event|closed-timelike-curve with cycle}; interval/intervalCard (Alexandrov interval), pastLayer/layerCount (k-th past layer = elements with interval card k), orderingFraction (Myrheim-Meyer, exact rational), causalMobius (incidence-algebra mu), mobiusLayerCoefficient, dalembertianBD with bdCoeff2 (1,-2,1) and bdCoeff4 (1,-9,16,-8), dalembertianStrict/causalDalembertian (Mobius-weighted past sum), localCurvature, bdAction, longestChain/properTime, causalHeightStrata, Hall sums, many named receipts (Alexandrov topology, sprinkling average, Einstein-Hilbert, 'lambekCurvature', 'lambekRicci', paraconsistentConeReport, microlocalSupport). Constants diamond/chain/antichain.
 - **Theory:** Real causal-set theory (Bombelli-Lee-Meyer-Sorkin; Benincasa-Dowker-Glaser action; Mobius inversion on a poset). Past cone = {x: x<=e}, future cone = closed future; interval = Alexandrov open set. Realizes the discrete Lorentzian structure properly on finite posets, with exact integers. Gaps: closure is cubic-ish and recursive chain counts are exponential; many receipts are hardcoded to the 4-event diamond; 'lambekRicci' and 'einsteinHilbert' are labels on small Mobius sums over the diamond, not demonstrated physics; the link between cones and premises/consequences of a logic is asserted in names (paraconsistentConeReport) not built as an inference engine.
 
 ### Causal cohomology / polarization / microsupport / involutivity / MLD / manifoldlikeness
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/causal-polarization.mjs (and causal-microsupport, causal-involutivity, causal-mld-classification, causal-manifoldlikeness)`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/causal-polarization.mjs (and causal-microsupport, causal-involutivity, causal-mld-classification, causal-manifoldlikeness)`
 - **Computes:** polarizationForm(carrier,colors)=colour difference on edges; properColoring = nondegenerate polarization (colour(from)!=colour(to) on direct edges); bipartiteColoring via BFS; liouville = dc, checks d(dc)=0; pullbackColors under graph hom; microsupport(carrier,support)=closed future of support (upward closed, idempotent, excludes spacelike); emit/emit2 propagate a FOUR reading along the cone; wavefront/singularSupport of a cochain; bicharacteristic triangles and additive cocycle ('involutive wavefront'); sameClass cohomological MLD groupoid on cochains; Euler/Hall interval invariants.
 - **Theory:** Honest finite cochain-complex/colouring math (coboundary on a poset's order complex, colouring as 0-cochain whose coboundary is nonvanishing on edges), dressed in microlocal-analysis vocabulary (wavefront, bicharacteristic, Liouville, involutive). The microlocal terms are analogies; what is computed is cocycle/coboundary checks and upset closure. The proper-colouring-as-polarization link is a real, useful bridge between tile colouring and light cones.
 
 ### Chromatic marking over a causal set
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/tilings/chromatic-marking.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/tilings/chromatic-marking.mjs`
 - **Computes:** settleChromaticMarking(causalSet, marks[{color,at}]) -> {settledAt[event]=sorted colours whose mark event <= event in closed causal order, spacelikeFrontier[event]=colours existing but not in past, idempotence + monotonicity booleans} or the causal obstruction (cycle/unknown-event). chromaticMarkingReceipt checks chain agrees with chromatic-lorentzian.settle, antichain propagates nothing, diamond top merges two spacelike marks, CTC obstructs.
 - **Theory:** Not tile colouring. It is per-label upward closure on a poset = the sheaf/presheaf of label-sets on the Alexandrov (future-set) topology, i.e. a monotone section; the spacelike frontier is the complement. Real and tiny. Misfiled under models/tilings with header 'analysis/chromatic-marking'. Good seam for 'colours = typed claims propagated through a cone'.
 
 ### Chromatic-Lorentzian chain settling
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/chromatic-lorentzian.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/chromatic-lorentzian.mjs`
 - **Computes:** step(bools)=one-step propagation i->i+1; settle(bools)=prefix OR (running 'seen'); mark0; orbit; geoMld equality of settled markings; box (backward difference) and pastSum (prefix sum) as inverses on integer fields; bdActionChain; receipt/actionReceipt.
 - **Theory:** Prefix OR / prefix sum on an array: the 1D total-order special case of causal settling. Cumulative-sum/difference are inverse (discrete FTC) which is the chain's Mobius inversion. Trivial but correct; the 'Lorentzian' and 'chromatic' words carry the meaning.
 
 ### Proper colouring, chromatic number, colouring entropy
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/coloring.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/coloring.mjs`
 - **Computes:** isProperColorAssignment(weights,colors), properColoring(weights,k) by backtracking, chromaticNumber(weights) (exact, exponential), countProperColorings, coloringEntropy, graphHomToCompletePalette, coloringFactorMap, edgelessColoring, completeGraphChromatic (K4 needs 4), handshake parity, odd-closed-walk bipartite obstruction, ramseyThreeThree, combinatoricsExtremalReceipt. Adjacency is an exact Int weight matrix.
 - **Theory:** Real graph colouring; the doc correctly reads a colouring as a factor map to a finite palette (graph hom to K_k), which is the right bridge to sofic shifts and tile colourings (Evans et al.). Backtracking is NP-hard, fine for small patches; no DSATUR/SAT, no aperiodic-tiling exact chi results actually reproduced beyond orthogonal/triangular/king grids. Grab-bag extras (Ramsey, handshake) are padding.
 
 ### Tile adjacency + block substitution
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/dynamics/substitution/tiling.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/dynamics/substitution/tiling.mjs`
 - **Computes:** blockSubstitution(table), inflateGrid(sub,grid) (replace each cell by its block), tilingPatch(sub,seed,level) (k-fold inflation), gridAdjacency(grid, 'orthogonal'|'triangular'|'king') -> exact adjacency matrix for coloring.mjs. Bounded finite patch.
 - **Theory:** Genuine 2D rectangular block substitution (supertile hierarchy), producing the graph on which tile colouring is meaningful. Only rectangular grid substitutions: no Penrose/Ammann-Beenker/pinwheel/Jeandel-Rao Wang tilesets, no Robinson tiles, no matching-rule checking.
 
 ### Substitution dynamics core (rules, orbit, colimit invariant, gauge)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/dynamics/substitution/index.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/dynamics/substitution/index.mjs`
 - **Computes:** substitutionRule(entries symbol->word), substitute, iterateSubstitution, substitutionOrbit (generator), fixedPointClosure, abelianize(rule)->incidence matrix, primitiveMatrix, perronConvergent, charPolyOver, colimStructure(matrix) (rank, det, Smith normal form, stable det, localized Z-module), substitutionDual (transpose + gauge), gaugeLabeling/gaugeImage/inducedPermutation, substitutionRuleSelfDual. Exact integer matrices.
 - **Theory:** Real: words and incidence matrices; dimension-group style invariant (direct limit of Z^n under M) in the Anderson-Putnam/Barge-Diamond spirit, via Smith normal form not true cohomology of the tiling space. Perron convergence approximated. The 'colimit duality' is matrix transpose with a permutation gauge.
 
 ### MLD invariant and inverse hull
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/dynamics/substitution/mld.mjs (with hull.mjs)`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/models/dynamics/substitution/mld.mjs (with hull.mjs)`
 - **Computes:** mldInvariant(matrix) = colimStructure; mutuallyLocallyDerivable(left,right) = witness iff invariants equal, else obstruction naming first separating component (rank, det, Smith form...). hull.mjs: finite inverse systems, coherentThread, threadsSeparated, odometerHull (finite depth binary odometer), constantHull, hullSeam(matrix).
 - **Theory:** Doc is honest: MLD here is only equality of a necessary-condition invariant (cohomological class), NOT a decision procedure for local derivability of tilings (invariants can coincide for non-MLD tilings). Hull is a finite-cylinder shadow, not a Cantor hull.
 
 ### Sofic shifts and substitution SFT cover
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/sofic.mjs (and models/dynamics/substitution/sofic.mjs)`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/sofic.mjs (and models/dynamics/substitution/sofic.mjs)`
 - **Computes:** analysis/sofic: path(graph,word) walk-admissibility witness/obstruction; soficImage(graph,factor,preimage) 1-block factor; graphHom/compose/mapPathByGraphHom; goldenMeanGraph (no BB), fibSubstitute, decoratedGoldenGraph + forgetDecoration, fibDeepSofic, finiteLocalRuleReceipt. substitution/sofic: substitutionCoverSFT(sub,alphabet,sampleLength) = follower-pair 1-block SFT, sftEntropy = log2 Perron, forbiddenPairs.
 - **Theory:** Real symbolic dynamics at 1-block level (SFT as transition graph, sofic as factor image; Goodman-Strauss/Mozes statement). The substitution cover is the trivial identity-decoration cover; the genuine decorated cover whose decorations encode the supertile hierarchy is explicitly not built. Entropy of cover correctly upper-bounds zero entropy of substitution subshift.
 
 ### Jeandel-Rao Anderson-Putnam witness
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/jeandel-rao-witness.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/jeandel-rao-witness.mjs`
 - **Computes:** Hardcoded one-vertex AP cochain complexes jrComplex, markerRingComplex; delta1(complex,cochain), isCocycle, nonzeroSupport, h1Rank, the two nonzero H1 witness cochains, substitution pullbacks subPull/recPull, sigma/sigmaIter tower maps, chainMapRows. Explicitly does NOT claim JR aperiodicity or identify the tower map with Labbe's substitution matrix.
 - **Theory:** A transcription of a finite cochain complex from Lean for the 11-tile Wang set JR; real linear algebra over small integers but entirely hardcoded data. There is no Wang tile type, no tile set solver, no domino/tiling search. Honest disclaimers; low reuse.
 
 ### Aperiodic classification / autocorrelation
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/aperiodic-classification.mjs (and aperiodic-autocorrelation.mjs)`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/aperiodic-classification.mjs (and aperiodic-autocorrelation.mjs)`
 - **Computes:** classification (695 lines): h1Class/h1Zero, inflationRegime(onUnitCircle), cohEquiv, fullCohEquiv, cohSettling, hasDefect, isCurvedRegime, aperiodicWitness, plus clusters for moduli/direct-limit/synonymy/autopoiesis/universality, mostly finite receipts of Lean statements. autocorrelation: autocorr(pattern bool[],displacement) cyclic pair-difference count, autocorrelation(pattern), homometric(left,right) = equal vectors.
 - **Theory:** autocorrelation is real (Patterson function, homometry = diffraction-equivalence at finite cyclic level, before Fourier) and is the closest thing here to a 'bead pattern observable'. classification is mostly a catalog of regime tags (the settling/regime vocabulary applied to H1 classes) with thin computation; high grandiosity-to-computation ratio.
 
 ### Weave draft (plain-weave sofic)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/weave-draft.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/weave-draft.mjs`
 - **Computes:** plainWeaveGraph = [[F,T],[T,F]]; warpPath/noFloat (alternating bit word is a walk); crossingReading(warpOver,weftOver)=readingOfSides('knowledge',...) giving FOUR (F,F absurd; T,T stable); readingColour(bit)=crossingReading(bit,!bit); readingColouredSofic = soficImage onto the 2x... FOUR-coloured graph; complementRow; columnsComplement; plainWeaveSwatch; entropyCollapse (all rows equal or complementary).
 - **Theory:** A 1-bit alternating shift with a FOUR labelling: periodic, entropy zero, trivial. It does not touch beads, aperiodic order, or two-hand structure. Value is only the idea 'a crossing is a pair of sides read in the bilattice' (hole = absurd, double-over = inconsistent). Internal inconsistency: receipt flag mapNotInvolutive asserts involutivity. Naming over trivia.
 
 ### Port graph / condensate / Vershik
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/port-graph.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/port-graph.mjs`
 - **Computes:** threadPass(lenticule,inSide,outSide); legalThreadPass = in!=out (shares warpAlt with weave-draft, duplicated); condensate(occupation) reads occupancy 0/1/2+ as FOUR bottom/truth/top; rigidity(material)=count of over-occupied lenticules; vershik(path)/vershikToNat (adic encoding of a path as a natural); matrix identity helpers.
 - **Theory:** Tiny counting with a FOUR reading; 'lenticule' (one-hole pass alternating sides) is the physical-bead-ish metaphor, but there is no geometry. Vershik adic is a real idea (Bratteli-Vershik) at tiny scale. Duplicates warpAlt from weave-draft.
 
 ### Proof foam (supplier-verifier dialogue log analytics)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/proof-foam.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/proof-foam.mjs`
 - **Computes:** responseConstraintPair({requiredOpponentMoves,admittedOpponentMoves,playerMoves}) -> {deficiency: #required-not-admitted, redundancy: max(0,|players|-|required|)} as BigInt strings; proofIncarnation(events,{verifierClass}) -> {material, ballast} (events whose candidate/design a verifier transition visited vs. duplicates/unvisited); observeProofKinetics(events,{observationWindow}) -> glueTime ms and proofingDeborah = glue/window as reduced fraction, disposition permeable|kinetic-obstruction|pending|unclassified; observeProofFoam aggregates into AcceptanceProofFoamObservation.
 - **Theory:** Game-semantics flavour (Opponent/Player, deficiency vs redundancy, 'dried' incarnation) and a Deborah number (relaxation time / observation time) are legitimate metaphors, but nothing is foam: no cells, no Plateau rules (3 edges meet at 120 degrees, 4 vertices at tetrahedral angles), no coarsening, no pressure, no topology. It consumes a flat event list with transition names like supplier-demanded/delivered/refused, assay-admitted. This is a 120-line log summarizer for the acceptance workflow, not a model of proof as foam.
 
 ### Graph Laplacian / Hodge / spectral
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/laplacian.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/laplacian.mjs`
 - **Computes:** laplacianOfWeights (L=D-W, exact Int), deviationOf, harmonic/isHarmonicOfWeights (witness/obstruction for Lf=0), componentCountOfWeights (n - rank), spectrumPolynomial (characteristic poly), treeCountOfWeights (Matrix-Tree theorem), hodgeDecompositionOfWeights, signedBalance(vertexCount,edges) (signed graph balance), diffusionDirections.
 - **Theory:** Real exact spectral graph theory over Z; the README says the application code is in computer-math-system. This is the diffusion/consensus operator for a sheaf-ish 'foam' of cells; exact integers mean no floating-point eigenvectors (cannot do spectral clustering or heat kernels). The best candidate for a physics-like relaxation step.
 
 ### Flow / firing / Lyapunov free energy
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/flow.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/flow.mjs`
 - **Computes:** valuation(cells,values: FOUR per cell), leq/joinFamily, reading operators (identity, closureToStable, truthSideClosure, joinClosure, forallAntecedent), applyOperator, orbit(operator,seed,len), ledgerCellStep (knowledge-height commit 0->1, mint 1->2, jump 0->2), firing blowups, NSC commutation checks, curvature regimes, Lyapunov free energy as knowledge-height sum, Laplacianizer/Hodge fixed points. Finite only; transfinite limits proof-side.
 - **Theory:** Iteration of monotone operators on the knowledge order of FOUR^cells with a height potential: a Kleene-style fixpoint dynamics with an H-theorem (height monotone nondecreasing). This is the kind of dynamics a settle loop needs; the 'free energy' is a counting potential, not thermodynamics.
 
 ### Persistent H0 and transfinite cell complex
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/persistent-h0.mjs (and transfinite-cell-complex.mjs)`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/persistent-h0.mjs (and transfinite-cell-complex.mjs)`
 - **Computes:** persistent-h0: graphFiltration(vertices,stages), pathConnected, componentPartitions per stage, persistentH0Receipt (components only merge, count nonincreasing). transfinite-cell-complex: cell(name,dim), cellComplex(cells,faces) with face dimension drop, generatedFiniteSubcomplex, finiteSubcomplex, unionSubcomplex, limitJoin(prefix), settlingContinuityReceipt (finite-prefix continuity of a closure operator).
 - **Theory:** persistent-h0 is just union-find-style connected components over a growing edge filtration (real but only H0, no barcodes/birth-death pairs, no H1 persistence). transfinite-cell-complex is a finite cell-complex bookkeeping; 'transfinite' is entirely proof-side; the code is finite subcomplex and directed union checks.
 
 ### Frobenius TQFT over Z[x]/(x^2)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/frobenius-tqft.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/src/articulation/predicating/positing/settling/analysis/frobenius-tqft.mjs`
 - **Computes:** z2(a,b)=a+bx pairs; add/neg/mul/tensor; counit(a+bx)=b; comul; intSmul; degreeOfClass; checkLaws(sample) finite Frobenius-algebra axioms; degreeReceipt.
 - **Theory:** Real 2D TQFT data (commutative Frobenius algebra Z[x]/(x^2) = cohomology of S^2, as in Khovanov-style), checked on samples. Only one hardcoded algebra; there is no cobordism category, no gluing, no functor evaluation. Decorative unless a dimension/degree role is wired.
 
 ### Substitution-free metrologic README (package contract)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/README.md`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/README.md`
 - **Computes:** Documentation only (82 lines): declares three families (bilattice floor with descent articulate->predicate->posit->settle and cone pairs brim/adjudicate/presume; opt-in hyperdoctrine with existsAlong/forallAlong, Frobenius reciprocity, Beck-Chevalley, Lawvere comprehension; readout place/knowledgeWeight/salience/styleFor), plus a surface list (obstruction, number, evidence-record, spectral, substitution dynamics, firing, equality derived from existsAlong along the diagonal) and subpath-export import rules.
 - **Theory:** README says nothing about FCA, tiles, light cones, weaving, foam, or any of the files in this area: those modules are reachable but undocumented at the package level. It positions the bilattice FOUR charge + hyperdoctrine (CHL-adjacent: quantifiers as adjoints along substitution, a fibration of predicates over contexts) as the logic spine.
 

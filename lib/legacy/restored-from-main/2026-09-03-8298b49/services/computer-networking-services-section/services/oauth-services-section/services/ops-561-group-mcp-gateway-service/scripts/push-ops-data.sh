@@ -21,9 +21,9 @@ set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
-LAGOON_WORLD_EAVT="$REPO_ROOT/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/apps/lagoon/data/state/world.eavt"
-GOAL_STACK_ROADMAP="$REPO_ROOT/lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/561-group-enterprise-services-section/services/561-group-enterprise-project-management-services-section/data/records/2026-08-30-goal-stack-roadmap.json"
-ORG_MACHINES="$REPO_ROOT/lib/emsenn/services/561-group/services/561-group-services-section/data/records/2026-08-30-org-machines.json"
+LAGOON_WORLD_EAVT="$REPO_ROOT/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/apps/lagoon/data/state/world.eavt"
+GOAL_STACK_ROADMAP="$REPO_ROOT/services/561-group-services-section/services/561-group-operations-services-section/services/561-group-enterprise-services-section/services/561-group-enterprise-project-management-services-section/data/records/2026-08-30-goal-stack-roadmap.json"
+ORG_MACHINES="$REPO_ROOT/services/561-group-services-section/data/records/2026-08-30-org-machines.json"
 
 DEST_HOST="cold-red-gate"
 DEST_DIR="~/.local/state/ops-561-group/data"

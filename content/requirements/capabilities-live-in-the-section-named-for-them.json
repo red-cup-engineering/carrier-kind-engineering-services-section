@@ -8,7 +8,7 @@
     {
       "cell": "capabilities-live-in-the-section-named-for-them:specification",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-where-capabilities-live.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-where-capabilities-live.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],

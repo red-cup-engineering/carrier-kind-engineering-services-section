@@ -38,9 +38,9 @@ Two tags are used throughout, and nothing mechanical goes untagged:
 
 - **[Lean: `File.lean` `name`]** — the mechanism is that declaration, used exactly as stated.
   Paths are relative to
-  `lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia/`
+  `services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia/`
   (abbreviated `Obs/`). Code paths are relative to
-  `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/` (abbreviated `SS/`); metrologic is at
+  `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/` (abbreviated `SS/`); metrologic is at
   `.../computer-engineering-services-section/services/computer-data-engineering-services-section/lib/metrologic/`.
 - **[EXT-n]** — a precisely stated extension of a named Lean structure, with its proof
   obligation. All extensions are collected in §10. An extension is a design commitment,

@@ -30,169 +30,169 @@ Overall, SignCell is a small, real kernel (FOUR-valued witnessed triple, content
 
 ### FOUR readings (Belnap/Dunn bilattice as side-pair)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
 - **Computes:** A point is a pair (forTold, againstTold) with 4 name families. Exports include readingOfSides, sidesOfReading, readingAs (family rename), knowledgeJoinReading [lf||rf, la||ra], knowledgeMeetReading, truthJoinReading [lf||rf, la&&ra], truthMeetReading, knowledgeImplyReading, truthImplyReading, negateReading (swap sides), conflateReading ([!a,!f]), knowledgeLeqReading, isConsistentReading. Mixing families throws via sharedFamily. About 450 lines.
 - **Theory:** Belnap 1977 / Ginsberg 1988 / Dunn 1976: FOUR = 2x2 (Bool x Bool), the bilattice with knowledge and truth orders. Realized faithfully: all operations are derived from sides, not tabulated. This is the paraconsistent value domain the whole stack stands on. Not transfinite: only 2 sides, no grading beyond the Record counts.
 
 ### twistProduct + linear (residuated) operations
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
 - **Computes:** twistProduct({bottom,top,one,leq,meet,join,fuse,imply}) builds a bilattice (pairs, both orders, negation) from any residuated lattice. Instantiated on Two to give fusionReading, residuumReading, linearUnit, linearNegationReading, parReading, residuationHolds.
 - **Theory:** Kalman 1958 / Fitting 1994 twist construction, giving a linear-logic-style (fusion, par, residuum) structure on FOUR. Real and generic: this is the hook for graded/valued truth beyond Two (a general residuated lattice L yields a twist L x L^op). Only used here on Two; the generality is untested within SignCell.
 
 ### Record / tally counting carrier + attestationRecord
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
 - **Computes:** record(pos,neg) as natural-number counts; recordJoinK/MeetK (max/min both), recordJoinT/MeetT, recordAdd, recordLeqK/T, readingOfRecord (pos>0, neg>0), topMass = min(pos,neg), attestationRecord(census). In cell.mjs `recordOf(cell) = record(for.length, against.length)`.
 - **Theory:** A counting lift of FOUR (Obsmetrologia.Record). The point of FOUR is the >0 truncation of the record. topMass is a quantitative contradiction measure; this is the natural place for graded/transfinite paraconsistency. It exists as functions but nothing downstream uses topMass to decide anything.
 
 ### WIT ledger: knowledgeHeight, cellFlux, witFlux
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
 - **Computes:** knowledgeHeight = number of told sides (0,1,2). cellFlux(before,after) in {none, commit (0->1), mint (1->2), jump (0->2)} and throws unless after is above before in the knowledge order. witFlux(pairs) gives commits, mints, jumps, reversible = commits+mints, irreversible = 2*jumps, wits = their sum.
 - **Theory:** Labelled in the file as 'Obsmetrologia FreeEnergyLyapunov': a Lyapunov/energy function along the knowledge order, with a conserved budget (budget_splits). It is a simple additive height function on a 3-rank poset, and the thermodynamic naming is far larger than the arithmetic. It is still the only existing energy-like quantity on cells and a plausible foam-physics hook (energy of a cell = knowledge height).
 
 ### Klein four-group gauge + bilattice law receipts
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
 - **Computes:** gaugeElementNames = id, negation, conflation, double. gauge(element, name), gaugeMul, gaugeOrderEffect, fixedSet, kleinFourGaugeReceipt(), firingPatternSelfDuality, bilatticeLawReceipt() (checks the laws on all 4 points; a runtime self-test returning a receipt).
 - **Theory:** The automorphism group of the bilattice is the Klein 4-group {id, neg, conf, neg.conf}. Mathematically correct. Gauge symmetry of readings is a usable idea (duality between truth and falsity witnesses).
 
 ### FOUR evidence wire + FOUR constant + obsmetrologiaRealization
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/four.mjs`
 - **Computes:** four(pos,neg) -> frozen {positiveEvidence, negativeEvidence}. validateFour, readingOfWire (via truth family), wireOfReading, FOUR = {neither,true,false,both} wire records, joinKnowledgeWire. obsmetrologiaRealization maps 28 Lean declaration names (Obsmetrologia.Reading.joinK ... ObsmetrologiaComputing.attestationRecord) to JS functions so a conformance judge can apply golden vectors.
 - **Theory:** A data-driven JS-to-Lean conformance binding. This is real engineering: Lean names are bound to executable realizers. It exists only for FOUR, not for cell, predication or utterance.
 
 ### tally (split-tally reconciliation as FOUR join)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/tally.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/tally.mjs`
 - **Computes:** tally({release, admission, fields}) compares per-field canonicalJson equality of two receipt halves. Each field is told for (agree) or against (disagree). Counterparty mutual-naming is one extra field. Reading = knowledgeJoinAll. Status is 'settled' iff reading=='potential' (all agree), else 'dispute'. Returns {status, reading, mismatches, awaiting}.
 - **Theory:** A tiny but clean worked example of 'evidence per field joined in FOUR': contested = some agree and some disagree, denied = none agree. This pattern (a local compatibility check as a FOUR-valued join over fields) generalizes to tile-edge matching and sheaf overlap checks. Note that it uses canonicalJson rather than semanticId, a second equality notion.
 
 ### closure-regime (four ordinal strata)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/closure-regime.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/src/closure-regime.mjs`
 - **Computes:** names [strict, scott, transfinite-bounded, aperiodic]; regimeCost = index; regimeDecidable = cost <= scott's cost; costlierRegime; closureRegimeSchema.
 - **Theory:** Labels for the kappa<omega, kappa=omega, omega<kappa<omega1, kappa>=omega1 strata. It is a 4-element enum with an index. All reading of ordinals is delegated to metrologic. Pure naming; there is no ordinal arithmetic here.
 
 ### semiotic-content-address (canonical carrier, semanticBytes/Id, coincides)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/src/semiotic-content-address/semiotic-content-address.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/src/semiotic-content-address/semiotic-content-address.mjs`
 - **Computes:** canonicalizeSemioticJson: iterative (non-recursive) walk that NFC-normalizes strings and keys, rejects NaN/Infinity, cycles and NFC key collisions, drops undefined members, and admits null/bool/finite number/bigint/Uint8Array/arrays/plain objects. canonicalCarrier: the deeply frozen snapshot, tracked in a WeakSet. semanticBytes: encodeCanonical (RFC 8949 CBOR, memoized for frozen snapshots). semanticId: ni: URI of the SHA-256. coincides: string/scalar fast paths, else bytesEqual. coincidenceKey: latin1 string of the bytes (a Map/Set key).
 - **Theory:** Identity = hash of canonical form; one equivalence relation 'coincides'. Sound and shared by every layer. All identity in SignCell reduces to this. Limit: identity is purely syntactic (structural equality of canonical form); there is no quotient by semantic equivalence below the envelope layer. Numbers 1 and 1.0 are the same JS number, so no int/float distinction survives.
 
 ### semantic-content-identity (SEN envelope identity)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/src/semiotic-content-address/semantic-content-identity.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/src/semiotic-content-address/semantic-content-identity.mjs`
 - **Computes:** Identity of a typed SEN envelope {kind, version 3, objectKind, semanticType, normal-form body, witnessRoot}: identifyJsonSemanticContent, identifyValueSemanticContent, identifyBytesSemanticContent, verifyJsonSemanticRecord, admitSemanticEnvelope, decodeSemanticEnvelope. EMPTY_WITNESS_ROOT is the address of an empty witness bundle. 303 lines. I only skimmed the exports.
 - **Theory:** The claim 'There is no other identity scheme' means identity = hash of (type, normal form, witness-root), a dependent-type-flavored content address. This is the Curry-Howard hook, in that identity includes the settlement witnesses. SignCell itself does NOT use this envelope. It uses bare semanticId, so the claim is not true of the cell layer.
 
 ### Mark
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/mark.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/mark.mjs`
 - **Computes:** Mark(v) -> canonicalCarrier({kind:'utterance.mark', value:v}); validates via type-system instantiate(MarkType); throws if the value is absent. mark() is an alias. isMark is a shape test. coincides is re-exported. Schema: {kind const, value: {}}.
 - **Theory:** An opaque present datum. It is a one-field wrapper whose only effect is to tag a value as 'present'. The 'one canonical Mark' claim holds in this package. The type-system admission (defineType/instantiate) is heavyweight for what is a shape check.
 
 ### Utterance (two-hand token/claim carrier) and Articulating chain
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/utterance.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/utterance.mjs`
 - **Computes:** Token(mark) = {kind:'utterance.token', hand:'left', mark}; Claim(mark) = {..., hand:'right', mark}; utterance(left, right) -> {kind:'utterance.carrier', token, claim} (a non-Mark datum is marked automatically; a Mark is kept). utteranceAt, tokenValue, claimValue, isUtterance. utterEvidence(entry) maps {subject, predicate, object?} -> utterance(token = subject or {subject, object}, claim = predicate). articulatingUtter/Pair/Head/Depth/Floor build a recursive list-like carrier. tokenIdentity/claimIdentity return witness-or-obstruction records. articulate(carrier) -> {kind:'utterance.articulation.cell', potentialAperiodicArticulationCell:[carrier,[[token],[]]]}. isArticulationCell validates this. There are Lean-lemma stubs: markKinds, markKindTwoKinds, tokenNeClaim.
 - **Theory:** 'Two hands' (left token, right claim) and an 'aperiodic articulation cell' (token present, claim empty = (true,false) = FOUR 'potential') are naming overlays. Computationally it is a pair of tagged wrappers around two values, plus a pair-of-lists whose second component is always the empty list. 'Aperiodic' has no computational content here. The recursive Articulating chain is a nonempty list with depth = length-1. tokenNeClaim is trivially true because the 'kind' fields differ. Lean lemma names are asserted as JS predicates; they test only that the tags differ.
 
 ### Cell (evidence-bearing ordered triple) and its address
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
 - **Computes:** cell(s,p,o,{for,against,value}) -> frozen canonical {subject,predicate,object,for[],against[],value?}. Each side is deduplicated by hex of its canonical bytes and sorted. Value is stored only if != presence (Measured iff absent). address(c) = semanticId(triple(c)); evidence is excluded, and the result is memoized in a WeakMap for admitted cells. sameCell = triple-bytes equality. admitCell/isCell validate the carrier shape (exactly 5 keys, or 6 with a knowledge-family value). cellBytes = CBOR of the whole cell. 297 lines, uncommitted modifications.
 - **Theory:** A Valued predication site: key = triple (site), stalk = FOUR via two grow-only witness sets. Identity-by-triple with evidence off to the side is the right design for monotone knowledge accumulation (identity stable under learning). The terms are opaque JSON, so there is no typing here. Limit: witnesses are bare JSON values, not cells, so there is no structure for 'evidence about evidence' and no provenance DAG.
 
 ### Cell merge / witnessFor / witnessAgainst / evidenced (join-semilattice)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
 - **Computes:** merge(l, r): the same cell is required; for = union, against = union, value = knowledgeJoinReading(valueOf(l), valueOf(r)). witnessFor/Against add one witness and join the value with the one-sided reading. evidenced(at, value) REPLACES evidence (it is not monotone). Value can sit below presence after an external meet or conflation, but nothing in the package performs meets on cells: merge is only join.
 - **Theory:** State-based CRDT / join-semilattice (comm, assoc, idemp) for the knowledge order, the truth-maintenance accumulation law of FOUR-valued logic. The package header mentions meet and conflation but only join is implemented in SignCell (meet is in signchain, per comments). No Heyting/residuated cell-level operations here.
 
 ### Cell moves: converse, subject/object projection, specialize
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
 - **Computes:** converse(c) = cell(o,p,s); subjectProjection(c) = cell(s,p,s); objectProjection(c) = cell(o,p,o); specialize(refine, c) = cell(s, refine(p), o); namedMove(name). Evidence is explicitly NOT carried ('transporting it is a valuation question').
 - **Theory:** Dagger / reflexive-collapse operations on the triple-site; predicate morphism via the user-supplied refine. Converse is an involution; projections are idempotent (the predication.mjs 'Lemma' predicates check this). They produce NEW cells with empty evidence, so they are not morphisms of evidence-bearing objects. Evidence transport is the missing functoriality, and it is exactly where a Chu/sheaf transport would plug in.
 
 ### cellSet / cellAt / cellDifference / cell-set.mjs (two cell-set implementations)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/cell.mjs`
 - **Computes:** cell.mjs cellSet(cells, join=merge): a Map by address, tellings of one address merged, output sorted by address string; mergeCellSets; cellDifference by address. cell-set.mjs separately provides cellSetRepresentatives and relativeCellComplement by O(n^2) cellCoincides, without merging evidence.
 - **Theory:** A cell set is a finite presheaf section / the knowledge-lattice product indexed by triples (point-wise join). DUPLICATION: two cell-set operations with different complexity and different evidence semantics (the cell-set.mjs ones drop later duplicates' evidence). Its header comment says 'settling/cell-set', which is stale.
 
 ### Predicate, CellSchema, entity/predicate sets (predication.mjs)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
 - **Computes:** Predicate(claim) = {kind:'predication.predicate', claim, mark: claim.mark} (the mark is duplicated). A predication cell's subject and object are Tokens and its predicate is a Predicate, so it is a signCell instance with typed terms (cell(), which refuses a null/undefined object). termCoincides compares token.mark.value; predicateCoincides compares claim.mark.value; both are routed through coincides on VALUES (not through the whole token). entitySet and predicateSet dedupe by O(n^2) uniqueBy. cellSet(cells) = signCellSet plus derived entities and predicates.
 - **Theory:** Typed predication triple E x Pi x E. Note the identity subtlety: cell address hashes the full Token and Predicate carriers, while termCoincides compares only mark.value. Because token-of-mark carriers are canonical and deterministic these agree, but they are two code paths for one notion. isCell here (shape test on subject, predicate, object only) is a different function from cell.mjs isCell (exact key set); both are exported under the name isCell from different modules.
 
 ### Predication site and base category (predicationSite, baseCategory)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
 - **Computes:** predicationSite(witnesses): filters predication cells and specialization morphisms ({kind:'predication.specialization', domain:general, codomain:specialized}) into {kind:'predication.site', cells: cellSet, specializations, base}. base = {objects: entities + predicates deduped, specialization, converse, subjectProjection, objectProjection}, where the last three are lists of {domain,codomain} arrows over MATERIALIZED cells only (nodes are [s,p,o] arrays).
 - **Theory:** The 'predication site' = the sort/category of entities and predicates with specialization order, plus the fibre of cells over (E,Pi,E). A site in Grothendieck terms would need covering families; none exist here, and it is a finite category presentation (objects + generator arrows, with closure only for specialization). Cells are not objects of this category; only entities and predicates are. The 'fiber functor' is a record that merely holds the cellSet; it has no functoriality.
 
 ### Generated vs free presentation (Phi = E x Pi x E)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
 - **Computes:** generatedPredicationCellSet(E, Pi) records only entities and predicates. generatePredicationCategory(articulation) = {entities:[token], predicates:[predicateOfClaim(claim)]}. materializePredicationCategory enumerates ALL |E| x |Pi| x |E| cells with empty evidence. predicate(articulation) = materialize(generate(articulation)). presentPredicationSite (generators) <-> freePredicationSite (rederive the site). transfinitePredicationCategory wraps the set in a fiberFunctor record.
 - **Theory:** Generators versus free construction; a product of finite sets. The word 'transfinite' appears in the names but the data are finite arrays (no ordinal indexing). The free site is a Cartesian product, with no tile adjacency constraints, so 'aperiodic' and 'tile coloring' have no content here.
 
 ### closeSpecialization / cohere / unrelatedPairs
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predication.mjs`
 - **Computes:** closeSpecialization: transitive closure of the token specialization edges via a naive fixpoint (O(E^3) per sweep, repeated). It is not reflexive. cohere(site) -> {saturated: site.cells, residue: site with closed specialization}. unrelatedPairs: all ordered entity pairs (including each entity paired with itself) with no closed edge.
 - **Theory:** Preorder closure and its complement: the 'residue' is exactly the set of pairs where no specialization witness exists. Reasonable partial-order machinery, naive implementation. 'saturated' is just the same cells (no inference step). No rule application, so there is no real deduction.
 
 ### Typed mark (sign.cell) = typed content-addressed object
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/typed-mark.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/typed-mark.mjs`
 - **Computes:** createTypedMark(type, content): admit(type, content) with the type-system, then canonicalCarrier({kind:'sign.cell', id, type: type.id, content}), where id = typedMarkIdentity(type.id, content) = semanticId({kind:'sign.cell', type, content}). admitTypedMark re-admits against the receiver's type and checks id == recomputed. admitTypedMarkCarrier checks only the carrier + id when the type is unresolved. referenceOf = {id, type}.
 - **Theory:** A (type, value) pair addressed by hash: a dependent pair / sigma with decidable admission. The wire kind 'sign.cell' is the OLD name; the file's comment says plainly that this is NOT a cell, but it stays because stored addresses depend on it. A naming collision with `cell` in cell.mjs remains permanent (cannot rename without re-addressing).
 
 ### semantic-claim (createSignClaim / readSignClaim / conflateClaims)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semantic-claim.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semantic-claim.mjs`
 - **Computes:** createSignClaim({subject:typedRef, predicate:name, object:typedRef, for, against, value}) -> admit against semanticClaimType, then cell(refs, predicate, refs, evidence). So a semantic claim is an evidence cell whose terms are {id,type} references. readSignClaim migrates the old {kind:'sign.claim', reading} format into one witness told for or against (throws if witness absent). conflateClaims = merge when sameCell.
 - **Theory:** Bridges the semantic (typed-mark) layer to the evidence-cell layer. This is where a cell actually becomes a typed proposition: Hom-set element with typed endpoints. Its 'conflate' is a plain merge (join), not the bilattice conflation operator, so the name overclaims.
 
 ### semantic-graph (createSignGraph / glueSignGraphs / edgesFrom)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semantic-graph.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semantic-graph.mjs`
 - **Computes:** createSignGraph({cells (typed marks), relations [{id, subjectTypes, objectTypes, witnessTypes}], edges [{subject, predicate, object, witness}]}) with checks: cell identity, unknown cell, type matches the cell's declared type and lies within the relation's allowed set for each endpoint role, no duplicate cell, relation or edge. Output {kind:'sign.graph', cells, relations, edges: [{id: statement id, edge}], id: semanticId(content)}. Each edge also requires a WITNESS that is itself a cell in the graph. glueSignGraphs(...graphs) unions cells (conflicting content for one cell id errors), keeps relations declared identically, and for relations declared differently drops the relation and all its edges and reports obstructions [{code:'conflicting-relation', relation, graphs}]; the glued graph is rebuilt. Order-independent.
 - **Theory:** Typed knowledge graph with witnessed edges (a relational field, via type-system/relations). The glue is a genuine sheaf-style gluing of local sections with a computed obstruction to gluing (conflicting relation declarations): the one place where H^0/obstruction thinking is actually computed. Limits: the obstruction is only on relation declarations, not on edge or cell-valued FOUR data (conflicting cell content is a hard error, not a FOUR 'contested'). Edges are boolean present/absent and carry no FOUR value.
 
 ### semantic-carriers (generated JSON Schema carriers)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semantic-carriers.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semantic-carriers.mjs`
 - **Computes:** Frozen JSON-Schema 2020-12 objects cellSchema (an addressable position: kind 'cell', address, provenance[]), claimSchema, evidenceSchema, typedMarkSchema, semanticClaimSchema, semanticGraphSchema, semanticReferenceSchema, statementSchema, and defineSchemaType wrappers (cellType, claimType, ...). 422 lines of data.
 - **Theory:** Admission contracts. The comment says the specifications are 'retired, so this module is their source'. COLLISION: `cellSchema` here is the provenance/address 'Cell' and is a different thing from cell.mjs's `cellSchema` (the triple). `Claim` here is {kind,subject:string,predicate,object,provenance}, a third notion of claim, unrelated to utterance claim.
 
 ### predicate-vocabulary
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predicate-vocabulary.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/predicate-vocabulary.mjs`
 - **Computes:** createPredicateVocabulary(defs): checks lowercase-identifier names, unique, non-empty description/domain/range/category (all free TEXT, not types), and an optional inverse that must be declared and reciprocal. Gives {ok, value:{kind:'sign.predicate-vocabulary', definitions}} or a refusal listing issues. findPredicateDefinition, listPredicateDefinitions({category}). Not in the README, but exported.
 - **Theory:** A name registry with an involution (inverse) check. Domain and range are strings, so this is not a typed signature; it cannot check domain/range at all. It is bookkeeping with the vocabulary of a typed category.
 
 ### semiotic-concept-universe
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semiotic-concept-universe.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/semiotic-concept-universe.mjs`
 - **Computes:** createSemioticConceptUniverse({concepts}) normalizes concept declarations ({id, title, body, tags, sameAs, publication{enabled,channels,status}, annotations (reference/atom/attribute/failure), attributes, source}), sorts by id, and computes identity classes by union-find on sameAs (the representative is the lexicographically smallest id; path compression). It resolves reference annotations to representatives and emits diagnostics (annotation-failure, unresolved-reference). It returns a typed mark of the whole object, so the universe's id is the hash of the whole content. selectSemioticConceptPublication picks one record per class filtered by channel and status. differentiateSemioticConceptUniverses diffs two universes (added/removed/changed by key; changed compared by JSON.stringify).
 - **Theory:** Quotient of a set by a generated equivalence (sameAs closure), the 'identity class' = setoid. Alias-preserving (competing source concepts retained). It is a document-publication manager more than a semantic carrier: the 'publication' and 'channels' logic is application code in a data-layer library. Concept comparison uses localeCompare and JSON.stringify (locale- and key-order dependent) rather than the content address, which is inconsistent with the rest of the package's identity discipline.
 
 ### source-statement
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/source-statement.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/source-statement.mjs`
 - **Computes:** A typed mark type for an 'attributed statement' (sourceSubject, sourceUrl, sourceTitle, text, force const 'alleges', status const 'source-supported', attribution const 'required', scope const, optional dates and evidenceDigest). sourceAssertionSentences(text): strips HTML tags, splits sentences by regex, keeps those with >=35 chars, dedupes by lowercase alphanumeric key, takes at most 20. sourceStatementCells maps these to typed marks.
 - **Theory:** News-ingestion application code (provenance carrier), not data-layer theory. The 'const' fields make every statement identical in policy. It belongs in an application layer, not in SignCell.
 
 ### articulating operation apex (executeArticulateUtterance)
 
-- **File:** `lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/articulating.mjs`
+- **File:** `services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signcell/src/articulating.mjs`
 - **Computes:** A bounded (64 KiB) JSON request {tokenMark, claimMark, apex?} -> articulate(utterance(mark, mark)) -> a receipt {kind, apex, operation, requestNi: semanticId(input), identifiers, cell, id: semanticId(body)}. ARTICULATING_APEX = semanticId(apex body), which names the operation with its Node, Lean ('Obsmetrologia.Articulating.Cell.initial') and Solidity ('ArticulationCell.seat') implementations. encodeArticulatingRequest / decodeArticulatingRequest use canonical CBOR (refuse noncanonical bytes).
 - **Theory:** A content-addressed operation interface (an 'apex' = the address of the operation's spec binding three language implementations). It is the nearest thing to a proof-carrying call: the receipt binds the request hash to the output. The Lean and Solidity identifiers are strings; nothing verifies they exist or agree. The structuredClone line is a workaround for prototype leakage.
 

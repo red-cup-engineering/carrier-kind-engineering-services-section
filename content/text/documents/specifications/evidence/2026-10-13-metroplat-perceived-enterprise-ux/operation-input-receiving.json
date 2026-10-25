@@ -185,10 +185,10 @@
     }
   ],
   "sourceRevisionsAtReceiving": {
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section": "4ab42d0ef59e39f153681116dc983ee125cf5075",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section": "8f7cf4053f52d1ae43ea070f100cc33bac0e8db3",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section": "b90f0d2f7c92d95c683007de5b4715d37bcc3d29",
-    "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-tufte-gui-services-section": "04bbbc61ece90b0dcaa2b4d52c9e58c05d556f9c"
+    "services/engineering-services-section/services/computer-engineering-services-section": "4ab42d0ef59e39f153681116dc983ee125cf5075",
+    "services/engineering-services-section/services/computer-engineering-services-section/services/computer-code-engineering-services-section": "8f7cf4053f52d1ae43ea070f100cc33bac0e8db3",
+    "services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section": "b90f0d2f7c92d95c683007de5b4715d37bcc3d29",
+    "services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-tufte-gui-services-section": "04bbbc61ece90b0dcaa2b4d52c9e58c05d556f9c"
   },
   "receivingCarrierSha256": "0d5a3e9c3855827c8510fd0758fc91132e9709d73095fbd446a1d4a946a1bdff"
 }

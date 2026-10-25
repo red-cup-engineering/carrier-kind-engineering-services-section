@@ -8,25 +8,25 @@
     {
       "cell": "ai-grow-controller:service-present",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/package.json >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/package.json >/dev/null 2>&1'",
       "expected-exit": 0
     },
     {
       "cell": "ai-grow-controller:no-own-loop",
       "target": "held",
-      "command": "sh -c 'test -s lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/package.json && grep -q \"mape-k\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/package.json'",
+      "command": "sh -c 'test -s services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/package.json && grep -q \"mape-k\" services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/package.json'",
       "expected-exit": 0
     },
     {
       "cell": "ai-grow-controller:no-household-data",
       "target": "held",
-      "command": "sh -c 'test -d lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/src && ! test -e lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/data'",
+      "command": "sh -c 'test -d services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/src && ! test -e services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/data'",
       "expected-exit": 0
     },
     {
       "cell": "ai-grow-controller:proposals-journaled",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/test/*proposal* >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/services/computer-engineering-services-section/services/indoor-grow-autonomic-system/test/*proposal* >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],

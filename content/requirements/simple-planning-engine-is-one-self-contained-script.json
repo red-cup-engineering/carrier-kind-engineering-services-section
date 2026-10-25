@@ -8,7 +8,7 @@
     {
       "cell": "simple-planning-engine-is-one-self-contained-script:record-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-platformization-of-the-software-ecosystem.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-platformization-of-the-software-ecosystem.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],
@@ -94,7 +94,7 @@
         }
       ]
     },
-    "held-by": "lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-platformization-of-the-software-ecosystem.md section 5; extends one-architecture-fewer-lines-same-capabilities.json R14-R16",
+    "held-by": "services/engineering-services-section/content/text/documents/specifications/2026-10-10-platformization-of-the-software-ecosystem.md section 5; extends one-architecture-fewer-lines-same-capabilities.json R14-R16",
     "sign-cell": {
       "type": "emsenn/schema/requirement",
       "mark": "ni:///sha-256;DALqSOwii05TZQJfPulLe9A65nNl2GNfBZgqr_2YjBQ",

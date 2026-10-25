@@ -290,7 +290,7 @@ export const JSNODE_TOOLS: readonly McpTool[] = [
   {
     name: "jsnode_section",
     description:
-      "Walks the section taxonomy: every *-services-section directory (not node_modules, not lib/legacy), scored by name match and README first-paragraph match against the query's words. Answers which section owns a capability and what that section looks like: path, name, custody (the top ancestor directly under lib/emsenn/services/561-group/services/), README first paragraph, direct children names, and the section form record (ServicesSectionForm: readme/package/content/code/data/services/legacy/stray/laws) folded from the section's own entries and package.json.",
+      "Walks the section taxonomy: every *-services-section directory (not node_modules, not lib/legacy), scored by name match and README first-paragraph match against the query's words. Answers which section owns a capability and what that section looks like: path, name, custody (the top ancestor directly under services/), README first paragraph, direct children names, and the section form record (ServicesSectionForm: readme/package/content/code/data/services/legacy/stray/laws) folded from the section's own entries and package.json.",
     inputSchema: {
       type: "object",
       properties: {
