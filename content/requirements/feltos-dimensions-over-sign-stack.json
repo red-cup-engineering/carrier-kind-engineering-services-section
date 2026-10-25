@@ -1,0 +1,45 @@
+{
+  "id": "feltos-dimensions-over-sign-stack",
+  "name": "FeltOS composes the Sign stack and MetroPlat to host federated Dimensions of service-section Worlds",
+  "kind": "requirement",
+  "raised-by": "emsenn",
+  "asks": "We need to make SignCell downstream of Metrologic, SignChain downstream of SignCell, SignGraph downstream of SignChain, SignCraft downstream of SignGraph, CAIRN downstream of SignCraft, MOOSE downstream of CAIRN, FeltOS downstream of MOOSE, MetroPlat a library for FeltOS. FeltOS should read in services sections as applications, creating a Dimension of Worlds, that can federate via ActivityPub++ with other Dimensions.",
+  "changes": "emsenn/requirement/software-is-placed-by-what-it-does",
+  "met-when": [
+    {
+      "cell": "feltos-dimensions-over-sign-stack:dependencies",
+      "target": "held",
+      "says": "The selected package artifacts and their actual imports establish Metrologic → SignCell → SignChain → SignGraph → SignCraft → CAIRN → MOOSE → FeltOS, with arrows from supplier to consumer. FeltOS consumes MetroPlat as a library. No named upstream layer imports a downstream layer; direct imports of earlier suppliers remain permitted. Installed consumer execution qualifies the selected versions; manifest declarations alone do not."
+    },
+    {
+      "cell": "feltos-dimensions-over-sign-stack:applications",
+      "target": "held",
+      "says": "FeltOS loads a real service-section package through its declared application interface, preserves its source identity, and makes the section's provided operations available through the hosted application. Malformed or unsupported application declarations produce a stated refusal without partially installing that application."
+    },
+    {
+      "cell": "feltos-dimensions-over-sign-stack:worlds",
+      "target": "held",
+      "says": "A FeltOS instance hosts the loaded service-section applications as Worlds in one Dimension. A consumer can identify the Dimension, enumerate its Worlds, and resolve each World to its service-section application and available operations without conflating their identities or granting authority from a name."
+    },
+    {
+      "cell": "feltos-dimensions-over-sign-stack:federation",
+      "target": "held",
+      "says": "Two separately configured Dimensions exchange an addressed World activity through the existing ActivityPub++ protocol implementation and its declared ActivityPub/ActivityStreams profile. The receiving Dimension preserves the originating Dimension, World, actor and activity identities, applies its own admission rules, and demonstrates duplicate delivery and invalid activity handling. A local carrier serialization or in-process plan alone does not establish federation."
+    }
+  ],
+  "tier": "strategic",
+  "x-provenance": {
+    "recorded-by": "Hai Xudi",
+    "recorded-on": "2026-10-25",
+    "leader-source": "emsenn's original instruction in the current ChatGPT conversation on 2026-10-25; asks reproduces the complete supplied text.",
+    "basis": "The current instruction refines the existing software placement requirement. It resolves the old Metrologic/SignCraft dependency ambiguity and replaces the earlier AOE → FeltOS → MetroPlat ordering. Prior asks and content identities remain in their original records.",
+    "related-requirements": [
+      "emsenn/requirement/obsmetrological-functions-have-one-implementation",
+      "emsenn/requirement/computer-code-is-placed-by-what-it-does"
+    ],
+    "qualification-gaps": [
+      "This record states desired receiving conditions. It does not assert package publication, installed dependency qualification, running application admission, cross-Dimension delivery or independent beneficiary acceptance."
+    ],
+    "schema-source": "https://github.com/coesite-operations/operations-services-section/blob/084fc16ab11a52a3cf36a7d992267b3fd7036188/services/requirement-management-operations-services-section/schemas/requirement.schema.json"
+  }
+}
