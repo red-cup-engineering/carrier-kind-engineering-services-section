@@ -187,7 +187,6 @@
     ],
     "conflicts": [
       "R7: no obsmetrologic-settlement-engineering-services-section exists; the 2026-10-02 SignStuff note seats the settling firing analysis once in Metrologic and the 2026-09-22 seating note gives the descent to SignCraft. One owner is required; which section is open.",
-      "R10: the 2026-09-23 software-ecosystem sheet lists SignCraft as requiring Metrologic; the Leader's 2026-09-25 words say Metrologic is supposed to use SignCraft. The direction of that dependency is open.",
       "R2: Metrologic is seated at the computer data section's lib/metrologic as @red-cup-engineering/metrologic; the Leader placed it on 2026-08-26 as @lenticule-science/metrologic, an app under the obsmetrological section next to pymetrologic.",
       "R5: the 2026-10-02 SignStuff note records standing one-line re-exports; they violate R5."
     ],
@@ -199,6 +198,15 @@
       "type": "emsenn/schema/requirement",
       "mark": "ni:///sha-256;o5WCb8_lGgvfkJcJAQEPMjHyyvNXE211cWTIZB2kO8E",
       "cell": "ni:///sha-256;VMr0k7cdy2nGJgDktDJ3x235tEvs2d7IulAgJRtxm_s"
-    }
+    },
+    "resolved-conflicts": [
+      {
+        "requirement": "R10",
+        "previous": "R10: the 2026-09-23 software-ecosystem sheet lists SignCraft as requiring Metrologic; the Leader's 2026-09-25 words say Metrologic is supposed to use SignCraft. The direction of that dependency is open.",
+        "resolution": "emsenn's 2026-10-25 instruction fixes the supplier-to-consumer direction as Metrologic → SignCell → SignChain → SignGraph → SignCraft, then CAIRN → MOOSE → FeltOS. Downstream engines perform computation through SignCraft. This resolves direction; it does not assert that the implementations or selected artifacts already satisfy it.",
+        "source": "content/requirements/feltos-dimensions-over-sign-stack.json",
+        "prior-blob": "31403bfb4bde59656d4217858e666c6c0ca406cb"
+      }
+    ]
   }
 }
