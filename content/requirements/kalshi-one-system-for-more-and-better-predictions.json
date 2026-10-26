@@ -8,13 +8,13 @@
     {
       "cell": "kalshi-one-system:inventory-present",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/data/records/*consolidation-inventory*.json >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/data/records/*consolidation-inventory*.json >/dev/null 2>&1'",
       "expected-exit": 0
     },
     {
       "cell": "kalshi-one-system:brier-per-class",
       "target": "held",
-      "command": "sh -c 'jq -e '\\''(.classes|length)>0 and all(.classes[]; .brierNew!=null and .brierPrior!=null)'\\'' lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/data/records/*brier-by-event-class*.json'",
+      "command": "sh -c 'jq -e '\\''(.classes|length)>0 and all(.classes[]; .brierNew!=null and .brierPrior!=null)'\\'' services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/data/records/*brier-by-event-class*.json'",
       "expected-exit": 0
     },
     {
@@ -26,19 +26,19 @@
     {
       "cell": "kalshi-one-system:no-inference-arithmetic",
       "target": "held",
-      "command": "sh -c '! grep -r -l -E \"anthropic|openai\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/src'",
+      "command": "sh -c '! grep -r -l -E \"anthropic|openai\" services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/src'",
       "expected-exit": 0
     },
     {
       "cell": "kalshi-one-system:cloud-offload",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/src/*offload* >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/src/*offload* >/dev/null 2>&1'",
       "expected-exit": 0
     },
     {
       "cell": "kalshi-one-system:shared-vocabulary",
       "target": "held",
-      "command": "sh -c 'grep -l \"strategies\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/package.json'",
+      "command": "sh -c 'grep -l \"strategies\" services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/computer-web-engineering-services-section/services/web-platform-services-section/services/web3-platform-services-section/web3-gambling-platform-services-section/services/kalshi-services-section/package.json'",
       "expected-exit": 0
     }
   ],

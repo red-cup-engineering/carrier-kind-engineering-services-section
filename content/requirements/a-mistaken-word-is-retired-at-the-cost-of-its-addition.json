@@ -8,7 +8,7 @@
     {
       "cell": "a-mistaken-word-is-retired-at-the-cost-of-its-addition:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-deterministic-code-unification-and-mistake-retirement.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-deterministic-code-unification-and-mistake-retirement.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],
@@ -102,7 +102,7 @@
           ]
         }
       ],
-      "context": "Theory: the 2026-10-10 note on the cost of removing a mistake. The align operator is held in the engineering glossary. Spec: lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-deterministic-code-unification-and-mistake-retirement.md"
+      "context": "Theory: the 2026-10-10 note on the cost of removing a mistake. The align operator is held in the engineering glossary. Spec: services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-deterministic-code-unification-and-mistake-retirement.md"
     },
     "sign-cell": {
       "type": "emsenn/schema/requirement",

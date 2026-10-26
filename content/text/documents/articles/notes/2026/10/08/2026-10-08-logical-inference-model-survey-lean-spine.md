@@ -13,7 +13,7 @@ produced-by: info-0d logical-inference-model survey workflow (Claude agents; Son
 
 # round2 lean-spine: Obsmetrologia statements the predication-AI kernel must mirror
 
-Root (call it `OBS`): `lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia`
+Root (call it `OBS`): `services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia`
 Toolchain `leanprover/lean4:v4.31.0`, `autoImplicit=false`, dependency-free, "axiom law admits only Quot.sound". I read the files exactly; I did not build or run Lean (instructions: pretend no tests). All "proved" below = a theorem exists in the file, no claim that I checked it compiles.
 
 HONESTY legend: PROVED = theorem/def exists in file. PROSE = only in a comment. SLOP = comment claims more than the code does.

@@ -8,7 +8,7 @@
     {
       "cell": "grow-control:judgment-held",
       "target": "held",
-      "command": "sh -c 'test -f lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/content/text/documents/articles/notes/2026/10/10/2026-10-10-note-on-re-homing-the-home-grow-pull-request.md'",
+      "command": "sh -c 'test -f services/engineering-services-section/services/computer-engineering-services-section/content/text/documents/articles/notes/2026/10/10/2026-10-10-note-on-re-homing-the-home-grow-pull-request.md'",
       "expected-exit": 0
     }
   ],

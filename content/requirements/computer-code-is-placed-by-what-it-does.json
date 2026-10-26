@@ -8,13 +8,13 @@
     {
       "cell": "place:eavt",
       "target": "held",
-      "command": "sh -c 'test -d lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section'",
+      "command": "sh -c 'test -d services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section'",
       "expected-exit": 0
     },
     {
       "cell": "place:mimicry",
       "target": "held",
-      "command": "sh -c 'for t in feltos lagoon marsh; do test -f lib/emsenn/services/561-group/services/engineering-services-section/content/text/glossary/terms/$t.md || exit 1; done'",
+      "command": "sh -c 'for t in feltos lagoon marsh; do test -f services/engineering-services-section/content/text/glossary/terms/$t.md || exit 1; done'",
       "expected-exit": 0
     }
   ],

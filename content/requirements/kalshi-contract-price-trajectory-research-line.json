@@ -8,7 +8,7 @@
     {
       "cell": "kalshi-contract-price-trajectory-research-line:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-kalshi-desk-as-an-area-with-pulses.md'",
+      "command": "sh -c 'ls services/engineering-services-section/services/computer-engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-kalshi-desk-as-an-area-with-pulses.md'",
       "expected-exit": 0
     }
   ],

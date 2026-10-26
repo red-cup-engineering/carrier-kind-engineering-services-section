@@ -330,3 +330,23 @@ removed.
 
 The only compatibility promise is the one explicitly claimed at POSIX-facing
 boundaries.
+
+
+## June 6 source documents: historical design material
+
+The following documents preserve the June 6 rebuild's original wording and
+attribution as engineering research and design history:
+
+- [Source-tree scope, standards pressure and naming](2026-06-06-a4c3a96-computer-posix-rebuild/computer-README.md).
+- [Process Meme, judgment fold and carrier](2026-06-06-a4c3a96-computer-posix-rebuild/proc-runtime-README.md).
+- [Process-control scaffold](2026-06-06-a4c3a96-computer-posix-rebuild/sys-proc-README.md)
+  and its [design explanation](2026-06-06-a4c3a96-computer-posix-rebuild/sys-proc-design.md).
+- [Scheduling scaffold](2026-06-06-a4c3a96-computer-posix-rebuild/sys-sched-README.md)
+  and its [design explanation](2026-06-06-a4c3a96-computer-posix-rebuild/sys-sched-design.md).
+
+These describe a dated development snapshot and proposed realizations. The
+process-runtime note expressly stops short of POSIX process control; the proc
+and sched documents declare unimplemented ENOSYS interfaces. Their inclusion
+here does not establish a working POSIX implementation, validate the proposed
+mathematical realization, or revive the old packages or instructions. Internal
+package-relative links and import spellings remain historical references.

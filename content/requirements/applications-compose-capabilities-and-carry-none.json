@@ -8,7 +8,7 @@
     {
       "cell": "applications-compose-capabilities-and-carry-none:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-capability-placement-and-the-one-codebase.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-capability-placement-and-the-one-codebase.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],
@@ -166,7 +166,7 @@
           ]
         }
       ],
-      "context": "Held theory: the 2026-10-10 note on where a capability lives (computer-science section). Held glossary: feltos, metroplat, marsh. The Leader's two statements about MetroPlat (nothing but a UX for MARSH, 2026-09-11; a library for FeltOS, 2026-09-28) are both kept; the later states the layering. Spec: lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-capability-placement-and-the-one-codebase.md"
+      "context": "Held theory: the 2026-10-10 note on where a capability lives (computer-science section). Held glossary: feltos, metroplat, marsh. The Leader's two statements about MetroPlat (nothing but a UX for MARSH, 2026-09-11; a library for FeltOS, 2026-09-28) are both kept; the later states the layering. Spec: services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-capability-placement-and-the-one-codebase.md"
     },
     "sign-cell": {
       "type": "emsenn/schema/requirement",

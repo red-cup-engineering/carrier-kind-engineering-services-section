@@ -8,7 +8,7 @@
     {
       "cell": "the-machine-server-mediates-every-resource-effect-on-bare-cedar-fog:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],
@@ -204,7 +204,7 @@
           ]
         }
       ],
-      "context": "Held: the WSL host note and record (2026-10-09), host resource discipline note (2026-10-08), rules no-whole-tree-scans-on-bare-cedar-fog, heavy-work-runs-off-the-laptop, bare-cedar-fog-wsl-holds-eight-gigabytes, group-material-on-bare-cedar-fog-lives-under-info, and the Semioverse glossary term (one node per machine). The BCF section currently stands at operations-services-section/services/bare-cedar-fog-services-section; R14 names the path the Leader stated. Spec: lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md"
+      "context": "Held: the WSL host note and record (2026-10-09), host resource discipline note (2026-10-08), rules no-whole-tree-scans-on-bare-cedar-fog, heavy-work-runs-off-the-laptop, bare-cedar-fog-wsl-holds-eight-gigabytes, group-material-on-bare-cedar-fog-lives-under-info, and the Semioverse glossary term (one node per machine). The BCF section currently stands at operations-services-section/services/bare-cedar-fog-services-section; R14 names the path the Leader stated. Spec: services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md"
     },
     "sign-cell": {
       "type": "emsenn/schema/requirement",

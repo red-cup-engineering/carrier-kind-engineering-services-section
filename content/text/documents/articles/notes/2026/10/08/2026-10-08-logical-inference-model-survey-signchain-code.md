@@ -16,7 +16,7 @@ produced-by: info-0d logical-inference-model survey workflow (Claude agents; Son
 
 ## Summary
 
-Base path (call it SC): lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signchain. SC/src is about 600 lines of real core (bilattice 123, log 101, rules 77, typed-theory 279) plus about 3,900 lines in src/contracts/. These are two unrelated things sharing a package.
+Base path (call it SC): services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/signchain. SC/src is about 600 lines of real core (bilattice 123, log 101, rules 77, typed-theory 279) plus about 3,900 lines in src/contracts/. These are two unrelated things sharing a package.
 
 (1) The evidence core. bilattice.mjs, rules.mjs and log.mjs are small, coherent and load-bearing.
 - bilattice.mjs lifts Belnap/Ginsberg FOUR operations (knowledge join/meet, truth join/meet, negate, conflate, presumeFree) from the data layer onto SignCell cells. Every operation unions both witness sets and applies the FOUR operation to the value only. Order tests are set inclusion on witnesses (knowledgeLeq, truthLeq). settleJudgments takes the knowledge join of named judgment values.
