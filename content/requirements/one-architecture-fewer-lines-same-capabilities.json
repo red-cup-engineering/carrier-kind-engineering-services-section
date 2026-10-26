@@ -8,7 +8,7 @@
     {
       "cell": "one-architecture:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-one-architecture-standardization-program.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-one-architecture-standardization-program.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],

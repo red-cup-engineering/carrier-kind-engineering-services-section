@@ -9,14 +9,14 @@
       "@red-cup-engineering/metroplat",
       "exec",
       "node",
-      "/home/emsenn/.codex/worktrees/metroplat-web-ux/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/generate-operation-family-descriptors.mjs",
+      "/home/emsenn/.codex/worktrees/metroplat-web-ux/info/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/generate-operation-family-descriptors.mjs",
       "--output",
       "/tmp/metroplat-work-artifacts/operation-family-descriptors-b76c381.mjs"
     ],
     "sourceConfigurationUnchanged": true
   },
   "constructorSource": "73b88b1f09b27d191aecbb15f37d6ad602f3b2d8",
-  "constructor": "/home/emsenn/.codex/worktrees/metroplat-web-ux/info/lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/generate-operation-family-descriptors.mjs",
+  "constructor": "/home/emsenn/.codex/worktrees/metroplat-web-ux/info/services/engineering-services-section/services/computer-engineering-services-section/services/computer-systems-engineering-services-section/services/agent-computer-system-engineering-services-section/services/multi-agent-computer-system-engineering-services-section/services/multi-agent-computer-platform-engineering-services-section/services/agentic-enterprise-computer-platform-engineering-services-section/apps/metroplat/scripts/generate-operation-family-descriptors.mjs",
   "constructorSha256": "6b31a431866f6e4fbe160af7beb0df77b0faa9b08a8d96336256be965503deb5",
   "declarationSource": "b76c3818047f58dc52a0d6a85d1f772c5d55ff90",
   "output": "/tmp/metroplat-work-artifacts/operation-family-descriptors-b76c381.mjs",

@@ -8,7 +8,7 @@
     {
       "cell": "the-semioverse-has-one-server-and-a-recovered-specification:specification-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md >/dev/null 2>&1'",
       "expected-exit": 0
     },
     {
@@ -206,7 +206,7 @@
           ]
         }
       ],
-      "context": "Held: the Semioverse glossary term (names, wire, nodes, one per machine, MOOSE) and the 2026-07 to 08 canonical-union transport. The RFC-form specification is not held as one document; the term states 'On 2026-09-27 no package carried the Semioverse or MOOSE'. Spec: lib/emsenn/services/561-group/services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md"
+      "context": "Held: the Semioverse glossary term (names, wire, nodes, one per machine, MOOSE) and the 2026-07 to 08 canonical-union transport. The RFC-form specification is not held as one document; the term states 'On 2026-09-27 no package carried the Semioverse or MOOSE'. Spec: services/engineering-services-section/content/text/documents/specifications/2026-10-10-specification-of-the-machine-server-of-bare-cedar-fog.md"
     },
     "utterances-added": [
       {

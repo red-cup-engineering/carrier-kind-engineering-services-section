@@ -14,13 +14,13 @@
   "x-provenance": {
     "recorded-by": "general-2 pass of debt-2026-10-09-leader-words-held-in-corpus (Red Cup Engineer Senior)",
     "recorded-on": "2026-10-10",
-    "section": "lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section",
+    "section": "services/engineering-services-section/services/computer-engineering-services-section",
     "class": "requirement",
     "authority": "party:emsenn",
     "sources": [
       {
         "at": "2026-10-08T04:31:54.154Z",
-        "locator": "lib/emsenn/services/561-group/services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/2026-08-26--2026-10-10.jsonl#ni:///sha-256;W5iPdtwQl4wwQ9P14z1YtKtAEHS1B0mLKDC7OcYD8EY",
+        "locator": "services/public-services-section/services/personal-services-section/services/emsenn-services-section/data/records/leader-utterances/2026-08-26--2026-10-10.jsonl#ni:///sha-256;W5iPdtwQl4wwQ9P14z1YtKtAEHS1B0mLKDC7OcYD8EY",
         "session": "bfd39b66-66a8-4bd1-abf7-8a75503c9632",
         "words": "This is a tangent but I'd be curious if you can use a sonnet subagent to start working on code that would let us use our GPU for these calculations? or even btter, NPU? or better, CPU, NPU, or GPU, depending on the conditions and calculations?\n\n---\nAlso concerned you just called something that takes 17k minutes to run acceptable lol, but maybe you mispoke"
       }

@@ -8,7 +8,7 @@
     {
       "cell": "host-admission:note-held",
       "target": "held",
-      "command": "sh -c 'ls lib/emsenn/services/561-group/services/561-group-services-section/services/561-group-operations-services-section/services/bare-cedar-fog-services-section/content/text/documents/articles/notes/2026/10/10/2026-10-10-note-on-what-the-leader-reported-of-the-laptop-under-agent-load.md >/dev/null 2>&1'",
+      "command": "sh -c 'ls services/561-group-services-section/services/561-group-operations-services-section/services/bare-cedar-fog-services-section/content/text/documents/articles/notes/2026/10/10/2026-10-10-note-on-what-the-leader-reported-of-the-laptop-under-agent-load.md >/dev/null 2>&1'",
       "expected-exit": 0
     }
   ],

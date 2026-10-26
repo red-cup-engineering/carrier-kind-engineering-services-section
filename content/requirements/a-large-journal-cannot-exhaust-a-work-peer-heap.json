@@ -8,7 +8,7 @@
     {
       "cell": "journal-heap:bounded-query-test",
       "target": "held",
-      "command": "sh -c 'cd lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/services/semiotic-eavt-services-section && node --test test/bounded-query-heap.test.mjs'",
+      "command": "sh -c 'cd services/engineering-services-section/services/computer-engineering-services-section/services/computer-data-engineering-services-section/services/computer-content-engineering-services-section/services/computer-serialized-content-engineering-services-section/services/json-services-section/services/jsonl-services-section/services/eavt-services-section/services/semiotic-eavt-services-section && node --test test/bounded-query-heap.test.mjs'",
       "expected-exit": 0
     },
     {

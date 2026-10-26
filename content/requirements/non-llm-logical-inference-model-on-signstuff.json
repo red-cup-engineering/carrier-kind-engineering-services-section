@@ -8,19 +8,19 @@
     {
       "cell": "signstuff-model:no-weights",
       "target": "held",
-      "command": "sh -c '! grep -r -l -E \"\\.(safetensors|gguf|onnx)$|transformers\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model 2>/dev/null; test -d lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model'",
+      "command": "sh -c '! grep -r -l -E \"\\.(safetensors|gguf|onnx)$|transformers\" services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model 2>/dev/null; test -d services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model'",
       "expected-exit": 0
     },
     {
       "cell": "signstuff-model:language-through-engine",
       "target": "held",
-      "command": "sh -c 'grep -q \"communicating\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model/package.json'",
+      "command": "sh -c 'grep -q \"communicating\" services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model/package.json'",
       "expected-exit": 0
     },
     {
       "cell": "signstuff-model:theories-cited",
       "target": "held",
-      "command": "sh -c 'for k in FCA \"Curry\" tile lightcone bead; do grep -q -i \"$k\" lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model/README.md || exit 1; done'",
+      "command": "sh -c 'for k in FCA \"Curry\" tile lightcone bead; do grep -q -i \"$k\" services/engineering-services-section/services/computer-engineering-services-section/services/logical-inference-model/README.md || exit 1; done'",
       "expected-exit": 0
     },
     {
