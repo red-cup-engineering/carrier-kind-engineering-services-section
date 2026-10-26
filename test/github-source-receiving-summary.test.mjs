@@ -11,9 +11,11 @@ function originalReport() {
   const refName = "refs/tags/archive/agent/unreceived";
   return {
     applied: false, repositoriesObserved: 1, repositoriesFailed: 0, errors: [],
+    recordKind:"github.reconciliation-source-report/v1",
     archiveRefCoverage: "complete-for-observed-repositories",
+    sourceCutCoverage: "matching-open-github-source-cuts",
     branchesDeleted: 0, branchesDeletable: 0, issuesClosed: 0, pullRequestsMerged: 0,
-    equivalentCandidates: 2, pullRequestsMergeable: 1, originalPullsObserved:1, debtRecords: 4,
+    equivalentCandidates: 2, pullRequestsMergeable: 1, originalPullsObserved:1,
     branchSourceCandidateCount:1,
     archiveTagSourcesObserved: 1, originalIssuesObserved: 1,
     branchSourceCandidates: [{
@@ -22,6 +24,7 @@ function originalReport() {
       headCommitId: sha("a"), technicalClassification: "unique-commits",
       sourceLineageRelation: "diverged", aheadCommitCount: 3, behindCommitCount: 2,
       matchingArchiveRefNames: [refName],
+      matchingOpenPullRequestNumbers: [], unresolvedOpenPullRequestNumbers: [],
       automaticRefRetirementAllowed: false,
       originalWorkReceiving: "not-observed", ordinaryConsumerReceiving: "not-observed",
     }],
@@ -29,7 +32,8 @@ function originalReport() {
       recordKind:"github.pull-source-observation/v1",
       repositoryId:id,repositoryFullName:repository,pullRequestId:140519,pullRequestNumber:519,
       sourceHeadCommitId:sha("c"),sourceBaseCommitId:sha("d"),
-      sourceHeadRepositoryFullName:repository,sourceHeadRefName:"refs/heads/fix/receive",
+      sourceHeadRepositoryId:id,sourceHeadRepositoryFullName:repository,
+      sourceHeadRefName:"refs/heads/fix/receive",
       sourceBaseRefName:"refs/heads/main",pullRequestUpdatedAt:revision,
       pullRequestState:"open",technicalClassification:"green-and-mergeable",
       checkEvidenceState:"passing",baseDifferenceCoverage:"complete",
@@ -122,6 +126,9 @@ test("source absence, unknown record shape, changed authority, and foreign repo 
   for (const change of [
     r => { delete r.branchSourceCandidates; },
     r => { delete r.pullSourceCandidates; },
+    r => { r.debtRecords=4; },
+    r => { r.debts=[{kind:"system-debt"}]; },
+    r => { delete r.recordKind; },
     r => { r.pullSourceCandidates[0].automaticPullMergeAllowed = true; },
     r => { r.pullSourceCandidates[0].recordKind = "generic-debt"; },
     r => { r.pullSourceCandidates[0].sourceHeadCommitId = "not-git-oid"; },
@@ -143,6 +150,8 @@ test("source absence, unknown record shape, changed authority, and foreign repo 
     r => { r.issuesClosed = 1; },
     r => { r.repositoriesFailed = 1; },
     r => { r.archiveRefCoverage = "incomplete"; },
+    r => { r.sourceCutCoverage = "incomplete"; },
+    r => { delete r.sourceCutCoverage; },
     r => { r.errors = [{error:"unavailable"}]; },
     r => { r.originalIssuesObserved = 0; },
     r => { r.archiveTagSourcesObserved = 0; },
@@ -181,7 +190,7 @@ test("bounded job summary retains the true issue denominator instead of silently
   assert.match(markdown, /Original open issue sources awaiting receiving: 14/u);
   assert.match(markdown, /2 more records in the original CLI JSON output/u);
   assert.doesNotMatch(markdown, /Issue #290/u);
-  assert.throws(() => render(report,{repository,limit:1000}),/incomplete/u);
+  assert.throws(() => render(report,{repository,limit:1000}),/bounded source presentation limit/u);
 });
 
 test("the original workflow selects the real consumer and its native tests, not a shadow JSON writer", () => {
@@ -197,6 +206,11 @@ test("the original workflow selects the real consumer and its native tests, not 
   assert.match(workflow, /^      pull-requests: read$/mu);
   assert.doesNotMatch(workflow, /^\s+(?:contents|issues|statuses|pull-requests|checks): write$/mu);
   assert.doesNotMatch(workflow, /--register|--apply|branchesDeletable/u);
+  const source=readFileSync(new URL("../.github/scripts/github-source-receiving-summary.mjs",import.meta.url),"utf8");
+  assert.match(source,/services\/github-reconciliation-service\/src\/source-report\.mjs/u);
+  assert.match(source,/admitGitHubReconciliationSource/u);
+  assert.doesNotMatch(source,/function rows\(|const contradictsPullRelations|const TAG_RELATIONS/u);
+  assert.doesNotMatch(source,/debtRecords|system-debt/u);
 });
 
 test("draft and unobserved-check PR source remains visible, never silently counted as zero",()=>{
@@ -225,4 +239,82 @@ test("typed PR count and presentation are bounded without claiming merge or sour
   assert.match(out,/Open pull request sources awaiting receiving: 15/u);
   assert.match(out,/3 more records in the original CLI JSON output/u);
   assert.doesNotMatch(out,/PR #533/u);
+});
+
+test("the original branch's exact same-repository PR and immutable head reach the reader",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=branch.headCommitId;
+  branch.matchingOpenPullRequestNumbers=[519];
+  branch.technicalClassification="has-open-pull-request";
+  const markdown=project(report);
+  assert.match(markdown,/exact PR source #519/u);
+  assert.match(markdown,/has-open-pull-request/u);
+  assert.match(markdown,/originating repository ID/u);
+});
+
+test("unknown PR source origin remains unresolved, never links a possibly foreign commit to our local repo",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=branch.headCommitId;
+  pr.sourceHeadRepositoryId=null;
+  pr.sourceHeadRepositoryFullName=null;
+  branch.unresolvedOpenPullRequestNumbers=[519];
+  const markdown=project(report);
+  assert.match(markdown,/unresolved PR source #519/u);
+  assert.match(markdown,/head repository unobserved/u);
+  const pullSection=markdown.split("## Open PR proposals, including drafts and failed checks")[1].split("## Archive refs")[0];
+  assert.doesNotMatch(pullSection,/; head \[aaaaaaaaaaaa\]\(https:\/\/github\.com\/red-cup-engineering\/computer-engineering-services-section\/commit\/a{40}\)/u,
+    "unknown PR's head should not receive an invented local repository link");
+  assert.match(markdown,/Automatic PR merge, issue closure, branch\/tag retirement authority: NONE/u);
+});
+
+test("a fork with the same short ref and head OID is not a local branch PR source",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=branch.headCommitId;
+  pr.sourceHeadRepositoryId=999;
+  pr.sourceHeadRepositoryFullName="foreign/project";
+  const markdown=project(report);
+  assert.doesNotMatch(markdown,/exact PR source #519|unresolved PR source #519/u);
+  assert.match(markdown,/https:\/\/github\.com\/foreign\/project\/commit\//u);
+});
+
+test("a same-repo PR whose exact head changed is unresolved, not proved to hold branch work",()=>{
+  const report=originalReport();
+  const branch=report.branchSourceCandidates[0],pr=report.pullSourceCandidates[0];
+  pr.sourceHeadRefName=branch.refName;
+  pr.sourceHeadCommitId=sha("e");
+  branch.unresolvedOpenPullRequestNumbers=[519];
+  const markdown=project(report);
+  assert.match(markdown,/unresolved PR source #519/u);
+  assert.doesNotMatch(markdown,/exact PR source #519/u);
+});
+
+test("forged or omitted typed PR relations refuse instead of silently reading an empty census",()=>{
+  const changes=[
+    report=>{delete report.branchSourceCandidates[0].matchingOpenPullRequestNumbers;},
+    report=>{report.branchSourceCandidates[0].unresolvedOpenPullRequestNumbers="not-a-list";},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[519];},
+    report=>{report.branchSourceCandidates[0].unresolvedOpenPullRequestNumbers=[519];},
+    report=>{report.branchSourceCandidates[0].technicalClassification="has-open-pull-request";},
+    report=>{report.pullSourceCandidates[0].sourceHeadRepositoryId=0;},
+    report=>{report.pullSourceCandidates[0].sourceHeadRepositoryId="not-a-number";},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[519,519];},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[520,519];},
+    report=>{report.branchSourceCandidates[0].matchingOpenPullRequestNumbers=[519];
+      report.branchSourceCandidates[0].unresolvedOpenPullRequestNumbers=[519];},
+    report=>{report.pullSourceCandidates[0].sourceHeadRefName=report.branchSourceCandidates[0].refName;
+      report.pullSourceCandidates[0].sourceHeadCommitId=report.branchSourceCandidates[0].headCommitId;},
+    report=>{report.pullSourceCandidates[0].sourceHeadRefName=report.branchSourceCandidates[0].refName;
+      report.pullSourceCandidates[0].sourceHeadRepositoryId=null;},
+  ];
+  for(const change of changes){
+    const report=originalReport();
+    change(report);
+    assert.throws(()=>project(report));
+  }
 });
