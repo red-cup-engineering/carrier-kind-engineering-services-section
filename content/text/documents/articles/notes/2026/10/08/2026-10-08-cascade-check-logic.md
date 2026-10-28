@@ -24,9 +24,9 @@ Subject: `2026-10-08-note-on-realizing-signstuff-along-the-algebra-logic-languag
 (called "the note" below; its sections are cited as "note §").
 
 All Lean paths are relative to
-`lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia/`
+`services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/Obsmetrologia/`
 and abbreviated `Obs/`. All code paths are relative to
-`lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/`
+`services/engineering-services-section/services/computer-engineering-services-section/lib/signstuff/`
 and abbreviated `SS/`. One claim below was checked by running code (the Δ monotonicity
 counterexample, §2.12); everything else is a reading of statements. I did not build the Lean
 library; "proved" below means "a theorem with that statement is present in the file".

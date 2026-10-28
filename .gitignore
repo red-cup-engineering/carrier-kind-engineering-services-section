@@ -7,3 +7,5 @@
 node_modules/
 .wrangler/
 services/computer-systems-engineering-services-section/services/computer-blockchain-system-services-section/services/ethereum-engineering-services-section/dist/
+data/logs/
+data/state/

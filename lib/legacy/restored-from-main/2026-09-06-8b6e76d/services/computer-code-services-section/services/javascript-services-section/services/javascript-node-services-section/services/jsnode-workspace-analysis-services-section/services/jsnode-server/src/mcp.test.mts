@@ -140,7 +140,7 @@ async function withGlossarySectionFabricationFixtureMcpServer(fn: (rpc: (body: u
   const root = mkdtempSync(path.join(tmpdir(), "jsnode-server-discovery-fixture-"));
   let server: Server | undefined;
   try {
-    const scienceSection = path.join(root, "lib/emsenn/services/561-group/services/fixture-science-services-section");
+    const scienceSection = path.join(root, "services/fixture-science-services-section");
     mkdirSync(path.join(scienceSection, "content/text/glossary/terms"), { recursive: true });
     writeFileSync(path.join(scienceSection, "README.md"), "# Fixture Science Services Section\n\nFixture theory, for tests only.\n");
     writeFileSync(
@@ -152,11 +152,11 @@ async function withGlossarySectionFabricationFixtureMcpServer(fn: (rpc: (body: u
     mkdirSync(childSection, { recursive: true });
     writeFileSync(path.join(childSection, "README.md"), "# Fixture Glossary Science Services Section\n\nA narrow fixture section about glossary science.\n");
 
-    const broaderSection = path.join(root, "lib/emsenn/services/561-group/services/fixture-science-broader-cousin-services-section");
+    const broaderSection = path.join(root, "services/fixture-science-broader-cousin-services-section");
     mkdirSync(broaderSection, { recursive: true });
     writeFileSync(path.join(broaderSection, "README.md"), "# Fixture Science Broader Cousin Services Section\n\nA cousin section.\n");
 
-    const fabSection = path.join(root, "lib/emsenn/services/561-group/services/fixture-fab-services-section");
+    const fabSection = path.join(root, "services/fixture-fab-services-section");
     const specDir = path.join(fabSection, "content/text/documents/articles/specifications");
     mkdirSync(specDir, { recursive: true });
     writeFileSync(path.join(specDir, "fixture-op.md"), "# fixture-op\n## Requirements\n- test: a fixture requirement.\n");

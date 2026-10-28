@@ -67,9 +67,9 @@ statements (not docstrings alone) and against the JavaScript. Short form:
    of Lean names that do not exist.
 
 Convention: Lean paths are relative to
-`lib/emsenn/services/561-group/services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/`
+`services/science-services-section/services/information-science-services-section/services/math-services-section/services/obsmetrological-services-section/lib/obsmetrologia/`
 (so `Obsmetrologia/Closure/Regime.lean` means that tree). JS paths are relative to
-`lib/emsenn/services/561-group/services/engineering-services-section/services/computer-engineering-services-section/`.
+`services/engineering-services-section/services/computer-engineering-services-section/`.
 Verdict words: **CONFIRMED**, **WRONG**, **UNSUPPORTED**; a qualification follows the word when needed.
 
 ## 1. §1.1 of the note, the four closure regimes

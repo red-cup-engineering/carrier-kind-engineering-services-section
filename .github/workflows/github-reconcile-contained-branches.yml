@@ -1,7 +1,9 @@
-# Declarative consumer of Engineering's single GitHub reconciliation implementation.
-# Event-driven only: no scheduled task or generic PR merge. Exact-content
-# historical receipts may merge and auto-delete, with complete source equality.
-name: Receive and retire contained branches
+# Original Computer Engineering consumer of the one GitHub reconciliation service.
+# Source classification / byte equivalence are NOT independently accepted Work.
+# This workflow observes original branches/PRs/archive tags read-only and
+# surfaces the receiving frontier. The native GitHub Engineering receiver owns
+# separately authorized, exact-revision source integration / ref retirement.
+name: Observe branches for original source receiving
 on:
   push:
     branches: [main]
@@ -9,6 +11,8 @@ on:
       - 'services/computer-systems-engineering-services-section'
       - 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/**'
       - '.github/workflows/github-reconcile-contained-branches.yml'
+      - '.github/scripts/github-source-receiving-summary.mjs'
+      - 'test/github-source-receiving-summary.test.mjs'
   pull_request:
     types: [closed]
     branches: [main]
@@ -24,9 +28,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
-      contents: write
+      contents: read
       pull-requests: read
       checks: read
+      issues: read
+      statuses: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,39 +43,22 @@ jobs:
           node-version: '22'
           package-manager-cache: false
       - name: Qualify the source-owned reconciliation contract
-        run: node --test 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/test/'*.test.mjs
-      - name: Reconcile only this repository's contained branches
+        run: |
+          node --test 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/test/'*.test.mjs
+          node --test test/github-source-receiving-summary.test.mjs
+      - name: Observe original branch and issue sources without effects
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          # --apply only prunes contained, unprotected branches. The owning
-          # service rechecks each SHA, protection and newly opened PR.
-          # --max-merges 0 and no --merge-green-pulls: zero arbitrary PR merges.
-          # --receive-equivalent receives ONLY fully identical current blobs
-          # through a real merge, then independently confirms branch retirement.
-          # No --close-issues: zero issue mutations.
+          # The one source-owned CLI remains read-only and source-typed.
+          # Keep the original JSON on this job only, with a real receiving reader.
           node 'services/computer-systems-engineering-services-section/services/computer-code-development-system-services-section/services/github-reconciliation-service/bin/github-reconcile.mjs' \
-            --repo "$GITHUB_REPOSITORY" --apply --max-merges 0 \
+            --repo "$GITHUB_REPOSITORY" \
             --receive-equivalent --max-equivalents 3 \
-            --register "$RUNNER_TEMP/github-reconciliation-debt" \
             | tee "$RUNNER_TEMP/github-reconciliation-result.json"
-          # Log a usable, bounded receipt; do not publish token or source.
-          node --input-type=module -e '
-            import fs from "node:fs";
-            const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
-            const msg=[
-              "# Source-owned GitHub branch receiving",
-              "Repository: "+process.env.GITHUB_REPOSITORY,
-              "Contained/history branches deleted: "+r.branchesDeleted,
-              "Equivalent histories received: "+(r.equivalentHistoryReceived??0),
-              "Equivalent histories retired: "+(r.equivalentHistoryRetired??0),
-              "Debt records retained: "+r.debtRecords,
-              "Qualified ordinary PRs merged: "+r.pullRequestsMerged,
-              "Issues closed: "+r.issuesClosed,
-              "Errors: "+(r.errors?.length??0),
-            ];
-            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,msg.join("\n")+"\n");
-            if(r.errors?.length)process.exitCode=1;
-          ' "$RUNNER_TEMP/github-reconciliation-result.json"
+          # A missing/incompatible producer contract, partial census, or any
+          # claimed effect fails this consumer rather than printing false zeros.
+          node .github/scripts/github-source-receiving-summary.mjs \
+            "$RUNNER_TEMP/github-reconciliation-result.json" >> "$GITHUB_STEP_SUMMARY"
