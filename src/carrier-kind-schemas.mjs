@@ -18,11 +18,12 @@ export async function projectCarrierKindSchemas({ source, destination }, operati
   const files = (operations.list ?? readdirSync)(source).filter((name) => name.endsWith(".schema.json")).sort();
   const projected = [];
   for (const file of files) {
-    const schema = JSON.parse((operations.read ?? readFileSync)(join(source, file), "utf8"));
+    const text = (operations.read ?? readFileSync)(join(source, file), "utf8");
+    const schema = JSON.parse(text);
     const kind = file.slice(0, -".schema.json".length);
     if (schema?.$id !== `carriers/${kind}`) throw new TypeError(`${file} claims $id ${JSON.stringify(schema?.$id)}, not carriers/${kind}`);
-    await (operations.write ?? writeFileText)(join(destination, file), `${JSON.stringify(schema, null, 2)}\n`);
-    projected.push(kind);
+    projected.push({ file, kind, text });
   }
-  return Object.freeze({ source, destination, kinds: Object.freeze(projected) });
+  for (const { file, text } of projected) await (operations.write ?? writeFileText)(join(destination, file), text);
+  return Object.freeze({ source, destination, kinds: Object.freeze(projected.map(({ kind }) => kind)) });
 }

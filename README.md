@@ -12,8 +12,10 @@ It is the engineering side of wave 1.2 of [the corpus knowledge graph program](.
 
 ## One authority, projected
 
-The carrier-kind schemas belong to the [knowledge organization science section](../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-services-section/services/knowledge-organization-services-section/README.md), in `schemas/carriers/<kind>.schema.json` (`$id` `carriers/<kind>`).
+The knowledge organization science section keeps the original schemas in `data/records/schema/carriers/<kind>.schema.json`. Each schema declares `$id` as `carriers/<kind>`. [Science schema owner](../../../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-science-services-section/services/knowledge-organization-services-section/README.md)
 This package holds byte-identical projections of them in `schemas/carriers/` and only compiles them; a test fails when a projection drifts from its source.
+
+Research articles and papers inherit the common research metadata schema. Manuscript profiles and the structure of the body are assessed by the paper authoring service.
 
 - `npm run project-science-schemas` copies each science schema here. A schema whose `$id` is not `carriers/<kind>` is refused.
 - `npm run generate-ontology` regenerates the science section's `data/ontology/carriers/{ontology,shapes}.ttl` with `json-schema-to-owl-shacl-service`. The term schema is passed as a reference, so the note schema's borrowed keys resolve without minting a term class.

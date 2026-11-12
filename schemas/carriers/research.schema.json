@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "carriers/research",
+  "title": "Research carrier",
+  "description": "A research carrier is an identified contribution or working record. Its artifact-role directory selects the kind. Dates and attribution are recorded when the carrier supplies them.",
+  "type": "object",
+  "anyOf": [
+    {
+      "required": [
+        "title"
+      ]
+    },
+    {
+      "required": [
+        "name"
+      ]
+    }
+  ],
+  "properties": {
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "name": {
+      "$ref": "#/$defs/text"
+    },
+    "description": {
+      "$ref": "#/$defs/text"
+    },
+    "summary": {
+      "$ref": "#/$defs/text"
+    },
+    "abstract": {
+      "$ref": "#/$defs/text"
+    },
+    "date-created": {
+      "type": "string",
+      "format": "date"
+    },
+    "date-modified": {
+      "type": "string",
+      "format": "date"
+    },
+    "date-updated": {
+      "type": "string",
+      "format": "date"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/author-name"
+      }
+    },
+    "author": {
+      "oneOf": [
+        { "$ref": "#/$defs/text" },
+        { "type": "array", "items": { "$ref": "#/$defs/author-name" } }
+      ]
+    },
+    "status": {
+      "$ref": "#/$defs/text"
+    },
+    "visibility": {
+      "enum": [
+        "public",
+        "authenticated"
+      ]
+    },
+    "aliases": {
+      "$ref": "glossary/terms/term#/properties/aliases"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/text"
+      }
+    },
+    "provenance": {
+      "$ref": "glossary/terms/term#/properties/provenance"
+    },
+    "references": {
+      "oneOf": [
+        {
+          "$ref": "glossary/terms/term#/properties/references"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[^\\s]+$"
+              },
+              "title": {
+                "$ref": "#/$defs/text"
+              }
+            }
+          },
+          "description": "Reference items are kept in their authored format and bound by the local id."
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "author-name": {
+      "oneOf": [
+        { "$ref": "#/$defs/text" },
+        {
+          "type": "object",
+          "anyOf": [
+            { "required": ["literal"] },
+            { "required": ["family"] },
+            { "required": ["given"] }
+          ],
+          "properties": {
+            "literal": { "$ref": "#/$defs/text" },
+            "family": { "$ref": "#/$defs/text" },
+            "given": { "$ref": "#/$defs/text" }
+          }
+        }
+      ]
+    },
+    "text": {
+      "type": "string",
+      "pattern": "\\S"
+    }
+  }
+}

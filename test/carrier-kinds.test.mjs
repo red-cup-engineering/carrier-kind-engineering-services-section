@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { admitCarrierFrontmatter, CARRIER_KINDS, carrierKindContract } from "../src/carrier-kinds.mjs";
@@ -8,12 +8,26 @@ import { carrierKindOf, kindOf, roleOf, sectionOf } from "../src/carrier-path.mj
 import { projectCarrierKindSchemas } from "../src/carrier-kind-schemas.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SCIENCE = join(ROOT, "../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-services-section/services/knowledge-organization-services-section/schemas/carriers");
+const SCIENCE = join(ROOT, "../../../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-science-services-section/services/knowledge-organization-services-section/data/records/schema/carriers");
 
 test("each projected carrier-kind schema equals its knowledge-organization science source", () => {
+  assert.deepEqual(readdirSync(SCIENCE).filter(name => name.endsWith(".schema.json")).sort(),
+    CARRIER_KINDS.map(kind => `${kind}.schema.json`).sort());
   for (const kind of CARRIER_KINDS) {
-    const read = (directory) => JSON.parse(readFileSync(join(directory, `${kind}.schema.json`), "utf8"));
+    const read = (directory) => readFileSync(join(directory, `${kind}.schema.json`));
     assert.deepEqual(read(join(ROOT, "schemas/carriers")), read(SCIENCE), kind);
+  }
+});
+
+test("research manuscripts inherit source metadata and require an authored summary", () => {
+  assert.equal(admitCarrierFrontmatter("research", { name: "Working research" }).admitted, true);
+  for (const kind of ["research-article", "research-paper"]) {
+    const paper = { title: "A finite incidence study", abstract: "A source comparison.",
+      "date-created": "2026-11-10", references: [{ id: "source:1", title: "A cited work", type: "book" }] };
+    assert.deepEqual(admitCarrierFrontmatter(kind, paper), { admitted: true, findings: [] });
+    assert.equal(admitCarrierFrontmatter(kind, { title: paper.title }).admitted, false);
+    assert.equal(admitCarrierFrontmatter(kind, { ...paper, "date-created": "2026-02-30" }).admitted, false);
+    assert.equal(admitCarrierFrontmatter(kind, { ...paper, references: [{ id: "source:1" }] }).admitted, false);
   }
 });
 

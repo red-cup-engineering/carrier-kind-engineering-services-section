@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "carriers/research-paper",
+  "title": "Research paper carrier",
+  "description": "A titled manuscript with a description, abstract, or summary. Field-specific manuscript structure is assessed by the paper authoring service.",
+  "allOf": [
+    {
+      "$ref": "carriers/research"
+    },
+    {
+      "required": [
+        "title"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "description"
+          ]
+        },
+        {
+          "required": [
+            "abstract"
+          ]
+        },
+        {
+          "required": [
+            "summary"
+          ]
+        }
+      ]
+    }
+  ]
+}

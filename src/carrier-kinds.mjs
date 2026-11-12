@@ -11,9 +11,14 @@ import { compileJsonSchema } from "@red-cup-engineering/json-schema-services-sec
 import TERM_SCHEMA from "@red-cup-engineering/term-engineering-services-section/term.schema.json" with { type: "json" };
 import RELATION_PREDICATES from "@red-cup-engineering/term-engineering-services-section/relation-predicates.json" with { type: "json" };
 import NOTE_SCHEMA from "../schemas/carriers/note.schema.json" with { type: "json" };
+import RESEARCH_SCHEMA from "../schemas/carriers/research.schema.json" with { type: "json" };
+import ARTICLE_SCHEMA from "../schemas/carriers/research-article.schema.json" with { type: "json" };
+import PAPER_SCHEMA from "../schemas/carriers/research-paper.schema.json" with { type: "json" };
 
 /** Each carrier kind that has a schema, by the kind its artifact-role directory states. */
-export const CARRIER_KIND_SCHEMAS = Object.freeze({ note: NOTE_SCHEMA });
+export const CARRIER_KIND_SCHEMAS = Object.freeze({
+  note: NOTE_SCHEMA, research: RESEARCH_SCHEMA, "research-article": ARTICLE_SCHEMA, "research-paper": PAPER_SCHEMA,
+});
 export const CARRIER_KINDS = Object.freeze(Object.keys(CARRIER_KIND_SCHEMAS).sort());
 
 const identities = Object.freeze({ type: "string", minLength: 1 });
@@ -28,14 +33,18 @@ const RELATION_KEYS = Object.freeze(Object.fromEntries(Object.entries(RELATION_P
  * @param {string} kind
  */
 export function carrierKindContract(kind) {
+  if (!Object.hasOwn(CARRIER_KIND_SCHEMAS, kind)) throw new TypeError(`no carrier-kind schema for ${JSON.stringify(kind)}; kinds with one: ${CARRIER_KINDS.join(", ")}`);
   const schema = CARRIER_KIND_SCHEMAS[kind];
-  if (schema === undefined) throw new TypeError(`no carrier-kind schema for ${JSON.stringify(kind)}; kinds with one: ${CARRIER_KINDS.join(", ")}`);
   return Object.freeze({ ...schema, properties: { ...RELATION_KEYS, ...schema.properties } });
 }
 
 const compiled = new Map();
 function compiledContract(kind) {
-  if (!compiled.has(kind)) compiled.set(kind, compileJsonSchema(carrierKindContract(kind), { references: [TERM_SCHEMA] }));
+  if (!compiled.has(kind)) {
+    const references = [TERM_SCHEMA];
+    if (kind === "research-article" || kind === "research-paper") references.push(RESEARCH_SCHEMA);
+    compiled.set(kind, compileJsonSchema(carrierKindContract(kind), { references }));
+  }
   return compiled.get(kind);
 }
 
