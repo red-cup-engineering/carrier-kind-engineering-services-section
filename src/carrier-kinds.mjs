@@ -7,7 +7,7 @@
  * a list of them.
  * @packageDocumentation
  */
-import { compileJsonSchema } from "@red-cup-engineering/json-schema-services-section/validation";
+import { compileJsonSchema } from "@red-cup-engineering/json-schema-engineering-services-section/validation";
 import TERM_SCHEMA from "@red-cup-engineering/term-engineering-services-section/term.schema.json" with { type: "json" };
 import RELATION_PREDICATES from "@red-cup-engineering/term-engineering-services-section/relation-predicates.json" with { type: "json" };
 import NOTE_SCHEMA from "../schemas/carriers/note.schema.json" with { type: "json" };
