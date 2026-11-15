@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/carrier-kind-engineering-services-section",
-  "version": "0.1.2-dev.0",
+  "version": "0.1.3-dev.0",
   "description": "Admits a content carrier's frontmatter by the schema its artifact-role directory's kind names: the knowledge-organization science section's carrier-kind schemas, projected here and compiled with the term schema and the relation vocabulary.",
   "repository": {
     "type": "git",
@@ -34,13 +34,13 @@
     "generate-ontology": "project-json-schema-as-ontology ../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-services-section/services/knowledge-organization-services-section/schemas/carriers https://561.group/ns/schema/ --out-dir ../../../../../../../../../science-services-section/services/information-science-services-section/services/knowledge-services-section/services/knowledge-organization-services-section/data/ontology/carriers --reference ../../../../../../../../../science-services-section/services/information-science-services-section/services/communication-science-services-section/services/glossary-science-services-section/services/term-science-services-section/schemas/glossary/terms/term.schema.json"
   },
   "dependencies": {
-    "@red-cup-engineering/computer-file-engineering-services-section": "0.8.8",
-    "@red-cup-engineering/json-schema-engineering-services-section": "0.5.8",
-    "@red-cup-engineering/markdown-engineering-services-section": "0.5.9",
-    "@red-cup-engineering/term-engineering-services-section": "0.3.4"
+    "@red-cup-engineering/computer-file-engineering-services-section": "^0.8.8",
+    "@red-cup-engineering/json-schema-engineering-services-section": "^0.5.8",
+    "@red-cup-engineering/markdown-engineering-services-section": "^0.5.9",
+    "@red-cup-engineering/term-engineering-services-section": "^0.3.4"
   },
   "devDependencies": {
-    "@red-cup-engineering/json-schema-to-owl-shacl-service": "0.1.2"
+    "@red-cup-engineering/json-schema-to-owl-shacl-service": "^0.1.2"
   },
   "engines": {
     "node": ">=22"
