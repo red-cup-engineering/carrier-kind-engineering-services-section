@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/carrier-kind-engineering-services-section",
-  "version": "0.1.3-dev.0",
+  "version": "0.1.4-dev.0",
   "description": "Admits a content carrier's frontmatter by the schema its artifact-role directory's kind names: the knowledge-organization science section's carrier-kind schemas, projected here and compiled with the term schema and the relation vocabulary.",
   "repository": {
     "type": "git",
