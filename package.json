@@ -22,7 +22,6 @@
     "project-carrier-kind-schemas": "scripts/project-carrier-kind-schemas.mjs"
   },
   "files": [
-    "data/records/",
     "src/",
     "scripts/",
     "schemas/"
