@@ -35,12 +35,12 @@
   },
   "dependencies": {
     "@red-cup-engineering/computer-file-engineering-services-section": "0.8.8",
-    "@red-cup-engineering/json-schema-engineering-services-section": "0.5.7",
+    "@red-cup-engineering/json-schema-engineering-services-section": "0.5.8",
     "@red-cup-engineering/markdown-engineering-services-section": "0.5.9",
     "@red-cup-engineering/term-engineering-services-section": "0.3.4"
   },
   "devDependencies": {
-    "@red-cup-engineering/json-schema-to-owl-shacl-service": "0.1.1"
+    "@red-cup-engineering/json-schema-to-owl-shacl-service": "0.1.2"
   },
   "engines": {
     "node": ">=22"
