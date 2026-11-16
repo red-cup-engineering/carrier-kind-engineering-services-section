@@ -83,3 +83,5 @@ It accepts only malformed input whose line joins a quoted scalar to that
 block key, inserts one original line ending, and refuses unless the original
 body survives exactly and the existing note schema admits the result.
 It is not a general YAML recovery or auto-format operation.
+
+Note-origin provenance in the projected schema comes from [Knowledge Science #28](https://github.com/lenticule-science/knowledge-science-services-section/pull/28). The generated projection does not change the Term or bibliography contract. Do not release this projection before the source owner lands the exact canonical schema.
