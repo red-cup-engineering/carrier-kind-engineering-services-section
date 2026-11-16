@@ -83,6 +83,36 @@
         "utterances": {
           "$ref": "glossary/terms/term#/properties/provenance/properties/utterances"
         },
+        "office": { "$ref": "#/$defs/sourceStatement", "description": "Authored office or production-pass context; not the author roster." },
+        "written-by": { "$ref": "#/$defs/sourceStatement", "description": "Authored writing attribution and context; not a replacement for authors." },
+        "request": { "$ref": "#/$defs/sourceWorkLocator", "description": "The originating request locator, distinct from a question or associated work." },
+        "see-also": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sourceStatement" },
+          "description": "Authored cross-reference descriptions. These do not establish resolved graph edges."
+        },
+        "utterance-index": { "$ref": "#/$defs/sourceStatement", "description": "Authored index description for consulted utterances, not an exact utterance or content address." },
+        "utterance-citations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["address", "source-day", "utc-minute"],
+            "properties": {
+              "address": { "$ref": "glossary/terms/term#/properties/provenance/properties/utterances/items" },
+              "source-day": { "$ref": "#/$defs/documentSourceDay" },
+              "utc-minute": {
+                "type": "string",
+                "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]Z$",
+                "description": "Recorded UTC minute, with no inferred seconds or precision."
+              }
+            }
+          },
+          "description": "Content-addressed utterance citations with explicitly witnessed minute precision. Untimed addresses still use utterances."
+        },
         "source-date": {
           "$ref": "#/$defs/documentSourceDay"
         },
