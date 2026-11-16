@@ -46,12 +46,8 @@ A value that no alternative of a `oneOf` admits gives one `oneOf:<key>` finding,
 
 ## Repair plans
 
-`./note-repair`'s `planNoteFrontmatterRepair({path, text, frontmatter, body, firstRecorded})` plans the edits that bring a note toward its schema, from what the note already says:
+`./note-repair`'s `planNoteFrontmatterRepair({path, frontmatter, body})` proposes only additions supported by the note itself: a missing title from its authored name, first heading or file name, and a missing description from its summary or first suitable prose sentence.
 
-- a title from its first heading or file name;
-- `date-created` from `date`, its dated path, or the date its carrier first appears in custody;
-- a description from the first sentence of its first prose paragraph;
-- keywords in kebab case;
-- loose `references` entries moved to `cites`.
+A dated path, generic `date`, or the earliest custody observation does not establish when the note was first written. The planner does not fill or overwrite `date-created`. It also does not replace authored keys with normalized spellings or collapse reference records into citation labels. The original schema's findings remain available for source-owner review; there is no write or removal performed by the planner.
 
-It invents nothing, and only plans. Applying a plan is a byte-preserving, revision-guarded fold (the program's decision 6).
+Run the focused preservation suite with `npm run test:note-repair`.
