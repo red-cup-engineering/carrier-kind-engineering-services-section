@@ -98,3 +98,29 @@ test("description preview refuses invented, fenced, cited, unrelated or already 
   assert.throws(()=>apply(header.replace('published = false','published = true')+"# Abstract\n"+line+"\n"),/draft can be replaced/);
   assert.throws(()=>apply(header+"# Abstract\n"+line+"\n",line+"(NO_ITEM_DATA:missing)."),/placeholder-free/);
 });
+
+test("a headerless note retains its exact body and remains explicitly refused for an unwitnessed date", async () => {
+  const { previewHeaderlessNoteMetadata } = await import("@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview");
+  const summary = "A reviewed methodological note with illustrative synthetic data only.";
+  const note="\uFEFF# Observed title\r\n\r\nOriginal body with a historical date, 2026-03-06.  \r\n";
+  const bytes=Buffer.from(note);
+  const p=previewHeaderlessNoteMetadata({bytes,expectedRevision:rev(bytes),description:summary});
+  assert.equal(p.admission.admitted,false);
+  assert.deepEqual(p.admission.findings.map(x=>x.rule),["required:date-created"]);
+  assert.equal(p.bodyTitleLine,1);
+  assert(p.text.startsWith("\uFEFF---\r\n"));
+  assert.equal(p.text.slice(p.text.indexOf("# Observed title")-1).slice(1),note.slice(1));
+  assert.match(p.text,/title: Observed title\r\n/);
+  assert.match(p.text,/Editorial summary:/);
+  assert.doesNotMatch(p.text.slice(0,p.text.indexOf("# Observed title")),/date-created:/);
+});
+test("headerless preview refuses stale revisions, a detached heading and an incomplete header", async () => {
+  const { previewHeaderlessNoteMetadata } = await import("@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview");
+  const description="A reviewed methodological note with illustrative synthetic data only.";
+  const apply=(text, expected)=>{const bytes=Buffer.from(text);return previewHeaderlessNoteMetadata({bytes,expectedRevision:expected??rev(bytes),description});};
+  assert.throws(()=>apply("# Original\n\nBody.", "stale"),/reviewed source revision/);
+  assert.throws(()=>apply("---\ntitle: Old\n# Original\n"),/incomplete frontmatter/);
+  assert.throws(()=>apply("+++\ntitle = \"Old\"\n+++\n# Original\n"),/existing or incomplete/);
+  assert.throws(()=>apply("First prose.\n\n# Detached\n"),/witnessed level-one/);
+  assert.throws(()=>apply("```md\n# Fenced title\n```\n"),/witnessed level-one/);
+});

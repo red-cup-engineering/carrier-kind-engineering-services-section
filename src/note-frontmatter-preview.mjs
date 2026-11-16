@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { projectMarkdownStructure, readMarkdownSource } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
 import { applyMarkdownEdit, markdownEditRequestKind } from "@red-cup-engineering/markdown-engineering-services-section/apply-markdown-edit";
+import { dumpMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/dump-markdown-frontmatter";
 import { mutateMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/mutate-markdown-frontmatter";
 import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
 import { splitMarkdownFrontmatterFence } from "@red-cup-engineering/markdown-engineering-services-section/split-markdown-frontmatter-fence";
@@ -219,4 +220,48 @@ export function previewNoteDescriptionExcerpt({ bytes, expectedRevision, excerpt
   if (!admitCarrierFrontmatter("note", updated.frontmatter).admitted)
     throw new TypeError("excerpt candidate does not meet the original note admission contract");
   return Object.freeze({ sourceRevision, candidateRevision: sha256(text), abstractBodyLine: matches[0], text });
+}
+
+/**
+ * Preview a partial record for an existing headerless note, without claiming
+ * a creation date. The title comes only from the original opening Markdown H1;
+ * the caller reviews the editorial description separately. This preview
+ * requires that the only remaining admission failure is the missing date.
+ * It does not move the document, assert completeness, or write a file.
+ */
+export function previewHeaderlessNoteMetadata({ bytes, expectedRevision, description } = {}) {
+  if (!(bytes instanceof Uint8Array) || bytes.byteLength > 4 * 1024 * 1024)
+    throw new TypeError("headerless note preview requires at most four MiB of original UTF-8");
+  const sourceRevision = sha256(bytes);
+  if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
+  if (typeof description !== "string" || description !== description.trim() || description.length < 30 ||
+      description.length > 210 || !description.isWellFormed() || /[\p{Cc}\p{Zl}\p{Zp}]/u.test(description) ||
+      !/[.!?]$/u.test(description))
+    throw new TypeError("reviewed editorial summary must be one nonblank prose line");
+  const original = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
+  const bom = original.startsWith("\uFEFF") ? "\uFEFF" : "";
+  const body = original.slice(bom.length);
+  // A missing closing fence is not an absent header. Refuse the opener
+  // independently of the incumbent parser's complete-fence recognizer.
+  if (/^(?:---|\+\+\+)[ \t]*(?:\r\n|\r|\n|$)/u.test(body) || splitMarkdownFrontmatterFence(original) !== null)
+    throw new TypeError("headerless preview refuses existing or incomplete frontmatter");
+  const source = readMarkdownSource(body, { frontmatter: false });
+  const [heading] = projectMarkdownStructure(source).headings;
+  if (heading?.level !== 1 || !heading.title.trim() ||
+      !source.lines.slice(0, heading.startLine - 1).every(line => !line.trim()))
+    throw new TypeError("headerless note must start with a witnessed level-one title");
+  const metadata = { title: heading.title, description: `Editorial summary: ${description}` };
+  const newline = /\r\n|\n|\r/u.exec(body)?.[0] ?? "\n";
+  const header = dumpMarkdownFrontmatter(metadata, "", "yaml").replaceAll("\n", newline);
+  const text = bom + header + body;
+  const candidate = readMarkdownFrontmatter(text);
+  if (candidate.format !== "yaml" || !isDeepStrictEqual(candidate.frontmatter, metadata) ||
+      candidate.body !== body || (bom + candidate.body) !== original)
+    throw new Error("header insertion does not preserve the exact original note body");
+  const admission = admitCarrierFrontmatter("note", candidate.frontmatter);
+  if (admission.admitted || admission.findings.length !== 1 || admission.findings[0].rule !== "required:date-created")
+    throw new Error("partial note must remain refused only for the unwitnessed creation date");
+  return Object.freeze({
+    sourceRevision, candidateRevision: sha256(text), admission, bodyTitleLine: heading.startLine, text,
+  });
 }

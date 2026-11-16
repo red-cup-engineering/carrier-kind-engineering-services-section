@@ -102,3 +102,12 @@ unresolved citation placeholders, unrelated text and already meaningful
 descriptions. The original body's spelling, Markdown and line endings are
 unchanged. The excerpt is not historical description metadata or a warrant
 for the manuscript's claims.
+
+`previewHeaderlessNoteMetadata` prepares a partial YAML header for a
+revision-checked note with no existing frontmatter. It takes the title
+from the opening H1, labels the separately reviewed summary
+`Editorial summary:`, and preserves the original bytes after the header.
+An incomplete fence is not treated as a missing header. The preview
+deliberately leaves `date-created` absent and returns the real refusal:
+a folder date, first Git observation or editorial summary cannot establish
+authorship chronology.
