@@ -65,3 +65,12 @@ text and both digests for review; it writes nothing and grants no access.
 Never send its candidate text to an unadmitted consumer.
 
 Run the focused preservation suite with `npm run test:note-repair`.
+
+
+For triage, `./note-masthead-date` reads an explicitly labeled `Date:` field
+among a note's introductory memo fields, with original line numbers and
+the source SHA-256. It supports ISO calendar days and full English day/month
+spellings. It does not use folder names, unlabeled dates, month-only dates,
+access dates, code examples, or dates found later in a body. A conflicting
+or unresolved date stays unresolved; a document's own stated date is
+evidence for an owner to review, not an automatic `date-created` repair.
