@@ -43,3 +43,25 @@ test("uses a complete short source paragraph rather than a lead-in or a truncate
   assert.equal(descriptionOf([...list, qualifying].join(crlf + crlf)), qualifying);
   assert.equal(descriptionOf(list.join(crlf + crlf)), null);
 });
+
+test("a sample title inside a fence is not a title of the source note", () => {
+  const body = [
+    '~~~markdown', '# A sample title that belongs to code', '~~~', '',
+    'The authored title', '==================', '',
+    'A complete paragraph explains the source reading without extending its claims.',
+  ].join("\n");
+  assert.equal(planNoteFrontmatterRepair({path,body}).set.title, "The authored title");
+  const noHeader = '~~~markdown\n# Only a fenced sample title\n~~~\n';
+  assert.equal(planNoteFrontmatterRepair({path,body:noHeader}).set.title, "Account");
+});
+
+test("a declared relocation pointer is not re-authored even if note metadata is missing", () => {
+  const frontmatter = {
+    status: "relocated-research-source",
+    "canonical-source": "https://example.org/original",
+  };
+  assert.deepEqual(planNoteFrontmatterRepair({ path, frontmatter, body }), { set: {}, remove: [] });
+  assert.equal(planNoteFrontmatterRepair({
+    path, body, frontmatter: { status: "research", "canonical-source": frontmatter["canonical-source"] },
+  }).set.title, "Source account");
+});

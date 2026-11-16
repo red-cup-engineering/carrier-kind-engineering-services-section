@@ -4,7 +4,7 @@
  * byte-preserving and revision-guarded; this module only plans.
  * @packageDocumentation
  */
-import { readMarkdownSource } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
+import { projectMarkdownStructure, readMarkdownSource } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
 import { measureMarkdownDatePath } from "@red-cup-engineering/markdown-engineering-services-section/measure-markdown-date-path";
 
 /** A keyword as the term schema spells it: lower-case words joined by hyphens. */
@@ -39,9 +39,10 @@ function plainText(markdown) {
     .trim();
 }
 
-/** The note's first heading, else its file name read as words. */
+/** The first real Markdown level-one heading, else the file name read as words. */
 export function titleOf(path, body) {
-  const heading = body.match(/^#\s+(.+?)\s*#*\s*$/mu)?.[1];
+  const { headings } = projectMarkdownStructure(readMarkdownSource(body, { frontmatter: false }));
+  const heading = headings.find(({ level }) => level === 1)?.title;
   if (heading) return plainText(heading);
   const stem = path.split('/').at(-1).replace(/\.(?:md|markdown)$/iu, '').replace(/^\d{4}-\d{2}-\d{2}[-_ ]?(?:\d{4}h?[-_ ])?/u, '').replace(/--\d+$/u, '');
   const words = stem.replace(/[-_]+/gu, ' ').trim();
@@ -88,6 +89,10 @@ export function descriptionOf(body, limit = 240) {
  */
 export function planNoteFrontmatterRepair({ path, frontmatter = {}, body }) {
   const set = {};
+  // An old route deliberately points at an original held by another owner.
+  // Do not propose new note metadata for the routing document itself.
+  if (frontmatter.status === "relocated-research-source")
+    return Object.freeze({ set: Object.freeze(set), remove: Object.freeze([]) });
   if (!Object.hasOwn(frontmatter, "title")) {
     const title = (typeof frontmatter.name === "string" && frontmatter.name.trim()) || titleOf(path, body);
     if (title) set.title = title;

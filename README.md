@@ -46,10 +46,10 @@ A value that no alternative of a `oneOf` admits gives one `oneOf:<key>` finding,
 
 ## Repair plans
 
-`./note-repair`'s `planNoteFrontmatterRepair({path, frontmatter, body})` proposes only additions supported by the note itself: a missing title from its authored name, first heading or file name, and a missing description from its summary or first suitable complete short prose paragraph.
+`./note-repair`'s `planNoteFrontmatterRepair({path, frontmatter, body})` proposes only additions supported by the note itself: a missing title from its authored name, first real Markdown level-one heading or file name, and a missing description from its summary or first suitable complete short prose paragraph.
 
 A dated path, generic `date`, or the earliest custody observation does not establish when the note was first written. The planner does not fill or overwrite `date-created`. It also does not replace authored keys with normalized spellings or collapse reference records into citation labels. The original schema's findings remain available for source-owner review; there is no write or removal performed by the planner.
 
-The fallback skips headings, lists, fenced code, incomplete lead-ins and paragraphs too long to preserve intact.
+The description fallback skips headings, lists, fenced code, incomplete lead-ins and paragraphs too long to preserve intact. A source with authored `status: relocated-research-source` receives no note-repair proposal: it is a relocation declaration to verify at the source-link consumer, not a note whose content or title should be re-authored.
 
 Run the focused preservation suite with `npm run test:note-repair`.
