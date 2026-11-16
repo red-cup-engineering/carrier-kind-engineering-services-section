@@ -45,3 +45,27 @@ test("a reviewed YAML boundary can recover already authored fields with one CRLF
   const fixed=Buffer.from(result.text);
   assert.throws(()=>split({...opts,bytes:fixed,expectedRevision:rev(fixed)}),/already valid/);
 });
+
+test("recovers a witnessed TOML title by changing exactly one token in the original note", async () => {
+  const { previewWitnessedNoteTitle } = await import("@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview");
+  const encode = s => Buffer.from(s);
+  const revision = rev;
+  const a = '\uFEFF+++\r\nid = "paper"\r\ntitle = "Abstract"\r\ndescription = "Original description"\r\nauthors = ["Author"]\r\ndate-created = "2025-11-09"\r\n+++\r\n# Abstract\r\n\r\nOriginal body.\r\n';
+  const b = a.replace('"Abstract"', () => '"On $& and cognition"').replace('date-created', 'date_created');
+  const bytes=encode(a), witnessBytes=encode(b);
+  const result=previewWitnessedNoteTitle({bytes,expectedRevision:revision(bytes),witnessBytes,expectedWitnessRevision:revision(witnessBytes)});
+  assert.equal(result.text,a.replace('"Abstract"',()=>'"On $& and cognition"'));
+});
+
+test("title recovery refuses stale, wrong-body or mismatched author/date witnesses", async () => {
+  const { previewWitnessedNoteTitle } = await import("@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview");
+  const a = '+++\nid = "paper"\ntitle = "Abstract"\ndescription = "Original description"\nauthors = ["Author"]\ndate-created = "2025-11-09"\n+++\n# Abstract\n\nOriginal body.\n';
+  const source=Buffer.from(a);
+  const b = a.replace('"Abstract"', '"Witness"');
+  const check=(other,expected)=>{ const bytes=Buffer.from(other); return previewWitnessedNoteTitle({bytes:source,expectedRevision:rev(source),witnessBytes:bytes,expectedWitnessRevision:expected??rev(bytes)}); };
+  assert.throws(()=>check(b,"wrong"),/reviewed revisions/);
+  assert.throws(()=>check(b.replace("Original body.","Different body.")),/same nonempty/);
+  assert.throws(()=>check(b.replace('"Author"','"Other"')),/agree/);
+  assert.throws(()=>check(b.replace("2025-11-09","2025-10-11")),/agree/);
+  assert.throws(()=>check(b.replace('id = "paper"', 'id = "other"')),/agree/);
+});

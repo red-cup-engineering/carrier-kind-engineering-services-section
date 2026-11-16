@@ -85,3 +85,11 @@ body survives exactly and the existing note schema admits the result.
 It is not a general YAML recovery or auto-format operation.
 
 Note-origin provenance and the shared research reference binding in the projected schema come from [Knowledge Science #28](https://github.com/lenticule-science/knowledge-science-services-section/pull/28). The generated projection does not change the Term or bibliography contract. Do not release this projection before the source owner lands the exact canonical schema.
+
+`previewWitnessedNoteTitle` can recover a TOML note's original title when the
+repository header has the exact `Abstract` placeholder. It takes the separately
+reviewed original and witness bytes and their SHA-256 revisions. The two must
+agree on the exact body, manuscript identifier, authors and explicit creation day.
+It substitutes only the bare title assignment and returns a preview, not a write.
+A matching witness neither proves the author's claims nor authorizes copying
+other metadata, such as descriptions or publication flags.

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
+import { applyMarkdownEdit, markdownEditRequestKind } from "@red-cup-engineering/markdown-engineering-services-section/apply-markdown-edit";
 import { mutateMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/mutate-markdown-frontmatter";
 import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
 import { splitMarkdownFrontmatterFence } from "@red-cup-engineering/markdown-engineering-services-section/split-markdown-frontmatter-fence";
@@ -99,4 +100,59 @@ export function previewNoteFrontmatterLineSplit({ bytes, expectedRevision, line,
   const admission = admitCarrierFrontmatter("note", candidate.frontmatter);
   if (!admission.admitted) throw new TypeError("line split did not meet the note schema");
   return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
+}
+
+/**
+ * Preview one narrow recovery from a separately reviewed Markdown witness.
+ * An original TOML header whose title is the section label "Abstract" can
+ * receive the distinct authored witness title only if body, identifier,
+ * author list and explicit authored creation date agree. This establishes
+ * content agreement, not the witness's authority or permission to write.
+ */
+export function previewWitnessedNoteTitle({ bytes, expectedRevision, witnessBytes, expectedWitnessRevision } = {}) {
+  const bounded = value => value instanceof Uint8Array && value.byteLength <= 4 * 1024 * 1024;
+  if (!bounded(bytes) || !bounded(witnessBytes)) throw new TypeError("two bounded original Markdown byte sources are required");
+  const sourceRevision = sha256(bytes), witnessRevision = sha256(witnessBytes);
+  if (sourceRevision !== expectedRevision || witnessRevision !== expectedWitnessRevision)
+    throw new Error("original or witness bytes differ from the reviewed revisions");
+  const decode = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+  const original = decode.decode(bytes), witness = decode.decode(witnessBytes);
+  const current = readMarkdownFrontmatter(original), held = readMarkdownFrontmatter(witness);
+  if (current.format !== "toml" || held.format !== "toml" || current.body !== held.body || !current.body.trim())
+    throw new TypeError("both TOML notes must have the same nonempty original body");
+  const a = current.frontmatter, b = held.frontmatter;
+  const dayOf = f => {
+    if (Object.hasOwn(f, "date-created") && Object.hasOwn(f, "date_created") && f["date-created"] !== f.date_created) return undefined;
+    return f["date-created"] ?? f.date_created;
+  };
+  const day = dayOf(a);
+  const dayMillis = typeof day === "string" && /^\d{4}-\d{2}-\d{2}$/u.test(day) ? Date.parse(day + "T00:00:00Z") : NaN;
+  if (typeof a.id !== "string" || !a.id.trim() || a.id !== b.id ||
+      !Array.isArray(a.authors) || !a.authors.length || a.authors.some(x => typeof x !== "string" || !x.trim()) ||
+      !isDeepStrictEqual(a.authors, b.authors) || !Number.isFinite(dayMillis) || new Date(dayMillis).toISOString().slice(0, 10) !== day || day !== dayOf(b))
+    throw new TypeError("the witness must agree on manuscript identifier, authors and explicit creation day");
+  const title = b.title;
+  if (a.title !== "Abstract" || typeof title !== "string" || !title.trim() || title === a.title || !title.isWellFormed() ||
+      /[\p{Cc}\p{Zl}\p{Zp}]/u.test(title) || a.status === "relocated-research-source" || b.status === "relocated-research-source")
+    throw new TypeError("only a distinct authored replacement for an Abstract placeholder is supported");
+  const fence = splitMarkdownFrontmatterFence(original);
+  const raw = original.slice(fence.source.rawStart, fence.source.rawEnd);
+  const placeholder = 'title = "Abstract"';
+  const offset = raw.indexOf(placeholder);
+  if (offset < 0 || original.split(placeholder).length !== 2 ||
+      (offset !== 0 && raw[offset - 1] !== "\n") || !/^(?:\r?\n|$)/u.test(raw.slice(offset + placeholder.length)))
+    throw new TypeError("the original title must be one exact bare root assignment line");
+  const replacement = "title = " + JSON.stringify(title);
+  // The incumbent literal edit uses String.replace; protect literal dollars.
+  const { text } = applyMarkdownEdit(original, { kind: markdownEditRequestKind, operations: [
+    { operation: "replace-text", search: placeholder, replacement: replacement.replaceAll("$", "$$$$"), required: true },
+  ] });
+  const at = fence.source.rawStart + offset;
+  const updated = readMarkdownFrontmatter(text);
+  if (text.slice(0, at) + placeholder + text.slice(at + replacement.length) !== original ||
+      updated.format !== current.format || updated.body !== current.body || !isDeepStrictEqual(updated.frontmatter, { ...a, title }))
+    throw new Error("title recovery would change source text or metadata outside the exact title");
+  const admission = admitCarrierFrontmatter("note", updated.frontmatter);
+  if (!admission.admitted) throw new TypeError("recovered candidate does not meet the original note admission contract");
+  return Object.freeze({ sourceRevision, witnessRevision, candidateRevision: sha256(text), text });
 }
