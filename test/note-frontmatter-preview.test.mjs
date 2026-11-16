@@ -30,3 +30,18 @@ test("stale source, mutation of original fields and failed admission refuse inst
   const accessor=Object.defineProperty({...approved},"title",{enumerable:true,get(){assert.fail("must not invoke getter");}});
   assert.throws(()=>preview(accessor),/only reviewed/);
 });
+
+test("a reviewed YAML boundary can recover already authored fields with one CRLF", async () => {
+  const {previewNoteFrontmatterLineSplit: split}=await import("@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview");
+  const text='---\r\ntitle: Observed\r\nabstract: "A preserved abstract."keywords:\r\n  - history\r\ndate-created: 2026-07-07\r\ndescription: A preserved document.\r\n---\r\n\r\nOriginal Body.\r\n';
+  const bytes=Buffer.from(text);
+  const opts={bytes,expectedRevision:rev(bytes),line:3,key:"keywords"};
+  const result=split(opts);
+  assert.equal(result.text,text.replace('."keywords:','."\r\nkeywords:'));
+  assert.equal(result.candidateRevision,rev(result.text));
+  assert.throws(()=>split({...opts,line:9}),/inside the original YAML/);
+  assert.throws(()=>split({...opts,key:"other"}),/not a quoted scalar/);
+  assert.throws(()=>split({...opts,expectedRevision:rev("different source")}),/source revision/);
+  const fixed=Buffer.from(result.text);
+  assert.throws(()=>split({...opts,bytes:fixed,expectedRevision:rev(fixed)}),/already valid/);
+});

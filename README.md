@@ -74,3 +74,12 @@ spellings. It does not use folder names, unlabeled dates, month-only dates,
 access dates, code examples, or dates found later in a body. A conflicting
 or unresolved date stays unresolved; a document's own stated date is
 evidence for an owner to review, not an automatic `date-created` repair.
+
+
+The same preview export provides `previewNoteFrontmatterLineSplit` for one
+reviewed formatting error in otherwise retained YAML. Supply the original
+bytes and revision, the exact line, and the following top-level block key.
+It accepts only malformed input whose line joins a quoted scalar to that
+block key, inserts one original line ending, and refuses unless the original
+body survives exactly and the existing note schema admits the result.
+It is not a general YAML recovery or auto-format operation.
