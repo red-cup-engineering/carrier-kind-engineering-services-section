@@ -18,7 +18,7 @@
     "aliases": { "$ref": "glossary/terms/term#/properties/aliases" },
     "keywords": { "$ref": "glossary/terms/term#/properties/keywords" },
     "tags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
-    "references": { "$ref": "glossary/terms/term#/properties/references" },
+    "references": { "$ref": "carriers/research#/properties/references" },
     "provenance": { "$ref": "#/$defs/noteProvenance" }
   },
   "$defs": {

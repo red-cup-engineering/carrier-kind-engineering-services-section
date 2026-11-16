@@ -38,10 +38,10 @@ Glossary terms and bibliography carriers keep their own owners: [term-engineerin
 ## Admission
 
 `admitCarrierFrontmatter(kind, frontmatter)` returns `{admitted, findings}`.
-The kind's schema is compiled with the term schema as a reference, because aliases, keywords, references and provenance are the term schema's.
+Carrier contracts use the Term schema for shared fields and keyed references. Note, research-article and research-paper contracts also register the base research contract for reference resolution. Notes and manuscripts accept both the existing keyed references and authored item lists with a local ID and title. The list contract does not validate complete CSL records or establish unique citation bindings.
 Every predicate of the relation vocabulary is admitted as a key; a `carrier`-range predicate takes one identity or a non-empty list of them.
 
-Each finding's `rule` is the failed schema keyword and the top-level key it failed on: `required:description`, `pattern:keywords`, `type:references`.
+Each finding's `rule` is the failed schema keyword and the top-level key it failed on: `required:description`, `pattern:keywords`, `oneOf:references`.
 A value that no alternative of a `oneOf` admits gives one `oneOf:<key>` finding, not one per alternative.
 
 ## Repair plans
@@ -84,4 +84,4 @@ block key, inserts one original line ending, and refuses unless the original
 body survives exactly and the existing note schema admits the result.
 It is not a general YAML recovery or auto-format operation.
 
-Note-origin provenance in the projected schema comes from [Knowledge Science #28](https://github.com/lenticule-science/knowledge-science-services-section/pull/28). The generated projection does not change the Term or bibliography contract. Do not release this projection before the source owner lands the exact canonical schema.
+Note-origin provenance and the shared research reference binding in the projected schema come from [Knowledge Science #28](https://github.com/lenticule-science/knowledge-science-services-section/pull/28). The generated projection does not change the Term or bibliography contract. Do not release this projection before the source owner lands the exact canonical schema.
