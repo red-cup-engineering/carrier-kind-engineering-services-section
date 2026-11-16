@@ -69,3 +69,32 @@ test("title recovery refuses stale, wrong-body or mismatched author/date witness
   assert.throws(()=>check(b.replace("2025-11-09","2025-10-11")),/agree/);
   assert.throws(()=>check(b.replace('id = "paper"', 'id = "other"')),/agree/);
 });
+
+test("labels an exact reviewed abstract excerpt and changes only a witnessed draft header echo", async () => {
+  const { previewNoteDescriptionExcerpt } = await import("@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview");
+  const line = "This paper describes an original **model** without asserting that the result is proven.";
+  const echo = '+++ id = "paper" title = "Abstract" authors = ["Author"] status = "draft" documenttype =…';
+  const original = ['\uFEFF+++', 'id = "paper"', 'title = "Actual title"', "description = " + JSON.stringify(echo),
+    'date-created = "2025-11-09"', 'status = "draft"', 'published = false', '+++', '# Abstract', '', line + '  ', '', '# Body', 'Retained body.', ''].join("\r\n");
+  const bytes = Buffer.from(original);
+  const got = previewNoteDescriptionExcerpt({bytes, expectedRevision:rev(bytes), excerpt:line});
+  assert.equal(got.abstractBodyLine,3);
+  assert.equal(got.text, original.replace(JSON.stringify(echo), JSON.stringify("Abstract excerpt: " + line)));
+  assert.equal(got.candidateRevision,rev(got.text));
+});
+
+test("description preview refuses invented, fenced, cited, unrelated or already meaningful source", async () => {
+  const { previewNoteDescriptionExcerpt } = await import("@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview");
+  const line = "This paper describes a source model without a claim that the result is verified.";
+  const echo = '+++ id = "paper" title = "Abstract" authors = ["Author"] status = "draft" documenttype =…';
+  const header = ['+++','id = "paper"','title = "Actual title"',"description = " + JSON.stringify(echo),
+    'date-created = "2025-11-09"','status = "draft"','published = false','+++'].join("\n") + "\n";
+  const apply = (text, excerpt = line) => { const bytes=Buffer.from(text); return previewNoteDescriptionExcerpt({bytes,expectedRevision:rev(bytes),excerpt}); };
+  assert.throws(()=>apply(header+"# Abstract\n\n```md\n"+line+"\n```\n"),/one exact prose/);
+  assert.throws(()=>apply(header+"# Abstract\n\n"+line+"\n(NO_ITEM_DATA:missing)\n"),/one exact prose/);
+  assert.throws(()=>apply(header+"# Abstract\n\n"+line+"\n", "An invented but otherwise plausible description that is not in the note."),/one exact prose/);
+  assert.throws(()=>apply(header+"# Abstract\n\nDifferent source.\n\n# Later\n"+line+"\n"),/one exact prose/);
+  assert.throws(()=>apply(header.replace(JSON.stringify(echo), '"An actual description."')+"# Abstract\n"+line+"\n"),/draft can be replaced/);
+  assert.throws(()=>apply(header.replace('published = false','published = true')+"# Abstract\n"+line+"\n"),/draft can be replaced/);
+  assert.throws(()=>apply(header+"# Abstract\n"+line+"\n",line+"(NO_ITEM_DATA:missing)."),/placeholder-free/);
+});

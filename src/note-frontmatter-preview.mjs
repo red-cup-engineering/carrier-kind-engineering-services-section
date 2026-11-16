@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
+import { projectMarkdownStructure, readMarkdownSource } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
 import { applyMarkdownEdit, markdownEditRequestKind } from "@red-cup-engineering/markdown-engineering-services-section/apply-markdown-edit";
 import { mutateMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/mutate-markdown-frontmatter";
 import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
@@ -155,4 +156,67 @@ export function previewWitnessedNoteTitle({ bytes, expectedRevision, witnessByte
   const admission = admitCarrierFrontmatter("note", updated.frontmatter);
   if (!admission.admitted) throw new TypeError("recovered candidate does not meet the original note admission contract");
   return Object.freeze({ sourceRevision, witnessRevision, candidateRevision: sha256(text), text });
+}
+
+/**
+ * Replace an evidenced self-echo of a draft note's TOML header with one
+ * owner-reviewed, complete prose line from its opening abstract. The label
+ * makes the new description an excerpt, not recovered original metadata.
+ * This checks source identity and editorial scope; it does not prove claims
+ * in the selected excerpt or authorize writing the returned bytes.
+ */
+export function previewNoteDescriptionExcerpt({ bytes, expectedRevision, excerpt } = {}) {
+  if (!(bytes instanceof Uint8Array) || bytes.byteLength > 4 * 1024 * 1024)
+    throw new TypeError("reviewed note source must be at most four MiB");
+  const sourceRevision = sha256(bytes);
+  if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
+  if (typeof excerpt !== "string" || excerpt !== excerpt.trim() || excerpt.length < 40 || excerpt.length > 210 ||
+      !/^\p{Lu}/u.test(excerpt) || !/[.!?]$/u.test(excerpt) ||
+      /[\p{Cc}\p{Zl}\p{Zp}\x60$\\<>\[\]]|NO_ITEM_DATA/iu.test(excerpt))
+    throw new TypeError("reviewed abstract excerpt must be a complete, citation-placeholder-free prose line");
+  const original = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
+  const current = readMarkdownFrontmatter(original);
+  const fields = current.frontmatter;
+  if (current.format !== "toml" || fields.status !== "draft" || fields.published !== false ||
+      typeof fields.id !== "string" || !/^[a-z0-9-]+$/u.test(fields.id) ||
+      typeof fields.description !== "string" ||
+      !fields.description.startsWith(`+++ id = ${JSON.stringify(fields.id)} title = "Abstract" authors = [`) ||
+      !fields.description.endsWith("…"))
+    throw new TypeError("only a witnessed truncated TOML header echo in an unpublished draft can be replaced");
+  const source = readMarkdownSource(current.body, { frontmatter: false });
+  const headings = projectMarkdownStructure(source).headings;
+  const abstract = headings[0];
+  if (abstract?.level !== 1 || abstract.title !== "Abstract" ||
+      !source.lines.slice(0, abstract.startLine - 1).every(line => !line.trim()))
+    throw new TypeError("reviewed excerpt requires an opening Abstract heading");
+  const last = headings[1]?.startLine ?? source.lines.length + 1;
+  const matches = [];
+  for (let line = abstract.bodyStartLine; line < last; line++) {
+    const raw = source.lines[line - 1];
+    if (!raw || /^\s/u.test(raw) || raw.trimEnd() !== excerpt) continue;
+    if (source.codeRanges.some(range => range.type === "fenced-code" && range.startLine <= line && line <= range.endLine)) continue;
+    if (/^\s*(?:\(NO_ITEM_DATA:|\[@)/iu.test(source.lines[line] ?? "")) continue;
+    matches.push(line);
+  }
+  if (matches.length !== 1) throw new TypeError("reviewed excerpt must match one exact prose line of the opening abstract");
+  const fence = splitMarkdownFrontmatterFence(original);
+  const raw = original.slice(fence.source.rawStart, fence.source.rawEnd);
+  const assignments = [...raw.matchAll(/^description = "(?:[^"\\\r\n]|\\[^\r\n])*"(?=\r?$)/gmu)];
+  if (assignments.length !== 1 || original.split(assignments[0][0]).length !== 2)
+    throw new TypeError("description must be one exact bare root assignment");
+  const [hit] = assignments, previous = hit[0];
+  const description = `Abstract excerpt: ${excerpt}`;
+  const replacement = "description = " + JSON.stringify(description);
+  const { text } = applyMarkdownEdit(original, { kind: markdownEditRequestKind, operations: [
+    { operation: "replace-text", search: previous, replacement: replacement, required: true },
+  ] });
+  const at = fence.source.rawStart + hit.index;
+  const updated = readMarkdownFrontmatter(text);
+  if (text.slice(0, at) + previous + text.slice(at + replacement.length) !== original ||
+      updated.format !== current.format || updated.body !== current.body ||
+      !isDeepStrictEqual(updated.frontmatter, { ...fields, description }))
+    throw new Error("excerpt would change source text or metadata outside the exact description");
+  if (!admitCarrierFrontmatter("note", updated.frontmatter).admitted)
+    throw new TypeError("excerpt candidate does not meet the original note admission contract");
+  return Object.freeze({ sourceRevision, candidateRevision: sha256(text), abstractBodyLine: matches[0], text });
 }

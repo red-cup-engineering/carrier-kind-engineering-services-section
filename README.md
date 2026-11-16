@@ -93,3 +93,12 @@ agree on the exact body, manuscript identifier, authors and explicit creation da
 It substitutes only the bare title assignment and returns a preview, not a write.
 A matching witness neither proves the author's claims nor authorizes copying
 other metadata, such as descriptions or publication flags.
+
+`previewNoteDescriptionExcerpt` addresses a narrower, observed import defect:
+an unpublished TOML draft whose description is a truncated echo of its own
+header. It accepts one reviewed exact prose line from the opening abstract,
+labels the new metadata `Abstract excerpt:`, and refuses fenced samples,
+unresolved citation placeholders, unrelated text and already meaningful
+descriptions. The original body's spelling, Markdown and line endings are
+unchanged. The excerpt is not historical description metadata or a warrant
+for the manuscript's claims.
