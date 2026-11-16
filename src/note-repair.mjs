@@ -4,6 +4,7 @@
  * byte-preserving and revision-guarded; this module only plans.
  * @packageDocumentation
  */
+import { readMarkdownSource } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
 import { measureMarkdownDatePath } from "@red-cup-engineering/markdown-engineering-services-section/measure-markdown-date-path";
 
 /** A keyword as the term schema spells it: lower-case words joined by hyphens. */
@@ -47,15 +48,30 @@ export function titleOf(path, body) {
   return words ? words[0].toUpperCase() + words.slice(1) : null;
 }
 
-/** The first sentence of the note's first prose paragraph, at most `limit` characters. */
+const NON_PROSE = /^(?:[ \t]{4}|\t|[ \t]{0,3}(?:#|\x60\x60\x60|~~~|>|\||[-+*][ \t]+|\d+[.)][ \t]+|<|!\[|---|\$\$|:[A-Za-z]+:|\[\[))/mu;
+const COMPLETE_PROSE = /[.!?](?:["'’”\)\]]*)$/u;
+
+function* paragraphRanges(text) {
+  let start = 0;
+  for (const separator of text.matchAll(/\n[ \t]*\n+/gu)) {
+    yield { start, end: separator.index };
+    start = separator.index + separator[0].length;
+  }
+  yield { start, end: text.length };
+}
+
+/** A complete short source paragraph, never a truncated claim or list lead-in. */
 export function descriptionOf(body, limit = 240) {
-  for (const block of body.split(/\n\s*\n/u)) {
-    const trimmed = block.trim();
-    if (!trimmed || /^(#|```|~~~|>|\||- |\* |\d+\. |<|!\[|---|\$\$|:[A-Za-z]+:|\[\[)/u.test(trimmed) || /^:PROPERTIES:|^#\+/mu.test(trimmed)) continue;
-    const text = plainText(trimmed);
-    if (text.length < 40) continue;
-    const sentence = text.match(/^.+?[.!?](?=\s|$)/u)?.[0] ?? text;
-    return sentence.length <= limit ? sentence : `${sentence.slice(0, limit - 1).replace(/\s+\S*$/u, '')}…`;
+  const source = readMarkdownSource(body, { frontmatter: false });
+  const fences = source.codeRanges.filter(range => range.type === "fenced-code");
+  let fence = 0;
+  for (const { start, end } of paragraphRanges(source.text)) {
+    while (fences[fence]?.end <= start) fence += 1;
+    if (fences[fence]?.start < end) continue;
+    const paragraph = source.text.slice(start, end);
+    if (NON_PROSE.test(paragraph)) continue;
+    const prose = plainText(paragraph);
+    if (prose.length >= 40 && prose.length <= limit && COMPLETE_PROSE.test(prose)) return prose;
   }
   return null;
 }
