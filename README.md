@@ -52,4 +52,16 @@ A dated path, generic `date`, or the earliest custody observation does not estab
 
 The description fallback skips headings, lists, fenced code, incomplete lead-ins and paragraphs too long to preserve intact. A source with authored `status: relocated-research-source` receives no note-repair proposal: it is a relocation declaration to verify at the source-link consumer, not a note whose content or title should be re-authored.
 
+For a reviewed metadata-only batch, `./note-frontmatter-preview` exports
+`previewNoteFrontmatterAdditions({ bytes, expectedRevision, additions })`.
+`expectedRevision` is the exact original UTF-8 `sha256:<hex>`, not a Git
+commit, a pathname or a date. Supply only evidence-reviewed missing
+`title`, `description` or `date-created`; the preview neither infers nor
+verifies a creation date. It refuses existing fields, stale bytes, relocation
+pointers and unsupported frontmatter formats. It uses the Markdown package's
+YAML editor and requires exact recovery of the original bytes if its additions
+are reversed, then uses the original note schema. The output carries candidate
+text and both digests for review; it writes nothing and grants no access.
+Never send its candidate text to an unadmitted consumer.
+
 Run the focused preservation suite with `npm run test:note-repair`.
