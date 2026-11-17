@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
-import { previewNoteFrontmatterAdditions } from "@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview";
+import { previewNoteFrontmatterAdditions, previewNoteReferenceList } from "@red-cup-engineering/carrier-kind-engineering-services-section/note-frontmatter-preview";
 
 const origin = Buffer.from("---\r\ntitle: Original # keep this\r\nauthor: Unchanged\r\n---\r\n\r\nBody\r\n");
 const rev = source => "sha256:" + createHash("sha256").update(source).digest("hex");
@@ -123,4 +123,22 @@ test("headerless preview refuses stale revisions, a detached heading and an inco
   assert.throws(()=>apply("+++\ntitle = \"Old\"\n+++\n# Original\n"),/existing or incomplete/);
   assert.throws(()=>apply("First prose.\n\n# Detached\n"),/witnessed level-one/);
   assert.throws(()=>apply("```md\n# Fenced title\n```\n"),/witnessed level-one/);
+});
+
+test("reviewed bibliographic map becomes the same records with explicit local IDs, preserving CRLF and body", () => {
+  const text = [
+    "---", "title: Original", "date-created: 2026-10-05", "references:",
+    "  a2020:", "    title: A source # original comment", "    authors: [A. Author]",
+    "  b2021:", "    title: Second source", "    year: 2021",
+    "description: Existing description", "---", "", "Written [@a2020] and [@b2021].", "",
+  ].join("\r\n");
+  const convert = value => previewNoteReferenceList({bytes:Buffer.from(value),expectedRevision:rev(value)});
+  const result = convert(text);
+  assert.equal(result.text.replace(/^  - id: "([^"]+)"$/gmu,"  $1:"),text);
+  assert.equal(result.candidateRevision,rev(result.text));
+  assert.throws(()=>previewNoteReferenceList({bytes:Buffer.from(text),expectedRevision:rev("stale")}),/reviewed source revision/);
+  assert.throws(()=>convert(text.replace("    title: Second source","    id: other\r\n    title: Second source")),/competing ID/);
+  assert.throws(()=>convert(text.replace("title: Second source","url: https://example.org")),/nonblank title/);
+  assert.throws(()=>convert(text.replace("  b2021:\r\n    title: Second source\r\n    year: 2021","  b2021: https://example.org")),/reference needs/);
+  assert.throws(()=>convert(result.text),/only original YAML note maps/);
 });

@@ -265,3 +265,52 @@ export function previewHeaderlessNoteMetadata({ bytes, expectedRevision, descrip
     sourceRevision, candidateRevision: sha256(text), admission, bodyTitleLine: heading.startLine, text,
   });
 }
+
+/**
+ * Preview a lossless change from a YAML mapping of authored bibliography
+ * records to a local-ID list. No title or identifier is created or resolved.
+ * Plain, indented map keys become explicit IDs, while original record field
+ * lines, remaining header and body are unchanged. Existing IDs, scalar
+ * locators and ambiguous layouts refuse rather than changing citation meaning.
+ */
+export function previewNoteReferenceList({ bytes, expectedRevision } = {}) {
+  if (!(bytes instanceof Uint8Array) || bytes.byteLength > 4 * 1024 * 1024)
+    throw new TypeError("reviewed note source must be at most four MiB");
+  const sourceRevision = sha256(bytes);
+  if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
+  const original = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
+  const current = readMarkdownFrontmatter(original);
+  const fence = splitMarkdownFrontmatterFence(original);
+  const records = current.frontmatter.references;
+  if (current.format !== "yaml" || fence?.format !== "yaml" || current.frontmatter.status === "relocated-research-source" ||
+      records === null || typeof records !== "object" || Array.isArray(records))
+    throw new TypeError("only original YAML note maps of authored reference records qualify");
+  const entries = Object.entries(records);
+  if (!entries.length || entries.length > 200 || entries.some(([id, data]) =>
+      !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/u.test(id) || data === null || typeof data !== "object" ||
+      Array.isArray(data) || Object.hasOwn(data, "id") || typeof data.title !== "string" || !data.title.trim()))
+    throw new TypeError("each reference needs its original plain map key and its own nonblank title, with no competing ID");
+  const raw = original.slice(fence.source.rawStart, fence.source.rawEnd);
+  const headers = [...raw.matchAll(/^references:(?:\r\n|\n)/gmu)];
+  if (headers.length !== 1) throw new TypeError("one exact YAML references block is required");
+  const h = headers[0], begin = h.index + h[0].length;
+  const tail = raw.slice(begin);
+  const next = /^[^ \t\r\n]/mu.exec(tail);
+  const end = begin + (next?.index ?? tail.length);
+  const content = raw.slice(begin, end);
+  const seen = new Set();
+  const replacement = content.replace(/^  ([A-Za-z0-9][A-Za-z0-9_.:-]{0,127}):(?=\r?$)/gmu, (line, id) => {
+    if (!Object.hasOwn(records, id) || seen.has(id)) throw new TypeError("ambiguous reference map key");
+    seen.add(id);
+    return "  - id: " + JSON.stringify(id);
+  });
+  if (seen.size !== entries.length) throw new TypeError("reference keys must each occupy their own plain block line");
+  const text = original.slice(0, fence.source.rawStart + begin) + replacement + original.slice(fence.source.rawStart + end);
+  const updated = readMarkdownFrontmatter(text);
+  const expected = { ...current.frontmatter, references: entries.map(([id, data]) => ({ id, ...data })) };
+  if (updated.format !== current.format || updated.body !== current.body || !isDeepStrictEqual(updated.frontmatter, expected))
+    throw new TypeError("reference conversion would change authored content or citation identity");
+  const admission = admitCarrierFrontmatter("note", updated.frontmatter);
+  if (!admission.admitted) throw new TypeError("candidate note frontmatter failed admission: " + admission.findings.map(({rule}) => rule).join(", "));
+  return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
+}
