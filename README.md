@@ -38,20 +38,76 @@ Glossary terms and bibliography carriers keep their own owners: [term-engineerin
 ## Admission
 
 `admitCarrierFrontmatter(kind, frontmatter)` returns `{admitted, findings}`.
-The kind's schema is compiled with the term schema as a reference, because aliases, keywords, references and provenance are the term schema's.
+Carrier contracts use the Term schema for shared fields and keyed references. Note, research-article and research-paper contracts also register the base research contract for reference resolution. Notes and manuscripts accept both the existing keyed references and authored item lists with a local ID and title. The list contract does not validate complete CSL records or establish unique citation bindings.
 Every predicate of the relation vocabulary is admitted as a key; a `carrier`-range predicate takes one identity or a non-empty list of them.
 
-Each finding's `rule` is the failed schema keyword and the top-level key it failed on: `required:description`, `pattern:keywords`, `type:references`.
+Each finding's `rule` is the failed schema keyword and the top-level key it failed on: `required:description`, `pattern:keywords`, `oneOf:references`.
 A value that no alternative of a `oneOf` admits gives one `oneOf:<key>` finding, not one per alternative.
 
 ## Repair plans
 
-`./note-repair`'s `planNoteFrontmatterRepair({path, text, frontmatter, body, firstRecorded})` plans the edits that bring a note toward its schema, from what the note already says:
+`./note-repair`'s `planNoteFrontmatterRepair({path, frontmatter, body})` proposes only additions supported by the note itself: a missing title from its authored name, first real Markdown level-one heading or file name, and a missing description from its summary or first suitable complete short prose paragraph.
 
-- a title from its first heading or file name;
-- `date-created` from `date`, its dated path, or the date its carrier first appears in custody;
-- a description from the first sentence of its first prose paragraph;
-- keywords in kebab case;
-- loose `references` entries moved to `cites`.
+A dated path, generic `date`, or the earliest custody observation does not establish when the note was first written. The planner does not fill or overwrite `date-created`. It also does not replace authored keys with normalized spellings or collapse reference records into citation labels. The original schema's findings remain available for source-owner review; there is no write or removal performed by the planner.
 
-It invents nothing, and only plans. Applying a plan is a byte-preserving, revision-guarded fold (the program's decision 6).
+The description fallback skips headings, lists, fenced code, incomplete lead-ins and paragraphs too long to preserve intact. A source with authored `status: relocated-research-source` receives no note-repair proposal: it is a relocation declaration to verify at the source-link consumer, not a note whose content or title should be re-authored.
+
+For a reviewed metadata-only batch, `./note-frontmatter-preview` exports
+`previewNoteFrontmatterAdditions({ bytes, expectedRevision, additions })`.
+`expectedRevision` is the exact original UTF-8 `sha256:<hex>`, not a Git
+commit, a pathname or a date. Supply only evidence-reviewed missing
+`title`, `description` or `date-created`; the preview neither infers nor
+verifies a creation date. It refuses existing fields, stale bytes, relocation
+pointers and unsupported frontmatter formats. It uses the Markdown package's
+YAML editor and requires exact recovery of the original bytes if its additions
+are reversed, then uses the original note schema. The output carries candidate
+text and both digests for review; it writes nothing and grants no access.
+Never send its candidate text to an unadmitted consumer.
+
+Run the focused preservation suite with `npm run test:note-repair`.
+
+
+For triage, `./note-masthead-date` reads an explicitly labeled `Date:` field
+among a note's introductory memo fields, with original line numbers and
+the source SHA-256. It supports ISO calendar days and full English day/month
+spellings. It does not use folder names, unlabeled dates, month-only dates,
+access dates, code examples, or dates found later in a body. A conflicting
+or unresolved date stays unresolved; a document's own stated date is
+evidence for an owner to review, not an automatic `date-created` repair.
+
+
+The same preview export provides `previewNoteFrontmatterLineSplit` for one
+reviewed formatting error in otherwise retained YAML. Supply the original
+bytes and revision, the exact line, and the following top-level block key.
+It accepts only malformed input whose line joins a quoted scalar to that
+block key, inserts one original line ending, and refuses unless the original
+body survives exactly and the existing note schema admits the result.
+It is not a general YAML recovery or auto-format operation.
+
+Note-origin provenance and the shared research reference binding in the projected schema come from [Knowledge Science #28](https://github.com/lenticule-science/knowledge-science-services-section/pull/28). The generated projection does not change the Term or bibliography contract. Do not release this projection before the source owner lands the exact canonical schema.
+
+`previewWitnessedNoteTitle` can recover a TOML note's original title when the
+repository header has the exact `Abstract` placeholder. It takes the separately
+reviewed original and witness bytes and their SHA-256 revisions. The two must
+agree on the exact body, manuscript identifier, authors and explicit creation day.
+It substitutes only the bare title assignment and returns a preview, not a write.
+A matching witness neither proves the author's claims nor authorizes copying
+other metadata, such as descriptions or publication flags.
+
+`previewNoteDescriptionExcerpt` addresses a narrower, observed import defect:
+an unpublished TOML draft whose description is a truncated echo of its own
+header. It accepts one reviewed exact prose line from the opening abstract,
+labels the new metadata `Abstract excerpt:`, and refuses fenced samples,
+unresolved citation placeholders, unrelated text and already meaningful
+descriptions. The original body's spelling, Markdown and line endings are
+unchanged. The excerpt is not historical description metadata or a warrant
+for the manuscript's claims.
+
+`previewHeaderlessNoteMetadata` prepares a partial YAML header for a
+revision-checked note with no existing frontmatter. It takes the title
+from the opening H1, labels the separately reviewed summary
+`Editorial summary:`, and preserves the original bytes after the header.
+An incomplete fence is not treated as a missing header. The preview
+deliberately leaves `date-created` absent and returns the real refusal:
+a folder date, first Git observation or editorial summary cannot establish
+authorship chronology.

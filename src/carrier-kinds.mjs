@@ -42,7 +42,7 @@ const compiled = new Map();
 function compiledContract(kind) {
   if (!compiled.has(kind)) {
     const references = [TERM_SCHEMA];
-    if (kind === "research-article" || kind === "research-paper") references.push(RESEARCH_SCHEMA);
+    if (kind === "note" || kind === "research-article" || kind === "research-paper") references.push(RESEARCH_SCHEMA);
     compiled.set(kind, compileJsonSchema(carrierKindContract(kind), { references }));
   }
   return compiled.get(kind);
