@@ -67,3 +67,16 @@ test("note attribution and timed source citations do not relax the shared uttera
     {request:"not a work locator"},{"see-also":[" "]},{"utterance-index":[]}])
     assert.equal(admit({...source,...patch}).admitted,false,JSON.stringify(patch));
 });
+
+test("note dates require a calendar day and a bounded time when present", () => {
+  for (const field of ["date-created", "date-modified", "date-updated"]) {
+    for (const date of ["2026-11-19", "2000-02-29", "2026-03-06T00:00:00",
+      "2026-03-06T00:00", "2026-03-06T00:00:00.123Z", "2026-03-06T05:30:00+05:30"]) {
+      assert.equal(admitCarrierFrontmatter("note", {...base,[field]:date}).admitted, true, date);
+    }
+    for (const date of ["2026-02-30", "2026-04-31", "1900-02-29", "2026-13-01",
+      "2026-11-19not-a-date", "2026-11-19T25:00:00", "2026-11-19T00:00:00+24:00", "2026-11-19\n"]) {
+      assert.equal(admitCarrierFrontmatter("note", {...base,[field]:date}).admitted, false, date);
+    }
+  }
+});
