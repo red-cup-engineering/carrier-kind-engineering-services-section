@@ -6,7 +6,7 @@ import { dumpMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineeri
 import { mutateMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/mutate-markdown-frontmatter";
 import { readMarkdownFrontmatter } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-frontmatter";
 import { splitMarkdownFrontmatterFence } from "@red-cup-engineering/markdown-engineering-services-section/split-markdown-frontmatter-fence";
-import { admitCarrierFrontmatter } from "./carrier-kinds.mjs";
+import { validateCarrierFrontmatter } from "./carrier-kinds.mjs";
 
 const allowed = new Set(["title", "description", "date-created"]);
 const sha256 = bytes => "sha256:" + createHash("sha256").update(bytes).digest("hex");
@@ -53,9 +53,9 @@ export function previewNoteFrontmatterAdditions({ bytes, expectedRevision, addit
       !isDeepStrictEqual(updated.frontmatter, { ...current.frontmatter, ...patch })) {
     throw new Error("frontmatter preview would change source text or existing metadata");
   }
-  const admission = admitCarrierFrontmatter("note", updated.frontmatter);
-  if (!admission.admitted) {
-    throw new TypeError("candidate note frontmatter failed admission: " + admission.findings.map(({ rule }) => rule).join(", "));
+  const validation = validateCarrierFrontmatter("note", updated.frontmatter);
+  if (!validation.admitted) {
+    throw new TypeError("candidate note frontmatter failed admission: " + validation.findings.map(({ rule }) => rule).join(", "));
   }
   return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
 }
@@ -99,8 +99,8 @@ export function previewNoteFrontmatterLineSplit({ bytes, expectedRevision, line,
       candidate.frontmatter.status === "relocated-research-source" ||
       typeof candidate.frontmatter[scalar[1]] !== "string" || !Object.hasOwn(candidate.frontmatter,key))
     throw new Error("line split did not retain the intended YAML fields and source body");
-  const admission = admitCarrierFrontmatter("note", candidate.frontmatter);
-  if (!admission.admitted) throw new TypeError("line split did not meet the note schema");
+  const validation = validateCarrierFrontmatter("note", candidate.frontmatter);
+  if (!validation.admitted) throw new TypeError("line split did not meet the note schema");
   return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
 }
 
@@ -154,8 +154,8 @@ export function previewWitnessedNoteTitle({ bytes, expectedRevision, witnessByte
   if (text.slice(0, at) + placeholder + text.slice(at + replacement.length) !== original ||
       updated.format !== current.format || updated.body !== current.body || !isDeepStrictEqual(updated.frontmatter, { ...a, title }))
     throw new Error("title recovery would change source text or metadata outside the exact title");
-  const admission = admitCarrierFrontmatter("note", updated.frontmatter);
-  if (!admission.admitted) throw new TypeError("recovered candidate does not meet the original note admission contract");
+  const validation = validateCarrierFrontmatter("note", updated.frontmatter);
+  if (!validation.admitted) throw new TypeError("recovered candidate does not meet the original note admission contract");
   return Object.freeze({ sourceRevision, witnessRevision, candidateRevision: sha256(text), text });
 }
 
@@ -217,7 +217,7 @@ export function previewNoteDescriptionExcerpt({ bytes, expectedRevision, excerpt
       updated.format !== current.format || updated.body !== current.body ||
       !isDeepStrictEqual(updated.frontmatter, { ...fields, description }))
     throw new Error("excerpt would change source text or metadata outside the exact description");
-  if (!admitCarrierFrontmatter("note", updated.frontmatter).admitted)
+  if (!validateCarrierFrontmatter("note", updated.frontmatter).admitted)
     throw new TypeError("excerpt candidate does not meet the original note admission contract");
   return Object.freeze({ sourceRevision, candidateRevision: sha256(text), abstractBodyLine: matches[0], text });
 }
@@ -258,11 +258,11 @@ export function previewHeaderlessNoteMetadata({ bytes, expectedRevision, descrip
   if (candidate.format !== "yaml" || !isDeepStrictEqual(candidate.frontmatter, metadata) ||
       candidate.body !== body || (bom + candidate.body) !== original)
     throw new Error("header insertion does not preserve the exact original note body");
-  const admission = admitCarrierFrontmatter("note", candidate.frontmatter);
-  if (admission.admitted || admission.findings.length !== 1 || admission.findings[0].rule !== "required:date-created")
+  const validation = validateCarrierFrontmatter("note", candidate.frontmatter);
+  if (validation.admitted || validation.findings.length !== 1 || validation.findings[0].rule !== "required:date-created")
     throw new Error("partial note must remain refused only for the unwitnessed creation date");
   return Object.freeze({
-    sourceRevision, candidateRevision: sha256(text), admission, bodyTitleLine: heading.startLine, text,
+    sourceRevision, candidateRevision: sha256(text), admission: validation, bodyTitleLine: heading.startLine, text,
   });
 }
 
@@ -310,7 +310,7 @@ export function previewNoteReferenceList({ bytes, expectedRevision } = {}) {
   const expected = { ...current.frontmatter, references: entries.map(([id, data]) => ({ id, ...data })) };
   if (updated.format !== current.format || updated.body !== current.body || !isDeepStrictEqual(updated.frontmatter, expected))
     throw new TypeError("reference conversion would change authored content or citation identity");
-  const admission = admitCarrierFrontmatter("note", updated.frontmatter);
-  if (!admission.admitted) throw new TypeError("candidate note frontmatter failed admission: " + admission.findings.map(({rule}) => rule).join(", "));
+  const validation = validateCarrierFrontmatter("note", updated.frontmatter);
+  if (!validation.admitted) throw new TypeError("candidate note frontmatter failed admission: " + validation.findings.map(({rule}) => rule).join(", "));
   return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
 }
