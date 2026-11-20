@@ -61,7 +61,7 @@ function ruleOf(issue) {
  * @param {Record<string, unknown>} frontmatter
  * @returns {{admitted: boolean, findings: ReadonlyArray<{rule: string, message: string}>}}
  */
-export function validateCarrierFrontmatter(kind, frontmatter) {
+export function admitCarrierFrontmatter(kind, frontmatter) {
   const result = compiledContract(kind).validate(frontmatter ?? {});
   const issues = result.issues ?? [];
   const alternatives = issues.filter(({ keyword }) => keyword === "oneOf" || keyword === "anyOf").map(({ path }) => path);
