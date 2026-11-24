@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "carriers/research-article",
+  "title": "Research article carrier",
+  "description": "A titled research article with a description, abstract, or summary for discovery.",
+  "allOf": [
+    {
+      "$ref": "carriers/research"
+    },
+    {
+      "required": [
+        "title"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "description"
+          ]
+        },
+        {
+          "required": [
+            "abstract"
+          ]
+        },
+        {
+          "required": [
+            "summary"
+          ]
+        }
+      ]
+    }
+  ]
+}

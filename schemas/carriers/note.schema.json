@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "carriers/note",
+  "title": "Note carrier",
+  "description": "What the frontmatter of a carrier in a `notes/` artifact-role directory says about it: what it is called and about, when it was written, which section owns it, what it asserts about other terms, and what it cites. The directory states the kind; glossary term records are held to the term schema instead. Keys beyond these are admitted; relation keys are the relation vocabulary's predicates, folded in by the admitter that compiles this schema.",
+  "type": "object",
+  "required": ["title", "description", "date-created"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "description": "The note's title." },
+    "description": { "type": "string", "minLength": 1, "description": "One or two sentences saying what the note is about, for readers and retrieval." },
+    "date-created": { "$ref": "#/$defs/noteDate", "description": "The date the note was first written, ISO 8601." },
+    "date-updated": { "$ref": "#/$defs/noteDate" },
+    "date-modified": { "$ref": "#/$defs/noteDate" },
+    "type": { "type": "string", "minLength": 1, "description": "The kind of note: note, article, explanation, bibliography, research-article, and so on." },
+    "science-owner": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*-section$", "description": "The services section whose science the note belongs to." },
+    "status": { "type": "string", "minLength": 1 },
+    "visibility": { "enum": ["public", "authenticated"], "description": "Only public opts a note into the anonymous surface." },
+    "aliases": { "$ref": "glossary/terms/term#/properties/aliases" },
+    "keywords": { "$ref": "glossary/terms/term#/properties/keywords" },
+    "tags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "references": { "$ref": "carriers/research#/properties/references" },
+    "provenance": { "$ref": "#/$defs/noteProvenance" }
+  },
+  "$defs": {
+    "calendarDatePrefix": {
+      "type": "string",
+      "pattern": "^(?:[0-9]{4}-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:00|0[48]|[2468][048]|[13579][26])00)-02-29)(?=$|[Tt ])",
+      "description": "A Gregorian calendar date at the start of the value."
+    },
+    "noteDate": {
+      "$ref": "#/$defs/calendarDatePrefix",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt ](?:[01][0-9]|2[0-3]):[0-5][0-9](?::(?:[0-5][0-9]|60)(?:[.,][0-9]+)?)?(?:[Zz]|[+-](?:[01][0-9]|2[0-3])(?::?[0-5][0-9])?)?)?$",
+      "not": { "pattern": "[\\r\\n]" },
+      "description": "A valid calendar day, or a calendar date and time with optional seconds, fractional seconds, and UTC offset. An absent offset stays unspecified."
+    },
+    "documentSourceDay": {
+      "type": "string",
+      "format": "date",
+      "$ref": "#/$defs/calendarDatePrefix",
+      "maxLength": 10,
+      "description": "A witnessed source day, not a creation assignment to this note."
+    },
+    "sourceStatement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Authored contextual text, not a content-addressed utterance or a proved claim."
+    },
+    "sourceWorkLocator": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::[0-9]{1,5})?(?:[/?#][^\\s<>]*)?$",
+      "description": "An HTTPS work or evidence locator, without admission or verification of its contents."
+    },
+    "repositoryNoteLocator": {
+      "type": "string",
+      "pattern": "^(?:(?!\\.{1,2}/)[A-Za-z0-9._-]+/)*[A-Za-z0-9][A-Za-z0-9._-]*\\.md$",
+      "description": "A repository-relative Markdown locator, not an external URL."
+    },
+    "noteProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Note-origin evidence, distinct from semantic claims. Shared custody fields retain the original Term constraints.",
+      "properties": {
+        "date-created": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/date-created"
+        },
+        "date-modified": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/date-modified"
+        },
+        "date-updated": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/date-updated"
+        },
+        "sources": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/sources"
+        },
+        "authors": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/authors"
+        },
+        "tags": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/tags"
+        },
+        "id": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/id"
+        },
+        "domain": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/domain"
+        },
+        "scheme": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/scheme"
+        },
+        "status": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/status"
+        },
+        "utterances": {
+          "$ref": "glossary/terms/term#/properties/provenance/properties/utterances"
+        },
+        "office": { "$ref": "#/$defs/sourceStatement", "description": "Authored office or production-pass context; not the author roster." },
+        "written-by": { "$ref": "#/$defs/sourceStatement", "description": "Authored writing attribution and context; not a replacement for authors." },
+        "request": { "$ref": "#/$defs/sourceWorkLocator", "description": "The originating request locator, distinct from a question or associated work." },
+        "see-also": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/sourceStatement" },
+          "description": "Authored cross-reference descriptions. These do not establish resolved graph edges."
+        },
+        "utterance-index": { "$ref": "#/$defs/sourceStatement", "description": "Authored index description for consulted utterances, not an exact utterance or content address." },
+        "utterance-citations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["address", "source-day", "utc-minute"],
+            "properties": {
+              "address": { "$ref": "glossary/terms/term#/properties/provenance/properties/utterances/items" },
+              "source-day": { "$ref": "#/$defs/documentSourceDay" },
+              "utc-minute": {
+                "type": "string",
+                "pattern": "^(?:[01][0-9]|2[0-3]):[0-5][0-9]Z$",
+                "description": "Recorded UTC minute, with no inferred seconds or precision."
+              }
+            }
+          },
+          "description": "Content-addressed utterance citations with explicitly witnessed minute precision. Untimed addresses still use utterances."
+        },
+        "source-date": {
+          "$ref": "#/$defs/documentSourceDay"
+        },
+        "user-source-date": {
+          "$ref": "#/$defs/documentSourceDay"
+        },
+        "question": {
+          "$ref": "#/$defs/sourceStatement"
+        },
+        "exact-leader-utterance": {
+          "$ref": "#/$defs/sourceStatement"
+        },
+        "subsequent-leader-utterance": {
+          "$ref": "#/$defs/sourceStatement"
+        },
+        "latest-leader-utterance": {
+          "$ref": "#/$defs/sourceStatement"
+        },
+        "associated-work": {
+          "$ref": "#/$defs/sourceWorkLocator"
+        },
+        "related-science": {
+          "$ref": "#/$defs/sourceWorkLocator"
+        },
+        "receiving-engineering-work": {
+          "$ref": "#/$defs/sourceWorkLocator"
+        },
+        "original-science-concept": {
+          "$ref": "#/$defs/repositoryNoteLocator"
+        },
+        "source-measurement": {
+          "$ref": "#/$defs/repositoryNoteLocator"
+        }
+      }
+    }
+  }
+}
