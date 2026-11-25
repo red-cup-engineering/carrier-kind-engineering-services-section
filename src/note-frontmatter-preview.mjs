@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256Digest, sha256Hex } from "@red-cup-engineering/semiotic-content-address-system";
 import { isDeepStrictEqual } from "node:util";
 import { projectMarkdownStructure, readMarkdownSource } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
 import { applyMarkdownEdit, markdownEditRequestKind } from "@red-cup-engineering/markdown-engineering-services-section/apply-markdown-edit";
@@ -9,7 +9,6 @@ import { splitMarkdownFrontmatterFence } from "@red-cup-engineering/markdown-eng
 import { admitCarrierFrontmatter } from "./carrier-kinds.mjs";
 
 const allowed = new Set(["title", "description", "date-created"]);
-const sha256 = bytes => "sha256:" + createHash("sha256").update(bytes).digest("hex");
 
 /**
  * Prepare reviewed additive YAML metadata on one exact existing note.
@@ -24,7 +23,7 @@ const sha256 = bytes => "sha256:" + createHash("sha256").update(bytes).digest("h
  */
 export function previewNoteFrontmatterAdditions({ bytes, expectedRevision, additions } = {}) {
   if (!(bytes instanceof Uint8Array)) throw new TypeError("existing UTF-8 note bytes are required");
-  const sourceRevision = sha256(bytes);
+  const sourceRevision = sha256Digest(bytes);
   if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
   if (additions === null || typeof additions !== "object" ||
       ![Object.prototype, null].includes(Object.getPrototypeOf(additions))) {
@@ -57,7 +56,7 @@ export function previewNoteFrontmatterAdditions({ bytes, expectedRevision, addit
   if (!admission.admitted) {
     throw new TypeError("candidate note frontmatter failed admission: " + admission.findings.map(({ rule }) => rule).join(", "));
   }
-  return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
+  return Object.freeze({ sourceRevision, candidateRevision: sha256Digest(text), text });
 }
 
 
@@ -72,7 +71,7 @@ export function previewNoteFrontmatterLineSplit({ bytes, expectedRevision, line,
       !Number.isSafeInteger(line) || line < 2 ||
       typeof key !== "string" || !/^[a-z][a-z0-9-]{0,63}$/u.test(key))
     throw new TypeError("a bounded reviewed YAML line and block key are required");
-  const sourceRevision = sha256(bytes);
+  const sourceRevision = sha256Digest(bytes);
   if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
   const original = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
   const fence = splitMarkdownFrontmatterFence(original);
@@ -101,7 +100,7 @@ export function previewNoteFrontmatterLineSplit({ bytes, expectedRevision, line,
     throw new Error("line split did not retain the intended YAML fields and source body");
   const admission = admitCarrierFrontmatter("note", candidate.frontmatter);
   if (!admission.admitted) throw new TypeError("line split did not meet the note schema");
-  return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
+  return Object.freeze({ sourceRevision, candidateRevision: sha256Digest(text), text });
 }
 
 /**
@@ -114,7 +113,7 @@ export function previewNoteFrontmatterLineSplit({ bytes, expectedRevision, line,
 export function previewWitnessedNoteTitle({ bytes, expectedRevision, witnessBytes, expectedWitnessRevision } = {}) {
   const bounded = value => value instanceof Uint8Array && value.byteLength <= 4 * 1024 * 1024;
   if (!bounded(bytes) || !bounded(witnessBytes)) throw new TypeError("two bounded original Markdown byte sources are required");
-  const sourceRevision = sha256(bytes), witnessRevision = sha256(witnessBytes);
+  const sourceRevision = sha256Digest(bytes), witnessRevision = sha256Digest(witnessBytes);
   if (sourceRevision !== expectedRevision || witnessRevision !== expectedWitnessRevision)
     throw new Error("original or witness bytes differ from the reviewed revisions");
   const decode = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
@@ -156,7 +155,7 @@ export function previewWitnessedNoteTitle({ bytes, expectedRevision, witnessByte
     throw new Error("title recovery would change source text or metadata outside the exact title");
   const admission = admitCarrierFrontmatter("note", updated.frontmatter);
   if (!admission.admitted) throw new TypeError("recovered candidate does not meet the original note admission contract");
-  return Object.freeze({ sourceRevision, witnessRevision, candidateRevision: sha256(text), text });
+  return Object.freeze({ sourceRevision, witnessRevision, candidateRevision: sha256Digest(text), text });
 }
 
 /**
@@ -169,7 +168,7 @@ export function previewWitnessedNoteTitle({ bytes, expectedRevision, witnessByte
 export function previewNoteDescriptionExcerpt({ bytes, expectedRevision, excerpt } = {}) {
   if (!(bytes instanceof Uint8Array) || bytes.byteLength > 4 * 1024 * 1024)
     throw new TypeError("reviewed note source must be at most four MiB");
-  const sourceRevision = sha256(bytes);
+  const sourceRevision = sha256Digest(bytes);
   if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
   if (typeof excerpt !== "string" || excerpt !== excerpt.trim() || excerpt.length < 40 || excerpt.length > 210 ||
       !/^\p{Lu}/u.test(excerpt) || !/[.!?]$/u.test(excerpt) ||
@@ -219,7 +218,7 @@ export function previewNoteDescriptionExcerpt({ bytes, expectedRevision, excerpt
     throw new Error("excerpt would change source text or metadata outside the exact description");
   if (!admitCarrierFrontmatter("note", updated.frontmatter).admitted)
     throw new TypeError("excerpt candidate does not meet the original note admission contract");
-  return Object.freeze({ sourceRevision, candidateRevision: sha256(text), abstractBodyLine: matches[0], text });
+  return Object.freeze({ sourceRevision, candidateRevision: sha256Digest(text), abstractBodyLine: matches[0], text });
 }
 
 /**
@@ -232,7 +231,7 @@ export function previewNoteDescriptionExcerpt({ bytes, expectedRevision, excerpt
 export function previewHeaderlessNoteMetadata({ bytes, expectedRevision, description } = {}) {
   if (!(bytes instanceof Uint8Array) || bytes.byteLength > 4 * 1024 * 1024)
     throw new TypeError("headerless note preview requires at most four MiB of original UTF-8");
-  const sourceRevision = sha256(bytes);
+  const sourceRevision = sha256Digest(bytes);
   if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
   if (typeof description !== "string" || description !== description.trim() || description.length < 30 ||
       description.length > 210 || !description.isWellFormed() || /[\p{Cc}\p{Zl}\p{Zp}]/u.test(description) ||
@@ -262,7 +261,7 @@ export function previewHeaderlessNoteMetadata({ bytes, expectedRevision, descrip
   if (admission.admitted || admission.findings.length !== 1 || admission.findings[0].rule !== "required:date-created")
     throw new Error("partial note must remain refused only for the unwitnessed creation date");
   return Object.freeze({
-    sourceRevision, candidateRevision: sha256(text), admission, bodyTitleLine: heading.startLine, text,
+    sourceRevision, candidateRevision: sha256Digest(text), admission, bodyTitleLine: heading.startLine, text,
   });
 }
 
@@ -276,7 +275,7 @@ export function previewHeaderlessNoteMetadata({ bytes, expectedRevision, descrip
 export function previewNoteReferenceList({ bytes, expectedRevision } = {}) {
   if (!(bytes instanceof Uint8Array) || bytes.byteLength > 4 * 1024 * 1024)
     throw new TypeError("reviewed note source must be at most four MiB");
-  const sourceRevision = sha256(bytes);
+  const sourceRevision = sha256Digest(bytes);
   if (sourceRevision !== expectedRevision) throw new Error("note bytes do not match the reviewed source revision");
   const original = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
   const current = readMarkdownFrontmatter(original);
@@ -312,5 +311,5 @@ export function previewNoteReferenceList({ bytes, expectedRevision } = {}) {
     throw new TypeError("reference conversion would change authored content or citation identity");
   const admission = admitCarrierFrontmatter("note", updated.frontmatter);
   if (!admission.admitted) throw new TypeError("candidate note frontmatter failed admission: " + admission.findings.map(({rule}) => rule).join(", "));
-  return Object.freeze({ sourceRevision, candidateRevision: sha256(text), text });
+  return Object.freeze({ sourceRevision, candidateRevision: sha256Digest(text), text });
 }

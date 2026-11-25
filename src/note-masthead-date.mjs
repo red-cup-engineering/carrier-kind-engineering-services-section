@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256Hex } from "@red-cup-engineering/semiotic-content-address-system";
 import { projectMarkdownStructure, readMarkdownSource } from "@red-cup-engineering/markdown-engineering-services-section/read-markdown-structure";
 
 const MAX_BYTES = 4 * 1024 * 1024;
@@ -31,7 +31,7 @@ function calendarDay(value) {
 export function observeNoteMastheadDate(bytes) {
   if (!(bytes instanceof Uint8Array) || bytes.byteLength > MAX_BYTES)
     throw new TypeError("masthead observation requires at most four MiB of original UTF-8 note bytes");
-  const sourceRevision = "sha256:" + createHash("sha256").update(bytes).digest("hex");
+  const sourceRevision = "sha256:" + sha256Hex(bytes);
   const source = readMarkdownSource(new TextDecoder("utf-8",{fatal:true}).decode(bytes));
   const start = source.bodyStartLine;
   const end = Math.min(source.lines.length, start + MAX_MASTHEAD_LINES - 1);
